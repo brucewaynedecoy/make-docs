@@ -697,6 +697,7 @@ describe("risk register routing contract", () => {
       "D-028 Same-Day Kit Regeneration Collides on the Deterministic Session Root With No Ergonomic Reset",
       "D-029 W19 R1 Resource Topology and Router Authority Drifted",
       "D-030 W19 R1 Documentation Surface Router Topology Was Omitted",
+      "D-031 Migration State Remains in the Project Despite the Store Boundary",
     ]);
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
@@ -898,7 +899,9 @@ describe("path hygiene contract", () => {
       expect(contents).toContain("docs/assets/library/**");
       expect(contents).toContain("docs/assets/archive/history/**");
       expect(contents).toContain("docs/assets/playbooks/**");
-      expect(contents).toContain(".make-docs/manifest.json");
+      expect(contents).toContain("global Make Docs Store");
+      expect(contents).toContain("legacy CLI transfer inputs only");
+      expect(contents).not.toContain("Runtime state belongs under `.make-docs/**`");
       expect(contents).toContain("docs/assets/archive/**");
     }
   });
@@ -943,5 +946,44 @@ describe("conformance assets stay maintainer-only (W18 R9 P3, R-TEST-3, R-KEEP-1
     // smoke-pack tarball sweep). A green run proves the maintainer-only
     // boundary held; it is never a support claim for any harness (R-KEEP-1).
     expect(listShippedConformanceAssetErrors({ repoRoot: REPO_ROOT })).toEqual([]);
+  });
+});
+
+
+describe("Store-owned installation guidance", () => {
+  test("shipped routers reject local operational state and preserve project knowledge", () => {
+    for (const name of ["AGENTS.md", "CLAUDE.md"]) {
+      for (const directory of [".make-docs", "docs/assets"]) {
+        const body = readFileSync(path.join(TEMPLATE_ROOT, directory, name), "utf8");
+        expect(body).toContain("global Make Docs Store");
+        expect(body).toContain("managed through the CLI");
+        expect(body).toMatch(/ordinary project work/);
+        expect(body).toMatch(/(?:Required Store recording|Required CLI-managed operation records).*mandatory/);
+        expect(body).not.toContain("Keep project state in `.make-docs/manifest.json`");
+        expect(body).not.toContain("Project state lives in `.make-docs/manifest.json`");
+      }
+    }
+    const assets = readFileSync(path.join(TEMPLATE_ROOT, "docs/assets/AGENTS.md"), "utf8");
+    expect(assets).toContain("Project history, work status, and testing records remain valid local project knowledge");
+    expect(assets).toContain("Backup, archive, and conflict file copies may remain");
+  });
+
+  test("lifecycle guidance distinguishes unavailable optional capture from required operation records", () => {
+    const body = readFileSync(path.join(TEMPLATE_ROOT, ".make-docs/system/references/lifecycle.md"), "utf8");
+    expect(body).toContain("CLI is not installed, cannot run, or reports `run-capture-unavailable`");
+    expect(body).toContain("continue the project work and report that capture was unavailable");
+    expect(body).toContain("Do not claim capture succeeded, write directly to the Store, queue a later write, or create project-local fallback state");
+    expect(body).toContain("stop before further project writes and preserve recovery evidence");
+    expect(body).toContain("Optional capture failure never waives this requirement");
+  });
+
+  test("path cleanup does not require an installation manifest or Store write", () => {
+    const prompt = readFileSync(path.join(TEMPLATE_ROOT, ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"), "utf8");
+    const checker = readFileSync(path.join(TEMPLATE_ROOT, ".make-docs/scripts/check_path_hygiene.py"), "utf8");
+    expect(prompt).not.toContain("--manifest");
+    expect(prompt).not.toContain("read `.make-docs/manifest.json`");
+    expect(prompt).toContain("without a manifest, CLI, or Store");
+    expect(checker).not.toContain("def load_manifest(");
+    expect(checker).not.toContain('parser.add_argument("--manifest"');
   });
 });

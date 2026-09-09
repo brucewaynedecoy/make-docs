@@ -70,6 +70,7 @@ const LITERAL_P3_ADMITTED_IDENTIFIERS = [
 ] as const;
 
 const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate"] as const;
+const LITERAL_R3_ADMITTED_IDENTIFIERS = ["project.state.status", "project.state.recover"] as const;
 
 /** Pruned per the migrated-operations inventory disposition (R-RUN-2). */
 const PRUNED_SEGMENTS = [
@@ -85,27 +86,29 @@ const PRUNED_SEGMENTS = [
 ];
 
 describe("operation registry contract", () => {
-  it("keeps the frozen 24 P3 admissions and records the separate P5 admission", () => {
+  it("keeps the frozen P3 and P5 admissions and records the two W19 R3 admissions", () => {
     const ids = listOperations()
       .map((operation) => operation.id)
       .sort();
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate")).toEqual(
+    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate" && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id === "project.path-hygiene.validate")).toEqual(
       LITERAL_P5_ADMITTED_IDENTIFIERS,
     );
+    expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);
     expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
         ...LITERAL_P3_ADMITTED_IDENTIFIERS,
         ...LITERAL_P5_ADMITTED_IDENTIFIERS,
+        ...LITERAL_R3_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
-    expect(ids).toHaveLength(25);
+    expect(ids).toHaveLength(27);
   });
 
   it("every identifier follows the domain.verb / domain.object.verb convention", () => {

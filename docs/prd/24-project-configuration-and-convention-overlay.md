@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This document defines the current product contract for project-owned configuration and convention overlays over canonical Make Docs semantics. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
@@ -130,7 +130,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 - Affected requirement or section: Optional Project-Owned Config; Declarative Identity and Settings; Rendering Surfaces
 - Previous contract: Config was optional and mainly a presentation/Persona overlay. Stable project identity lived in the operational manifest.
-- Replacement contract: Config carries portable declarative identity and desired settings. Applied installation facts and checkout bindings remain Store-only. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: Config carries portable declarative identity and desired settings. Applied installation facts and checkout bindings remain Store-only. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 

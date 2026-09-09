@@ -24,6 +24,7 @@ export const RESERVED_AGENTICS_FAMILIES = ["skills", "plugins"] as const;
 
 export type ReservedAgenticsFamily = (typeof RESERVED_AGENTICS_FAMILIES)[number];
 
+/** Legacy input locations only. Current operations keep their state in the Store. */
 export const TOOL_DIRECTORY_RUNTIME_STATE_PATHS = [
   TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH,
   TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR,
@@ -31,7 +32,6 @@ export const TOOL_DIRECTORY_RUNTIME_STATE_PATHS = [
 ] as const;
 
 export const TOOL_DIRECTORY_LOCAL_BOOTSTRAP_PATHS = [
-  TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH,
   TOOL_DIRECTORY_CONFIG_RELATIVE_PATH,
 ] as const;
 

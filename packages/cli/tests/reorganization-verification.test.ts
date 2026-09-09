@@ -184,6 +184,8 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
     expect(registryIds.length).toBeGreaterThan(0);
     expect(nonRunRegistryIds).toEqual([
       "project.path-hygiene.validate",
+      "project.state.recover",
+      "project.state.status",
       "project.surface.ensure",
       "resource.ensure",
       "resource.list",
@@ -501,7 +503,7 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
     expect(lines.join("\n")).toContain("make-docs uninstall --yes");
   });
 
-  test("`uninstall --yes` removes the store only; sibling repository content stays byte-untouched", async () => {
+  test("`uninstall --yes` preserves the Store and sibling repository content", async () => {
     const parentDir = createTempDir("make-docs-reorg-uninstall-safety-");
     tempRoots.push(parentDir);
     const storeRoot = path.join(parentDir, "store");
@@ -529,8 +531,8 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
     });
 
     expect(result.status).toBe("completed");
-    expect(result.storeRemoval?.status).toBe("removed");
-    expect(existsSync(storeRoot)).toBe(false);
+    expect(result.storeRemoval).toBeNull();
+    expect(existsSync(getStoreDatabasePath(storeRoot))).toBe(true);
     // Every repository byte survives, including the project-level
     // `.make-docs/` directory — uninstall is machine-footprint only.
     for (const [relativePath, content] of Object.entries(repoFiles)) {

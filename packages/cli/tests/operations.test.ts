@@ -1,3 +1,4 @@
+import { rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -34,7 +35,7 @@ function createWaveFixture(): {
 } {
   const root = createTempDir("make-docs-operations-");
   execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
-  const projectId = writeMinimalManifest(root);
+  const projectId = writeFixtureIdentity(root);
   const waveDir = path.join(root, "docs/work", WAVE_SLUG);
   const phaseOne = writeFile(
     root,
@@ -490,3 +491,5 @@ describe("make-docs shared operations", () => {
     );
   });
 });
+
+function writeFixtureIdentity(root: string): string { const id = writeMinimalManifest(root); writeFileSync(path.join(root, ".make-docs/config.yaml"), `projectId: ${id}\n`);  return id; }

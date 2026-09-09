@@ -1,7 +1,9 @@
+import { withInstallationDatabase } from "../src/store/installation-state";
+import { realpathSync } from "node:fs";
 import { mkdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { getManifestPath, loadManifest, writeManifest } from "../src/manifest";
+import { getManifestPath, loadManifest, loadLegacyManifest, writeManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import { createSystemAssetManifestState } from "../src/system-assets";
 import type {
@@ -134,7 +136,7 @@ export async function createCompatibilityFixture(
       break;
     case "missing-manifest-recognizable":
       await installFixture(targetDir);
-      unlinkSync(manifestPath);
+      discardFixtureLedger(targetDir);
       break;
     case "unknown-shape":
       writeFixtureFile(targetDir, "notes/project.md", "# User notes\n");
@@ -158,11 +160,11 @@ export async function createCompatibilityFixture(
       break;
     case "missing-manifest-recognizable-canonical-missing-manifest-files":
       await installFixture(targetDir);
-      unlinkSync(manifestPath);
+      discardFixtureLedger(targetDir);
       break;
     case "missing-manifest-recognizable-ambiguous-missing-manifest-files":
       await installFixture(targetDir);
-      unlinkSync(manifestPath);
+      discardFixtureLedger(targetDir);
       writeFixtureFile(targetDir, "docs/AGENTS.md", "# Local docs instructions\n");
       break;
     case "unknown-shape-non-make-docs-path-collision":
@@ -228,6 +230,7 @@ function writeLegacyV1Manifest(targetDir: string): void {
     updatedAt: "2026-06-25T00:00:00.000Z",
   } as Record<string, unknown>;
   delete legacyManifest.systemAssetMaterialization;
+  discardFixtureLedger(targetDir);
   writeFixtureFile(
     targetDir,
     ".make-docs/manifest.json",
@@ -298,7 +301,7 @@ function ensureSystemAssetManifestState(
 
 function loadFixtureManifest(targetDir: string): InstallManifest | null {
   try {
-    return loadManifest(targetDir);
+    return loadManifest(targetDir) ?? loadLegacyManifest(targetDir);
   } catch {
     return null;
   }
@@ -313,3 +316,6 @@ function writeFixtureFile(
   mkdirSync(path.dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, content);
 }
+
+/** Simulate lost/legacy operational ownership only inside an isolated fixture Store. */
+function discardFixtureLedger(targetDir:string):void { withInstallationDatabase(targetDir, db=>{db.prepare('DELETE FROM installation_ledgers WHERE checkout_id IN (SELECT checkout_id FROM installation_checkouts WHERE root_path=?)').run(realpathSync(targetDir));}); }

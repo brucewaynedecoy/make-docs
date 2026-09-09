@@ -3,10 +3,11 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
-  renameSync,
+  readFileSync,
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "./store/installation-state";
 import { createAuditReport } from "./audit";
 import { getProjectBackupRoot } from "./backup-paths";
 import { getLifecycleRenderer } from "./lifecycle-ui";
@@ -157,24 +158,42 @@ export function executePreparedBackup(
     );
   }
 
-  ensureBackupDestination(preparedBackup.destinationPlan);
-  const copiedFiles = copyAuditedFiles(
-    preparedBackup.copyableFiles,
-    preparedBackup.destinationPlan.destinationDir,
-  );
-  const materializedDirectories = materializePrunableDirectories(
-    preparedBackup.materializableDirectories,
-    preparedBackup.destinationPlan.destinationDir,
-  );
+  return withInstallationOperation(preparedBackup.targetDir, "setup.backup", () => {
+    const targetDir = preparedBackup.targetDir;
+    const destination = preparedBackup.destinationPlan!.destinationDir;
+    if (preparedBackup.destinationPlan!.promotion) throw new Error("Create a fresh backup plan. Existing backup paths must remain stable.");
+    if (existsSync(destination)) throw new Error(`Backup destination already exists: ${destination}. Re-run the command to resolve a fresh destination.`);
+    const changes: Array<() => void> = [preparePlannedFileChange(targetDir, path.relative(targetDir, destination), { kind: "directory" }, () => mkdirSync(destination, { recursive: true }))];
+    const copiedFiles: string[] = [];
+    const materializedDirectories: string[] = [];
+    for (const directory of [...preparedBackup.materializableDirectories].sort((a, b) => a.backupRelativePath.split(path.sep).length - b.backupRelativePath.split(path.sep).length)) {
+      const relative = directory.backupRelativePath;
+      if (!relative || relative === ".") continue;
+      const absolute = path.join(destination, relative);
+      changes.push(preparePlannedFileChange(targetDir, path.relative(targetDir, absolute), { kind: "directory" }, () => mkdirSync(absolute, { recursive: true })));
+      materializedDirectories.push(relative);
+    }
+    for (const file of preparedBackup.copyableFiles) {
+      const destinationPath = path.join(destination, file.backupRelativePath);
+      const content = readFileSync(file.absolutePath);
+      changes.push(preparePlannedFileChange(targetDir, path.relative(targetDir, destinationPath), { kind: "file", content }, () => {
+        ensureParentDir(destinationPath);
+        copyFileSync(file.absolutePath, destinationPath);
+      }));
+      copiedFiles.push(file.backupRelativePath);
+    }
+    sealInstallationOperation(targetDir);
+    for (const change of changes) change();
 
-  return {
-    status: "completed",
-    targetDir: preparedBackup.targetDir,
-    destinationDir: preparedBackup.destinationPlan.destinationDir,
-    auditReport: preparedBackup.auditReport,
-    copiedFiles,
-    materializedDirectories,
-  };
+    return {
+      status: "completed",
+      targetDir: preparedBackup.targetDir,
+      destinationDir: preparedBackup.destinationPlan!.destinationDir,
+      auditReport: preparedBackup.auditReport,
+      copiedFiles,
+      materializedDirectories,
+    };
+  });
 }
 
 export function resolveBackupDestinationPlan(
@@ -199,15 +218,8 @@ export function resolveBackupDestinationPlan(
   const usedOrdinals = new Set(existingOrdinals);
   let promotion: BackupDestinationPlan["promotion"];
 
-  if (hasPlainDirectory) {
-    const promotionOrdinal = findLowestAvailableOrdinal(usedOrdinals);
-    const promotedName = `${dateStamp}-${formatOrdinal(promotionOrdinal)}`;
-    promotion = {
-      from: plainDirectory,
-      to: path.join(backupRoot, promotedName),
-    };
-    usedOrdinals.add(promotionOrdinal);
-  }
+  // A completed backup path is a durable payload reference. Never rename it.
+  if (hasPlainDirectory) usedOrdinals.add(0);
 
   const nextOrdinal = Math.max(...usedOrdinals, 0) + 1;
   const directoryName = `${dateStamp}-${formatOrdinal(nextOrdinal)}`;
@@ -246,69 +258,6 @@ function findLowestAvailableOrdinal(usedOrdinals: Set<number>): number {
     ordinal += 1;
   }
   return ordinal;
-}
-
-function ensureBackupDestination(plan: BackupDestinationPlan): void {
-  mkdirSync(plan.backupRoot, { recursive: true });
-
-  if (plan.promotion) {
-    if (existsSync(plan.promotion.to)) {
-      throw new Error(
-        `Cannot promote existing backup to ${plan.promotion.to} because that destination already exists.`,
-      );
-    }
-    renameSync(plan.promotion.from, plan.promotion.to);
-  }
-
-  if (existsSync(plan.destinationDir)) {
-    throw new Error(
-      `Backup destination already exists: ${plan.destinationDir}. Re-run the command to resolve a fresh destination.`,
-    );
-  }
-
-  mkdirSync(plan.destinationDir, { recursive: true });
-}
-
-function copyAuditedFiles(
-  removableFiles: AuditRemovableFile[],
-  destinationDir: string,
-): string[] {
-  const copiedFiles: string[] = [];
-
-  for (const removableFile of removableFiles) {
-    if (!removableFile.backupRelativePath) {
-      continue;
-    }
-
-    const destinationPath = path.join(
-      destinationDir,
-      removableFile.backupRelativePath,
-    );
-    ensureParentDir(destinationPath);
-    copyFileSync(removableFile.absolutePath, destinationPath);
-    copiedFiles.push(removableFile.backupRelativePath);
-  }
-
-  return copiedFiles;
-}
-
-function materializePrunableDirectories(
-  prunableDirectories: MaterializableAuditDirectory[],
-  destinationDir: string,
-): string[] {
-  const materializedDirectories = new Set<string>();
-
-  for (const directory of prunableDirectories) {
-    const relativePath = directory.backupRelativePath;
-    if (!relativePath || relativePath === ".") {
-      continue;
-    }
-
-    mkdirSync(path.join(destinationDir, relativePath), { recursive: true });
-    materializedDirectories.add(relativePath);
-  }
-
-  return [...materializedDirectories].sort();
 }
 
 function hasBackupRelativePath<T extends { backupRelativePath: string | null }>(

@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { spawn } from "node:child_process";
 import {
   existsSync,
@@ -209,7 +210,12 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       process.env.MAKE_DOCS_HOME = populatedStore;
       await runCli(["setup", "--yes", "--target", targetWithStore]);
 
-      const migrationStatePrefix = ".make-docs/state/";
+      for (const root of [targetWithoutStore, targetWithStore]) {
+        expect(collectFiles(root).some(p => p.startsWith('.make-docs/state/'))).toBe(false);
+        expect(existsSync(path.join(root, '.make-docs/manifest.json'))).toBe(false);
+      }
+      // Payload copies have operation-specific paths; compare managed content separately.
+      const migrationStatePrefix = ".make-docs/backup/operations/";
       const filesWithout = collectFiles(targetWithoutStore)
         .filter((relativePath) => !relativePath.startsWith(migrationStatePrefix));
       const filesWith = collectFiles(targetWithStore)
@@ -219,10 +225,10 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       for (const relativePath of filesWithout) {
         const left = readFileSync(path.join(targetWithoutStore, relativePath), "utf8")
           .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
-          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"');
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID');
         const right = readFileSync(path.join(targetWithStore, relativePath), "utf8")
           .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
-          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"');
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID');
         expect(right, `content mismatch for ${relativePath}`).toBe(left);
       }
     } finally {
@@ -240,8 +246,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       process.env.MAKE_DOCS_HOME = storeRoot;
       await runCli(["setup", "--yes", "--target", targetDir]);
 
-      expect(existsSync(path.join(storeRoot, GLOBAL_CONFIG_FILE))).toBe(true);
-      expect(existsSync(path.join(storeRoot, GLOBAL_MANIFEST_FILE))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       if (sqliteAvailable) {
         expect(existsSync(path.join(storeRoot, STORE_DATABASE_FILE))).toBe(true);
 
@@ -251,10 +256,10 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
         const manifest = loadManifest(targetDir);
         expect(manifest?.projectId).toBeDefined();
         withStoreDatabase(storeRoot, (db) => {
-          const entry = readProjectRegistryEntry(db, manifest!.projectId!);
-          expect(entry?.rootPath).toBe(path.resolve(targetDir));
-          expect(entry?.packageName).toBe(manifest?.packageName);
-          expect(entry?.packageVersion).toBe(manifest?.packageVersion);
+          const entry = db.prepare('SELECT root_path FROM installation_checkouts WHERE project_id=?').get(manifest!.projectId!) as {root_path:string};
+          expect(entry.root_path).toBe(realpathSync(targetDir));
+          const ledger = db.prepare('SELECT manifest_json FROM installation_ledgers').get() as {manifest_json:string};
+          expect(JSON.parse(ledger.manifest_json)).toEqual(manifest);
         });
       }
     } finally {
@@ -521,7 +526,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
     });
   });
 
-  it("quarantines a corrupt database and reports recoverable operational-state loss", () => {
+  it("preserves a corrupt database and reports unavailable state", () => {
     bootstrapInto(storeRoot);
     const databasePath = getStoreDatabasePath(storeRoot);
     rmSync(`${databasePath}-wal`, { force: true });
@@ -529,19 +534,9 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
     writeFileSync(databasePath, "this is definitely not a sqlite database", "utf8");
 
     const report = bootstrapInto(storeRoot);
-    expect(report.databaseStatus).toBe("recovered");
-    expect(report.warnings.join("\n")).toContain("recoverable operational-state loss");
-    expect(report.warnings.join("\n")).toContain("no project knowledge");
-
-    const quarantined = readdirSync(storeRoot).filter((entry) =>
-      entry.includes(".corrupt-"),
-    );
-    expect(quarantined.length).toBeGreaterThan(0);
-
-    withStoreDatabase(storeRoot, (db) => {
-      expect(readUserVersion(db)).toBe(CURRENT_STORE_SCHEMA_VERSION);
-      expect(listProjectRegistryEntries(db)).toHaveLength(0);
-    });
+    expect(report.databaseStatus).toBe("unavailable");
+    expect(readFileSync(databasePath, 'utf8')).toBe('this is definitely not a sqlite database');
+    expect(readdirSync(storeRoot).some(entry => entry.includes('.corrupt-'))).toBe(false);
   });
 
   it("keeps repository reads available but fails setup closed when the database is corrupt", async () => {
@@ -559,16 +554,14 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
       writeFileSync(databasePath, "garbage", "utf8");
       const corruptBytes = readFileSync(databasePath);
       const manifestBefore = readFileSync(
-        path.join(targetDir, ".make-docs", "manifest.json"),
+        path.join(targetDir, ".make-docs", "config.yaml"),
         "utf8",
       );
 
-      expect(loadManifest(targetDir)).not.toBeNull();
-      await expect(runCli(["setup", "--yes", "--target", targetDir])).rejects.toMatchObject({
-        classification: { state: "corrupt" },
-      });
-      expect(loadManifest(targetDir)).not.toBeNull();
-      expect(readFileSync(path.join(targetDir, ".make-docs", "manifest.json"), "utf8"))
+      expect(() => loadManifest(targetDir)).toThrow();
+      await expect(runCli(["setup", "--yes", "--target", targetDir])).rejects.toThrow();
+      expect(() => loadManifest(targetDir)).toThrow();
+      expect(readFileSync(path.join(targetDir, ".make-docs", "config.yaml"), "utf8"))
         .toBe(manifestBefore);
       expect(readFileSync(databasePath)).toEqual(corruptBytes);
       expect(readdirSync(storeRoot).some((entry) => entry.includes(".corrupt-"))).toBe(false);

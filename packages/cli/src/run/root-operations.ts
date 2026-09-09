@@ -208,14 +208,27 @@ export async function runResourceCommand(argv: string[]): Promise<void> {
 }
 
 export async function runProjectCommand(argv: string[]): Promise<void> {
+  if (argv[0] === "state") {
+    await runProjectStateCommand(argv.slice(1));
+    return;
+  }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
         "Usage: make-docs project surface ensure <archive|artifacts|assets>",
+        "       make-docs project state status [--target-root <path>] [--json]",
+        "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
         "",
-        "The ensure command creates only the selected on-demand directory after it",
-        "checks the trusted project manifest and configured routers. It reports the",
-        "applied or unchanged state, plan dispositions, receipt, and next check.",
+        "Installation state belongs to the global Make Docs Store.",
+        "The ensure command checks Store installation evidence and configured routers",
+        "before it creates the selected on-demand directory. It reports the applied or",
+        "unchanged state, plan dispositions, receipt, and next check.",
+        "",
+        "State status reads the Store and reports pending work without changing files.",
+        "State recover requires an operation ID and exactly one recovery mode.",
+        "Use --resume to apply the remaining verified steps of a complete saved plan.",
+        "Use --rollback to restore verified prior file state. Changed files block recovery.",
+        "Add --dry-run to inspect recovery without applying changes.",
         "",
       ].join("\n"),
     );
@@ -260,4 +273,80 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
       "",
     ].join("\n"),
   );
+}
+
+async function runProjectStateCommand(argv: string[]): Promise<void> {
+  const [verb, ...args] = argv;
+  if (!verb || verb === "--help" || verb === "-h") {
+    process.stdout.write([
+      "Usage: make-docs project state status [--target-root <path>] [--json]",
+      "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
+      "",
+      "Installation state belongs to the global Make Docs Store.",
+      "Status reads the Store and reports pending work without changing files.",
+      "Recovery requires an operation ID and exactly one recovery mode.",
+      "Use --resume to apply the remaining verified steps of a complete saved plan.",
+      "Use --rollback to restore verified prior file state. Changed files block recovery.",
+      "Add --dry-run to inspect recovery without applying changes.",
+      "",
+    ].join("\n"));
+    return;
+  }
+  if (verb !== "status" && verb !== "recover") throw new OperationError(`Unknown project state command: ${verb}.`);
+  let targetRoot: string | undefined;
+  let mode: "resume" | "rollback" | undefined;
+  let dryRun = false;
+  let json = false;
+  let operationId: string | undefined;
+  const seen = new Set<string>();
+  while (args.length) {
+    const arg = args.shift()!;
+    if (arg.startsWith("--")) {
+      if (seen.has(arg)) throw new OperationError(`Option ${arg} can be given only once.`);
+      seen.add(arg);
+    }
+    if (arg === "--target-root") {
+      const value = args.shift();
+      if (!value || value.startsWith("--")) throw new OperationError("--target-root requires a path.");
+      targetRoot = path.resolve(value);
+    } else if (arg === "--json") json = true;
+    else if (arg === "--dry-run" && verb === "recover") dryRun = true;
+    else if ((arg === "--resume" || arg === "--rollback") && verb === "recover") {
+      if (mode) throw new OperationError("Recovery requires exactly one of --resume or --rollback.");
+      mode = arg === "--resume" ? "resume" : "rollback";
+    } else if (!arg.startsWith("--") && verb === "recover" && !operationId) operationId = arg;
+    else throw new OperationError(`Unexpected argument for project state ${verb}: ${arg}.`);
+  }
+  if (verb === "recover" && (!operationId || !mode)) throw new OperationError("Recovery requires one operation ID and exactly one of --resume or --rollback.");
+  const invocation = await invokeOperation(`project.state.${verb}`, {
+    ...(targetRoot ? { targetRoot } : {}),
+    ...(verb === "recover" ? { operationId, mode } : {}),
+  }, createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: verb === "recover", dryRun }));
+  if (json) { printJson(invocation.value); return; }
+  const value = invocation.value as Record<string, unknown>;
+  const labels: Record<string, string> = {
+    "ready": verb === "recover" ? "Recovery is ready for review." : "Make Docs installation state is ready.",
+    "unregistered": "This checkout has no registered installation.",
+    "ownership-unverified": "Installation ownership needs review.",
+    "recovery-required": "An unfinished operation needs recovery.",
+    "writer-active": "Another Make Docs writer is active.",
+    "store-unavailable": "The Make Docs Store is unavailable.",
+    "completed": "Recovery completed.",
+    "rolled-back": "Recovery restored the prior state.",
+    "blocked": "Recovery stopped to preserve changed files.",
+  };
+  const state = String(value.status ?? value.code ?? "unknown");
+  process.stdout.write([
+    labels[state] ?? `State: ${state}`,
+    ...(value.projectId ? [`Project ID: ${String(value.projectId)}`] : []),
+    ...(value.checkoutId ? [`Checkout: ${String(value.checkoutId)}`] : []),
+    ...(value.installationVersion ? [`Installed version: ${String(value.installationVersion)}`] : []),
+    ...(value.pendingOperation ? [`Pending operation: ${JSON.stringify(value.pendingOperation)}`] : []),
+    ...(value.operationId ? [`Operation: ${String(value.operationId)}`] : []),
+    ...(value.dryRun ? ["Preview only. No files or Store records changed."] : []),
+    ...(Array.isArray(value.changes) ? value.changes.map((change: {path: string; to: string}) => `- ${change.path}: ${change.to}`) : []),
+    ...(Array.isArray(value.conflicts) ? value.conflicts.map((conflict: unknown) => `Review: ${String(conflict)}`) : []),
+    ...(value.nextAction ? [`Next: ${String(value.nextAction)}`] : state === "blocked" ? ["Next: Review the listed conflicts. Preserve current files."] : value.dryRun && state === "ready" ? ["Next: Review this preview before running the same recovery command without --dry-run."] : []),
+    "",
+  ].join("\n"));
 }

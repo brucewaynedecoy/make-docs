@@ -1,3 +1,4 @@
+import { writeRawStoreLedger } from "./store-ledger-fixture";
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -154,15 +155,8 @@ function readSkillSourceFile(skillName: string, sourcePath: string): string {
   );
 }
 
-function writeManifestJson(
-  targetDir: string,
-  manifest: NonNullable<ReturnType<typeof loadManifest>>,
-): void {
-  writeFileSync(
-    path.join(targetDir, ".make-docs/manifest.json"),
-    `${JSON.stringify(manifest, null, 2)}\n`,
-    "utf8",
-  );
+function writeManifestJson(targetDir: string, manifest: NonNullable<ReturnType<typeof loadManifest>>): void {
+  writeRawStoreLedger(targetDir, manifest);
 }
 
 function isRecord(value: unknown): value is UnknownRecord {

@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildCheckpoint, buildPhaseGateReport, buildWaveStatus } from "../src/operations";
@@ -38,7 +38,7 @@ import { cleanupTempDir, collectFiles, createTempDir, writeMinimalManifest } fro
 const WAVE_SLUG = "2026-07-01-w18-r10-d11-verification";
 const sqliteAvailable = loadSqliteDriver().available;
 
-/** A minimal git repository with a manifest-minted identity and one wave phase. */
+/** A minimal git repository with a declared project identity and one wave phase. */
 function createRepoFixture(parentDir: string, name: string): {
   root: string;
   projectId: string;
@@ -123,7 +123,7 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
   });
 
   describe("R-TEST-2: project-scoped state survives a directory move or clone (identity, not path)", () => {
-    it("state written before a move is fully readable after it via the manifest-minted identifier", () => {
+    it("state written before a move is fully readable after it via the declared project identifier", () => {
       const fixture = createRepoFixture(workDir, "original");
       bootstrapGlobalStore({ storeRoot });
 
@@ -219,7 +219,7 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
       );
     });
 
-    it("treats an unreadable database as recoverable operational-state loss, never blocking repository reads", () => {
+    it("preserves an unreadable database and keeps repository reads available", () => {
       const fixture = createRepoFixture(workDir, "repo");
       bootstrapGlobalStore({ storeRoot });
 
@@ -232,24 +232,17 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
       };
       corrupt();
 
-      // Bootstrap recovers explicitly — quarantine, recreate, report — and it
-      // is never treated as loss of project knowledge (R-DB-4).
+      // Required Store recording must not silently replace corrupt data.
+      const before = readFileSync(databasePath, "utf8");
       const report = bootstrapGlobalStore({ storeRoot });
-      expect(report.databaseStatus).toBe("recovered");
-      expect(report.warnings.join("\n")).toContain("recoverable operational-state loss");
-      expect(report.warnings.join("\n")).toContain("no project knowledge");
-
-      // Corrupted again with no bootstrap in between, the read operation
-      // neither throws nor loses the repository view.
-      corrupt();
+      expect(report.databaseStatus).toBe("unavailable");
+      expect(readFileSync(databasePath, "utf8")).toBe(before);
       const status = buildWaveStatus(fixture.waveDir, { storeRoot });
       expect(status.nextPhasePath).toBe(fixture.phasePath);
-
-      // The recovered store is immediately usable for new state.
-      buildCheckpoint({ target: fixture.phasePath, reviewStatus: "waived", storeRoot });
-      withStoreDatabase(storeRoot, (db) => {
-        expect(listWorkEvidence(db, { projectId: fixture.projectId })).toHaveLength(1);
-      });
+      const phaseBefore = readFileSync(fixture.phasePath, "utf8");
+      expect(() => buildCheckpoint({ target: fixture.phasePath, reviewStatus: "waived", storeRoot })).toThrow();
+      expect(readFileSync(databasePath, "utf8")).toBe(before);
+      expect(readFileSync(fixture.phasePath, "utf8")).toBe(phaseBefore);
     });
   });
 

@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, rmdirSync } from "node:fs";
 import { stdin, stdout } from "node:process";
 import { confirm, isCancel } from "@clack/prompts";
 import {
@@ -17,25 +17,14 @@ import {
 } from "./install-manager";
 import { defaultSelfCommandOutput, type SelfCommandOutput } from "./pre-v2";
 
-/**
- * Top-level `make-docs uninstall` — machine-footprint removal (W18 R11 P3;
- * PRD 39 R-SELF-1, R-SELF-3).
- *
- * Removes Make Docs' machine-level footprint only: the global store at
- * `~/.make-docs/` (via the structurally-safe {@link removeGlobalStore} seam,
- * which never deletes repository content and refuses roots that look like a
- * project `.make-docs/` directory) and the installed binary when exactly one
- * install manager unambiguously owns it. For a remote-execution user there
- * is no binary: the store is removed and the command reports that no binary
- * is installed. When ownership is ambiguous the command never guesses — it
- * prints the exact uninstall command(s) and the affected store path instead
- * of acting. Project removal remains exclusively `make-docs setup remove`;
- * this command never reads or writes the current working directory.
- */
+import { prepareToolOperationStore, runRecordedToolOperation, withStoreRemovalLock } from "../store/tool-operations";
 
+/** Remove the installed binary. Preserve the global Store unless separately selected. */
 export interface ToolUninstallOptions {
   /** Counts as confirmation; required for non-TTY runs. */
   yes: boolean;
+  /** Separate explicit selection; --yes alone never removes the Store. */
+  removeStore?: boolean;
   storeRoot?: string;
   homeDir?: string;
   env?: NodeJS.ProcessEnv;
@@ -54,6 +43,7 @@ export type ToolUninstallBinaryOutcome =
   | { kind: "manual"; candidates: InstallManagerId[]; commands: string[] };
 
 export interface ToolUninstallResult {
+  operationId: string | null;
   status:
     | "completed"
     | "cancelled"
@@ -89,9 +79,9 @@ export async function runToolUninstallCommand(
     output.write(line);
   };
 
-  emit("make-docs uninstall removes the machine-level footprint only:");
+  emit("make-docs uninstall removes the installed binary:");
   emit(
-    `- global store: ${storeRoot}${existsSync(storeRoot) ? "" : " (not present)"}`,
+    `- global Store: ${storeRoot} (${options.removeStore ? "explicit removal selected; all stored history and recovery records will be deleted" : "preserved"})`,
   );
   emit(`- installed binary: ${describeBinaryFootprint(detection)}`);
   emit(
@@ -99,6 +89,7 @@ export async function runToolUninstallCommand(
   );
 
   const result: ToolUninstallResult = {
+    operationId: null,
     status: "completed",
     storeRoot,
     detection,
@@ -117,7 +108,7 @@ export async function runToolUninstallCommand(
     }
 
     const proceed = await confirm({
-      message: "Remove the make-docs machine footprint listed above?",
+      message: options.removeStore ? "Remove the binary and permanently delete the global Store records listed above?" : "Remove the make-docs binary and preserve the global Store?",
       initialValue: false,
       active: "Yes",
       inactive: "No",
@@ -130,23 +121,32 @@ export async function runToolUninstallCommand(
     }
   }
 
-  const storeRemoval = removeGlobalStore({
-    storeRoot,
-    env: options.env,
-    homeDir: options.homeDir,
-  });
-  result.storeRemoval = storeRemoval;
-  emit(describeStoreRemoval(storeRemoval));
-  for (const warning of storeRemoval.warnings) {
-    emit(`Warning: ${warning}`);
-  }
+  const targetDir = process.cwd();
+  prepareToolOperationStore(targetDir, storeRoot);
+  emit(`The global Store is preserved at ${storeRoot}.`);
+  const removeSelectedStore = () => {
+    if (!options.removeStore) return;
+    const removal = withStoreRemovalLock(targetDir, storeRoot, () =>
+      removeGlobalStore({storeRoot, env:options.env, homeDir:options.homeDir}));
+    removal.retainedEntries = removal.retainedEntries.filter(entry => entry !== "removal.lock");
+    removal.warnings = removal.warnings.filter(warning => !warning.includes("removal.lock"));
+    if (removal.status !== "refused" && existsSync(storeRoot) && readdirSync(storeRoot).length === 0) {
+      rmdirSync(storeRoot);
+      removal.status = "removed";
+    }
+    result.storeRemoval = removal;
+    emit(describeStoreRemoval(removal));
+    for (const warning of removal.warnings) emit(`Warning: ${warning}`);
+  };
 
   if (detection.kind === "persistent") {
     const command = formatManagerCommand(detection.manager.uninstallCommand);
-    const { exitCode } = await exec(
-      detection.manager.uninstallCommand.command,
-      detection.manager.uninstallCommand.args,
-    );
+    const recorded = await runRecordedToolOperation(targetDir, storeRoot, "tool.uninstall", {
+      manager:detection.manager.id, command, binaryPath:detection.binaryPath,
+    }, () => exec(detection.manager.uninstallCommand.command, detection.manager.uninstallCommand.args));
+    result.operationId = recorded.operationId;
+    const { exitCode } = recorded.result;
+    emit(`Tool operation recorded in the Store: ${recorded.operationId}`);
     if (exitCode === 0) {
       result.binary = {
         kind: "removed",
@@ -155,6 +155,7 @@ export async function runToolUninstallCommand(
         exitCode,
       };
       emit(`Removed the installed binary via ${detection.manager.id}: ${command}`);
+      removeSelectedStore();
     } else {
       result.binary = {
         kind: "failed",
@@ -172,8 +173,9 @@ export async function runToolUninstallCommand(
 
   if (detection.kind === "remote") {
     result.binary = { kind: "not-installed", evidence: detection.evidence };
+    removeSelectedStore();
     emit(
-      "No make-docs binary is installed on this machine: this invocation runs via a package runner (remote execution). The global store removal above is the complete machine footprint.",
+      "No persistent make-docs binary is installed: this invocation uses a package runner. The Store remains available unless explicit removal was selected.",
     );
     return result;
   }

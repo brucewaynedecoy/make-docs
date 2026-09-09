@@ -60,12 +60,9 @@ function createWaveFixture(): {
   return { root, phaseOne, phaseTwo, waveDir, projectId };
 }
 
-/** Rewrites the on-disk manifest to the pre-identifier shape (no projectId). */
-function stripProjectId(root: string): void {
-  const manifestPath = path.join(root, ".make-docs", "manifest.json");
-  const raw = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
-  delete raw.projectId;
-  writeFileSync(manifestPath, `${JSON.stringify(raw, null, 2)}\n`, "utf8");
+/** Invalid declaration must not fall back to a stale Store identity. */
+function invalidateProjectId(root: string): void {
+  writeFileSync(path.join(root, ".make-docs/config.yaml"), "projectId: 42\n", "utf8");
 }
 
 describe("registry work operations (W18 R11, R-RUN-1)", () => {
@@ -229,10 +226,10 @@ describe("registry work operations (W18 R11, R-RUN-1)", () => {
     ).rejects.toThrow(/phase-level identity/);
   });
 
-  test("work.evidence.record errors cleanly when the project identity is unminted", async () => {
+  test("work.evidence.record errors cleanly when the project identity declaration is invalid", async () => {
     const fixture = createWaveFixture();
     tempRoots.push(fixture.root);
-    stripProjectId(fixture.root);
+    invalidateProjectId(fixture.root);
     const context = createExecutionContext({ cwd: fixture.root, writesAllowed: true });
 
     const attempt = invokeOperation(
@@ -247,6 +244,6 @@ describe("registry work operations (W18 R11, R-RUN-1)", () => {
         { target: "W18 R11 P1", evidenceKind: "review", payload: { status: "waived" } },
         context,
       ),
-    ).rejects.toThrow(/run `make-docs` once to mint it/);
+    ).rejects.toThrow(/unreadable|invalid/);
   });
 });

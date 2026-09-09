@@ -21,8 +21,11 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 - Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Unassisted Goal Testing packets, runs, findings, and approved evidence.
 - Treat `docs/assets/archive/**`, `docs/assets/archive/history/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
 - Current selected local resource projections live under `.make-docs/system/<resource-type>/**`. Installed-provider resources remain available without a local projection.
-- Routers, scripts, selected agentic payloads, config, manifest, conflicts, and provider state are not content-resource types.
-- Runtime state belongs under `.make-docs/**`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`. General lifecycle runs and evidence references live in the machine Store.
+- Routers, scripts, selected agentic payloads, declarative config, and backup or conflict file copies are not content-resource types.
+- Make Docs installation and operation state belongs only in the global Make Docs Store, managed through the CLI. Applied ownership, hashes, migration receipts, locks, conflict decisions, and recovery metadata must not live in project folders.
+- `.make-docs/manifest.json` and `.make-docs/state/` are legacy CLI transfer inputs only. Never recreate them or replace them with another local operational record.
+- Keep declarative project identity and desired settings in config. Project knowledge, history breadcrumbs, optional work status, and approved backup, archive, or conflict file copies remain local. File copies do not authorize recovery; verified Store records do.
+- Ordinary project work can continue when the CLI is unavailable or optional lifecycle capture fails. Report unavailable capture. Never claim success, write directly to the Store, queue a later write, or create local fallback state. Required Store recording for CLI-managed changes remains mandatory.
 - A local `.make-docs/system/**` resource projection is optional. Its absence does not reduce installed-provider availability.
 
 ## Allowed Absolute Path Forms
@@ -71,4 +74,4 @@ Use the allow comment sparingly. The reason must explain why a project-relative 
 
 ## Validation
 
-Use `.make-docs/scripts/check_path_hygiene.py` to audit Make Docs-managed documentation. The script reports real checkout paths, user-home paths, local temporary paths, and absolute local Markdown links. Run it before finalizing broad documentation updates or when repairing path hygiene drift.
+Use `.make-docs/scripts/check_path_hygiene.py` to audit local documentation content. It needs neither the CLI nor the Store and does not read or create an installation manifest. By default it checks `docs/`, root routers and `README.md`, and selected local `.make-docs/system/` bodies. Use repeated `--path <project-relative-file-or-directory>` arguments for a narrower reviewed scope or a custom docs root. Use `--include-skills` to include installed Skill text. It skips symbolic links, backup payloads, and operational directories. The inventory selects content for a check; it is not ownership or installation evidence. The script reports real checkout paths, user-home paths, local temporary paths, and absolute local Markdown links. Run it before finalizing broad documentation updates or when repairing path hygiene drift.

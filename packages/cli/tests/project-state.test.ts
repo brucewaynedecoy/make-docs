@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getManifestPath } from "../src/manifest";
+import { loadManifest, writeManifest } from "../src/manifest";
+import { withInstallationOperation } from "../src/store/installation-state";
 import {
   CURRENT_STORE_SCHEMA_VERSION,
   PROJECT_STATE_TABLE_ROLES,
@@ -181,7 +182,7 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
     });
   });
 
-  describe("stage 3: install registry as subordinate mirror (R-MIR-1)", () => {
+  describe("stage 3: discovery registry subordinate to Store installation ledger (R-MIR-1)", () => {
     let projectDir: string;
     let projectId: string;
 
@@ -194,7 +195,7 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
       cleanupTempDir(projectDir);
     });
 
-    it("mirrors a project's manifest into the registry and skips projects without resolvable identity", () => {
+    it("projects the Store installation ledger into the discovery registry and skips projects without resolvable identity", () => {
       const bareDir = createTempDir("make-docs-mirror-bare-");
       try {
         withStoreDatabase(storeRoot, (db) => {
@@ -214,7 +215,7 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
 
           const skipped = mirrorProjectManifest(db, { repoRoot: bareDir });
           expect(skipped.status).toBe("skipped");
-          expect(skipped.reason).toContain("no .make-docs/manifest.json");
+          expect(skipped.reason).toContain("no declarative project identity");
           expect(listProjectRegistryEntries(db).map((row) => row.projectId)).toEqual([projectId]);
         });
       } finally {
@@ -222,7 +223,7 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
       }
     });
 
-    it("authoritative reads resolve to the project manifest even when the mirror is stale", () => {
+    it("authoritative reads resolve to the Store ledger even when discovery metadata is stale", () => {
       withStoreDatabase(storeRoot, (db) => {
         // A stale mirror row claiming the wrong package version.
         upsertProjectRegistryEntry(db, {
@@ -234,7 +235,9 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
       });
 
       const authoritative = readAuthoritativeInstallRecord(projectDir);
-      expect(authoritative?.manifestPath).toBe(getManifestPath(projectDir));
+      expect(authoritative?.source).toBe("store");
+      expect(authoritative?.manifestPath).toContain(`#installation-ledger/${projectId}`);
+      expect(authoritative?.manifestPath).not.toBe(path.join(projectDir, ".make-docs/manifest.json"));
       expect(authoritative?.manifest.projectId).toBe(projectId);
       // The manifest wins; the stale mirror value never surfaces here.
       expect(authoritative?.manifest.packageVersion).toBe("0.0.0-test");
@@ -249,7 +252,7 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
       }
     });
 
-    it("rebuilds a stale or emptied registry from manifests without data loss, leaving relocated state untouched", () => {
+    it("rebuilds a stale or emptied discovery registry from Store ledgers without data loss, leaving relocated state untouched", () => {
       const otherDir = createTempDir("make-docs-mirror-other-");
       const otherId = writeMinimalManifest(otherDir);
       try {
@@ -300,16 +303,16 @@ describe.skipIf(!sqliteAvailable)("unified project-state model (W18 R10 P3)", ()
       }
     });
 
-    it("mirror rows follow the manifest when it changes, because the manifest is canonical", () => {
+    it("discovery rows follow a committed Store ledger change", () => {
       withStoreDatabase(storeRoot, (db) => {
         mirrorProjectManifest(db, { repoRoot: projectDir });
       });
 
-      // The canonical record changes on disk...
-      const manifestPath = getManifestPath(projectDir);
-      const raw = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
-      raw.packageVersion = "0.0.1-test";
-      writeFileSync(manifestPath, `${JSON.stringify(raw, null, 2)}\n`);
+      // Update the canonical ledger through the Store operation service.
+      const manifest = loadManifest(projectDir)!;
+      withInstallationOperation(projectDir, "test.ledger-update", () => {
+        writeManifest(projectDir, { ...manifest, packageVersion: "0.0.1-test" });
+      });
 
       // ...and the next mirror upsert reflects it, same identifier.
       withStoreDatabase(storeRoot, (db) => {

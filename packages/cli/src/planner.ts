@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import path from "node:path";
 import {
@@ -193,7 +194,7 @@ export async function createInstallPlan(options: {
   );
   let forceManifestWrite = existingManifest !== null && Object.entries(desiredFiles)
     .some(([relativePath, entry]) =>
-      JSON.stringify(existingManifest.files[relativePath] ?? null) !== JSON.stringify(entry),
+      !isDeepStrictEqual(existingManifest.files[relativePath] ?? null, entry),
     );
 
   const actions: PlannedAction[] = [];
@@ -633,7 +634,7 @@ export async function createInstallPlan(options: {
     classificationSnapshot: createLifecyclePlanSnapshot(
       targetDir,
       annotatedActions,
-      [MANIFEST_RELATIVE_PATH],
+      [],
     ),
     stops,
     forceManifestWrite,

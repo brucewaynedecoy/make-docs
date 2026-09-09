@@ -27,6 +27,8 @@ import {
   type SelfCommandOutput,
 } from "./pre-v2";
 
+import { prepareToolOperationStore, runRecordedToolOperation } from "../store/tool-operations";
+
 /**
  * Top-level `make-docs update` — detect-and-delegate tool update (W18 R11
  * P3; PRD 39 R-SELF-2, R-SELF-3, R-MIG-2).
@@ -71,6 +73,7 @@ export interface ToolUpdateOptions {
 }
 
 export interface ToolUpdateResult {
+  operationId: string | null;
   status:
     | "delegated"
     | "delegate-failed"
@@ -109,6 +112,7 @@ export async function runToolUpdateCommand(
   };
 
   // Global-store schema migration applies in all cases (PRD 38 R-DB-2).
+  prepareToolOperationStore(targetDir, storeRoot);
   const bootstrap = bootstrapGlobalStore({
     storeRoot,
     env: options.env,
@@ -132,6 +136,7 @@ export async function runToolUpdateCommand(
   });
 
   const result: ToolUpdateResult = {
+    operationId: null,
     status: "nothing-persistent",
     storeRoot,
     bootstrap,
@@ -170,10 +175,12 @@ export async function runToolUpdateCommand(
   if (detection.kind === "persistent") {
     const command = formatManagerCommand(detection.manager.updateCommand);
     emit(`Delegating to ${detection.manager.id}: ${command}`);
-    const { exitCode } = await exec(
-      detection.manager.updateCommand.command,
-      detection.manager.updateCommand.args,
-    );
+    const recorded = await runRecordedToolOperation(targetDir, storeRoot, "tool.update", {
+      manager: detection.manager.id, command, binaryPath: detection.binaryPath,
+    }, () => exec(detection.manager.updateCommand.command, detection.manager.updateCommand.args));
+    result.operationId = recorded.operationId;
+    const { exitCode } = recorded.result;
+    emit(`Tool operation recorded in the Store: ${recorded.operationId}`);
     result.executedCommand = command;
     if (exitCode === 0) {
       result.status = "delegated";

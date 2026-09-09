@@ -11,7 +11,7 @@ source:
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This document defines the current product contract for the CLI command grammar, reusable operation registry, and human/agent rendering boundary. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
@@ -42,7 +42,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Tool Self-Management (R-SELF)
 
-- R-SELF-1 (MUST): `uninstall` removes Make Docs' machine-level footprint — the global store at `~/.make-docs/` and the installed binary when one is present — and for a remote-execution user with no global install it removes the global store and reports that no binary is installed; this is a hard cutover to this meaning, project removal is only `setup remove`, and it must confirm before removing.
+- R-SELF-1 (MUST): `uninstall` removes the installed CLI when one is present and preserves the global Store by default. Store removal requires the separate explicit `--remove-store` choice, reviewed scope, and the safeguards in [PRD 38 R-LIFE-1](38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life). `--yes` alone never authorizes Store removal. A remote-execution user with no global install receives a clear no-binary result; the same separate Store choice applies. Removal requires confirmation unless already authorized through explicit flags. Project removal remains only `setup remove`; tool uninstall must not remove repository content.
 - R-SELF-2 (MUST): `update` updates a persistent global install where one exists as a detect-and-delegate wrapper over the install manager that prints the exact command when detection is ambiguous; for remote execution it reports that there is nothing persistent to update, since the runner fetches the requested version, and it applies any global-store schema migration.
 - R-SELF-3 (MUST NOT): neither command may guess and then execute a destructive global change; when the install method or intent is ambiguous it prints the exact command and the affected store path rather than acting.
 
@@ -254,9 +254,17 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 - Affected requirement or section: R-MIG, R-STATE, R-FLAG, R-TEST
 - Previous contract: Setup projected a local checkpoint-9 receipt and retried twice. Root discovery depended on a local operational manifest. No installation state status/recovery command was defined.
-- Replacement contract: Setup uses Store-only operation records. Typed project state status and recovery share CLI/MCP behavior. Target resolution uses declarative identity and Store bindings. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: Setup uses Store-only operation records. Typed project state status and recovery share CLI/MCP behavior. Target resolution uses declarative identity and Store bindings. The owner accepted this target with the work backlog on 2026-09-09 and then authorized implementation.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R3 Store Cleanup Scope
+
+- Affected requirement or section: R-SELF-1
+- Previous contract: Tool uninstall removed the global Store with the CLI, including the remote-execution case without a persistent binary.
+- Replacement contract: Tool uninstall preserves the Store by default. Store removal requires the separate explicit `--remove-store` choice and PRD 38's reviewed cleanup safeguards. `--yes` alone does not select Store removal.
+- Rationale: CLI removal and Store deletion have separate authority. Retained installation, recovery, and legacy records must not be lost through a binary-only removal request.
+- Source: [PRD 38 R-LIFE-1](38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life), [accepted Store design](../designs/2026-09-09-store-owned-installation-and-migration-state.md), and [W19 R3 implementation evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md#implementation-evidence-running).
 
 ## Source Anchors
 

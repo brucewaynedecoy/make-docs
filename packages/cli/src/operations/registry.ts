@@ -93,6 +93,8 @@ export const ADMITTED_OPERATION_IDS = [
   "resource.list",
   "resource.read",
   "resource.ensure",
+  "project.state.status",
+  "project.state.recover",
   "project.surface.ensure",
   "project.path-hygiene.validate",
   "lifecycle.start",
@@ -121,6 +123,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "resource.list": ["resource", "list"],
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
+  "project.state.status": ["project", "state status"],
+  "project.state.recover": ["project", "state recover"],
   "project.surface.ensure": ["project", "surface ensure"],
   "project.path-hygiene.validate": ["project", "path-hygiene validate"],
   "lifecycle.start": ["run", "lifecycle start"],
@@ -142,6 +146,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "project.state.status": "make-docs project state status [--json]",
+  "project.state.recover": "make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--json]",
   "resource.read": "make-docs resource read <uri>",
   "resource.ensure": "make-docs resource ensure <uri>",
   "project.surface.ensure":

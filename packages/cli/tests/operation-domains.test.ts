@@ -46,6 +46,8 @@ describe("operation domain modules", () => {
     expect(identifiers).toEqual([
       // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
       "prd.authority.validate",
+      "project.state.status",
+      "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.validate",
       "work.item.resolve",
@@ -71,7 +73,7 @@ describe("operation domain modules", () => {
       "uat.finding.validate",
       "uat.result.validate",
     ]);
-    expect(identifiers).toHaveLength(25);
+    expect(identifiers).toHaveLength(27);
 
     for (const domain of domains) {
       for (const command of domain.commands) {
@@ -91,6 +93,7 @@ describe("operation domain modules", () => {
         .filter((command) => command.mutates)
         .map((command) => command.id),
     ).toEqual([
+      "project.state.recover",
       "project.surface.ensure",
       "work.evidence.record",
       "resource.ensure",

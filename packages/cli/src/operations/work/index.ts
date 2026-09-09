@@ -1,3 +1,4 @@
+import { validateInstallationStoreRoot } from "../../store/installation-state";
 import {
   existsSync,
   readdirSync,
@@ -378,7 +379,7 @@ export function buildWorkEvidenceRecord(input: {
   };
   const projectId = requireProjectId(resolution.repoRoot);
   return withStoreDatabase(
-    resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {}),
+    validateInstallationStoreRoot(resolution.repoRoot, resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {})),
     (db) => {
       recordWorkEvidence(db, {
         projectId,
@@ -414,7 +415,7 @@ export function buildWorkEvidenceRead(input: {
   const resolution = resolveWorkItemIdentity(input.target, input.repoRoot);
   const projectId = requireProjectId(resolution.repoRoot);
   return withStoreDatabase(
-    resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {}),
+    validateInstallationStoreRoot(resolution.repoRoot, resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {})),
     (db): Record<string, JsonValue> => {
       if (resolution.phasePath) {
         const identity: WorkItemIdentity = {

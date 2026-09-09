@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { installMakeDocsTarget } from "./helpers";
 import { loadManifest } from "../src/manifest";
 import {
   SYSTEM_RESOURCE_TYPE_DIRECTORIES,
@@ -20,6 +21,8 @@ import { TEMPLATE_ROOT } from "../src/utils";
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const ROUTER_NAMES = ["AGENTS.md", "CLAUDE.md"] as const;
 const tempRoots: string[] = [];
+let fixtureRoot: string;
+beforeEach(async()=>{fixtureRoot=mkdtempSync(path.join(os.tmpdir(),"make-docs-provider-fixture-"));tempRoots.push(fixtureRoot);await installMakeDocsTarget(fixtureRoot,s=>{s.resourceProjection=["prompt"];});});
 
 afterEach(() => {
   __configureSystemResourceDigestTrustForTests(null);
@@ -27,16 +30,16 @@ afterEach(() => {
 });
 
 describe("installed system-resource provider integration", () => {
-  it("resolves all 19 real projected prompts and excludes prompt routers", () => {
+  it("resolves all 19 CLI-projected prompts and excludes prompt routers", () => {
     const provider = installedProvider();
-    const manifest = loadManifest(REPO_ROOT);
+    const manifest = loadManifest(fixtureRoot);
     expect(manifest).not.toBeNull();
     if (!manifest) return;
 
     const prompts = promptEntries(provider);
     expect(prompts).toHaveLength(19);
     expect(prompts.every((entry) => entry.identity.path.endsWith(".prompt.md"))).toBe(true);
-    const project = projectContext(REPO_ROOT, provider, prompts);
+    const project = projectContext(fixtureRoot, provider, prompts);
     const routerUris = ROUTER_NAMES.map((name) => `make-docs://system/prompt/${name}`);
 
     for (const origin of ["effective", "local", "installed"] as const) {
@@ -82,7 +85,7 @@ describe("installed system-resource provider integration", () => {
     for (const router of ROUTER_NAMES) {
       const uri = `make-docs://system/prompt/${router}`;
       expect(
-        readFileSync(path.join(REPO_ROOT, ".make-docs/system/prompts", router)).byteLength,
+        readFileSync(path.join(fixtureRoot, ".make-docs/system/prompts", router)).byteLength,
       ).toBeGreaterThan(0);
       for (const origin of ["effective", "local", "installed"] as const) {
         const read = readSystemResource(uri, provider, project, origin);
@@ -243,8 +246,8 @@ function projectContext(
   provider: SystemResourceProviderInventory,
   prompts: readonly SystemResourceProviderEntry[],
 ): SystemResourceProjectContext {
-  const manifest = loadManifest(REPO_ROOT);
-  if (!manifest) throw new Error("The real full-snapshot manifest is missing.");
+  const manifest = loadManifest(fixtureRoot);
+  if (!manifest) throw new Error("The fixture Store ledger is missing.");
   const evidence: SystemResourceProjectEvidence[] = prompts.map((entry) => {
     const localPath = projectionPath(entry);
     const asset = manifest.systemAssetMaterialization.assets[localPath];

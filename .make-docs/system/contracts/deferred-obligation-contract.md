@@ -95,12 +95,16 @@ Repository-canonical:
 - owner, trigger, target, dependencies, and exit criteria;
 - links to requirements, findings, scenarios, work, and history.
 
-Operational or machine-local:
+Project work records or optional operational capture:
 
 - audit progress;
 - sign-off progress;
 - local validation evidence;
 - raw notes that do not change authority meaning.
+
+Project audit notes, work status, and local validation evidence remain valid project knowledge. Any Make Docs operational capture belongs in the global Make Docs Store through the CLI. Do not treat local notes as installation, migration, or recovery authority.
+
+If the CLI is unavailable or optional capture fails, continue project work and report unavailable capture. Do not claim success, write directly to the Store, queue a later write, or create local fallback state. Required Store recording for CLI-managed changes remains mandatory.
 
 The documentation-first round does not require a new runtime schema, store table, or CLI operation.
 

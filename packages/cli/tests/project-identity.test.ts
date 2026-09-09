@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
@@ -14,6 +14,8 @@ import {
   upsertWorkEvidence,
   withStoreDatabase,
 } from "../src/store";
+import { parse, stringify } from "yaml";
+import { importLegacyInstallationState, previewLegacyInstallationState } from "../src/store/legacy-installation";
 import type { InstallManifest } from "../src/types";
 import {
   cleanupTempDir,
@@ -41,22 +43,21 @@ async function installTarget(targetDir: string): Promise<InstallManifest> {
   return manifest;
 }
 
-function readRawManifest(targetDir: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(getManifestPath(targetDir), "utf8")) as Record<
-    string,
-    unknown
-  >;
+function readConfig(targetDir: string): Record<string, unknown> {
+  return parse(readFileSync(path.join(targetDir, ".make-docs/config.yaml"), "utf8"));
 }
 
-function writeRawManifest(targetDir: string, manifest: Record<string, unknown>): void {
-  writeFileSync(getManifestPath(targetDir), `${JSON.stringify(manifest, null, 2)}\n`);
-}
-
-/** Rewrites the on-disk manifest to the pre-identifier shape (no projectId). */
-function stripProjectId(targetDir: string): void {
-  const raw = readRawManifest(targetDir);
-  delete raw.projectId;
-  writeRawManifest(targetDir, raw);
+/** Build a distinct unregistered legacy checkout; never corrupt a current ledger. */
+async function createPreIdentifierLegacy(targetDir: string): Promise<void> {
+  const source = createTempDir("make-docs-legacy-identity-source-");
+  try {
+    const raw = { ...await installTarget(source) } as Record<string, unknown>;
+    cpSync(source, targetDir, { recursive: true, filter: file => !file.includes(`${path.sep}.make-docs${path.sep}backup`) });
+    rmSync(path.join(targetDir, ".make-docs/config.yaml"), { force: true });
+    delete raw.projectId;
+    raw.schemaVersion = 3;
+    writeFileSync(getManifestPath(targetDir), `${JSON.stringify(raw, null, 2)}\n`);
+  } finally { cleanupTempDir(source); }
 }
 
 describe("stable project identity minting (W18 R10 P2, R-ID-1)", () => {
@@ -70,12 +71,12 @@ describe("stable project identity minting (W18 R10 P2, R-ID-1)", () => {
     cleanupTempDir(targetDir);
   });
 
-  it("mints a project identifier on fresh setup and persists it in .make-docs/manifest.json", async () => {
+  it("mints a project identifier on fresh setup and persists its declaration in config and applied records in the Store", async () => {
     const manifest = await installTarget(targetDir);
 
     expect(manifest.projectId).toMatch(UUID_V4_RE);
-    // The identifier is manifest-recorded, not held in memory only.
-    expect(readRawManifest(targetDir).projectId).toBe(manifest.projectId);
+    expect(readConfig(targetDir).projectId).toBe(manifest.projectId);
+    expect(existsSync(getManifestPath(targetDir))).toBe(false);
   });
 
   it("never re-mints or changes an existing identifier on re-setup, sync, or reconfigure", async () => {
@@ -105,38 +106,32 @@ describe("stable project identity minting (W18 R10 P2, R-ID-1)", () => {
     }
   });
 
-  it("mintProjectId produces manifest-shaped v4 UUIDs", () => {
+  it("mintProjectId produces v4 UUIDs", () => {
     const minted = mintProjectId();
     expect(minted).toMatch(UUID_V4_RE);
     expect(mintProjectId()).not.toBe(minted);
   });
 
-  it("loads pre-identifier manifests without rejecting them and migrates them on the next apply", async () => {
-    await installTarget(targetDir);
-    stripProjectId(targetDir);
-
-    // Explicit compatibility handling: the pre-identifier manifest stays
-    // fully loadable — never rejected — and simply has no identifier yet.
-    const preIdentifier = loadManifest(targetDir);
-    expect(preIdentifier).not.toBeNull();
-    expect(preIdentifier?.projectId).toBeUndefined();
-
-    // The next apply (bare sync) mints the identifier...
-    const migrated = await installTarget(targetDir);
+  it("imports pre-identifier legacy records explicitly and preserves the minted declaration", async () => {
+    await createPreIdentifierLegacy(targetDir);
+    expect(loadManifest(targetDir)).toBeNull();
+    expect(previewLegacyInstallationState(targetDir).manifest?.projectId).toBeUndefined();
+    expect(existsSync(getManifestPath(targetDir))).toBe(true);
+    importLegacyInstallationState(targetDir);
+    const migrated = loadManifest(targetDir)!;
     expect(migrated.projectId).toMatch(UUID_V4_RE);
-
-    // ...and later applies preserve it verbatim.
+    expect(readConfig(targetDir).projectId).toBe(migrated.projectId);
+    expect(existsSync(getManifestPath(targetDir))).toBe(false);
     const resynced = await installTarget(targetDir);
     expect(resynced.projectId).toBe(migrated.projectId);
   });
 
   it("rejects a malformed identifier with an explicit diagnostic instead of silently rewriting it", async () => {
     await installTarget(targetDir);
-    const raw = readRawManifest(targetDir);
-    raw.projectId = 42;
-    writeRawManifest(targetDir, raw);
-
-    expect(() => loadManifest(targetDir)).toThrow(/manifest\.projectId/);
+    const config = readConfig(targetDir);
+    config.projectId = 42;
+    writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), stringify(config));
+    expect(() => loadManifest(targetDir)).toThrow(/invalid projectId/);
   });
 });
 
@@ -174,17 +169,18 @@ describe("PRD 05 lifecycle safety with and without the identifier (R-ID-1)", () 
     expect(loadManifest(targetDir)?.projectId).toBe(installed.projectId);
   });
 
-  it("audit and backup work for pre-identifier manifests without minting or rejecting", async () => {
-    await installTarget(targetDir);
-    stripProjectId(targetDir);
+  it("audit does not infer legacy ownership; backup follows verified legacy transfer", async () => {
+    await createPreIdentifierLegacy(targetDir);
+    expect(loadManifest(targetDir)).toBeNull();
+    importLegacyInstallationState(targetDir);
     await auditWorks();
 
     const { runBackupCommand } = await import("../src/backup");
     await runBackupCommand({ targetDir, permissions: "allow-all" });
 
     expect(existsSync(path.join(targetDir, ".make-docs", "backup"))).toBe(true);
-    // Lifecycle reads never mint: only an install apply may add the identifier.
-    expect(loadManifest(targetDir)?.projectId).toBeUndefined();
+    expect(loadManifest(targetDir)?.projectId).toBe(readConfig(targetDir).projectId);
+    expect(existsSync(getManifestPath(targetDir))).toBe(false);
   });
 
   it("uninstall works for manifests WITH an identifier and keeps unmanaged files", async () => {
@@ -199,9 +195,9 @@ describe("PRD 05 lifecycle safety with and without the identifier (R-ID-1)", () 
     expect(readFileSync(keepPath, "utf8")).toBe("user content\n");
   });
 
-  it("uninstall works for pre-identifier manifests and keeps unmanaged files", async () => {
-    await installTarget(targetDir);
-    stripProjectId(targetDir);
+  it("project removal follows verified legacy transfer and keeps unmanaged files", async () => {
+    await createPreIdentifierLegacy(targetDir);
+    importLegacyInstallationState(targetDir);
     const keepPath = path.join(targetDir, "keep.txt");
     writeFileSync(keepPath, "user content\n");
 
@@ -224,7 +220,7 @@ describe("identity resolution seam (R-ID-2)", () => {
     cleanupTempDir(baseDir);
   });
 
-  it("resolves the manifest-minted identifier for an installed project", async () => {
+  it("resolves the declared project identifier for an installed project", async () => {
     const projectDir = path.join(baseDir, "project");
     mkdirSync(projectDir, { recursive: true });
     const manifest = await installTarget(projectDir);
@@ -244,20 +240,19 @@ describe("identity resolution seam (R-ID-2)", () => {
     expect(resolveProjectIdentity(emptyDir).status).toBe("no-manifest");
   });
 
-  it("reports unminted for a valid pre-identifier manifest instead of erroring or deriving from path", async () => {
+  it("does not derive current identity from an unimported legacy manifest", async () => {
     const projectDir = path.join(baseDir, "pre-identifier");
     mkdirSync(projectDir, { recursive: true });
-    await installTarget(projectDir);
-    stripProjectId(projectDir);
-
-    expect(resolveProjectIdentity(projectDir).status).toBe("unminted");
+    await createPreIdentifierLegacy(projectDir);
+    expect(resolveProjectIdentity(projectDir).status).toBe("no-manifest");
+    expect(previewLegacyInstallationState(projectDir).manifest).not.toBeNull();
   });
 
-  it("reports unreadable with a reason for a malformed manifest", async () => {
+  it("reports unreadable with a reason for malformed declarative config", async () => {
     const projectDir = path.join(baseDir, "broken");
     mkdirSync(projectDir, { recursive: true });
     await installTarget(projectDir);
-    writeFileSync(getManifestPath(projectDir), "{ not json\n");
+    writeFileSync(path.join(projectDir, ".make-docs/config.yaml"), "projectId: [\n");
 
     const resolution = resolveProjectIdentity(projectDir);
     expect(resolution.status).toBe("unreadable");
@@ -316,7 +311,7 @@ describe.skipIf(!sqliteAvailable)(
         });
       });
 
-      // Simulated directory move: the path changes, the manifest travels.
+      // Simulated directory move: the path changes, the declarative config travels.
       const movedDir = path.join(baseDir, "project-moved");
       renameSync(originalDir, movedDir);
 
@@ -353,7 +348,7 @@ describe.skipIf(!sqliteAvailable)(
       });
     });
 
-    it("a simulated clone carries the same identity because the manifest travels with the tree", async () => {
+    it("a simulated clone carries the same identity because the declarative config travels with the tree", async () => {
       const sourceDir = path.join(baseDir, "project-source");
       mkdirSync(sourceDir, { recursive: true });
       const manifest = await installTarget(sourceDir);
@@ -366,6 +361,8 @@ describe.skipIf(!sqliteAvailable)(
       if (resolution.status === "resolved") {
         expect(resolution.projectId).toBe(manifest.projectId);
       }
+      // A portable declaration does not carry installation ownership to a clone.
+      expect(loadManifest(cloneDir)).toBeNull();
     });
   },
 );

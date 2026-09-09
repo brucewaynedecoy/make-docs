@@ -1,3 +1,4 @@
+import { validateInstallationStoreRoot } from "../../store/installation-state";
 import path from "node:path";
 import { z } from "zod";
 import {
@@ -189,7 +190,7 @@ export function buildLifecycleOperations(
           return planned("lifecycle.start", identity.projectId, runId);
         }
         return captureMutation("lifecycle.start", identity.projectId, runId, () =>
-          withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot), (db) =>
+          withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot, identity.repoRoot), (db) =>
             createLifecycleRun(db, {
               projectId: identity.projectId,
               runId,
@@ -211,7 +212,7 @@ export function buildLifecycleOperations(
       handler(input) {
         const resolved = runReadInput.parse(input);
         const identity = lifecycleIdentity(resolved.repoRoot);
-        return withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot), (db) => {
+        return withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot, identity.repoRoot), (db) => {
           const run = readLifecycleRun(db, identity.projectId, resolved.runId);
           if (!run) throw new LifecycleRunNotFoundError(identity.projectId, resolved.runId);
           return {
@@ -231,7 +232,7 @@ export function buildLifecycleOperations(
       handler(input) {
         const resolved = listInput.parse(input);
         const identity = lifecycleIdentity(resolved.repoRoot);
-        return withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot), (db) => ({
+        return withStoreDatabase(lifecycleStoreRoot(resolved.storeRoot, identity.repoRoot), (db) => ({
           status: "listed",
           projectId: identity.projectId,
           runs: listLifecycleRuns(db, identity.projectId),
@@ -279,7 +280,7 @@ export function buildLifecycleOperations(
       handler(input, context) {
         const resolved = evidenceInput.parse(input);
         const identity = lifecycleIdentity(resolved.repoRoot);
-        const storeRoot = lifecycleStoreRoot(resolved.storeRoot);
+        const storeRoot = lifecycleStoreRoot(resolved.storeRoot, identity.repoRoot);
         const reference = sanitizeEvidenceReference(resolved, identity.repoRoot);
         if (context.dryRun) {
           return planned("lifecycle.attach-evidence", identity.projectId, resolved.runId);
@@ -390,7 +391,7 @@ function transitionHandler(
   },
 ): unknown {
   const identity = lifecycleIdentity(input.repoRoot);
-  const storeRoot = lifecycleStoreRoot(input.storeRoot);
+  const storeRoot = lifecycleStoreRoot(input.storeRoot, identity.repoRoot);
   if (context.dryRun) return planned(operation, identity.projectId, input.runId);
   return captureMutation(operation, identity.projectId, input.runId, () =>
     withStoreDatabase(storeRoot, (db) => {
@@ -422,18 +423,18 @@ function lifecycleIdentity(repoRoot: string | undefined): {
   }
   const guidance =
     resolution.status === "unminted"
-      ? "the manifest has no stable project identifier; run `make-docs` once to mint it"
+      ? "the project has no stable identifier; review `make-docs setup` to create it"
       : resolution.status === "no-manifest"
-        ? "the repository has no .make-docs/manifest.json; set up Make Docs first"
-        : "the .make-docs/manifest.json file is unreadable; repair it first";
+        ? "the repository has no declarative projectId; review Make Docs setup before capture"
+        : "the project identity is unreadable; repair its config first";
   throw new OperationError(
     `Cannot use lifecycle run capture because ${guidance}. ` +
-      "Lifecycle rows are keyed by the manifest-minted project identifier, never by a path.",
+      "Lifecycle rows are keyed by the declarative project identifier, never by a path.",
   );
 }
 
-function lifecycleStoreRoot(storeRoot: string | undefined): string {
-  return resolveStoreRoot(storeRoot ? { storeRoot } : {});
+function lifecycleStoreRoot(storeRoot: string | undefined, repoRoot: string): string {
+  return validateInstallationStoreRoot(repoRoot, resolveStoreRoot(storeRoot ? { storeRoot } : {}));
 }
 
 function readLifecycleRunOrThrow(

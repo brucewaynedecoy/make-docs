@@ -17,7 +17,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped MCP tool surface (6 hand-defined + 25 derived)", () => {
+  test("declares a shipped MCP tool surface (6 hand-defined + 27 derived)", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -29,6 +29,8 @@ describe("make-docs MCP runtime", () => {
       "make_docs_install_plan",
       // Derived from the operation registry (R-REG-2, R-MIG-3).
       "make_docs_prd_authority_validate",
+      "make_docs_project_state_status",
+      "make_docs_project_state_recover",
       "make_docs_project_surface_ensure",
       "make_docs_project_path_hygiene_validate",
       "make_docs_work_item_resolve",

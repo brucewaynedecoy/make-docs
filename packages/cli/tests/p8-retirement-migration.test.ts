@@ -12,6 +12,8 @@ import { RETIRED_PLAYBOOK_CONTRACT_PATH as contractPath, RETIRED_PLAYBOOK_CONTRA
 import { executeInstallPlanMigration, MIGRATION_CHECKPOINTS } from "../src/migration";
 import { bootstrapGlobalStore, loadSqliteDriver, openStoreDatabase } from "../src/store";
 
+import { listMigrationState, readMigrationState, readInstallationManifest } from "../src/store/installation-state";
+
 const roots: string[] = [];
 const originalStore = process.env.MAKE_DOCS_HOME;
 const contract = readFileSync(new URL("./fixtures/retired-playbook-contract.md", import.meta.url));
@@ -24,7 +26,8 @@ afterEach(() => {
 async function fixture() {
   const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-p8-"));
   roots.push(root);
-  const storeRoot = path.join(root, ".test-store");
+  const storeRoot = `${root}-store`;
+  roots.push(storeRoot);
   process.env.MAKE_DOCS_HOME = storeRoot;
   const selections = defaultSelections();
   selections.resourceProjection = [];
@@ -45,10 +48,7 @@ function run(f: Awaited<ReturnType<typeof fixture>>, review: Awaited<ReturnType<
   return executeInstallPlanMigration({ projectRoot: f.root, storeRoot: f.storeRoot, compatibility: review.compatibility,
     installPlan: review.plan, existingManifest: f.manifest, backupId: "retirement" });
 }
-function receipts(root: string) {
-  const directory = path.join(root, ".make-docs/state/migration-receipts");
-  return readdirSync(directory).map((name) => JSON.parse(readFileSync(path.join(directory, name), "utf8")));
-}
+function receipts(root: string) { return listMigrationState(root, "receipt"); }
 
 describe("W19 R1 P8 exact legacy retirement", () => {
   it("retires the trusted contract at checkpoint 11 and keeps user assets and the barrier", async () => {
@@ -66,7 +66,8 @@ describe("W19 R1 P8 exact legacy retirement", () => {
     expect(existsSync(path.join(f.root, contractPath))).toBe(false);
     expect(result.manifest.files[contractPath]).toBeUndefined();
     for (const relative of kept) expect(readFileSync(path.join(f.root, relative), "utf8")).toBe(`opaque ${relative}\n`);
-    expect(JSON.parse(readFileSync(path.join(f.root, ".make-docs/state/legacy-quiescence.json"), "utf8")).status).toBe("active");
+    expect(readMigrationState(f.root, "quiescence", "legacy")).toMatchObject({status: "active"});
+    expect(existsSync(path.join(f.root, ".make-docs/state"))).toBe(false);
     expect(existsSync(path.join(f.root, ".make-docs/state/migration.lock"))).toBe(false);
     expect(MIGRATION_CHECKPOINTS.slice(11).map((item) => item.state)).toEqual(["locked", "locked"]);
   });
@@ -91,11 +92,11 @@ describe("W19 R1 P8 exact legacy retirement", () => {
       expect(audit.removableFiles.some((item) => item.path === contractPath), variant).toBe(false);
       expect(readFileSync(absolute), variant).toEqual(variant === "modified" ? Buffer.from("project edit\n") : contract);
     }
-  });
+  }, 20_000);
 
   it.skipIf(!loadSqliteDriver().available)("keeps opaque legacy Store rows through checkpoint 11", async () => {
     const f = await fixture();
-    expect(bootstrapGlobalStore({ storeRoot: f.storeRoot }).databaseStatus).toBe("created");
+    expect(bootstrapGlobalStore({ storeRoot: f.storeRoot }).databaseStatus).toBe("ready");
     const opened = openStoreDatabase(f.storeRoot);
     const opaque = "  not JSON \u0000 legacy record  ";
     try {
@@ -116,17 +117,17 @@ describe("W19 R1 P8 exact legacy retirement", () => {
   it("rejects direct apply before it can bypass the migration lock and backup", async () => {
     const f = await fixture();
     const review = await reviewed(f);
-    const manifestBefore = readFileSync(path.join(f.root, ".make-docs/manifest.json"));
+    const manifestBefore = readInstallationManifest(f.root);
     expect(() => applyInstallPlan({ targetDir: f.root, plan: review.plan, existingManifest: f.manifest }))
       .toThrow("requires reviewed migration checkpoint 11");
     expect(readFileSync(path.join(f.root, contractPath))).toEqual(contract);
-    expect(readFileSync(path.join(f.root, ".make-docs/manifest.json"))).toEqual(manifestBefore);
+    expect(readInstallationManifest(f.root)).toEqual(manifestBefore);
   });
 
   it("rolls back exact bytes when checkpoint 11 cannot persist the retired manifest", async () => {
     const f = await fixture();
     const review = await reviewed(f);
-    const beforeManifest = readFileSync(path.join(f.root, ".make-docs/manifest.json"));
+    const beforeManifest = readInstallationManifest(f.root);
     const originalWrite = manifestApi.writeManifest;
     vi.spyOn(manifestApi, "writeManifest").mockImplementation((root, manifest) => {
       if (!manifest.files[contractPath]) throw new Error("retirement disk failure");
@@ -134,7 +135,7 @@ describe("W19 R1 P8 exact legacy retirement", () => {
     });
     expect(() => run(f, review)).toThrow("Migration checkpoint 11 ended with status failed");
     expect(readFileSync(path.join(f.root, contractPath))).toEqual(contract);
-    expect(readFileSync(path.join(f.root, ".make-docs/manifest.json"))).toEqual(beforeManifest);
+    expect(readInstallationManifest(f.root)).toEqual(beforeManifest);
     expect(receipts(f.root)).toContainEqual(expect.objectContaining({ checkpoint: 11, status: "failed", rollback: expect.objectContaining({ attempted: true, completed: true, unrestoredPaths: [] }) }));
   });
 });

@@ -1,4 +1,7 @@
-import { existsSync, mkdirSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, renameSync, rmSync, lstatSync, openSync, closeSync, writeFileSync, readFileSync, unlinkSync, fsyncSync } from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { getStoreDatabasePath } from "./paths";
 
@@ -21,7 +24,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 2;
+export const CURRENT_STORE_SCHEMA_VERSION = 3;
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -149,6 +152,22 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
        ON store_checkpoint_journal (project_root_digest, checkpoint, committed_at, receipt_id)`,
     ],
   },
+  {
+    version: 3,
+    description: "Store-owned installation ledger, checkout writers, recovery and legacy transfer provenance.",
+    statements: [
+      `CREATE TABLE installation_checkouts (checkout_id TEXT PRIMARY KEY, project_id TEXT NOT NULL, root_path TEXT NOT NULL UNIQUE, root_device TEXT NOT NULL, root_inode TEXT NOT NULL, created_at TEXT NOT NULL)`,
+      `CREATE TABLE installation_ledgers (checkout_id TEXT PRIMARY KEY REFERENCES installation_checkouts(checkout_id), manifest_json TEXT NOT NULL, updated_at TEXT NOT NULL)`,
+      `CREATE TABLE installation_operations (operation_id TEXT PRIMARY KEY, checkout_id TEXT NOT NULL REFERENCES installation_checkouts(checkout_id), operation TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','completed','rolled-back')), before_ledger TEXT, after_ledger TEXT, created_at TEXT NOT NULL, finished_at TEXT, plan_complete INTEGER NOT NULL DEFAULT 0)`,
+      `CREATE TABLE installation_steps (operation_id TEXT NOT NULL REFERENCES installation_operations(operation_id), ordinal INTEGER NOT NULL, relative_path TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL, applied INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(operation_id, ordinal))`,
+      `CREATE TABLE installation_locks (root_path TEXT PRIMARY KEY, token TEXT NOT NULL, pid INTEGER NOT NULL, hostname TEXT NOT NULL, acquired_at TEXT NOT NULL)`,
+      `CREATE TABLE installation_migration_records (checkout_id TEXT NOT NULL REFERENCES installation_checkouts(checkout_id), kind TEXT NOT NULL CHECK(kind IN ('receipt','quiescence','snapshot','backup','legacy-import')), record_id TEXT NOT NULL, record_json TEXT NOT NULL, PRIMARY KEY(checkout_id,kind,record_id))`,
+      `CREATE TABLE installation_transfers (checkout_id TEXT NOT NULL REFERENCES installation_checkouts(checkout_id), source_path TEXT NOT NULL, source_digest TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('imported','removed')), imported_at TEXT NOT NULL, PRIMARY KEY(checkout_id,source_path,source_digest))`,
+      `CREATE TABLE tool_operations (operation_id TEXT PRIMARY KEY, operation TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','completed','failed')), pid INTEGER NOT NULL, hostname TEXT NOT NULL, metadata_json TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT)`,
+      `CREATE TABLE store_schema_journal (schema_version INTEGER PRIMARY KEY, description TEXT NOT NULL, committed_at TEXT NOT NULL)`,
+      `INSERT INTO store_schema_journal VALUES (3, 'Store-owned installation state', strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
+    ],
+  },
 ];
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
@@ -198,8 +217,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 2 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 3 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string }
@@ -277,8 +296,7 @@ export interface OpenStoreDatabaseResult {
  * point. The ordinary open path cannot bypass its journal transaction.
  *
  * - Missing file: created fresh at the current schema (R-DB-4).
- * - Corrupt file: quarantined next to the store and recreated fresh; the
- *   caller reports recoverable operational-state loss (R-DB-4).
+ * - Corrupt or unknown file: preserved; the caller reports Store unavailable.
  * - Newer schema: throws {@link StoreSchemaNewerError} without reading or
  *   writing any table (R-DB-2).
  * - Missing driver: throws {@link StoreUnavailableError}.
@@ -288,65 +306,48 @@ export function openStoreDatabase(
   options: { recoverCorrupt?: boolean } = {},
 ): OpenStoreDatabaseResult {
   const driver = loadSqliteDriver();
-  if (!driver.available) {
-    throw new StoreUnavailableError(driver.reason);
-  }
-
-  mkdirSync(storeRoot, { recursive: true });
-  const databasePath = getStoreDatabasePath(storeRoot);
-  const existed = existsSync(databasePath);
-
+  if (!driver.available) throw new StoreUnavailableError(driver.reason);
+  const release = acquireStoreAccess(storeRoot);
   let db: StoreDatabase | null = null;
-  let recovered = false;
-  let quarantinedPath: string | null = null;
-
   try {
-    db = connect(driver.sqlite, databasePath, existed);
-  } catch (error) {
-    if (options.recoverCorrupt === false) {
-      throw error;
+    const classification = classifyStoreCheckpoint9State(storeRoot);
+    const databasePath = getStoreDatabasePath(storeRoot);
+    if (classification.state === "newer-unknown") throw new StoreSchemaNewerError(classification.schemaVersion, CURRENT_STORE_SCHEMA_VERSION, databasePath);
+    if (classification.state === "supported-legacy") throw new StoreMigrationRequiredError(classification.schemaVersion, CURRENT_STORE_SCHEMA_VERSION, databasePath);
+    if (classification.state !== "absent" && classification.state !== "supported-current") throw new StoreCheckpoint9StateError(classification);
+    db = connect(driver.sqlite, databasePath, classification.state !== "absent");
+    if (classification.state === "absent") applyStoreMigrations(db, 0);
+    const close = db.close.bind(db);
+    db.close = () => { try { close(); } finally { release(); } };
+    return {db, databasePath, created: classification.state === "absent", recovered: false, quarantinedPath: null, previousSchemaVersion: classification.schemaVersion, schemaVersion: CURRENT_STORE_SCHEMA_VERSION};
+  } catch (error) { closeQuietly(db); release(); throw error; }
+}
+
+/** Hold this lease until the connection closes. Removal uses the same marker. */
+const accessLeases = new Map<string, {count: number; release: () => void}>();
+export function acquireStoreAccess(storeRoot: string, preparing = false): () => void {
+  storeRoot=path.resolve(storeRoot);
+  const prior=accessLeases.get(storeRoot);
+  if(prior){prior.count++;let done=false;return ()=>{if(!done){done=true;prior.release();}};}
+  const check = () => {
+    for (const suffix of ["store.db", "store.db-wal", "store.db-shm", "store-access.lock", "removal.lock", "installation-bootstrap.lock"]) {
+      if (lstatSync(path.join(storeRoot, suffix), {throwIfNoEntry: false})?.isSymbolicLink()) throw new StoreUnavailableError(`Unsafe Store path: ${suffix}`);
     }
-    // The file exists but SQLite cannot use it: quarantine and recreate.
-    quarantinedPath = quarantineDatabase(databasePath);
-    recovered = true;
-    db = connect(driver.sqlite, databasePath, false);
-  }
-
-  try {
-    const previousSchemaVersion = existed && !recovered ? readUserVersion(db) : null;
-    const startingVersion = previousSchemaVersion ?? 0;
-
-    if (startingVersion > CURRENT_STORE_SCHEMA_VERSION) {
-      throw new StoreSchemaNewerError(
-        startingVersion,
-        CURRENT_STORE_SCHEMA_VERSION,
-        databasePath,
-      );
-    }
-
-    if (startingVersion > 0 && startingVersion < CURRENT_STORE_SCHEMA_VERSION) {
-      throw new StoreMigrationRequiredError(
-        startingVersion,
-        CURRENT_STORE_SCHEMA_VERSION,
-        databasePath,
-      );
-    }
-
-    applyStoreMigrations(db, startingVersion);
-
-    return {
-      db,
-      databasePath,
-      created: !existed,
-      recovered,
-      quarantinedPath,
-      previousSchemaVersion,
-      schemaVersion: CURRENT_STORE_SCHEMA_VERSION,
-    };
-  } catch (error) {
-    closeQuietly(db);
-    throw error;
-  }
+    if (existsSync(path.join(storeRoot, "installation-lease-recovery.lock")) || existsSync(path.join(storeRoot, "removal.lock")) || (!preparing && existsSync(path.join(storeRoot, "installation-bootstrap.lock")))) throw new StoreUnavailableError("The Store is locked for removal or schema preparation.");
+  };
+  check(); mkdirSync(storeRoot, {recursive: true});
+  const file = path.join(storeRoot, "store-access.lock");
+  let fd: number;
+  try { fd = openSync(file, "wx", 0o600); } catch { throw new StoreUnavailableError("Another operation holds the Store access lease."); }
+  const token = randomUUID(); let released = false;
+  const lease={count:1,release:()=>{}};
+  const release = () => {
+    if (released) return; if(--lease.count>0)return; released = true; accessLeases.delete(storeRoot);
+    try { if (JSON.parse(readFileSync(file, "utf8")).token === token) unlinkSync(file); } finally { closeSync(fd); }
+  };
+  lease.release=release;
+  try { writeFileSync(fd, JSON.stringify({token, pid: process.pid, hostname: os.hostname()})); fsyncSync(fd); check(); accessLeases.set(storeRoot,lease);return release; }
+  catch (error) { release(); throw error; }
 }
 
 export interface StoreCheckpoint9MigrationResult {
@@ -369,6 +370,8 @@ const VERSION_TWO_TABLES = [
   "runs",
   "store_checkpoint_journal",
 ] as const;
+
+const VERSION_THREE_TABLES = [...VERSION_TWO_TABLES, "installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps", "installation_locks", "installation_migration_records", "installation_transfers", "tool_operations", "store_schema_journal"] as const;
 
 /** Classifies the Store without creating a directory, database, sidecar, or table. */
 export function classifyStoreCheckpoint9State(
@@ -411,7 +414,7 @@ export function classifyStoreCheckpoint9State(
         reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
       };
     }
-    if (schemaVersion !== 1 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
       return {
         state: "unknown",
         databasePath,
@@ -419,7 +422,7 @@ export function classifyStoreCheckpoint9State(
         reason: `schema version ${schemaVersion} is not a supported checkpoint-9 input`,
       };
     }
-    const expectedTables = schemaVersion === 1 ? VERSION_ONE_TABLES : VERSION_TWO_TABLES;
+    const expectedTables = schemaVersion === 1 ? VERSION_ONE_TABLES : schemaVersion === 2 ? VERSION_TWO_TABLES : VERSION_THREE_TABLES;
     const actualTables = new Set(
       (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
         .map((row) => row.name),
@@ -433,9 +436,9 @@ export function classifyStoreCheckpoint9State(
         reason: `required schema objects are missing: ${missingTables.join(", ")}`,
       };
     }
-    return schemaVersion === 1
-      ? { state: "supported-legacy", databasePath, schemaVersion }
-      : { state: "supported-current", databasePath, schemaVersion };
+    return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 }
+      : { state: "supported-current", databasePath, schemaVersion: 3 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     return {
@@ -689,7 +692,7 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
     });
   }
-  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
     throw new StoreCheckpoint9StateError({
       state: "unknown",
       databasePath,
@@ -699,9 +702,9 @@ function assertCheckpoint9StateInsideTransaction(
   }
   const expectedTables = schemaVersion === 1
     ? VERSION_ONE_TABLES
-    : schemaVersion === CURRENT_STORE_SCHEMA_VERSION
+    : schemaVersion === 2
       ? VERSION_TWO_TABLES
-      : [];
+      : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_THREE_TABLES : [];
   const actualTables = new Set(
     (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
       .map((row) => row.name),

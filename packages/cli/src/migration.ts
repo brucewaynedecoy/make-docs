@@ -2,18 +2,14 @@ import { validateUatCheckpoint10 } from "./operations/uat/ops";
 import { createHash, randomUUID } from "node:crypto";
 import {
   chmodSync,
-  closeSync,
   copyFileSync,
   existsSync,
-  fsyncSync,
   lstatSync,
   mkdirSync,
-  openSync,
   readFileSync,
   readlinkSync,
   realpathSync,
   readdirSync,
-  renameSync,
   rmSync,
   symlinkSync,
   utimesSync,
@@ -32,7 +28,7 @@ import type {
   ResourceProjectionManifestState,
   SystemAssetManifestState,
 } from "./types";
-import { MANIFEST_RELATIVE_PATH, writeManifest, RETIRED_PLAYBOOK_CONTRACT_PATH,
+import { MANIFEST_RELATIVE_PATH, loadManifest, writeManifest, RETIRED_PLAYBOOK_CONTRACT_PATH,
   RETIRED_PLAYBOOK_CONTRACT_HASH, hasTrustedRetiredPlaybookContractOwnership } from "./manifest";
 import { listOperations } from "./operations/registry";
 import { loadInstalledSystemResourceProvider } from "./operations/resource/provider";
@@ -45,7 +41,6 @@ import {
   CURRENT_STORE_SCHEMA_VERSION,
   classifyStoreCheckpoint9State,
   getStoreDatabasePath,
-  loadGlobalManifest,
   migrateStoreDatabaseAtCheckpoint9,
   readStoreCheckpoint9JournalEntry,
   resolveStoreRoot,
@@ -65,6 +60,16 @@ import {
   relativePathToTarget,
 } from "./utils";
 import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
+import { resolveInstallProfile } from "./profile";
+
+import {
+  withInstallationOperation,
+  acquireInstallationLock,
+  releaseInstallationLock,
+  assertInstallationLockActive,
+  recordMigrationState,
+  readMigrationState,
+} from "./store/installation-state";
 
 export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
   "playbook.validate",
@@ -89,6 +94,8 @@ export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
 
 export type LegacyCompatibilityOperationId =
   (typeof LEGACY_COMPATIBILITY_OPERATION_IDS)[number];
+
+const activeLegacyLeases = new Set<string>();
 
 const LEGACY_COMPATIBILITY_OPERATION_SET = new Set<string>(
   LEGACY_COMPATIBILITY_OPERATION_IDS,
@@ -198,6 +205,7 @@ export interface ReviewedMigrationSnapshot {
 
 export interface ProjectMigrationLock {
   projectRoot: string;
+  storeRoot: string;
   lockPath: string;
   token: string;
   acquiredAt: string;
@@ -371,11 +379,11 @@ interface QuiescenceRecord {
   legacyOperations: LegacyCompatibilityOperationId[];
 }
 
+// Read-only detection of obsolete writers. New writers never create these paths.
 const MIGRATION_STATE_RELATIVE_DIR = ".make-docs/state";
 const MIGRATION_LOCK_RELATIVE_PATH = `${MIGRATION_STATE_RELATIVE_DIR}/migration.lock.json`;
 const QUIESCENCE_RELATIVE_PATH = `${MIGRATION_STATE_RELATIVE_DIR}/legacy-quiescence.json`;
 const WRITER_DIR_RELATIVE_PATH = `${MIGRATION_STATE_RELATIVE_DIR}/legacy-writers`;
-const RECEIPT_DIR_RELATIVE_PATH = `${MIGRATION_STATE_RELATIVE_DIR}/migration-receipts`;
 
 export function classifyMigrationCompatibility(input: {
   state: CompatibilitySourceState;
@@ -432,51 +440,32 @@ export function classifyMigrationCompatibility(input: {
 
 export function acquireProjectMigrationLock(input: {
   projectRoot: string;
+  storeRoot?: string;
   now?: string;
 }): ProjectMigrationLock {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
-  ensureMigrationStateDirectory(projectRoot);
-  const repository = readRepositoryIdentity(projectRoot);
-  const lockPath = path.join(projectRoot, MIGRATION_LOCK_RELATIVE_PATH);
-  const token = randomUUID();
-  const acquiredAt = input.now ?? new Date().toISOString();
+  assertNoActiveLegacyWriters(projectRoot);
+  if (activeLegacyLeases.has(projectRoot)) throw new MigrationSafetyError("active-writer", "Migration cannot start while legacy writers are active.");
+  const lease = acquireInstallationLock(projectRoot, input.storeRoot);
   const lock: ProjectMigrationLock = {
+    ...lease,
     projectRoot,
-    lockPath,
-    token,
-    acquiredAt,
-    repository,
+    storeRoot: lease.storeRoot,
+    acquiredAt: input.now ?? new Date().toISOString(),
+    repository: readRepositoryIdentity(projectRoot),
   };
-  let descriptor: number;
-  try {
-    descriptor = openSync(lockPath, "wx", 0o600);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "EEXIST") {
-      throw new MigrationSafetyError("lock-active", "A project migration lock is already active.");
-    }
-    throw error;
-  }
-  try {
-    writeFileSync(descriptor, `${JSON.stringify({ schemaVersion: 1, ...lock }, null, 2)}\n`);
-    fsyncSync(descriptor);
-  } finally {
-    closeSync(descriptor);
-  }
-
   try {
     assertNoActiveLegacyWriters(projectRoot);
     writeQuiescence(projectRoot, {
       schemaVersion: 1,
       status: "active",
-      lockTokenDigest: digest(token),
+      lockTokenDigest: digest(lock.token),
       snapshotId: null,
-      activatedAt: acquiredAt,
+      activatedAt: lock.acquiredAt,
       legacyOperations: [...LEGACY_COMPATIBILITY_OPERATION_IDS],
-    });
-    assertNoActiveLegacyWriters(projectRoot);
+    }, lock.storeRoot);
   } catch (error) {
-    rmSync(path.join(projectRoot, QUIESCENCE_RELATIVE_PATH), { force: true });
-    rmSync(lockPath, { force: true });
+    releaseInstallationLock(lock);
     throw error;
   }
   return lock;
@@ -484,19 +473,11 @@ export function acquireProjectMigrationLock(input: {
 
 export function releaseProjectMigrationLock(lock: ProjectMigrationLock): void {
   assertMigrationLockTokenActive(lock);
-  rmSync(lock.lockPath, { force: false });
+  releaseInstallationLock(lock);
 }
 
 export function assertProjectMigrationLockActive(lock: ProjectMigrationLock): void {
-  let stored: { token?: unknown };
-  try {
-    stored = JSON.parse(readFileSync(lock.lockPath, "utf8")) as { token?: unknown };
-  } catch {
-    throw new MigrationSafetyError("lock-lost", "The project migration lock is missing or unreadable.");
-  }
-  if (stored.token !== lock.token) {
-    throw new MigrationSafetyError("lock-lost", "The project migration lock token changed.");
-  }
+  assertMigrationLockTokenActive(lock);
   const current = readRepositoryIdentity(lock.projectRoot);
   if (stableJson(current) !== stableJson(lock.repository)) {
     throw new MigrationSafetyError(
@@ -526,6 +507,7 @@ export function createReviewedMigrationSnapshot(input: {
     ...subject,
     snapshotId: `sha256:${digest(stableJson(subject))}`,
   };
+  recordMigrationState(input.lock.projectRoot, "snapshot", snapshot.snapshotId, snapshot, input.lock.storeRoot);
   bindQuiescenceToSnapshot(input.lock, snapshot.snapshotId);
   return snapshot;
 }
@@ -549,7 +531,7 @@ export function assertReviewedMigrationSnapshotCurrent(
       "An affected path changed after the migration snapshot was reviewed.",
     );
   }
-  const barrier = readQuiescence(lock.projectRoot);
+  const barrier = readQuiescence(lock.projectRoot, lock.storeRoot);
   if (barrier.snapshotId !== snapshot.snapshotId) {
     throw new MigrationSafetyError(
       "barrier-bypass",
@@ -618,9 +600,9 @@ export function createVerifiedMigrationBackup(input: {
       createdAt,
       entries,
     };
-    const manifestPath = path.join(backupRoot, "backup-manifest.json");
-    writeJsonAtomic(manifestPath, manifestBody);
-    const manifestDigest = digest(readFileSync(manifestPath));
+    const manifestPath = `make-docs://store/migration/backup/${encodeURIComponent(backupId)}`;
+    recordMigrationState(input.lock.projectRoot, "backup", backupId, manifestBody, input.lock.storeRoot);
+    const manifestDigest = digest(stableJson(manifestBody));
     const backup: VerifiedMigrationBackup = {
       schemaVersion: 1,
       backupId,
@@ -658,7 +640,8 @@ function verifyMigrationBackupFiles(
   if (backup.snapshotId !== snapshot.snapshotId || backup.projectRoot !== lock.projectRoot) {
     throw new MigrationSafetyError("backup-incomplete", "The backup is not bound to this migration snapshot.");
   }
-  if (!existsSync(backup.manifestPath) || digest(readFileSync(backup.manifestPath)) !== backup.manifestDigest) {
+  const storedBackup = readMigrationState(lock.projectRoot, "backup", backup.backupId, lock.storeRoot);
+  if (!storedBackup || digest(stableJson(storedBackup)) !== backup.manifestDigest) {
     throw new MigrationSafetyError("backup-incomplete", "The backup manifest is missing or changed.");
   }
   for (const entry of backup.entries) {
@@ -684,6 +667,8 @@ export function restoreMigrationBackup(input: {
   lock: ProjectMigrationLock;
   snapshot: ReviewedMigrationSnapshot;
   backup: VerifiedMigrationBackup;
+  expectedPaths?: readonly MigrationPathSnapshot[];
+  plannedActions?: readonly PlannedAction[];
 }): { restoredPaths: string[]; unrestoredPaths: string[] } {
   const recoveryPaths = migrationRecoveryPaths(input.backup.entries);
   try {
@@ -696,6 +681,15 @@ export function restoreMigrationBackup(input: {
   const unrestoredPaths: string[] = [];
   for (const entry of [...input.backup.entries].sort((a, b) => a.restoreOrder - b.restoreOrder)) {
     const destination = path.join(input.lock.projectRoot, ...entry.relativePath.split("/"));
+    const current = inspectPath(input.lock.projectRoot, entry.original);
+    const known = [entry.original, ...(input.expectedPaths ?? []).filter(x => x.relativePath === entry.relativePath)];
+    const action = input.plannedActions?.find(x => x.relativePath === entry.relativePath);
+    const knownWrite = current.entryType === "file" && typeof action?.content === "string" && current.digest === digest(action.content);
+    const knownRemoval = current.entryType === "missing" && action?.type === "remove-managed";
+    if (!knownWrite && !knownRemoval && !known.some(x => stableJson(x) === stableJson(current))) {
+      unrestoredPaths.push(entry.relativePath);
+      continue;
+    }
     if (
       entry.original.entryType === "missing" &&
       isMutatingDisposition(entry.original.disposition)
@@ -765,31 +759,19 @@ export function enterLegacyCompatibilityOperation(input: {
   mutates: boolean;
 }): () => void {
   if (!LEGACY_COMPATIBILITY_OPERATION_SET.has(input.operationId)) return () => undefined;
-  const projectRoot = resolveProjectRoot(input.projectRoot);
+  const projectRoot = realpathSync(resolveProjectRoot(input.projectRoot));
   assertLegacyOperationNotQuiesced(projectRoot, input.operationId);
   if (!input.mutates) return () => undefined;
 
-  ensureMigrationStateDirectory(projectRoot);
-  const writerDir = path.join(projectRoot, WRITER_DIR_RELATIVE_PATH);
-  mkdirSync(writerDir, { recursive: true, mode: 0o700 });
-  const leasePath = path.join(writerDir, `${process.pid}-${randomUUID()}.json`);
-  const descriptor = openSync(leasePath, "wx", 0o600);
-  try {
-    writeFileSync(
-      descriptor,
-      `${JSON.stringify({ operationId: input.operationId, pid: process.pid, startedAt: new Date().toISOString() })}\n`,
-    );
-    fsyncSync(descriptor);
-  } finally {
-    closeSync(descriptor);
-  }
+  const lease = acquireInstallationLock(projectRoot);
   try {
     assertLegacyOperationNotQuiesced(projectRoot, input.operationId);
   } catch (error) {
-    rmSync(leasePath, { force: true });
+    releaseInstallationLock(lease);
     throw error;
   }
-  return () => rmSync(leasePath, { force: true });
+  activeLegacyLeases.add(projectRoot);
+  return () => { activeLegacyLeases.delete(projectRoot); releaseInstallationLock(lease); };
 }
 
 export function resolveLegacyOperationProjectRoot(
@@ -1015,6 +997,8 @@ export class ImmutableMigrationCoordinator {
           lock: this.lock,
           snapshot: this.snapshot,
           backup: this.backup,
+          expectedPaths: this.expectedPaths,
+          plannedActions: this.productPlan?.installPlan.actions,
         });
         rollback = {
           attempted: true,
@@ -1197,14 +1181,26 @@ function validateRetirementProductBoundary(): void {
   }
 }
 
-export function executeInstallPlanMigration(input: {
+type InstallPlanMigrationInput = {
   projectRoot: string;
   storeRoot: string;
   compatibility: CompatibilityClassification;
   installPlan: InstallPlan;
   existingManifest: InstallManifest | null;
   backupId?: string;
-}): InstallPlanMigrationResult {
+};
+export function executeInstallPlanMigration(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
+  return withInstallationOperation(input.projectRoot, "setup.migration", () => {
+    if (stableJson(loadManifest(input.projectRoot)) !== stableJson(input.existingManifest)) {
+      throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
+    }
+    return executeInstallPlanMigrationOwned(input);
+  }, {
+    storeRoot: input.storeRoot,
+    projectId: input.existingManifest?.projectId,
+  });
+}
+function executeInstallPlanMigrationOwned(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
   assertStoreCheckpoint9SetupSafe(input.storeRoot);
   const unresolved = findReviewableManagedFileConflicts(input.installPlan);
@@ -1214,7 +1210,7 @@ export function executeInstallPlanMigration(input: {
       "The install plan still has unresolved ownership or safety stops.",
     );
   }
-  const lock = acquireProjectMigrationLock({ projectRoot });
+  const lock = acquireProjectMigrationLock({ projectRoot, storeRoot: input.storeRoot });
   try {
     const productPlan = createFixedMigrationProductPlan(
       projectRoot,
@@ -1285,7 +1281,7 @@ export function executeStoreCheckpoint9Migration(input: {
 }): StoreCheckpoint9ExecutionResult {
   const storeClassification = assertStoreCheckpoint9SetupSafe(input.storeRoot);
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
-  const lock = acquireProjectMigrationLock({ projectRoot });
+  const lock = acquireProjectMigrationLock({ projectRoot, storeRoot: input.storeRoot });
   try {
     const classification: MigrationCompatibilityClassification = {
       state: "clean-v2-full-snapshot",
@@ -1459,7 +1455,8 @@ function createFixedMigrationProductPlan(
     if (action.relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH) {
       if (action.type === "remove-managed") retirementActions.push(action);
       else preservedActions.push(action);
-    } else if (action.sourceId?.startsWith("router:")) {
+    } else if (action.sourceId?.startsWith("router:") ||
+        existingManifest?.files[action.relativePath]?.sourceId.startsWith("router:")) {
       routerActions.push(action);
     } else if (action.sourceId?.startsWith("resource:")) {
       resourceActions.push(action);
@@ -1493,6 +1490,12 @@ function applyFixedInstallStage(
   checkpoint: 3 | 4 | 5 | 6 | 7,
   actions: readonly PlannedAction[],
 ): void {
+  // The outer Store operation already reserves project identity. A checkpoint
+  // with no file actions must not publish final ownership ahead of its writes.
+  if (checkpoint === 3) return;
+  // Earlier checkpoints can normalize the reserved Store ledger. The outer
+  // operation checked the reviewed ledger before any migration write.
+  product.currentManifest = loadManifest(product.projectRoot);
   const stagePlan = fixedStagePlan(product, checkpoint, actions);
   const result = applyInstallPlan({
     targetDir: product.projectRoot,
@@ -1510,32 +1513,31 @@ function fixedStagePlan(
   actions: readonly PlannedAction[],
 ): InstallPlan {
   const { classificationSnapshot: _classificationSnapshot, ...basePlan } = product.installPlan;
-  const installedPaths = new Set([
-    ...Object.keys(product.currentManifest?.files ?? {}),
-    ...actions.flatMap((action) =>
-      action.type === "create" || action.type === "update" || action.type === "generate"
-        ? [action.relativePath]
-        : [],
-    ),
-  ]);
+  const installedPaths = new Set(Object.keys(product.currentManifest?.files ?? {}));
+  for (const action of actions) {
+    if (["remove-managed", "strip-managed-block", "update-conflict"].includes(action.type)) {
+      installedPaths.delete(action.relativePath);
+    } else if (["create", "update", "generate", "noop"].includes(action.type) &&
+        basePlan.desiredFiles[action.relativePath]) {
+      installedPaths.add(action.relativePath);
+    }
+  }
+  const resourceProjection = checkpoint >= 6
+    ? product.installPlan.resourceProjection
+    : (product.currentManifest?.resourceProjection ?? product.installPlan.resourceProjection);
   return {
     ...basePlan,
+    profile: resourceProjection ? resolveInstallProfile({
+      ...basePlan.profile.selections,
+      resourceProjection: [...resourceProjection.selectedTypes],
+    }) : basePlan.profile,
     actions: [...actions],
     desiredSkillFiles: [...(product.currentManifest?.skillFiles ?? [])],
     systemAssetMaterialization: filterSystemAssetState(
       product.installPlan.systemAssetMaterialization,
       installedPaths,
     ),
-    ...((checkpoint >= 6
-      ? product.installPlan.resourceProjection
-      : product.currentManifest?.resourceProjection)
-      ? {
-          resourceProjection:
-            checkpoint >= 6
-              ? product.installPlan.resourceProjection!
-              : product.currentManifest!.resourceProjection!,
-        }
-      : {}),
+    ...(resourceProjection ? { resourceProjection } : {}),
     stops: [],
     forceManifestWrite: true,
   };
@@ -1667,18 +1669,7 @@ function classificationFromReviewedInstallPlan(
 }
 
 function inspectMigrationStoreFacet(storeRoot: string): MigrationStoreState {
-  const databasePath = getStoreDatabasePath(storeRoot);
-  const globalManifestPath = path.join(storeRoot, "manifest.json");
-  if (!existsSync(databasePath) && !existsSync(globalManifestPath)) return "absent";
-  const manifest = loadGlobalManifest(storeRoot);
-  if (!manifest || !existsSync(databasePath)) return "corrupt";
-  if (manifest.database.status === "schema-newer") return "newer-unknown";
-  if (manifest.database.status === "unavailable" || manifest.database.schemaVersion === null) {
-    return "corrupt";
-  }
-  if (manifest.database.schemaVersion > CURRENT_STORE_SCHEMA_VERSION) return "newer-unknown";
-  if (manifest.database.schemaVersion < CURRENT_STORE_SCHEMA_VERSION) return "supported-legacy";
-  return "supported-current";
+  return classifyStoreCheckpoint9State(storeRoot).state;
 }
 
 function affectedPathsFromInstallPlan(
@@ -1690,11 +1681,9 @@ function affectedPathsFromInstallPlan(
   const manifestExists = existsSync(path.join(projectRoot, MANIFEST_RELATIVE_PATH));
   add({
     relativePath: MANIFEST_RELATIVE_PATH,
-    ownership: product.existingManifest || !manifestExists ? "managed-clean" : "project-owned",
-    disposition: product.existingManifest || !manifestExists
-      ? "overwrite-managed-clean"
-      : "export-then-replace",
-    reason: "The reviewed migration updates the project manifest in ordered checkpoints.",
+    ownership: "project-owned",
+    disposition: "preserve-project-owned",
+    reason: "Legacy manifest is read-only input; Store owns the current installation ledger.",
   });
   for (const action of product.installPlan.actions) {
     const preserved = product.preservedActions.includes(action);
@@ -1756,14 +1745,10 @@ function normalizeAffectedPaths(
 }
 
 function assertMigrationLockTokenActive(lock: ProjectMigrationLock): void {
-  let stored: { token?: unknown };
   try {
-    stored = JSON.parse(readFileSync(lock.lockPath, "utf8")) as { token?: unknown };
+    assertInstallationLockActive(lock);
   } catch {
-    throw new MigrationSafetyError("lock-lost", "The project migration lock is missing or unreadable.");
-  }
-  if (stored.token !== lock.token) {
-    throw new MigrationSafetyError("lock-lost", "The project migration lock token changed.");
+    throw new MigrationSafetyError("lock-lost", "The Store migration lock token changed or is missing.");
   }
 }
 
@@ -1866,36 +1851,22 @@ function assertProjectRelativePosix(value: string): string {
 }
 
 function readRepositoryIdentity(projectRoot: string): MigrationRepositoryIdentity {
-  const manifestPath = path.join(projectRoot, MANIFEST_RELATIVE_PATH);
-  let projectId: string | null = null;
-  let manifestSchemaVersion: number | null = null;
-  let manifestDigest: string | null = null;
-  if (existsSync(manifestPath)) {
-    const bytes = readFileSync(manifestPath);
-    manifestDigest = digest(bytes);
-    try {
-      const manifest = JSON.parse(bytes.toString("utf8")) as Partial<InstallManifest>;
-      projectId = typeof manifest.projectId === "string" ? manifest.projectId : null;
-      manifestSchemaVersion =
-        typeof manifest.schemaVersion === "number" ? manifest.schemaVersion : null;
-    } catch {
-      // The digest remains exact. Classification owns the malformed state.
-    }
-  }
+  const localPath = path.join(projectRoot, MANIFEST_RELATIVE_PATH);
+  const manifest = existsSync(localPath)
+    ? JSON.parse(readFileSync(localPath, "utf8")) as Partial<InstallManifest>
+    : loadManifest(projectRoot);
   return {
     projectRootDigest: digest(realpathSync(projectRoot)),
-    projectId,
-    manifestSchemaVersion,
-    manifestDigest,
+    projectId: manifest?.projectId ?? null,
+    manifestSchemaVersion: manifest?.schemaVersion ?? null,
+    manifestDigest: manifest ? digest(stableJson(manifest)) : null,
   };
 }
 
-function ensureMigrationStateDirectory(projectRoot: string): void {
-  assertManagedPathHasNoSymlinks(projectRoot, MIGRATION_STATE_RELATIVE_DIR);
-  mkdirSync(path.join(projectRoot, MIGRATION_STATE_RELATIVE_DIR), { recursive: true, mode: 0o700 });
-}
-
 function assertNoActiveLegacyWriters(projectRoot: string): void {
+  if (existsSync(path.join(projectRoot, MIGRATION_LOCK_RELATIVE_PATH))) {
+    throw new MigrationSafetyError("active-writer", "An obsolete CLI migration lock requires review before transfer.");
+  }
   const writerDir = path.join(projectRoot, WRITER_DIR_RELATIVE_PATH);
   if (!existsSync(writerDir)) return;
   const active = readdirSync(writerDir).filter((name) => name.endsWith(".json"));
@@ -1908,15 +1879,15 @@ function assertNoActiveLegacyWriters(projectRoot: string): void {
 }
 
 function bindQuiescenceToSnapshot(lock: ProjectMigrationLock, snapshotId: string): void {
-  const barrier = readQuiescence(lock.projectRoot);
+  const barrier = readQuiescence(lock.projectRoot, lock.storeRoot);
   if (barrier.lockTokenDigest !== digest(lock.token)) {
     throw new MigrationSafetyError("barrier-bypass", "The quiescence barrier belongs to another lock.");
   }
-  writeQuiescence(lock.projectRoot, { ...barrier, snapshotId });
+  writeQuiescence(lock.projectRoot, { ...barrier, snapshotId }, lock.storeRoot);
 }
 
 function assertBarrierBoundToSnapshot(lock: ProjectMigrationLock, snapshotId: string): void {
-  const barrier = readQuiescence(lock.projectRoot);
+  const barrier = readQuiescence(lock.projectRoot, lock.storeRoot);
   if (
     barrier.lockTokenDigest !== digest(lock.token) ||
     barrier.snapshotId !== snapshotId ||
@@ -1929,14 +1900,13 @@ function assertBarrierBoundToSnapshot(lock: ProjectMigrationLock, snapshotId: st
   }
 }
 
-function writeQuiescence(projectRoot: string, record: QuiescenceRecord): void {
-  writeJsonAtomic(path.join(projectRoot, QUIESCENCE_RELATIVE_PATH), record);
+function writeQuiescence(projectRoot: string, record: QuiescenceRecord, storeRoot?: string): void {
+  recordMigrationState(projectRoot, "quiescence", "legacy", record, storeRoot);
 }
 
-function readQuiescence(projectRoot: string): QuiescenceRecord {
-  const barrierPath = path.join(projectRoot, QUIESCENCE_RELATIVE_PATH);
+function readQuiescence(projectRoot: string, storeRoot?: string): QuiescenceRecord {
   try {
-    const value = JSON.parse(readFileSync(barrierPath, "utf8")) as QuiescenceRecord;
+    const value = readMigrationState(projectRoot, "quiescence", "legacy", storeRoot) as QuiescenceRecord;
     if (
       value.schemaVersion !== 1 ||
       value.status !== "active" ||
@@ -1956,8 +1926,9 @@ function readQuiescence(projectRoot: string): QuiescenceRecord {
 function assertLegacyOperationNotQuiesced(projectRoot: string, operationId: string): void {
   const lockPath = path.join(projectRoot, MIGRATION_LOCK_RELATIVE_PATH);
   const barrierPath = path.join(projectRoot, QUIESCENCE_RELATIVE_PATH);
-  if (!existsSync(lockPath) && !existsSync(barrierPath)) return;
-  if (existsSync(barrierPath)) {
+  const storedBarrier = readMigrationState(projectRoot, "quiescence", "legacy");
+  if (!existsSync(lockPath) && !existsSync(barrierPath) && !storedBarrier) return;
+  if (storedBarrier) {
     try {
       const barrier = readQuiescence(projectRoot);
       if (!barrier.legacyOperations.includes(operationId as LegacyCompatibilityOperationId)) {
@@ -1980,7 +1951,7 @@ function assertLegacyOperationNotQuiesced(projectRoot: string, operationId: stri
 function resolveProjectRoot(start: string): string {
   let current = path.resolve(start);
   while (true) {
-    if (existsSync(path.join(current, MANIFEST_RELATIVE_PATH))) return current;
+    if (existsSync(path.join(current, ".make-docs/config.yaml")) || existsSync(path.join(current, MANIFEST_RELATIVE_PATH))) return current;
     const parent = path.dirname(current);
     if (parent === current) return path.resolve(start);
     current = parent;
@@ -2081,9 +2052,7 @@ function projectMigrationReceipt(
   lock: ProjectMigrationLock,
   receipt: MigrationCheckpointReceipt,
 ): void {
-  const receiptDir = path.join(lock.projectRoot, RECEIPT_DIR_RELATIVE_PATH);
-  mkdirSync(receiptDir, { recursive: true, mode: 0o700 });
-  writeJsonAtomic(path.join(receiptDir, `${receipt.receiptId.slice(7)}.json`), receipt);
+  recordMigrationState(lock.projectRoot, "receipt", receipt.receiptId, receipt, lock.storeRoot);
 }
 
 function sanitizeBackupId(value: string): string {
@@ -2094,18 +2063,6 @@ function sanitizeBackupId(value: string): string {
   return sanitized;
 }
 
-function writeJsonAtomic(filePath: string, value: unknown): void {
-  mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
-  const tempPath = `${filePath}.${randomUUID()}.tmp`;
-  const descriptor = openSync(tempPath, "wx", 0o600);
-  try {
-    writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`);
-    fsyncSync(descriptor);
-  } finally {
-    closeSync(descriptor);
-  }
-  renameSync(tempPath, filePath);
-}
 
 function stableJson(value: unknown): string {
   return JSON.stringify(sortJson(value));

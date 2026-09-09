@@ -94,6 +94,12 @@ the relevant plan, work, history, or closeout artifact.
 
 The failure mode to avoid is silent departure.
 
+## Optional State Capture
+
+Ordinary project work does not depend on Make Docs state capture. If the CLI is not installed, cannot run, or reports `run-capture-unavailable` for optional lifecycle capture, continue the project work and report that capture was unavailable. Do not claim capture succeeded, write directly to the Store, queue a later write, or create project-local fallback state. Project documents, history breadcrumbs, and optional work backlog updates remain valid project knowledge. They must not act as installation or recovery records.
+
+CLI-managed installs, upgrades, migrations, and other managed changes must save their required records in the global Make Docs Store. If required recording fails, the CLI must stop before further project writes and preserve recovery evidence. Optional capture failure never waives this requirement. Use `make-docs project state status` to inspect installation state and follow its safe next action.
+
 ## Router Use
 
 Routers should point here for lifecycle orientation instead of restating this

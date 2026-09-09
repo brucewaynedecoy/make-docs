@@ -63,14 +63,14 @@ const operationPath = operationCliPath;
 
 /**
  * `--repo-root` default (R-FLAG-1): the nearest ancestor of the working
- * directory carrying `.make-docs/manifest.json`; the working directory
+ * directory carrying `.make-docs/config.yaml`; the working directory
  * itself when no ancestor carries one. The flag remains as an override.
  */
 function defaultRepoRoot(): string {
   const start = path.resolve(".");
   let current = start;
   while (true) {
-    if (existsSync(path.join(current, ".make-docs", "manifest.json"))) {
+    if (existsSync(path.join(current, ".make-docs", "config.yaml"))) {
       return current;
     }
     const parent = path.dirname(current);
@@ -110,7 +110,7 @@ function resolveLifecycleRunIdOption(options: OperationOptions, operation: strin
   const identity = resolveProjectIdentity(repoRoot);
   if (identity.status !== "resolved") {
     if (last) {
-      throw new OperationError("`--last` requires a repository with a manifest-minted project identifier.");
+      throw new OperationError("`--last` requires a repository with a configured project identifier.");
     }
     return runId!;
   }

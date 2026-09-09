@@ -168,7 +168,7 @@ describe("tool self-management", () => {
       }
     });
 
-    test("--yes removes the store and reports no binary for a remote-execution path", async () => {
+    test("--yes preserves the Store and reports no binary for a remote-execution path", async () => {
       const storeRoot = createTempDir("make-docs-self-store-");
       bootstrapGlobalStore({ storeRoot });
       const exec = createExecMock();
@@ -185,11 +185,11 @@ describe("tool self-management", () => {
       });
 
       expect(result.status).toBe("completed");
-      expect(result.storeRemoval?.status).toBe("removed");
-      expect(existsSync(storeRoot)).toBe(false);
+      expect(result.storeRemoval).toBeNull();
+      expect(existsSync(storeRoot)).toBe(true);
       expect(result.binary?.kind).toBe("not-installed");
       expect(exec).not.toHaveBeenCalled();
-      expect(lines.join("\n")).toContain("No make-docs binary is installed");
+      expect(lines.join("\n")).toContain("No persistent make-docs binary is installed");
     });
 
     test("runs the owning manager's uninstall command for an unambiguous persistent install", async () => {
@@ -255,6 +255,7 @@ describe("tool self-management", () => {
       try {
         const result = await runToolUninstallCommand({
           yes: true,
+          removeStore: true,
           storeRoot,
           argv1: NPX_ARGV1,
           execPath: FAKE_EXEC_PATH,
@@ -280,6 +281,7 @@ describe("tool self-management", () => {
 
         const refused = await runToolUninstallCommand({
           yes: true,
+          removeStore: true,
           storeRoot: projectLikeRoot,
           argv1: NPX_ARGV1,
           execPath: FAKE_EXEC_PATH,

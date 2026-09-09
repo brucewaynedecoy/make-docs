@@ -26,9 +26,9 @@ afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: 
 
 describe("P8 runtime retirement", () => {
   it("removes the frozen public registry while preserving current replacement operations", () => {
-    expect(listOperations()).toHaveLength(25);
+    expect(listOperations()).toHaveLength(27);
     for (const id of retired) expect(() => getOperation(id)).toThrow("Unknown operation identifier");
-    for (const id of ["resource.list", "project.surface.ensure", "lifecycle.start", "uat.persona.resolve"]) {
+    for (const id of ["resource.list", "project.surface.ensure", "project.state.status", "project.state.recover", "lifecycle.start", "uat.persona.resolve"]) {
       expect(getOperation(id).status).toBe("active");
       expect(getOperation(id).handler).toBeTypeOf("function");
     }

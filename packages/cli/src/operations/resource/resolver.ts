@@ -1,3 +1,4 @@
+import { preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "../../store/installation-state";
 import { createHash } from "node:crypto";
 import {
   existsSync,
@@ -383,31 +384,18 @@ export function ensureSystemResource(
     );
   }
 
-  const parents = ensureSafeParents(project.value.root, path.dirname(target.value.path));
-  if (!parents.ok) {
-    return parents;
-  }
-  try {
-    writeFileSync(target.value.path, providerEntry.content, { flag: "wx" });
-  } catch (error) {
-    if (isAlreadyExistsError(error)) {
-      const raced = resolveSystemResource(input.uri, input.provider, input.project);
-      if (raced.ok) {
-        return {
-          ok: true,
-          value: { action: "reused", path: target.value.path, resource: withoutContent(raced.value) },
-        };
-      }
-      return raced;
-    }
-    return failure(
-      "filesystem-error",
-      `Could not materialize ${input.uri}: ${errorMessage(error)}.`,
-      "Repair the project projection path and retry.",
-      input.uri,
-      target.value.path,
-    );
-  }
+  // The operation record and file intent must be durable before a parent or file is written.
+  withInstallationOperation(project.value.root, "resource.ensure", () => {
+    const apply = preparePlannedFileChange(project.value.root, relativePath, { kind: "file", content: Buffer.from(providerEntry.content) }, () => {
+      const parents = ensureSafeParents(project.value.root, path.dirname(target.value.path));
+      if (!parents.ok) throw new Error(parents.error.message);
+      writeFileSync(target.value.path, providerEntry.content, { flag: "wx" });
+    });
+    sealInstallationOperation(project.value.root);
+    apply();
+    const verified = resolveSystemResource(input.uri, input.provider, input.project);
+    if (!verified.ok) throw new Error(verified.error.message);
+  });
 
   const resolved = resolveSystemResource(input.uri, input.provider, input.project);
   if (!resolved.ok) {

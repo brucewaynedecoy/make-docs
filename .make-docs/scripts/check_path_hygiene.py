@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Audit Make Docs-managed files for local absolute paths."""
+"""Audit selected local documentation for absolute paths without installation state."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import tempfile
@@ -49,7 +50,7 @@ class ScanResult:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", default=".make-docs/manifest.json")
+    parser.add_argument("--path", action="append", dest="paths", help="Project-relative content file or directory; repeat to select scope")
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--format", choices=("text", "json"), default="text")
     parser.add_argument("--fix", action="store_true")
@@ -59,31 +60,56 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def load_manifest(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise ValueError(f"manifest not found: {path}") from exc
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"invalid manifest JSON: {path}: {exc}") from exc
+DEFAULT_CONTENT_PATHS = ("README.md", "AGENTS.md", "CLAUDE.md", "docs", ".make-docs/system")
+SKILL_CONTENT_PATHS = (".make-docs/agentics/skills", ".agents/skills", ".claude/skills", ".codex/skills")
+EXCLUDED_DIRECTORIES = {".git", ".backup", "node_modules", "__pycache__", ".venv"}
+EXCLUDED_TOOL_DIRECTORIES = {"backup", "state", "conflicts", "archive"}
 
 
-def iter_manifest_paths(manifest: dict, include_skills: bool) -> Iterable[str]:
-    files = manifest.get("files", {})
-    if isinstance(files, dict):
-        yield from files.keys()
-    elif isinstance(files, list):
-        for item in files:
-            if isinstance(item, str):
-                yield item
-            elif isinstance(item, dict) and isinstance(item.get("path"), str):
-                yield item["path"]
+def checked_content_path(repo_root: Path, value: str) -> Path:
+    relative = Path(value)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ValueError(f"content path must be project-relative without traversal: {value}")
+    current = repo_root
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f"symbolic links are not content targets: {value}")
+    if any(part in EXCLUDED_DIRECTORIES for part in relative.parts):
+        raise ValueError(f"excluded content path: {value}")
+    if any(part == ".make-docs" and i + 1 < len(relative.parts)
+           and relative.parts[i + 1] in EXCLUDED_TOOL_DIRECTORIES
+           for i, part in enumerate(relative.parts)):
+        raise ValueError(f"backup or operational directory is not a content target: {value}")
+    if relative.as_posix() == ".make-docs/manifest.json":
+        raise ValueError("legacy installation manifest is not a content target")
+    return current
+
+
+def iter_content_paths(repo_root: Path, paths: list[str] | None, include_skills: bool) -> Iterable[str]:
+    selected = list(paths) if paths is not None else list(DEFAULT_CONTENT_PATHS)
     if include_skills:
-        for item in manifest.get("skillFiles", []):
-            if isinstance(item, str):
-                yield item
-            elif isinstance(item, dict) and isinstance(item.get("path"), str):
-                yield item["path"]
+        selected.extend(SKILL_CONTENT_PATHS)
+    for value in selected:
+        target = checked_content_path(repo_root, value)
+        if not target.exists():
+            if paths is not None and value in paths:
+                raise ValueError(f"content path not found: {value}")
+            continue
+        if target.is_file():
+            yield target.relative_to(repo_root).as_posix()
+            continue
+        for directory, dirs, files in os.walk(target, followlinks=False):
+            base = Path(directory)
+            dirs[:] = sorted(name for name in dirs if name not in EXCLUDED_DIRECTORIES
+                             and not (base / name).is_symlink()
+                             and not (base.name == ".make-docs" and name in EXCLUDED_TOOL_DIRECTORIES)
+                             and (include_skills or name != "skills"))
+            for name in sorted(files):
+                child = base / name
+                relative = child.relative_to(repo_root).as_posix()
+                if not child.is_symlink() and relative != ".make-docs/manifest.json":
+                    yield relative
 
 
 def is_text_path(path: str, include_skills: bool) -> bool:
@@ -274,24 +300,23 @@ def scan_file(path: Path, rel_file: str, repo_root: str, allow_token: str, fix: 
     return findings, changed
 
 
-def scan_manifest(
-    manifest_path: Path,
+def scan_content(
+    paths: list[str] | None,
     repo_root: Path,
     include_skills: bool,
     allow_token: str,
     fix: bool,
 ) -> ScanResult:
-    manifest = load_manifest(manifest_path)
-    rel_paths = sorted({path for path in iter_manifest_paths(manifest, include_skills) if is_text_path(path, include_skills)})
+    rel_paths = sorted({path for path in iter_content_paths(repo_root, paths, include_skills) if is_text_path(path, include_skills)})
     findings: list[Finding] = []
     io_errors: list[str] = []
     changed_files: list[str] = []
     checked = 0
     repo_root_str = str(repo_root.resolve())
     for rel_path in rel_paths:
-        path = repo_root / rel_path
+        path = checked_content_path(repo_root, rel_path)
         if not path.exists():
-            io_errors.append(f"missing managed file: {rel_path}")
+            io_errors.append(f"missing content file: {rel_path}")
             continue
         try:
             file_findings, changed = scan_file(path, rel_path, repo_root_str, allow_token, fix)
@@ -353,13 +378,9 @@ class PathHygieneTests(unittest.TestCase):
         docs.mkdir()
         target = docs / "example.md"
         target.write_text(body, encoding="utf-8")
-        manifest = root / ".make-docs" / "manifest.json"
-        manifest.parent.mkdir()
-        manifest.write_text(
-            json.dumps({"files": {"docs/example.md": {"hash": "unused", "sourceId": "file:docs/example.md"}}}),
-            encoding="utf-8",
-        )
-        return scan_manifest(manifest, root, False, DEFAULT_ALLOW_TOKEN, fix), target
+        result = scan_content(None, root, False, DEFAULT_ALLOW_TOKEN, fix)
+        self.assertFalse((root / ".make-docs").exists())
+        return result, target
 
     def test_repo_root_paths_are_fixable(self) -> None:
         root = Path(tempfile.mkdtemp(prefix="path-hygiene-root-")).resolve()
@@ -367,13 +388,7 @@ class PathHygieneTests(unittest.TestCase):
         docs.mkdir()
         target = docs / "example.md"
         target.write_text(f"[Read]({root}/README.md)\nPath `{root}/docs/example.md`\n", encoding="utf-8")
-        manifest = root / ".make-docs" / "manifest.json"
-        manifest.parent.mkdir()
-        manifest.write_text(
-            json.dumps({"files": {"docs/example.md": {"hash": "unused", "sourceId": "file:docs/example.md"}}}),
-            encoding="utf-8",
-        )
-        result = scan_manifest(manifest, root, False, DEFAULT_ALLOW_TOKEN, True)
+        result = scan_content(None, root, False, DEFAULT_ALLOW_TOKEN, True)
         self.assertEqual([], failing_findings(result.findings))
         self.assertEqual("[Read](README.md)\nPath `./docs/example.md`\n", target.read_text(encoding="utf-8"))
         self.assertEqual(["docs/example.md"], result.changed_files)
@@ -403,6 +418,42 @@ class PathHygieneTests(unittest.TestCase):
         self.assertEqual("absolute_markdown_link_destination", result.findings[0].kind)
         self.assertEqual("docs/prd/00-index.md", result.findings[0].suggestion)
 
+    def test_scope_excludes_backups_and_links_without_cli_or_store(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "note.md").write_text("Project work remains available.\n", encoding="utf-8")
+            backup = root / ".make-docs" / "backup"
+            backup.mkdir(parents=True)
+            saved = backup / "saved.md"
+            saved.write_text("/Users/alice/private\n", encoding="utf-8")
+            (docs / "linked.md").symlink_to(saved)
+            result = scan_content(None, root, False, DEFAULT_ALLOW_TOKEN, True)
+            self.assertEqual(1, result.checked_files)
+            self.assertEqual([], result.findings)
+            self.assertEqual("/Users/alice/private\n", saved.read_text(encoding="utf-8"))
+            self.assertFalse((root / ".make-docs" / "state").exists())
+            self.assertFalse((root / ".make-docs" / "manifest.json").exists())
+
+    def test_explicit_scope_rejects_escape_links_and_operational_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            (root / "link").symlink_to(root.parent, target_is_directory=True)
+            for value in ("../outside.md", str(root / "absolute.md"), "link/file.md", ".make-docs/state", ".make-docs/manifest.json", ".backup", ".git"):
+                with self.subTest(value=value), self.assertRaises(ValueError):
+                    scan_content([value], root, False, DEFAULT_ALLOW_TOKEN, True)
+
+    def test_custom_content_scope_requires_no_installation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            custom = root / "knowledge"
+            custom.mkdir()
+            (custom / "note.md").write_text("Project content.\n", encoding="utf-8")
+            result = scan_content(["knowledge"], root, False, DEFAULT_ALLOW_TOKEN, False)
+            self.assertEqual(1, result.checked_files)
+            self.assertEqual(["knowledge"], sorted(p.name for p in root.iterdir()))
+
 
 def run_self_tests() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(PathHygieneTests)
@@ -414,11 +465,8 @@ def main(argv: list[str]) -> int:
     if args.self_test:
         return run_self_tests()
     repo_root = Path(args.repo_root).resolve()
-    manifest_path = Path(args.manifest)
-    if not manifest_path.is_absolute():
-        manifest_path = repo_root / manifest_path
     try:
-        result = scan_manifest(manifest_path, repo_root, args.include_skills, args.allow_comment_token, args.fix)
+        result = scan_content(args.paths, repo_root, args.include_skills, args.allow_comment_token, args.fix)
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

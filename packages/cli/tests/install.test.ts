@@ -20,7 +20,9 @@ import {
 } from "../src/install";
 import { parseManagedBlock, renderManagedBlock } from "../src/managed-block";
 import { createLifecyclePlanSnapshot } from "../src/lifecycle-plan";
-import { loadManifest } from "../src/manifest";
+import { loadManifest, loadLegacyManifest, mintProjectId, writeManifest } from "../src/manifest";
+import { resolveStoreRoot } from "../src/store";
+import { importLegacyInstallationState } from "../src/store/legacy-installation";
 import { classifyCompatibilityState } from "../src/compatibility";
 import { executeInstallPlanMigration } from "../src/migration";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
@@ -50,6 +52,7 @@ async function installWithSelections(
   const selections = defaultSelections();
   configure(selections);
 
+  if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
   const existingManifest = loadManifest(targetDir);
   let plan = await planInstall({
     targetDir,
@@ -163,11 +166,8 @@ function writeManifestJson(
   targetDir: string,
   manifest: NonNullable<ReturnType<typeof loadManifest>>,
 ): void {
-  writeFileSync(
-    path.join(targetDir, ".make-docs/manifest.json"),
-    `${JSON.stringify(manifest, null, 2)}\n`,
-    "utf8",
-  );
+
+  writeManifest(targetDir, manifest);
 }
 
 function mockHomeDirectory(homeDir: string): () => void {
@@ -337,7 +337,6 @@ describe("installer integration", () => {
       expect(plan.systemAssetMaterialization.deferredSystemAssetPaths).toEqual([]);
       expect(plan.systemAssetMaterialization.localBootstrapPaths).toEqual(
         expect.arrayContaining([
-          ".make-docs/manifest.json",
           ".make-docs/config.yaml",
           "AGENTS.md",
           "docs/AGENTS.md",
@@ -373,7 +372,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".agents/skills"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".claude/skill-assets"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".agents/skill-assets"))).toBe(false);
-      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(true);
       expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
       expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
       expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
@@ -467,7 +466,7 @@ describe("installer integration", () => {
 
       const { manifest } = await installWithSelections(targetDir, () => {});
 
-      expect(readFileSync(configPath, "utf8")).toBe(configContents);
+      expect(readFileSync(configPath, "utf8")).toBe(`${configContents}projectId: ${manifest.projectId}\n`);
       expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
       expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
 
@@ -487,7 +486,7 @@ describe("installer integration", () => {
         existingManifest: manifest,
       });
 
-      expect(readFileSync(configPath, "utf8")).toBe(configContents);
+      expect(readFileSync(configPath, "utf8")).toBe(`${configContents}projectId: ${manifest.projectId}\n`);
       expect(reconfigureResult.manifest.files[".make-docs/config.yaml"]).toBeUndefined();
       expect(
         reconfigureResult.manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"],
@@ -521,7 +520,6 @@ describe("installer integration", () => {
         expect(plan.systemAssetMaterialization.mode).toBe(mode);
         expect(plan.systemAssetMaterialization.localBootstrapPaths).toEqual([
           ".make-docs/config.yaml",
-          ".make-docs/manifest.json",
           ...getInstructionPaths("AGENTS.md"),
           ...getInstructionPaths("CLAUDE.md"),
         ].sort());
@@ -535,7 +533,7 @@ describe("installer integration", () => {
           plan.systemAssetMaterialization.materializationClasses[
             ".make-docs/manifest.json"
           ],
-        ).toBe("always-local-bootstrap");
+        ).toBeUndefined();
         expect(plan.systemAssetMaterialization.materializationClasses["docs/AGENTS.md"]).toBe(
           "always-local-bootstrap",
         );
@@ -570,8 +568,8 @@ describe("installer integration", () => {
         expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, "docs/AGENTS.md"))).toBe(true);
         expect(existsSync(path.join(targetDir, "docs/CLAUDE.md"))).toBe(true);
-        expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
-        expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(false);
+        expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+        expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(true);
         expect(existsSync(path.join(targetDir, "docs/work/AGENTS.md"))).toBe(true);
         expect(
           existsSync(path.join(targetDir, ".make-docs/system/references/path-and-link-hygiene.md")),
@@ -692,7 +690,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      expect(() => loadManifest(targetDir)).toThrow(
+      expect(() => loadLegacyManifest(targetDir)).toThrow(
         /Fix or remove the stale manifest and rerun bare `make-docs`/,
       );
     } finally {
@@ -740,7 +738,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      expect(() => loadManifest(targetDir)).toThrow(
+      expect(() => loadLegacyManifest(targetDir)).toThrow(
         /selections\.optionalSkills is no longer supported/,
       );
     } finally {
@@ -779,7 +777,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      const manifest = loadManifest(targetDir)!;
+      const manifest = loadLegacyManifest(targetDir)!;
 
       expect(manifest.schemaVersion).toBe(1);
       expect(manifest.files["AGENTS.md"]).toEqual({
@@ -826,8 +824,8 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      expect(() => loadManifest(targetDir)).toThrow(/manifest\.skillFiles is required/);
-      expect(() => loadManifest(targetDir)).toThrow(
+      expect(() => loadLegacyManifest(targetDir)).toThrow(/manifest\.skillFiles is required/);
+      expect(() => loadLegacyManifest(targetDir)).toThrow(
         /Fix or remove the stale manifest and rerun bare `make-docs`/,
       );
     } finally {
@@ -880,7 +878,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      const manifest = loadManifest(targetDir);
+      const manifest = loadLegacyManifest(targetDir);
       const expectedSelections = defaultSelections();
       expectedSelections.harnesses["claude-code"] = true;
       expectedSelections.harnesses.codex = false;
@@ -1324,7 +1322,7 @@ describe("installer integration", () => {
       const compatibility = await classifyCompatibilityState({ targetDir });
       const applied = executeInstallPlanMigration({
         projectRoot: targetDir,
-        storeRoot,
+        storeRoot: resolveStoreRoot(),
         compatibility,
         installPlan: plan,
         existingManifest,
@@ -1360,6 +1358,7 @@ describe("installer integration", () => {
         };
       }
 
+      writeManifest(targetDir, legacy);
       const plan = await planInstall({
         targetDir,
         selections: legacy.selections,
@@ -1415,7 +1414,7 @@ describe("installer integration", () => {
         selections: legacy.selections,
         existingManifest: legacy,
         operation: "setup.sync",
-      })).rejects.toThrow("symbolic link");
+      })).rejects.toThrow(/symbolic[- ]link/i);
       expect(readFileSync(path.join(outsideDir, "agent/make-docs-lifecycle.playbook.md"), "utf8"))
         .toBe(content);
     } finally {
@@ -1445,7 +1444,7 @@ describe("installer integration", () => {
         selections: legacy.selections,
         existingManifest: legacy,
         operation: "setup.sync",
-      })).rejects.toThrow("symbolic link");
+      })).rejects.toThrow(/symbolic[- ]link/i);
       expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(content);
     } finally {
       cleanupTempDir(targetDir);
@@ -1468,6 +1467,7 @@ describe("installer integration", () => {
         sourceId: `file:${relativePath}`,
         ownershipClass: "managed-block",
       };
+      writeManifest(targetDir, legacy);
       const plan = await planInstall({
         targetDir,
         selections: legacy.selections,
@@ -1481,7 +1481,7 @@ describe("installer integration", () => {
       symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
 
       expect(() => applyInstallPlan({ targetDir, plan, existingManifest: legacy }))
-        .toThrow("symbolic link");
+        .toThrow(/symbolic[- ]link/i);
       expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(content);
     } finally {
       cleanupTempDir(targetDir);
@@ -1683,7 +1683,8 @@ describe("installer integration", () => {
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), legacyContent, "utf8");
       const selections = defaultSelections();
       const profile = resolveInstallProfile(selections);
-      const existingManifest = {
+      let existingManifest: NonNullable<ReturnType<typeof loadManifest>> = {
+        projectId: mintProjectId(),
         schemaVersion: 1,
         packageName: "make-docs",
         packageVersion: "0.1.0",
@@ -1712,6 +1713,8 @@ describe("installer integration", () => {
         skillFiles: [],
       };
 
+      writeManifest(targetDir, existingManifest);
+      existingManifest = loadManifest(targetDir)!;
       const plan = await planInstall({
         targetDir,
         selections,
@@ -1768,7 +1771,8 @@ describe("installer integration", () => {
         "utf8",
       );
 
-      const existingManifest = {
+      let existingManifest: NonNullable<ReturnType<typeof loadManifest>> = {
+        projectId: mintProjectId(),
         schemaVersion: 1,
         packageName: "make-docs",
         packageVersion: "0.1.0",
@@ -1805,6 +1809,8 @@ describe("installer integration", () => {
         skillFiles: [],
       };
 
+      writeManifest(targetDir, existingManifest);
+      existingManifest = loadManifest(targetDir)!;
       const plan = await planInstall({
         targetDir,
         selections,
@@ -1968,6 +1974,7 @@ describe("installer integration", () => {
       );
 
       const selections = defaultSelections();
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const initialPlan = await planInstall({
         targetDir,
@@ -2046,6 +2053,7 @@ describe("installer integration", () => {
       );
 
       const selections = defaultSelections();
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2141,6 +2149,7 @@ describe("installer integration", () => {
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
 
       const selections = defaultSelections();
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2176,6 +2185,7 @@ describe("installer integration", () => {
     try {
       await installWithSelections(targetDir, () => {});
 
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2242,11 +2252,7 @@ describe("installer integration", () => {
         hash: hashText("previous managed reference\n"),
         sourceId: "package:.make-docs/system/contracts/guide-contract.md",
       };
-      writeFileSync(
-        path.join(targetDir, ".make-docs/manifest.json"),
-        `${JSON.stringify(manifest, null, 2)}\n`,
-        "utf8",
-      );
+      writeManifest(targetDir, manifest);
 
       const updatePlan = await planInstall({
         targetDir,
@@ -2271,6 +2277,7 @@ describe("installer integration", () => {
       await installWithSelections(targetDir, () => {});
       writeFileSync(path.join(targetDir, "docs/AGENTS.md"), "locally edited docs router\n", "utf8");
 
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2374,7 +2381,7 @@ describe("installer integration", () => {
       const compatibility = await classifyCompatibilityState({ targetDir });
       const applied = executeInstallPlanMigration({
         projectRoot: targetDir,
-        storeRoot,
+        storeRoot: resolveStoreRoot(),
         compatibility,
         installPlan: plan,
         existingManifest: installed.manifest,
@@ -2408,7 +2415,7 @@ describe("installer integration", () => {
         selections,
         existingManifest: installed.manifest,
         operation: "setup.reconfigure",
-      })).rejects.toThrow("symbolic link");
+      })).rejects.toThrow(/symbolic[- ]link/i);
       expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(withOutside);
     } finally {
       cleanupTempDir(targetDir);
@@ -2447,7 +2454,7 @@ describe("installer integration", () => {
         targetDir,
         plan,
         existingManifest: installed.manifest,
-      })).toThrow("symbolic link");
+      })).toThrow(/symbolic[- ]link/i);
       expect(readFileSync(path.join(outsideDir, "AGENTS.md"), "utf8")).toBe(withOutside);
     } finally {
       cleanupTempDir(targetDir);
@@ -2638,6 +2645,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2750,6 +2758,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,
@@ -2850,6 +2859,7 @@ describe("installer integration", () => {
         "utf8",
       );
 
+      if (existsSync(path.join(targetDir, ".make-docs/manifest.json"))) importLegacyInstallationState(targetDir);
       const existingManifest = loadManifest(targetDir);
       const plan = await planInstall({
         targetDir,

@@ -1,3 +1,4 @@
+import { writeRawStoreLedger } from "./store-ledger-fixture";
 import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
@@ -132,7 +133,7 @@ describe("compatibility classifier", () => {
       baseline.systemAssetMaterialization.assets["AGENTS.md"]!.expectedHashes = [staleHash];
       baseline.routerOwnership!.routers["AGENTS.md"]!.expectedSourceHash = staleHash;
       baseline.routerOwnership!.routers["AGENTS.md"]!.installedHash = staleHash;
-      writeFixtureManifest(fixture.manifestPath, baseline);
+      writeRawStoreLedger(fixture.targetDir, baseline);
 
       const current = await classifyCompatibilityState({ targetDir: fixture.targetDir });
       expect(current.state).toBe("clean-v2-provider-backed");
@@ -140,7 +141,7 @@ describe("compatibility classifier", () => {
 
       const missingOwnership = structuredClone(baseline);
       delete missingOwnership.routerOwnership;
-      writeFixtureManifest(fixture.manifestPath, missingOwnership);
+      writeRawStoreLedger(fixture.targetDir, missingOwnership);
       const missing = await classifyCompatibilityState({ targetDir: fixture.targetDir });
       expect(missing.state).toBe("malformed-manifest");
       expect(missing.evidence.manifestTrust.parseable).toBe(false);
@@ -148,7 +149,7 @@ describe("compatibility classifier", () => {
       const malformedOwnership = structuredClone(baseline);
       malformedOwnership.routerOwnership!.routers["AGENTS.md"]!.sourceId =
         "router:codex:wrong.md";
-      writeFixtureManifest(fixture.manifestPath, malformedOwnership);
+      writeRawStoreLedger(fixture.targetDir, malformedOwnership);
       const malformed = await classifyCompatibilityState({ targetDir: fixture.targetDir });
       expect(malformed.state).toBe("malformed-manifest");
       expect(malformed.evidence.manifestTrust.parseable).toBe(false);

@@ -40,7 +40,7 @@ describe("tool directory model", () => {
   test("keeps runtime state separate from project-owned config and docs assets", () => {
     expect(TOOL_DIRECTORY_RUNTIME_STATE_PATHS).toEqual([
       ".make-docs/manifest.json",
-      ".make-docs/conflicts",
+            ".make-docs/conflicts",
       ".make-docs/runs",
     ]);
     expect(TOOL_DIRECTORY_CONFIG_RELATIVE_PATH).toBe(".make-docs/config.yaml");
@@ -152,19 +152,17 @@ describe("tool directory model", () => {
       "hybrid-pinned-cache",
     ]);
     expect(TOOL_DIRECTORY_LOCAL_BOOTSTRAP_PATHS).toEqual([
-      ".make-docs/manifest.json",
-      ".make-docs/config.yaml",
+            ".make-docs/config.yaml",
     ]);
 
     for (const mode of TOOL_RESOURCE_MATERIALIZATION_MODES) {
       expect(getLocalBootstrapPathsForMaterializationMode(mode)).toEqual([
-        ".make-docs/manifest.json",
-        ".make-docs/config.yaml",
+                ".make-docs/config.yaml",
       ]);
     }
 
     expect(isToolDirectoryLocalBootstrapPath(".make-docs/manifest.json")).toBe(
-      true,
+      false,
     );
     expect(isToolDirectoryLocalBootstrapPath(".make-docs/config.yaml")).toBe(
       true,

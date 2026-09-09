@@ -49,9 +49,14 @@ afterEach(() => {
 });
 
 describe("W19 R1 P3 admitted operation surfaces", () => {
-  it("pins the exact 24 P3 IDs and records path hygiene as a separate P5 admission", () => {
+  it("pins the exact 24 P3 IDs and separate P5 and W19 R3 admissions", () => {
     const admitted = listAdmittedOperations();
-    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate");
+    const r3Ids = ["project.state.status", "project.state.recover"];
+    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate" && !r3Ids.includes(entry.id));
+    expect(admitted.filter(entry => r3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
+      { id: "project.state.status", status: "active" },
+      { id: "project.state.recover", status: "active" },
+    ]);
     const p5Admitted = admitted.filter((entry) => entry.id === "project.path-hygiene.validate");
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(p3Admitted).toHaveLength(24);
@@ -102,7 +107,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
   it("keeps activated UAT inputs strict and rejects unknown IDs", async () => {
     await expect(invokeOperation("uat.scenario.validate", {}, createExecutionContext({ surface: "test" }))).rejects.toThrow();
-    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("trusted P4 manifest evidence");
+    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("verified installation evidence in the Store");
     expect(() => getOperation("unknown.operation")).toThrow("Unknown operation identifier");
   });
 
@@ -112,7 +117,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     await runCliEntry(runCli, ["project", "surface", "ensure", "assets"], {
       machineReadable: false, writeError: (value) => { humanError += value; },
     });
-    expect(humanError).toBe("This project does not have trusted P4 manifest evidence. Run `make-docs setup reconfigure` before you ensure a project surface.\n");
+    expect(humanError).toBe("This project does not have verified installation evidence in the Store. Run `make-docs setup reconfigure` before you ensure a project surface.\n");
   });
 
   it("keeps CLI, derived MCP tools, and native MCP resources byte- and provenance-equivalent", async () => {

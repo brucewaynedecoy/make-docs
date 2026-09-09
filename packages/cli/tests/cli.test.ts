@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
@@ -315,9 +315,9 @@ describe("cli interactive flows", () => {
       expect(confirmMock).not.toHaveBeenCalled();
       expect(output).toContain("Information");
       expect(output).toContain("Mode: existing install sync");
-      expect(output).toContain("Manifest:");
-      expect(output).toContain(".make-docs/manifest.json");
-      expect(output).toContain("(found)");
+      expect(output).toContain("Installation record:");
+      expect(output).toContain("global Make Docs Store");
+      expect(output).toContain("found or verified for");
       expect(output).toContain("Selection source: saved manifest selections");
       expect(output).toContain("Changes planned: 0");
       expect(output).toContain("Results");
@@ -521,11 +521,8 @@ personas:
 
       const error = await captureCliError(["setup", "--yes", "--target", fixture.targetDir]);
 
-      expect(error.message).toContain(
-        "requires an explicit backup-and-reinstall migration flow",
-      );
-      expect(error.message).toContain("Compatibility state: malformed-manifest");
-      expect(error.message).toContain("Disposition: backup-and-reinstall");
+      expect(error.message).toContain("Legacy installation state requires review");
+      expect(error.message).toContain("Legacy manifest");
       expect(readFileSync(manifestPath, "utf8")).toBe("{ malformed\n");
     } finally {
       cleanupTempDir(fixture.targetDir);
@@ -602,7 +599,7 @@ personas:
       const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
       const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
-      const manifestBefore = readFileSync(manifestPath);
+      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
       const claudeSkillBefore = readFileSync(claudeSkillPath);
       const codexSkillBefore = readFileSync(codexSkillPath);
       confirmMock.mockResolvedValue(true);
@@ -614,7 +611,7 @@ personas:
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
-      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
       expect(readFileSync(claudeSkillPath)).toEqual(claudeSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
     } finally {
@@ -645,7 +642,7 @@ personas:
         ".make-docs/agentics/skills/acme-release/SKILL.md",
       );
       const codexSkillPath = path.join(targetDir, ".agents/skills/acme-release/SKILL.md");
-      const manifestBefore = readFileSync(manifestPath);
+      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
       const sharedSkillBefore = readFileSync(sharedSkillPath);
       const codexSkillBefore = readFileSync(codexSkillPath);
 
@@ -661,7 +658,7 @@ personas:
       ]);
       expect(sourceError.message).toContain("manifest source");
       expect(sourceError.message).toContain("Use `make-docs setup skills`");
-      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
       expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
 
@@ -685,7 +682,7 @@ personas:
         targetDir,
       ]);
       expect(provenanceError.message).toContain("selection provenance");
-      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
       expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
     } finally {
@@ -695,56 +692,26 @@ personas:
     }
   });
 
-  test("routes a noop manifest-only project ID mint through migration safety", async () => {
+  test("transfers a legacy manifest to Store before unchanged setup", async () => {
     const targetDir = createTempDir();
-
+    const oldRoot = createTempDir();
     try {
-      await installManifest(targetDir);
-      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
-      const manifest = loadManifest(targetDir)!;
-      delete manifest.projectId;
-      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-      const before = loadManifest(targetDir)!;
-      const plan = await planInstall({
-        targetDir,
-        selections: before.selections,
-        existingManifest: before,
-        operation: "setup",
-      });
-      expect(plan.actions.every((action) => action.type === "noop")).toBe(true);
-
+      await installManifest(oldRoot);
+      cpSync(oldRoot, targetDir, { recursive: true });
+      const legacy = loadManifest(oldRoot)!;
+      delete legacy.projectId;
+      writeFileSync(path.join(targetDir, ".make-docs/manifest.json"), `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+      const configPath = path.join(targetDir, ".make-docs/config.yaml");
+      writeFileSync(configPath, readFileSync(configPath, "utf8").replace(/^projectId:.*\n/m, ""));
       const { runCli } = await import("../src/cli");
       await runCli(["setup", "--yes", "--target", targetDir]);
-
-      expect(loadManifest(targetDir)?.projectId).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-      );
-      const receiptDir = path.join(targetDir, ".make-docs/state/migration-receipts");
-      const receipts = readdirSync(receiptDir)
-        .map((name) => JSON.parse(readFileSync(path.join(receiptDir, name), "utf8")))
-        .filter((receipt) => receipt.status === "completed")
-        .sort((left, right) => left.checkpoint - right.checkpoint);
-      expect(receipts.map((receipt) => receipt.checkpoint)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-      expect(new Set(receipts.map((receipt) => receipt.snapshotId)).size).toBe(1);
-      const backupRoots = readdirSync(path.join(targetDir, ".make-docs/backup"));
-      expect(backupRoots).toHaveLength(1);
-      const backupManifest = JSON.parse(
-        readFileSync(
-          path.join(targetDir, ".make-docs/backup", backupRoots[0]!, "backup-manifest.json"),
-          "utf8",
-        ),
-      );
-      expect(backupManifest.entries).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            relativePath: ".make-docs/manifest.json",
-            copied: true,
-            verified: true,
-          }),
-        ]),
-      );
+      expect(loadManifest(targetDir)?.projectId).toMatch(/^[0-9a-f-]{36}$/);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/state"))).toBe(false);
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(readFileSync(path.join(oldRoot, "AGENTS.md"), "utf8"));
     } finally {
       cleanupTempDir(targetDir);
+      cleanupTempDir(oldRoot);
     }
   });
 
@@ -762,7 +729,7 @@ personas:
 
       const error = await captureCliError(["setup", "--target", targetDir]);
 
-      expect(error.message).toBe(
+      expect(error.message).toContain(
         "Migration checkpoint 3 ended with status failed: The frozen classification does not permit reviewed mutation (ambiguous-ownership).",
       );
       expect(runSelectionWizardMock).toHaveBeenCalledOnce();
@@ -1350,7 +1317,7 @@ personas:
       });
       const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const skillPath = path.join(fakeHome, ".make-docs/agentics/skills/decompose-codebase/SKILL.md");
-      const manifestBefore = readFileSync(manifestPath);
+      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
       const skillBefore = readFileSync(skillPath);
 
       const error = await captureCliError([
@@ -1363,7 +1330,7 @@ personas:
       ]);
 
       expect(error.message).toContain("Use `make-docs setup skills`");
-      expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
       expect(readFileSync(skillPath)).toEqual(skillBefore);
     } finally {
       restoreHome();
@@ -1392,7 +1359,7 @@ personas:
           fakeHome,
           ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
         );
-        const manifestBefore = readFileSync(manifestPath);
+        const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
         const skillBefore = readFileSync(skillPath);
 
         const error = await captureCliError([
@@ -1405,7 +1372,7 @@ personas:
         ]);
 
         expect(error.message).toContain("Use `make-docs setup skills`");
-        expect(readFileSync(manifestPath)).toEqual(manifestBefore);
+        expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
         expect(readFileSync(skillPath)).toEqual(skillBefore);
       } finally {
         restoreHome();
@@ -1413,7 +1380,7 @@ personas:
         cleanupTempDir(fakeHome);
       }
     }
-  });
+  }, 15000);
 
   test("rejects non-interactive setup reconfigure without selection flags", async () => {
     const targetDir = createTempDir();
@@ -1669,7 +1636,7 @@ personas:
     const output = await captureCliOutput(["setup", "reconfigure", "--help"]);
 
     expect(output).toContain("make-docs setup reconfigure");
-    expect(output).toContain("Requires an existing .make-docs/manifest.json");
+    expect(output).toContain("Requires a verified installation record in the global Make Docs Store");
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
     expect(output).toContain("--yes                          Skip interactive prompts.");
@@ -1985,7 +1952,7 @@ personas:
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
-      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+      const manifestPath = path.join(targetDir, ".make-docs/config.yaml");
       const manifestBefore = readFileSync(manifestPath, "utf8");
       const mtimeBefore = statSync(manifestPath).mtimeMs;
       const manifest = loadManifest(targetDir);

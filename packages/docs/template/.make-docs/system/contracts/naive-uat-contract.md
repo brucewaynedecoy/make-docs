@@ -197,7 +197,9 @@ Repository-canonical material includes:
 
 Persona-specific packets, runs, findings, and approved evidence live under `docs/assets/<persona-slug>/testing/`.
 
-Operational or machine-local state can contain run progress, timestamps, bounded Store receipts, and sanitized project-relative evidence references.
+Optional Make Docs operational capture belongs in the global Make Docs Store through the CLI. It can contain run progress, timestamps, bounded Store receipts, and sanitized project-relative evidence references. Repository run records and evidence remain project knowledge.
+
+If the CLI is unavailable or optional capture fails, continue project work and report unavailable capture. Do not claim success, write directly to the Store, queue a later write, or create local fallback state. This does not waive required Store recording for CLI-managed changes, and it does not replace missing required testing evidence.
 
 Large external captures can remain outside the repository when consent, retention, and privacy rules require it. Missing or corrupt required evidence prevents a conclusion.
 

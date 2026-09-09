@@ -1,6 +1,7 @@
+import { removeInstallationPath } from "./installation-files";
 import os from "node:os";
 import path from "node:path";
-import { lstatSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import {
   executePreparedBackup,
   prepareBackupExecution,
@@ -13,6 +14,7 @@ import {
 } from "./lifecycle-ui";
 import { getManifestFileHash, loadManifest } from "./manifest";
 import { resolveProjectIdentity } from "./store";
+import { recordPlannedFileChange, removeInstallationManifest, withInstallationOperation } from "./store/installation-state";
 import type {
   AuditReport,
   BackupDestinationPlan,
@@ -31,7 +33,7 @@ export interface UninstallCommandOptions {
   auditReport?: AuditReport;
   homeDir?: string;
   now?: Date;
-  /** Retained for caller compatibility. Project removal does not use Store paths. */
+  /** Explicit global Store root override. */
   storeRoot?: string;
 }
 
@@ -129,101 +131,96 @@ export async function runUninstallCommand(
   const projectIdentity = resolveProjectIdentity(plan.targetDir);
   const manifest = loadManifest(plan.targetDir);
 
-  let backupResult: BackupExecutionResult | null = null;
+  const preparedBackup = plan.backupRequested ? await prepareBackupExecution({
+    targetDir, homeDir, now: options.now, auditReport: plan.auditReport,
+    destinationPlan: plan.backupDestinationPlan,
+  }) : null;
 
-  if (plan.backupRequested) {
+  return withInstallationOperation(targetDir, "setup.remove", () => {
+    removeInstallationManifest(targetDir);
+    let backupResult: BackupExecutionResult | null = null;
+    if (preparedBackup) {
+      try { backupResult = executePreparedBackup(preparedBackup); }
+      catch (error) { throw new Error(`Backup failed before uninstall removal began: ${error instanceof Error ? error.message : String(error)}`, { cause: error }); }
+    }
+
+    const removedFiles: string[] = [];
+    const prunedDirectories: string[] = [];
+
     try {
-      const preparedBackup = await prepareBackupExecution({
-        targetDir,
-        homeDir,
-        now: options.now,
-        auditReport: plan.auditReport,
-        destinationPlan: plan.backupDestinationPlan,
-      });
-      backupResult = executePreparedBackup(preparedBackup);
+      for (const removableFile of plan.auditReport.removableFiles) {
+        assertNotInsideBackupRoot(plan.targetDir, removableFile.absolutePath);
+        assertRemovalEvidenceCurrent(removableFile);
+        const removed = removeInstallationPath(targetDir, removableFile.path);
+        if (removed) {
+          removedFiles.push(removableFile.path);
+        }
+      }
+
+      for (const prunableDirectory of plan.auditReport.prunableDirectories) {
+        if (path.resolve(prunableDirectory.absolutePath) === path.resolve(homeDir, ".make-docs")) continue;
+        assertNotInsideBackupRoot(plan.targetDir, prunableDirectory.absolutePath);
+        if (existsSync(prunableDirectory.absolutePath) && readdirSync(prunableDirectory.absolutePath).length === 0) {
+          recordPlannedFileChange(targetDir, prunableDirectory.path, { kind: "missing" }, () => {
+            if (fileUtils.pruneDirectoryIfEmpty(prunableDirectory.absolutePath)) prunedDirectories.push(prunableDirectory.path);
+          });
+        }
+      }
     } catch (error) {
+      renderer.renderUninstallFailureSummary({
+        auditReport: plan.auditReport,
+        removedFiles,
+        prunedDirectories,
+        backupResult,
+        errorMessage: toErrorMessage(error),
+      });
       throw createUninstallError(
-        `Backup failed before uninstall removal began: ${toErrorMessage(error)}`,
+        `Uninstall partially completed after removing ${removedFiles.length} file(s) and pruning ${prunedDirectories.length} director${prunedDirectories.length === 1 ? "y" : "ies"}: ${toErrorMessage(error)}`,
       );
     }
-  }
 
-  const removedFiles: string[] = [];
-  const prunedDirectories: string[] = [];
-
-  try {
-    for (const removableFile of plan.auditReport.removableFiles) {
-      assertNotInsideBackupRoot(plan.targetDir, removableFile.absolutePath);
-      assertRemovalEvidenceCurrent(removableFile);
-      const removed =
-        removableFile.kind === "directory"
-          ? fileUtils.removeManagedPathIfPresent(removableFile.absolutePath)
-          : fileUtils.removeFileIfPresent(removableFile.absolutePath);
-      if (removed) {
-        removedFiles.push(removableFile.path);
-      }
-    }
-
-    for (const prunableDirectory of plan.auditReport.prunableDirectories) {
-      assertNotInsideBackupRoot(plan.targetDir, prunableDirectory.absolutePath);
-      if (fileUtils.pruneDirectoryIfEmpty(prunableDirectory.absolutePath)) {
-        prunedDirectories.push(prunableDirectory.path);
-      }
-    }
-  } catch (error) {
-    renderer.renderUninstallFailureSummary({
+    renderer.renderUninstallCompletionSummary({
       auditReport: plan.auditReport,
       removedFiles,
       prunedDirectories,
       backupResult,
-      errorMessage: toErrorMessage(error),
     });
-    throw createUninstallError(
-      `Uninstall partially completed after removing ${removedFiles.length} file(s) and pruning ${prunedDirectories.length} director${prunedDirectories.length === 1 ? "y" : "ies"}: ${toErrorMessage(error)}`,
-    );
-  }
 
-  renderer.renderUninstallCompletionSummary({
-    auditReport: plan.auditReport,
-    removedFiles,
-    prunedDirectories,
-    backupResult,
-  });
+    // Project removal preserves machine-level Store rows. Machine-level Store
+    // removal remains a separate product operation.
+    const storeHandling = {
+      status: "preserved" as const,
+      reason: "Installation state records removal. Other projects and general lifecycle evidence remain in the Store.",
+    };
+    const receiptActions: PlannedAction[] = [
+      ...removedFiles.map((relativePath) => ({ type: "remove-managed" as const, disposition: "remove" as const, relativePath })),
+      ...plan.auditReport.preservedPaths.map((entry) => ({ type: "noop" as const, disposition: "preserve" as const, relativePath: entry.path })),
+    ];
+    const didMutate = removedFiles.length > 0
+      || prunedDirectories.length > 0
+      || Boolean(backupResult?.destinationDir);
+    const receipt = didMutate
+      ? createLifecycleMutationReceipt({
+          operation: "setup.remove",
+          projectId: projectIdentity.status === "resolved" ? projectIdentity.projectId : "unresolved",
+          manifestSchemaVersion: manifest?.schemaVersion ?? 3,
+          profileId: manifest?.profileId ?? "unresolved",
+          selectedResourceTypes: manifest?.selections.resourceProjection ?? [],
+          actions: receiptActions,
+          backupReferences: backupResult?.destinationDir ? [backupResult.destinationDir] : [],
+        })
+      : undefined;
 
-  // Project removal preserves machine-level Store rows. Machine-level Store
-  // removal remains a separate product operation.
-  const storeHandling = {
-    status: "preserved" as const,
-    reason: "Project removal does not change machine-level Store rows in W19 R1 P4.",
-  };
-  const receiptActions: PlannedAction[] = [
-    ...removedFiles.map((relativePath) => ({ type: "remove-managed" as const, disposition: "remove" as const, relativePath })),
-    ...plan.auditReport.preservedPaths.map((entry) => ({ type: "noop" as const, disposition: "preserve" as const, relativePath: entry.path })),
-  ];
-  const didMutate = removedFiles.length > 0
-    || prunedDirectories.length > 0
-    || Boolean(backupResult?.destinationDir);
-  const receipt = didMutate
-    ? createLifecycleMutationReceipt({
-        operation: "setup.remove",
-        projectId: projectIdentity.status === "resolved" ? projectIdentity.projectId : "unresolved",
-        manifestSchemaVersion: manifest?.schemaVersion ?? 3,
-        profileId: manifest?.profileId ?? "unresolved",
-        selectedResourceTypes: manifest?.selections.resourceProjection ?? [],
-        actions: receiptActions,
-        backupReferences: backupResult?.destinationDir ? [backupResult.destinationDir] : [],
-      })
-    : undefined;
-
-  return {
-    status: "completed",
-    plan,
-    backupResult,
-    removedFiles,
-    prunedDirectories,
-    storeHandling,
-    ...(receipt ? { receipt } : {}),
-  };
+    return {
+      status: "completed",
+      plan,
+      backupResult,
+      removedFiles,
+      prunedDirectories,
+      storeHandling,
+      ...(receipt ? { receipt } : {}),
+    };
+  }, { storeRoot: options.storeRoot, projectId: manifest?.projectId });
 }
 
 function assertRemovalEvidenceCurrent(entry: AuditReport["removableFiles"][number]): void {
@@ -269,7 +266,7 @@ function assertNotInsideBackupRoot(targetDir: string, candidatePath: string): vo
 
   if (backupRoot) {
     throw new Error(
-      `Refusing to remove a path inside project backup state (${backupRoot}): ${candidatePath}`,
+      `Refusing to remove a path inside project backup payloads (${backupRoot}): ${candidatePath}`,
     );
   }
 }

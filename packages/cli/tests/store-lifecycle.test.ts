@@ -1,3 +1,4 @@
+import { rmSync } from "node:fs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -140,8 +141,8 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
     const repoB = path.join(workDir, "repo-b");
     mkdirSync(repoA, { recursive: true });
     mkdirSync(repoB, { recursive: true });
-    const projectA = writeMinimalManifest(repoA);
-    const projectB = writeMinimalManifest(repoB);
+    const projectA = writeFixtureIdentity(repoA);
+    const projectB = writeFixtureIdentity(repoB);
 
     bootstrapGlobalStore({ storeRoot });
     seedProjectRows(storeRoot, projectA, repoA);
@@ -200,7 +201,7 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
   it("reports no-store without creating a database when none exists", () => {
     const repo = path.join(workDir, "repo");
     mkdirSync(repo, { recursive: true });
-    writeMinimalManifest(repo);
+    writeFixtureIdentity(repo);
     mkdirSync(storeRoot, { recursive: true });
 
     const result = pruneProjectFromStore({ repoRoot: repo, storeRoot });
@@ -347,7 +348,7 @@ describe("uninstall global-store handling (R-LIFE-1, R-LIFE-2, R-TEST-4)", () =>
     }
     expect(result.storeHandling).toEqual({
       status: "preserved",
-      reason: "Project removal does not change machine-level Store rows in W19 R1 P4.",
+      reason: "Installation state records removal. Other projects and general lifecycle evidence remain in the Store.",
     });
 
     // Exactly one project's rows were pruned (R-TEST-4).
@@ -419,7 +420,7 @@ describe("uninstall global-store handling (R-LIFE-1, R-LIFE-2, R-TEST-4)", () =>
     }
     expect(result.storeHandling).toEqual({
       status: "preserved",
-      reason: "Project removal does not change machine-level Store rows in W19 R1 P4.",
+      reason: "Installation state records removal. Other projects and general lifecycle evidence remain in the Store.",
     });
   });
 });
@@ -437,7 +438,7 @@ describe("update-shaped store migration (R-LIFE-3)", () => {
     cleanupTempDir(workDir);
   });
 
-  it("applies pending schema migrations to an existing older database at the bootstrap seam", () => {
+  it("preserves an unknown version-zero database at the bootstrap seam", () => {
     if (!sqliteAvailable || !driver.available) {
       return;
     }
@@ -450,22 +451,12 @@ describe("update-shaped store migration (R-LIFE-3)", () => {
     rawDb.exec("PRAGMA user_version = 0");
     rawDb.close();
 
-    // The update-shaped flow (`runCli` apply on an existing install) runs
-    // `bootstrapGlobalStore`, which opens the database and applies every
-    // pending migration.
+    const bytes=readFileSync(databasePath);
     const report = bootstrapGlobalStore({ storeRoot });
-    expect(report.databaseStatus).toBe("ready");
-    expect(report.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
+    expect(report.databaseStatus).toBe("unavailable");
+    expect(readFileSync(databasePath)).toEqual(bytes);
+    expect(()=>withStoreDatabase(storeRoot,()=>{})).toThrow();
 
-    withStoreDatabase(storeRoot, (db) => {
-      expect(readUserVersion(db)).toBe(CURRENT_STORE_SCHEMA_VERSION);
-      // The migrated schema is fully usable.
-      upsertProjectRegistryEntry(db, {
-        projectId: "33333333-3333-4333-8333-333333333333",
-        rootPath: "/tmp/migrated-project",
-      });
-      expect(listProjectRegistryEntries(db)).toHaveLength(1);
-    });
   });
 });
 
@@ -504,3 +495,5 @@ describe("store privacy (R-PRIV-1)", () => {
     expect(skillResolver).not.toContain("MAKE_DOCS_HOME");
   });
 });
+
+function writeFixtureIdentity(root: string): string { const id = writeMinimalManifest(root); writeFileSync(path.join(root, ".make-docs/config.yaml"), `projectId: ${id}\n`);  return id; }

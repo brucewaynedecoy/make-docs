@@ -1,3 +1,4 @@
+import { importLegacyInstallationState, previewLegacyInstallationState } from "./store/legacy-installation";
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
@@ -19,7 +20,7 @@ import {
   findReviewableManagedFileConflicts,
   planInstall,
 } from "./install";
-import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
+import { loadManifest } from "./manifest";
 import {
   Checkpoint9ReceiptProjectionError,
   executeInstallPlanMigration,
@@ -30,10 +31,7 @@ import { invokeOperation } from "./operations/registry";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
-  bootstrapGlobalStore,
-  mirrorProjectManifest,
   resolveStoreRoot,
-  withStoreDatabase,
 } from "./store";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
@@ -88,6 +86,7 @@ interface ParsedArgs {
   help: boolean;
   backup: boolean;
   remove: boolean;
+  removeStore?: boolean;
   noDesigns: boolean;
   noPlans: boolean;
   noPrd: boolean;
@@ -191,7 +190,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (parsed.command === "uninstall") {
     const { runToolUninstallCommand } = await import("./self");
-    await runToolUninstallCommand({ yes: parsed.yes });
+    await runToolUninstallCommand({ yes: parsed.yes, removeStore: parsed.removeStore });
     return;
   }
 
@@ -269,14 +268,22 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
+  const legacyState = previewLegacyInstallationState(targetDir);
+  if (legacyState.blockers.length) {
+    throw new Error(`Legacy installation state requires review before setup: ${legacyState.blockers.join("; ")}`);
+  }
+  if (legacyState.sources.length) {
+    output.write("Legacy installation state will move to the global Make Docs Store. These verified records will be removed after Store readback:\n");
+    for (const source of legacyState.sources) output.write(`- ${source.relativePath}\n`);
+  }
   const installIntent = inferInstallIntent(parsed);
   const loadedConfig = loadMakeDocsConfigOrThrow(targetDir);
   const makeDocsConfig = loadedConfig.config;
   const compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
-  const existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
-    ? loadManifest(targetDir)
+  let existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
+    ? loadManifest(targetDir) ?? legacyState.manifest
     : null;
   const freshInstallTarget = isFreshInstallTarget({
     targetDir,
@@ -495,6 +502,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const storeRoot = resolveStoreRoot();
+  if (legacyState.sources.length) {
+    const imported = importLegacyInstallationState(targetDir, storeRoot);
+    existingManifest = loadManifest(targetDir);
+    if (imported.recoveryRequired) {
+      throw new Error("Legacy state was transferred. A pending operation requires review. Run `make-docs project state status` before a new mutation.");
+    }
+  }
   if (freshInstallTarget || !hasInstallMutation) {
     const checkpoint9 = executeStoreCheckpoint9Migration({
       projectRoot: targetDir,
@@ -523,7 +537,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   // apply minted one, and the user is told rather than it happening silently.
   if (existingManifest && !existingManifest.projectId && applied.manifest.projectId) {
     output.write(
-      `Minted stable project identifier ${applied.manifest.projectId} in ${MANIFEST_RELATIVE_PATH} ` +
+      `Minted stable project identifier ${applied.manifest.projectId} in .make-docs/config.yaml ` +
         "(this install predated project identifiers; the identifier keys this project's " +
         "operational state in the global store and never changes).\n",
     );
@@ -545,36 +559,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
-  // Machine-level global store bootstrap (R-STORE-1). Runs after the local
-  // repository apply so the store can never influence it, writes only under
-  // the store root, and never throws — store trouble degrades to warnings
-  // because it is recoverable operational state, not project knowledge.
-  const storeReport = bootstrapGlobalStore({ packageMeta });
-  for (const warning of storeReport.warnings) {
-    output.write(`Warning: ${warning}\n`);
-  }
 
-  // Install/directory registry mirror upsert (R-MIR-1), wired at the same
-  // seam as the store bootstrap: refresh this project's mirror row from the
-  // manifest the apply just wrote. The mirror is an index only — the
-  // canonical install record stays `.make-docs/manifest.json` — so any
-  // failure degrades to a warning and never affects the applied install.
-  if (
-    storeReport.databaseStatus === "created" ||
-    storeReport.databaseStatus === "ready" ||
-    storeReport.databaseStatus === "recovered"
-  ) {
-    try {
-      withStoreDatabase(storeReport.storeRoot, (db) => {
-        mirrorProjectManifest(db, { repoRoot: targetDir, manifest: applied.manifest });
-      });
-    } catch (error) {
-      output.write(
-        `Warning: could not refresh the install registry mirror (${error instanceof Error ? error.message : String(error)}). ` +
-          "The project manifest remains the canonical install record; the mirror can be rebuilt from it.\n",
-      );
-    }
-  }
 }
 
 async function runProjectPathHygieneCommand(argv: string[]): Promise<void> {
@@ -935,6 +920,10 @@ function parseArgs(argv: string[]): ParsedArgs {
           break;
         case "--yes":
           parsed.yes = true;
+          break;
+        case "--remove-store":
+          if (parsed.command !== "uninstall") throw new Error("--remove-store is valid only with make-docs uninstall.");
+          parsed.removeStore = true;
           break;
         case "--target":
           if (parsed.command !== "update") {
@@ -1302,7 +1291,6 @@ function printPlan(options: {
   const renderedActions = getRenderedActions(actions);
   const noopCount = actions.length - nonNoop.length;
   const counts = countActions(actions);
-  const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
   const mode = describeApplyMode({ existingManifest, installIntent });
   const labels = getConfigRenderingLabels(config);
 
@@ -1311,8 +1299,8 @@ function printPlan(options: {
       `Target: ${targetDir}`,
       `Mode: ${mode}`,
       existingManifest
-        ? `Manifest: ${manifestPath} (found)`
-        : `Manifest: ${manifestPath} (will be created)`,
+        ? "Installation record: global Make Docs Store (found or verified for transfer)"
+        : "Installation record: global Make Docs Store (will be created)",
       existingManifest
         ? `Installed version: ${existingManifest.packageVersion}`
         : "Installed version: none detected",
@@ -1708,7 +1696,7 @@ function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
         output.write(`make-docs setup reconfigure
 
 Change the configured make-docs footprint for an existing install.
-Requires an existing ${MANIFEST_RELATIVE_PATH} in the target directory.
+Requires a verified installation record in the global Make Docs Store.
 
 Interactive runs open the selection wizard using the saved manifest selections.
 Non-interactive runs with --yes must include at least one selection flag.
@@ -1839,15 +1827,23 @@ Examples:
     case "project":
       output.write(`make-docs project
 
-Manage canonical project support surfaces.
+Manage project support surfaces and installation state in the global Make Docs Store.
 
 Usage:
   make-docs project surface ensure <archive|artifacts|assets>
+  make-docs project state status [--target-root <path>] [--json]
+  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
   make-docs project path-hygiene validate [--target <dir>] [--manifest <path>] [--include-skills] [--allow-comment-token <text>]
 
-The ensure command creates only the selected on-demand directory after it
-checks the trusted project manifest and configured routers. It reports the
-applied or unchanged state, plan dispositions, receipt, and next check.
+The ensure command checks Store installation evidence and configured routers
+before it creates the selected on-demand directory. It reports the applied or
+unchanged state, plan dispositions, receipt, and next check.
+
+State status reads the Store and reports pending work without changing files.
+State recover requires an operation ID and exactly one recovery mode.
+Use --resume to apply the remaining verified steps of a complete saved plan.
+Use --rollback to restore verified prior file state. Changed files block recovery.
+Add --dry-run to inspect recovery without applying changes.
 
 The path-hygiene command validates managed text paths through the same typed
 operation that the MCP tool and migration checkpoint use.
@@ -1929,7 +1925,7 @@ touches repository content. When the install method is ambiguous it prints
 the exact removal command instead of acting.
 
 Usage:
-  make-docs uninstall [--yes] [--help]
+  make-docs uninstall [--yes] [--remove-store] [--help]
 
 Options:
   --yes                            Confirm removal without an interactive prompt.
@@ -1947,6 +1943,8 @@ Usage:
   make-docs
   make-docs setup [reconfigure|skills|backup|remove] [options]
   make-docs project surface ensure <archive|artifacts|assets>
+  make-docs project state status [--target-root <path>] [--json]
+  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
   make-docs project path-hygiene validate [options]
   make-docs resource <list|read|ensure> [options]
   make-docs run <domain> <verb> [options]

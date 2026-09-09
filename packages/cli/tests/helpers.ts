@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { getManifestPath, loadManifest, mintProjectId } from "../src/manifest";
+import { getManifestPath, loadManifest, mintProjectId, validateAndMigrateManifest, writeManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import type {
   InstallManifest,
@@ -137,7 +137,7 @@ export async function installMakeDocsTarget(
  * Fixtures that exercise identity-keyed operations (lifecycle evidence,
  * registry mirroring) use this to stay fast.
  */
-export function writeMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
+export function writeLegacyMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
   const manifestPath = getManifestPath(targetDir);
   mkdirSync(path.dirname(manifestPath), { recursive: true });
   writeFileSync(
@@ -169,6 +169,16 @@ export function writeMinimalManifest(targetDir: string, projectId = mintProjectI
     )}\n`,
     "utf8",
   );
+  return projectId;
+}
+
+/** Create current Store-owned fixture state and its portable config identity. */
+export function writeMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
+  writeLegacyMinimalManifest(targetDir, projectId);
+  const legacyPath = getManifestPath(targetDir);
+  const manifest = validateAndMigrateManifest(JSON.parse(readFileSync(legacyPath, "utf8")), legacyPath);
+  rmSync(legacyPath);
+  writeManifest(targetDir, manifest);
   return projectId;
 }
 

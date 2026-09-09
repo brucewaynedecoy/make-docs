@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This document describes how `make-docs` is assembled across upstream template authoring, package/provider projection, the shared TypeScript operation registry, CLI and MCP projections, optional project-local resources, manifest and Store state, consumer installation, root dogfood, skills delivery, and lifecycle cleanup. It is a synthesis layer above the detailed subsystem PRDs. Those PRDs own current product authority; code in `packages/cli/src/*.ts`, `packages/docs/template/`, `packages/skills/`, and `scripts/` is implementation evidence and may expose drift that later work must reconcile.
 
@@ -94,7 +94,7 @@ The packaging and validation configuration surface is defined by workspace metad
 
 - Affected requirement or section: Topology, Runtime Boundaries, Data Flow, Configuration Surfaces
 - Previous contract: The architecture kept the operational manifest, conflict state, ownership, and provenance in the project.
-- Replacement contract: The Store owns applied installation state and recovery metadata. The project retains declarative identity/settings and content. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: The Store owns applied installation state and recovery metadata. The project retains declarative identity/settings and content. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 

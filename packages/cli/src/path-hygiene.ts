@@ -1,6 +1,7 @@
-import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { assertManagedPathHasNoSymlinks } from "./utils";
+import { readInstallationManifest } from "./store/installation-state";
 
 export const PATH_HYGIENE_ALLOW_TOKEN = "make-docs-path-hygiene: allow";
 
@@ -25,6 +26,8 @@ export interface PathHygieneFinding {
 }
 
 export interface PathHygieneScanResult {
+  inventorySource: "store" | "content" | "legacy-manifest";
+  inventoryNotice?: string;
   checkedFiles: number;
   changedFiles: string[];
   findings: PathHygieneFinding[];
@@ -179,18 +182,37 @@ export function scanPathHygieneManifest(input: {
   allowToken?: string;
 }): PathHygieneScanResult {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
-  const manifestPath = path.resolve(
-    projectRoot,
-    input.manifestPath ?? ".make-docs/manifest.json",
-  );
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
-    files?: Record<string, unknown> | unknown[];
-    skillFiles?: unknown;
-  };
+  // The public name remains compatible. Local manifests are read only when
+  // explicitly selected as legacy inventory, never as installation authority.
+  let inventorySource: PathHygieneScanResult["inventorySource"] = "content";
+  let inventoryNotice: string | undefined;
+  let inventory: { files?: unknown; skillFiles?: unknown } | null = null;
+  if (input.manifestPath !== undefined) {
+    const absolute = path.resolve(projectRoot, input.manifestPath);
+    const relative = path.relative(projectRoot, absolute).split(path.sep).join("/");
+    if (!isSafeManifestPath(relative)) throw new Error("Legacy inventory must stay inside the project.");
+    assertManagedPathHasNoSymlinks(projectRoot, relative);
+    const value: unknown = JSON.parse(readFileSync(absolute, "utf8"));
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error("Legacy inventory must be a JSON object.");
+    }
+    inventory = value as { files?: unknown; skillFiles?: unknown };
+    inventorySource = "legacy-manifest";
+  } else {
+    try {
+      inventory = readInstallationManifest(projectRoot);
+      if (inventory) inventorySource = "store";
+    } catch {
+      inventoryNotice = "Store installation inventory unavailable; checked local content only. This is not installation evidence.";
+    }
+  }
   const paths = new Set<string>();
-  collectManifestPaths(paths, manifest.files);
-  if (input.includeSkills && Array.isArray(manifest.skillFiles)) {
-    collectManifestPaths(paths, manifest.skillFiles);
+  if (inventory) {
+    collectManifestPaths(paths, inventory.files);
+    if (input.includeSkills) collectManifestPaths(paths, inventory.skillFiles);
+  } else {
+    inventoryNotice ??= "No Store installation inventory; checked local content only. This is not installation evidence.";
+    collectContentPaths(projectRoot, paths, Boolean(input.includeSkills));
   }
   const findings: PathHygieneFinding[] = [];
   const ioErrors: string[] = [];
@@ -200,9 +222,9 @@ export function scanPathHygieneManifest(input: {
     const accepted = input.includeSkills
       ? SKILL_TEXT_EXTENSIONS.has(extension)
       : TEXT_EXTENSIONS.has(extension);
-    if (!accepted) continue;
+    if (!accepted || isProtectedContentPath(relativePath)) continue;
     if (!isSafeManifestPath(relativePath)) {
-      ioErrors.push(`${relativePath}: manifest path is not repository-relative POSIX.`);
+      ioErrors.push(`${relativePath}: inventory path is not repository-relative POSIX.`);
       continue;
     }
     try {
@@ -229,7 +251,7 @@ export function scanPathHygieneManifest(input: {
       ioErrors.push(`${relativePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  return { checkedFiles, changedFiles: [], findings, ioErrors };
+  return { inventorySource, ...(inventoryNotice ? { inventoryNotice } : {}), checkedFiles, changedFiles: [], findings, ioErrors };
 }
 
 export function failingPathHygieneFindings(
@@ -296,6 +318,41 @@ function markdownDestinationAt(line: string, start: number, end: number): boolea
     if (destinationStart <= start && end <= destinationStart + destination.length) return true;
   }
   return false;
+}
+
+const DEFAULT_CONTENT_ROOTS = ["README.md", "AGENTS.md", "CLAUDE.md", "docs", ".make-docs/system"];
+const SKILL_CONTENT_ROOTS = [".make-docs/agentics/skills", ".agents/skills", ".claude/skills", ".codex/skills"];
+const EXCLUDED_CONTENT_DIRECTORIES = new Set([".git", ".backup", "node_modules", "__pycache__", ".venv"]);
+
+function isProtectedContentPath(relativePath: string): boolean {
+  const parts = relativePath.split("/");
+  return parts.some(part => EXCLUDED_CONTENT_DIRECTORIES.has(part)) ||
+    relativePath === ".make-docs/manifest.json" ||
+    parts.some((part, index) => part === ".make-docs" &&
+      ["state", "backup", "conflicts", "archive"].includes(parts[index + 1]));
+}
+
+/** Select readable content only. This does not mint or infer managed ownership. */
+function collectContentPaths(projectRoot: string, paths: Set<string>, includeSkills: boolean): void {
+  const visit = (relativePath: string): void => {
+    if (isProtectedContentPath(relativePath)) return;
+    const absolute = path.join(projectRoot, ...relativePath.split("/"));
+    if (!existsSync(absolute)) return;
+    // Check every component so a symlinked content root is skipped as well.
+    let component = projectRoot;
+    for (const part of relativePath.split("/")) {
+      component = path.join(component, part);
+      if (lstatSync(component).isSymbolicLink()) return;
+    }
+    const stat = lstatSync(absolute);
+    if (stat.isFile()) { paths.add(relativePath); return; }
+    if (!stat.isDirectory()) return;
+    for (const entry of readdirSync(absolute, { withFileTypes: true })) {
+      if (entry.isSymbolicLink() || (!includeSkills && entry.name === "skills")) continue;
+      visit(`${relativePath}/${entry.name}`);
+    }
+  };
+  for (const root of [...DEFAULT_CONTENT_ROOTS, ...(includeSkills ? SKILL_CONTENT_ROOTS : [])]) visit(root);
 }
 
 function collectManifestPaths(paths: Set<string>, value: unknown): void {

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This subsystem turns user selections into a deterministic managed footprint and keeps later lifecycle operations narrow, stateful, and non-destructive. `runCli` and `inferInstallIntent` in `packages/cli/src/cli.ts` decide whether a run is a first install, a manifest-backed sync, or an explicit reconfiguration; `resolveInstallProfile` in `packages/cli/src/profile.ts` derives the effective capability set and stable `profileId`; and `createInstallPlan`, `applyInstallPlan`, and `writeManifest` in `packages/cli/src/planner.ts`, `packages/cli/src/install.ts`, and `packages/cli/src/manifest.ts` convert desired state into file actions plus persisted manifest state.
 
@@ -134,7 +134,7 @@ Installation records live in the global Store under [PRD 38](38-global-store-and
 
 - Affected requirement or section: Selection and Manifest Invariants; Managed-File Conflict Planning
 - Previous contract: Setup wrote the canonical operational manifest locally and mirrored it to the Store. Backup metadata and conflict state could act as local operational records.
-- Replacement contract: All installation writers use the Store-owned manifest and operation service. Local backups and exports retain content only. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: All installation writers use the Store-owned manifest and operation service. Local backups and exports retain content only. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 

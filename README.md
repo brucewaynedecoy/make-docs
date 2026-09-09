@@ -47,7 +47,7 @@ AGENTS.md             # Root agent instructions (multi-agent compatible)
 
 Each directory includes its own `CLAUDE.md` and `AGENTS.md` files with context-specific instructions for AI agents generating documentation within that directory.
 
-The `docs/assets/` namespace contains project documentation assets only: archive records, optional pre-design artifacts, persona library guides, and playbooks. Make Docs system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`. Reusable prompts are first-class provider resources with stable `make-docs://system/prompt/<posix-relative-path>` identities. Read them with `make-docs resource read`; a project-local projection is optional. Mutable CLI runtime state also lives outside `docs/` under root `.make-docs/`, especially `.make-docs/manifest.json` and `.make-docs/conflicts/<run-id>/`.
+The `docs/assets/` namespace contains project documentation assets only: archive records, optional pre-design artifacts, persona library guides, and playbooks. Make Docs system machinery lives under `.make-docs/{contracts,references,templates}/system/**` and `.make-docs/scripts/**`. Reusable prompts are first-class provider resources with stable `make-docs://system/prompt/<posix-relative-path>` identities. Read them with `make-docs resource read`; a project-local projection is optional. Mutable Make Docs operation state lives only in the global Make Docs Store. Project-local conflict and backup file copies are payloads; their live decisions, progress, and recovery authority stay in the Store.
 
 ## Guide Discovery
 
@@ -71,7 +71,7 @@ npx @brucewaynedecoy/make-docs@next
 
 Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is `make-docs`, and the same TypeScript package owns install, maintenance, deterministic operation, and MCP behavior.
 
-The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry used by `make-docs run`.
+The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read Store installation records and declarative project config, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry used by `make-docs run`.
 
 Bare `make-docs` is context-aware: with no install present it starts a guided setup, and with an install present it shows status and help without syncing. Install and sync live under `make-docs setup`.
 
@@ -99,7 +99,7 @@ npx @brucewaynedecoy/make-docs@next setup --yes
 # Full install except work docs
 npx @brucewaynedecoy/make-docs@next setup --yes --no-work
 
-# Sync an existing install using its saved manifest selections
+# Sync an existing install using its saved Store selections
 npx @brucewaynedecoy/make-docs@next setup
 
 # Reconfigure an existing install
@@ -116,7 +116,11 @@ The installer writes only the files that match your selected profile:
 - visible capability directories such as `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`
 - only the prompt starters, templates, and reference files that are valid for that profile
 - generated instruction routers and support files that avoid pointing agents at missing directories or prompt files
-- `.make-docs/manifest.json`, which records the installed profile and managed file hashes for later apply/sync runs
+- `.make-docs/config.yaml`, which holds portable project identity and desired settings
+
+The global Make Docs Store holds the installed profile, applied hashes, ownership, migration progress, locks, and recovery records. The CLI manages those records. It never creates a project-local operational manifest or state folder. Existing `.make-docs/manifest.json` and `.make-docs/state/` files are legacy transfer inputs; let the corrected CLI review and transfer them. Do not recreate or delete them by hand.
+
+Project documents, history, work backlog updates, and approved backup file copies remain local. If the CLI is unavailable or optional lifecycle capture fails, ordinary project work can continue with a clear unavailable-capture notice. Do not use direct Store writes, queued writes, local fallback state, or false capture claims. CLI-managed installs, upgrades, and migrations still require durable Store records and stop safely when recording fails.
 
 Apply/sync behavior is intentionally non-destructive:
 
@@ -178,7 +182,7 @@ After installing or copying, your project will have:
 
 - **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
 - **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
-- **`.make-docs/manifest.json`** -- Present when you use the CLI installer. Tracks the selected profile and managed file hashes so future apply/sync runs stay narrow and safe.
+- **Global Make Docs Store** -- Records the applied installation, ownership, managed file hashes, operation progress, and recovery state. Local `.make-docs/config.yaml` holds portable project identity and desired settings.
 - **`docs/assets/library/`** -- Persona-based guides and related project documentation.
 - **`docs/assets/archive/history/`** -- Session history records for point-in-time work breadcrumbs, created on demand.
 

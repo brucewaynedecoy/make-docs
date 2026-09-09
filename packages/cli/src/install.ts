@@ -1,10 +1,13 @@
-import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { isDeepStrictEqual } from "node:util";
+import { removeInstallationPath, pruneInstallationParents, prepareInstallationRemoval } from "./installation-files";
+import { existsSync, mkdirSync, symlinkSync } from "node:fs";
 import path from "node:path";
+import { getInstallationProjectId, readInstallationStatus, preparePlannedFileChange, recordPlannedFileChange, sealInstallationOperation, withInstallationOperation } from "./store/installation-state";
 import {
   CONFLICTS_RELATIVE_DIR,
   createManifest,
+  loadManifest,
   MANIFEST_RELATIVE_PATH,
-  mintProjectId,
   RETIRED_PLAYBOOK_CONTRACT_PATH,
   writeManifest,
 } from "./manifest";
@@ -31,7 +34,6 @@ import type {
 import {
   assertManagedPathHasNoSymlinks,
   ensureParentDir,
-  pruneEmptyDirectories,
   readPackageMeta,
   relativePathToTarget,
   writeTextFile,
@@ -189,6 +191,9 @@ function applyInstallPlanInternal(options: {
     JSON.stringify(existingManifest.resourceProjection ?? null) ===
       JSON.stringify(plan.resourceProjection ?? null)
   ) {
+    const state = readInstallationStatus(targetDir);
+    if (state.status !== "ready") throw new Error(`Installation cannot report an unchanged result: ${state.status}. ${state.nextAction}`);
+    if (!isDeepStrictEqual(loadManifest(targetDir), existingManifest)) throw new Error("Installation state changed after plan review. Create and review a fresh plan before writing.");
     return {
       manifest: existingManifest,
       appliedActions: plan.actions,
@@ -196,90 +201,123 @@ function applyInstallPlanInternal(options: {
       mutationApplied: false,
     };
   }
-  const nextFiles: Record<string, import("./types").ManifestFileEntry> = {
-    ...(existingManifest?.files ?? {}),
-  };
-  const nextSkillFiles = new Set(existingManifest?.skillFiles ?? []);
-  const desiredSkillFiles = new Set(plan.desiredSkillFiles);
-  const conflictFiles: string[] = [];
+  return withInstallationOperation(targetDir, options.trackSkillFilesInManifestFiles ? plan.operation ?? "setup" : "setup.skills", () => {
+    const currentManifest = loadManifest(targetDir);
+    if (!isDeepStrictEqual(currentManifest, existingManifest)) {
+      throw new Error("Installation state changed after plan review. Create and review a fresh plan before writing.");
+    }
+    if (plan.classificationSnapshot) assertLifecyclePlanSnapshotCurrent(targetDir, plan.classificationSnapshot);
+    const nextFiles: Record<string, import("./types").ManifestFileEntry> = {
+      ...(existingManifest?.files ?? {}),
+    };
+    const nextSkillFiles = new Set(existingManifest?.skillFiles ?? []);
+    const desiredSkillFiles = new Set(plan.desiredSkillFiles);
+    const conflictFiles: string[] = [];
 
-  mkdirSync(targetDir, { recursive: true });
+    // Compute final ownership before the first content write so crash recovery
+    // can publish the exact reviewed ledger after replaying verified file intents.
+    for (const action of plan.actions) {
+      const desired = plan.desiredFiles[action.relativePath];
+      if (["remove-managed", "strip-managed-block", "update-conflict"].includes(action.type)) delete nextFiles[action.relativePath];
+      else if (["create", "update", "generate", "noop"].includes(action.type) && desired) {
+        nextFiles[action.relativePath] = action.skillExposure ? { ...desired, skillExposure: action.skillExposure } : desired;
+      }
+      if (desiredSkillFiles.has(action.relativePath) && ["create", "update", "generate", "noop"].includes(action.type)) nextSkillFiles.add(action.relativePath);
+      if (action.type === "remove-managed") nextSkillFiles.delete(action.relativePath);
+    }
 
-  for (const action of plan.actions) {
-    applyAction({
-      targetDir,
-      plan,
-      action,
+    // The Store reserves identity before file writes. Configuration carries
+    // only this declarative identifier; the installation ledger stays in Store.
+    const projectId = getInstallationProjectId(targetDir);
+    const routerOwnership = plan.routerOwnership ?? existingManifest?.routerOwnership;
+    const resourceProjection = plan.resourceProjection ?? existingManifest?.resourceProjection;
+    if (!routerOwnership || !resourceProjection) {
+      throw new Error(
+        "Schema 4 install apply requires router ownership and resource projection proof.",
+      );
+    }
+
+    const manifest = createManifest(
+      {
+        name: plan.packageName,
+        version: plan.packageVersion,
+      },
+      plan.profile,
       nextFiles,
-      conflictFiles,
-    });
-
-    if (
-      desiredSkillFiles.has(action.relativePath) &&
-      (action.type === "create" ||
-        action.type === "update" ||
-        action.type === "generate" ||
-        action.type === "noop")
-    ) {
-      nextSkillFiles.add(action.relativePath);
-    }
-
-    if (action.type === "remove-managed") {
-      nextSkillFiles.delete(action.relativePath);
-    }
-  }
-
-  // Stable project identity (W18 R10; PRD 38 R-ID-1): mint the identifier
-  // exactly once — on the first apply that writes a manifest — and preserve
-  // it verbatim on every later sync, reconfigure, or skills-only apply.
-  // Pre-identifier manifests (no `projectId`) are migrated here explicitly:
-  // the apply already rewrites the manifest, so the minted identifier rides
-  // the same write. An existing identifier is NEVER re-minted or changed.
-  const projectId = existingManifest?.projectId ?? mintProjectId();
-  const routerOwnership = plan.routerOwnership ?? existingManifest?.routerOwnership;
-  const resourceProjection = plan.resourceProjection ?? existingManifest?.resourceProjection;
-  if (!routerOwnership || !resourceProjection) {
-    throw new Error(
-      "Schema 4 install apply requires router ownership and resource projection proof.",
+      Array.from(nextSkillFiles).sort(),
+      options.trackSkillFilesInManifestFiles
+        ? plan.systemAssetMaterialization
+        : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
+      projectId,
+      routerOwnership,
+      resourceProjection,
     );
-  }
+    writeManifest(targetDir, manifest);
+    // Ordinary file plans have a complete intent set before the first apply.
+    // Native skill exposure fallback needs runtime evidence, so that path stays
+    // unsealed until it finishes and a crash offers rollback rather than guessing.
+    const hasExposureMutation = plan.actions.some(action => action.skillExposure && ["create", "update", "generate", "remove-managed"].includes(action.type));
+    if (!hasExposureMutation) {
+      const changes = plan.actions.flatMap(action => prepareInstallAction(targetDir, plan, action, conflictFiles));
+      sealInstallationOperation(targetDir);
+      for (const change of changes) change();
+    } else {
+      for (const action of plan.actions) {
+        if (action.relativePath === ".make-docs/config.yaml" && existsSync(relativePathToTarget(targetDir, action.relativePath))) continue;
+        applyAction({ targetDir, plan, action, nextFiles, conflictFiles,
+          stageExposure(entry) {
+            nextFiles[action.relativePath] = entry;
+            manifest.files = nextFiles;
+            writeManifest(targetDir, manifest);
+          },
+        });
+      }
+    }
+    for (const action of plan.actions) {
+      if (action.type === "remove-managed") pruneRemovedManagedPathParents(targetDir, action.relativePath, relativePathToTarget(targetDir, action.relativePath));
+    }
+    manifest.files = nextFiles;
+    const receipt = createLifecycleMutationReceipt({
+      operation: plan.operation ?? "setup",
+      projectId,
+      manifestSchemaVersion: manifest.schemaVersion,
+      profileId: manifest.profileId,
+      selectedResourceTypes: manifest.selections.resourceProjection ?? [],
+      actions: plan.actions,
+      committedAt: manifest.updatedAt,
+    });
+    if (p4ProjectionSelected) {
+      assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
+    }
+    writeManifest(targetDir, manifest);
 
-  const manifest = createManifest(
-    {
-      name: plan.packageName,
-      version: plan.packageVersion,
-    },
-    plan.profile,
-    nextFiles,
-    Array.from(nextSkillFiles).sort(),
-    options.trackSkillFilesInManifestFiles
-      ? plan.systemAssetMaterialization
-      : (existingManifest?.systemAssetMaterialization ?? plan.systemAssetMaterialization),
-    projectId,
-    routerOwnership,
-    resourceProjection,
-  );
-  const receipt = createLifecycleMutationReceipt({
-    operation: plan.operation ?? "setup",
-    projectId,
-    manifestSchemaVersion: manifest.schemaVersion,
-    profileId: manifest.profileId,
-    selectedResourceTypes: manifest.selections.resourceProjection ?? [],
-    actions: plan.actions,
-    committedAt: manifest.updatedAt,
-  });
-  if (p4ProjectionSelected) {
-    assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
-  }
-  writeManifest(targetDir, manifest);
+    return {
+      manifest,
+      appliedActions: plan.actions,
+      conflictFiles,
+      receipt,
+      mutationApplied: true,
+    };
+  }, { projectId: existingManifest?.projectId });
+}
 
-  return {
-    manifest,
-    appliedActions: plan.actions,
-    conflictFiles,
-    receipt,
-    mutationApplied: true,
-  };
+function prepareInstallAction(targetDir: string, plan: InstallPlan, action: PlannedAction, conflictFiles: string[]): Array<() => void> {
+  const absolute = relativePathToTarget(targetDir, action.relativePath);
+  if (action.relativePath === ".make-docs/config.yaml" && existsSync(absolute)) return [];
+  if (["create", "update", "generate", "update-conflict", "strip-managed-block"].includes(action.type)) {
+    if (typeof action.content !== "string") throw new Error(`Missing content for ${action.relativePath}.`);
+    return [preparePlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolute, action.content!))];
+  }
+  if (action.type === "remove-managed") return prepareInstallationRemoval(targetDir, action.relativePath);
+  if (action.type === "skip-conflict" && typeof action.content === "string" && plan.conflictsRunId) {
+    const relative = path.join(CONFLICTS_RELATIVE_DIR, plan.conflictsRunId, toConflictRelativePath(action.relativePath));
+    const conflictPath = path.join(targetDir, relative);
+    return [preparePlannedFileChange(targetDir, relative, { kind: "file", content: action.content }, () => {
+      writeTextFile(conflictPath, action.content!);
+      conflictFiles.push(conflictPath);
+    })];
+  }
+  return [];
 }
 
 function applyAction(options: {
@@ -288,6 +326,7 @@ function applyAction(options: {
   action: PlannedAction;
   nextFiles: Record<string, import("./types").ManifestFileEntry>;
   conflictFiles: string[];
+  stageExposure: (entry: NonNullable<InstallPlan["desiredFiles"][string]>) => void;
 }): void {
   const { targetDir, plan, action, nextFiles, conflictFiles } = options;
   const absolutePath = relativePathToTarget(targetDir, action.relativePath);
@@ -319,6 +358,7 @@ function applyAction(options: {
           targetDir,
           action,
           desiredEntry,
+          stageExposure: options.stageExposure,
         });
         return;
       }
@@ -327,7 +367,7 @@ function applyAction(options: {
         throw new Error(`Missing content for ${action.type} action on ${action.relativePath}.`);
       }
 
-      writeTextFile(absolutePath, action.content);
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
       nextFiles[action.relativePath] = desiredEntry;
       return;
     }
@@ -336,7 +376,7 @@ function applyAction(options: {
         throw new Error(`Missing content for ${action.type} action on ${action.relativePath}.`);
       }
 
-      writeTextFile(absolutePath, action.content);
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
       delete nextFiles[action.relativePath];
       return;
     }
@@ -358,14 +398,13 @@ function applyAction(options: {
       if (typeof action.content !== "string") {
         throw new Error(`Missing preserved content for ${action.type} action on ${action.relativePath}.`);
       }
-      writeTextFile(absolutePath, action.content);
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
       delete nextFiles[action.relativePath];
       return;
     }
     case "remove-managed": {
       if (existsSync(absolutePath)) {
-        rmSync(absolutePath, { force: true, recursive: true });
-        pruneRemovedManagedPathParents(targetDir, action.relativePath, absolutePath);
+        removeInstallationPath(targetDir, action.relativePath);
       }
       delete nextFiles[action.relativePath];
       return;
@@ -378,8 +417,7 @@ function applyAction(options: {
           plan.conflictsRunId,
           toConflictRelativePath(action.relativePath),
         );
-        ensureParentDir(conflictPath);
-        writeTextFile(conflictPath, action.content);
+        recordPlannedFileChange(targetDir, path.relative(targetDir, conflictPath), { kind: "file", content: action.content }, () => writeTextFile(conflictPath, action.content!));
         conflictFiles.push(conflictPath);
       }
       return;
@@ -400,6 +438,7 @@ function applySkillExposureAction(options: {
   targetDir: string;
   action: PlannedAction;
   desiredEntry: NonNullable<InstallPlan["desiredFiles"][string]>;
+  stageExposure: (entry: NonNullable<InstallPlan["desiredFiles"][string]>) => void;
 }): NonNullable<InstallPlan["desiredFiles"][string]> {
   const { targetDir, action, desiredEntry } = options;
   if (!action.skillExposure || !action.copyMirrorAssets) {
@@ -408,13 +447,17 @@ function applySkillExposureAction(options: {
 
   const absolutePath = relativePathToTarget(targetDir, action.relativePath);
   if (existsSync(absolutePath)) {
-    rmSync(absolutePath, { recursive: true, force: true });
+    removeInstallationPath(targetDir, action.relativePath);
   }
   ensureParentDir(absolutePath);
 
   if (process.env.MAKE_DOCS_DISABLE_SKILL_SYMLINKS !== "1") {
+    let symlinkFailure: unknown;
     try {
-      symlinkSync(action.skillExposure.symlinkTarget, absolutePath, "dir");
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "symlink", target: action.skillExposure.symlinkTarget }, () => {
+        try { symlinkSync(action.skillExposure!.symlinkTarget, absolutePath, "dir"); }
+        catch (error) { symlinkFailure = error; throw error; }
+      });
       return {
         ...desiredEntry,
         skillExposure: {
@@ -423,6 +466,11 @@ function applySkillExposureAction(options: {
         },
       };
     } catch (error) {
+      // Only a failed OS symlink can choose the reviewed copy fallback.
+      // Store ownership, lock, and snapshot errors must stop the operation.
+      if (error !== symlinkFailure || !["EPERM", "EACCES", "ENOSYS", "ENOTSUP", "EOPNOTSUPP"].includes((error as NodeJS.ErrnoException).code ?? "")) throw error;
+      const fallback = { ...desiredEntry, skillExposure: { ...action.skillExposure, mode: "copy-mirror" as const, fallbackReason: toErrorMessage(error) } };
+      options.stageExposure(fallback);
       writeCopyMirror(action.copyMirrorAssets, targetDir);
       return {
         ...desiredEntry,
@@ -435,6 +483,7 @@ function applySkillExposureAction(options: {
     }
   }
 
+  options.stageExposure({ ...desiredEntry, skillExposure: { ...action.skillExposure, mode: "copy-mirror", fallbackReason: "Symlink creation disabled by MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1." } });
   writeCopyMirror(action.copyMirrorAssets, targetDir);
   return {
     ...desiredEntry,
@@ -452,7 +501,7 @@ function writeCopyMirror(assets: PlannedAction["copyMirrorAssets"], targetDir: s
   }
 
   for (const asset of assets) {
-    writeTextFile(relativePathToTarget(targetDir, asset.relativePath), asset.content);
+    recordPlannedFileChange(targetDir, asset.relativePath, { kind: "file", content: asset.content }, () => writeTextFile(relativePathToTarget(targetDir, asset.relativePath), asset.content));
   }
 }
 
@@ -466,7 +515,7 @@ function pruneRemovedManagedPathParents(
     return;
   }
 
-  pruneEmptyDirectories(path.dirname(absolutePath), boundary);
+  pruneInstallationParents(targetDir, path.dirname(absolutePath), boundary);
 }
 
 function getRemoveManagedPruneBoundary(

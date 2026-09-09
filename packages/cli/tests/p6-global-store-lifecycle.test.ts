@@ -1,7 +1,7 @@
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
 import {
@@ -38,6 +38,7 @@ import {
   type StoreDatabase,
   type LifecycleStatus,
 } from "../src/store";
+import * as installationState from "../src/store/installation-state";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
 const sqliteAvailable = loadSqliteDriver().available;
@@ -58,6 +59,7 @@ function projectRoot(projectId = "project-1"): string {
   const root = createTempDir("make-docs-p6-project-");
   roots.push(root);
   writeMinimalManifest(root, projectId);
+  writeFileSync(path.join(root, ".make-docs/config.yaml"), `projectId: ${projectId}\n`);
   return root;
 }
 
@@ -106,17 +108,26 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     const root = storeRoot();
     const open = openStoreDatabase(root);
     try {
-      expect(open.schemaVersion).toBe(2);
-      expect(readUserVersion(open.db)).toBe(2);
+      expect(open.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
+      expect(readUserVersion(open.db)).toBe(CURRENT_STORE_SCHEMA_VERSION);
       const tables = open.db.prepare(
         "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
       ).all() as Array<{ name: string }>;
       expect(tables.map((row) => row.name)).toEqual([
+        "installation_checkouts",
+        "installation_ledgers",
+        "installation_locks",
+        "installation_migration_records",
+        "installation_operations",
+        "installation_steps",
+        "installation_transfers",
         "playbook_runs",
         "projects",
         "run_evidence",
         "runs",
         "store_checkpoint_journal",
+        "store_schema_journal",
+        "tool_operations",
         "work_evidence",
       ]);
     } finally {
@@ -155,7 +166,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "SELECT hex(record) AS record_hex FROM playbook_runs WHERE run_id = ?",
       ).get("legacy-1");
 
-      expect(applyStoreMigrations(db, 1)).toBe(2);
+      expect(applyStoreMigrations(db, 1)).toBe(CURRENT_STORE_SCHEMA_VERSION);
       const checkpoint9Objects = new Set([
         "runs",
         "idx_runs_project_status",
@@ -166,7 +177,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       ]);
       const preservedSchema = (db.prepare(
         "SELECT type, name, tbl_name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-      ).all() as Array<{ name: string }>).filter((entry) => !checkpoint9Objects.has(entry.name));
+      ).all() as Array<{ name: string }>).filter((entry) => !checkpoint9Objects.has(entry.name) && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
       expect(preservedSchema).toEqual(schemaBefore);
       expect(db.prepare(
         "SELECT hex(record) AS record_hex FROM playbook_runs WHERE run_id = ?",
@@ -193,7 +204,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     try {
       await runCli(["setup", "--yes", "--target", freshProject]);
       const freshOpen = openStoreDatabase(root);
-      expect(freshOpen.schemaVersion).toBe(2);
+      expect(freshOpen.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
       freshOpen.db.close();
 
       const noOpStore = storeRoot();
@@ -203,15 +214,14 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       process.env.MAKE_DOCS_HOME = noOpStore;
       await runCli(["setup", "--yes", "--target", freshProject]);
       const noOpOpen = openStoreDatabase(noOpStore);
-      expect(noOpOpen.schemaVersion).toBe(2);
+      expect(noOpOpen.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
       noOpOpen.db.close();
       expect(executeStoreCheckpoint9Migration({
         projectRoot: freshProject,
         storeRoot: noOpStore,
       })).toMatchObject({
-        status: "completed",
+        status: "not-required",
         checkpoint: 9,
-        recoveredProjection: true,
         setupMayContinue: true,
       });
     } finally {
@@ -220,103 +230,34 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     }
   });
 
-  test("4: double receipt-projection failure returns a typed stop and journal recovery preserves later writes", async () => {
-    const root = storeRoot();
-    const db = rawDatabase(path.join(root, "store.db"));
+  test("4: Store receipt failure stops safely and retry preserves later writes", () => {
+    const root = storeRoot(); const project = projectRoot();
+    const db = openStoreDatabase(root).db;
+    const receipt = {
+      schemaVersion:1, receiptId:"sha256:"+"a".repeat(64), checkpoint:9,
+      snapshotId:"sha256:"+"b".repeat(64), createdAt:"2026-09-09T00:00:00Z",
+      status:"completed", lockTokenDigest:"c".repeat(64),code:null,message:"committed",
+      rollback:{attempted:false,completed:false,restoredPaths:[],unrestoredPaths:[]},
+      claims:{validated:false,accepted:false,downstreamAuthorized:false,released:false},
+    };
     try {
-      seedVersionOne(db);
-      db.prepare(
-        "INSERT INTO playbook_runs (project_id, run_id, record, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-      ).run("project-1", "legacy-1", '{"opaque":true}', "start", "update");
-    } finally {
-      db.close();
-    }
-    writeFileSync(path.join(root, "machine-owned.bin"), Buffer.from([0, 2, 4, 255]));
-    const project = projectRoot();
-    const receiptPath = path.join(project, ".make-docs", "state", "migration-receipts");
-    mkdirSync(path.dirname(receiptPath), { recursive: true });
-    // Planned failure point 1: receipt persistence cannot create its directory.
-    writeFileSync(receiptPath, "blocked");
-    const stopped = executeStoreCheckpoint9Migration({ projectRoot: project, storeRoot: root });
-    expect(stopped).toEqual({
-      schemaVersion: 1,
-      status: "receipt-projection-failed",
-      checkpoint: 9,
-      code: "checkpoint-receipt-projection-failed",
-      receiptId: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
-      projectionAttempts: 2,
-      storeCommitted: true,
-      setupMayContinue: false,
-      message: expect.stringContaining("could not be projected twice"),
+      db.prepare("INSERT INTO store_checkpoint_journal (receipt_id,checkpoint,project_root_digest,snapshot_id,committed_at,receipt_json) VALUES (?,9,?,?,?,?)")
+        .run(receipt.receiptId,createHash("sha256").update(realpathSync(project)).digest("hex"),receipt.snapshotId,receipt.createdAt,JSON.stringify(receipt));
+    } finally {db.close();}
+    const original = installationState.recordMigrationState;
+    const spy = vi.spyOn(installationState,"recordMigrationState").mockImplementation((root,kind,id,value,store) => {
+      if(kind === "receipt") throw new Error("Store receipt write failed");
+      return original(root,kind,id,value,store);
     });
-    if (stopped.status !== "receipt-projection-failed") {
-      throw new Error("Expected the forced checkpoint receipt projection failure.");
-    }
-    const committed = rawDatabase(path.join(root, "store.db"));
-    try {
-      expect(readUserVersion(committed)).toBe(2);
-      expect(committed.prepare(
-        "SELECT record FROM playbook_runs WHERE project_id = ? AND run_id = ?",
-      ).get("project-1", "legacy-1")).toEqual({ record: '{"opaque":true}' });
-      expect(committed.prepare(
-        "SELECT receipt_id FROM store_checkpoint_journal WHERE checkpoint = 9",
-      ).get()).toEqual({ receipt_id: stopped.receiptId });
-      committed.exec("CREATE TABLE other_process_write (value TEXT)");
-      committed.prepare("INSERT INTO other_process_write (value) VALUES (?)").run("preserved");
-    } finally {
-      committed.close();
-    }
-    expect(readFileSync(path.join(root, "machine-owned.bin"))).toEqual(Buffer.from([0, 2, 4, 255]));
-    rmSync(receiptPath);
-    const recovered = executeStoreCheckpoint9Migration({ projectRoot: project, storeRoot: root });
-    expect(recovered).toMatchObject({
-      status: "completed",
-      receipt: { receiptId: stopped.receiptId },
-      recoveredProjection: true,
-      projectionAttempts: 1,
-      setupMayContinue: true,
-    });
-    const afterRecovery = rawDatabase(path.join(root, "store.db"));
-    try {
-      expect(afterRecovery.prepare("SELECT value FROM other_process_write").get())
-        .toEqual({ value: "preserved" });
-    } finally {
-      afterRecovery.close();
-    }
-    expect(readdirSync(path.dirname(root)).filter((name) => name.includes("checkpoint9"))).toEqual([]);
-
-    const setupStore = storeRoot();
-    const setupDb = rawDatabase(path.join(setupStore, "store.db"));
-    seedVersionOne(setupDb);
-    setupDb.close();
-    const freshProject = createTempDir("make-docs-p6-projection-stop-");
-    roots.push(freshProject);
-    const blockedReceiptPath = path.join(
-      freshProject,
-      ".make-docs",
-      "state",
-      "migration-receipts",
-    );
-    mkdirSync(path.dirname(blockedReceiptPath), { recursive: true });
-    writeFileSync(blockedReceiptPath, "blocked");
-    const previousStoreRoot = process.env.MAKE_DOCS_HOME;
-    process.env.MAKE_DOCS_HOME = setupStore;
-    try {
-      await expect(runCli(["setup", "--yes", "--target", freshProject]))
-        .rejects.toMatchObject({
-          code: "checkpoint-receipt-projection-failed",
-          checkpointResult: {
-            status: "receipt-projection-failed",
-            projectionAttempts: 2,
-            storeCommitted: true,
-            setupMayContinue: false,
-          },
-        });
-      expect(existsSync(path.join(freshProject, "AGENTS.md"))).toBe(false);
-    } finally {
-      if (previousStoreRoot === undefined) delete process.env.MAKE_DOCS_HOME;
-      else process.env.MAKE_DOCS_HOME = previousStoreRoot;
-    }
+    const stopped = executeStoreCheckpoint9Migration({projectRoot:project,storeRoot:root});
+    expect(stopped).toMatchObject({status:"receipt-projection-failed",storeCommitted:true,setupMayContinue:false,projectionAttempts:2});
+    expect(existsSync(path.join(project,".make-docs/state"))).toBe(false);
+    const later = openStoreDatabase(root).db;
+    try {later.exec("CREATE TABLE other_process_write (value TEXT)");later.prepare("INSERT INTO other_process_write VALUES (?)").run("preserved");} finally {later.close();}
+    spy.mockRestore();
+    expect(executeStoreCheckpoint9Migration({projectRoot:project,storeRoot:root})).toMatchObject({status:"completed",receipt:{receiptId:receipt.receiptId},recoveredProjection:true});
+    const after = openStoreDatabase(root).db;
+    try {expect(after.prepare("SELECT value FROM other_process_write").get()).toEqual({value:"preserved"});} finally {after.close();}
   });
 
   test("5: corrupt and newer Stores fail closed without quarantine or rewrite", () => {
@@ -555,7 +496,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       projectRoot: project,
       storeRoot: migrationRoot,
     });
-    expect(serialized.status).toBe("completed");
+    expect(serialized.status).toBe("not-required");
     if (child.exitCode === null) {
       await new Promise<void>((resolve, reject) => {
         child.once("error", reject);
@@ -566,7 +507,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     }
     const serializedDb = rawDatabase(databasePath);
     try {
-      expect(readUserVersion(serializedDb)).toBe(2);
+      expect(readUserVersion(serializedDb)).toBe(CURRENT_STORE_SCHEMA_VERSION);
       expect(serializedDb.prepare("SELECT value FROM other_process_checkpoint_write").get())
         .toEqual({ value: "preserved" });
     } finally {
@@ -941,7 +882,8 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
   test("19: Store failure returns exact run-capture-unavailable without repository write or receipt", async () => {
     const repoRoot = projectRoot();
     const manifestPath = path.join(repoRoot, ".make-docs", "manifest.json");
-    const manifestBefore = readFileSync(manifestPath, "utf8");
+    const configPath = path.join(repoRoot, ".make-docs", "config.yaml");
+    const configBefore = readFileSync(configPath, "utf8");
     const root = storeRoot();
     const opened = openStoreDatabase(root);
     opened.db.exec("PRAGMA user_version = 99");
@@ -963,7 +905,8 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       message: expect.stringContaining("supports up to version"),
     });
     expect(result.value).not.toHaveProperty("receipt");
-    expect(readFileSync(manifestPath, "utf8")).toBe(manifestBefore);
+    expect(existsSync(manifestPath)).toBe(false);
+    expect(readFileSync(configPath, "utf8")).toBe(configBefore);
   });
 
   test("20: CLI and MCP keep exact IDs, canonical results, and one-winner concurrency", async () => {

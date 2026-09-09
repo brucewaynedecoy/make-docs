@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This document defines the current product contract for the project tool directory, system resources, custom overlays, and resource tiers. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
@@ -122,7 +122,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 - Affected requirement or section: Directory model; Runtime state and bootstrap
 - Previous contract: The directory model required a local manifest and described conflicts, audit state, and migration journals as project-local runtime state.
-- Replacement contract: No current operational state belongs in the project. Local settings, content, and inert backup copies remain allowed. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: No current operational state belongs in the project. Local settings, content, and inert backup copies remain allowed. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
 

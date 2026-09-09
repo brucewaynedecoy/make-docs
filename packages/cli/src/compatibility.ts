@@ -1,3 +1,5 @@
+import { previewLegacyInstallationState } from "./store/legacy-installation";
+import { readInstallationManifest } from "./store/installation-state";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -6,7 +8,7 @@ import { parseManagedBlock } from "./managed-block";
 import {
   getManifestFileHash,
   getManifestPath,
-  loadManifest,
+  validateAndMigrateManifest,
   MANIFEST_RELATIVE_PATH,
 } from "./manifest";
 import { assertManagedPathHasNoSymlinks, readPackageFile } from "./utils";
@@ -707,6 +709,17 @@ function evaluateFallbackRecognition(targetDir: string): {
 }
 
 function readRawManifest(targetDir: string): RawManifestRead {
+  // Store availability errors must stop classification. Malformed ledger
+  // contents remain a reviewable classification, with no local fallback.
+  const installed = readInstallationManifest(targetDir);
+  if (installed) {
+    try {
+      const manifest = validateAndMigrateManifest(installed, "Make Docs Store installation ledger");
+      return { present: true, parseable: true, schemaVersion: manifest.schemaVersion, manifest };
+    } catch (error) {
+      return { present: true, parseable: false, schemaVersion: null, manifest: null, errorMessage: error instanceof Error ? error.message : String(error) };
+    }
+  }
   assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
   const manifestPath = getManifestPath(targetDir);
   if (!existsSync(manifestPath)) {
@@ -727,7 +740,7 @@ function readRawManifest(targetDir: string): RawManifestRead {
       parseable: true,
       schemaVersion:
         typeof raw.schemaVersion === "number" ? raw.schemaVersion : null,
-      manifest: loadManifest(targetDir),
+      manifest: previewLegacyInstallationState(targetDir).manifest,
     };
   } catch (error) {
     return {

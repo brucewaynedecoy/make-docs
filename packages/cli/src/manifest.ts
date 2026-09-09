@@ -1,3 +1,4 @@
+import { readInstallationManifest, saveInstallationManifest } from "./store/installation-state";
 import { randomUUID } from "node:crypto";
 import os from "node:os";
 import { existsSync } from "node:fs";
@@ -126,14 +127,16 @@ export function getManifestFileHash(relativePath: string, content: string): stri
 }
 
 export function loadManifest(targetDir: string): InstallManifest | null {
-  assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
-  const manifestPath = getManifestPath(targetDir);
-  if (!existsSync(manifestPath)) {
-    return null;
-  }
+  const manifest = readInstallationManifest(targetDir);
+  return manifest ? validateAndMigrateManifest(manifest, "Make Docs Store installation ledger") : null;
+}
 
-  const parsed = JSON.parse(readTextFile(manifestPath)) as unknown;
-  return validateAndMigrateManifest(parsed, manifestPath);
+/** Legacy input only. Setup must verify and transfer it before managed mutation. */
+export function loadLegacyManifest(targetDir: string): InstallManifest | null {
+  assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
+  const file = getManifestPath(targetDir);
+  if (!existsSync(file)) return null;
+  return validateAndMigrateManifest(JSON.parse(readTextFile(file)), file);
 }
 
 export function migrateSelections(selections: unknown): InstallSelections {
@@ -268,9 +271,7 @@ export function writeManifest(
   targetDir: string,
   manifest: InstallManifest,
 ): string {
-  const manifestPath = getManifestPath(targetDir);
-  writeTextFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  return manifestPath;
+  return saveInstallationManifest(targetDir, manifest);
 }
 
 export function getManifestAuditContext(
@@ -386,7 +387,7 @@ function migrateSkillFiles(skillFiles: unknown): string[] {
   return [];
 }
 
-function validateAndMigrateManifest(
+export function validateAndMigrateManifest(
   value: unknown,
   manifestPath: string,
 ): InstallManifest {

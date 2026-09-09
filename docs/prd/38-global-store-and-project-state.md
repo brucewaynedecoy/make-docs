@@ -11,7 +11,7 @@ source:
 
 ## Purpose
 
-Accepted target: the owner accepted the [W19 R3 package](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), including its work backlog, on 2026-09-09. The requested next step is an implementation plan after the package commit. Implementation has not started. Existing code anchors describe implementation evidence, not proof that this target is delivered.
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
 
 This document defines the current product contract for stable project identity, machine-level Global Store state, and repository-state boundaries. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
@@ -179,7 +179,7 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 - Affected requirement or section: R-BND, R-STORE, R-DB, R-ID, R-PS, R-MIR, R-LIFE, R-XFER, R-KEEP, R-TEST
 - Previous contract: R-MIR-1 made the local manifest canonical. R-LIFE-5 required a local checkpoint-9 receipt projection. Project identity and some recovery rules relied on those files.
-- Replacement contract: The Store is the only authority for installation and migration state. External locks, checkout identity, safe bootstrap, scoped recovery, verified legacy transfer, and no-local-state proof replace that split. The owner accepted this target with the work backlog on 2026-09-09. Implementation has not started.
+- Replacement contract: The Store is the only authority for installation and migration state. External locks, checkout identity, safe bootstrap, scoped recovery, verified legacy transfer, and no-local-state proof replace that split. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Owner clarification (2026-09-09): missing CLI or failed optional capture does not block ordinary project work. R-PS-8 and R-TEST-7 make that rule explicit without weakening required Store recording for CLI-managed changes. This remains part of the single W19 R3 phase.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).

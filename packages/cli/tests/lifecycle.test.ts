@@ -107,14 +107,14 @@ describe("lifecycle validation", () => {
       expect(report.mode).toBe("manifest-present");
       expect(removablePaths).toContain("AGENTS.md");
       expect(removablePaths).toContain("CLAUDE.md");
-      expect(removablePaths).toContain(".make-docs/manifest.json");
+      expect(removablePaths).not.toContain(".make-docs/manifest.json");
       expect(prunablePaths).not.toContain(".make-docs");
       expect(report.preservedPaths).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             path: ".make-docs",
             reasonCode: "directory-contains-preserved-descendants",
-            preservedDescendantPaths: [".make-docs/backup"],
+            preservedDescendantPaths: expect.arrayContaining([".make-docs/backup", ".make-docs/config.yaml"]),
           }),
         ]),
       );

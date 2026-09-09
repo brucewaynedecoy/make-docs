@@ -1,11 +1,14 @@
 import { execFileSync, spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readlinkSync,
   readdirSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -16,6 +19,10 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 const cliPackageDir = path.join(repoRoot, "packages", "cli");
+const verifyDogfood = process.argv.includes("--verify-dogfood");
+for (const arg of process.argv.slice(2)) {
+  if (arg !== "--verify-dogfood") throw new Error(`Unknown smoke-pack option: ${arg}`);
+}
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
 // Sandbox global-store root for every direct packed-CLI invocation, so the
@@ -30,11 +37,11 @@ function registerAuxSmokeDir(prefix) {
   auxSmokeDirs.push(dir);
   return dir;
 }
-let sqliteAvailable = true;
+let DatabaseSync;
 try {
-  await import("node:sqlite");
+  ({ DatabaseSync } = await import("node:sqlite"));
 } catch {
-  sqliteAvailable = false;
+  throw new Error("Package smoke requires a Node runtime with node:sqlite for mandatory Store state.");
 }
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
 const PACKAGE_RUNNER_SMOKES = [
@@ -227,23 +234,20 @@ function runPackageRunnerSmoke(options) {
       timeout: 120000,
     });
 
-    const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
-    assertExists(
-      manifestPath,
-      `Smoke pack ${runner.name} install did not produce a manifest.`,
-    );
+    const installation = { targetDir, storeRoot: path.join(smokeRoot, "home", ".make-docs") };
+    readInstallationLedger(installation);
     assertExists(
       path.join(targetDir, "docs/AGENTS.md"),
       `Smoke pack ${runner.name} install did not produce docs/AGENTS.md.`,
     );
-    assertMissing(
+    assertExists(
       path.join(targetDir, ".make-docs/config.yaml"),
-      `Smoke pack ${runner.name} install should not materialize an optional project config.`,
+      `Smoke pack ${runner.name} install did not declare project identity.`,
     );
-    assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
-    assertManifestSkillFiles(manifestPath, 0);
-    assertManifestOmitsProjectConfig(manifestPath);
-    assertProviderOnlyDefaultInstall(targetDir, manifestPath);
+    assertManifestPackageName(installation, EXPECTED_PACKAGE_NAME);
+    assertManifestSkillFiles(installation, 0);
+    assertManifestOmitsProjectConfig(installation);
+    assertProviderOnlyDefaultInstall(targetDir, installation);
     // The runner env sandboxes HOME, so the store bootstrap must land under
     // the sandbox home and never under the repository target.
     assertStoreBootstrapAndNoRepoStateWrites(
@@ -251,6 +255,32 @@ function runPackageRunnerSmoke(options) {
       targetDir,
       `${runner.name} install`,
     );
+    // A package runner has no persistent binary. Verify that its Store has a
+    // separate removal choice and that both choices preserve repository bytes.
+    const runnerArgs = runner.args(tarballPath, targetDir);
+    const commandPrefix = runnerArgs.slice(0, runnerArgs.indexOf("setup"));
+    const beforeUninstall = snapshotTree(targetDir);
+    const preserveOutput = execFileSync(runner.command, [...commandPrefix, "uninstall", "--yes"], {
+      cwd: workDir, encoding: "utf8", env: packageRunnerEnv(smokeRoot, runner.envKind), timeout: 120000,
+    });
+    const recognizedRunner = preserveOutput.includes("No persistent make-docs binary is installed");
+    if (runner.envKind === "npm" && !recognizedRunner) throw new Error("Smoke pack npx uninstall did not recognize the runner.");
+    if (!recognizedRunner) {
+      assertOutputContains(preserveOutput, "make-docs will not guess and run a destructive global change.", `Smoke pack ${runner.name} ambiguous uninstall did not refuse safely.`);
+    }
+    readInstallationLedger(installation);
+    if (snapshotTree(targetDir) !== beforeUninstall) throw new Error(`Smoke pack ${runner.name} uninstall changed project files.`);
+    const removalOutput = execFileSync(runner.command, [...commandPrefix, "uninstall", "--yes", "--remove-store"], {
+      cwd: workDir, encoding: "utf8", env: packageRunnerEnv(smokeRoot, runner.envKind), timeout: 120000,
+    });
+    if (recognizedRunner) {
+      assertOutputContains(removalOutput, `Removed the global store at ${installation.storeRoot}`, `Smoke pack ${runner.name} explicit Store removal did not complete.`);
+      assertMissing(installation.storeRoot, `Smoke pack ${runner.name} explicit removal left the Store behind.`);
+    } else {
+      assertOutputContains(removalOutput, "make-docs will not guess and run a destructive global change.", `Smoke pack ${runner.name} ambiguous explicit removal did not refuse safely.`);
+      readInstallationLedger(installation);
+    }
+    if (snapshotTree(targetDir) !== beforeUninstall) throw new Error(`Smoke pack ${runner.name} Store removal changed project files.`);
   } catch (error) {
     if (error && error.code === "ENOENT") {
       throw new Error(
@@ -274,6 +304,7 @@ function packageRunnerEnv(smokeRoot, envKind) {
     HOME: homeDir,
     NO_COLOR: "1",
     XDG_CACHE_HOME: xdgCacheDir,
+    MAKE_DOCS_HOME: path.join(homeDir, ".make-docs"),
   };
 
   mkdirSync(homeDir, { recursive: true });
@@ -352,7 +383,7 @@ try {
   );
   runPackageRunnerSmokes(tarballPath);
 
-  const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+  const installation = { targetDir, storeRoot };
   const fixtureServer = await startRepoFixtureServer(repoRoot);
 
   try {
@@ -382,19 +413,17 @@ try {
       [packedMakeDocs, "setup", "--yes", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
+    readInstallationLedger(installation);
     assertExists(
-      path.join(targetDir, ".make-docs/manifest.json"),
-      "Smoke pack setup install did not produce a manifest.",
-    );
-    assertMissing(
       path.join(targetDir, ".make-docs/config.yaml"),
-      "Smoke pack setup install should not materialize an optional project config.",
+      "Smoke pack setup install did not declare project identity.",
     );
     assertExists(
       path.join(targetDir, "docs/AGENTS.md"),
       "Smoke pack setup install did not produce docs/AGENTS.md.",
     );
     assertStoreBootstrapAndNoRepoStateWrites(storeRoot, targetDir, "setup install");
+    assertPackedStateStatus(packedMakeDocs, installation, "ready");
 
     // Bare invocation, installed context (PRD 39 R-BARE-1 / W18 R11 P6 t5):
     // status plus guidance, never a sync.
@@ -419,9 +448,9 @@ try {
       "Smoke pack bare invocation (installed) omitted the installed package line.",
     );
 
-    const providerOnlyRouterPaths = assertProviderOnlyDefaultInstall(targetDir, manifestPath);
+    const providerOnlyRouterPaths = assertProviderOnlyDefaultInstall(targetDir, installation);
     assertPackedInstructionTemplate(packageRoot, providerOnlyRouterPaths);
-    assertManifestOmitsProjectConfig(manifestPath);
+    assertManifestOmitsProjectConfig(installation);
 
     execFileSync(
       "node",
@@ -432,8 +461,9 @@ try {
       path.join(targetDir, ".make-docs/conflicts"),
       "Smoke pack setup sync staged conflicts for an unchanged install.",
     );
-    assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
-    assertManifestSkillFiles(manifestPath, 0);
+    assertManifestPackageName(installation, EXPECTED_PACKAGE_NAME);
+    assertManifestSkillFiles(installation, 0);
+    assertPackedStateStatus(packedMakeDocs, installation, "ready");
     assertMissing(
       path.join(targetDir, ".claude/skills"),
       "Smoke pack setup install should not produce Claude Code skill files.",
@@ -456,23 +486,24 @@ try {
     await fixtureServer.close();
   }
 
-  assertExists(manifestPath, "Smoke pack install did not produce a manifest.");
-  assertManifestPackageName(manifestPath, EXPECTED_PACKAGE_NAME);
-  assertManifestOmitsProjectConfig(manifestPath);
+  readInstallationLedger(installation);
+  assertManifestPackageName(installation, EXPECTED_PACKAGE_NAME);
+  assertManifestOmitsProjectConfig(installation);
+  assertPackedStateStatus(packedMakeDocs, installation, "ready");
   assertExists(
     path.join(targetDir, "docs/AGENTS.md"),
     "Smoke pack install did not produce docs/AGENTS.md.",
   );
 
-  assertManifestContainsSkillFiles(manifestPath, EXPECTED_SKILL_PATHS);
-  assertManifestOmitsSkillFilePrefixes(manifestPath, WITHDRAWN_SKILL_PATHS);
-  assertManifestOmitsSkillFiles(manifestPath, EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS);
+  assertManifestContainsSkillFiles(installation, EXPECTED_SKILL_PATHS);
+  assertManifestOmitsSkillFilePrefixes(installation, WITHDRAWN_SKILL_PATHS);
+  assertManifestOmitsSkillFiles(installation, EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS);
   assertDirectoryEntries(path.join(targetDir, ".make-docs/agentics/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
-  assertMissing(
+  assertExists(
     path.join(targetDir, ".make-docs/config.yaml"),
-    "Smoke pack skills sync should not materialize an optional project config.",
+    "Smoke pack skills sync lost declarative project identity.",
   );
 
   for (const relativePath of EXPECTED_SKILL_PATHS) {
@@ -547,7 +578,7 @@ try {
   const customConfigPath = path.join(targetDir, ".make-docs/config.yaml");
   mkdirSync(path.dirname(customFilePath), { recursive: true });
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
-  writeFileSync(customConfigPath, "labels:\n  documentKinds:\n    design: Idea\n", "utf8");
+  writeFileSync(customConfigPath, `${readFileSync(customConfigPath, "utf8")}\nlabels:\n  documentKinds:\n    design: Idea\n`, "utf8");
   const customReaderAssetPaths = [
     "docs/assets/artifacts/custom-source/preserve.md",
     "docs/assets/archive/history/custom-history.md",
@@ -572,10 +603,11 @@ try {
   const backupRoot = path.join(targetDir, ".make-docs/backup");
   const backupDir = getOnlyBackupDirectory(backupRoot);
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack backup did not copy AGENTS.md.");
-  assertExists(
+  assertMissing(
     path.join(backupDir, ".make-docs/manifest.json"),
-    "Smoke pack backup did not copy the make-docs manifest.",
+    "Smoke pack backup generated a project-local operational manifest.",
   );
+  assertStoredOperation(installation, "setup.backup", path.relative(targetDir, path.join(backupDir, "AGENTS.md")));
 
   execFileSync(
     "node",
@@ -610,6 +642,17 @@ try {
   assertExists(backupRoot, "Smoke pack setup remove removed the .make-docs/backup directory.");
   assertExists(path.join(backupDir, "AGENTS.md"), "Smoke pack setup remove modified the backup tree.");
   assertExists(legacyBackupFile, "Smoke pack setup remove removed the legacy .backup directory.");
+  assertPackedStateStatus(packedMakeDocs, installation, "unregistered");
+  inspectStore(installation, (db, checkout) => {
+    if (db.prepare("SELECT 1 FROM installation_ledgers WHERE checkout_id = ?").get(checkout.checkout_id)) {
+      throw new Error("Smoke pack setup remove left applied ownership in the Store.");
+    }
+    if (!db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id = ? AND status = 'completed'").get(checkout.checkout_id)) {
+      throw new Error("Smoke pack setup remove erased durable operation history.");
+    }
+  });
+  assertNoProjectOperationState(targetDir, "setup remove");
+  assertOperationPayloads(installation);
 
   // Across every packed-CLI operation above (installs, skills, backup,
   // uninstall), operational state stayed in the sandboxed global store and no
@@ -619,8 +662,8 @@ try {
     "Smoke pack run left work-lifecycle run state under the repository.",
   );
   assertExists(
-    path.join(storeRoot, "manifest.json"),
-    "Smoke pack run lost the global store manifest.",
+    path.join(storeRoot, "store.db"),
+    "Smoke pack run lost the global Store database.",
   );
 
   // ---- W18 R11 P6 (t5): five-command-tree spellings through the packed
@@ -703,13 +746,14 @@ try {
     "Smoke pack uninstall refusal did not report that nothing was removed.",
   );
   assertExists(
-    path.join(storeRoot, "manifest.json"),
-    "Smoke pack uninstall refusal removed the sandboxed store.",
+    path.join(storeRoot, "store.db"),
+    "Smoke pack uninstall refusal removed the sandboxed Store.",
   );
 
-  // `uninstall --yes` removes the sandboxed store and never touches
-  // repository content (the ambiguous packed binary is reported, not guessed).
-  const repoContentBeforeUninstall = readFileSync(customFilePath, "utf8");
+  // `uninstall --yes` preserves the Store. Ambiguous binary ownership never
+  // grants permission to remove it, even with an explicit Store choice.
+  const repoContentBeforeUninstall = snapshotTree(targetDir);
+  const legacyContentBeforeUninstall = snapshotTree(runFixtureDir);
   const uninstallOutput = execFileSync(
     "node",
     [packedMakeDocs, "uninstall", "--yes"],
@@ -717,16 +761,21 @@ try {
   );
   assertOutputContains(
     uninstallOutput,
-    `Removed the global store at ${storeRoot}`,
-    "Smoke pack uninstall --yes did not remove the sandboxed store.",
+    `The global Store is preserved at ${storeRoot}.`,
+    "Smoke pack uninstall --yes did not preserve the sandboxed Store.",
   );
   assertOutputContains(
     uninstallOutput,
     "make-docs will not guess and run a destructive global change.",
     "Smoke pack uninstall --yes guessed at ambiguous binary ownership.",
   );
-  assertMissing(storeRoot, "Smoke pack uninstall --yes left the sandboxed store behind.");
-  if (readFileSync(customFilePath, "utf8") !== repoContentBeforeUninstall) {
+  assertExists(path.join(storeRoot, "store.db"), "Smoke pack uninstall --yes removed the sandboxed Store.");
+  const ambiguousRemoval = execFileSync("node", [packedMakeDocs, "uninstall", "--yes", "--remove-store"], {
+    encoding: "utf8", env: packedCliEnv,
+  });
+  assertOutputContains(ambiguousRemoval, "make-docs will not guess and run a destructive global change.", "Smoke pack ambiguous explicit removal guessed binary ownership.");
+  assertExists(path.join(storeRoot, "store.db"), "Smoke pack ambiguous binary removal deleted the Store.");
+  if (snapshotTree(targetDir) !== repoContentBeforeUninstall || snapshotTree(runFixtureDir) !== legacyContentBeforeUninstall) {
     throw new Error("Smoke pack uninstall --yes modified repository content.");
   }
   assertExists(
@@ -765,8 +814,8 @@ function assertOnlyMakeDocsBin(packageJson) {
   }
 }
 
-function assertManifestPackageName(manifestPath, expectedPackageName) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestPackageName(installation, expectedPackageName) {
+  const manifest = readInstallationLedger(installation);
   if (manifest.packageName !== expectedPackageName) {
     throw new Error(
       `Smoke pack manifest packageName was ${manifest.packageName}, expected ${expectedPackageName}.`,
@@ -774,8 +823,8 @@ function assertManifestPackageName(manifestPath, expectedPackageName) {
   }
 }
 
-function assertManifestSkillFiles(manifestPath, expectedCount) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestSkillFiles(installation, expectedCount) {
+  const manifest = readInstallationLedger(installation);
   const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
 
   if (skillFiles.length !== expectedCount) {
@@ -785,8 +834,8 @@ function assertManifestSkillFiles(manifestPath, expectedCount) {
   }
 }
 
-function assertManifestContainsSkillFiles(manifestPath, expectedPaths) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestContainsSkillFiles(installation, expectedPaths) {
+  const manifest = readInstallationLedger(installation);
   const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
 
   for (const expectedPath of expectedPaths) {
@@ -796,8 +845,8 @@ function assertManifestContainsSkillFiles(manifestPath, expectedPaths) {
   }
 }
 
-function assertManifestOmitsSkillFiles(manifestPath, expectedPaths) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestOmitsSkillFiles(installation, expectedPaths) {
+  const manifest = readInstallationLedger(installation);
   const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
 
   for (const expectedPath of expectedPaths) {
@@ -807,8 +856,8 @@ function assertManifestOmitsSkillFiles(manifestPath, expectedPaths) {
   }
 }
 
-function assertManifestOmitsSkillFilePrefixes(manifestPath, prefixes) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestOmitsSkillFilePrefixes(installation, prefixes) {
+  const manifest = readInstallationLedger(installation);
   const skillFiles = Array.isArray(manifest.skillFiles) ? manifest.skillFiles : [];
 
   for (const prefix of prefixes) {
@@ -823,8 +872,8 @@ function assertManifestOmitsSkillFilePrefixes(manifestPath, prefixes) {
   }
 }
 
-function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertProviderOnlyDefaultInstall(targetDir, installation) {
+  const manifest = readInstallationLedger(installation);
   const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
   const trackedPaths = Object.keys(files).sort();
 
@@ -895,8 +944,9 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   }
 
   assertDirectoryEntries(targetDir, [".make-docs", "AGENTS.md", "CLAUDE.md", "docs"]);
-  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["AGENTS.md", "CLAUDE.md", "manifest.json", "state", "system"]);
-  assertDirectoryEntries(path.join(targetDir, ".make-docs/state"), ["legacy-quiescence.json", "migration-receipts"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs"), ["AGENTS.md", "CLAUDE.md", "backup", "config.yaml", "system"]);
+  assertDirectoryEntries(path.join(targetDir, ".make-docs/backup"), ["operations"]);
+  assertNoProjectOperationState(targetDir, "provider-only install");
   assertDirectoryEntries(path.join(targetDir, ".make-docs/system"), ["AGENTS.md", "CLAUDE.md", "contracts", "prompts", "references", "templates"]);
   for (const type of ["contracts", "prompts", "references", "templates"]) {
     assertDirectoryEntries(path.join(targetDir, ".make-docs/system", type), ["AGENTS.md", "CLAUDE.md"]);
@@ -937,8 +987,8 @@ function assertProviderOnlyDefaultInstall(targetDir, manifestPath) {
   return expectedPaths;
 }
 
-function assertManifestOmitsProjectConfig(manifestPath) {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+function assertManifestOmitsProjectConfig(installation) {
+  const manifest = readInstallationLedger(installation);
   const files = manifest.files && typeof manifest.files === "object" ? manifest.files : {};
   const assets =
     manifest.systemAssetMaterialization?.assets &&
@@ -977,17 +1027,19 @@ function assertPackedInstructionTemplate(packageRoot, routerPaths) {
 }
 
 function assertPackedRouterGuidanceParity(packageRoot) {
-  // The packed `.make-docs/` routers must be byte-identical to this repo's
-  // dogfood copies after the upstream-first projection.
+  // Package proof precedes live transfer. Upstream is always the package
+  // authority; installed parity is a separate, explicit post-transfer check.
   for (const name of ["AGENTS.md", "CLAUDE.md"]) {
     const packedPath = path.join(packageRoot, "template/.make-docs", name);
-    const dogfoodPath = path.join(repoRoot, ".make-docs", name);
+    const upstreamPath = path.join(repoRoot, "packages/docs/template/.make-docs", name);
     const packed = readFileSync(packedPath, "utf8");
-    const dogfood = readFileSync(dogfoodPath, "utf8");
-    if (packed !== dogfood) {
+    if (packed !== readFileSync(upstreamPath, "utf8")) {
       throw new Error(
-        `Packed template/.make-docs/${name} does not match the dogfood .make-docs/${name}.`,
+        `Packed template/.make-docs/${name} does not match its upstream source.`,
       );
+    }
+    if (verifyDogfood && packed !== readFileSync(path.join(repoRoot, ".make-docs", name), "utf8")) {
+      throw new Error(`Packed template/.make-docs/${name} does not match the dogfood .make-docs/${name}.`);
     }
     assertOutputContains(
       packed,
@@ -995,26 +1047,146 @@ function assertPackedRouterGuidanceParity(packageRoot) {
       `Packed .make-docs/${name} omitted resource fallback guidance.`,
     );
   }
+  console.log(verifyDogfood
+    ? "Packed upstream and installed dogfood router parity passed."
+    : "Packed upstream router parity passed. Installed parity requires a later --verify-dogfood run.");
+}
+
+function inspectStore(installation, inspect) {
+  const databasePath = path.join(installation.storeRoot, "store.db");
+  assertExists(databasePath, "Smoke pack installation has no Store database.");
+  const db = new DatabaseSync(databasePath, { readOnly: true });
+  try {
+    const checkout = db.prepare("SELECT * FROM installation_checkouts WHERE root_path = ?")
+      .get(realpathSync(installation.targetDir));
+    if (!checkout) throw new Error("Smoke pack Store has no binding for this checkout.");
+    return inspect(db, checkout);
+  } finally {
+    db.close();
+  }
+}
+
+function readInstallationLedger(installation) {
+  assertNoProjectOperationState(installation.targetDir, "installation ledger read");
+  assertOperationPayloads(installation);
+  return inspectStore(installation, (db, checkout) => {
+    const row = db.prepare("SELECT manifest_json FROM installation_ledgers WHERE checkout_id = ?")
+      .get(checkout.checkout_id);
+    if (!row) throw new Error("Smoke pack Store has no applied installation ledger.");
+    const manifest = JSON.parse(row.manifest_json);
+    const config = readFileSync(path.join(installation.targetDir, ".make-docs/config.yaml"), "utf8");
+    const declaredId = /^projectId:\s*["']?([\w-]+)["']?\s*$/m.exec(config)?.[1];
+    if (!declaredId || declaredId !== checkout.project_id || declaredId !== manifest.projectId) {
+      throw new Error("Smoke pack config, checkout binding, and Store ledger identities differ.");
+    }
+    return manifest;
+  });
+}
+
+function assertOperationPayloads(installation) {
+  const payloads = inspectStore(installation, (db, checkout) => {
+    const rows = db.prepare("SELECT before_json, after_json FROM installation_steps JOIN installation_operations USING(operation_id) WHERE checkout_id = ?")
+      .all(checkout.checkout_id);
+    const expected = new Map();
+    for (const row of rows) {
+      for (const serialized of [row.before_json, row.after_json]) {
+        const state = JSON.parse(serialized);
+        if (!state.payload) continue;
+        if (!state.payload.startsWith(".make-docs/backup/operations/") || state.kind !== "file" || !/^[a-f0-9]{64}$/.test(state.digest ?? "")) {
+          throw new Error("Smoke pack Store references an invalid backup payload.");
+        }
+        const absolute = realpathSync(path.join(installation.targetDir, state.payload));
+        const payloadRoot = realpathSync(path.join(installation.targetDir, ".make-docs/backup/operations"));
+        if (!absolute.startsWith(`${payloadRoot}${path.sep}`)) throw new Error("Smoke pack backup payload escapes its protected directory.");
+        const digest = createHash("sha256").update(readFileSync(absolute)).digest("hex");
+        if (digest !== state.digest) throw new Error(`Smoke pack backup payload differs from Store evidence: ${state.payload}`);
+        expected.set(state.payload, digest);
+      }
+    }
+    return expected;
+  });
+  const payloadRoot = path.join(installation.targetDir, ".make-docs/backup/operations");
+  const actual = existsSync(payloadRoot)
+    ? JSON.parse(snapshotTree(payloadRoot)).filter(([, kind]) => kind !== "directory")
+      .map(([relative]) => `.make-docs/backup/operations/${relative.split(path.sep).join("/")}`).sort()
+    : [];
+  if (JSON.stringify(actual) !== JSON.stringify([...payloads.keys()].sort())) {
+    throw new Error("Smoke pack backup payload files do not match the Store's exact references.");
+  }
+}
+
+function assertStoredOperation(installation, operation, relativePath) {
+  inspectStore(installation, (db, checkout) => {
+    const row = db.prepare(
+      "SELECT operation_id FROM installation_operations WHERE checkout_id = ? AND operation = ? AND status = 'completed' ORDER BY finished_at DESC LIMIT 1",
+    ).get(checkout.checkout_id, operation);
+    if (!row) throw new Error(`Smoke pack has no completed Store record for ${operation}.`);
+    if (relativePath) {
+      const step = db.prepare("SELECT after_json FROM installation_steps WHERE operation_id = ? AND relative_path = ?")
+        .get(row.operation_id, relativePath.split(path.sep).join("/"));
+      if (!step || JSON.parse(step.after_json).kind !== "file") {
+        throw new Error(`Smoke pack ${operation} has no durable file evidence for ${relativePath}.`);
+      }
+    }
+  });
+}
+
+function snapshotTree(root) {
+  const entries = [];
+  const visit = (relative) => {
+    const absolute = path.join(root, relative);
+    const stat = lstatSync(absolute);
+    if (stat.isSymbolicLink()) entries.push([relative, "link", readlinkSync(absolute)]);
+    else if (stat.isDirectory()) {
+      entries.push([relative, "directory"]);
+      for (const name of readdirSync(absolute).sort()) visit(path.join(relative, name));
+    } else entries.push([relative, "file", createHash("sha256").update(readFileSync(absolute)).digest("hex")]);
+  };
+  visit("");
+  return JSON.stringify(entries);
+}
+
+function assertNoProjectOperationState(targetDir, label) {
+  // Inspect the whole fixture. Existing backup copies remain permitted payloads.
+  const entries = JSON.parse(snapshotTree(targetDir));
+  for (const [entry] of entries) {
+    const relative = entry.split(path.sep).join("/");
+    if (relative.startsWith(".make-docs/backup/") || relative.startsWith(".backup/")) continue;
+    if (/(^|\/)\.make-docs\/(manifest\.json|state|runs|locks|store\.db(?:-wal|-shm)?|config\.json)(\/|$)/.test(relative)) {
+      throw new Error(`Smoke pack ${label} created project-local operation state: ${relative}`);
+    }
+  }
+}
+
+function assertPackedStateStatus(packedMakeDocs, installation, expectedStatus) {
+  const before = snapshotTree(installation.targetDir);
+  const output = execFileSync("node", [packedMakeDocs, "project", "state", "status", "--target-root", installation.targetDir, "--json"], {
+    encoding: "utf8", env: { ...packedCliEnv, MAKE_DOCS_HOME: installation.storeRoot },
+  });
+  const status = JSON.parse(output);
+  if (status.status !== expectedStatus || status.storeAvailable !== true) {
+    throw new Error(`Packed state status expected ${expectedStatus}: ${output}`);
+  }
+  if (output.includes(installation.storeRoot)) throw new Error("Packed state status leaked a private Store path.");
+  if (snapshotTree(installation.targetDir) !== before) throw new Error("Packed state status changed project files.");
+  assertNoProjectOperationState(installation.targetDir, "project state status");
 }
 
 function assertStoreBootstrapAndNoRepoStateWrites(storeRootDir, installTargetDir, label) {
-  // Store bootstrap (PRD 38 R-STORE-1): global config, global manifest, and —
-  // when node:sqlite is available — the SQLite database exist under the store
-  // root after an install.
+  // Store bootstrap (PRD 38 R-STORE-1) is mandatory before install writes.
   assertExists(
-    path.join(storeRootDir, "config.json"),
-    `Smoke pack ${label} did not bootstrap the global store config.`,
+    path.join(storeRootDir, "store.db"),
+    `Smoke pack ${label} did not bootstrap the global store database.`,
   );
-  assertExists(
-    path.join(storeRootDir, "manifest.json"),
-    `Smoke pack ${label} did not bootstrap the global store manifest.`,
-  );
-  if (sqliteAvailable) {
-    assertExists(
-      path.join(storeRootDir, "store.db"),
-      `Smoke pack ${label} did not bootstrap the global store database.`,
-    );
-  }
+  assertNoProjectOperationState(installTargetDir, label);
+  inspectStore({ targetDir: installTargetDir, storeRoot: storeRootDir }, (db) => {
+    const tables = db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all().map(row => row.name);
+    for (const table of ["installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps", "installation_migration_records", "installation_locks"]) {
+      if (!tables.includes(table)) throw new Error(`Smoke pack ${label} omitted required Store table ${table}.`);
+    }
+    const result = db.prepare("PRAGMA quick_check").get();
+    if (Object.values(result)[0] !== "ok") throw new Error(`Smoke pack ${label} Store integrity check failed.`);
+  });
 
   // No operational state under any repository path (R-BND-2, R-TEST-1).
   assertMissing(
@@ -1342,7 +1514,7 @@ function assertDirectoryEntries(directoryPath, expectedEntries) {
 function getOnlyBackupDirectory(backupRoot) {
   assertExists(backupRoot, "Smoke pack backup did not produce a .make-docs/backup directory.");
   const backupEntries = readdirSync(backupRoot).filter((entry) =>
-    existsSync(path.join(backupRoot, entry)),
+    entry !== "operations" && existsSync(path.join(backupRoot, entry)),
   );
 
   if (backupEntries.length !== 1) {
@@ -1363,8 +1535,8 @@ function ensureTrailingSlash(value) {
  */
 function writeLegacyContentFixture(fixtureDir) {
   mkdirSync(path.join(fixtureDir, "docs/work"), { recursive: true });
-  // Run state is keyed by the manifest-minted project identifier (PRD 35
-  // R-STORE-2), so the fixture carries a minimal manifest with one.
+  // This explicit legacy manifest is opaque input. Retired-route refusal and
+  // tool removal must preserve it; it is never treated as current authority.
   const manifestPath = path.join(fixtureDir, ".make-docs/manifest.json");
   mkdirSync(path.dirname(manifestPath), { recursive: true });
   writeFileSync(

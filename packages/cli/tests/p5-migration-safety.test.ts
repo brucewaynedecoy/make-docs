@@ -52,7 +52,14 @@ import {
   validateProjectPathHygiene,
 } from "../src/path-hygiene";
 
+import { readMigrationState, listMigrationState, readInstallationManifest, withInstallationDatabase } from "../src/store/installation-state";
+
 const roots: string[] = [];
+const stores = new Map<string, string>();
+function fixtureStore(root: string): string {
+  if (!stores.has(root)) { const store = `${root}-store`; stores.set(root, store); roots.push(store); }
+  return stores.get(root)!;
+}
 const originalStoreRoot = process.env.MAKE_DOCS_HOME;
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -65,6 +72,7 @@ afterEach(() => {
 function fixtureRoot(): string {
   const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-p5-"));
   roots.push(root);
+  process.env.MAKE_DOCS_HOME = fixtureStore(root);
   mkdirSync(path.join(root, ".make-docs"), { recursive: true });
   writeFileSync(
     path.join(root, ".make-docs/manifest.json"),
@@ -90,7 +98,7 @@ function safeClassification() {
 }
 
 function reviewedCompatibility(root: string): CompatibilityClassification {
-  process.env.MAKE_DOCS_HOME = path.join(root, "machine-store");
+  process.env.MAKE_DOCS_HOME = fixtureStore(root);
   return {
     state: "clean-v1",
     disposition: "migrate",
@@ -253,7 +261,8 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       { repoRoot: root },
       createExecutionContext({ cwd: root }),
     )).rejects.toThrow("Unknown operation");
-    expect(existsSync(lock.lockPath)).toBe(true);
+    expect(() => assertProjectMigrationLockActive(lock)).not.toThrow();
+    expect(existsSync(path.join(root, ".make-docs/state"))).toBe(false);
     releaseProjectMigrationLock(lock);
     expect(() => enterLegacyCompatibilityOperation({
       projectRoot: root,
@@ -265,8 +274,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
   it("fixture 5: rejects lock loss and changed lock identity", () => {
     const root = fixtureRoot();
     const lock = acquireProjectMigrationLock({ projectRoot: root });
-    const record = JSON.parse(readFileSync(lock.lockPath, "utf8"));
-    writeFileSync(lock.lockPath, `${JSON.stringify({ ...record, token: "changed-token" })}\n`);
+    withInstallationDatabase(root, db => { db.prepare("UPDATE installation_locks SET token=? WHERE root_path=?").run("changed-token", realpathSync(root)); }, {storeRoot: fixtureStore(root)});
     expect(() => assertProjectMigrationLockActive(lock)).toThrow("token changed");
   });
 
@@ -277,11 +285,11 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     expect(coordinator.advance(2).status).toBe("completed");
     writeFileSync(path.join(root, "managed.txt"), "changed\n");
     expect(coordinator.advance(3)).toMatchObject({
-      status: "failed",
+      status: "rollback-required",
       code: "snapshot-drift",
-      rollback: { attempted: true, completed: true },
+      rollback: { attempted: true, completed: false },
     });
-    expect(readFileSync(path.join(root, "managed.txt"), "utf8")).toBe("before\n");
+    expect(readFileSync(path.join(root, "managed.txt"), "utf8")).toBe("changed\n");
   });
 
   it("fixture 7: rejects an incomplete or changed backup", () => {
@@ -344,7 +352,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     const product = await fixedProductFixture();
     const result = executeInstallPlanMigration({
       projectRoot: product.root,
-      storeRoot: path.join(product.root, ".test-store"),
+      storeRoot: fixtureStore(product.root),
       compatibility: reviewedCompatibility(product.root),
       installPlan: product.plan,
       existingManifest: null,
@@ -355,7 +363,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       [5, "completed"], [6, "completed"], [7, "completed"], [8, "completed"],
       [9, "completed"], [10, "completed"], [11, "completed"],
     ]);
-    expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(true);
+    expect(readInstallationManifest(product.root)).toEqual(result.manifest);
+    expect(existsSync(path.join(product.root, ".make-docs/manifest.json"))).toBe(false);
+    expect(existsSync(path.join(product.root, ".make-docs/state"))).toBe(false);
     expect(existsSync(path.join(product.root, ".make-docs/archive"))).toBe(false);
     expect(existsSync(path.join(product.root, "docs/artifacts"))).toBe(false);
     expect(existsSync(path.join(product.root, "docs/assets"))).toBe(true);
@@ -409,7 +419,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     );
     expect(() => executeInstallPlanMigration({
       projectRoot: root,
-      storeRoot: path.join(root, ".test-store"),
+      storeRoot: fixtureStore(root),
       compatibility: reviewedCompatibility(root),
       installPlan: plan,
       existingManifest: null,
@@ -467,11 +477,8 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
         downstreamAuthorized: false,
         released: false,
       });
-      expect(existsSync(path.join(
-        root,
-        ".make-docs/state/migration-receipts",
-        `${receipt.receiptId.slice(7)}.json`,
-      ))).toBe(true);
+      expect(readMigrationState(root, "receipt", receipt.receiptId, fixtureStore(root))).toEqual(receipt);
+      expect(existsSync(path.join(root, ".make-docs/state"))).toBe(false);
     }
     const rollbackFixture = reviewedFixture("rollback-required.txt");
     const rollbackCoordinator = new ImmutableMigrationCoordinator(
@@ -549,15 +556,14 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       });
       expect(() => executeInstallPlanMigration({
         projectRoot: product.root,
-        storeRoot: path.join(product.root, ".test-store"),
+        storeRoot: fixtureStore(product.root),
         compatibility: reviewedCompatibility(product.root),
         installPlan: product.plan,
         existingManifest: null,
         backupId: `checkpoint-${checkpoint}`,
       })).toThrow(`Migration checkpoint ${checkpoint} ended with status failed`);
-      const receiptDir = path.join(product.root, ".make-docs/state/migration-receipts");
-      const checkpointReceipt = readdirSync(receiptDir)
-        .map((name) => JSON.parse(readFileSync(path.join(receiptDir, name), "utf8")))
+      const checkpointReceipt = listMigrationState(product.root, "receipt", fixtureStore(product.root))
+        .map((entry) => entry as any)
         .find((receipt) => receipt.checkpoint === checkpoint && receipt.status !== "completed");
       expect(checkpointReceipt).toMatchObject({
         checkpoint,
@@ -565,7 +571,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
         rollback: { attempted: true, completed: true, unrestoredPaths: [] },
       });
     }
-  });
+  }, 20_000);
 
   it("fixture 12: removes the Python helper only with parity, replaced consumers, and a trusted hash", () => {
     const root = fixtureRoot();

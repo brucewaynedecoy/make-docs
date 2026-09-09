@@ -20,6 +20,7 @@ import type {
   LifecyclePermissionsMode,
 } from "../src/types";
 import * as fileUtils from "../src/utils";
+import * as installationFiles from "../src/installation-files";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
 const { confirmMock, createAuditReportMock } = vi.hoisted(() => ({
@@ -170,12 +171,12 @@ describe("uninstall command", () => {
       expectCompletedUninstall(result);
       expect(result.removedFiles).toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.removedFiles).toContain(".make-docs/manifest.json");
-      expect(result.prunedDirectories).toContain(".make-docs");
+      expect(result.removedFiles).not.toContain(".make-docs/manifest.json");
+      expect(result.prunedDirectories).not.toContain(".make-docs");
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("This command removes audited make-docs-managed paths");
@@ -221,12 +222,13 @@ describe("uninstall command", () => {
 
   test("preserves project config during allow-all uninstall", async () => {
     const targetDir = createTempDir();
-    const configContents = "labels:\n  documentKinds:\n    design: Idea\n";
+    let configContents = "labels:\n  documentKinds:\n    design: Idea\n";
 
     try {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
+      configContents += `projectId: ${loadManifest(targetDir)!.projectId}\n`;
       writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), configContents, "utf8");
 
       const { result } = await captureUninstallRun({
@@ -236,7 +238,7 @@ describe("uninstall command", () => {
       });
 
       expectCompletedUninstall(result);
-      expect(result.removedFiles).toContain(".make-docs/manifest.json");
+      expect(result.removedFiles).not.toContain(".make-docs/manifest.json");
       expect(result.removedFiles).not.toContain(".make-docs/config.yaml");
       expect(result.prunedDirectories).not.toContain(".make-docs");
       expect(result.plan.auditReport.preservedPaths).toEqual(
@@ -371,10 +373,10 @@ describe("uninstall command", () => {
       });
 
       expectCompletedUninstall(result);
-      expect(result.prunedDirectories).toContain(".make-docs");
+      expect(result.prunedDirectories).not.toContain(".make-docs");
       expect(result.prunedDirectories).not.toContain("docs/assets/archive/history");
       expect(result.prunedDirectories).not.toContain("docs/assets");
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
       expect(existsSync(historyRecordPath)).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/history"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets"))).toBe(true);
@@ -402,7 +404,7 @@ describe("uninstall command", () => {
       expect(confirmMock).toHaveBeenCalledTimes(2);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(output).toContain("Uninstall cancelled. No files were changed.");
     } finally {
       cleanupTempDir(targetDir);
@@ -438,7 +440,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).not.toHaveBeenCalled();
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -477,7 +479,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -543,14 +545,15 @@ describe("uninstall command", () => {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
-      const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
-      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation(
-        (filePath) => {
+      const originalRemoveFileIfPresent = installationFiles.removeInstallationPath;
+      vi.spyOn(installationFiles, "removeInstallationPath").mockImplementation(
+        (root, relative) => {
+          const filePath = path.resolve(root, relative);
           if (filePath === path.join(targetDir, "CLAUDE.md")) {
             throw new Error("simulated delete failure");
           }
 
-          return originalRemoveFileIfPresent(filePath);
+          return originalRemoveFileIfPresent(root, relative);
         },
       );
 
@@ -584,13 +587,14 @@ describe("uninstall command", () => {
       __setLifecycleRendererForTests(
         createUninstallRecordingLifecycleRenderer(events),
       );
-      const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
-      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation((filePath) => {
+      const originalRemoveFileIfPresent = installationFiles.removeInstallationPath;
+      vi.spyOn(installationFiles, "removeInstallationPath").mockImplementation((root, relative) => {
+        const filePath = path.resolve(root, relative);
         if (simulatedFailurePaths.has(filePath)) {
           throw new Error("simulated delete failure");
         }
 
-        return originalRemoveFileIfPresent(filePath);
+        return originalRemoveFileIfPresent(root, relative);
       });
 
       const { error } = await captureUninstallFailure({

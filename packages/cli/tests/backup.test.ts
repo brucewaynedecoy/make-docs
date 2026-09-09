@@ -142,15 +142,15 @@ describe("backup command", () => {
       expect(result.destinationDir).toBe(backupDir);
       expect(result.copiedFiles).toContain("AGENTS.md");
       expect(result.copiedFiles).toContain("CLAUDE.md");
-      expect(result.copiedFiles).toContain(".make-docs/manifest.json");
+      expect(result.copiedFiles).not.toContain(".make-docs/manifest.json");
       expect(existsSync(path.join(backupDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(backupDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(backupDir, ".make-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(backupDir, ".make-docs/manifest.json"))).toBe(false);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         readFileSync(path.join(backupDir, "AGENTS.md"), "utf8"),
       );
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(output).toContain("make-docs setup backup");
       expect(output).toContain("Destination:");
       expect(output).toContain(".make-docs/backup/2026-04-18");
@@ -164,12 +164,13 @@ describe("backup command", () => {
 
   test("preserves project config without copying it as managed backup content", async () => {
     const targetDir = createTempDir();
-    const configContents = "labels:\n  documentKinds:\n    design: Idea\n";
+    let configContents = "labels:\n  documentKinds:\n    design: Idea\n";
 
     try {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
+      configContents += `projectId: ${loadManifest(targetDir)!.projectId}\n`;
       writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), configContents, "utf8");
 
       const { result } = await captureBackupRun({
@@ -231,7 +232,7 @@ describe("backup command", () => {
         destinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         filesToCopy: result.copiedFiles.length,
         directoriesToMaterialize: result.materializedDirectories.length,
-        retained: 0,
+        retained: result.auditReport.preservedPaths.length,
         skipped: 0,
         destinationExistedAtReview: false,
       });
@@ -243,7 +244,7 @@ describe("backup command", () => {
         destinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         copiedFiles: result.copiedFiles.length,
         materializedDirectories: result.materializedDirectories.length,
-        retained: 0,
+        retained: result.auditReport.preservedPaths.length,
         skipped: 0,
       });
       expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(true);
@@ -336,7 +337,7 @@ describe("backup command", () => {
     }
   });
 
-  test("promotes plain same-day backups into ordinals and keeps incrementing", async () => {
+  test("preserves completed backup paths and adds later ordinals", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -357,12 +358,12 @@ describe("backup command", () => {
         permissions: "allow-all",
       });
 
-      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18-01"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18-02"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18-03"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18-03"))).toBe(false);
       expect(thirdRun.result.destinationDir).toBe(
-        path.join(targetDir, ".make-docs/backup/2026-04-18-03"),
+        path.join(targetDir, ".make-docs/backup/2026-04-18-02"),
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -415,7 +416,7 @@ describe("backup command", () => {
           message: "Create this backup?",
         }),
       );
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("Backup cancelled.");
     } finally {
@@ -447,7 +448,7 @@ describe("backup command", () => {
         "backup:run-confirmation",
         "backup:cancelled",
       ]);
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -469,7 +470,7 @@ describe("backup command", () => {
       expect(result.status).toBe("noop");
       expect(result.destinationDir).toBeNull();
       expect(confirmMock).not.toHaveBeenCalled();
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("make-docs setup backup");
       expect(output).toContain("No make-docs-managed files required backup.");
@@ -511,7 +512,7 @@ describe("backup command", () => {
         filesToCopy: 0,
         directoriesToMaterialize: 0,
       });
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -538,7 +539,7 @@ describe("backup command", () => {
       ).rejects.toThrow(
         "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
       );
-      expect(existsSync(path.join(targetDir, ".make-docs/backup"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);

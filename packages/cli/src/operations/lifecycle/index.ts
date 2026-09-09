@@ -1,3 +1,4 @@
+import { validateInstallationStoreRoot } from "../../store/installation-state";
 import { existsSync, readdirSync, rmdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import {
@@ -125,7 +126,7 @@ export function buildCheckpoint(options: {
     droppedFields.push("mode (resolution metadata, re-derivable; not recorded as evidence)");
   }
 
-  return withCheckpointStore(options.storeRoot, (db) => {
+  return withCheckpointStore(validateInstallationStoreRoot(resolution.repoRoot, resolveStoreRoot(options.storeRoot ? {storeRoot:options.storeRoot}:{})), (db) => {
     const legacyMigration = migrateLegacyCheckpointFile(db, resolution, projectId);
 
     const existingByKind = evidenceByKind(db, projectId, identity);

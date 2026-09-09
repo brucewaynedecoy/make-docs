@@ -103,6 +103,7 @@ export interface ConfigRenderingLabels {
 }
 
 const TOP_LEVEL_KEYS = new Set([
+  "projectId",
   "labels",
   "personas",
   "generatedProse",

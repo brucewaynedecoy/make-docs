@@ -1,29 +1,16 @@
-import { getManifestPath, loadManifest } from "../manifest";
+import { loadManifest } from "../manifest";
 import type { InstallManifest } from "../types";
 import type { StoreDatabase } from "./database";
+import { getStoreDatabasePath, resolveStoreRoot } from "./paths";
 import { resolveProjectIdentity } from "./project-identity";
 import { upsertProjectRegistryEntry } from "./state-rows";
 
 /**
- * Install and directory registry mirror (W18 R10 P3, Stage 3; PRD 38
- * R-MIR-1, R-MIR-2).
- *
- * The `projects` table is a MIRROR and index for cross-project queries and
- * quick access. Its canonical source is always each project's
- * `.make-docs/manifest.json`:
- *
- * - The mirror is populated/refreshed FROM manifests (`mirrorProjectManifest`,
- *   invoked by the CLI apply flow at the same seam as the store bootstrap).
- * - Authoritative reads of a project's install record resolve to the
- *   project's manifest, never to the registry
- *   (`readAuthoritativeInstallRecord`).
- * - A stale or deleted registry is rebuildable from manifests without data
- *   loss (`rebuildProjectRegistry`); it is never a second source of truth.
- *
- * This is the `mirror` side of the mirror-versus-relocated distinction
- * encoded in `PROJECT_STATE_TABLE_ROLES` (`project-state.ts`); the
- * project-state facets are `relocated-canonical` with no in-repo copy.
- * Registry paths are local-only data (R-PRIV-1).
+ * The legacy `projects` table remains a subordinate discovery index.
+ * Current installation authority is the Store installation ledger. Local
+ * declarative identity locates the project; it never proves applied ownership.
+ * Rebuilding this index cannot recover a missing installation ledger or
+ * reinterpret opaque legacy run rows as current installation state.
  */
 
 export interface MirrorProjectResult {
@@ -35,10 +22,8 @@ export interface MirrorProjectResult {
 }
 
 /**
- * Inserts or refreshes the mirror row for one project from its manifest.
- * Skips (never errors, never invents identity) when the project has no
- * manifest, an unminted manifest, or an unreadable manifest — the mirror can
- * only reflect what the canonical source states.
+ * Refreshes discovery metadata from declared identity and the Store ledger.
+ * Unresolved identity is skipped without minting or inferring ownership.
  */
 export function mirrorProjectManifest(
   db: StoreDatabase,
@@ -52,10 +37,10 @@ export function mirrorProjectManifest(
       rootPath: identity.rootPath,
       reason:
         identity.status === "unminted"
-          ? "the manifest predates the stable project identifier; run make-docs to mint it"
+          ? "the project has no stable declaration; run make-docs setup"
           : identity.status === "no-manifest"
-            ? "no .make-docs/manifest.json (not a Make Docs install)"
-            : `the manifest is unreadable: ${identity.reason}`,
+            ? "no declarative project identity (run make-docs setup)"
+            : `the project identity is unreadable: ${identity.reason}`,
     };
   }
 
@@ -64,8 +49,8 @@ export function mirrorProjectManifest(
     try {
       manifest = loadManifest(identity.rootPath);
     } catch {
-      // The identity resolved, so the manifest was readable a moment ago;
-      // mirror the identity with package metadata omitted rather than fail.
+      // Discovery can retain declarative identity when installation state
+      // is unavailable; this does not establish applied file ownership.
       manifest = null;
     }
   }
@@ -86,18 +71,13 @@ export function mirrorProjectManifest(
 }
 
 export interface AuthoritativeInstallRecord {
+  source: "store";
+  /** Compatibility field: a Store ledger reference, never a local manifest. */
   manifestPath: string;
   manifest: InstallManifest;
 }
 
-/**
- * The authoritative read of a project's install record (R-MIR-1): always the
- * project's `.make-docs/manifest.json`, loaded fresh from the repository.
- * The registry is deliberately not consulted here — mirror rows may be stale
- * and must never override the manifest. Returns null when the project has no
- * loadable manifest (in which case there IS no install record, whatever the
- * registry claims).
- */
+/** Read the Store installation ledger. A stale discovery row cannot replace it. */
 export function readAuthoritativeInstallRecord(
   repoRoot: string,
 ): AuthoritativeInstallRecord | null {
@@ -106,7 +86,11 @@ export function readAuthoritativeInstallRecord(
     if (!manifest) {
       return null;
     }
-    return { manifestPath: getManifestPath(repoRoot), manifest };
+    return {
+      source: "store",
+      manifestPath: `${getStoreDatabasePath(resolveStoreRoot())}#installation-ledger/${manifest.projectId}`,
+      manifest,
+    };
   } catch {
     return null;
   }
@@ -118,10 +102,10 @@ export interface RebuildProjectRegistryResult {
 }
 
 /**
- * Rebuilds the registry mirror from project manifests (R-MIR-1): drops every
- * mirror row and re-mirrors each supplied project root from its manifest,
+ * Rebuilds the discovery mirror from Store installation ledgers (R-MIR-1): drops every
+ * mirror row and refreshes each supplied project root from its ledger,
  * in one transaction. Because the registry is a mirror, this is lossless —
- * every fact it holds is re-derivable from the manifests. Only registry rows
+ * installation metadata comes from preserved Store ledgers. Only discovery rows
  * are dropped; the relocated-canonical project-state rows (run-state and
  * work-execution evidence) are untouched.
  */

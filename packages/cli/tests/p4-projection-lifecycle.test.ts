@@ -8,11 +8,14 @@ import { createExecutionContext } from "../src/operations/context";
 import { invokeOperation, listAdmittedOperations } from "../src/operations/registry";
 import { defaultSelections } from "../src/profile";
 import { runCli, validateMakeDocsCliArgv } from "../src/cli";
-import { loadManifest, MANIFEST_RELATIVE_PATH } from "../src/manifest";
+import { loadManifest, loadLegacyManifest, MANIFEST_RELATIVE_PATH } from "../src/manifest";
 import { executeInstallPlanMigration } from "../src/migration";
 import { runUninstallCommand } from "../src/uninstall";
 import { readPackageFile } from "../src/utils";
 import { getLegacyIncompleteRouterPaths } from "../src/router-paths";
+
+import { readRawStoreLedger, writeRawStoreLedger } from "./store-ledger-fixture";
+import { resolveStoreRoot } from "../src/store/paths";
 
 const roots: string[] = [];
 
@@ -53,14 +56,14 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     expect(existsSync(path.join(targetDir, ".make-docs/system/references/lifecycle.md"))).toBe(false);
 
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
-    const beforeManifest = readFileSync(manifestPath, "utf8");
+    const beforeManifest = readRawStoreLedger(targetDir);
     const rerun = await planInstall({ targetDir, selections, existingManifest: applied.manifest });
     const result = applyInstallPlan({ targetDir, plan: rerun, existingManifest: applied.manifest });
     expect(rerun.actions.every((action) => action.type === "noop")).toBe(true);
     expect(result.mutationApplied).toBe(false);
     expect(result.receipt).toBeUndefined();
     expect(result.manifest.projectId).toBe(applied.manifest.projectId);
-    expect(readFileSync(manifestPath, "utf8")).toBe(beforeManifest);
+    expect(readRawStoreLedger(targetDir)).toBe(beforeManifest);
   });
 
   it("installs the full router skeleton from the upstream template authority", async () => {
@@ -126,7 +129,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
           !removedPaths.includes(relativePath)
         );
       const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
-      writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+      writeRawStoreLedger(targetDir, legacy);
 
       const acceptedLegacy = loadManifest(targetDir)!;
       expect(Object.keys(acceptedLegacy.routerOwnership!.routers)).toHaveLength(16);
@@ -160,7 +163,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
         arbitraryPartial.systemAssetMaterialization.localBootstrapPaths.filter(
           (relativePath) => relativePath !== arbitraryMissingPath,
         );
-      writeFileSync(manifestPath, `${JSON.stringify(arbitraryPartial, null, 2)}\n`, "utf8");
+      writeRawStoreLedger(targetDir, arbitraryPartial);
       expect(() => loadManifest(targetDir)).toThrow(
         "must include bootstrap router",
       );
@@ -198,7 +201,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
         (relativePath) => !removedPaths.includes(relativePath),
       );
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
-    writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+    writeRawStoreLedger(targetDir, legacy);
 
     const accepted = loadManifest(targetDir)!;
     expect(Object.values(accepted.routerOwnership!.routers)
@@ -245,7 +248,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
         (relativePath) => !removedPaths.includes(relativePath),
       );
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
-    writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+    writeRawStoreLedger(targetDir, legacy);
 
     const accepted = loadManifest(targetDir)!;
     expect(accepted.routerOwnership!.routers["docs/assets/AGENTS.md"]!.routerClass)
@@ -272,7 +275,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       partial.systemAssetMaterialization.localBootstrapPaths.filter(
         (relativePath) => relativePath !== missingPath,
       );
-    writeFileSync(manifestPath, `${JSON.stringify(partial, null, 2)}\n`, "utf8");
+    writeRawStoreLedger(targetDir, partial);
     expect(() => loadManifest(targetDir)).toThrow(
       "legacy docs/assets on-demand entries only with the exact legacy bootstrap set",
     );
@@ -300,8 +303,8 @@ describe("W19 R1 P4 projection and lifecycle", () => {
         legacyPaths.has(relativePath)
       );
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
-    const before = `${JSON.stringify(legacy, null, 2)}\n`;
-    writeFileSync(manifestPath, before, "utf8");
+    const before = JSON.stringify(legacy);
+    writeRawStoreLedger(targetDir, legacy);
     expect(loadManifest(targetDir)).not.toBeNull();
 
     await expect(invokeOperation(
@@ -309,7 +312,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       { surface: "assets", targetRoot: targetDir },
       createExecutionContext({ surface: "test", cwd: targetDir, writesAllowed: true }),
     )).rejects.toThrow("Run `make-docs setup reconfigure` first");
-    expect(readFileSync(manifestPath, "utf8")).toBe(before);
+    expect(readRawStoreLedger(targetDir)).toBe(before);
     expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(false);
     expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(false);
   });
@@ -325,7 +328,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     stale.files[relativePath]!.hash = staleHash;
     stale.files[relativePath]!.systemAsset!.expectedHashes = [staleHash];
     stale.systemAssetMaterialization.assets[relativePath]!.expectedHashes = [staleHash];
-    writeFileSync(manifestPath, `${JSON.stringify(stale, null, 2)}\n`, "utf8");
+    writeRawStoreLedger(targetDir, stale);
     const beforeBytes = readFileSync(path.join(targetDir, relativePath), "utf8");
     const staleManifest = loadManifest(targetDir)!;
     const selections = structuredClone(staleManifest.selections);
@@ -344,7 +347,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const compatibility = await classifyCompatibilityState({ targetDir });
     const result = executeInstallPlanMigration({
       projectRoot: targetDir,
-      storeRoot,
+      storeRoot: resolveStoreRoot(),
       compatibility,
       installPlan: plan,
       existingManifest: staleManifest,
@@ -367,7 +370,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const installed = await installProjection(targetDir, ["prompt"]);
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
     const writeCopy = (copy: typeof installed.manifest) => {
-      writeFileSync(manifestPath, `${JSON.stringify(copy, null, 2)}\n`, "utf8");
+      writeRawStoreLedger(targetDir, copy);
     };
     const rejectCases = [
       {
@@ -587,12 +590,12 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const reviewedPlan = await planInstall({ targetDir, selections, existingManifest: applied.manifest });
     const manifestPath = path.join(targetDir, MANIFEST_RELATIVE_PATH);
     const changed = { ...applied.manifest, updatedAt: "2099-01-01T00:00:00.000Z" };
-    writeFileSync(manifestPath, `${JSON.stringify(changed, null, 2)}\n`, "utf8");
+    writeRawStoreLedger(targetDir, changed);
     expect(() => applyInstallPlan({
       targetDir,
       plan: reviewedPlan,
       existingManifest: applied.manifest,
-    })).toThrow("reviewed lifecycle plan is stale");
+    })).toThrow("Installation state changed after plan review");
   });
 
   it("classifies ownership from proved source roles", async () => {
@@ -660,7 +663,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     for (const invalidCase of invalidCases) {
       const copy = structuredClone(applied.manifest);
       invalidCase.mutate(copy);
-      writeFileSync(manifestPath, `${JSON.stringify(copy, null, 2)}\n`, "utf8");
+      writeRawStoreLedger(targetDir, copy);
       expect(() => loadManifest(targetDir), invalidCase.label).toThrow(invalidCase.label);
     }
   });
@@ -743,7 +746,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const outsideManifestBytes = "outside manifest bytes that must not be parsed\n";
     writeFileSync(outsideManifestPath, outsideManifestBytes, "utf8");
     symlinkSync(setupOutside, path.join(setupDir, ".make-docs"));
-    expect(() => loadManifest(setupDir)).toThrow("symbolic link");
+    expect(() => loadLegacyManifest(setupDir)).toThrow("symbolic link");
     await expect(runCli(["setup", "--yes", "--target", setupDir])).rejects.toThrow(
       "symbolic link",
     );

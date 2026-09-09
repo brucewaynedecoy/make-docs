@@ -12,7 +12,6 @@ import {
   getManifestFileHash,
   getManifestAuditContext,
   getManifestPath,
-  MANIFEST_RELATIVE_PATH,
   RETIRED_PLAYBOOK_CONTRACT_PATH,
   RETIRED_PLAYBOOK_CONTRACT_HASH,
   hasTrustedRetiredPlaybookContractOwnership,
@@ -119,7 +118,7 @@ export async function createAuditReport(options: {
         }
       : {}),
     removableFiles: sortAuditEntries([...removableFiles.values()]),
-    prunableDirectories: sortPrunableDirectories(prunableDirectories),
+    prunableDirectories: sortPrunableDirectories(prunableDirectories).filter(entry => path.resolve(entry.absolutePath) !== path.resolve(homeDir, ".make-docs")),
     preservedPaths: sortAuditEntries([...preservedPaths.values()]),
     skippedPaths: sortAuditEntries([...skippedPaths.values()]),
   };
@@ -153,12 +152,7 @@ async function classifyManifestPresent(options: {
       manifestCandidates.get(record.absolutePath) ?? record,
     );
   }
-  manifestCandidates.set(
-    path.resolve(targetDir, MANIFEST_RELATIVE_PATH),
-    createManagedPathRecord(targetDir, homeDir, MANIFEST_RELATIVE_PATH, "managed-state", {
-      sourceId: `state:${MANIFEST_RELATIVE_PATH}`,
-    }),
-  );
+
 
   const manifestSkillContentByPath = await loadCanonicalSkillContentByPath(
     targetDir,
@@ -718,12 +712,7 @@ async function classifyManifestMissing(options: {
     canonicalContentByPath.set(record.path, asset.content);
   }
 
-  fallbackCandidates.set(
-    path.resolve(targetDir, MANIFEST_RELATIVE_PATH),
-    createManagedPathRecord(targetDir, homeDir, MANIFEST_RELATIVE_PATH, "managed-state", {
-      sourceId: `state:${MANIFEST_RELATIVE_PATH}`,
-    }),
-  );
+
 
   const knownAgenticsRoots = getKnownAgenticsRoots(targetDir, homeDir);
   const existingAgenticsRoots = knownAgenticsRoots.filter((root) =>

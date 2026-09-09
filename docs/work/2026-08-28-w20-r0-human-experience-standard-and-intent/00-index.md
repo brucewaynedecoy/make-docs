@@ -19,9 +19,9 @@ This backlog is a directory. Use this index first. Then use the phase files in o
 
 ## Interrupt Pause
 
-W20 R0 is paused for the [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md). P1 and P2 remain accepted and closed. P3 has not started. Preserve all existing task IDs and accepted evidence.
+W20 R0 remains paused. The owner accepted the completed [W19 R3 Store state interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md) on 2026-09-09 and requested a new interrupt package after its commit. The next package is pending planning; no link is added before it exists. W21 also remains paused.
 
-W19 R3 must complete before W20 R0 can resume. The owner accepted its package and backlog on 2026-09-09. Its next step after the requested package commit is an implementation plan. That acceptance does not resume W20. After the owner accepts the interrupt result, review its handoff against the P3 entry conditions and obtain separate authority to resume W20 implementation.
+P1 and P2 remain accepted and closed. P3 has not started. Preserve all existing task IDs and accepted evidence. When the owner later resumes W20, review the R3 handoff and accepted P2 evidence against P3 entry conditions. W20 P3 implementation still requires separate authority. Closing R3 and drafting the next package do not resume this wave.
 
 ## Purpose
 
@@ -87,4 +87,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Keep W20 R0 paused until the [W19 R3 interrupt](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md) is complete. Then use the interrupt handoff and the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. The owner authorized P2 closeout and a local commit on 2026-09-08. P3 implementation, publication, and release need separate authority.
+Current next step: Keep W20 R0 paused for the next owner-requested interrupt package. W19 R3 is accepted and closed. When the owner resumes W20, use the [R3 handoff](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md#w20-pause-and-return-point) and the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. The owner authorized P2 closeout and a local commit on 2026-09-08. P3 implementation, publication, and release need separate authority.

@@ -2,6 +2,7 @@ import path from "node:path";
 import { Buffer } from "node:buffer";
 import { z } from "zod";
 import { loadManifest } from "../../manifest";
+import { InstallationStateError } from "../../store/installation-state";
 import type { ManifestSystemAssetEntry } from "../../types";
 import type { OperationExecutionContext } from "../context";
 import type { OperationDefinition } from "../registry";
@@ -122,7 +123,14 @@ function projectContextFromManifest(
   projectRoot: string,
   provider: SystemResourceProviderInventory,
 ): SystemResourceProjectContext {
-  const manifest = loadManifest(projectRoot);
+  let manifest;
+  try { manifest = loadManifest(projectRoot); }
+  catch (error) {
+    if (!(error instanceof InstallationStateError)) throw error;
+    // Packaged-resource reads remain available without installation evidence.
+    // The ensure operation will reject absent projection ownership.
+    return { projectRoot, evidence: [] };
+  }
   if (!manifest) {
     return { projectRoot, evidence: [] };
   }
