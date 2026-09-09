@@ -136,6 +136,22 @@ Maintainer-dogfood capability status is currently `Capability status unverified`
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
+| Open | W19 R5 settles first-party delivery: all seven declared Skills ship in the CLI, with no network or maintainer-checkout fallback. The implementation and delivery gap remains open. | Implement the [one-phase backlog](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-index.md), then assess actual package, offline, adoption, upgrade, and recovery evidence before closure. |
+
+**Issue**: The bundled delivery decision is complete. Current runtime and package behavior still need the approved change and proof.
+
+**Why it matters**: A user must be able to install any first-party Skill alone from the package and adopt existing copies without losing edits or creating local installation state.
+
+**Recommendation**: Apply the [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md) under PRDs 08, 16, 25, 28, 38, and 39. Keep alternate-source trust separate; do not restore a plugin product or Skill-local workflow authority.
+
+**To close**: The central [acceptance evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md) proves all seven complete bundled payloads, offline individual/all/none selection, prior-source upgrades, reviewed adoption, edited-content preservation, and Store-owned recovery through the installed CLI. Draft authority and a settled decision alone do not close this drift.
+
+**Prior disposition retained on 2026-09-09 (non-normative)**
+
+The following text records the earlier decision state. It does not override the current disposition above.
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
 | Open | The [accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md), [accepted recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md), [PRD 08](./08-skills-catalog-and-distribution.md), and [PRD 30](./30-plugin-substrate-and-workflow-bundles.md) narrow the current boundary: Make Docs has no general or untraced plugin product, plugin namespace, or workflow-bundle delivery surface. Explicitly selected Skills remain a separate agentic asset class, and the first-party Unassisted Goal Testing Skill is only a thin CLI-delegating access adapter. D-005 remains open solely for the long-term selected-Skill payload delivery choice, not for plugin metadata or packaging. | Decide bundled-local, remote-pinned, or dual-mode selected-Skill delivery within the trust, provenance, lifecycle, and CLI/shared-core boundaries owned by PRDs 08, 25, and 28; do not introduce a plugin product or make a Skill a second workflow authority. |
 
 **Issue**: The current selected-Skill registry and resolver can use packaged metadata with external payload sources, while earlier design material described bundled payloads. The unresolved choice is how selected Skill payloads are delivered within the retained Skills product boundary.
@@ -685,6 +701,18 @@ The following record preserves the prior claims, findings, and close conditions.
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
+| Closed | W19 R5 selects bundled local delivery for all seven first-party Skills. Missing first-party payloads fail clearly; they never fetch remotely or use a maintainer checkout as fallback. | Track implementation and delivery proof in D-005. Keep explicit alternate-source trust policy separate under Q-007. |
+
+**Question**: Which delivery model governs first-party Skills?
+
+**Resolution (2026-09-09)**: The owner-selected [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md) choose bundled delivery. [PRD 08](08-skills-catalog-and-distribution.md#bundled-first-party-skill-catalog) owns the seven-Skill catalog. Each Skill remains independently usable and selection remains explicit. `all` uses the effective registry; `none` and bare setup install no Skills. This closes the product choice only. The owner accepted the corrected backlog on 2026-09-09 and authorized implementation. Implementation tasks have not started.
+
+**Prior disposition retained on 2026-09-09 (non-normative)**
+
+The following text records the earlier decision state. It does not override the current disposition above.
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
 | Open | Selected-skill UX and the `selectedSkills` manifest requirement are superseded by [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md); [16-package-runtime-and-deployment-boundaries.md](./16-package-runtime-and-deployment-boundaries.md) preserves no-default-skills and TypeScript npm ownership; [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) clarifies that skills are not system assets; [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md) prevents migration from silently expanding `selectedSkills` or installing skills by default; [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) prevents deterministic first-party skill behavior from depending only on remote or skill-local script payloads; [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) adds purpose-led metadata and effective-manifest selection while preserving resolved `selectedSkills`, with W17 R1 validating bare no-skill installs, alternate local manifests, persisted provenance, and remote policy stops; [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) now chooses shared local payload placement plus native harness exposure with symlink preferred and managed copy-mirror fallback for selected agentics; [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) keeps plugin selection explicit and separate from skill selection. It still does not choose remote skill delivery. | Choose remote-fetch, bundled-local, or dual-mode fallback for skills. |
 
 **Question**: What is the intended long-term skills delivery contract: remote-fetch, bundled-local, or dual-mode fallback?
@@ -786,6 +814,22 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 **Resolution**: The unscoped `make-docs` publish was blocked by npm's similarity guard against existing package names. The first public release path is now the scoped package `@brucewaynedecoy/make-docs`, with the installed `make-docs` binary preserved.
 
 ### Q-007 How Should Remote Skill Sources Be Constrained?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W19 R5 first-party Skills are bundled with no remote fallback. This question now concerns explicit alternate or future remote Skill sources only. Existing trust and pinning requirements remain in force. | Define any further source protocol, pinning, and integrity policy before expanding that alternate/future remote scope. Do not reopen first-party delivery or restore a plugin product. |
+
+**Question**: Which additional limits are needed for explicit alternate or future remote Skill sources?
+
+**Why it matters**: Remote source trust and reproducible bytes remain distinct from the settled first-party package contract.
+
+**Recommendation**: Keep [PRD 08](08-skills-catalog-and-distribution.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md), and [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) authoritative for explicit source selection, deterministic shared behavior, and ownership provenance. W19 R5 does not relax those controls or add a remote fallback.
+
+**To close**: Registry schema, resolver validation, guidance, and tests enforce the chosen alternate/future remote-source policy. R5 bundled delivery evidence does not by itself close this question.
+
+**Prior disposition retained on 2026-09-09 (non-normative)**
+
+The following text records the earlier decision state. It does not override the current disposition above.
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |

@@ -249,6 +249,12 @@ Author the system workflow upstream under `packages/docs/template/`. Keep operat
 - No mandatory Skill or new runtime command.
 - No agent-only certification of lived human understanding.
 
+## Optional Skill Delivery
+
+R-NUAT-SKILL-1 (MUST): the optional first-party adapter retains the stable Skill name `naive-uat` and the display language Unassisted Goal Testing. Its authoring source is `packages/skills/naive-uat/`, and its complete declared payload is bundled with the CLI under [PRD 08](08-skills-catalog-and-distribution.md). It requires no first-party remote fetch and follows the shared installed lifecycle in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+
+R-NUAT-SKILL-2 (MUST): the adapter only discovers the shared system workflow and delegates to its typed CLI operations. It does not duplicate tester qualification, Persona resolution, scenario/evidence semantics, anti-coaching, or gate policy. The capability remains complete without installing the Skill. Source promotion must not delete valid installed shared payloads or change stable workflow resource identities.
+
 ## Requirement History
 
 ### 2026-08-14 — W19 R1
@@ -284,6 +290,14 @@ Author the system workflow upstream under `packages/docs/template/`. Keep operat
 - Replacement contract: User and maintainer are audience roles that either actor type can fill. Actor identity, qualification, and isolation evidence remain separate and unchanged.
 - Rationale: Prevent broader audience eligibility from weakening unassisted testing or human-review evidence.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-09 — W19 R5
+
+- Affected requirement or section: `Optional Skill Delivery; R-NUAT-FUTURE`
+- Previous contract: The optional adapter had a temporary UAT-only bundled delivery arrangement, while general first-party Skill delivery remained unsettled.
+- Replacement contract: The stable optional adapter uses the common canonical Skill source and bundled first-party delivery contract without changing UAT policy.
+- Rationale: Delivery consistency must not turn an optional adapter into a second workflow authority.
+- Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
 ## Source Anchors
 

@@ -13,15 +13,16 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 ### Shared Agentics Store
 
-Selected agentic payloads are installed once into a shared make-docs-owned store:
+Selected agentic payloads are installed once into a shared Make Docs-owned content root. This content root is distinct from the global operational Store in PRD 38:
 
 - project scope: `.make-docs/agentics/`
 - global scope: the user's home-scoped `.make-docs/agentics/`
 
-Within that store, reserve:
+Within that content root, reserve:
 
 - `skills/<skill-name>/` for selected skill payloads
-- `manifests/` or equivalent metadata records for resolved purpose, source, trust, integrity, and provenance data
+
+Resolved purpose, source, trust, integrity, provenance, ownership, and operation records live in the global Store. Do not create project-local manifests or equivalent operational metadata under the shared content root.
 
 ### Native Harness Exposure
 
@@ -66,7 +67,18 @@ The single reviewed audit snapshot rule remains mandatory before destructive mig
 
 After selected-agentics removal, lifecycle operations prune empty managed parents under project- and home-scoped `.make-docs/agentics/**` only when the same reviewed ownership evidence proves there are no unmanaged descendants. Eligible empty parents include `skills/<skill-name>/`, `skills/`, and `agentics/`.
 
-Pruning must preserve sibling selected Skills; in-use manifests or equivalent metadata; user-authored and modified managed files; wrong-target symlinks; ambiguous missing-manifest state; legacy generated stubs or copy mirrors requiring review; and any unowned agentics content not approved by the reviewed snapshot. Symlink exposures are unlinked without following targets, and copy mirrors are removed only when classified clean.
+Pruning must preserve sibling selected Skills, user-authored and modified managed files, wrong-target symlinks, ambiguous missing-ownership state, legacy generated stubs or copy mirrors requiring review, and any unowned agentics content not approved by the reviewed snapshot. In-use ownership and operation records remain in the global Store; directory pruning must not remove them. Symlink exposures are unlinked without following targets, and copy mirrors are removed only when classified clean.
+
+### Reviewed Existing-Skill Adoption
+
+The W19 R5 requirements below record accepted product direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. The tasks and evidence remain pending.
+
+- R-SKILL-ADOPT-1 (MUST): `setup skills --adopt-existing <csv>` accepts only selected, proved first-party names from the effective registry. It enables explicit review of existing copies; it does not infer ownership from names. Ordinary `setup` offers bundled Skills without adoption flags. PRD [39](39-cli-command-model-and-operation-registry.md) owns the exact grammar, including rejection of `--review` without adoption and adoption with `--remove`.
+- R-SKILL-ADOPT-2 (MUST): dry-run produces a complete read-only review and digest. Show target and scope, selected tools and Skills, effective source and package identity, full existing and desired inventory, file and link identities, native exposure effects, backups, ownership changes, and blockers. Create no Store intent, backup, directory, or local marker. Non-interactive apply requires `--review <digest>` for that snapshot; `--yes` alone is insufficient. Interactive review and confirmation bind to the same facts.
+- R-SKILL-ADOPT-3 (MUST): reviewed differences or missing files within the declared file set may be reconciled, with recoverable backups of replaced bytes. Unknown extra files, unsafe links, conflicting copies, or another recorded owner block adoption. Preserve the input and report the blocker and next safe action. No broad overwrite or same-name inference may bypass classification.
+- R-SKILL-ADOPT-4 (MUST): under the shared operation lock, recheck target, scope, selected tools and Skills, complete file/link inventory, source and package identity, and Store ownership before required intent and mutation. A relevant change invalidates the review. Use the existing pending-operation and recovery services, not a Skill-specific state engine.
+- R-SKILL-ADOPT-5 (MUST): record prospective ownership in the global Store even when desired file bytes already match. Do not claim earlier ownership without evidence. Required Store failure blocks the managed ownership change and file writes. The operation retains package version/hash evidence, scope, canonical payload, native exposure, backup references, and the reviewed ownership transition under PRD [38](38-global-store-and-project-state.md).
+- R-SKILL-ADOPT-6 (MUST): after adoption, update, repeat, backup, removal, and recovery use the same managed ownership rules in project and global scope. Clean upgrades use new bundled first-party bytes even when old records name remote sources. Edited managed files remain protected conflicts. No update may depend on the old remote source being available.
 
 ### Config and Behavior Boundary
 
@@ -84,7 +96,7 @@ Core Make Docs behavior is complete through project routers, system resources, C
 
 The first-party Unassisted Goal Testing Skill is a supported optional payload. Its shims follow [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md): they adapt arguments or receipt formatting only, carry no tester qualification, anti-coaching, scenario, evidence, finding, gate, or run-state policy, and never become a correctness prerequisite.
 
-For W19 R1 P7 only, this selected first-party Skill arrives as a bundled local payload. Setup installs it into the shared store and projects it through the native harness paths above. P7 requires no remote fetch. This bounded choice does not settle the general selected-Skill delivery model.
+All seven first-party Skills use the bundled delivery contract owned by PRD 08. Setup installs selected payloads into the shared content root and exposes them through the native harness paths above. The `naive-uat` adapter follows this common delivery rule without changing the shared UAT workflow or policy.
 
 Make Docs has no general plugin, hook, extension, workflow-bundle, Playbook-generated Skill, or harness-adapter installation contract. An agentic integration may enter this store only after a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and install/uninstall authority exist; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
 
@@ -100,7 +112,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - No silent fallback from native exposure to generic stubs.
 - No plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract in this shared-agentics PRD.
 - No MCP write surface.
-- No bundled-local versus remote-fetch skills delivery decision.
+- No broader alternate-source trust redesign; PRD 08 owns the first-party bundled delivery contract.
 - No automatic selected Skill or other agentic installation.
 ## Acceptance Criteria
 
@@ -114,6 +126,9 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
 - The optional Unassisted Goal Testing Skill remains absent from default installs, delegates only to typed CLI operations, and does not duplicate testing policy.
 - Core routers, resources, CLI, and MCP remain complete when no Skill is selected or exposed.
+- Adoption proof covers read-only review, required digest, stale package/input/selection/ownership refusal, reviewed known-file replacement with backups, and blockers that preserve unsafe or unknown content.
+- Ownership-only adoption creates the required Store record; unavailable Store and interrupted apply cannot claim success or create project-local state.
+- Isolated project/global lifecycle checks cover native symlink and copy exposure, repeat, update from old first-party remote provenance without fetch, edited-file conflict, removal, and shared recovery.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -157,6 +172,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: P7 uses a bundled local payload and no remote fetch for this one selected first-party Skill. The general selected-Skill delivery model stays open.
 - Rationale: P7 can use the existing ownership and exposure contract without expanding the decision to all Skills.
 - Source: [W19 R1 P7 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/07-naive-uat-workflow-persona-and-evidence.md) and [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations)
+
+### 2026-09-09 — W19 R5 First-Party Skills and Managed Adoption
+
+- Affected requirement or section: Shared Agentics Store; Reviewed Existing-Skill Adoption; Optional Agentics Boundary; Acceptance Criteria.
+- Previous contract: Shared content language permitted local metadata and offered no exact reviewed adoption contract; bundled UAT was a special case.
+- Replacement contract: Shared installed content paths stay unchanged, while all operational records stay in the global Store. Selected first-party adoption requires a complete digest-bound review, protected replacement, lock-time rechecks, and durable ownership even with matching bytes.
+- Rationale: Allow existing copies to enter management without guessing ownership or losing user content.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
 ## Source Anchors
 

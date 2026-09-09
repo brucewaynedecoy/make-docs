@@ -79,6 +79,14 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-LIFE-4 (MUST): repository backup and reviewed content copies may remain under `.make-docs/backup/**` or their approved export destination. Legacy root `.backup/**` remains protected. The Store holds live backup indexes, restoration order, operation state, and recovery authority. A local backup description may explain saved bytes but cannot authorize or drive automatic recovery without verified Store records. Store backup does not absorb project document bodies. Tool uninstall, project removal, and content backup retain separate reviewed scopes.
 - R-LIFE-5 (MUST): all migration steps write durable progress and receipts to the Store. Each operation records a unique id, stable project and checkout binding, frozen plan identity, step, before/after evidence, outcome, and recovery state. Commit intent before a project write and confirm the result after it. Repeat execution uses the saved operation and verifies actual bytes. A crash, receipt failure, or mismatch leaves a visible pending or failed operation; it must not report success, replay destructive work blindly, or fall back to local state.
 
+### Skill Adoption State (R-SKILL-STATE)
+
+These W19 R5 requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. The tasks and proof remain pending. PRD [28](28-shared-agentics-installation-and-harness-exposure.md) owns adoption eligibility and review; PRD [39](39-cli-command-model-and-operation-registry.md) owns the `setup skills` command contract.
+
+- R-SKILL-STATE-1 (MUST): reviewed Skill adoption records prospective ownership through the existing global Store installation and operation services. A content-noop adoption is still a required ownership transition. Preserve package version/hash evidence, source identity, selection, scope, native exposure, before/after ownership, backup references, and result. Do not fabricate prior ownership or use project-local receipts, locks, queues, or manifests.
+- R-SKILL-STATE-2 (MUST): adoption dry-run is read-only and creates no Store, checkout identity, pending intent, backup, or local marker. Apply rechecks the reviewed inputs and ownership under the existing locks before committing intent. Required Store failure blocks managed file and ownership changes; optional-capture failure rules do not weaken this requirement.
+- R-SKILL-STATE-3 (MUST): reuse current pending-operation, checkpoint, verification, and recovery behavior for adoption in both scopes. Commit required intent before mutation and verify results before completion. Interruption or result-capture failure stays visible and recoverable. Resume or rollback preserves later user edits, other owners, and unrelated projects; no separate Skill state engine is permitted.
+
 ### Transfer and Recovery (R-XFER)
 
 - R-XFER-1 (MUST): setup first previews legacy operational files and the exact import, preserve, and removal decisions. Supported local receipts, manifest fields, writer records, and old-operation markers are verified as data. Unknown, malformed, symlinked, contradictory, changed, or actively written inputs stop cleanup. Never execute embedded instructions.
@@ -108,6 +116,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-TEST-5 (MUST): tests cover transactional recovery, bounded busy retry, privacy-safe export, path traversal and symlink rejection, Windows drive/UNC and case-collision handling, macOS case behavior, and Linux permissions without persisting secrets or document bodies.
 - R-TEST-6 (MUST): proof covers fresh setup, legacy transfer, repeat setup, reconfigure, resource ensure, project surface ensure, selected skills, update, backup, removal, restore, crash recovery, competing writers, and packed CLI execution. Assert the Store records every required operational transition and no project-local state directory, manifest, mirror, lock, receipt, or recovery journal is created. No test may hide `.make-docs/state/` changes from its comparison.
 - R-TEST-7 (MUST): verify shipped agent guidance and the optional capture path with the CLI unavailable and with the CLI present but optional capture failing. Ordinary project work continues with an accurate unavailable notice, no false success, no direct Store write, no local fallback state, and no queued write. Pair this evidence with a CLI-managed operation whose required Store write fails. That operation must stop before further project changes and preserve recovery evidence.
+- R-TEST-8 (MUST): prove ownership-only Skill adoption, stale review rejection for package/source/selection/input/ownership changes, read-only review without Store creation, required Store failure before managed changes, and interrupted adoption through shared recovery. Test both scopes and competing writers. Matching bytes alone must never hide a missing ownership transition or authorize unreviewed content.
 
 This PRD fixes Store-only operational state, external Store paths, separate project and checkout identity, crash-safe recovery, the current lifecycle model, opaque legacy data, and local document authority. Physical SQL tables remain implementation choices within those requirements.
 
@@ -183,6 +192,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
 - Owner clarification (2026-09-09): missing CLI or failed optional capture does not block ordinary project work. R-PS-8 and R-TEST-7 make that rule explicit without weakening required Store recording for CLI-managed changes. This remains part of the single W19 R3 phase.
 - Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R5 First-Party Skills and Managed Adoption
+
+- Affected requirement or section: Skill Adoption State (R-SKILL-STATE); R-TEST-8.
+- Previous contract: Generic managed-change intent and recovery did not state the ownership-only Skill adoption case explicitly.
+- Replacement contract: Adoption uses the existing Store services even when bytes do not change. Dry-run writes no state; required capture failure blocks managed changes, and pending recovery remains shared.
+- Rationale: Prevent a content-noop optimization from bypassing required ownership state.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
 ## Source Anchors
 

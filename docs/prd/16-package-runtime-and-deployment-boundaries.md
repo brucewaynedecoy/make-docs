@@ -27,10 +27,16 @@ TypeScript package ownership:
 - The TypeScript package remains the canonical v2 runtime and package entry point.
 - It owns project installation and reconfiguration through `npx @brucewaynedecoy/make-docs@...`, `pnpm dlx @brucewaynedecoy/make-docs@...`, `bunx @brucewaynedecoy/make-docs@...`, `bun x @brucewaynedecoy/make-docs@...`, and package-manager-installed `make-docs` binaries where users choose persistent installation.
 - It owns npm release channels: `next` for release candidates and `latest` for stable releases.
-- It owns npm package contents: built CLI, the installed system-resource provider derived from the bundled template, skill registry files, skill registry schema, and package README.
+- It owns npm package contents: built CLI, the installed system-resource provider derived from the bundled template, Skill registry and schema, all seven registry-declared first-party Skill payloads, and package README.
 - It owns current manifest, audit, backup, uninstall, conflict, migration, deterministic-operation, MCP, and skills-selection safety behavior.
 - `packages/docs/template/` remains the upstream authoring authority for shipped contracts, prompts, references, templates, and default assets. Package preparation derives the CLI provider from that tree; the repository-root `.make-docs/` and `docs/` trees are downstream dogfood projections and never package source authority.
 - The package contains no Playbook or Protocol compiler, registry, asset kind, or runtime surface.
+
+- R-PACK-SKILLS-1 (MUST): `packages/skills/<name>/` is the sole authoring source for the seven first-party Skills owned by PRD 08. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Retain package version and embedded payload hash evidence. Do not rename the source workspace or installed `.make-docs/agentics/skills/**` roots.
+- R-PACK-SKILLS-2 (MUST): first-party resolution uses only the embedded candidate bytes; missing or corrupt bundles fail clearly, with no GitHub, network, or maintainer-checkout fallback. Package validation must prove each Skill alone, all, and none from an extracted artifact with the repository unavailable and network denied. Alternate manifests retain PRD 08's separate source policy.
+- R-PACK-SKILLS-3 (MUST): after the complete `naive-uat` payload is sourced from `packages/skills/`, remove its obsolete docs-template authoring tree and only empty source parents during implementation. Remove obsolete manual mirror-copy instructions. Preserve valid installed shared content; promotion alone does not delete the three existing local Skill copies.
+
+These W19 R5 Skill package requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation; delivery proof remains pending and D-005 remains open.
 
 Remote execution and runtime boundary:
 
@@ -62,8 +68,8 @@ Skills and plugin boundary:
 - [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) narrows the no-scripts implementation target: TypeScript owns the first CLI/shared-core operation boundary, and deterministic first-party skill behavior must be available from the CLI package rather than only from remote or skill-local script payloads.
 - [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) narrows skills metadata and source policy: purpose-led selection remains opt-in, alternate manifests are explicit effective-manifest inputs, and unpinned remote manifests or skill payloads are invalid for installation.
 - [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) narrows selected-agentics placement: explicitly selected skills install one canonical shared payload and expose native harness skill directories through symlink-preferred behavior with managed copy-mirror fallback.
-- [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) narrows plugin substrate: selected plugins use canonical `.make-docs/agentics/plugins/<plugin-id>/` payloads, native exposure or plugin-specific adapters, explicit plugin selection, and evidence-gated support claims.
-- This authority does not decide remote-fetch versus bundled-local skills delivery, broader remote source integrity mechanics, plugin implementation parity, or per-bundle public UX. Those remain open in the risk register.
+- [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns the admission boundary for other agentic artifacts. Make Docs has no current general plugin installation contract; this Skill package change adds none.
+- PRD 08 fixes bundled delivery for all seven first-party Skills. Broader alternate-source trust changes, plugin implementation parity, and per-bundle public UX remain outside this Skill packaging change and retain their owning authorities.
 
 Validation and release boundary:
 
@@ -111,6 +117,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Installation state is Store-owned. Assets and their configured-harness root routers are on demand; shared inputs use docs/assets/project and audience assets use effective Persona slugs. Always-present documentation exposes defaults without the CLI.
 - Rationale: Keep overview, command, and package consumers aligned with their current asset, config, Persona, and Store owners.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md), [Store ownership](38-global-store-and-project-state.md). Runtime R4 implementation has not started.
+
+### 2026-09-09 — W19 R5 First-Party Skills and Managed Adoption
+
+- Affected requirement or section: TypeScript package ownership; Skills and plugin boundary.
+- Previous contract: Package contents did not require all first-party Skill payloads, and delivery remained open.
+- Replacement contract: The CLI package contains the complete registry-declared seven-Skill bundle with version/hash evidence and offline extracted-package proof. The source workspace and installed paths remain unchanged; no plugin contract is introduced.
+- Rationale: Make the published artifact the verifiable delivery source and remove duplicate authoring during implementation.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
 ## Source Anchors
 

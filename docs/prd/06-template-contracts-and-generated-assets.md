@@ -103,7 +103,7 @@ The Human Experience Reference is a peer system reference. It explains the canon
 
 ## Deferred-Obligation and UAT Asset Boundaries
 
-Naive end-user UAT keeps one durable workflow contract delivered through peer system resources and, where selected, a thin first-party Skill adapter that delegates deterministic work to typed CLI operations. Those resources are authored in the upstream template authority at `packages/docs/template/`; installed-provider copies, optional resource bodies under the always-local `.make-docs/system/**` router skeleton, and repository dogfood copies remain downstream, and no Playbook- or Protocol-shaped wrapper survives. Any future deferred-obligation-specific system resources follow the same upstream and projection boundary only after their owning authority accepts them.
+Naive end-user UAT keeps one durable workflow contract delivered through peer system resources and, where selected, a thin first-party Skill adapter that delegates deterministic work to typed CLI operations. The peer system resources are authored in the upstream template authority at `packages/docs/template/`; the optional Skill adapter is authored in `packages/skills/naive-uat/` under PRD 08; installed-provider copies, optional resource bodies under the always-local `.make-docs/system/**` router skeleton, and repository dogfood copies remain downstream, and no Playbook- or Protocol-shaped wrapper survives. Any future deferred-obligation-specific system resources follow the same upstream and projection boundary only after their owning authority accepts them.
 
 The authority and state boundaries are owned by [R-OBL-AUTH](45-deferred-obligation-governance.md#r-obl-auth-authority-chain-and-backlinks), [R-OBL-STATE](45-deferred-obligation-governance.md#r-obl-state-repository-and-project-state-boundary), and [R-NUAT-FUTURE](46-naive-end-user-acceptance-testing.md#r-nuat-future-documentation-first-and-future-automation). Any future deterministic CLI or validator is explicitly later work and must consume those documentation contracts rather than redefining them.
 
@@ -135,6 +135,14 @@ Author these resources first under `packages/docs/template/`. Then use the revie
 R-ASSET-TEMPLATE-1 (MUST): ship concise discovery of `user`, `maintainer`, the shared `docs/assets/project/` path, and `.make-docs/config.yaml` in always-present documentation routing. Project asset routers are on demand and root-only. Do not include empty project, Persona, testing, Library, Playbook, archive, or artifact child scaffolds under `docs/assets/`.
 
 R-ASSET-TEMPLATE-2 (MUST): static router variants or selection must expose exactly the reviewed configured-harness filenames through PRD 15. Keep template bytes authoritative; do not add a dynamic scaffold renderer. Test source, generated package, unpacked tarball, fresh install, upgrade, repeat, and dogfood inventories, including empty directories. Remove obsolete directory construction as well as obsolete files. Current required typed system-router directories remain valid.
+
+## First-Party Skill Source Boundary
+
+R-SKILL-SOURCE-1 (MUST): first-party Skill authoring belongs under `packages/skills/<name>/` and follows [PRD 08](08-skills-catalog-and-distribution.md). The docs template remains the source for system contracts, references, prompts, templates, and instruction routers. It must not retain a competing `naive-uat` Skill author tree under `.make-docs/agentics/skills/`. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed.
+
+R-SKILL-SOURCE-2 (MUST): the complete registry-declared UAT Skill payload must be present in its canonical Skill source and embedded CLI artifact before obsolete template source files and their empty parents are retired. This source rule does not remove a valid installed `.make-docs/agentics/skills/naive-uat/` payload or its native exposure. Installed ownership and changes follow [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+
+R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identities and authority. Moving a Skill's authoring source must not duplicate UAT policy in the Skill, make it required, or change the shared CLI operations under [PRD 46](46-naive-end-user-acceptance-testing.md).
 
 ## Requirement History
 
@@ -206,6 +214,14 @@ R-ASSET-TEMPLATE-2 (MUST): static router variants or selection must expose exact
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-09-09 — W19 R5
+
+- Affected requirement or section: `First-Party Skill Source Boundary; Deferred-Obligation and UAT Asset Boundaries`
+- Previous contract: The optional UAT adapter was authored and bundled through the docs template, while other Skills had a separate source and delivery path.
+- Replacement contract: The UAT adapter shares the canonical packages/skills authoring and bundled first-party delivery model; template-owned system resources remain separate.
+- Rationale: One source owner prevents stale duplicate adapters without changing installed content roots.
+- Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
 ## Source Anchors
 

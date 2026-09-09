@@ -109,6 +109,16 @@ Configuration supplies declarative identity, desired settings, audience mappings
 - Canonical append-only `NUAT-###` scenario identity and version authority remains in the active PRD that owns the primary external outcome; rendered or executed evidence remains project evidence bound to that exact version or digest and never becomes operation-registry authority.
 - A first-party Naive-UAT Skill, when selected, is an optional access adapter whose shims delegate to the same typed CLI operations and may adapt arguments or receipt formatting only. It contains no UAT policy, scenario authority, evidence semantics, state machine, or correctness-only behavior.
 
+### First-Party Skill Runtime Boundary
+
+- R-SKILL-RUNTIME-1 (MUST): the seven bundled first-party Skills use the same typed CLI/shared-core behavior as other callers. Their instructions may guide selection, review, and sequencing, but must not add a private state engine or duplicate deterministic installation, adoption, or UAT policy. PRDs [08](08-skills-catalog-and-distribution.md) and [16](16-package-runtime-and-deployment-boundaries.md) own the source and bundle contract.
+- R-SKILL-RUNTIME-2 (MUST): `preflight`, `software-factory`, and `human-experience` require explicit invocation. Installing them does not activate them, activate a sibling Skill, or add a required lifecycle gate. Their portable references must work without this maintainer repository or personal mirrors. `preflight` includes its own Store guidance.
+- R-SKILL-RUNTIME-3 (MUST): ordinary review and project work may continue when the CLI or optional capture is unavailable, with a truthful unavailable result. Skills must not write directly to the Store, create local fallback state, or queue a substitute capture. Required CLI-managed installation and adoption state must succeed before managed changes, as owned by PRD [38](38-global-store-and-project-state.md).
+- R-SKILL-RUNTIME-4 (MUST): `software-factory` remains an execution and review aid within accepted project authority. It cannot replace PRDs or backlogs or authorize implementation by itself. `human-experience` must preserve the difference between agent evidence review and lived human review. The `naive-uat` adapter keeps its stable name, shared workflow, and existing testing policy.
+- R-SKILL-RUNTIME-5 (MUST): reviewed adoption is an extension of `setup skills` through the existing installation and operation services. Ordinary `setup` offers bundled choices without adoption flags. PRD [39](39-cli-command-model-and-operation-registry.md) owns exact command validation; PRD [28](28-shared-agentics-installation-and-harness-exposure.md) owns eligibility and review. This change adds no independent Skill installer or MCP write authority.
+
+These W19 R5 requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
+
 ### No-Scripts Migration Dependency
 
 The no-scripts migration must move deterministic logic into TypeScript operation domains first, then expose it through ordinary CLI commands and MCP tools. Existing system scripts may remain only as thin wrappers after an equivalent CLI/MCP-backed operation exists.
@@ -153,7 +163,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - No MCP write surface without explicit permission and parity proof.
 - No direct MCP asset source policy outside the accepted materialization contract.
 - No replacement of the no-command npm workflow with `init` or `update`.
-- No resolution of remote versus bundled skills, plugin runtime implementation parity, or per-bundle public UX.
+- No broader alternate-source trust redesign, plugin runtime implementation parity, or per-bundle public UX in this change. PRD 08 owns the settled first-party bundled delivery contract.
 - No CLI or MCP adversarial-review surface unless a later plan explicitly selects it and proves parity.
 - No monolithic or surface-owned operation logic; the current modular shared operation domains serve CLI and MCP adapters, which preserve permission and parity boundaries without importing one another.
 - No CLI, MCP, config, skill, or plugin surface may introduce new Playbook- or Protocol-specific metadata, operations, state, packages, or routing authority. P3 freezes every existing legacy registry entry, implementation, CLI surface, and MCP surface as a staged compatibility exception. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
@@ -226,6 +236,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Declarative config and routers remain local; installation state remains in Store. Persona discovery and layout preview are read-only. Prepared layout changes reuse the Store journal and recovery contract.
 - Rationale: Remove conflicting local-state guidance and make manual and CLI migration share exact verification.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-09 — W19 R5 First-Party Skills and Managed Adoption
+
+- Affected requirement or section: First-Party Skill Runtime Boundary; Non-Requirements.
+- Previous contract: The runtime boundary delegated deterministic behavior but left general Skill delivery unresolved.
+- Replacement contract: Bundled Skills stay thin, portable, and optional; the three promoted guidance Skills require explicit invocation. setup skills adoption reuses CLI-owned Store operations; ordinary setup receives no adoption flags.
+- Rationale: Preserve workflow authority and Store-only state while making the Skills portable.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
 ## Source Anchors
 

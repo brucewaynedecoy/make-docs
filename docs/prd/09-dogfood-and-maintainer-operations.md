@@ -65,6 +65,16 @@ R-ASSET-DOGFOOD-1 (MUST): implement shipped assets upstream, prepare and test th
 
 R-ASSET-DOGFOOD-2 (MUST): compare prepared CLI and manual or agent-assisted layout results against the same expected content and link map. Completion requires verified destinations and no unexplained legacy leftovers. Named archival and backup exclusions remain non-active provenance. This proof does not require a second Store or a local receipt.
 
+## First-Party Skill Adoption Proof
+
+R-SKILL-DOGFOOD-1 (MUST): first-party Skill changes are authored only in `packages/skills/<name>/`; the build reads declared bytes there directly and embeds them in compiled CLI output. Prove the extracted CLI artifact before live adoption. Inspect actual disk under `packages`, including ignored or temporary paths and empty folders, to reject duplicate Skill trees and obsolete empty mirror directories. Do not create replicated Skill payloads under `packages/cli` or `packages/docs` as part of preparation. Use `just install-cli-pack` to refresh the installed CLI, then use its public `setup skills` review and adoption flow. Do not hand-copy native Skill directories into shared payload locations or write ownership records directly.
+
+R-SKILL-DOGFOOD-2 (MUST): maintainer proof covers the existing local `preflight`, `software-factory`, and `human-experience` copies. The reviewed package, complete current file inventory, selected tools/scope, preservation backups, and Store ownership must match apply. The result must prove usable native exposure, recorded adoption even for unchanged bytes, and no unresolved pending operation. Existing local copies are preserved until the reviewed CLI operation handles them.
+
+R-SKILL-DOGFOOD-3 (MUST): destructive removal checks use isolated projects and homes. Retain independent code-review findings and a fresh-context review of the public selection, adoption, and recovery path. Report tested package identity, observations, limits, and follow-up in the backlog's central evidence report. Technical proof does not itself authorize publication, a commit, or unrelated wave work.
+
+[PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns adoption and native exposure; [PRD 38](38-global-store-and-project-state.md) owns required state; [PRD 10](10-packaging-validation-and-release-reference.md) owns package proof.
+
 ## Requirement History
 
 ### 2026-08-08 — Not assigned
@@ -91,6 +101,14 @@ R-ASSET-DOGFOOD-2 (MUST): compare prepared CLI and manual or agent-assisted layo
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-09-09 — W19 R5
+
+- Affected requirement or section: `First-Party Skill Adoption Proof`
+- Previous contract: Dogfood proof focused on selected system resources and layout recovery without a managed-adoption path for locally authored Skills.
+- Replacement contract: Skill promotion is followed by isolated bundled-package proof, the installed CLI recipe, and reviewed public adoption of the three existing local copies.
+- Rationale: Maintainer validation must exercise the same ownership and recovery path offered to consumers.
+- Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
 ## Source Anchors
 

@@ -8,15 +8,17 @@ This reference doc captures the current publishable surface for `make-docs`, the
 
 ### Packaging Surface
 
+The first-party Skill payload and allowlist entries below state the required W19 R5 target. The current package does not yet deliver all seven Skills. The owner accepted the W19 R5 work backlog on 2026-09-09 and authorized implementation; tasks and package proof remain pending. Other rows describe the existing package mechanics.
+
 | Topic | Current behavior | Primary anchors |
 | --- | --- | --- |
 | Publishable npm package | The only publishable workspace is `@brucewaynedecoy/make-docs` under `packages/cli/`; the monorepo root is `private: true` and only delegates scripts to that workspace. The package exposes the `make-docs` binary. | `package.json:2-19`; `packages/cli/package.json` (`name`, `version`, `license`, `repository`, `bin`) |
-| CLI allowlist | The current shipped file allowlist is `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`. Root `docs/`, root `AGENTS.md`, and root `CLAUDE.md` are not in the allowlist. | `packages/cli/package.json` (`files`) |
+| CLI allowlist | The shipped file allowlist includes `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, `README.md`; `dist` contains the embedded registry-declared first-party Skill bytes, with no separate Skill directory added to the allowlist. Root `docs/`, root `AGENTS.md`, and root `CLAUDE.md` are not in the allowlist. | `packages/cli/package.json` (`files`) |
 | Template packaging | `prepack` runs `node ../../scripts/copy-template-to-cli.mjs && npm run build`, and that script replaces `packages/cli/template` with `packages/docs/template` before pack/publish. | `packages/cli/package.json` (`scripts.prepack`), `scripts/copy-template-to-cli.mjs:24-32` |
 | Performance governance resources | The contract, prompt, reference, and profile template are peer resources authored under `packages/docs/template/.make-docs/system/`, generated into `packages/cli/template/` through prepack, and deliberately dogfooded only for selected resources and routers. Package and dogfood proof must cover all four resource identities and intended bytes. | [PRD 48](./48-performance-evidence-governance.md); [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md) |
 | Dev vs packed template resolution | Local development reads `packages/docs/template/` first through `resolveTemplateRoot`, then falls back to the bundled `packages/cli/template/` in packed contexts. | `packages/cli/src/utils.ts:33-55`, `packages/docs/README.md:31-37` |
 | Docs/template workspace status | `packages/docs` is `private` and exists to hold the source-of-truth template consumed by the CLI at build/publish time. It is not independently published today. | `packages/docs/package.json:2-5`, `packages/docs/README.md:123-125` |
-| Skills workspace status | `packages/skills` is also `private`; current packaged distribution exposes registry metadata rather than publishing the workspace itself as an npm package. | `packages/skills/package.json:2-5`, `packages/cli/package.json` (`files`), `scripts/copy-template-to-cli.mjs:29-32` |
+| Skills workspace status | `packages/skills` is also `private`; the CLI build embeds its declared first-party Skill bytes directly in compiled output and packages registry metadata without publishing or renaming the workspace itself. | `packages/skills/package.json:2-5`, `packages/cli/package.json` (`files`), `scripts/copy-template-to-cli.mjs:29-32` |
 
 Current package mechanics therefore split into two modes: local development works from `packages/docs/template/` (`packages/cli/src/utils.ts:33-55`), while packed artifacts work from `packages/cli/template` after `prepack` (`scripts/copy-template-to-cli.mjs:24-32`). Any release checklist that ignores that distinction will miss a class of template drift bugs.
 
@@ -110,6 +112,16 @@ R-ASSET-PACK-1 (MUST): the package acceptance matrix proves two retained default
 
 R-ASSET-PACK-2 (MUST): prove exact destination and link mapping for legacy system, archive, artifact, Library, and Playbook cohorts; collisions, changed inputs, interruption, recovery, and repeated verification; and CLI/manual equivalence. Reuse the R3 Store failure and no-local-state boundary. A drafting pass records known baseline test failures without changing runtime code or treating them as a pass.
 
+## Bundled First-Party Skill Proof
+
+R-SKILL-PACK-1 (MUST): the CLI build embeds all seven first-party Skills and every required registry-declared support file directly from `packages/skills/<name>/` in compiled output, under [PRD 08](08-skills-catalog-and-distribution.md). Packaging consumes compiled output without a separate replicated Skill tree under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors. Package construction rejects missing or unsafe source entries; missing or corrupt embedded bundles fail without fallback. Packed first-party resolution uses those bytes without a network fetch, sibling checkout, or fallback to an old remote source.
+
+R-SKILL-PACK-2 (MUST): test each Skill alone, the complete effective first-party set, and no Skills from an extracted package with the repository unavailable and network denied. Compare source and embedded build/archive/extracted byte/hash inventories with installed bytes. Inspect the actual disk under `packages`, including ignored, temporary, or generated paths and empty folders, and reject duplicate Skill trees or obsolete empty mirror roots. Compiled artifacts and genuine project/global CLI-installed copies remain allowed. Prove the existing project/global scopes and supported Codex/Claude symlink and copy exposure. No-selection installs create no Skill files.
+
+R-SKILL-PACK-3 (MUST): package proof covers old-source managed upgrades without remote fetch, edited-file conflicts, reviewed adoption with changed and missing known files, ownership-only adoption, blockers, stale reviews, repeat, removal, interruption, and Store recovery. Tests may not prove offline behavior through a warm remote cache or a development-source fallback.
+
+R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, including the real installed CLI proof owned by [PRD 09](09-dogfood-and-maintainer-operations.md). The same package must contain the selected `naive-uat` adapter from its canonical Skill source and preserve the stable shared-workflow boundary in [PRD 46](46-naive-end-user-acceptance-testing.md).
+
 ## Requirement History
 
 ### 2026-08-08 — Not assigned
@@ -136,6 +148,14 @@ R-ASSET-PACK-2 (MUST): prove exact destination and link mapping for legacy syste
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-09-09 — W19 R5
+
+- Affected requirement or section: `Packaging Surface; Bundled First-Party Skill Proof`
+- Previous contract: The package allowlist exposed registry metadata and the docs template, with external delivery for several first-party payloads and a UAT-only bundled exception.
+- Replacement contract: The CLI bundles the complete declared first-party Skill inventory and proves offline independent installation and managed lifecycle behavior.
+- Rationale: Package existence alone does not prove standalone or offline Skill delivery.
+- Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
 ## Source Anchors
 

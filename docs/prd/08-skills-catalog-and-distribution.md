@@ -4,7 +4,9 @@
 
 This subsystem defines which agent skills `make-docs` can install, how users select them, how canonical skill payloads land under `.make-docs/agentics/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The public entry is `make-docs setup skills` under [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md); `runSkillsCommand` in `packages/cli/src/skills-command.ts` reads the packaged registry in `packages/cli/skill-registry.json` through `loadEffectiveSkillRegistry` and resolves payloads through `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`.
 
-The authoring source tree for shipped skills lives under `packages/skills/`, with the current inventory rooted at `packages/skills/archive-docs/`, `packages/skills/cleanup-docs/`, and `packages/skills/decompose-codebase/`. The package itself is deliberately narrow today; `packages/skills/package.json` describes it as the agent skills catalog, while `packages/skills/README.md` currently contains only the heading "Document Skills".
+The first-party authoring source is `packages/skills/<name>/` for all seven Skills: `archive-docs`, `cleanup-docs`, `decompose-codebase`, `preflight`, `software-factory`, `human-experience`, and `naive-uat`. Each selected Skill is delivered from the installed CLI package with its declared support files.
+
+The W19 R5 requirements below record the accepted product direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. The tasks and evidence remain pending.
 
 ## Scope
 
@@ -23,9 +25,9 @@ Code anchors:
 
 ## Component and Capability Map
 
-The resolver normalizes GitHub protocol and tree/blob URLs into `raw.githubusercontent.com` URLs through `normalizeGithubProtocol`, `normalizeGithubUrl`, and `buildGithubRawUrl` in `packages/cli/src/skill-resolver.ts`. `readSourceText` and `readSourceBinary` read Markdown assets as text and other assets as binary. The shipped registry uses GitHub tree URLs under `packages/skills/...`, so the built-in runtime model today is "packaged remote registry plus remote fetch" rather than "packaged local skill payload".
+The first-party resolver reads the complete registry-declared payload bytes embedded in compiled CLI output. It must not fetch from GitHub, use another network fallback, or read the maintainer checkout when first-party embedded bytes are absent or corrupt. Explicit alternate manifests retain their separate source and trust policy below.
 
-The shipped skill inventory is optional. The registry tracks exactly `archive-docs`, `cleanup-docs`, and `decompose-codebase` so users can explicitly install, update, back up, or remove them, but a default docs scaffold writes no skill files. `packages/cli/tests/install.test.ts` must keep confirming that the default profile records `skillFiles: []`, while explicit selected-skill runs install the requested shared skill payloads and native harness exposures.
+All seven first-party Skills are optional. Users can select, install, update, back up, or remove them through the shared lifecycle. A default docs scaffold writes no Skill files. Validation must prove `skillFiles: []` for the default profile and shared payload plus native exposure only for the explicit selection.
 
 Code anchors:
 
@@ -37,6 +39,13 @@ Code anchors:
 - `packages/cli/src/skill-resolver.ts` — `resolveSkillSource`
 
 ## Contracts and Data
+
+### Bundled First-Party Skill Catalog
+
+- R-SKILL-BUNDLE-1 (MUST): author all seven first-party Skills in `packages/skills/`. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Include the declared entrypoints, references, examples, and harness metadata. Reject missing or unsafe source entries. Preserve package version and payload hash evidence for review, ownership, upgrade, and recovery.
+- R-SKILL-BUNDLE-2 (MUST): each Skill works alone from an extracted package with no network or maintainer checkout. No sibling Skill installation is required. `preflight` carries its own Store guidance. Portable instructions must not depend on maintainer-only PRD links, personal mirror paths, or a local installation manifest.
+- R-SKILL-BUNDLE-3 (MUST): `preflight`, `software-factory`, and `human-experience` remain explicit-invocation-only. Installation, keyword matches, or another Skill's use must not activate them automatically or add a required lifecycle gate. PRD 25 owns their thin runtime boundary.
+- R-SKILL-BUNDLE-4 (MUST): clean managed upgrades resolve proved first-party identities from the new package even when older ownership records name remote sources. A matching third-party name is not proof of first-party identity. Preserve edited-content conflicts; do not require the old remote source to remain reachable.
 
 ### Explicit Selected-Skill Model
 
@@ -56,7 +65,7 @@ Code anchors:
 
 The skills subsystem hangs off the shared install contract. `InstallSelections` carries `harnesses`, `skills`, `skillScope`, and `selectedSkills`, and the skills command mutates only that subset. The skill-specific UI mirrors that reduced surface, keeping command execution independent of broader capability and invariant managed-asset state used by full installs.
 
-The packaged registry contract is defined by `SkillRegistry`, `SkillRegistryEntry`, `SkillManifestSourcePolicy`, and `validateSkillRegistryManifest` in `packages/cli/src/skill-registry.ts`. A registry declares manifest identity, display metadata, source policy, purposes, and skills; each skill entry carries identity and display fields, source and entry-point data, install name, assets, purpose ids, supported harnesses, and provenance. Validation admits `first-party`, explicit `local`, and `remote-pinned` source policies, normalizes local sources relative to their manifest, and requires pinned provenance for non-first-party remote content. `packages/cli/skill-registry.json` declares `$schema: "./skill-registry.schema.json"`, and `packages/cli/tests/skill-registry.test.ts` proves that the schema file ships with the package. The built-in registry uses remote GitHub tree URLs, so its metadata is packaged locally while its payload sources remain external.
+The packaged registry contract declares manifest identity, display metadata, source policy, purposes, and Skills. Each entry carries its stable identity, entrypoint, declared support files, install name, purpose ids, supported harnesses, and provenance. Validation distinguishes bundled first-party content from explicit local/custom and remote-pinned alternate sources. The packaged schema and registry must agree with the bundled inventory and its version/hash evidence.
 
 The resolver contract is defined by `ResolvedSkill`, `ResolvedSkillAsset`, and `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`. A resolved skill consists of `entryPointContent` plus supporting assets, and each asset keeps both the final `installPath` and upstream `sourcePath`. `readSourceText`, `readSourceBinary`, and `fetchRemote` distinguish explicit local sources from remote fetches; any in-process fetch reuse does not persist between runs or itself establish trust, which remains a registry provenance and source-policy concern.
 
@@ -82,9 +91,9 @@ The skills subsystem integrates directly with `parseArgs`, `validateParsedArgs`,
 
 The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `planSkillsOnlyInstall` and `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts` route through profile resolution and reuse the `InstallPlan` / `PlannedAction` vocabulary from `packages/cli/src/types.ts`, while `createSkillsOnlyInstallPlan` in `packages/cli/src/planner.ts` keeps the action set skills-only. That reuse preserves conflict staging and manifest writing while requiring the skill command to leave non-skill managed files alone; the design intent is recorded in `docs/assets/archive/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
 
-The delivery path currently spans both `packages/skills/` and `packages/cli/`, but not in the originally designed way. The April 16 design in `docs/assets/archive/designs/2026-04-16-cli-skill-installation.md` proposed copying `packages/skills/` into `packages/cli/skills/` during prepack and shipping those local payloads with the published CLI. The live package metadata in `packages/cli/package.json` instead ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and `README.md`, and the current `prepack` script only runs `scripts/copy-template-to-cli.mjs` plus build. That script copies `packages/docs/template/` into `packages/cli/template/` and validates the registry JSON, but it does not copy `packages/skills/`. The practical integration today is therefore "CLI ships registry and resolver, resolver fetches from GitHub sources under `packages/skills/...` at install time."
+The build reads all seven first-party Skill payloads directly from `packages/skills/<name>/` and embeds every declared support file in compiled CLI output. Package preparation consumes that output without a replicated Skill tree and rejects missing or unsafe entries. [PRD 16](16-package-runtime-and-deployment-boundaries.md) owns the package boundary; [PRD 10](10-packaging-validation-and-release-reference.md) owns proof against the extracted artifact.
 
-The built-in skill path depends on external network and repository layout stability. `DEFAULT_GITHUB_REF` in `packages/cli/src/skill-resolver.ts` defaults `github:` sources to `main` when no ref is supplied, and `fetchRemote` retrieves remote content; trust and pinning are validated from registry metadata rather than invented by the fetch layer. Because current registry entries point at GitHub tree URLs under `packages/skills/` in `packages/cli/skill-registry.json`, a repo move, branch rename, or unavailable network path can block built-in installs or updates even when the CLI package itself is present locally.
+First-party install and update must work without a network connection or the maintainer checkout. Older remote provenance does not force an update to fetch the old source. [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns reviewed existing-copy adoption through `setup skills`; ordinary `setup` offers bundled choices without adoption flags. Required ownership and operation state remain in the global Store under [PRD 38](38-global-store-and-project-state.md).
 
 Code anchors:
 
@@ -170,7 +179,7 @@ Mutable branches such as `main`, unauthenticated HTTP, and unpinned remote manif
 
 Remote skill payload sources inside any manifest follow the same trust rule: immutable ref plus integrity metadata before installation.
 
-Local file sources are allowed only when explicitly supplied by the user and must be displayed as local/custom before selection.
+Local/custom file sources from alternate manifests are allowed only when explicitly supplied by the user and must be displayed as local/custom before selection. Bundled first-party files follow the package identity and hash contract above; they are not custom local sources.
 
 Third-party sources must be labeled third-party even when they satisfy a first-party purpose id.
 
@@ -184,7 +193,7 @@ The first-party Unassisted Goal Testing Skill is a distributable, explicitly sel
 
 The Skill contains concise discovery and routing instructions plus thin shims only when a supported harness cannot directly issue shell commands or use MCP. Every shim delegates to the same typed Make Docs CLI operations and may adapt arguments or format returned receipts only. It must not duplicate tester qualification, installed-product targeting, anti-coaching rules, Persona resolution, scenario definitions, evidence semantics or destinations, finding and gate policy, prompts, templates, or run-state behavior.
 
-For W19 R1 P7 only, the selected first-party Unassisted Goal Testing Skill ships as a bundled local payload. Setup installs it through the canonical shared lifecycle and native harness projection. No remote fetch is required. The general Skill delivery question remains open in [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations), [Q-001](03-open-questions-and-risk-register.md#q-001-what-is-the-long-term-skills-delivery-contract), and [Q-007](03-open-questions-and-risk-register.md#q-007-how-should-remote-skill-sources-be-constrained).
+The selected `naive-uat` Skill uses the same bundled delivery contract as the other six first-party Skills. Its stable Skill name and Unassisted Goal Testing display language remain unchanged. Promotion into `packages/skills/naive-uat/` does not change the shared workflow or UAT policy. [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations) can close only after package and installed-lifecycle evidence proves the selected delivery contract; alternate-source trust remains a separate policy.
 
 ### Validation Boundary
 
@@ -199,9 +208,11 @@ Implementation must prove:
 - `--selected-skills all` and `none` are interpreted against the effective manifest
 - audit, backup, uninstall, and migration explain alternate-manifest and selection provenance
 - package contents include the evolved schema and validation fixtures
-- the P7 package includes the bundled local first-party Unassisted Goal Testing Skill payload
+- the extracted CLI package contains the complete declared payload and version/hash evidence for all seven first-party Skills
 - the first-party Unassisted Goal Testing Skill is absent from default installs and is installed only through explicit selection
-- the selected first-party Unassisted Goal Testing Skill needs no remote fetch during P7 setup
+- each of the seven Skills, all seven, and none work from an extracted package with network access denied and the repository unavailable
+- clean managed upgrades from old first-party remote provenance use bundled bytes; edited files remain protected conflicts
+- the three promoted guidance Skills retain explicit invocation and standalone portable references
 - every Unassisted Goal Testing shim delegates to a typed CLI operation and contains no duplicated policy or business logic
 
 ## Rebuild Notes
@@ -250,6 +261,14 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Replacement contract: P7 ships this selected first-party Skill as a bundled local payload, uses the existing shared lifecycle and native harness projection, and requires no remote fetch. The general selected-Skill delivery question stays open.
 - Rationale: P7 needs a finite offline-capable payload contract without deciding the wider Skill delivery model assigned to later work.
 - Source: [W19 R1 P7 work record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/07-naive-uat-workflow-persona-and-evidence.md) and [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations)
+
+### 2026-09-09 — W19 R5 First-Party Skills and Managed Adoption
+
+- Affected requirement or section: Bundled First-Party Skill Catalog; Integrations; Source and Trust Policy; First-Party Unassisted Goal Testing Skill Boundary; Validation Boundary.
+- Previous contract: The inventory described three remote-backed first-party Skills and treated bundled UAT as a phase-specific exception.
+- Replacement contract: All seven first-party Skills have one packages/skills source and complete bundled delivery; alternate-source trust remains separate. Explicit selection, portable references, and the three guidance Skills' invocation limits remain required.
+- Rationale: Remove hidden network and checkout dependencies without changing selection or UAT policy.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
 ## Source Anchors
 

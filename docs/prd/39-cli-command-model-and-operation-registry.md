@@ -215,6 +215,16 @@ This capability integrates with the adjacent current authorities linked from Req
 ## Rebuild Notes
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+## Reviewed Skill Adoption Commands
+
+- R-SKILL-ADOPT-CMD-1 (MUST): only `make-docs setup skills` accepts `--adopt-existing <csv>` and the associated `--review <digest>`. Every adoption name must identify a selected first-party Skill in the effective registry. Ordinary `setup` supports the bundled Skill choices but does not gain adoption flags. Unknown or unselected names, `--review` without adoption, and adoption combined with `--remove` are invalid.
+- R-SKILL-ADOPT-CMD-2 (MUST): `setup skills --adopt-existing <csv> --dry-run` is read-only, including the Store. It shows the selected Skills, scope/tools, complete existing/desired file inventory, file/link identities, source/package identity, proposed replacements and backups, ownership changes, blockers, and review digest. It creates no backup, directory, receipt, or operation intent.
+- R-SKILL-ADOPT-CMD-3 (MUST): non-interactive adoption apply requires the matching `--review <digest>`; `--yes` alone is insufficient. Interactive review and confirmation bind to the same plan and do not require a duplicate confirmation. Under the operation lock, apply rechecks scope, tools, source/input bytes, complete inventory, selections, package identity, and Store ownership before mutation. Stale or incomplete review fails safely.
+- R-SKILL-ADOPT-CMD-4 (MUST): reviewed differences and missing files within the known declared file set may be reconciled with recoverable preservation of replaced bytes. Unknown extras, unsafe links, conflicting copies, or another owner block adoption. Output explains the material effect and safe next action; a matching name is not ownership proof.
+- R-SKILL-ADOPT-CMD-5 (MUST): completion distinguishes file changes from ownership changes. Adoption with identical desired bytes still records ownership through the existing Store operation service. Required recording failure or incomplete verification must not return an adopted/successful claim.
+- R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
+
 ## Requirement History
 
 ### 2026-08-08 — Not assigned
@@ -295,6 +305,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The project domain defines Persona list and layout preview, prepare, apply, and verify with one registry contract and explicit Store-writing preparation.
 - Rationale: Provide a repeatable public command path without local migration plans or ambiguous completion.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-09 — W19 R5
+
+- Affected requirement or section: `Reviewed Skill Adoption Commands`
+- Previous contract: Setup-skills selection and managed updates had no explicit review-bound adoption flags for existing unowned first-party copies.
+- Replacement contract: Setup skills offers named selected-first-party adoption with a read-only digest review, bound apply, preservation/blockers, and Store-backed ownership/recovery.
+- Rationale: Owners must review the combined file and ownership effect before local content becomes managed.
+- Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
 ## Source Anchors
 
