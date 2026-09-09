@@ -4,7 +4,7 @@
 
 Use this contract for closeout-style coverage passes that decide whether a completed change needs follow-on documentation, testing, PRD reconciliation, or history updates.
 
-The contract owns the pass mechanics only: the skeleton, verdict vocabulary, surface mappings, Persona targeting, history idempotency, and validation checklist. It does not replace the detailed content contracts for guides, PRDs, work outputs, system resources, or history records.
+The contract owns the pass mechanics only: the skeleton, verdict vocabulary, surface mappings, Persona targeting, acceptance-case evidence retention, history idempotency, and validation checklist. It does not replace the detailed content contracts for guides, PRDs, work outputs, system resources, or history records.
 
 ## Pass Skeleton
 
@@ -92,6 +92,27 @@ Use one run result: `clear`, `friction`, `blocked`, or `invalid-run`. Keep the d
 
 Reuse unchanged evidence. Expand the test boundary only after a failure signal, a cross-cutting change, an explicit support claim, or accepted risk.
 
+## Acceptance-Case Evidence Retention
+
+Keep new evidence captured for a work backlog in `<work>/evidence/a<number>/`. Here, `<work>` is the owning backlog directory under `docs/work/`, not an individual phase file. Use the accepted case ID to choose the folder: case `A4` uses `evidence/a4/`; case `A12` uses `evidence/a12/`. The name `a4` is an example, not a fixed directory name.
+
+Use stable `A<number>` IDs for acceptance cases. Each number must identify one case across the owning backlog, including all its phases. Keep existing IDs stable. Give a new case an unused number. Resolve duplicate IDs in the backlog before saving evidence for different cases to the same folder.
+
+Create `evidence/` and a case folder only when there is evidence worth keeping. Do not create empty folders when drafting a backlog or starting a phase. Record a link to existing evidence, or a reason why no capture is needed, when that is sufficient. An accepted case can have a failed, blocked, or invalid result; retain those results when they help review or further work. Retention does not mean the case passed or the owner accepted the result.
+
+For each retained case:
+
+- Link the case folder from the owning phase's acceptance or closeout record.
+- Include a short report in the folder. Name the case, the claim being checked, the result, the observation, the conclusion, the reviewer, and the review limits. Link the files that support the conclusion.
+- Record the tested revision or package identity and the relevant environment. State any limits in identifying the tested build.
+- Keep the prompt and context boundary, transcript, screenshots, file trees, output snapshots, or file hashes that support the claim. Select useful proof; do not require every capture type for every case.
+- Preserve earlier evidence when a new run changes the result or tested build. Use named run subfolders within the same case folder when needed. State which run supports the current conclusion.
+- Keep copied instructions inert. For example, save a captured `AGENTS.md` as `AGENTS.md.txt`, not as an active router file. Remove secrets and private material that the review does not need.
+
+Link to evidence already owned by another contract instead of moving or duplicating it. This rule governs new backlog-owned captures. It does not require a bulk move of existing evidence.
+
+These files are review evidence, not Make Docs operation state. Keep authoritative installation, upgrade, migration, progress, and recovery state in the global Make Docs Store through the CLI. Do not create local state files or use evidence folders as a fallback when the CLI or Store is unavailable.
+
 ## Persona Targets
 
 Verdicts and persona targets are separate axes. A verdict says what coverage action to take; a target says which configured persona or audience receives that coverage.
@@ -135,6 +156,7 @@ At close of pass, confirm:
 9. Focused validation was run for the files touched by the pass, including `git diff --check` when files changed.
 10. Testing output preserves separate type decisions, finite budgets, stop conditions, and evidence reuse.
 11. Each activated Unassisted Goal Test records one eligible configured Persona and a separately qualified executor.
+12. New retained acceptance-case evidence uses the owning backlog's `evidence/a<number>/` path, has a stable case ID and a resolving phase link, and states the result and review limits. Captured instructions are inert, and Make Docs operation state remains in the Store.
 
 ## Defining A New Coverage Pass
 
@@ -150,7 +172,7 @@ To define a new coverage pass:
 
 ## Non-Goals
 
-- This contract does not define guide content, PRD content, work backlog structure, prompt syntax, or history-record fields.
+- This contract does not define guide content, PRD content, work backlog structure beyond acceptance-case evidence retention, prompt syntax, or history-record fields.
 - This contract does not require every pass to create an artifact.
 - This contract does not hard-code future persona names.
 - This contract does not enforce CLI behavior; future automation may validate the mechanics separately.

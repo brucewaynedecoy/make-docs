@@ -40,8 +40,10 @@ Explain the work covered by this phase and the value it unlocks.
 
 ### Acceptance criteria
 
-- {{ACCEPTANCE}}
-- {{ACCEPTANCE}}
+Use stable `A<number>` case IDs that are unique across this backlog's phases. Keep evidence worth retaining in the owning backlog's `evidence/a<number>/` folder. Create these folders only when needed. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`.
+
+- A{{CASE_NUMBER}}: {{ACCEPTANCE}}
+- A{{NEXT_CASE_NUMBER}}: {{ACCEPTANCE}}
 
 ### Dependencies
 
@@ -50,6 +52,7 @@ Explain the work covered by this phase and the value it unlocks.
 ### Closeout Notes
 
 - Testing-mode decision(s): {{AUTOMATED_REVIEW_NUAT_ACCESSIBILITY_VISUAL_DECISIONS}}
+- Acceptance-case evidence: {{CASE_FOLDER_LINKS_EXISTING_EVIDENCE_LINKS_OR_NO_CAPTURE_REASON}}
 - Phase / capability status: {{PHASE_AND_CAPABILITY_STATUS}}
 
 <!-- Insert additional STAGES as needed -->
