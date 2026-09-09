@@ -59,3 +59,15 @@ Before closing the task, confirm:
 3. The create-vs-update choice is justified by the current design tree.
 4. `## Design Lineage` is present when the design materially updates prior intent.
 5. `## Intended Follow-On` includes both the route and the matching prompt link.
+
+## Human Experience Intent and Validation
+
+Use the [Human Experience Contract](../contracts/human-experience-contract.md) and [reference](human-experience.md) before drafting the intent. Classify the proposed change, not the act of reading a design. Resolve configured human Personas or clear human roles. State the goal before internal detail. Use observable promises and planned evidence. Stop for a missing product choice when no coherent human path follows from accepted authority.
+
+The contract applies to new generated designs and substantial agent-authored updates. The authoring context selects this rule. Do not infer activation from dates, names, Git status, or diff size. An older design with a minor edit does not need a new section. If a section exists, check its form.
+
+For maintainers and internal callers, the existing `validateGeneratedDocumentMetadata(markdown, { sourcePath, humanExperienceMode: "required" })` call checks the required section as well as existing metadata. Select this mode explicitly for new or substantial design work. The default `if-present` mode preserves historical documents without a section. The dedicated `validateDesignBody(markdown, "required")` helper checks only the design body. These are internal TypeScript APIs, not new CLI or MCP commands. Consumer agents apply the same contract by review; do not tell them to import maintainer source from their project.
+
+The internal closeout helpers accept `humanExperienceRequiredPaths`, a list of project-relative changed design paths selected by the authoring context. They inspect other changed designs in `if-present` mode. This list does not expand the selected Git scope or certify unchanged, missing, or deleted files. Call the document validator directly for work outside that scope. Do not treat an empty closeout findings list as proof that the author selected required mode or that the result is good for people.
+
+Review misleading headless and `none` claims against their human effect. Structural checks cannot judge their meaning. Reuse suitable evidence for per-promise Human Experience Review and retain the reviewer's limits.

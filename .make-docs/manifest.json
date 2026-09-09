@@ -3,7 +3,7 @@
   "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
   "packageName": "@brucewaynedecoy/make-docs",
   "packageVersion": "2.0.0-rc",
-  "updatedAt": "2026-09-02T22:24:24.294Z",
+  "updatedAt": "2026-09-09T01:50:09.144Z",
   "profileId": "1c3de2460ec257a6",
   "selections": {
     "capabilities": {
@@ -80,6 +80,7 @@
       ".make-docs/system/contracts/design-contract.md",
       ".make-docs/system/contracts/guide-contract.md",
       ".make-docs/system/contracts/history-record-contract.md",
+      ".make-docs/system/contracts/human-experience-contract.md",
       ".make-docs/system/contracts/naive-uat-contract.md",
       ".make-docs/system/contracts/output-contract.md",
       ".make-docs/system/contracts/system-resource-contract.md",
@@ -105,7 +106,9 @@
       ".make-docs/system/references/design-workflow.md",
       ".make-docs/system/references/execution-workflow.md",
       ".make-docs/system/references/harness-capability-matrix.md",
+      ".make-docs/system/references/human-experience.md",
       ".make-docs/system/references/lifecycle.md",
+      ".make-docs/system/references/naive-uat-validation.md",
       ".make-docs/system/references/naive-uat-workflow.md",
       ".make-docs/system/references/path-and-link-hygiene.md",
       ".make-docs/system/references/planning-workflow.md",
@@ -168,6 +171,7 @@
       ".make-docs/system/contracts/design-contract.md": "deferred-system-asset",
       ".make-docs/system/contracts/guide-contract.md": "deferred-system-asset",
       ".make-docs/system/contracts/history-record-contract.md": "deferred-system-asset",
+      ".make-docs/system/contracts/human-experience-contract.md": "deferred-system-asset",
       ".make-docs/system/contracts/naive-uat-contract.md": "deferred-system-asset",
       ".make-docs/system/contracts/output-contract.md": "deferred-system-asset",
       ".make-docs/system/contracts/system-resource-contract.md": "deferred-system-asset",
@@ -193,7 +197,9 @@
       ".make-docs/system/references/design-workflow.md": "deferred-system-asset",
       ".make-docs/system/references/execution-workflow.md": "deferred-system-asset",
       ".make-docs/system/references/harness-capability-matrix.md": "deferred-system-asset",
+      ".make-docs/system/references/human-experience.md": "deferred-system-asset",
       ".make-docs/system/references/lifecycle.md": "deferred-system-asset",
+      ".make-docs/system/references/naive-uat-validation.md": "deferred-system-asset",
       ".make-docs/system/references/naive-uat-workflow.md": "deferred-system-asset",
       ".make-docs/system/references/path-and-link-hygiene.md": "deferred-system-asset",
       ".make-docs/system/references/planning-workflow.md": "deferred-system-asset",
@@ -296,7 +302,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+          "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2"
         ],
         "logicalAssetId": ".make-docs/system/contracts/AGENTS.md",
         "localPath": ".make-docs/system/contracts/AGENTS.md",
@@ -313,7 +319,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+          "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2"
         ],
         "logicalAssetId": ".make-docs/system/contracts/CLAUDE.md",
         "localPath": ".make-docs/system/contracts/CLAUDE.md",
@@ -398,7 +404,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+          "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8"
         ],
         "logicalAssetId": ".make-docs/system/templates/AGENTS.md",
         "localPath": ".make-docs/system/templates/AGENTS.md",
@@ -415,7 +421,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+          "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8"
         ],
         "logicalAssetId": ".make-docs/system/templates/CLAUDE.md",
         "localPath": ".make-docs/system/templates/CLAUDE.md",
@@ -772,7 +778,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "884f4e3e658313fda6ef928f625c0f7783ff53b5955245ec9c72d160da76be0b"
+          "62e31699d997318420d1ff79ca2444f4d8ccc212bb83992fde908eb7afb184ff"
         ],
         "logicalAssetId": ".make-docs/system/contracts/design-contract.md",
         "localPath": ".make-docs/system/contracts/design-contract.md",
@@ -810,6 +816,23 @@
         ],
         "logicalAssetId": ".make-docs/system/contracts/history-record-contract.md",
         "localPath": ".make-docs/system/contracts/history-record-contract.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
+      ".make-docs/system/contracts/human-experience-contract.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "6999636c1b72a9b471efaa6572fb2fe32fe53382db93c16c93cb21121a6cb01c"
+        ],
+        "logicalAssetId": ".make-docs/system/contracts/human-experience-contract.md",
+        "localPath": ".make-docs/system/contracts/human-experience-contract.md",
         "materializationClass": "deferred-system-asset",
         "offlineExpectation": "reviewed-full-snapshot-fallback",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
@@ -1112,7 +1135,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e461f868e8674c822ddac740a39ccc163c7066dd5d99e145375e69b1f84e0840"
+          "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771"
         ],
         "logicalAssetId": ".make-docs/system/prompts/request-to-design.prompt.md",
         "localPath": ".make-docs/system/prompts/request-to-design.prompt.md",
@@ -1197,7 +1220,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be"
+          "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e"
         ],
         "logicalAssetId": ".make-docs/system/references/design-workflow.md",
         "localPath": ".make-docs/system/references/design-workflow.md",
@@ -1240,6 +1263,23 @@
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "internal-materialization-mode"
       },
+      ".make-docs/system/references/human-experience.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063"
+        ],
+        "logicalAssetId": ".make-docs/system/references/human-experience.md",
+        "localPath": ".make-docs/system/references/human-experience.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
       ".make-docs/system/references/lifecycle.md": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -1257,6 +1297,23 @@
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
         "selectionTrigger": "internal-materialization-mode"
       },
+      ".make-docs/system/references/naive-uat-validation.md": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca"
+        ],
+        "logicalAssetId": ".make-docs/system/references/naive-uat-validation.md",
+        "localPath": ".make-docs/system/references/naive-uat-validation.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
       ".make-docs/system/references/naive-uat-workflow.md": {
         "materializationMode": "provider-backed",
         "sourcePackage": "@brucewaynedecoy/make-docs",
@@ -1265,7 +1322,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "96fa822be55804527f4fafb17ec1413e76f097b32e41f8c0f4a9a2cfebb0a100"
+          "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8"
         ],
         "logicalAssetId": ".make-docs/system/references/naive-uat-workflow.md",
         "localPath": ".make-docs/system/references/naive-uat-workflow.md",
@@ -1350,7 +1407,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0b24a2e5ef3745f028d50c5316c2f57e5a9c41a0a2a8ab546572df35a4268071"
+          "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3"
         ],
         "logicalAssetId": ".make-docs/system/templates/design.md",
         "localPath": ".make-docs/system/templates/design.md",
@@ -1418,7 +1475,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "4a3cc23242954cc28ba51b993484dfc24b25071bf852156d3ec312b4b6a35490"
+          "5de0b4fe66edfc6c7a79dd3d3d4bd4d2d63584f49e77935a9333467acfc6cebc"
         ],
         "logicalAssetId": ".make-docs/system/templates/naive-uat-scenario.md",
         "localPath": ".make-docs/system/templates/naive-uat-scenario.md",
@@ -1771,9 +1828,9 @@
         ],
         "competingClaims": [],
         "hashAlgorithm": "sha256",
-        "expectedSourceHash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
-        "installedHash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "expectedSourceHash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
+        "installedHash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null
       },
@@ -1795,9 +1852,9 @@
         ],
         "competingClaims": [],
         "hashAlgorithm": "sha256",
-        "expectedSourceHash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
-        "installedHash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "expectedSourceHash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
+        "installedHash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null
       },
@@ -1915,9 +1972,9 @@
         ],
         "competingClaims": [],
         "hashAlgorithm": "sha256",
-        "expectedSourceHash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
-        "installedHash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "expectedSourceHash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
+        "installedHash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null
       },
@@ -1939,9 +1996,9 @@
         ],
         "competingClaims": [],
         "hashAlgorithm": "sha256",
-        "expectedSourceHash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
-        "installedHash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "expectedSourceHash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
+        "installedHash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null
       },
@@ -2296,7 +2353,7 @@
       "packageName": "@brucewaynedecoy/make-docs",
       "version": "2.0.0-rc",
       "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-      "inventoryDigest": "693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd"
+      "inventoryDigest": "fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979"
     },
     "resources": {
       "make-docs://system/contract/commit-message-convention.md": {
@@ -2319,7 +2376,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/commit-message-convention.md"
         ],
         "competingClaims": []
@@ -2344,7 +2401,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/coverage-pass-contract.md"
         ],
         "competingClaims": []
@@ -2369,7 +2426,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/deferred-obligation-contract.md"
         ],
         "competingClaims": []
@@ -2385,16 +2442,16 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "884f4e3e658313fda6ef928f625c0f7783ff53b5955245ec9c72d160da76be0b",
-        "installedDigest": "884f4e3e658313fda6ef928f625c0f7783ff53b5955245ec9c72d160da76be0b",
+        "sourceDigest": "62e31699d997318420d1ff79ca2444f4d8ccc212bb83992fde908eb7afb184ff",
+        "installedDigest": "62e31699d997318420d1ff79ca2444f4d8ccc212bb83992fde908eb7afb184ff",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/design-contract.md"
         ],
         "competingClaims": []
@@ -2419,7 +2476,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/guide-contract.md"
         ],
         "competingClaims": []
@@ -2444,8 +2501,33 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/history-record-contract.md"
+        ],
+        "competingClaims": []
+      },
+      "make-docs://system/contract/human-experience-contract.md": {
+        "uri": "make-docs://system/contract/human-experience-contract.md",
+        "type": "contract",
+        "resourcePath": "human-experience-contract.md",
+        "managedDestination": ".make-docs/system/contracts/human-experience-contract.md",
+        "ownershipClass": "managed-snapshot",
+        "provenanceState": "verified",
+        "providerPackage": "@brucewaynedecoy/make-docs",
+        "providerVersion": "2.0.0-rc",
+        "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "provider-backed-copy",
+        "sourceDigest": "6999636c1b72a9b471efaa6572fb2fe32fe53382db93c16c93cb21121a6cb01c",
+        "installedDigest": "6999636c1b72a9b471efaa6572fb2fe32fe53382db93c16c93cb21121a6cb01c",
+        "hashAlgorithm": "sha256",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null,
+        "selectionTrigger": "setup-selection",
+        "operationLineage": "W19 R1 P4",
+        "provenanceEvidence": [
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
+          "resource:make-docs://system/contract/human-experience-contract.md"
         ],
         "competingClaims": []
       },
@@ -2469,7 +2551,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/naive-uat-contract.md"
         ],
         "competingClaims": []
@@ -2494,7 +2576,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/output-contract.md"
         ],
         "competingClaims": []
@@ -2519,7 +2601,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/contract/system-resource-contract.md"
         ],
         "competingClaims": []
@@ -2544,7 +2626,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/coverage-pass-developer-guide.prompt.md"
         ],
         "competingClaims": []
@@ -2569,7 +2651,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md"
         ],
         "competingClaims": []
@@ -2594,7 +2676,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/coverage-pass-testing-uat.prompt.md"
         ],
         "competingClaims": []
@@ -2619,7 +2701,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/coverage-pass-user-guide.prompt.md"
         ],
         "competingClaims": []
@@ -2644,7 +2726,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/designs-to-plan-change.prompt.md"
         ],
         "competingClaims": []
@@ -2669,7 +2751,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/designs-to-plan.prompt.md"
         ],
         "competingClaims": []
@@ -2694,7 +2776,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md"
         ],
         "competingClaims": []
@@ -2719,7 +2801,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/naive-uat-facilitator.prompt.md"
         ],
         "competingClaims": []
@@ -2744,7 +2826,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/naive-uat-tester.prompt.md"
         ],
         "competingClaims": []
@@ -2769,7 +2851,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/plan-to-prd-change.prompt.md"
         ],
         "competingClaims": []
@@ -2794,7 +2876,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/plan-to-prd-green-field.prompt.md"
         ],
         "competingClaims": []
@@ -2819,7 +2901,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/prd-change-to-work.prompt.md"
         ],
         "competingClaims": []
@@ -2844,7 +2926,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/prd-to-work-full-prd.prompt.md"
         ],
         "competingClaims": []
@@ -2869,7 +2951,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/prd-to-work-prd-feature.prompt.md"
         ],
         "competingClaims": []
@@ -2885,16 +2967,16 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "e461f868e8674c822ddac740a39ccc163c7066dd5d99e145375e69b1f84e0840",
-        "installedDigest": "e461f868e8674c822ddac740a39ccc163c7066dd5d99e145375e69b1f84e0840",
+        "sourceDigest": "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771",
+        "installedDigest": "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/request-to-design.prompt.md"
         ],
         "competingClaims": []
@@ -2919,7 +3001,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/session-to-history-record.prompt.md"
         ],
         "competingClaims": []
@@ -2944,7 +3026,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/update-readme-green-field.prompt.md"
         ],
         "competingClaims": []
@@ -2969,7 +3051,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/work-to-commit-message.prompt.md"
         ],
         "competingClaims": []
@@ -2994,7 +3076,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/prompt/work-to-guides.prompt.md"
         ],
         "competingClaims": []
@@ -3010,16 +3092,16 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be",
-        "installedDigest": "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be",
+        "sourceDigest": "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e",
+        "installedDigest": "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/design-workflow.md"
         ],
         "competingClaims": []
@@ -3044,7 +3126,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/execution-workflow.md"
         ],
         "competingClaims": []
@@ -3069,8 +3151,33 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/harness-capability-matrix.md"
+        ],
+        "competingClaims": []
+      },
+      "make-docs://system/reference/human-experience.md": {
+        "uri": "make-docs://system/reference/human-experience.md",
+        "type": "reference",
+        "resourcePath": "human-experience.md",
+        "managedDestination": ".make-docs/system/references/human-experience.md",
+        "ownershipClass": "managed-snapshot",
+        "provenanceState": "verified",
+        "providerPackage": "@brucewaynedecoy/make-docs",
+        "providerVersion": "2.0.0-rc",
+        "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "provider-backed-copy",
+        "sourceDigest": "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063",
+        "installedDigest": "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063",
+        "hashAlgorithm": "sha256",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null,
+        "selectionTrigger": "setup-selection",
+        "operationLineage": "W19 R1 P4",
+        "provenanceEvidence": [
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
+          "resource:make-docs://system/reference/human-experience.md"
         ],
         "competingClaims": []
       },
@@ -3094,8 +3201,33 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/lifecycle.md"
+        ],
+        "competingClaims": []
+      },
+      "make-docs://system/reference/naive-uat-validation.md": {
+        "uri": "make-docs://system/reference/naive-uat-validation.md",
+        "type": "reference",
+        "resourcePath": "naive-uat-validation.md",
+        "managedDestination": ".make-docs/system/references/naive-uat-validation.md",
+        "ownershipClass": "managed-snapshot",
+        "provenanceState": "verified",
+        "providerPackage": "@brucewaynedecoy/make-docs",
+        "providerVersion": "2.0.0-rc",
+        "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "materializationMode": "provider-backed-copy",
+        "sourceDigest": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+        "installedDigest": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+        "hashAlgorithm": "sha256",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
+        "lifecycleDisposition": "active",
+        "adoptionReceipt": null,
+        "selectionTrigger": "setup-selection",
+        "operationLineage": "W19 R1 P4",
+        "provenanceEvidence": [
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
+          "resource:make-docs://system/reference/naive-uat-validation.md"
         ],
         "competingClaims": []
       },
@@ -3119,7 +3251,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/naive-uat-workflow.md"
         ],
         "competingClaims": []
@@ -3144,7 +3276,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/path-and-link-hygiene.md"
         ],
         "competingClaims": []
@@ -3169,7 +3301,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/planning-workflow.md"
         ],
         "competingClaims": []
@@ -3194,7 +3326,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/prd-change-management.md"
         ],
         "competingClaims": []
@@ -3219,7 +3351,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/reference/wave-model.md"
         ],
         "competingClaims": []
@@ -3235,16 +3367,16 @@
         "providerVersion": "2.0.0-rc",
         "providerImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "materializationMode": "provider-backed-copy",
-        "sourceDigest": "0b24a2e5ef3745f028d50c5316c2f57e5a9c41a0a2a8ab546572df35a4268071",
-        "installedDigest": "0b24a2e5ef3745f028d50c5316c2f57e5a9c41a0a2a8ab546572df35a4268071",
+        "sourceDigest": "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3",
+        "installedDigest": "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3",
         "hashAlgorithm": "sha256",
-        "lastVerifiedAt": "2026-09-02T15:29:09.896Z",
+        "lastVerifiedAt": "2026-09-09T01:50:09.015Z",
         "lifecycleDisposition": "active",
         "adoptionReceipt": null,
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/design.md"
         ],
         "competingClaims": []
@@ -3269,7 +3401,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/guide-developer.md"
         ],
         "competingClaims": []
@@ -3294,7 +3426,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/guide-user.md"
         ],
         "competingClaims": []
@@ -3319,7 +3451,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/history-record.md"
         ],
         "competingClaims": []
@@ -3344,7 +3476,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/naive-uat-scenario.md"
         ],
         "competingClaims": []
@@ -3369,7 +3501,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/plan-overview.md"
         ],
         "competingClaims": []
@@ -3394,7 +3526,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/plan-prd-change.md"
         ],
         "competingClaims": []
@@ -3419,7 +3551,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/plan-prd-decompose.md"
         ],
         "competingClaims": []
@@ -3444,7 +3576,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/plan-prd.md"
         ],
         "competingClaims": []
@@ -3469,7 +3601,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-architecture.md"
         ],
         "competingClaims": []
@@ -3494,7 +3626,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-glossary.md"
         ],
         "competingClaims": []
@@ -3519,7 +3651,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-index.md"
         ],
         "competingClaims": []
@@ -3544,7 +3676,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-overview.md"
         ],
         "competingClaims": []
@@ -3569,7 +3701,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-reference.md"
         ],
         "competingClaims": []
@@ -3594,7 +3726,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-risk-register.md"
         ],
         "competingClaims": []
@@ -3619,7 +3751,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/prd-subsystem.md"
         ],
         "competingClaims": []
@@ -3644,7 +3776,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/work-index.md"
         ],
         "competingClaims": []
@@ -3669,7 +3801,7 @@
         "selectionTrigger": "setup-selection",
         "operationLineage": "W19 R1 P4",
         "provenanceEvidence": [
-          "provider-inventory:sha256:693f0a559eb8f620981a18a174cd0e539b0a5b8aa96129f7118d86879613f8bd",
+          "provider-inventory:sha256:fe15831fe283629e5543af497b583bf75829fd4922e27c126f649379d7be6979",
           "resource:make-docs://system/template/work-phase.md"
         ],
         "competingClaims": []
@@ -4030,7 +4162,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/prompts/request-to-design.prompt.md": {
-      "hash": "e461f868e8674c822ddac740a39ccc163c7066dd5d99e145375e69b1f84e0840",
+      "hash": "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771",
       "sourceId": "resource:make-docs://system/prompt/request-to-design.prompt.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4040,7 +4172,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "e461f868e8674c822ddac740a39ccc163c7066dd5d99e145375e69b1f84e0840"
+          "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771"
         ],
         "logicalAssetId": ".make-docs/system/prompts/request-to-design.prompt.md",
         "localPath": ".make-docs/system/prompts/request-to-design.prompt.md",
@@ -4469,27 +4601,6 @@
       },
       "ownershipClass": "managed-block"
     },
-    ".make-docs/contracts/system/playbook-contract.md": {
-      "hash": "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11",
-      "sourceId": "file:.make-docs/contracts/system/playbook-contract.md",
-      "systemAsset": {
-        "materializationMode": "full-snapshot",
-        "sourcePackage": "@brucewaynedecoy/make-docs",
-        "sourceProvider": "package",
-        "sourceVersion": "2.0.0-rc",
-        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
-        "hashAlgorithm": "sha256",
-        "expectedHashes": [
-          "3f7a1e18bedfb129ebba712a035dd08be413059b7402a6b29951417c1902ee11"
-        ],
-        "logicalAssetId": ".make-docs/contracts/system/playbook-contract.md",
-        "localPath": ".make-docs/contracts/system/playbook-contract.md",
-        "materializationClass": "materialized-system-asset",
-        "offlineExpectation": "local",
-        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
-        "selectionTrigger": "profile-selection"
-      }
-    },
     "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md": {
       "hash": "e85f779a85cd231cf55dcfbc005c3c44bb1be920e29ddc52af66cbbf20164ccc",
       "sourceId": "project:docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
@@ -4628,7 +4739,7 @@
       "ownershipClass": "managed-block"
     },
     ".make-docs/system/contracts/AGENTS.md": {
-      "hash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "hash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
       "sourceId": "router:codex:.make-docs/system/contracts/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4638,7 +4749,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+          "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2"
         ],
         "logicalAssetId": ".make-docs/system/contracts/AGENTS.md",
         "localPath": ".make-docs/system/contracts/AGENTS.md",
@@ -4650,7 +4761,7 @@
       "ownershipClass": "managed-block"
     },
     ".make-docs/system/contracts/CLAUDE.md": {
-      "hash": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "hash": "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2",
       "sourceId": "router:claude-code:.make-docs/system/contracts/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4660,7 +4771,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+          "6fd757defa7b4b2cb0b8dd09d1e27b1767a29d909f272320d3044c366220fcd2"
         ],
         "logicalAssetId": ".make-docs/system/contracts/CLAUDE.md",
         "localPath": ".make-docs/system/contracts/CLAUDE.md",
@@ -4716,7 +4827,7 @@
       "ownershipClass": "managed-block"
     },
     ".make-docs/system/templates/AGENTS.md": {
-      "hash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "hash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
       "sourceId": "router:codex:.make-docs/system/templates/AGENTS.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4726,7 +4837,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+          "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8"
         ],
         "logicalAssetId": ".make-docs/system/templates/AGENTS.md",
         "localPath": ".make-docs/system/templates/AGENTS.md",
@@ -4738,7 +4849,7 @@
       "ownershipClass": "managed-block"
     },
     ".make-docs/system/templates/CLAUDE.md": {
-      "hash": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "hash": "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8",
       "sourceId": "router:claude-code:.make-docs/system/templates/CLAUDE.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4748,7 +4859,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+          "39b53253c01f9488697e98ffd564de9d4614199cdce986380ec06983ad54bdd8"
         ],
         "logicalAssetId": ".make-docs/system/templates/CLAUDE.md",
         "localPath": ".make-docs/system/templates/CLAUDE.md",
@@ -4826,7 +4937,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/contracts/design-contract.md": {
-      "hash": "884f4e3e658313fda6ef928f625c0f7783ff53b5955245ec9c72d160da76be0b",
+      "hash": "62e31699d997318420d1ff79ca2444f4d8ccc212bb83992fde908eb7afb184ff",
       "sourceId": "resource:make-docs://system/contract/design-contract.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4836,7 +4947,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "884f4e3e658313fda6ef928f625c0f7783ff53b5955245ec9c72d160da76be0b"
+          "62e31699d997318420d1ff79ca2444f4d8ccc212bb83992fde908eb7afb184ff"
         ],
         "logicalAssetId": ".make-docs/system/contracts/design-contract.md",
         "localPath": ".make-docs/system/contracts/design-contract.md",
@@ -4958,7 +5069,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/references/design-workflow.md": {
-      "hash": "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be",
+      "hash": "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e",
       "sourceId": "resource:make-docs://system/reference/design-workflow.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -4968,7 +5079,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "c1e15f8641677f193b3cb6787bb0417deb159daa51db0a24ea7fecb9171fd9be"
+          "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e"
         ],
         "logicalAssetId": ".make-docs/system/references/design-workflow.md",
         "localPath": ".make-docs/system/references/design-workflow.md",
@@ -5156,7 +5267,7 @@
       "ownershipClass": "managed-projection"
     },
     ".make-docs/system/templates/design.md": {
-      "hash": "0b24a2e5ef3745f028d50c5316c2f57e5a9c41a0a2a8ab546572df35a4268071",
+      "hash": "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3",
       "sourceId": "resource:make-docs://system/template/design.md",
       "systemAsset": {
         "materializationMode": "provider-backed",
@@ -5166,7 +5277,7 @@
         "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
         "hashAlgorithm": "sha256",
         "expectedHashes": [
-          "0b24a2e5ef3745f028d50c5316c2f57e5a9c41a0a2a8ab546572df35a4268071"
+          "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3"
         ],
         "logicalAssetId": ".make-docs/system/templates/design.md",
         "localPath": ".make-docs/system/templates/design.md",
@@ -5544,6 +5655,72 @@
         ],
         "logicalAssetId": ".make-docs/system/templates/work-phase.md",
         "localPath": ".make-docs/system/templates/work-phase.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
+      "ownershipClass": "managed-projection"
+    },
+    ".make-docs/system/contracts/human-experience-contract.md": {
+      "hash": "6999636c1b72a9b471efaa6572fb2fe32fe53382db93c16c93cb21121a6cb01c",
+      "sourceId": "resource:make-docs://system/contract/human-experience-contract.md",
+      "systemAsset": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "6999636c1b72a9b471efaa6572fb2fe32fe53382db93c16c93cb21121a6cb01c"
+        ],
+        "logicalAssetId": ".make-docs/system/contracts/human-experience-contract.md",
+        "localPath": ".make-docs/system/contracts/human-experience-contract.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
+      "ownershipClass": "managed-projection"
+    },
+    ".make-docs/system/references/human-experience.md": {
+      "hash": "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063",
+      "sourceId": "resource:make-docs://system/reference/human-experience.md",
+      "systemAsset": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063"
+        ],
+        "logicalAssetId": ".make-docs/system/references/human-experience.md",
+        "localPath": ".make-docs/system/references/human-experience.md",
+        "materializationClass": "deferred-system-asset",
+        "offlineExpectation": "reviewed-full-snapshot-fallback",
+        "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",
+        "selectionTrigger": "internal-materialization-mode"
+      },
+      "ownershipClass": "managed-projection"
+    },
+    ".make-docs/system/references/naive-uat-validation.md": {
+      "hash": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+      "sourceId": "resource:make-docs://system/reference/naive-uat-validation.md",
+      "systemAsset": {
+        "materializationMode": "provider-backed",
+        "sourcePackage": "@brucewaynedecoy/make-docs",
+        "sourceProvider": "package",
+        "sourceVersion": "2.0.0-rc",
+        "sourceImmutableRef": "package:@brucewaynedecoy/make-docs@2.0.0-rc",
+        "hashAlgorithm": "sha256",
+        "expectedHashes": [
+          "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca"
+        ],
+        "logicalAssetId": ".make-docs/system/references/naive-uat-validation.md",
+        "localPath": ".make-docs/system/references/naive-uat-validation.md",
         "materializationClass": "deferred-system-asset",
         "offlineExpectation": "reviewed-full-snapshot-fallback",
         "recoveryGuidance": "Rerun make-docs to refresh local system asset provenance from the installed package. If provider-backed resolution is enabled internally, use a reviewed full-snapshot materialization path when provider or cache pins cannot be verified.",

@@ -29,6 +29,8 @@ const SLUG_RE = /[^a-z0-9]+/g;
 export function buildCloseoutProbe(options: {
   repoRoot: string;
   scope: "auto" | "staged" | "unstaged" | "full";
+  /** Repo-relative design paths selected by new/substantial authoring context. */
+  humanExperienceRequiredPaths?: string[];
 }): Record<string, JsonValue> {
   const repoRoot = path.resolve(options.repoRoot);
   const filesByPath = changedFilesForCloseout(repoRoot, options.scope);
@@ -39,7 +41,7 @@ export function buildCloseoutProbe(options: {
   }
 
   const { config } = loadMakeDocsConfig(repoRoot);
-  const metadataValidation = validateChangedDocumentMetadata(repoRoot, files, config);
+  const metadataValidation = validateChangedDocumentMetadata(repoRoot, files, config, options.humanExperienceRequiredPaths);
 
   return {
     repoRoot,
@@ -115,6 +117,7 @@ export function runCloseoutHistory(options: {
 export function probeCloseout(input: {
   repoRoot: string;
   scope: "auto" | "staged" | "unstaged" | "full";
+  humanExperienceRequiredPaths?: string[];
 }): OperationResult<Record<string, JsonValue>> {
   return {
     value: buildCloseoutProbe(input),
@@ -139,7 +142,7 @@ function changedFilesForCloseout(
   repoRoot: string,
   scope: "auto" | "staged" | "unstaged" | "full",
 ): Map<string, CloseoutFile> {
-  const status = parseStatusShort(safeRunGit(repoRoot, ["status", "--short"]));
+  const status = parseStatusShort(safeRunGit(repoRoot, ["status", "--short", "--untracked-files=all"]));
   const staged = parseNameStatus(safeRunGit(repoRoot, ["diff", "--cached", "--name-status"]), true);
   const unstaged = parseNameStatus(safeRunGit(repoRoot, ["diff", "--name-status"]), false);
   for (const entry of status) {
@@ -346,10 +349,14 @@ function validateChangedDocumentMetadata(
   repoRoot: string,
   files: CloseoutFile[],
   config: ReturnType<typeof loadMakeDocsConfig>["config"],
+  humanExperienceRequiredPaths: string[] = [],
 ): Array<Record<string, JsonValue>> {
   const findings: Array<Record<string, JsonValue>> = [];
+  const required = new Set(humanExperienceRequiredPaths.map(normalizePath));
   for (const file of files) {
-    if (!isPersonaScopedDocumentPath(file.path)) {
+    const isDesign = /^docs\/designs\/[^/]+\.md$/u.test(normalizePath(file.path))
+      && !["AGENTS.md", "CLAUDE.md", "README.md"].includes(path.basename(file.path));
+    if (!isPersonaScopedDocumentPath(file.path) && !isDesign) {
       continue;
     }
     const absolutePath = path.join(repoRoot, file.path);
@@ -360,6 +367,7 @@ function validateChangedDocumentMetadata(
     const fileFindings = validateGeneratedDocumentMetadata(markdown, {
       config,
       sourcePath: file.path,
+      humanExperienceMode: isDesign && required.has(normalizePath(file.path)) ? "required" : "if-present",
     });
     if (fileFindings.length === 0) {
       continue;

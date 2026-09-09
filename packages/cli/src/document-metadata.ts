@@ -5,6 +5,7 @@ import {
   type DocumentKindLabelKey,
   type MakeDocsConfig,
 } from "./config";
+import { validateDesignBody, type DesignBodyFinding, type HumanExperienceValidationMode } from "./design-body";
 
 export const GENERATED_DOCUMENT_KINDS = [
   "design",
@@ -74,7 +75,8 @@ export interface MetadataValidationFinding {
     | "follow-on-why-mismatch"
     | "follow-on-coordinate-handoff-mismatch"
     | "missing-persona"
-    | "persona-path-mismatch";
+    | "persona-path-mismatch"
+    | DesignBodyFinding["code"];
   field: string;
   message: string;
 }
@@ -82,6 +84,7 @@ export interface MetadataValidationFinding {
 export interface MetadataValidationOptions {
   config?: MakeDocsConfig;
   sourcePath?: string;
+  humanExperienceMode?: HumanExperienceValidationMode;
 }
 
 const FRONTMATTER_BOUNDARY = "---\n";
@@ -215,7 +218,11 @@ export function validateGeneratedDocumentMetadata(
   options: MetadataValidationOptions = {},
 ): MetadataValidationFinding[] {
   const { body, frontmatter } = parseDocumentMetadata(markdown);
-  const findings: MetadataValidationFinding[] = [];
+  const isDesign = frontmatter?.kind === "design"
+    || /^(?:packages\/docs\/template\/)?docs\/designs\/[^/]+\.md$/u.test(options.sourcePath?.replace(/\\/gu, "/") ?? "");
+  const findings: MetadataValidationFinding[] = isDesign || options.humanExperienceMode === "required"
+    ? validateDesignBody(markdown, options.humanExperienceMode)
+    : [];
 
   if (!frontmatter) {
     return findings;

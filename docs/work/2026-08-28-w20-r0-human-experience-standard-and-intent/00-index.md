@@ -49,7 +49,7 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 | Phase | File | Outcome |
 | --- | --- | --- |
 | 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Complete and owner-authorized for closeout: [authority, source/test ownership, and proof map](01-prd-authority-and-requirement-trace.md#read-this-first). The known baseline defaults failure is disclosed; P2 needs separate authority. |
-| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Add the canonical contract, interpretation reference, conditional design section, stable resource access, and structural checks. |
+| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. The known D-031 defaults failure remains disclosed. |
 | 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Carry the human goal and promises through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. |
 | 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Apply required Human Experience Review and select only the proportionate testing needed for current decisions. |
 | 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Prove package, dogfood, installed-project, agent, adoption, and real human outcomes before W20 R0 closeout. |
@@ -81,4 +81,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Use the [closed P1 result and limits](01-prd-authority-and-requirement-trace.md#coverage-and-closeout) for P2 planning. The owner has authorized the local P1 commit. P2 is ready for separate implementation authority. This handoff does not authorize P2 work, publication, or release.
+Current next step: Use the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. The owner authorized P2 closeout and a local commit on 2026-09-08. P3 implementation, publication, and release need separate authority.

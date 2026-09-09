@@ -136,6 +136,8 @@ const REQUIRED_REFERENCE_PATHS = {
 } as const;
 
 const ALWAYS_REFERENCE_PATHS = [
+  ".make-docs/system/contracts/human-experience-contract.md",
+  ".make-docs/system/references/human-experience.md",
   ".make-docs/system/contracts/guide-contract.md",
   ".make-docs/system/contracts/deferred-obligation-contract.md",
   ".make-docs/system/contracts/naive-uat-contract.md",

@@ -29,6 +29,28 @@ Explain what decision this document captures and why it exists.
 
 Describe the problem, constraints, forces, and existing conditions that shape the decision.
 
+## Human Experience Intent
+
+<!-- Follow make-docs://system/contract/human-experience-contract.md. Choose direct or indirect for the full form below. For none, REPLACE these fields with Impact, Reason, Preserved experience, and Evidence required from the contract. Keep one section. Remove these instructions and resolve all placeholders. -->
+
+Impact: `{{IMPACT}}`
+
+Affected humans: {{AFFECTED_HUMANS}}
+
+Human goal or effect: {{HUMAN_GOAL_OR_EFFECT}}
+
+Experience promises:
+
+- {{OBSERVABLE_EXPERIENCE_PROMISE}}
+
+Complexity kept out of the human path:
+
+- {{COMPLEXITY_NOT_REQUIRED_FOR_THE_GOAL}}
+
+Evidence required:
+
+- {{PLANNED_EVIDENCE}}
+
 ## Decision
 
 Describe the chosen approach clearly enough that planning can proceed from it.

@@ -24,10 +24,15 @@ Generated design docs must include:
 
 - `## Purpose`
 - `## Context`
+- `## Human Experience Intent`
 - `## Decision`
 - `## Alternatives Considered`
 - `## Consequences`
 - `## Intended Follow-On`
+
+## Human Experience Intent
+
+Use the [Human Experience Contract](human-experience-contract.md) for one conditional intent section after Context and before Decision. It owns impact, field order, evidence, and prospective adoption. Use the [Human Experience Reference](../references/human-experience.md) for examples. Keep the section in the body. Apply it to new generated designs and substantial agent-authored updates; preserve older designs and minor edits under the contract.
 
 ## Intended Follow-On Contract
 
