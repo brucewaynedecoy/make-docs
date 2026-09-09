@@ -34,6 +34,7 @@ Describe what this work directory covers and how to navigate its phase files.
 - Keep phase files dependency-ordered.
 - Every phase file must include `## Source PRD Docs`.
 - Link every phase back to the relevant PRD docs.
+- When this backlog retains evidence for acceptance or review, create or update its central `evidence.md` report and add a relative link to it in this index. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`. The report explains the findings and links supporting evidence, including evidence already stored elsewhere. Do not create an empty report or link to a report that does not exist.
 - When deferred obligations or Unassisted Goal Testing are in scope, inventory applicable `O-###`, activated `NUAT-###`, and finding links plus the expected phase versus capability status. Record `not-needed-now` without inventing an ID.
 
 ## Intended Follow-On

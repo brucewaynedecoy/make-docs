@@ -40,7 +40,7 @@ Explain the work covered by this phase and the value it unlocks.
 
 ### Acceptance criteria
 
-Use stable `A<number>` case IDs that are unique across this backlog's phases. Keep evidence worth retaining in the owning backlog's `evidence/a<number>/` folder. Create these folders only when needed. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`.
+Use stable `A<number>` case IDs that are unique across this backlog's phases. When retaining evidence for acceptance or review, create or update the owning backlog's central `evidence.md` report. Link the relevant report sections from this phase's acceptance or closeout record. The report must explain the findings even when supporting evidence already exists elsewhere and no new capture folder is needed. Keep new acceptance-case captures in `evidence/a<number>/` only when needed; detailed reports in case folders are optional. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`.
 
 - A{{CASE_NUMBER}}: {{ACCEPTANCE}}
 - A{{NEXT_CASE_NUMBER}}: {{ACCEPTANCE}}
@@ -52,7 +52,7 @@ Use stable `A<number>` case IDs that are unique across this backlog's phases. Ke
 ### Closeout Notes
 
 - Testing-mode decision(s): {{AUTOMATED_REVIEW_NUAT_ACCESSIBILITY_VISUAL_DECISIONS}}
-- Acceptance-case evidence: {{CASE_FOLDER_LINKS_EXISTING_EVIDENCE_LINKS_OR_NO_CAPTURE_REASON}}
+- Evidence report: {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}
 - Phase / capability status: {{PHASE_AND_CAPABILITY_STATUS}}
 
 <!-- Insert additional STAGES as needed -->
