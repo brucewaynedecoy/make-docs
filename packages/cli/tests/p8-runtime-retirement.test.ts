@@ -26,22 +26,25 @@ afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: 
 
 describe("P8 runtime retirement", () => {
   it("removes the frozen public registry while preserving current replacement operations", () => {
-    expect(listOperations()).toHaveLength(27);
+    const ids = listOperations().map(operation => operation.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.filter(id => retired.includes(id))).toEqual([]);
     for (const id of retired) expect(() => getOperation(id)).toThrow("Unknown operation identifier");
-    for (const id of ["resource.list", "project.surface.ensure", "project.state.status", "project.state.recover", "lifecycle.start", "uat.persona.resolve"]) {
+    for (const id of ["resource.list", "project.surface.ensure", "project.state.status", "project.state.recover", "project.persona.list", "project.layout.preview", "project.layout.prepare", "project.layout.apply", "project.layout.verify", "lifecycle.start", "uat.persona.resolve"]) {
       expect(getOperation(id).status).toBe("active");
       expect(getOperation(id).handler).toBeTypeOf("function");
     }
   });
 
-  it("refuses every retired route and preview spelling through the real CLI entry", () => {
-    for (const id of [...retired, "package.preview", "protocol.catalog"]) {
-      const result = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "run", ...id.split(".")], {
-        cwd: packageRoot, encoding: "utf8",
-      });
-      expect(result.status, id).toBe(1);
-      expect(result.stderr, id).toContain("Unknown make-docs run operation");
-    }
+  it.each([...retired, "package.preview", "protocol.catalog"])("refuses retired route %s through the real CLI entry", (id) => {
+    const result = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "run", ...id.split(".")], {
+      cwd: packageRoot, encoding: "utf8",
+    });
+    expect(result.status, id).toBe(1);
+    expect(result.stderr, id).toContain("Unknown make-docs run operation");
+  }, 20000);
+
+  it("omits retired routes from real CLI help", () => {
     const help = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "run", "--help"], {
       cwd: packageRoot, encoding: "utf8",
     });

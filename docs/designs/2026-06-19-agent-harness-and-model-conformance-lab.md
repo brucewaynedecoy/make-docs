@@ -15,11 +15,11 @@ The accepted Batch 1 designs establish these constraints:
 - [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md) requires state classification before mutation, single-audit `backup-and-reinstall` safety, conservative fallback recognition, and opt-in skills preservation.
 - [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md) makes `packages/docs/template/` the first mutation target, root `docs/` dogfood validation, and `packages/cli/template/` package proof rather than an authoring surface.
 
-Earlier related designs also constrain the lab. [Agent Instruction File Ownership Model](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md) defines managed instruction blocks and harness parity for `AGENTS.md` and `CLAUDE.md`. [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md) establishes verdict-and-reason discipline for documentation-worthy outcomes, but its coverage-pass vocabulary is not a substitute for conformance verdicts.
+Earlier related designs also constrain the lab. [Agent Instruction File Ownership Model](../../.make-docs/archive/designs/2026-06-18-agent-instruction-file-ownership.md) defines managed instruction blocks and harness parity for `AGENTS.md` and `CLAUDE.md`. [Coverage Pass Contract and Skill Evolution](../../.make-docs/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md) establishes verdict-and-reason discipline for documentation-worthy outcomes, but its coverage-pass vocabulary is not a substitute for conformance verdicts.
 
 Current executable code exposes only `codex` and `claude-code` as product harnesses through `packages/cli/src/types.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/audit.ts`. OpenCode, Goose, Pi, and later agentic IDEs are future adapter targets for the lab, not current make-docs install harnesses until a later accepted design changes the executable harness model.
 
-This design intentionally starts from `docs/artifacts/v2-proposed-design-and-roadmap.md` and the accepted evidence pass. That is a lifecycle departure at the input step: artifact roadmap material is being used to hydrate this design before the work returns to the normal `design -> plan -> PRD -> work -> implementation` chain described by [Lifecycle Anchor](../../.make-docs/references/system/lifecycle.md). No PRD, risk register, plan, work backlog, package template, guide, source code, or prior design backlink changes are part of this design authoring pass.
+This design intentionally starts from `docs/artifacts/v2-proposed-design-and-roadmap.md` and the accepted evidence pass. That is a lifecycle departure at the input step: artifact roadmap material is being used to hydrate this design before the work returns to the normal `design -> plan -> PRD -> work -> implementation` chain described by [Lifecycle Anchor](../../.make-docs/system/references/lifecycle.md). No PRD, risk register, plan, work backlog, package template, guide, source code, or prior design backlink changes are part of this design authoring pass.
 
 ## Decision
 
@@ -95,8 +95,8 @@ Prior Design Docs:
 - [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md)
 - [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md)
 - [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
-- [Agent Instruction File Ownership Model](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
-- [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md)
+- [Agent Instruction File Ownership Model](../../.make-docs/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
+- [Coverage Pass Contract and Skill Evolution](../../.make-docs/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md)
 
 Reason: This is a distinct maintainer infrastructure decision, but it is closely related to prior design intent because it converts accepted package, materialization, audit, migration, template, dogfood, harness, and coverage contracts into repeatable evidence scenarios. It extends those decisions without superseding or mutating them.
 

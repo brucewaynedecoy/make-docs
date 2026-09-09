@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this contract for developer and user guides under `docs/assets/library/developer/` and `docs/assets/library/user/`.
+Use this contract for audience guides under `docs/assets/<persona-slug>/`. Built-in `maintainer` and `user` guides use `docs/assets/maintainer/` and `docs/assets/user/`. Merge valid project config with both defaults; custom audiences retain their own paths and declared primitive. Either primitive can be human or agent. Use `guide-maintainer.md` for the `maintainer` primitive and `guide-user.md` for the `user` primitive. Set `persona` to the selected effective slug, including a custom slug when selected.
 
 This contract does NOT apply to breadcrumb records, which use `.make-docs/system/contracts/history-record-contract.md`.
 
@@ -10,11 +10,11 @@ Guides are living documentation for the current usable or maintainable product s
 
 ## Audience Contract
 
-### Developer Guides
+### Maintainer Guides
 
-Developer guides live in `docs/assets/library/developer/`. Write them for contributors, maintainers, integrators, and operators who need to understand, extend, validate, troubleshoot, or safely change the project.
+Maintainer guides live in `docs/assets/<persona-slug>/` for the selected `maintainer`-primitive Persona; the built-in path is `docs/assets/maintainer/`. Write them for contributors, maintainers, integrators, and operators who need to understand, extend, validate, troubleshoot, or safely change the project.
 
-A developer guide should help a capable developer quickly reach a first useful PR or maintenance action. Prefer:
+A maintainer guide should help a capable maintainer quickly reach a first useful PR or maintenance action. Prefer:
 
 - codebase and documentation navigation
 - local setup, validation, release, or operational procedures
@@ -22,11 +22,11 @@ A developer guide should help a capable developer quickly reach a first useful P
 - maintainer workflows, troubleshooting, and safe-change notes
 - links to deeper designs, PRDs, work backlogs, and reference contracts
 
-Avoid writing developer guides as implementation diaries. Historical context belongs only where it helps the reader make a current decision.
+Avoid writing maintainer guides as implementation diaries. Historical context belongs only where it helps the reader make a current decision.
 
 ### User Guides
 
-User guides live in `docs/assets/library/user/`. Write them for people who use what the project ships, including novices who need orientation and advanced users who want to explore deeper workflows.
+User guides live in `docs/assets/<persona-slug>/` for the selected `user`-primitive Persona; the built-in path is `docs/assets/user/`. Write them for people or agents who use what the project ships, including novices who need orientation and advanced users who want to explore deeper workflows.
 
 A user guide should help the reader understand the product from a user's perspective and complete real tasks. Prefer:
 
@@ -44,6 +44,8 @@ Every guide must begin with a YAML frontmatter block. Required fields:
 | Field | Type | Description |
 | --- | --- | --- |
 | `title` | string | Display title of the guide. |
+| `kind` | string | `guide`. |
+| `persona` | string | Effective Persona slug matching the audience directory. |
 | `path` | string | Virtual grouping and publication path. Lowercase, forward-slash separated, no leading or trailing slash. 1-3 segments. Examples: `cli/development`, `getting-started`, `template/customization`. |
 | `status` | enum | One of `draft`, `published`, `deprecated`. |
 
@@ -63,20 +65,20 @@ Do not add frontmatter fields for deferred guide work. Use `## Future Coverage` 
 
 Before creating a guide, inspect existing guides for overlap. Prefer updating or linking an existing guide when that produces a clearer documentation set than adding a new file.
 
-Resolve each documentation-worthy capability to one of these outcomes:
+Resolve each documentation-worthy capability to one verdict. Select the effective Persona target separately, as required by the coverage-pass contract.
 
-| Outcome | Use when |
+| Verdict | Use when |
 | --- | --- |
-| `developer` | The durable knowledge is maintainer-facing, contributor-facing, operational, validation-related, or extension-related. |
-| `user` | The durable knowledge helps people use the shipped product, understand a concept, or complete a task. |
-| `both` | The capability has distinct user and developer needs that should not be collapsed into one audience. |
-| `update-existing` | A current guide already owns the topic and should be expanded instead of creating a new guide. |
-| `link-only` | The capability is covered well enough by a related guide, reference, design, PRD, or existing navigation surface. |
+| `create` | Durable knowledge needs a new guide for the selected audience. |
+| `update-existing` | A current guide already owns the topic and should be expanded. |
+| `link-only` | A related guide, reference, design, PRD, or navigation surface already covers the need. |
 | `none` | The capability is obsolete, too internal, too narrow, or only useful as a history entry. |
+
+Use a `maintainer`-primitive target for building, maintaining, operating, validating, or extending the project. Use a `user`-primitive target for using the shipped product. Custom Personas retain their selected slug. Either role can be human or agent. When distinct audiences need coverage, record each target explicitly; `both` is not a Persona slug or verdict.
 
 When both audiences are relevant, avoid duplicating the same guide in both directories. Put the detailed guide in the primary audience directory and use `related` frontmatter plus concise companion coverage when the secondary audience needs a different entry point.
 
-After creating or updating guide content, re-check overlapping developer and user guides. Add reciprocal links, `related` frontmatter, or concise supplemental context when the new guide work helps an existing guide become easier to discover, navigate, or apply.
+After creating or updating guide content, re-check overlapping maintainer and user guides. Add reciprocal links, `related` frontmatter, or concise supplemental context when the new guide work helps an existing guide become easier to discover, navigate, or apply.
 
 When no guide is needed during closeout or generation, record the no-guide decision in the history entry or planning artifact with the reason.
 
@@ -144,11 +146,11 @@ The `path` field serves dual purposes:
 
 New guides always start as `draft`. An agent must never set `status: published` on a newly created guide. Only the user or an explicit user request promotes a guide to `published`.
 
-Transitions: `draft` to `published` to `deprecated`. A `deprecated` guide may return to `draft` for substantial rewrites. Archival, moving to `docs/assets/archive/guides/`, follows existing archive rules and happens only when the user explicitly asks.
+Transitions: `draft` to `published` to `deprecated`. A `deprecated` guide may return to `draft` for substantial rewrites. Archival, moving to `.make-docs/archive/guides/`, follows existing archive rules and happens only when the user explicitly asks.
 
 ## Scope
 
-- Applies to `docs/assets/library/developer/` and `docs/assets/library/user/` only.
+- Applies to guides under every effective `docs/assets/<persona-slug>/` audience, including configured custom Personas. Shared `docs/assets/project/` material is not Persona-scoped.
 - Does NOT apply to breadcrumb records, which use `.make-docs/system/contracts/history-record-contract.md`.
 
 ## Link Rules

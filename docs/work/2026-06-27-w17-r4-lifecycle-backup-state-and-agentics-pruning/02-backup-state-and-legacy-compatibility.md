@@ -34,7 +34,7 @@ Phase 2 validation confirmed:
 Coverage decisions:
 
 - Developer guide coverage: none. The implementation adds package helper code and tests but does not add a new developer-facing workflow.
-- User guide coverage: update-existing. [CLI lifecycle managing installations](../../assets/library/user/cli-lifecycle-managing-installations.md) now describes `.make-docs/backup/**` as the backup destination and `.backup/**` as legacy recovery evidence.
+- User guide coverage: update-existing. [CLI lifecycle managing installations](../../assets/user/cli-lifecycle-managing-installations.md) now describes `.make-docs/backup/**` as the backup destination and `.backup/**` as legacy recovery evidence.
 - PRD coverage: none. Phase 1 confirmed active PRD reconciliation; Phase 2 implemented the already accepted PRD 32 backup-state behavior.
 - UAT coverage: deferred until the W17 R4 wave is fully implemented, per user instruction.
 

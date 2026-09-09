@@ -1,10 +1,11 @@
 <!-- make-docs:begin -->
 # Archive Router
 
-This directory stores Make Docs-managed archive and provenance records.
+This directory holds historical and provenance records, not current product authority.
 
-- Use a valid local history-record contract and template first. If either body is absent, read its stable system-resource URI with `make-docs resource read`.
-- Keep non-authoritative source and analysis inputs in `docs/artifacts/`.
-- Keep Persona-scoped reader assets and testing evidence in `docs/assets/<persona-slug>/`.
-- Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
+- Use `.make-docs/archive/history/` for session history. Preserve recorded outcomes and coordinates; repair links only through a recorded reviewed move.
+- Before writing, use valid local `.make-docs/system/contracts/history-record-contract.md` and `.make-docs/system/templates/history-record.md`; read absent bodies with `make-docs resource read` at `make-docs://system/contract/history-record-contract.md` and `make-docs://system/template/history-record.md`.
+- Shared material uses `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`.
+- Retired Playbooks stay inactive under `.make-docs/archive/legacy-playbooks/`. Do not infer a current workflow from them.
+- Operational state stays in the global Store through the CLI. Archive or backup content is not an operational fallback.
 <!-- make-docs:end -->

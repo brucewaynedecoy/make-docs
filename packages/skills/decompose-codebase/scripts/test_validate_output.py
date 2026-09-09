@@ -454,16 +454,26 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         self.assertEqual(link_errors, [], f"False positives in build_result: {link_errors}")
         self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
 
-    def test_build_result_accepts_assets_archive_namespace(self):
+    def test_build_result_accepts_current_archive_namespace(self):
         self._write_minimal_prd_set()
         self._write_minimal_work_directory()
 
-        archive_dir = self.tmpdir / "docs" / "assets" / "archive" / "prds" / "2024-01-01"
+        archive_dir = self.tmpdir / ".make-docs" / "archive" / "prds" / "2024-01-01"
         archive_dir.mkdir(parents=True)
         (archive_dir / "00-index.md").write_text("Archived.\n")
 
         result = build_result(self.tmpdir)
         self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
+
+    def test_build_result_rejects_loose_files_in_current_archive(self):
+        self._write_minimal_prd_set()
+        self._write_minimal_work_directory()
+        archive_dir = self.tmpdir / ".make-docs" / "archive" / "prds"
+        archive_dir.mkdir(parents=True)
+        (archive_dir / "loose.md").write_text("Invalid loose PRD archive.\n")
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("dated directories only" in error for error in result["errors"]))
 
     def test_build_result_rejects_legacy_archive_namespace(self):
         self._write_minimal_prd_set()

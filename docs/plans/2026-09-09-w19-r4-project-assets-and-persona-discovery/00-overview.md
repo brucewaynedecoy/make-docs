@@ -1,7 +1,7 @@
 ---
 title: "Project Assets and Persona Discovery"
 kind: "plan"
-status: "draft"
+status: "completed"
 coordinate: "W19 R4"
 source:
   type: "design"
@@ -17,7 +17,7 @@ follow_on:
 
 ## Purpose
 
-Turn the [design](../../designs/2026-09-09-project-assets-and-persona-discovery.md) into surgical current PRD updates and one implementation phase. The owner approved package drafting. This plan and its downstream backlog remain for owner review; neither authorizes implementation.
+Turn the [design](../../designs/2026-09-09-project-assets-and-persona-discovery.md) into surgical current PRD updates and one implementation phase. The owner accepted the package, authorized implementation and accepted the corrected result on 2026-09-09. The one-phase backlog and central evidence report record completion.
 
 ## Objective
 
@@ -148,11 +148,11 @@ Use jdocmunch for project authority and jcodemunch for implementation anchors. A
 
 Use the finite matrix in [Phase 1](01-assets-and-persona-cutover.md#acceptance-matrix). Map EP1–EP5 to their owning requirements and observed results. Package review checks headings, frontmatter, links, one-phase shape, exact command consistency, and current PRD authority. Implementation later checks actual directory trees, byte/link preservation, Store journaling, and fresh-context discovery. Do not claim those future checks already passed.
 
-The additional reserved Persona slugs `archive`, `artifacts`, `library`, and `playbooks` are a proposed implementation detail for owner review. `project` is already reserved by the approved direction. Existing conflicting custom audiences require an explicit retained-content rename map, not deletion.
+The additional reserved Persona slugs `archive`, `artifacts`, `library`, and `playbooks` were accepted and implemented as part of this package. `project` is already reserved by the approved direction. Existing conflicting custom audiences require an explicit retained-content rename map, not deletion.
 
 ## Intended Follow-On
 
 - Route: `prd-generation`
-- Next step: Finish current-owner PRD maintenance, then derive the one-phase work backlog.
+- Next step: Use the completed backlog and history to create the authorized implementation commit.
 - Why: The backlog must consume current product requirements rather than use a plan as substitute authority.
-- Coordinate Handoff: Carry W19 R4 into its backlog and later P1 evidence. W20 R0 and W21 R0 remain paused. Stop after the draft package for owner review; implementation has not been authorized.
+- Coordinate Handoff: Carry W19 R4 into its backlog and later P1 evidence. W20 R0 and W21 R0 remain paused. The owner accepted the corrected implementation and requested closeout and commit on 2026-09-09.

@@ -17,7 +17,6 @@ import type {
 const FOUNDATION_DIRECTORIES = [
   "",
   "docs",
-  "docs/assets",
   ".make-docs",
   ".make-docs/system",
   ".make-docs/system/contracts",
@@ -66,13 +65,12 @@ function expectedPaths(
 }
 
 describe("configured router path authority", () => {
-  it("returns nine foundation and four effective capability surfaces", () => {
+  it("returns eight foundation and four effective capability surfaces", () => {
     const profile = resolveInstallProfile(defaultSelections());
-    expect(getFoundationRouterPaths("AGENTS.md")).toHaveLength(9);
+    expect(getFoundationRouterPaths("AGENTS.md")).toHaveLength(8);
     expect(getConfiguredRouterPaths(profile, "AGENTS.md")).toEqual([
       "AGENTS.md",
       "docs/AGENTS.md",
-      "docs/assets/AGENTS.md",
       ".make-docs/AGENTS.md",
       ".make-docs/system/AGENTS.md",
       ".make-docs/system/contracts/AGENTS.md",
@@ -84,7 +82,7 @@ describe("configured router path authority", () => {
       "docs/prd/AGENTS.md",
       "docs/work/AGENTS.md",
     ]);
-    expect(getConfiguredRouterPaths(profile, "CLAUDE.md")).toHaveLength(13);
+    expect(getConfiguredRouterPaths(profile, "CLAUDE.md")).toHaveLength(12);
   });
 
   it("uses effective capability dependencies and ignores resource projection", () => {
@@ -98,7 +96,7 @@ describe("configured router path authority", () => {
     expect(paths).toContain("docs/plans/AGENTS.md");
     expect(paths).not.toContain("docs/prd/AGENTS.md");
     expect(paths).not.toContain("docs/work/AGENTS.md");
-    expect(paths).toHaveLength(11);
+    expect(paths).toHaveLength(10);
 
     selections.resourceProjection = [];
     expect(getConfiguredRouterPaths(resolveInstallProfile(selections), "AGENTS.md"))
@@ -176,14 +174,14 @@ describe("configured router path authority", () => {
       ].sort());
   });
 
-  it("keeps archive and artifacts separate from configured routes", () => {
+  it("keeps archive and assets separate from configured routes", () => {
     expect(getOnDemandRouterPaths("AGENTS.md")).toEqual([
       ".make-docs/archive/AGENTS.md",
-      "docs/artifacts/AGENTS.md",
+      "docs/assets/AGENTS.md",
     ]);
     expect(getOnDemandRouterPaths("CLAUDE.md")).toEqual([
       ".make-docs/archive/CLAUDE.md",
-      "docs/artifacts/CLAUDE.md",
+      "docs/assets/CLAUDE.md",
     ]);
   });
 });

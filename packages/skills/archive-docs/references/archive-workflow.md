@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Shared authority for the `archive-docs` skill. All modes in this skill defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `docs/assets/archive/AGENTS.md`; this file governs the workflow for getting there.
+Shared authority for the `archive-docs` skill. All modes in this skill defer to this file for workflow rules. Archive structure and the hard "never archive unless asked" rule are authoritative in `.make-docs/archive/AGENTS.md`; this file governs the workflow for getting there.
 
 ## Archival Modes
 
@@ -27,11 +27,11 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 - **Design** — scan `docs/plans/` for overview files linking back to the design.
 - **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `docs/assets/archive/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
+- **Plan/Work** — scan `.make-docs/archive/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Lateral Tracing
 
-- **Any artifact** — scan `docs/assets/library/developer/` and `docs/assets/library/user/` for guides with `related` frontmatter pointing to the artifact.
+- **Any artifact** — scan each effective `docs/assets/<persona-slug>/` for guides with `related` frontmatter pointing to the artifact.
 
 ### Slug-Based Heuristic
 
@@ -43,7 +43,7 @@ When link-based tracing produces no results, fall back to slug matching. A plan 
 2. **Trace relationships** — run upstream, downstream, and lateral tracing from each target.
 3. **Present findings** — group results by relationship type (upstream, downstream, lateral, slug-matched) with a recommendation for each (archive, skip, or flag for review).
 4. **Confirm** — wait for explicit user approval. The user may select all, some, or none.
-5. **Execute** — move approved artifacts to `docs/assets/archive/` per the sub-directory mapping below.
+5. **Execute** — move approved artifacts to `.make-docs/archive/` per the sub-directory mapping below.
 6. **Post-archive link rewriting** — scan remaining active artifacts for broken links and propose rewrites.
 
 ## Replacement Detection
@@ -66,7 +66,7 @@ After archival, scan all remaining active artifacts for links to newly archived 
 | 1 | All downstream phases complete | Work backlogs | Every `- [ ]` in every phase file is `- [x]` |
 | 2 | All downstream work complete | Plans | Every derived work backlog is fully complete per signal 1 |
 | 3 | All downstream plans and work complete | Designs | Every derived plan's work is complete per signal 2 |
-| 4 | Status is `deprecated` | Developer/user guides | Frontmatter contains `status: deprecated` |
+| 4 | Status is `deprecated` | Guides for every effective Persona | Frontmatter contains `status: deprecated` |
 | 5 | Superseded by newer artifact | Designs, plans | Detected via lineage frontmatter or same-slug heuristic |
 | 6 | No active references | Any | No non-archived artifact contains a link to it |
 
@@ -88,27 +88,27 @@ When running in dry-run or impact mode, produce the following:
 - **Files that would move** — each file with its archive destination path.
 - **Active artifacts with links to target(s)** — these links would break on archival.
 - **Proposed link rewrites** — old path to new path for each affected link.
-- **Guide and history reference count** — number of history records, developer guides, and user guides referencing the target.
+- **Guide and history reference count** — number of history records and guides for every effective Persona referencing the target.
 - **Incomplete downstream warning** — flag if any target has downstream work that is not yet complete.
 
 ## Archive Sub-Directory Mapping
 
-This mapping mirrors `docs/assets/archive/AGENTS.md`. Sub-directories are created on demand, not pre-created.
+This mapping mirrors `.make-docs/archive/AGENTS.md`. Sub-directories are created on demand, not pre-created.
 
 | Artifact type | Archive target |
 | --- | --- |
-| Design | `docs/assets/archive/designs/` |
-| Plan | `docs/assets/archive/plans/` |
-| Work | `docs/assets/archive/work/` |
-| PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` |
-| History record | `docs/assets/archive/history/` |
-| Developer guide | `docs/assets/archive/guides/developer/` |
-| User guide | `docs/assets/archive/guides/user/` |
+| Design | `.make-docs/archive/designs/` |
+| Plan | `.make-docs/archive/plans/` |
+| Work | `.make-docs/archive/work/` |
+| PRD set | `.make-docs/archive/prds/YYYY-MM-DD/` |
+| History record | `.make-docs/archive/history/` |
+| Maintainer guide | `.make-docs/archive/guides/maintainer/` |
+| User guide | `.make-docs/archive/guides/user/` |
 
 ## Hard Rules
 
 - NEVER archive without explicit user approval.
-- Archive structure authority is `docs/assets/archive/AGENTS.md`.
+- Archive structure authority is `.make-docs/archive/AGENTS.md`.
 - Archived artifacts preserve their original filenames.
 - W/R naming is preserved when archived (not rewritten).
 - PRD archives use dated sub-directories; use `-XX` zero-padded increment suffix when the same date repeats.

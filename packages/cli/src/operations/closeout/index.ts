@@ -15,7 +15,7 @@ import {
   valueAsRecord,
 } from "../shared";
 import { loadMakeDocsConfig } from "../../config";
-import { validateGeneratedDocumentMetadata } from "../../document-metadata";
+import { isPersonaScopedDocumentPath, validateGeneratedDocumentMetadata } from "../../document-metadata";
 import type {
   JsonValue,
   OperationResult,
@@ -48,7 +48,7 @@ export function buildCloseoutProbe(options: {
     scope: selectedScope,
     statusShort: safeRunGit(repoRoot, ["status", "--short"]).split(/\r?\n/).filter(Boolean),
     files: files as unknown as JsonValue,
-    contracts: discoverContracts(repoRoot) as unknown as JsonValue,
+    contracts: discoverContracts(repoRoot, config) as unknown as JsonValue,
     coordinates: extractCoordinates(files.map((file) => file.path)) as unknown as JsonValue,
     historyCandidates: discoverHistoryCandidates(
       repoRoot,
@@ -231,7 +231,7 @@ function classifyPath(filePath: string): string {
   if (filePath.startsWith("packages/skills/") || filePath.startsWith(".agents/skills/") || filePath.startsWith(".claude/skills/")) {
     return "skill";
   }
-  if (filePath.startsWith("docs/") || filePath.startsWith("packages/docs/template/docs/")) {
+  if (filePath.startsWith("docs/") || filePath.startsWith(".make-docs/archive/") || filePath.startsWith("packages/docs/template/docs/")) {
     return "docs";
   }
   if (/\.(json|ya?ml|toml)$/.test(filePath)) {
@@ -243,22 +243,20 @@ function classifyPath(filePath: string): string {
   return "other";
 }
 
-function discoverContracts(repoRoot: string): Record<string, JsonValue> {
+function discoverContracts(repoRoot: string, config: ReturnType<typeof loadMakeDocsConfig>["config"]): Record<string, JsonValue> {
   const candidates: Record<string, string[]> = {
     rootAgentInstructions: ["AGENTS.md", "CLAUDE.md"],
-    historyDir: ["docs/assets/archive/history"],
+    historyDir: [".make-docs/archive/history"],
     riskRegister: ["docs/prd/03-open-questions-and-risk-register.md"],
     commitConvention: [
       ".make-docs/system/contracts/commit-message-convention.md",
-      "docs/assets/references/commit-message-convention.md",
     ],
     templateCommitConvention: [
       "packages/docs/template/.make-docs/system/contracts/commit-message-convention.md",
-      "packages/docs/template/docs/assets/references/commit-message-convention.md",
     ],
     guideContract: [".make-docs/system/contracts/guide-contract.md"],
-    developerGuides: ["docs/assets/library/developer"],
-    userGuides: ["docs/assets/library/user"],
+    maintainerGuides: config.personas.filter((persona) => persona.primitive === "maintainer").map((persona) => `docs/assets/${persona.slug}`),
+    userGuides: config.personas.filter((persona) => persona.primitive === "user").map((persona) => `docs/assets/${persona.slug}`),
   };
   return Object.fromEntries(
     Object.entries(candidates).map(([name, paths]) => {
@@ -297,7 +295,7 @@ function discoverHistoryCandidates(
   repoRoot: string,
   coordinates: Array<Record<string, JsonValue>>,
 ): string[] {
-  const historyDir = path.join(repoRoot, "docs", "assets", "archive", "history");
+  const historyDir = path.join(repoRoot, ".make-docs", "archive", "history");
   if (!existsSync(historyDir) || !statSync(historyDir).isDirectory()) {
     return [];
   }
@@ -384,11 +382,6 @@ function validateChangedDocumentMetadata(
   return findings;
 }
 
-function isPersonaScopedDocumentPath(filePath: string): boolean {
-  const normalized = normalizePath(filePath);
-  return /^(?:packages\/docs\/template\/)?docs\/assets\/(library|playbooks)\/[^/]+\/[^/]+\.md$/u.test(normalized);
-}
-
 function validationHints(files: CloseoutFile[], repoRoot: string): string[] {
   const paths = files.map((file) => file.path);
   const categories = new Set(files.map((file) => file.category));
@@ -408,7 +401,7 @@ function validationHints(files: CloseoutFile[], repoRoot: string): string[] {
   if (paths.some((filePath) => filePath.startsWith("packages/cli/src/") || filePath.startsWith("packages/cli/tests/"))) {
     commands.push("npm run build -w packages/cli");
   }
-  if (paths.some((filePath) => filePath.startsWith("docs/") || filePath.startsWith("packages/docs/template/docs/"))) {
+  if (paths.some((filePath) => filePath.startsWith("docs/") || filePath.startsWith(".make-docs/archive/") || filePath.startsWith("packages/docs/template/docs/"))) {
     commands.push("scripts/check-instruction-routers.sh");
   }
   commands.push("git diff --check");
@@ -539,7 +532,17 @@ function renderHistory(
     "",
     "## Guide Decisions",
     "",
-    "No new developer guide was needed. No new user guide was needed.",
+    "### Project",
+    "",
+    "Review shared project guidance and record the coverage verdict before finalizing.",
+    "",
+    "### Maintainer",
+    "",
+    "Record the coverage verdict (create/update-existing/link-only/none), effective Persona slug and rationale.",
+    "",
+    "### User",
+    "",
+    "Record the coverage verdict (create/update-existing/link-only/none), effective Persona slug and rationale.",
     "",
     "## Validation",
     "",

@@ -14,7 +14,7 @@ coordinate: "{{COORDINATE}}"
 
 <!-- Remove unknown frontmatter keys instead of leaving placeholders or inventing values. -->
 
-<!-- Filename: docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md when W/R/P is known. If only W/R is known, omit p{P}; if no coordinate is known, use YYYY-MM-DD-<slug>.md. Keep stage/task details only in coordinate frontmatter. -->
+<!-- Filename: .make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md when W/R/P is known. If only W/R is known, omit p{P}; if no coordinate is known, use YYYY-MM-DD-<slug>.md. Keep stage/task details only in coordinate frontmatter. -->
 
 # {{TITLE}}
 
@@ -44,7 +44,7 @@ Project-level docs: READMEs, agent instructions, designs, plans, work backlogs, 
 
 If none, state "None this session."
 
-### Developer
+### Maintainer
 
 Docs intended for engineers, maintainers, or internal contributors.
 

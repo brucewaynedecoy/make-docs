@@ -50,6 +50,11 @@ describe("operation domain modules", () => {
       "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.validate",
+      "project.persona.list",
+      "project.layout.preview",
+      "project.layout.prepare",
+      "project.layout.apply",
+      "project.layout.verify",
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
@@ -73,7 +78,7 @@ describe("operation domain modules", () => {
       "uat.finding.validate",
       "uat.result.validate",
     ]);
-    expect(identifiers).toHaveLength(27);
+    expect(new Set(identifiers).size).toBe(identifiers.length);
 
     for (const domain of domains) {
       for (const command of domain.commands) {
@@ -95,6 +100,9 @@ describe("operation domain modules", () => {
     ).toEqual([
       "project.state.recover",
       "project.surface.ensure",
+      "project.layout.prepare",
+      "project.layout.apply",
+      "project.layout.verify",
       "work.evidence.record",
       "resource.ensure",
       "lifecycle.start",

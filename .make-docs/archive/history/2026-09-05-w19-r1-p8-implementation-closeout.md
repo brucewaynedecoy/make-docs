@@ -34,11 +34,11 @@ The current project router places history in `.make-docs/archive/history/`. This
 
 | Path | Description |
 | --- | --- |
-| [Conformance contracts](../../../docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md) | Separates historical packaging evidence from current support. |
-| [Former packaging guide](../../../docs/assets/library/developer/playbooks-development-packaging-and-harness-adapters.md) | Marks the retired product guidance as historical. |
+| [Conformance contracts](../../../docs/assets/maintainer/conformance-lab-scenario-and-result-contracts.md) | Separates historical packaging evidence from current support. |
+| [Former packaging guide](../legacy-playbooks/library/developer/playbooks-development-packaging-and-harness-adapters.md) | Marks the retired product guidance as historical. |
 
 ### User
 
 | Path | Description |
 | --- | --- |
-| [Former packaging guide](../../../docs/assets/library/user/playbooks-packaging-shareable-agent-workflows.md) | Retains the old link with a retirement notice. |
+| [Former packaging guide](../legacy-playbooks/library/user/playbooks-packaging-shareable-agent-workflows.md) | Retains the old link with a retirement notice. |

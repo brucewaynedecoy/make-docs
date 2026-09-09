@@ -208,6 +208,10 @@ export async function runResourceCommand(argv: string[]): Promise<void> {
 }
 
 export async function runProjectCommand(argv: string[]): Promise<void> {
+  if (argv[0] === "layout" || argv[0] === "persona") {
+    await runProjectLayoutCommand(argv);
+    return;
+  }
   if (argv[0] === "state") {
     await runProjectStateCommand(argv.slice(1));
     return;
@@ -216,6 +220,10 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
     process.stdout.write(
       [
         "Usage: make-docs project surface ensure <archive|artifacts|assets>",
+        "       make-docs project persona list [--target-root <path>] [--json]",
+        "       make-docs project layout preview [--map <source>=<destination>] [--json]",
+        "       make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
+        "       make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
         "       make-docs project state status [--target-root <path>] [--json]",
         "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
         "",
@@ -239,19 +247,32 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
     noun !== "surface" ||
     verb !== "ensure" ||
     !surface ||
-    rest.length > 0 ||
     !["archive", "artifacts", "assets"].includes(surface)
   ) {
     throw new OperationError(
       "Use `make-docs project surface ensure <archive|artifacts|assets>`.",
     );
   }
+  let targetRoot: string | undefined;
+  let json = false;
+  let dryRun = false;
+  const seen = new Set<string>();
+  while (rest.length) {
+    const flag = rest.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    if (flag === '--json') json = true;
+    else if (flag === '--dry-run') dryRun = true;
+    else if (flag === '--target-root') {const value = rest.shift(); if (!value || value.startsWith('--')) throw new OperationError('--target-root requires a path.'); targetRoot = path.resolve(value);}
+    else throw new OperationError(`Unexpected surface option: ${flag}.`);
+  }
   const invocation = await invokeOperation(
     "project.surface.ensure",
-    { surface },
-    createExecutionContext({ surface: "cli", writesAllowed: true }),
+    { surface, ...(targetRoot ? {targetRoot} : {}) },
+    createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: true, dryRun }),
   );
   const value = invocation.value as unknown as ProjectSurfaceEnsureOutput;
+  if (json) {printJson(value); return;}
   const planLines = value.plan.actions.map((action) =>
     `- ${action.disposition ?? action.type}: ${action.relativePath}`,
   );
@@ -265,6 +286,8 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
     [
       `Target: ${value.targetRoot}`,
       `Project surface: ${value.surface}`,
+      `Ensured root: ${value.ensuredPath}`,
+      `Content destination: ${value.contentDestination} (${value.contentDestinationExists ? 'exists' : 'not created; create it when content needs it'})`,
       `State: ${state}`,
       "Plan dispositions:",
       ...planLines,
@@ -273,6 +296,76 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
       "",
     ].join("\n"),
   );
+}
+
+async function runProjectLayoutCommand(argv: string[]): Promise<void> {
+  const [noun, verb, ...args] = argv;
+  if (!verb || verb === '--help' || verb === '-h') {
+    process.stdout.write((noun === 'persona' ? [
+      'Usage: make-docs project persona list [--target-root <path>] [--json]',
+      'Read effective project audiences. This command needs no Store and writes no files.',
+    ] : [
+      'Usage: make-docs project layout preview [--map <source>=<destination>]',
+      '       make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>]',
+      '       make-docs project layout apply <operation-id>',
+      '       make-docs project layout verify <operation-id>',
+      'All commands accept --target-root <path> and --json. Repeat --map for each reviewed choice.',
+      'Preview reads only. Prepare saves required Store state before any file move.',
+      'Apply moves a prepared CLI plan. Verify checks a prepared manual plan after you move files.',
+      'A pending plan blocks conflicting managed writes. Use project state status or recover to inspect it.',
+      'Manual-mode recovery resume checks completion; it does not perform the manual file moves.',
+    ]).concat('').join('\n'));
+    return;
+  }
+  if (noun === 'persona' ? verb !== 'list' : !['preview', 'prepare', 'apply', 'verify'].includes(verb)) throw new OperationError(`Unknown project ${noun} command: ${verb}.`);
+  let targetRoot: string | undefined, review: string | undefined, mode: string | undefined, operationId: string | undefined;
+  let json = false;
+  const mappings: string[] = [], seen = new Set<string>();
+  while (args.length) {
+    const arg = args.shift()!;
+    if (arg.startsWith('--') && arg !== '--map') {
+      if (seen.has(arg)) throw new OperationError(`Option ${arg} can be given only once.`);
+      seen.add(arg);
+    }
+    const value = () => {const next = args.shift(); if (!next || next.startsWith('--')) throw new OperationError(`${arg} requires a value.`); return next;};
+    if (arg === '--json') json = true;
+    else if (arg === '--target-root') targetRoot = path.resolve(value());
+    else if (arg === '--map' && noun === 'layout' && ['preview', 'prepare'].includes(verb)) mappings.push(value());
+    else if (arg === '--review' && noun === 'layout' && verb === 'prepare') review = value();
+    else if (arg === '--mode' && noun === 'layout' && verb === 'prepare') mode = value();
+    else if (!arg.startsWith('-') && noun === 'layout' && ['apply', 'verify'].includes(verb) && !operationId) operationId = arg;
+    else throw new OperationError(`Unexpected argument for project ${noun} ${verb}: ${arg}.`);
+  }
+  if (verb === 'prepare' && (!review || !['cli', 'manual'].includes(mode ?? ''))) throw new OperationError('Preparation requires --review <digest> and --mode cli|manual.');
+  if (['apply', 'verify'].includes(verb) && !operationId) throw new OperationError(`${verb} requires one prepared operation ID.`);
+  const invocation = await invokeOperation(`project.${noun}.${verb}`, {
+    ...(targetRoot ? {targetRoot} : {}),
+    ...(noun === 'layout' && ['preview', 'prepare'].includes(verb) ? {mappings} : {}),
+    ...(verb === 'prepare' ? {review, mode} : {}),
+    ...(operationId ? {operationId} : {}),
+  }, createExecutionContext({surface: 'cli', cwd: targetRoot, writesAllowed: noun === 'layout' && verb !== 'preview'}));
+  const result = invocation.value as Record<string, any>;
+  if (result.status === 'blocked') process.exitCode = 1;
+  if (json) {printJson(result); return;}
+  if (noun === 'persona') {
+    process.stdout.write([`Project: ${result.targetRoot}`, ...result.personas.map((persona: any) => `${persona.slug}: ${persona.label} (${persona.primitive}) — ${persona.description}`), 'Read only. No Store or project files changed.', ''].join('\n'));
+    return;
+  }
+  process.stdout.write([
+    `Layout: ${result.status}`,
+    ...(result.targetRoot ? [`Project: ${result.targetRoot}`] : []),
+    ...(result.reviewDigest ? [`Review digest: ${result.reviewDigest}`] : []),
+    ...(result.operationId ? [`Operation: ${result.operationId}`] : []),
+    ...(result.entries ?? []).filter((entry: any) => entry.disposition !== 'preserve').map((entry: any) => `- ${entry.disposition}: ${entry.path}${entry.destination ? ` -> ${entry.destination}` : ''}`),
+    ...(result.linkEdits ? [`Link text edits: ${result.linkEdits.length}`] : []),
+    ...(result.linkChecks ? [`Unchanged link target checks: ${result.linkChecks.length}`] : []),
+    ...(result.linkEdits ?? []).map((edit: any) => `- Link text in ${edit.destination}: ${edit.before} -> ${edit.after}`),
+    ...(result.metadataEdits ?? []).map((edit: any) => `- Persona metadata in ${edit.destination ?? edit.source}: ${JSON.stringify(edit.before)} -> ${JSON.stringify(edit.after)}`),
+    ...(result.instructions ?? []).map((instruction: any) => `- ${instruction.action}: ${instruction.source ? `${instruction.source} -> ` : ''}${instruction.path}${instruction.after.digest ? ` (SHA-256 ${instruction.after.digest})` : ''}`),
+    ...(result.blockers ?? result.conflicts ?? []).map((blocker: string) => `Review: ${blocker}`),
+    ...(result.notice ? [result.notice, 'Use --json to obtain the exact saved file bytes for manual writes.'] : []),
+    ...(result.nextAction ? [`Next: ${result.nextAction}`] : []), '',
+  ].join('\n'));
 }
 
 async function runProjectStateCommand(argv: string[]): Promise<void> {

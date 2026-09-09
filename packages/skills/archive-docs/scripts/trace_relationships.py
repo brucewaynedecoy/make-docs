@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -20,12 +21,12 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 ARTIFACT_DIRS: dict[str, str] = {
-    "assets/archive/history": "history_record",
+    "../.make-docs/archive/history": "history_record",
     "designs": "design",
     "plans": "plan",
     "work": "work",
-    "assets/library/developer": "developer_guide",
-    "assets/library/user": "user_guide",
+    "assets/maintainer": "maintainer_guide",
+    "assets/user": "user_guide",
 }
 
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
@@ -68,7 +69,13 @@ def discover_artifacts(doc_root: Path) -> dict[str, dict[str, Any]]:
     """Walk known subdirectories and collect artifacts."""
     artifacts: dict[str, dict[str, Any]] = {}
 
-    for sub, kind in ARTIFACT_DIRS.items():
+    directories = dict(ARTIFACT_DIRS)
+    assets = doc_root / "assets"
+    if assets.is_dir():
+        for candidate in assets.iterdir():
+            if candidate.is_dir() and not candidate.is_symlink() and candidate.name not in {"project", "archive", "artifacts", "library", "playbooks"}:
+                directories.setdefault(f"assets/{candidate.name}", "persona_guide")
+    for sub, kind in directories.items():
         subdir = doc_root / sub
         if not subdir.is_dir():
             continue
@@ -77,15 +84,15 @@ def discover_artifacts(doc_root: Path) -> dict[str, dict[str, Any]]:
             if entry.is_file() and entry.suffix == ".md":
                 if entry.name in ROUTER_FILENAMES:
                     continue
-                rel = str(entry.relative_to(doc_root))
+                rel = os.path.relpath(entry, doc_root)
                 artifacts[rel] = _new_artifact(kind)
             elif entry.is_dir():
                 # Directory-style artifact (plans, work)
-                rel = str(entry.relative_to(doc_root)) + "/"
+                rel = os.path.relpath(entry, doc_root) + "/"
                 artifacts[rel] = _new_artifact(kind)
                 # Also index child markdown files for link extraction
                 for md in sorted(entry.rglob("*.md")):
-                    child_rel = str(md.relative_to(doc_root))
+                    child_rel = os.path.relpath(md, doc_root)
                     if child_rel not in artifacts:
                         artifacts[child_rel] = _new_artifact(kind)
 
@@ -147,8 +154,10 @@ def resolve_link(source_file: str, href: str, doc_root: Path) -> str | None:
         source = doc_root / source_file
         base = source.parent if source.is_file() else source
         resolved = (base / href).resolve()
-        rel = resolved.relative_to(doc_root.resolve())
-        result = str(rel)
+        allowed = [doc_root.resolve(), (doc_root.parent / ".make-docs/archive").resolve()]
+        if not any(resolved == base or base in resolved.parents for base in allowed):
+            return None
+        result = os.path.relpath(resolved, doc_root.resolve())
         if resolved.is_dir():
             result += "/"
         return result
@@ -186,7 +195,7 @@ def build_link_relationships(
                 text = md.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            src_rel = str(md.relative_to(doc_root))
+            src_rel = os.path.relpath(md, doc_root)
 
             for href in extract_links(text):
                 target = resolve_link(src_rel, href, doc_root)
@@ -217,7 +226,7 @@ def build_lateral_relationships(
     artifact_keys = set(artifacts.keys())
 
     for art_path, art in list(artifacts.items()):
-        if art["type"] not in ("developer_guide", "user_guide"):
+        if art["type"] not in ("maintainer_guide", "user_guide", "persona_guide"):
             continue
         full = doc_root / art_path
         if not full.is_file():

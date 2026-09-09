@@ -18,7 +18,7 @@ import { isRetiredConformanceScenario } from "./historical-contract";
  * from PRD 20 is consumed unchanged. `schemaVersion` stays
  * `conformance.scenario.v1` / `conformance.result.v1`, the lab's required
  * spec and result fields keep their exact names and meanings (see
- * `docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md`),
+ * `docs/assets/maintainer/conformance-lab-scenario-and-result-contracts.md`),
  * scenarios stay model-agnostic with model, provider, and runtime captured as
  * run metadata, the five verdicts are reused from `registry.ts`, and a
  * scenario that cannot run for a missing precondition resolves `blocked`

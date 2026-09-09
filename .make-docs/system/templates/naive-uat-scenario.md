@@ -87,5 +87,5 @@ Record observed behavior, expected human outcome, severity, reproducibility, sup
 - Increment `scenario_version` for a material change to the same goal.
 - Use a new `NUAT-###` only for a materially different goal, audience, support claim, or risk.
 - Keep Persona-specific packets, runs, findings, and approved evidence under `docs/assets/<persona-slug>/testing/`.
-- Do not store Unassisted Goal Testing evidence under `.make-docs/archive/` or `docs/artifacts/`.
+- Do not store Unassisted Goal Testing evidence under `.make-docs/archive/` or `docs/assets/project/`.
 - Keep the stable filename and `NUAT-###` identity for compatibility.

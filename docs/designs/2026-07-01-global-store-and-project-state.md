@@ -6,7 +6,7 @@ This design defines the machine-level global store at `~/.make-docs/` and the un
 
 It exists because Make Docs v2 reintroduced per-repository operational state, the Playbook run files and the work-lifecycle checkpoint files, which is the same duplication-and-noise pattern the v2 script-to-CLI migration was meant to remove. Relocating that operational state to a machine-level store removes it from every repository while giving Make Docs one coherent place to manage state.
 
-The full architecture this design draws from is recorded in [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md). It is consumed by [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md), which stores run-state here, and it resolves the storage question raised by the work-execution evidence disposition in [migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md).
+The full architecture this design draws from is recorded in [Runtime and Global Store](../assets/project/runtime-and-global-store.md). It is consumed by [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md), which stores run-state here, and it resolves the storage question raised by the work-execution evidence disposition in [migrated-operations-inventory.md](../assets/project/migrated-operations-inventory.md).
 
 ## Context
 
@@ -29,8 +29,8 @@ R-SCOPE-1 (MUST NOT). The following are owned elsewhere and MUST NOT be redefine
 - The Playbook run-state record shape and its progression semantics. Owned by [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md); this design owns where it is stored and how it fits the project-state model.
 - Project `.make-docs/config.yaml` and its overlay rules. Owned by [Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md).
 - The local bootstrap guarantee and the pinned global asset cache. Owned by [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md).
-- The CLI command tree and the operation registry. Owned by [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md).
-- The pruning of the removed work and closeout operations. Tracked by [migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md).
+- The CLI command tree and the operation registry. Owned by [CLI Command Reorganization](../assets/project/cli-command-reorganization.md).
+- The pruning of the removed work and closeout operations. Tracked by [migrated-operations-inventory.md](../assets/project/migrated-operations-inventory.md).
 
 ### D1. The Boundary Principle
 

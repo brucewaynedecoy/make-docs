@@ -1,7 +1,7 @@
 ---
 title: "Project Assets and Persona Discovery"
 kind: "work"
-status: "draft"
+status: "completed"
 coordinate: "W19 R4"
 source:
   type: "prd"
@@ -10,7 +10,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "make-docs://system/reference/execution-workflow.md"
   why: "The reviewed backlog is the implementation queue for the current asset, Persona, and migration requirements."
-  coordinate_handoff: "After owner acceptance and implementation authorization, execute W19 R4 P1; keep W20 R0 and W21 R0 paused."
+  coordinate_handoff: "Execute the authorized W19 R4 P1; keep W20 R0 and W21 R0 paused. Require evidence and phase acceptance before closure."
 ---
 
 # Project Assets and Persona Discovery
@@ -19,7 +19,9 @@ follow_on:
 
 Implement the current asset, Persona, configuration, and migration requirements in one phase. This backlog follows the [design](../../designs/2026-09-09-project-assets-and-persona-discovery.md) and [plan](../../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Product authority remains in the PRDs linked by the phase.
 
-The owner approved the direction and package drafting. This backlog is a draft for owner review and acceptance. **Implementation has not started and is not authorized by package drafting.** Every task remains unchecked.
+The owner accepted the package and authorized W19 R4 implementation after package commit `532b29cf`. **Implementation started on 2026-09-09.** Tasks remain unchecked until their required evidence is complete. W20 R0 and W21 R0 remain paused.
+
+The [evidence and experience report](./evidence.md) retains the fresh-context test and the verified real migration. The prior package passed all 1,077 tests. Owner review then found missed current Persona names in guide resources and related contracts. The correction, new package, installed refresh and final current-guide audit are complete. The corrected build passed 1,087 tests; final defaults passed 50/50. The owner accepted the corrected phase on 2026-09-09 and requested closeout and commit. This closeout records phase completion. The implementation commit is authorized and remains the next action.
 
 ## Phase Map
 
@@ -41,6 +43,8 @@ The owner approved the direction and package drafting. This backlog is a draft f
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Owner review and acceptance of this backlog, followed by explicit implementation authorization; then start Phase 1.
+- Next step: Create the owner-requested implementation commit from the accepted closeout. Keep W20 R0 and W21 R0 paused pending separate resume instructions.
 - Why: The backlog turns current product requirements into a finite implementation queue with visible completion evidence.
 - Coordinate Handoff: Use W19 R4 P1 for implementation evidence, phase history, and later commits. Keep R3 closed and W20 R0/W21 R0 paused. Drafting this package does not start the phase.
+
+Closeout: [W19 R4 P1 history](../../../.make-docs/archive/history/2026-09-09-w19-r4-p1-project-assets-and-persona-discovery.md). The package remains in place; no archive move was requested.

@@ -6,13 +6,13 @@ This design reorganizes the Make Docs CLI command surface and formalizes the ope
 
 It exists because Make Docs v2 grew the CLI without reorganizing it: the install commands sit at the top level beside two large new top-level commands, `operations` and `mcp`, the tool has no self-management commands although it is now an installed artifact, and the CLI and MCP surfaces are hand-maintained parallel mirrors that drift.
 
-The resolved decisions this design captures are recorded in [cli-command-reorganization.md](../assets/artifacts/cli-command-reorganization.md), and the operation registry is introduced in [Playbook Architecture and Design](../assets/artifacts/playbook-architecture.md), Section 0.6.
+The resolved decisions this design captures are recorded in [cli-command-reorganization.md](../assets/project/cli-command-reorganization.md), and the operation registry is introduced in [Playbook Architecture and Design](../assets/project/playbook-architecture.md), Section 0.6.
 
 ## Context
 
 The CLI is the npm package `@brucewaynedecoy/make-docs`, distributed for remote execution and installable as a binary. Two prior designs frame this reorganization and are preserved. The CLI separation and MCP boundary design and the TypeScript runtime pivot establish that TypeScript is the v2 runtime authority, that Rust is shelved and is not a design target, that remote execution through `npx`, `pnpm dlx`, and `bunx` is the primary posture while persistent local installation is not, that the installer-first no-command posture remains meaningful, that MCP tools must delegate to the same deterministic operation contract as the equivalent CLI command rather than defining a second behavior model, and that deterministic logic lives in modular TypeScript operation domains behind thin dispatchers.
 
-This design formalizes those constraints into a registry and a reorganized tree, and it consumes two decisions made in this design set. The operation registry underlies the Playbook `operation:` field and the runner, and the retained work-execution operations key to the project-state model in [Global Store and Project State](2026-07-01-global-store-and-project-state.md). The pruning of the derivation operations, recorded in [migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md), simplifies the `run` surface.
+This design formalizes those constraints into a registry and a reorganized tree, and it consumes two decisions made in this design set. The operation registry underlies the Playbook `operation:` field and the runner, and the retained work-execution operations key to the project-state model in [Global Store and Project State](2026-07-01-global-store-and-project-state.md). The pruning of the derivation operations, recorded in [migrated-operations-inventory.md](../assets/project/migrated-operations-inventory.md), simplifies the `run` surface.
 
 This repository is the Make Docs maintainer repo and a dogfood instance. The CLI is ordinary source code under the CLI package, authored in place. Any template-owned instruction router, guide, or README that names old command spellings is authored upstream in `packages/docs/template/` and dogfooded downstream, per the maintainer dogfooding rule.
 
@@ -24,7 +24,7 @@ This design owns exactly: the top-level command structure (D2), bare-command beh
 
 R-SCOPE-1 (MUST NOT). The following are owned elsewhere and MUST NOT be redefined here:
 
-- The internal logic of the operations and the pruning removals. Tracked by [migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md).
+- The internal logic of the operations and the pruning removals. Tracked by [migrated-operations-inventory.md](../assets/project/migrated-operations-inventory.md).
 - The Playbook model, runner, packaging, and conformance. Owned by their respective designs.
 - The global store schema and the project-state model. Owned by [Global Store and Project State](2026-07-01-global-store-and-project-state.md).
 - The CLI and MCP boundary and the TypeScript runtime authority. Preserved from the predecessor designs and not reopened.
@@ -107,7 +107,7 @@ R-SEQ-1 (MUST). Establish the operation core, the registry, and the reorganized 
 
 R-SEQ-2 (SHOULD). The internal modularization of the messiest retained logic may be a tracked follow-up. The removal of the pruned operations is tracked separately by the inventory disposition and MUST NOT block the reorganization.
 
-R-SEQ-3 (MUST). The no-scripts migration correctly moved deterministic logic out of skill-local scripts, but the destination for derivation-heavy behavior is a Playbook, not a CLI operation. Only logic that earns a slot by the filter in [NORTHSTAR.md](../assets/artifacts/NORTHSTAR.md), a fact-of-record or a fiddly and genuinely reused canonical-identity or parse primitive, is retained as a registry operation.
+R-SEQ-3 (MUST). The no-scripts migration correctly moved deterministic logic out of skill-local scripts, but the destination for derivation-heavy behavior is a Playbook, not a CLI operation. Only logic that earns a slot by the filter in [NORTHSTAR.md](../assets/project/NORTHSTAR.md), a fact-of-record or a fiddly and genuinely reused canonical-identity or parse primitive, is retained as a registry operation.
 
 ### D9. Non-Negotiable Decisions and Deliberately Open Choices
 

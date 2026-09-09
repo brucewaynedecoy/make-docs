@@ -6,7 +6,7 @@ This design defines how Make Docs compiles Playbooks into real, harness-native d
 
 It exists to correct two verified implementation failures while preserving the reviewed packaging architecture already accepted. The current writer emits a Make Docs descriptor instead of harness-native content, and the Codex adapter declares an assumed path that does not match the real Codex plugin shape. Together these are why a generated Codex package was not recognized by Codex. This design makes the compiler produce real harness-native artifacts and requires adapter contracts to be verified against the actual harness.
 
-The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/artifacts/playbook-architecture.md), Sections 6 through 8. It consumes the Playbook model from [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md) and the run-time behavior from [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md), and it preserves, without reopening, the packaging pipeline and adapter-registry model established by [Playbook Packaging and Harness Adapter Registry](2026-06-29-playbook-packaging-and-harness-adapter-registry.md).
+The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/project/playbook-architecture.md), Sections 6 through 8. It consumes the Playbook model from [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md) and the run-time behavior from [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md), and it preserves, without reopening, the packaging pipeline and adapter-registry model established by [Playbook Packaging and Harness Adapter Registry](2026-06-29-playbook-packaging-and-harness-adapter-registry.md).
 
 ## Context
 
@@ -16,7 +16,7 @@ The W18 R5 packaging design established the reviewed pipeline, the deterministic
 
 Two failures in the current implementation motivate this design. The writer produces a descriptor whose kind is a Make Docs type rather than a harness-native manifest, so no harness treats it as an installable artifact. The Codex adapter declares a plugin path under a standard skills-style location, while the real Codex plugin shape is a folder containing a plugin manifest plus a marketplace registration. The architecture also adds structure the W18 R5 design did not fully specify: a multi-file distributable inventory, a formal harness capability and distributable model, dependency materialization rules per dependency kind, and a marketplace registration seam.
 
-Dependencies owned elsewhere are referenced, not redefined. The compiler consumes the Playbook model and its rich step, dependency, and activation content from the contract-and-model design. It reuses the existing exposure plumbing, meaning the canonical payload under the staging area, the exposure mirror placed by symlink or copy-mirror, and manifest ownership records. Generated outputs that drive Make Docs reference operation identifiers from the registry owned by [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md).
+Dependencies owned elsewhere are referenced, not redefined. The compiler consumes the Playbook model and its rich step, dependency, and activation content from the contract-and-model design. It reuses the existing exposure plumbing, meaning the canonical payload under the staging area, the exposure mirror placed by symlink or copy-mirror, and manifest ownership records. Generated outputs that drive Make Docs reference operation identifiers from the registry owned by [CLI Command Reorganization](../assets/project/cli-command-reorganization.md).
 
 This repository is the Make Docs maintainer repo and a dogfood instance. The compiler and adapters are Make Docs operation-core code under the CLI package and are ordinary source code, not dogfooded template assets. Any Make Docs-owned documentation, contract, or config-schema resource this design implies is authored upstream in `packages/docs/template/` and dogfooded downstream, per the maintainer dogfooding rule.
 
@@ -31,7 +31,7 @@ R-SCOPE-1 (MUST NOT). The following are owned elsewhere and MUST NOT be redefine
 - The Playbook document schema, workflow contract, step model, dependency registry, Playbook model, parser, and validator. Owned by [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md).
 - The run-state machine and run-time execution. Owned by [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md).
 - Conformance and the tuple registry. Owned by the conformance design; see architecture artifact Section 9.
-- The operation registry's materialization, the CLI command tree, and the global store. Owned by [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md) and [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md).
+- The operation registry's materialization, the CLI command tree, and the global store. Owned by [CLI Command Reorganization](../assets/project/cli-command-reorganization.md) and [Runtime and Global Store](../assets/project/runtime-and-global-store.md).
 
 ### D1. Preserved Prior Decisions
 

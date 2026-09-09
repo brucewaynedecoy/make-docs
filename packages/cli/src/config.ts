@@ -4,7 +4,8 @@ import { parseDocument } from "yaml";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import { assertManagedPathHasNoSymlinks, readTextFile } from "./utils";
 
-export const PERSONA_PRIMITIVES = ["agent", "maintainer", "user"] as const;
+export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
+export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
 export type PersonaPrimitive = (typeof PERSONA_PRIMITIVES)[number];
 
 export const PERSONA_SLUG_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -77,6 +78,8 @@ export interface MakeDocsConfigDiagnostic {
     | "invalid-harness-capability-id"
     | "invalid-review-status"
     | "invalid-primitive"
+    | "reserved-persona-slug"
+    | "fixed-persona-primitive"
     | "invalid-type"
     | "missing-required-key"
     | "parse-error"
@@ -87,7 +90,14 @@ export interface MakeDocsConfigDiagnostic {
   message: string;
 }
 
+export interface PersonaDisplaySources {
+  label: "shipped" | "configured";
+  description: "shipped" | "configured";
+}
+
 export interface LoadedMakeDocsConfig {
+  configuredPersonaSlugs: string[];
+  personaDisplaySources: Record<string, PersonaDisplaySources>;
   config: MakeDocsConfig;
   configPath: string;
   diagnostics: MakeDocsConfigDiagnostic[];
@@ -200,25 +210,16 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
     harnessCapabilities: [],
     personas: [
       {
-        slug: "agent",
-        label: "Agent",
-        description:
-          "Agents executing make-docs workflows, coverage passes, closeout, and lifecycle tasks.",
-        primitive: "agent",
-      },
-      {
-        slug: "developer",
-        label: "Developer",
-        description:
-          "Maintainers, contributors, integrators, operators, validation owners, and extension authors.",
-        primitive: "maintainer",
-      },
-      {
         slug: "user",
         label: "User",
-        description:
-          "People using the shipped product, reading task guidance, or adopting a documented workflow.",
+        description: "People or agents that use the project.",
         primitive: "user",
+      },
+      {
+        slug: "maintainer",
+        label: "Maintainer",
+        description: "People or agents that build, operate, maintain, or extend the project.",
+        primitive: "maintainer",
       },
     ],
   };
@@ -270,6 +271,8 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   if (!existsSync(configPath)) {
     return {
       config: defaults,
+      configuredPersonaSlugs: [],
+      personaDisplaySources: getPersonaDisplaySources(defaults, []),
       configPath,
       diagnostics: [],
       present: false,
@@ -295,9 +298,11 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   }
 
   const parsed = document.toJSON() as unknown;
-  if (parsed === null || parsed === undefined) {
+  if ((parsed === null || parsed === undefined) && document.contents === null) {
     return {
       config: defaults,
+      configuredPersonaSlugs: [],
+      personaDisplaySources: getPersonaDisplaySources(defaults, []),
       configPath,
       diagnostics: [],
       present: true,
@@ -334,6 +339,8 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
 
   return {
     config,
+    configuredPersonaSlugs: Array.isArray(parsed.personas) ? parsed.personas.map((entry: { slug: string }) => entry.slug.trim()) : [],
+    personaDisplaySources: getPersonaDisplaySources(config, parsed.personas),
     configPath,
     diagnostics: [],
     present: true,
@@ -369,6 +376,8 @@ function invalidConfigResult(
 ): LoadedMakeDocsConfig {
   return {
     config: createDefaultMakeDocsConfig(),
+    configuredPersonaSlugs: [],
+    personaDisplaySources: getPersonaDisplaySources(createDefaultMakeDocsConfig(), []),
     configPath,
     diagnostics,
     present: true,
@@ -490,101 +499,70 @@ function applyGeneratedProse(
   }
 }
 
+function getPersonaDisplaySources(config: MakeDocsConfig, value: unknown): Record<string, PersonaDisplaySources> {
+  const entries = Array.isArray(value) ? value : [];
+  return Object.fromEntries(config.personas.map(persona => {
+    const configured = entries.find(entry => isPlainObject(entry) && typeof entry.slug === "string" && entry.slug.trim() === persona.slug);
+    const builtin = persona.slug === "user" || persona.slug === "maintainer";
+    return [persona.slug, {
+      label: !builtin || (configured && Object.hasOwn(configured, "label")) ? "configured" : "shipped",
+      description: !builtin || (configured && Object.hasOwn(configured, "description")) ? "configured" : "shipped",
+    }];
+  }));
+}
+
 function applyPersonas(
   value: unknown,
   config: MakeDocsConfig,
   filePath: string,
   diagnostics: MakeDocsConfigDiagnostic[],
 ): void {
-  if (value === undefined) {
-    return;
-  }
-
+  if (value === undefined) return;
   if (!Array.isArray(value)) {
     addInvalidTypeDiagnostic(diagnostics, filePath, "personas", "an array");
     return;
   }
-
-  const personasBySlug = new Map(
-    config.personas.map((persona) => [persona.slug, persona] as const),
-  );
+  const personasBySlug = new Map(config.personas.map(persona => [persona.slug, persona]));
   const configuredSlugs = new Set<string>();
-
   for (const [index, entry] of value.entries()) {
     const entryPath = `personas[${index}]`;
     if (!isPlainObject(entry)) {
       addInvalidTypeDiagnostic(diagnostics, filePath, entryPath, "an object");
       continue;
     }
-
-    validateKeys({
-      allowedKeys: PERSONA_KEYS,
-      diagnostics,
-      filePath,
-      keyPath: entryPath,
-      value: entry,
-    });
-
+    validateKeys({ allowedKeys: PERSONA_KEYS, diagnostics, filePath, keyPath: entryPath, value: entry });
     const slug = getRequiredString(entry, "slug", entryPath, filePath, diagnostics);
-    const label = getRequiredString(entry, "label", entryPath, filePath, diagnostics);
-    const description = getRequiredString(
-      entry,
-      "description",
-      entryPath,
-      filePath,
-      diagnostics,
-    );
-    const primitive = getRequiredString(
-      entry,
-      "primitive",
-      entryPath,
-      filePath,
-      diagnostics,
-    );
-
-    if (!slug || !label || !description || !primitive) {
-      continue;
-    }
-
+    if (!slug) continue;
     if (!PERSONA_SLUG_PATTERN.test(slug)) {
-      diagnostics.push({
-        code: "invalid-type",
-        filePath,
-        keyPath: joinKeyPath(entryPath, "slug"),
-        message: `Invalid make-docs config at ${filePath} (${joinKeyPath(entryPath, "slug")}): persona slug must be lowercase kebab-case.`,
-      });
+      addInvalidTypeDiagnostic(diagnostics, filePath, `${entryPath}.slug`, "a lowercase kebab-case slug");
       continue;
     }
-
     if (configuredSlugs.has(slug)) {
-      diagnostics.push({
-        code: "duplicate-persona-slug",
-        filePath,
-        keyPath: joinKeyPath(entryPath, "slug"),
-        message: `Invalid make-docs config at ${filePath} (${joinKeyPath(entryPath, "slug")}): duplicate persona slug '${slug}'.`,
-      });
+      diagnostics.push({ code: "duplicate-persona-slug", filePath, keyPath: `${entryPath}.slug`, message: `Duplicate persona slug '${slug}'.` });
       continue;
     }
     configuredSlugs.add(slug);
-
-    if (!PERSONA_PRIMITIVES.includes(primitive as PersonaPrimitive)) {
-      diagnostics.push({
-        code: "invalid-primitive",
-        filePath,
-        keyPath: joinKeyPath(entryPath, "primitive"),
-        message: `Invalid make-docs config at ${filePath} (${joinKeyPath(entryPath, "primitive")}): primitive must be one of ${PERSONA_PRIMITIVES.join(", ")}.`,
-      });
+    if (RESERVED_PERSONA_SLUGS.has(slug)) {
+      diagnostics.push({ code: "reserved-persona-slug", filePath, keyPath: `${entryPath}.slug`, message: `Persona slug '${slug}' is reserved for project structure. Review a new slug and retained-content destination; no content was moved.` });
       continue;
     }
-
-    personasBySlug.set(slug, {
-      slug,
-      label,
-      description,
-      primitive: primitive as PersonaPrimitive,
-    });
+    const builtin = slug === "user" || slug === "maintainer" ? personasBySlug.get(slug)! : undefined;
+    const field = (key: "label" | "description" | "primitive") =>
+      builtin && !Object.hasOwn(entry, key) ? builtin[key] : getRequiredString(entry, key, entryPath, filePath, diagnostics);
+    const label = field("label");
+    const description = field("description");
+    const primitive = field("primitive");
+    if (!label || !description || !primitive) continue;
+    if (!PERSONA_PRIMITIVES.includes(primitive as PersonaPrimitive)) {
+      diagnostics.push({ code: "invalid-primitive", filePath, keyPath: `${entryPath}.primitive`, message: `Persona primitive must be one of ${PERSONA_PRIMITIVES.join(", ")}; actor technology does not define an audience.` });
+      continue;
+    }
+    if (builtin && primitive !== builtin.primitive) {
+      diagnostics.push({ code: "fixed-persona-primitive", filePath, keyPath: `${entryPath}.primitive`, message: `Built-in persona '${slug}' must retain primitive '${builtin.primitive}'.` });
+      continue;
+    }
+    personasBySlug.set(slug, { slug, label, description, primitive: primitive as PersonaPrimitive });
   }
-
   config.personas = [...personasBySlug.values()];
 }
 

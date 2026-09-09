@@ -267,8 +267,8 @@ export const CONFORMANCE_CLAIM_SURFACES: readonly ConformanceClaimSurface[] = [
   },
   {
     relativePath:
-      "docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md",
-    label: "developer conformance-lab guide",
+      "docs/assets/maintainer/conformance-lab-scenario-and-result-contracts.md",
+    label: "maintainer conformance-lab guide",
   },
 ] as const;
 
@@ -279,7 +279,7 @@ export const CONFORMANCE_CLAIM_SURFACES: readonly ConformanceClaimSurface[] = [
  * deliberately not swept.
  */
 export const CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS = [
-  "docs/assets/library",
+  "docs/assets",
   "conformance",
   "README.md",
   "packages/cli/README.md",
@@ -290,8 +290,8 @@ export const CONFORMANCE_CLAIM_VOCABULARY_MARKER = "conformance-validated";
 
 /** Exact historical guides retained by the P8 decision. No general marker exemption. */
 const RETIRED_CLAIM_SURFACES = new Set([
-  "docs/assets/library/developer/playbooks-development-packaging-and-harness-adapters.md",
-  "docs/assets/library/user/playbooks-packaging-shareable-agent-workflows.md",
+  ".make-docs/archive/legacy-playbooks/library/developer/playbooks-development-packaging-and-harness-adapters.md",
+  ".make-docs/archive/legacy-playbooks/library/user/playbooks-packaging-shareable-agent-workflows.md",
 ]);
 
 
@@ -401,7 +401,7 @@ export function listSupportClaimGovernanceErrors(input: {
       }
     }
   }
-  for (const root of CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS) {
+  for (const root of [...CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS, ...RETIRED_CLAIM_SURFACES]) {
     const absolute = path.join(input.repoRoot, root);
     if (!existsSync(absolute)) {
       continue;
@@ -409,6 +409,8 @@ export function listSupportClaimGovernanceErrors(input: {
     const candidates = absolute.endsWith(".md") ? [absolute] : walkMarkdownFiles(absolute);
     for (const candidate of candidates) {
       const relative = path.relative(input.repoRoot, candidate).split(path.sep).join("/");
+      // Shared source proposals are not current reader-facing support claims.
+      if (relative.startsWith("docs/assets/project/")) continue;
       if (RETIRED_CLAIM_SURFACES.has(relative)) {
         if (!readFileSync(candidate, "utf8").includes("<!-- retired-claim-surface: w19-r1-p8 -->")) {
           errors.push(`Historical guide ${relative} lacks its explicit P8 retired-claim-surface marker.`);

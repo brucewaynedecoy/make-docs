@@ -40,7 +40,7 @@ Create the registry with stable `domain.verb` identifiers and move all retained 
 
 ### Dependencies
 
-- The pruning disposition in [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md) fixes what is registered; this phase does not redefine operation internals per R-SCOPE-1.
+- The pruning disposition in [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md) fixes what is registered; this phase does not redefine operation internals per R-SCOPE-1.
 
 ## Stage 2 - Shared Operation Core
 

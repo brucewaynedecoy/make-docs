@@ -344,7 +344,7 @@ export type MigrationRoutingSurface = (typeof MIGRATION_ROUTING_SURFACES)[number
 
 const MIGRATION_ROUTING_PATHS: Record<MigrationRoutingSurface, string> = {
   archive: ".make-docs/archive",
-  artifacts: "docs/artifacts",
+  artifacts: "docs/assets",
   assets: "docs/assets",
 };
 
@@ -1522,9 +1522,25 @@ function fixedStagePlan(
       installedPaths.add(action.relativePath);
     }
   }
-  const resourceProjection = checkpoint >= 6
+  const sourceResourceProjection = checkpoint >= 6
     ? product.installPlan.resourceProjection
     : (product.currentManifest?.resourceProjection ?? product.installPlan.resourceProjection);
+  const resourceProjection = sourceResourceProjection ? {
+    ...sourceResourceProjection,
+    resources: Object.fromEntries(Object.entries(sourceResourceProjection.resources)
+      .filter(([, resource]) => installedPaths.has(resource.managedDestination))),
+  } : undefined;
+  // Earlier checkpoints still own the prior resource names and bytes. Keep
+  // their proof until the checkpoint that actually replaces or removes them.
+  const priorSystemState = product.currentManifest?.systemAssetMaterialization;
+  const stagedAssets = {
+    ...product.installPlan.systemAssetMaterialization.assets,
+    ...priorSystemState?.assets,
+  };
+  for (const action of actions) {
+    const desired = product.installPlan.systemAssetMaterialization.assets[action.relativePath];
+    if (desired && ["create", "update", "generate", "noop"].includes(action.type)) stagedAssets[action.relativePath] = desired;
+  }
   return {
     ...basePlan,
     profile: resourceProjection ? resolveInstallProfile({
@@ -1534,7 +1550,14 @@ function fixedStagePlan(
     actions: [...actions],
     desiredSkillFiles: [...(product.currentManifest?.skillFiles ?? [])],
     systemAssetMaterialization: filterSystemAssetState(
-      product.installPlan.systemAssetMaterialization,
+      {
+        ...product.installPlan.systemAssetMaterialization,
+        assets: stagedAssets,
+        localBootstrapPaths: [...new Set([
+          ...product.installPlan.systemAssetMaterialization.localBootstrapPaths,
+          ...(priorSystemState?.localBootstrapPaths ?? []),
+        ])],
+      },
       installedPaths,
     ),
     ...(resourceProjection ? { resourceProjection } : {}),

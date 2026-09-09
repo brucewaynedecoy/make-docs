@@ -105,7 +105,7 @@ R-ASSET-ROUTER-3 (MUST): root asset routers stay within the existing short-route
 - Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
 - Replacement contract: This document now states the current agent-instruction ownership, managed blocks, and conflict-safe preservation requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
-- Source: [Agent instruction ownership design](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
+- Source: [Agent instruction ownership design](../../.make-docs/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
 
 ### 2026-08-14 — W19 R1
 

@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
 import { listShippedConformanceAssetErrors } from "../src/conformance";
+import { createProjectSurfaceRouterAssets, createThinRouterAssets } from "../src/project-projection";
+import { getRouterTemplateSourcePath } from "../src/router-paths";
 import { parseManagedBlock } from "../src/managed-block";
 import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { getDesiredSkillAssets } from "../src/skill-catalog";
@@ -26,7 +28,7 @@ const DOGFOOD_TEMPLATE_PARITY_PATHS = [
 
 const GUIDE_TEMPLATE_PARITY_PATHS = [
   ".make-docs/system/contracts/guide-contract.md",
-  ".make-docs/system/templates/guide-developer.md",
+  ".make-docs/system/templates/guide-maintainer.md",
   ".make-docs/system/templates/guide-user.md",
   ".make-docs/system/prompts/work-to-guides.prompt.md",
 ];
@@ -78,7 +80,7 @@ const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
   { kind: string; status: string; coordinate?: boolean; followOn?: boolean; persona?: string }
 >([
   ["design.md", { kind: "design", status: "draft", followOn: true }],
-  ["guide-developer.md", { kind: "guide", status: "draft", persona: "developer" }],
+  ["guide-maintainer.md", { kind: "guide", status: "draft", persona: "maintainer" }],
   ["guide-user.md", { kind: "guide", status: "draft", persona: "user" }],
   ["history-record.md", { kind: "history", status: "completed", coordinate: true }],
   ["plan-overview.md", { kind: "plan", status: "draft", coordinate: true, followOn: true }],
@@ -97,7 +99,7 @@ const GENERATED_DOCUMENT_TEMPLATE_METADATA = new Map<
 ]);
 
 const GENERATED_DOCUMENT_PROMPT_PATHS = [
-  ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
+  ".make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md",
   ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
   ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
   ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
@@ -195,12 +197,12 @@ describe("default profile consistency", () => {
     }
   });
 
-  test("default scaffold includes canonical reader-facing asset routers", () => {
+  test("default scaffold defers canonical reader-facing asset routers", () => {
     const profile = resolveInstallProfile(defaultSelections());
     const managedPaths = new Set(getDesiredAssets(profile).map((asset) => asset.relativePath));
 
     for (const relativePath of READER_ASSET_ROUTER_PATHS) {
-      expect(managedPaths.has(relativePath), relativePath).toBe(true);
+      expect(managedPaths.has(relativePath), relativePath).toBe(false);
       expect(readPackageFile(relativePath), relativePath).toContain("make-docs:begin");
     }
   });
@@ -213,7 +215,9 @@ describe("default profile consistency", () => {
       expect(managedPaths.has(relativePath), relativePath).toBe(false);
       expect(existsSync(path.join(REPO_ROOT, "packages/docs/template", relativePath))).toBe(false);
       expect(existsSync(path.join(REPO_ROOT, "packages/cli/template", relativePath))).toBe(false);
-      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(true);
+      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+      const archivedPath = relativePath.replace("docs/assets/playbooks/", ".make-docs/archive/legacy-playbooks/");
+      expect(existsSync(path.join(REPO_ROOT, archivedPath)), archivedPath).toBe(true);
     }
   });
 });
@@ -276,9 +280,29 @@ describe("template completeness", () => {
     };
     walk(TEMPLATE_ROOT);
 
+    // Prove each static variant and on-demand source is consumed by a real selection.
+    const conditionalSources = new Set<string>();
+    for (const selected of [["codex"], ["claude-code"], ["codex", "claude-code"]]) {
+      const selections = defaultSelections();
+      selections.harnesses = { codex: selected.includes("codex"), "claude-code": selected.includes("claude-code") };
+      const selectedProfile = resolveInstallProfile(selections);
+      for (const asset of createThinRouterAssets(selectedProfile)) {
+        const source = getRouterTemplateSourcePath(selectedProfile, asset.relativePath);
+        expect(asset.content).toBe(readPackageFile(source));
+        conditionalSources.add(source);
+        expect(asset.relativePath).not.toMatch(/(?:codex|claude)-only/);
+      }
+      for (const surface of ["archive", "assets"] as const) {
+        for (const asset of createProjectSurfaceRouterAssets(selectedProfile, surface)) {
+          expect(asset.content).toBe(readPackageFile(asset.relativePath));
+          expect(managedPaths.has(asset.relativePath)).toBe(false);
+          conditionalSources.add(asset.relativePath);
+        }
+      }
+    }
     const preservedLegacyPaths = new Set<string>();
     const unmanaged = templateFiles.filter((file) =>
-      !managedPaths.has(file) && !preservedLegacyPaths.has(file) && !bundledSkillSources.has(file),
+      !managedPaths.has(file) && !conditionalSources.has(file) && !preservedLegacyPaths.has(file) && !bundledSkillSources.has(file),
     );
 
     expect(unmanaged).toEqual([]);
@@ -430,12 +454,14 @@ describe("template completeness", () => {
       "packages/docs/README.md",
       "packages/skills/decompose-codebase/assets/templates",
       "docs/prd",
-      "docs/assets/library",
+      "docs/assets",
       "packages/docs/template/.make-docs/system",
       "packages/cli/src",
     ];
     const files: string[] = [];
     const visit = (relativePath: string) => {
+      // Shared source material preserves proposals and migration evidence, not live policy.
+      if (relativePath === "docs/assets/project" || relativePath.startsWith("docs/assets/project/")) return;
       const absolutePath = path.join(REPO_ROOT, relativePath);
       if (statSync(absolutePath).isDirectory()) {
         for (const entry of readdirSync(absolutePath)) {
@@ -578,7 +604,13 @@ describe("work backlog task contract", () => {
 
       expect(contents).toContain("- [ ] t1: {{TASK}}");
       expect(contents).toContain("- [ ] t2: {{TASK}}");
-      expect(contents).toContain("- {{ACCEPTANCE}}");
+      if (relativePath.endsWith("rebuild-backlog-phase.md")) {
+        expect(contents).toContain("- {{ACCEPTANCE}}");
+      } else {
+        expect(contents).toContain("- A{{CASE_NUMBER}}: {{ACCEPTANCE}}");
+        expect(contents).toContain("- A{{NEXT_CASE_NUMBER}}: {{ACCEPTANCE}}");
+        expect(contents).not.toContain("- [ ] A{{CASE_NUMBER}}");
+      }
       expect(contents).not.toContain("1. {{TASK}}");
       expect(contents).not.toContain("- [ ] {{ACCEPTANCE}}");
     }
@@ -666,7 +698,14 @@ describe("risk register routing contract", () => {
     const risks = sectionBetween(contents, "## Rebuild Risks", "## Source Anchors");
 
     expect(contents).not.toContain("### Change Notes");
-    expect(itemHeadings(drift)).toEqual([
+    // New decisions may append without weakening the identities of retained records.
+    const driftIds = itemHeadings(drift).map((heading) => {
+      expect(heading).toMatch(/^D-\d{3} \S/);
+      return heading.split(" ")[0]!;
+    });
+    expect(new Set(driftIds).size).toBe(driftIds.length);
+    expect(driftIds).toEqual(driftIds.map((_, index) => `D-${String(index + 1).padStart(3, "0")}`));
+    expect(itemHeadings(drift)).toEqual(expect.arrayContaining([
       "D-001 README Wording Understates the Live Idempotent Sync Model",
       "D-002 Public Command Guidance Lags the Shipped Command Taxonomy",
       "D-003 Template and Reference Mode Labels Promise More Than the Selector Enforces",
@@ -698,7 +737,7 @@ describe("risk register routing contract", () => {
       "D-029 W19 R1 Resource Topology and Router Authority Drifted",
       "D-030 W19 R1 Documentation Surface Router Topology Was Omitted",
       "D-031 Migration State Remains in the Project Despite the Store Boundary",
-    ]);
+    ]));
     expect(itemHeadings(questions)).toEqual([
       "Q-001 What Is the Long-Term Skills Delivery Contract?",
       "Q-002 Should Template and Reference Modes Remain Public Options?",
@@ -777,6 +816,47 @@ describe("risk register routing contract", () => {
 });
 
 describe("guide generation routing contract", () => {
+  test("upstream audience templates and coverage guidance use current primitives", () => {
+    const systemRoot = path.join(REPO_ROOT, "packages/docs/template/.make-docs/system");
+    const source = (relativePath: string) => readFileSync(path.join(systemRoot, relativePath), "utf8");
+    for (const primitive of ["maintainer", "user"]) {
+      const guide = source(`templates/guide-${primitive}.md`);
+      expect(guide).toContain(`persona: "${primitive}"`);
+      expect(guide).toContain("docs/assets/<persona-slug>/");
+      expect(guide).toContain("Either role can be human or agent");
+      const prompt = source(`prompts/coverage-pass-${primitive}-guide.prompt.md`);
+      expect(prompt).toContain(`\`${primitive}\` primitive`);
+      expect(prompt).toContain("selected effective Persona path");
+    }
+    for (const retiredPath of ["templates/guide-developer.md", "templates/guide-agent.md", "prompts/coverage-pass-developer-guide.prompt.md", "prompts/coverage-pass-agent-guide.prompt.md"]) {
+      expect(existsSync(path.join(systemRoot, retiredPath)), retiredPath).toBe(false);
+    }
+    for (const directory of ["templates", "prompts", "contracts", "references"]) {
+      for (const filename of readdirSync(path.join(systemRoot, directory))) {
+        if (!filename.endsWith(".md")) continue;
+        const relativePath = `${directory}/${filename}`;
+        expect(source(relativePath), relativePath).not.toMatch(/guide-(?:developer|agent)\.md|coverage-pass-(?:developer|agent)-guide\.prompt\.md/);
+        expect(source(relativePath), relativePath).not.toMatch(/^\| `agent` \| `agent` \|/m);
+      }
+    }
+    const coverage = source("contracts/coverage-pass-contract.md");
+    const targets = sectionBetween(coverage, "## Persona Targets", "## History Idempotency");
+    expect(targets.match(/^\| `[^`]+` \| `[^`]+` \|/gm)).toEqual([
+      "| `maintainer` | `maintainer` |",
+      "| `user` | `user` |",
+    ]);
+    const guideContract = source("contracts/guide-contract.md");
+    expect(guideContract).toContain("every effective `docs/assets/<persona-slug>/` audience");
+    expect(guideContract).toContain("Select the effective Persona target separately");
+    expect(guideContract).not.toContain("| `developer` |");
+    expect(guideContract).not.toContain("compatibility selector");
+    for (const relativePath of ["templates/history-record.md", "contracts/history-record-contract.md", "prompts/session-to-history-record.prompt.md"]) {
+      expect(source(relativePath)).toContain("### Maintainer");
+      expect(source(relativePath)).not.toContain("### Developer");
+    }
+    expect(source("contracts/history-record-contract.md")).toContain("remain valid historical input");
+  });
+
   test("the root asset routers route Persona assets and legacy inputs", () => {
     for (const relativePath of [
       "docs/assets/AGENTS.md",
@@ -787,9 +867,9 @@ describe("guide generation routing contract", () => {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
       expect(contents).toContain("docs/assets/<persona-slug>/");
-      expect(contents).toContain("docs/assets/<persona-slug>/testing/");
-      expect(contents).toContain("legacy migration inputs");
-      expect(contents).toContain(".make-docs/system/<type>/");
+      expect(contents).toContain("testing/");
+      expect(contents).toContain("reviewed migration");
+      expect(contents).toContain("make-docs://system/contract/guide-contract.md");
     }
   });
 
@@ -802,7 +882,7 @@ describe("guide generation routing contract", () => {
 
       expect(contents).toContain("## Audience Contract");
       expect(contents).toContain("## Guide Coverage Decision");
-      expect(contents).toContain("re-check overlapping developer and user guides");
+      expect(contents).toContain("re-check overlapping maintainer and user guides");
       expect(contents).toContain("reciprocal links");
       expect(contents).toContain("## Partial and Future Coverage");
       expect(contents).toContain("Do not add frontmatter fields for deferred guide work");
@@ -823,7 +903,9 @@ describe("guide generation routing contract", () => {
 
   test("dogfood Playbooks remain project content after shipped defaults retire", () => {
     for (const relativePath of PLAYBOOK_DEFAULT_PARITY_PATHS) {
-      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(true);
+      expect(existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+      const archivedPath = relativePath.replace("docs/assets/playbooks/", ".make-docs/archive/legacy-playbooks/");
+      expect(readFileSync(path.join(REPO_ROOT, archivedPath), "utf8")).toMatch(/kind:\s*["']?playbook/);
       expect(existsSync(path.join(REPO_ROOT, "packages/docs/template", relativePath))).toBe(false);
       expect(existsSync(path.join(REPO_ROOT, "packages/cli/template", relativePath))).toBe(false);
     }
@@ -897,7 +979,7 @@ describe("path hygiene contract", () => {
 
       expect(contents).toContain("## Namespace Hygiene");
       expect(contents).toContain("docs/assets/library/**");
-      expect(contents).toContain("docs/assets/archive/history/**");
+      expect(contents).toContain(".make-docs/archive/**");
       expect(contents).toContain("docs/assets/playbooks/**");
       expect(contents).toContain("global Make Docs Store");
       expect(contents).toContain("legacy CLI transfer inputs only");
@@ -915,7 +997,10 @@ describe("path hygiene contract", () => {
 
       expect(contents).toContain("Verdicts and persona targets are separate axes");
       expect(contents).toContain("default configured target slugs");
-      expect(contents).toContain("`developer` | `maintainer`");
+      expect(contents).toContain("`maintainer` | `maintainer`");
+      expect(contents).toContain("`user` | `user`");
+      expect(contents).not.toContain("`agent` | `agent`");
+      expect(contents).not.toContain("`developer` | `maintainer`");
       expect(contents).toContain("`slug`, `label`, `description`, and `primitive`");
     }
   });
@@ -956,16 +1041,16 @@ describe("Store-owned installation guidance", () => {
       for (const directory of [".make-docs", "docs/assets"]) {
         const body = readFileSync(path.join(TEMPLATE_ROOT, directory, name), "utf8");
         expect(body).toContain("global Make Docs Store");
-        expect(body).toContain("managed through the CLI");
-        expect(body).toMatch(/ordinary project work/);
-        expect(body).toMatch(/(?:Required Store recording|Required CLI-managed operation records).*mandatory/);
+        expect(body).toContain("through the CLI");
+        expect(body).toMatch(/ordinary (?:project|content) work/);
+        expect(body).toMatch(/(?:Required Store recording|Required CLI(?:-managed)? operation records).*mandatory/);
         expect(body).not.toContain("Keep project state in `.make-docs/manifest.json`");
         expect(body).not.toContain("Project state lives in `.make-docs/manifest.json`");
       }
     }
     const assets = readFileSync(path.join(TEMPLATE_ROOT, "docs/assets/AGENTS.md"), "utf8");
-    expect(assets).toContain("Project history, work status, and testing records remain valid local project knowledge");
-    expect(assets).toContain("Backup, archive, and conflict file copies may remain");
+    expect(assets).toContain("Project knowledge, work status");
+    expect(assets).toContain("backup copies remain local content");
   });
 
   test("lifecycle guidance distinguishes unavailable optional capture from required operation records", () => {

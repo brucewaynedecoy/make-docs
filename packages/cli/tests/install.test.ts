@@ -116,7 +116,6 @@ async function syncSkillsOnly(
 const FULL_PROFILE_INSTRUCTION_DIRS = [
   ".",
   "docs",
-  "docs/assets",
   "docs/designs",
   "docs/plans",
   "docs/prd",
@@ -396,7 +395,7 @@ describe("installer integration", () => {
       expect(
         existsSync(path.join(targetDir, ".make-docs/system/references/path-and-link-hygiene.md")),
       ).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-maintainer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/library/CLAUDE.md"))).toBe(false);
@@ -407,8 +406,8 @@ describe("installer integration", () => {
       ).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/breadcrumbs"))).toBe(false);
@@ -420,12 +419,12 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/references/CLAUDE.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/library/agent"))).toBe(false);
 
-      const assetsRouter = readFileSync(path.join(targetDir, "docs/assets/AGENTS.md"), "utf8");
-      expect(assetsRouter).toContain("docs/assets/library/<persona-slug>/");
-      expect(assetsRouter).toContain("docs/assets/playbooks/<persona-slug>/");
-      expect(assetsRouter).toContain("docs/assets/archive/**");
-      expect(assetsRouter).toContain("docs/assets/archive/history/**");
-      expect(assetsRouter).not.toContain("docs/assets/breadcrumbs/**");
+      expect(existsSync(path.join(targetDir, "docs/assets"))).toBe(false);
+      const docsRouter = readFileSync(path.join(targetDir, "docs/AGENTS.md"), "utf8");
+      expect(docsRouter).toContain("docs/assets/<persona-slug>/");
+      expect(docsRouter).toContain("docs/assets/project/");
+      expect(docsRouter).toContain(".make-docs/archive/");
+      expect(docsRouter).toContain("Asset router files: AGENTS.md, CLAUDE.md");
       expect(manifest.files[".make-docs/scripts/check_path_hygiene.py"]?.sourceId).toBe(
         "file:.make-docs/scripts/check_path_hygiene.py",
       );
@@ -1251,7 +1250,7 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, ".make-docs/system/contracts/guide-contract.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/references/wave-model.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/contracts/history-record-contract.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-developer.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-maintainer.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/guide-user.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/system/templates/history-record.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets/library/AGENTS.md"))).toBe(false);
@@ -1263,8 +1262,8 @@ describe("installer integration", () => {
       ).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/archive/CLAUDE.md"))).toBe(false);
-      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/AGENTS.md"))).toBe(false);
+      expect(existsSync(path.join(targetDir, "docs/assets/CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/breadcrumbs"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/history"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/guides"))).toBe(false);
@@ -1401,6 +1400,7 @@ describe("installer integration", () => {
       const content = "---\nkind: playbook\n---\n\n# Outside Playbook\n";
       mkdirSync(path.join(outsideDir, "agent"), { recursive: true });
       writeFileSync(path.join(outsideDir, "agent/make-docs-lifecycle.playbook.md"), content, "utf8");
+      mkdirSync(path.join(targetDir, "docs/assets"), { recursive: true });
       symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
       const legacy = structuredClone(installed.manifest);
       legacy.files[relativePath] = {
@@ -1431,6 +1431,7 @@ describe("installer integration", () => {
       const relativePath = "docs/assets/playbooks/AGENTS.md";
       const content = renderManagedBlock("# Retired child router\n");
       writeFileSync(path.join(outsideDir, "AGENTS.md"), content, "utf8");
+      mkdirSync(path.join(targetDir, "docs/assets"), { recursive: true });
       symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
       const legacy = structuredClone(installed.manifest);
       legacy.files[relativePath] = {
@@ -1478,6 +1479,7 @@ describe("installer integration", () => {
 
       rmSync(path.join(targetDir, "docs/assets/playbooks"), { recursive: true });
       writeFileSync(path.join(outsideDir, "AGENTS.md"), content, "utf8");
+      mkdirSync(path.join(targetDir, "docs/assets"), { recursive: true });
       symlinkSync(outsideDir, path.join(targetDir, "docs/assets/playbooks"));
 
       expect(() => applyInstallPlan({ targetDir, plan, existingManifest: legacy }))
@@ -2108,7 +2110,7 @@ describe("installer integration", () => {
         ".make-docs/system/templates/guide-user.md",
         ".make-docs/system/references/wave-model.md",
         "AGENTS.md",
-        ".make-docs/system/templates/guide-developer.md",
+        ".make-docs/system/templates/guide-maintainer.md",
         "docs/AGENTS.md",
         ".make-docs/system/contracts/guide-contract.md",
       ];
@@ -2129,7 +2131,7 @@ describe("installer integration", () => {
       expect(conflicts.map((conflict) => conflict.relativePath)).toEqual([
         ".make-docs/system/contracts/guide-contract.md",
         ".make-docs/system/references/wave-model.md",
-        ".make-docs/system/templates/guide-developer.md",
+        ".make-docs/system/templates/guide-maintainer.md",
         ".make-docs/system/templates/guide-user.md",
       ]);
       expect(conflicts.map((conflict) => conflict.group)).toEqual([

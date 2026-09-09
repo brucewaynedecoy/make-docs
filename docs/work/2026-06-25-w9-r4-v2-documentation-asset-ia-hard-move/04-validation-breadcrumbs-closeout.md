@@ -78,7 +78,7 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 - PRD 21 and PRD 22 already describe the implemented W9 R4 target paths, so no new PRD change document was needed.
 - Accepted v2 design and W18 R3 plan/PRD references now point to `docs/assets/artifacts/**`, `.make-docs/contracts/system/**`, and `.make-docs/references/system/prompts/**` where the W9 R4 pivot moved those authority surfaces.
 - Remaining unimplemented v2 work indexes now declare W9 R4 as a prerequisite or supersession gate before package/template/workflow phases use path-sensitive assumptions.
-- The W9 R4 breadcrumb is [../../assets/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md](../../assets/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md).
+- The W9 R4 breadcrumb is [../../assets/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md](../../../.make-docs/archive/history/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move.md).
 - Existing history records remain pre-migration evidence, now stored under `docs/assets/archive/history/**` after W9 R5.
 - `./.make-docs/build-process/` was not present in this checkout. The phase work used `docs/AGENTS.md`, `.make-docs/references/system/lifecycle.md`, W9 R4 phase docs, and the active PRD/design/plan authority.
 

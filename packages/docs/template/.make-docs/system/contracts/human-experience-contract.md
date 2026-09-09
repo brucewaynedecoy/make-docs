@@ -18,7 +18,7 @@ Classify the proposed change, not the fact that a person can read its design.
 | `indirect` | Normal interaction stays the same, but performance, reliability, accuracy, freshness, safety, privacy, security, recovery, diagnostics, maintenance, accessibility support, resources, cost, or risk can affect a person. |
 | `none` | The change has no direct or indirect human effect. Name the preserved experience and evidence that proves the boundary. |
 
-Agent-facing or headless work is not automatically `none`. Consider the people who author, review, operate, maintain, recover, and rely on the result. Persona answers “for whom.” Intent answers “to what end and with what experience.” Use configured human Persona slugs, clear human roles, or both. Do not invent a Persona to fill the section. An agent Persona is not a human.
+Agent-facing or headless work is not automatically `none`. Consider the people who author, review, operate, maintain, recover, and rely on the result. Persona answers “for whom.” Intent answers “to what end and with what experience.” Use configured human Persona slugs, clear human roles, or both. Do not invent a Persona to fill the section. An agent acting in a Persona does not supply lived human experience evidence.
 
 ## Design Form
 

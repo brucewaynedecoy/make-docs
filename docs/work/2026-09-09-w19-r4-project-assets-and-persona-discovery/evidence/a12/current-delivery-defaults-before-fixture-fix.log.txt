@@ -1,0 +1,198 @@
+
+> make-docs-monorepo@0.0.0 validate:defaults
+> npm run validate:defaults -w packages/cli
+
+
+> @brucewaynedecoy/make-docs@2.0.0-rc validate:defaults
+> vitest run tests/consistency.test.ts tests/template-links.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ❯ tests/template-links.test.ts (12 tests | 1 failed) 27ms
+   × template link validation > all shipped and skill templates pass raw and representative-render checks 22ms
+     → expected [ { …(3) }, { …(3) }, { …(3) }, …(1) ] to deeply equal []
+   ✓ template link validation > uses the contract external schemes and a cataloged representative prompt URI 1ms
+   ✓ template link validation > rejects an unknown whole-link token 1ms
+   ✓ template link validation > rejects a partial token inside a Markdown link 0ms
+   ✓ template link validation > rejects a declared link token left unresolved after rendering 0ms
+   ✓ template link validation > rejects a rendered relative link whose target is missing 0ms
+   ✓ template link validation > rejects wrong system-resource authority 0ms
+   ✓ template link validation > rejects unknown system-resource type 0ms
+   ✓ template link validation > rejects malformed system-resource URI 0ms
+   ✓ template link validation > rejects unknown system-resource path 0ms
+   ✓ template link validation > rejects JavaScript URI 0ms
+   ✓ template link validation > rejects invented URI scheme 0ms
+ ❯ tests/consistency.test.ts (38 tests | 1 failed) 150ms
+   ✓ default profile consistency > default scaffold assets are copied from the packaged template 14ms
+   ✓ default profile consistency > default scaffold defers canonical reader-facing asset routers 3ms
+   ✓ default profile consistency > default scaffold excludes retired Playbook defaults 3ms
+   ✓ template completeness > retired editorial PRD templates are absent from source and packaged assets 0ms
+   ✓ template completeness > every file in the template is covered by the asset pipeline 26ms
+   ✓ template completeness > every template instruction router is managed-block wrapped 3ms
+   ✓ template completeness > generated document templates include PRD 23 metadata frontmatter 9ms
+   ✓ template completeness > metadata-bearing generated template copies match the package source 2ms
+   ✓ template completeness > link hygiene defines raw-template and generated-document checks 0ms
+   ✓ template completeness > shipped Markdown guidance uses canonical local paths and stable identities 4ms
+   ✓ template completeness > live guidance and code use canonical resource paths outside approved legacy inputs 36ms
+   ✓ template completeness > each child output router pairs named local resources with exact CLI URI fallbacks 1ms
+   ✓ template completeness > generated document prompts require PRD 23 metadata frontmatter 5ms
+   ✓ template completeness > generated document prompt copies match the package source 1ms
+   ✓ commit message convention contract > dogfood and shipped template copies match 1ms
+   ✓ commit message convention contract > requires full fenced subject and body output 0ms
+   × work backlog task contract > work phase templates use task checkboxes and plain acceptance bullets 7ms
+     → expected '---\ntitle: "Phase {{PHASE_NUMBER}}: …' to contain '- {{ACCEPTANCE}}'
+   ✓ work backlog task contract > work backlog references document task IDs and plain acceptance criteria 2ms
+   ✓ risk register routing contract > PRD routers identify the living risk register 0ms
+   ✓ risk register routing contract > risk-register templates expose item state fields 0ms
+   ✓ risk register routing contract > risk-register references keep unresolved state out of requirement history 0ms
+   ✓ risk register routing contract > active risk register uses section-prefixed item IDs 3ms
+   ✓ risk register routing contract > dogfood risk-register contracts match the shipped template copies 0ms
+   ✓ guide generation routing contract > upstream audience templates and coverage guidance use current primitives 6ms
+   ✓ guide generation routing contract > the root asset routers route Persona assets and legacy inputs 0ms
+   ✓ guide generation routing contract > guide contract defines audience intent and future coverage handling 0ms
+   ✓ guide generation routing contract > dogfood guide contracts match the shipped template copies 0ms
+   ✓ guide generation routing contract > dogfood Playbooks remain project content after shipped defaults retire 1ms
+   ✓ guide generation routing contract > the shipped template has no default Playbooks 0ms
+   ✓ path hygiene contract > dogfood path-hygiene assets match the shipped template copies 2ms
+   ✓ path hygiene contract > routers and contracts point path decisions to the hygiene reference 1ms
+   ✓ path hygiene contract > path hygiene separates reader assets from tool resources and runtime state 0ms
+   ✓ path hygiene contract > coverage-pass contract keeps verdict and persona-target axes separate 0ms
+   ✓ optional skill package consistency > withdrawn lifecycle skill sources are removed from the skills workspace 0ms
+   ✓ conformance assets stay maintainer-only (W18 R9 P3, R-TEST-3, R-KEEP-1) > the shipped template and the packaged copy carry no conformance assets 14ms
+   ✓ Store-owned installation guidance > shipped routers reject local operational state and preserve project knowledge 1ms
+   ✓ Store-owned installation guidance > lifecycle guidance distinguishes unavailable optional capture from required operation records 0ms
+   ✓ Store-owned installation guidance > path cleanup does not require an installation manifest or Store write 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/consistency.test.ts > work backlog task contract > work phase templates use task checkboxes and plain acceptance bullets
+AssertionError: expected '---\ntitle: "Phase {{PHASE_NUMBER}}: …' to contain '- {{ACCEPTANCE}}'
+
+- Expected
++ Received
+
+- - {{ACCEPTANCE}}
++ ---
++ title: "Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}"
++ kind: "work"
++ status: "active"
++ coordinate: "W{{W}} R{{R}} P{{PHASE_NUMBER}}"
++ # source:
++ #   type: "prd"
++ #   path: "{{SOURCE_PATH}}"
++ ---
++
++ # Phase {{PHASE_NUMBER}}: {{PHASE_TITLE}}
++
++ > Shape for `0N-<phase>.md` files inside a work directory. See `.make-docs/system/references/wave-model.md` for W/R semantics.
++
++ ## Purpose
++
++ Explain why this phase exists and what foundation it depends on.
++
++ ## Overview
++
++ Explain the work covered by this phase and the value it unlocks.
++
++ ## Source PRD Docs
++
++ - {{SOURCE_PRD_LINK_ONE}}
++ - {{SOURCE_PRD_LINK_TWO}}
++
++ ## Source Obligations, Scenarios, And Findings
++
++ - `{{O_REF_OR_NONE}}`
++ - `{{NUAT_REF_OR_NONE}}`
++ - `{{FINDING_REF_OR_NONE}}`
++
++ ## Stage {{STAGE_NUMBER}} - {{STAGE_NAME}}
++
++ ### Tasks
++
++ - [ ] t1: {{TASK}}
++ - [ ] t2: {{TASK}}
++
++ ### Acceptance criteria
++
++ Use stable `A<number>` case IDs that are unique across this backlog's phases. When retaining evidence for acceptance or review, create or update the owning backlog's central `evidence.md` report. Link the relevant report sections from this phase's acceptance or closeout record. The report must explain the findings even when supporting evidence already exists elsewhere and no new capture folder is needed. Keep new acceptance-case captures in `evidence/a<number>/` only when needed; detailed reports in case folders are optional. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`.
++
++ - A{{CASE_NUMBER}}: {{ACCEPTANCE}}
++ - A{{NEXT_CASE_NUMBER}}: {{ACCEPTANCE}}
++
++ ### Dependencies
++
++ - {{DEPENDENCY}}
++
++ ### Closeout Notes
++
++ - Testing-mode decision(s): {{AUTOMATED_REVIEW_NUAT_ACCESSIBILITY_VISUAL_DECISIONS}}
++ - Evidence report: {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}
++ - Phase / capability status: {{PHASE_AND_CAPABILITY_STATUS}}
++
++ <!-- Insert additional STAGES as needed -->
++
+
+ ❯ tests/consistency.test.ts:607:24
+    605|       expect(contents).toContain("- [ ] t1: {{TASK}}");
+    606|       expect(contents).toContain("- [ ] t2: {{TASK}}");
+    607|       expect(contents).toContain("- {{ACCEPTANCE}}");
+       |                        ^
+    608|       expect(contents).not.toContain("1. {{TASK}}");
+    609|       expect(contents).not.toContain("- [ ] {{ACCEPTANCE}}");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/template-links.test.ts > template link validation > all shipped and skill templates pass raw and representative-render checks
+AssertionError: expected [ { …(3) }, { …(3) }, { …(3) }, …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "code": "unknown-whole-link-token",
++     "message": "Unknown whole-link token {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}.",
++     "templatePath": "packages/docs/template/.make-docs/system/templates/work-phase.md",
++   },
++   {
++     "code": "unresolved-rendered-link-token",
++     "message": "Rendered output still contains link token {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}.",
++     "templatePath": "packages/docs/template/.make-docs/system/templates/work-phase.md",
++   },
++   {
++     "code": "unknown-whole-link-token",
++     "message": "Unknown whole-link token {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}.",
++     "templatePath": "packages/cli/template/.make-docs/system/templates/work-phase.md",
++   },
++   {
++     "code": "unresolved-rendered-link-token",
++     "message": "Rendered output still contains link token {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}.",
++     "templatePath": "packages/cli/template/.make-docs/system/templates/work-phase.md",
++   },
++ ]
+
+ ❯ tests/template-links.test.ts:180:7
+    178|         systemResourceUris: SYSTEM_RESOURCE_URIS,
+    179|       }),
+    180|     ).toEqual([]);
+       |       ^
+    181|   });
+    182| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 48 passed (50)
+   Start at  16:26:40
+   Duration  1.22s (transform 714ms, setup 54ms, collect 1.25s, tests 178ms, environment 0ms, prepare 120ms)
+
+npm error Lifecycle script `validate:defaults` failed with error:
+npm error code 1
+npm error path /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error workspace @brucewaynedecoy/make-docs@2.0.0-rc
+npm error location /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error command failed
+npm error command sh -c vitest run tests/consistency.test.ts tests/template-links.test.ts

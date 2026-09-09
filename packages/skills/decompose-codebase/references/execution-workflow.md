@@ -20,7 +20,7 @@ If neither exists, switch back to planning mode.
 3. If available, index docs with `jdocmunch` and code with `jcodemunch`.
 4. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
 5. Re-check existing docs so you avoid duplicating or clobbering useful material.
-6. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `docs/assets/archive/prds/`.
+6. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `.make-docs/archive/prds/`.
 7. Confirm whether the approved task is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Ordinary maintenance preserves the active set and updates the owning authority in place.
 
 ## Delegation Ladder
@@ -61,7 +61,7 @@ If delegation is available, the coordinator must not:
 - Apply this gate only when the user has explicitly authorized a full-set decomposition or product-authority re-baseline. Do not use it for an ordinary product change.
 - Treat `docs/prd/` as a single active PRD namespace.
 - If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
-- On approval, archive every root entry into `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
+- On approval, archive every root entry into `.make-docs/archive/prds/YYYY-MM-DD/` or `.make-docs/archive/prds/YYYY-MM-DD-XX/`.
 - Include stray or hidden root entries in the archive summary and move set when they are part of the active namespace.
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.

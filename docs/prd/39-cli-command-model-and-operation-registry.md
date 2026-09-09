@@ -130,7 +130,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
 - R-SEQ-2 (SHOULD): internal modularization may be tracked independently, but the current operation-admission and exclusion inventory remains enforced throughout that work.
-- R-SEQ-3 (MUST): derivation-heavy or judgment-shaped behavior does not belong in a CLI operation. The registry admits only a fact of record or a fiddly and genuinely reused canonical-identity or parse primitive; contracts, prompts, references, and templates carry durable guidance while agents apply judgment from those resources and project files. [NORTHSTAR](../assets/artifacts/NORTHSTAR.md) records provenance and examples for the product rule.
+- R-SEQ-3 (MUST): derivation-heavy or judgment-shaped behavior does not belong in a CLI operation. The registry admits only a fact of record or a fiddly and genuinely reused canonical-identity or parse primitive; contracts, prompts, references, and templates carry durable guidance while agents apply judgment from those resources and project files. [NORTHSTAR](../assets/project/NORTHSTAR.md) records provenance and examples for the product rule.
 - R-SEQ-4 (MUST): pending projections route only to the typed pending result until their named owner phase activates a handler. They are not half-routed implementations.
 
 ### Verification and Testability (R-TEST)
@@ -304,9 +304,9 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [../designs/2026-06-20-cli-separation-and-mcp-boundary.md](../designs/2026-06-20-cli-separation-and-mcp-boundary.md)
 - [../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md](../designs/2026-06-26-typescript-cli-and-mcp-runtime-pivot.md)
 - [../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md](../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md)
-- [../assets/artifacts/cli-command-reorganization.md](../assets/artifacts/cli-command-reorganization.md)
-- [../assets/artifacts/migrated-operations-inventory.md](../assets/artifacts/migrated-operations-inventory.md)
-- [../assets/artifacts/NORTHSTAR.md](../assets/artifacts/NORTHSTAR.md)
+- [../assets/artifacts/cli-command-reorganization.md](../assets/project/cli-command-reorganization.md)
+- [../assets/artifacts/migrated-operations-inventory.md](../assets/project/migrated-operations-inventory.md)
+- [../assets/artifacts/NORTHSTAR.md](../assets/project/NORTHSTAR.md)
 - [../plans/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-overview.md](../plans/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-overview.md)
 - [../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md](../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)
 - [07 CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md)

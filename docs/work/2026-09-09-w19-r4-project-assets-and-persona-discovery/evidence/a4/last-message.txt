@@ -1,0 +1,10 @@
+Created:
+
+- [Shared project note](/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project/docs/assets/project/project-note.md)
+- [Maintainer guide](/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project/docs/assets/maintainer/maintainer-guide.md)
+- [Operator guide](/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project/docs/assets/operators/operator-guide.md)
+- [Assets router](/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project/docs/assets/AGENTS.md)
+
+The locations follow `docs/AGENTS.md`: shared content goes under `docs/assets/project/`, while audience guides use persona slugs. `maintainer` is built in, and `operators` is declared in `.make-docs/config.yaml`.
+
+The local lifecycle, guide-contract, template, and path-hygiene bodies were absent. Because the CLI was unavailable and external sources were prohibited, I used only the available router and configuration, avoided inventing project commands, and could not evaluate the requested documents against the default lifecycle arc. No local fallback state was created. Basic whitespace and conflict-marker checks passed.

@@ -49,7 +49,7 @@ Because the subsystem is comprehensive, this plan does not perform a global rena
 
 ## What Protocol Is
 
-Protocol restores the intent that the archived design [Make Docs Lifecycle Playbook and Terminology Overlay](../../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md) and the current default asset both describe in prose: a persona-scoped procedural document that is "not automation, does not enforce stage order, and does not gate work." A Protocol is a Markdown guardrail: it names the authority and precedence order an agent honors, the constraints it must not violate, the checks it must surface, and the departures it must report. It is read, not executed. Make Docs validates that a Protocol has the required shape and that its persona folder matches; it does not model steps, resolve dependencies, hold run state, gate progression, or compile the document into anything.
+Protocol restores the intent that the archived design [Make Docs Lifecycle Playbook and Terminology Overlay](../../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md) and the current default asset both describe in prose: a persona-scoped procedural document that is "not automation, does not enforce stage order, and does not gate work." A Protocol is a Markdown guardrail: it names the authority and precedence order an agent honors, the constraints it must not violate, the checks it must surface, and the departures it must report. It is read, not executed. Make Docs validates that a Protocol has the required shape and that its persona folder matches; it does not model steps, resolve dependencies, hold run state, gate progression, or compile the document into anything.
 
 ## Non-Goals
 

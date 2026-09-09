@@ -7,7 +7,7 @@ description: Plan and reverse-engineer software repositories into a structured P
 
 ## Overview
 
-Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `docs/assets/archive/prds/`. The active PRD set describes the current authoritative shape of the product; it must never describe the editorial operation used to change that authority. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
+Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `.make-docs/archive/prds/`. The active PRD set describes the current authoritative shape of the product; it must never describe the editorial operation used to change that authority. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
 
 Inside the make-docs repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` remain local project records. The installed skill remains self-contained: it ships bundled local copies under `./references/`, `./assets/templates/`, and `./scripts/` so it does not depend on a consumer repo having this repository's root source tree.
 
@@ -47,7 +47,7 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 - If delegation is available, the coordinator is non-authoring. Its responsibilities are limited to preflight checks, approval handling, workstream definition, worker spawning, progress tracking, blocker routing, and final status reporting.
 - If delegation is available, the coordinator must not draft PRD docs, create backlog files, fill shared docs, run assembly sweeps, or perform fix-up edits. Those tasks belong to delegated workers.
 - For context-heavy decomposition, spawn delegated workers before broad repo analysis or document drafting by the coordinator.
-- Before writing a fresh PRD set, confirm that the user authorized an explicit full-set decomposition/re-baseline and inspect `docs/prd/`. If it already contains active root entries, summarize what will be moved and ask for approval to archive those entries under `docs/assets/archive/prds/YYYY-MM-DD` or `docs/assets/archive/prds/YYYY-MM-DD-XX`. If the user declines, stop before writing to `docs/prd/`. For ordinary changes, preserve the active set and maintain its owning PRDs in place.
+- Before writing a fresh PRD set, confirm that the user authorized an explicit full-set decomposition/re-baseline and inspect `docs/prd/`. If it already contains active root entries, summarize what will be moved and ask for approval to archive those entries under `.make-docs/archive/prds/YYYY-MM-DD` or `.make-docs/archive/prds/YYYY-MM-DD-XX`. If the user declines, stop before writing to `docs/prd/`. For ordinary changes, preserve the active set and maintain its owning PRDs in place.
 - Generate the PRD core, adaptive subsystem/reference docs, and rebuild backlog using the templates under `assets/templates/`.
 - Always attempt delegated workstreams before single-agent execution when the harness or session policy allows it.
 - When delegation is available, assign shared-doc assembly and validation/fix work to dedicated workers rather than keeping those tasks on the coordinator.
@@ -69,7 +69,7 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 - Keep exactly one active PRD set under `docs/prd/`.
 - Keep current normative requirements inline in their owning PRDs. Never create editorial PRDs whose filename, title, kind, or purpose is to add, enhance, revise, remove, migrate, or sequence changes.
 - Preserve material prior contracts only in an optional, non-normative `## Requirement History` section; downstream work reads the current requirements, not the history entry.
-- Archive prior PRD sets under `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
+- Archive prior PRD sets under `.make-docs/archive/prds/YYYY-MM-DD/` or `.make-docs/archive/prds/YYYY-MM-DD-XX/`.
 - Keep the fixed core under `docs/prd/`:
   - `00-index.md`
   - `01-product-overview.md`
@@ -100,3 +100,7 @@ Use these templates as skill-local projections. When a repository has live make-
 - Use [references/harness-capability-matrix.md](./references/harness-capability-matrix.md) to choose parallelization and config-inspection behavior.
 - Treat `probe_environment.py` as a capability hint, not a proof of live session access.
 - Default to planning even when the harness and MCP setup look execution-ready.
+
+## Project Layout Boundary
+
+Approved PRD archives use `.make-docs/archive/prds/`; old `docs/assets/archive/` is migration input only. Shared inputs use `docs/assets/project/`, and audience assets use `docs/assets/<persona-slug>/`. The built-in Personas are `user` and `maintainer`, both open to humans or agents. Use the docs router defaults and valid `.make-docs/config.yaml` entries, or `make-docs project persona list` when present. Create only directories needed by content. Ordinary documentation work can continue without the CLI; never substitute a local operational record, queued write, direct Store write, or false capture claim. CLI-managed changes still require Store records.

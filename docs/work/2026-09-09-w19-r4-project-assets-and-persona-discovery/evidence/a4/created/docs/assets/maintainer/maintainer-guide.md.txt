@@ -1,0 +1,5 @@
+# Maintainer Guide
+
+Read the nearest `AGENTS.md` before changing project files. Keep shared documentation in `docs/assets/project/` and audience-specific documentation in its persona directory.
+
+Do not invent Make Docs state files or claim lifecycle capture when the CLI is unavailable. If implementation is added, update the shared project note and this guide with verified build, test, and maintenance commands.

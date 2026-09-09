@@ -4,7 +4,6 @@ import { INSTRUCTION_KINDS } from "./types";
 const FOUNDATION_ROUTER_DIRECTORIES = [
   "",
   "docs",
-  "docs/assets",
   ".make-docs",
   ".make-docs/system",
   ".make-docs/system/contracts",
@@ -13,8 +12,7 @@ const FOUNDATION_ROUTER_DIRECTORIES = [
   ".make-docs/system/templates",
 ] as const;
 
-const LEGACY_INCOMPLETE_FOUNDATION_DIRECTORIES = FOUNDATION_ROUTER_DIRECTORIES
-  .filter((directory) => directory !== "docs/assets");
+const LEGACY_INCOMPLETE_FOUNDATION_DIRECTORIES = FOUNDATION_ROUTER_DIRECTORIES;
 
 const CAPABILITY_ROUTER_DIRECTORIES: ReadonlyArray<readonly [Capability, string]> = [
   ["designs", "docs/designs"],
@@ -25,7 +23,7 @@ const CAPABILITY_ROUTER_DIRECTORIES: ReadonlyArray<readonly [Capability, string]
 
 const ON_DEMAND_ROUTER_DIRECTORIES = [
   ".make-docs/archive",
-  "docs/artifacts",
+  "docs/assets",
 ] as const;
 
 const RETIRED_TEMPLATE_CHILD_ROUTER_DIRECTORIES = [
@@ -88,4 +86,11 @@ export function isConfiguredRouterPath(
   instructionKind: InstructionKind,
 ): boolean {
   return getConfiguredRouterPaths(profile, instructionKind).includes(relativePath);
+}
+
+/** Static source variants keep the declared harness set readable without the CLI. */
+export function getRouterTemplateSourcePath(profile: InstallProfile, relativePath: string): string {
+  if (relativePath === "docs/AGENTS.md" && profile.selections.harnesses.codex && !profile.selections.harnesses["claude-code"]) return "docs/AGENTS.codex-only.md";
+  if (relativePath === "docs/CLAUDE.md" && profile.selections.harnesses["claude-code"] && !profile.selections.harnesses.codex) return "docs/CLAUDE.claude-only.md";
+  return relativePath;
 }

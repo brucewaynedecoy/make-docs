@@ -13,6 +13,8 @@ persona: "user"
 
 # {{TITLE}}
 
+<!-- Select an effective Persona with the `user` primitive from the built-in defaults plus valid project config. Set `persona` to that slug and write under `docs/assets/<persona-slug>/`. The built-in default is `user`. Either role can be human or agent; do not infer the audience from the author. -->
+
 > See `.make-docs/system/contracts/guide-contract.md` for frontmatter schema, slug rules, audience rules, coverage decisions, and future coverage handling.
 
 ## Overview

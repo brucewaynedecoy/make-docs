@@ -25,7 +25,7 @@ This plan is derived from [Coverage-Pass Extensions and Adversarial Review](../.
 
 ## Current Implementation Grounding
 
-- [.make-docs/contracts/system/coverage-pass-contract.md](../../../.make-docs/contracts/system/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
+- [.make-docs/contracts/system/coverage-pass-contract.md](../../../.make-docs/system/contracts/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
 - `packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
 - The four coverage-pass prompt resources use the stable `make-docs://system/prompt/<file>` identity and resolve through the provider inventory. They do not require a project-local snapshot.
 - `packages/cli/src/rules.ts` registers those four coverage-pass prompts in `PROMPT_RULES`.

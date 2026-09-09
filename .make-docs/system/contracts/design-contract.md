@@ -16,7 +16,7 @@ User-authored design docs may not fully conform. Apply this contract to newly ge
 
 Archive designs only when the user explicitly asks. Never archive proactively.
 
-Defer to `docs/assets/archive/AGENTS.md` for archive structure and procedure.
+Defer to `.make-docs/archive/AGENTS.md` for archive structure and procedure.
 
 ## Required Headings
 

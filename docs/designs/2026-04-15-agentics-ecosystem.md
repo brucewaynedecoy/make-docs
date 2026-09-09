@@ -1,6 +1,6 @@
 # Agentics Ecosystem — Capability Registry, Modules, and Gateway Skill
 
-> Filename: `2026-04-15-agentics-ecosystem.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-agentics-ecosystem.md`. See the [wave model](../../.make-docs/system/references/wave-model.md) for W/R semantics.
 
 ## Purpose
 

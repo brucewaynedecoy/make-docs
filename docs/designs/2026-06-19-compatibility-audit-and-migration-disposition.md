@@ -10,7 +10,7 @@ This design classifies source states, assigns safe dispositions, and records aud
 
 ## Context
 
-This design is the third doc in Batch 1 of the [v2 proposed design and roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle: artifact roadmap inputs are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
+This design is the third doc in Batch 1 of the [v2 proposed design and roadmap](../assets/project/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle: artifact roadmap inputs are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
 
 Two accepted Batch 1 designs are stronger authority than the roadmap proposal:
 
@@ -19,7 +19,7 @@ Two accepted Batch 1 designs are stronger authority than the roadmap proposal:
 
 Current implementation evidence gives v2 a safety model to build on rather than replace. `../../packages/cli/src/manifest.ts` owns `.make-docs/manifest.json` schema version 1, manifest validation, selection migration, file hashes, `selectedSkills`, and `skillFiles`. `../../packages/cli/src/audit.ts` already separates `manifest-present` and `manifest-missing` audits and classifies removable, preserved, skipped, and prunable paths. `../../packages/cli/src/backup.ts` and `../../packages/cli/src/uninstall.ts` execute backup and removal from reviewed audit results. `../../packages/cli/src/install.ts`, `../../packages/cli/src/planner.ts`, and `../../packages/cli/src/managed-block.ts` provide managed-file conflict review and managed-block detection.
 
-Earlier designs remain important lineage. The archived [CLI Lifecycle UX - Help, Backup, and Uninstall](../assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md) design established one shared audit engine for backup and uninstall. [CLI Conflict Resolution](2026-05-06-cli-conflict-resolution.md) broadened conflict handling from instruction-only review to reviewable managed-file diffs. The archived [CLI Asset Selection Simplification](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md) and [CLI Skill Selection Simplification](../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md) designs removed stale asset-mode fields and moved skills toward explicit selection state.
+Earlier designs remain important lineage. The archived [CLI Lifecycle UX - Help, Backup, and Uninstall](../../.make-docs/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md) design established one shared audit engine for backup and uninstall. [CLI Conflict Resolution](2026-05-06-cli-conflict-resolution.md) broadened conflict handling from instruction-only review to reviewable managed-file diffs. The archived [CLI Asset Selection Simplification](../../.make-docs/archive/designs/2026-04-28-cli-asset-selection-simplification.md) and [CLI Skill Selection Simplification](../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md) designs removed stale asset-mode fields and moved skills toward explicit selection state.
 
 This design references open PRD/risk-register entries in [03-open-questions-and-risk-register.md](../prd/03-open-questions-and-risk-register.md) but does not mutate them.
 
@@ -111,7 +111,7 @@ This design does not mutate the PRD/risk register, prior designs, plans, work ba
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-06-19-package-and-deployment-boundaries.md](2026-06-19-package-and-deployment-boundaries.md), [2026-06-19-system-asset-delivery-and-materialization-contract.md](2026-06-19-system-asset-delivery-and-materialization-contract.md), [2026-05-06-cli-conflict-resolution.md](2026-05-06-cli-conflict-resolution.md), [2026-04-18-cli-help-backup-and-uninstall.md](../assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [2026-04-28-cli-asset-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-28-cli-skill-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
+- Prior Design Docs: [2026-06-19-package-and-deployment-boundaries.md](2026-06-19-package-and-deployment-boundaries.md), [2026-06-19-system-asset-delivery-and-materialization-contract.md](2026-06-19-system-asset-delivery-and-materialization-contract.md), [2026-05-06-cli-conflict-resolution.md](2026-05-06-cli-conflict-resolution.md), [2026-04-18-cli-help-backup-and-uninstall.md](../../.make-docs/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md), [2026-04-28-cli-asset-selection-simplification.md](../../.make-docs/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-28-cli-skill-selection-simplification.md](../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
 - Reason: this design extends the Batch 1 package and asset materialization contracts, applies the earlier single-audit backup/uninstall safety model to v2 migration, and reuses managed-file conflict review as the review path for modified or partial installs.
 
 ## Intended Follow-On

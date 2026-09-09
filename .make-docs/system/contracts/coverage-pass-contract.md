@@ -62,7 +62,7 @@ The governing invariant is that `docs/prd/` describes the current authoritative 
 - Use `link-only` when current product authority is sufficient but a navigation or related-authority pointer improves discoverability.
 - Use `none` when no PRD, risk-register, index, or link change is warranted; record why the completed work implements or confirms existing authority.
 
-Never use `create` for a document that describes an addition, enhancement, revision, removal, migration, reconciliation, or other editorial operation. PRD content remains governed by [prd-change-management.md](../../references/system/prd-change-management.md) and [output-contract.md](output-contract.md).
+Never use `create` for a document that describes an addition, enhancement, revision, removal, migration, reconciliation, or other editorial operation. PRD content remains governed by [prd-change-management.md](../references/prd-change-management.md) and [output-contract.md](output-contract.md).
 
 ### Testing Coverage
 
@@ -133,15 +133,14 @@ The report and supporting files are review evidence, not Make Docs operation sta
 
 Verdicts and persona targets are separate axes. A verdict says what coverage action to take; a target says which configured persona or audience receives that coverage.
 
-Read the configured persona set and use persona slugs, not display labels, in machine-readable coverage output. The default configured target slugs are:
+Merge the built-in Personas with valid `.make-docs/config.yaml` overrides and custom entries. Missing or empty configuration keeps both defaults. Use persona slugs, not display labels, in machine-readable coverage output. The default configured target slugs are:
 
 | Persona target | Primitive | Use for |
 | --- | --- |
-| `agent` | `agent` | Agents executing make-docs workflows, coverage passes, closeout, and lifecycle tasks. |
-| `developer` | `maintainer` | Contributors, maintainers, integrators, operators, validation owners, and extension authors. |
-| `user` | `user` | People using the shipped product, reading task guidance, or adopting a workflow. |
+| `maintainer` | `maintainer` | Contributors, maintainers, integrators, operators, validation owners, and extension authors. |
+| `user` | `user` | People or agents using the shipped product, reading task guidance, or adopting a workflow. |
 
-Custom persona targets use the same schema: `slug`, `label`, `description`, and `primitive`. Do not hard-code display labels in new contracts or prompts.
+Either primitive can be human or agent; actor identity does not select a Persona. `agent` is not a primitive. Custom persona targets retain their slug and use only `user` or `maintainer` as their primitive. Custom persona targets use the same schema: `slug`, `label`, `description`, and `primitive`. Do not hard-code display labels in new contracts or prompts.
 
 If both audiences need distinct coverage, record one verdict per target or one verdict with an explicit multi-target reason. Do not collapse different audience needs into one artifact merely because they share a source change.
 

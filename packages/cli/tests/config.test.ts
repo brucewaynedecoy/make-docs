@@ -46,9 +46,8 @@ describe("make-docs project config", () => {
     expect(loaded.diagnostics).toEqual([]);
     expect(loaded.config).toEqual(createDefaultMakeDocsConfig());
     expect(loaded.config.personas.map((persona) => persona.slug)).toEqual([
-      "agent",
-      "developer",
       "user",
+      "maintainer",
     ]);
   });
 
@@ -129,9 +128,9 @@ personas:
       primitive: "maintainer",
     });
     expect(loaded.config.personas.map((persona) => persona.slug)).toEqual([
-      "agent",
-      "developer",
       "user",
+      "maintainer",
+      "developer",
       "qa-reviewer",
     ]);
   });

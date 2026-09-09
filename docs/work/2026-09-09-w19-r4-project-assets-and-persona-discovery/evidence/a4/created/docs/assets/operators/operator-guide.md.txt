@@ -1,0 +1,5 @@
+# Operator Guide
+
+No deployable service, executable, or operational command is currently declared by the files in this project. There is therefore nothing to start, stop, monitor, or recover yet.
+
+When an operational interface is added, document its prerequisites, startup, health check, shutdown, and recovery procedures here using commands verified in this repository.

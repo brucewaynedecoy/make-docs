@@ -1,6 +1,6 @@
 # Execution Workflow
 
-See `.make-docs/system/references/wave-model.md` for W/R semantics; archive rules are authoritative in `docs/assets/archive/AGENTS.md`.
+See `.make-docs/system/references/wave-model.md` for W/R semantics; archive rules are authoritative in `.make-docs/archive/AGENTS.md`.
 
 ## Purpose
 
@@ -73,7 +73,7 @@ Apply this gate only in `full-set generation` mode:
 
 - Treat `docs/prd/` as a single active PRD namespace.
 - If root entries already exist in `docs/prd/`, summarize them and ask for approval before moving them.
-- On approval, archive every root entry into `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/`.
+- On approval, archive every root entry into `.make-docs/archive/prds/YYYY-MM-DD/` or `.make-docs/archive/prds/YYYY-MM-DD-XX/`.
 - Include stray or hidden root entries in the archive summary and move set when they are part of the active namespace.
 - If archival is declined, stop before writing anything into `docs/prd/`.
 - Treat archived PRD sets as historical records, not active output targets.
@@ -137,7 +137,7 @@ For authoritative PRD maintenance, prefer these separate write scopes when possi
 - Supplement and cite useful existing docs.
 - Do not silently overwrite docs that serve another audience or purpose.
 - If existing docs drift from the code, record the drift in `03-open-questions-and-risk-register.md`.
-- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `docs/assets/archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
+- If the task is full-set generation and an older active PRD set already exists under `docs/prd/`, archive it to `.make-docs/archive/prds/YYYY-MM-DD/` before writing the replacement active PRD set.
 - If the task is authoritative PRD maintenance, update the owning current requirement surgically and preserve material prior state only in non-normative requirement history.
 
 ## Work Backlog Source Authority

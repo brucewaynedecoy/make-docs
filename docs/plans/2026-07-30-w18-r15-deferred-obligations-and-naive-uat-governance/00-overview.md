@@ -103,7 +103,7 @@ The UAT design left seven questions for downstream planning. This bundle resolve
 - Current execution-state status: W18 R10 already provides stable project identity and work-evidence seams. W18 R15 consumes those seams and does not change their runtime implementation.
 - Discovery still required for the backlog: inventory active deferral language and current UAT/manual-test artifacts relevant to the changed governance behavior. Archive material is read only when a current authority links to it or the new behavior exposes an old deferral.
 
-The [W18 R15 P1 history record](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) preserves the completed PRD-maintenance evidence and the explicit stop boundary.
+The [W18 R15 P1 history record](../../../.make-docs/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) preserves the completed PRD-maintenance evidence and the explicit stop boundary.
 
 ## Current Authority And Pending Output
 
@@ -164,7 +164,7 @@ Downstream backlog generation must preserve all existing `D-###`, `Q-###`, `R-##
 
 | Plan phase | File | Current result | Status |
 | --- | --- | --- | --- |
-| 1 | [01-prd-capability-authority-and-baseline-reconciliation.md](./01-prd-capability-authority-and-baseline-reconciliation.md) | Established PRDs 45/46, O-001/O-002, maintained living authorities, and cross-links | Complete; recorded in [P1 history](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) |
+| 1 | [01-prd-capability-authority-and-baseline-reconciliation.md](./01-prd-capability-authority-and-baseline-reconciliation.md) | Established PRDs 45/46, O-001/O-002, maintained living authorities, and cross-links | Complete; recorded in [P1 history](../../../.make-docs/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) |
 | 2 | [02-system-contracts-and-scenario-governance.md](./02-system-contracts-and-scenario-governance.md) | Defines the pending upstream contract, template, reference, prompt, and router implementation boundary | Not implemented; input to the pending backlog |
 | 3 | [03-playbooks-dogfood-and-compatibility.md](./03-playbooks-dogfood-and-compatibility.md) | Defines the pending Playbook, dogfood/install projection, compatibility, evidence, and acceptance boundary | Not implemented; input to the pending backlog |
 | 4 | [04-delta-backlog-and-validation.md](./04-delta-backlog-and-validation.md) | Defines the required work-bundle shape, validation bar, and owner handoff | Backlog generation pending separate authorization |
@@ -194,7 +194,7 @@ The PRD-maintenance work is already complete and is not a pending worker assignm
 
 ## Validation
 
-The completed PRD-maintenance step recorded that PRDs 45 and 46 use the feature-oriented subsystem contract, link both source designs and each other, maintain the living authorities in place, and add one fixed `## Deferred Obligations` section with unique O-001/O-002 records without converting existing `D-###`, `Q-###`, or `R-###` identities. Its [history record](../../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) reports 1,075 tests passing plus targeted path, link, whitespace, and wave checks; the aggregate validator remained red only for pre-existing root instruction-router parity and line-budget debt. That step stopped before templates, contracts, Playbooks, skills, projections, migrations, runtime work, staging, commit, push, publication, or release.
+The completed PRD-maintenance step recorded that PRDs 45 and 46 use the feature-oriented subsystem contract, link both source designs and each other, maintain the living authorities in place, and add one fixed `## Deferred Obligations` section with unique O-001/O-002 records without converting existing `D-###`, `Q-###`, or `R-###` identities. Its [history record](../../../.make-docs/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md) reports 1,075 tests passing plus targeted path, link, whitespace, and wave checks; the aggregate validator remained red only for pre-existing root instruction-router parity and line-budget debt. That step stopped before templates, contracts, Playbooks, skills, projections, migrations, runtime work, staging, commit, push, publication, or release.
 
 The pending backlog and implementation must validate:
 

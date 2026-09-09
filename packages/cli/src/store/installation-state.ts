@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, lstatSync, realpathSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, realpathSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, statSync, fstatSync, renameSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { parseDocument } from 'yaml';
@@ -39,13 +39,16 @@ interface Operation {
     after_ledger: string | null;
     plan_complete: number;
 }
-interface FileState {
+export interface InstallationFileState {
     kind: 'missing' | 'file' | 'directory' | 'symlink';
     digest?: string;
     payload?: string;
     mode?: number;
     target?: string;
+    /** Detached plans keep recovery bytes in the Store, never in a local plan. */
+    contentBase64?: string;
 }
+type FileState = InstallationFileState;
 interface Step {
     ordinal: number;
     relative_path: string;
@@ -74,6 +77,107 @@ const active = new Map<string, {
 }>();
 const sha = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 const now = () => new Date().toISOString();
+
+export interface DetachedInstallationPlan {
+    schemaVersion: 1;
+    reviewDigest: string;
+    mode: 'cli' | 'manual';
+    metadata: unknown;
+    changes: Array<{ path: string; before: InstallationFileState; after: InstallationFileState }>;
+    afterLedger?: InstallManifest | null;
+}
+interface DetachedOperationHooks {
+    validate(root: string, metadata: unknown, phase: 'before' | 'after' | 'progress', temporaryFiles?: Record<string, FileState>): string[];
+    nextAction(root: string, operationId: string, mode: 'cli' | 'manual'): string;
+}
+const detachedHooks = new Map<string, DetachedOperationHooks>();
+/** Domain checks extend the same journal and recovery executor used by setup. */
+export function registerDetachedInstallationOperation(operation: string, hooks: DetachedOperationHooks): void {
+    if (detachedHooks.has(operation)) throw new Error(`Duplicate detached operation: ${operation}`);
+    detachedHooks.set(operation, hooks);
+}
+function detachedSnapshot(db: StoreDatabase, op: Operation): DetachedInstallationPlan | null {
+    const record = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='snapshot' AND record_id=?").get(op.checkout_id, `detached:${op.operation_id}`) as {record_json: string} | undefined;
+    if (!record) {
+        if (detachedHooks.has(op.operation) || op.operation.startsWith('project.layout')) fail('recovery-required', 'The saved layout plan is missing. Preserve the files and restore its Store evidence.');
+        return null;
+    }
+    const envelope = JSON.parse(record.record_json) as { digest: string; plan: DetachedInstallationPlan };
+    if (!envelope.plan || sha(canonicalJson(envelope.plan)) !== envelope.digest || envelope.plan.schemaVersion !== 1 || !['cli', 'manual'].includes(envelope.plan.mode) || !Array.isArray(envelope.plan.changes)) fail('snapshot-drift', 'The saved operation plan is invalid or changed.');
+    if (envelope.plan.afterLedger !== undefined && canonicalJson(envelope.plan.afterLedger) !== canonicalJson(op.after_ledger ? JSON.parse(op.after_ledger) : null)) fail('snapshot-drift', 'The saved plan and final ownership ledger disagree.');
+    const steps = db.prepare('SELECT * FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(op.operation_id) as unknown as Step[];
+    if (steps.length !== envelope.plan.changes.length || steps.some((step, index) => step.relative_path !== envelope.plan.changes[index].path || canonicalJson(JSON.parse(step.before_json)) !== canonicalJson(envelope.plan.changes[index].before) || canonicalJson(JSON.parse(step.after_json)) !== canonicalJson(envelope.plan.changes[index].after))) fail('snapshot-drift', 'The saved plan and file journal disagree.');
+    if (!detachedHooks.has(op.operation)) fail('recovery-required', `This CLI cannot validate the saved ${op.operation} operation.`);
+    return envelope.plan;
+}
+function validateDetached(root: string, op: Operation, plan: DetachedInstallationPlan | null, phase: 'before' | 'after' | 'progress', temporaryFiles?: Record<string, FileState>): string[] {
+    return plan ? detachedHooks.get(op.operation)!.validate(root, plan.metadata, phase, temporaryFiles) : [];
+}
+function assertDetachedPaths(root: string, plan: DetachedInstallationPlan, checkBefore = true): void {
+    const prior = new Map<string, FileState>();
+    for (const change of plan.changes) {
+        if (!change.path || change.path === '.' || path.isAbsolute(change.path) || change.path.includes('\\') || change.path.split('/').some(part => !part || part === '.' || part === '..')) fail('ownership-unverified', 'A saved layout path must be project-relative and cannot escape the project.');
+        assertSafeFilePath(root, change.path);
+        for (const state of [change.before, change.after]) {
+            if (!['missing', 'directory', 'file', 'symlink'].includes(state.kind) || state.payload !== undefined) fail('ownership-unverified', 'Unsupported detached file state.');
+            if (state.kind === 'file' && (typeof state.contentBase64 !== 'string' || sha(Buffer.from(state.contentBase64, 'base64')) !== state.digest || !Number.isInteger(state.mode) || state.mode! < 0 || state.mode! > 0o777)) fail('snapshot-drift', `Saved file bytes or mode are invalid: ${change.path}`);
+            if (state.kind === 'symlink') fail('ownership-unverified', 'Layout migration does not follow or create symbolic links.');
+        }
+        const preceding = prior.get(change.path);
+        if (preceding && canonicalJson(preceding) !== canonicalJson(change.before)) fail('snapshot-drift', `Non-contiguous file plan: ${change.path}`);
+        if (checkBefore && !preceding && !matches(root, change.path, change.before)) fail('snapshot-drift', `Input changed before preparation: ${change.path}`);
+        prior.set(change.path, change.after);
+    }
+}
+/** Persist a sealed plan without creating config, project backup files, or changing content. */
+export function prepareDetachedInstallationOperation(projectRoot: string, operation: string, build: () => DetachedInstallationPlan, storeRoot?: string) {
+    const root = canonicalInstallationPath(projectRoot);
+    if (!lstatSync(root, {throwIfNoEntry: false})?.isDirectory()) fail('ownership-unverified', 'Layout preparation requires an existing project directory.');
+    const hooks = detachedHooks.get(operation);
+    if (!hooks) fail('recovery-required', 'No validator is registered for this operation.');
+    const lock = acquireInstallationLock(root, storeRoot);
+    try {
+        const plan = build();
+        const issues = hooks.validate(root, plan.metadata, 'before');
+        if (issues.length) fail('snapshot-drift', issues.join('\n'));
+        assertDetachedPaths(root, plan);
+        const id = randomUUID();
+        withInstallationDatabase(root, db => transaction(db, () => {
+            const row = bindCheckout(db, root);
+            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as {operation_id: string} | undefined;
+            if (pending) fail('recovery-required', `Operation ${pending.operation_id} is pending. Inspect project state status.`);
+            const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined)?.manifest_json ?? null;
+            const afterLedger = plan.afterLedger === undefined ? ledger : plan.afterLedger === null ? null : JSON.stringify(plan.afterLedger);
+            if (afterLedger) {
+                const validated = validateAndMigrateManifest(JSON.parse(afterLedger), 'Prepared layout installation ledger');
+                if (validated.projectId !== row.project_id) fail('ownership-unverified', 'The prepared ledger belongs to another project.');
+            }
+            db.prepare("INSERT INTO installation_operations (operation_id,checkout_id,operation,status,before_ledger,after_ledger,created_at,finished_at,plan_complete) VALUES (?,?,?,'pending',?,?,?,NULL,1)").run(id, row.checkout_id, operation, ledger, afterLedger, now());
+            for (const [index, change] of plan.changes.entries()) db.prepare('INSERT INTO installation_steps VALUES (?,?,?,?,?,0)').run(id, index + 1, change.path, JSON.stringify(change.before), JSON.stringify(change.after));
+            db.prepare("INSERT INTO installation_migration_records VALUES (?,'snapshot',?,?)").run(row.checkout_id, `detached:${id}`, JSON.stringify({digest: sha(canonicalJson(plan)), plan}));
+        }), {storeRoot: lock.storeRoot});
+        // Read the committed receipt back before giving a mover instructions.
+        withInstallationDatabase(root, db => {
+            const op = db.prepare('SELECT * FROM installation_operations WHERE operation_id=?').get(id) as unknown as Operation;
+            if (!op || !detachedSnapshot(db, op)) fail('recovery-required', 'The prepared operation could not be read back.');
+        }, {storeRoot: lock.storeRoot, readOnly: true});
+        assertInstallationLockActive(lock);
+        return {schemaVersion: 1 as const, operationId: id, status: 'pending' as const, mode: plan.mode, reviewDigest: plan.reviewDigest, nextAction: hooks.nextAction(root, id, plan.mode)};
+    } finally { releaseInstallationLock(lock); }
+}
+export function readDetachedInstallationOperation(projectRoot: string, operationId: string, operation: string, storeRoot?: string) {
+    const root = canonicalInstallationPath(projectRoot);
+    return withInstallationDatabase(root, db => {
+        const row = checkout(db, root);
+        if (!row) fail('ownership-unverified', 'No checkout binding for this operation.');
+        assertCheckoutIdentity(row, root);
+        const op = db.prepare('SELECT * FROM installation_operations WHERE operation_id=? AND checkout_id=?').get(operationId, row.checkout_id) as unknown as Operation | undefined;
+        if (!op || op.operation !== operation) fail('ownership-unverified', 'This operation does not belong to the requested layout and checkout.');
+        const plan = detachedSnapshot(db, op);
+        if (!plan) fail('recovery-required', 'The complete saved operation plan is absent.');
+        return {status: op.status, plan};
+    }, {storeRoot, readOnly: true});
+}
 function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string): never { throw new InstallationStateError(code, message); }
 /** Resolve absent leaves without trusting a symlink spelling of an external path. */
 export function canonicalInstallationPath(input: string): string {
@@ -507,7 +611,7 @@ function inspect(root: string, relative: string): FileState {
     if (st.isSymbolicLink())
         return { kind: 'symlink', target: readlinkSync(target) };
     if (st.isDirectory())
-        return { kind: 'directory' };
+        return { kind: 'directory', mode: st.mode & 0o777 };
     if (!st.isFile())
         fail('ownership-unverified', 'Unsupported recovery file type.');
     return { kind: 'file', digest: sha(readFileSync(target)), mode: st.mode & 0o777 };
@@ -583,9 +687,92 @@ export function preparePlannedFileChange(projectRoot: string, relativePath: stri
         withInstallationDatabase(root, db => db.prepare('UPDATE installation_steps SET applied=1 WHERE operation_id=? AND ordinal=?').run(op.id, ordinal), { storeRoot: op.storeRoot });
     };
 }
-function restoreState(root: string, relative: string, state: FileState): void {
+interface AtomicWriteRecord {
+    operationId: string;
+    ordinal: number;
+    temporary: string;
+    target: string;
+    digest: string;
+    mode: number;
+    device?: string;
+    inode?: string;
+}
+function atomicTemporaryPath(operationId: string, ordinal: number, target: string): string {
+    return path.posix.join(path.posix.dirname(target), `.make-docs-${operationId}-${ordinal}.tmp`);
+}
+function atomicTemporaryStates(db: StoreDatabase, root: string, op: Operation, steps: Step[]): Record<string, FileState> {
+    const temporary: Record<string, FileState> = {};
+    const rows = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='backup' AND record_id LIKE ?").all(op.checkout_id, `atomic:${op.operation_id}:%`) as {record_json: string}[];
+    for (const row of rows) {
+        const record = JSON.parse(row.record_json) as AtomicWriteRecord;
+        const step = steps.find(candidate => candidate.ordinal === record.ordinal);
+        if (!step || record.operationId !== op.operation_id || record.target !== step.relative_path || record.temporary !== atomicTemporaryPath(op.operation_id, step.ordinal, step.relative_path)) fail('snapshot-drift', 'Temporary file ownership disagrees with the saved operation.');
+        const states: FileState[] = [JSON.parse(step.before_json), JSON.parse(step.after_json)];
+        const desired = states.find(state => state.kind === 'file' && state.digest === record.digest && state.mode === record.mode && typeof state.contentBase64 === 'string');
+        if (!desired) fail('snapshot-drift', 'Temporary file payload does not belong to the saved operation.');
+        const target = assertSafeFilePath(root, record.temporary);
+        const stat = lstatSync(target, {throwIfNoEntry: false});
+        if (!stat) continue;
+        if (!stat.isFile() || stat.isSymbolicLink()) fail('snapshot-drift', `Temporary file was replaced: ${record.temporary}`);
+        const bytes = readFileSync(target), intended = Buffer.from(desired.contentBase64!, 'base64');
+        const mode = stat.mode & 0o777;
+        if (sha(intended) !== record.digest || bytes.length > intended.length || !bytes.equals(intended.subarray(0, bytes.length))) fail('snapshot-drift', `Temporary file was changed: ${record.temporary}`);
+        if (record.device !== undefined || record.inode !== undefined) {
+            if (record.device !== String(stat.dev) || record.inode !== String(stat.ino)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
+        } else if (bytes.length !== 0 || mode !== 0o600) fail('snapshot-drift', `Unproved temporary file creation: ${record.temporary}`);
+        if (mode !== 0o600 && !(bytes.length === intended.length && mode === record.mode)) fail('snapshot-drift', `Temporary file mode changed: ${record.temporary}`);
+        temporary[record.temporary] = {kind: 'file', digest: sha(bytes), mode};
+    }
+    return temporary;
+}
+function cleanAtomicTemporaryFiles(root: string, op: Operation, steps: Step[], lock: InstallationLock): void {
+    const temporary = withInstallationDatabase(root, db => atomicTemporaryStates(db, root, op, steps), {storeRoot: lock.storeRoot, readOnly: true});
+    for (const [relative, expected] of Object.entries(temporary)) {
+        assertInstallationLockActive(lock);
+        if (!matches(root, relative, expected)) fail('snapshot-drift', `Temporary file changed before cleanup: ${relative}`);
+        unlinkSync(assertSafeFilePath(root, relative));
+    }
+}
+function writeAtomicDetachedFile(root: string, relative: string, state: FileState, bytes: Buffer, context: {op: Operation; step: Step; expected: FileState; lock: InstallationLock}): void {
+    const {op, step, lock, expected} = context;
+    const temporary = atomicTemporaryPath(op.operation_id, step.ordinal, relative);
+    const staged = assertSafeFilePath(root, temporary), target = assertSafeFilePath(root, relative);
+    if (lstatSync(staged, {throwIfNoEntry: false})) fail('snapshot-drift', `Temporary destination is occupied: ${temporary}`);
+    const record: AtomicWriteRecord = {operationId: op.operation_id, ordinal: step.ordinal, temporary, target: relative, digest: state.digest!, mode: state.mode ?? 0o644};
+    const save = () => withInstallationDatabase(root, db => db.prepare("INSERT INTO installation_migration_records VALUES (?,'backup',?,?) ON CONFLICT(checkout_id,kind,record_id) DO UPDATE SET record_json=excluded.record_json").run(op.checkout_id, `atomic:${op.operation_id}:${step.ordinal}`, JSON.stringify(record)), {storeRoot: lock.storeRoot});
+    save(); // Intent and the exclusive temporary path precede file creation.
+    assertInstallationLockActive(lock);
+    const fd = openSync(staged, 'wx', 0o600);
+    try {
+        fsyncSync(fd);
+        const stat = fstatSync(fd);
+        record.device = String(stat.dev); record.inode = String(stat.ino);
+        save(); // Inode proof precedes every payload byte.
+        writeFileSync(fd, bytes);
+        fsyncSync(fd);
+    } finally {closeSync(fd);}
+    if (sha(readFileSync(staged)) !== state.digest) fail('snapshot-drift', 'Staged replacement bytes changed.');
+    chmodSync(staged, state.mode ?? 0o644);
+    assertInstallationLockActive(lock);
+    if (!matches(root, relative, expected)) fail('snapshot-drift', `File changed before atomic replacement: ${relative}`);
+    renameSync(staged, target);
+    const directory = openSync(path.dirname(target), 'r');
+    try {fsyncSync(directory);} finally {closeSync(directory);}
+}
+function restoreState(root: string, relative: string, state: FileState, atomic?: {op: Operation; step: Step; expected: FileState; lock: InstallationLock}): void {
     const target = assertSafeFilePath(root, relative);
     const current = inspect(root, relative);
+    let fileBytes: Buffer | undefined;
+    if (state.kind === 'file') {
+        if (state.contentBase64 !== undefined) fileBytes = Buffer.from(state.contentBase64, 'base64');
+        else {
+            if (!state.payload) fail('recovery-required', 'Recovery payload reference is absent.');
+            const payload = assertSafeFilePath(root, state.payload);
+            if (lstatSync(payload).isSymbolicLink()) fail('snapshot-drift', 'Recovery payload changed.');
+            fileBytes = readFileSync(payload);
+        }
+        if (sha(fileBytes) !== state.digest) fail('snapshot-drift', 'Recovery payload changed.');
+    }
     if (state.kind === 'missing') {
         if (current.kind === 'directory')
             rmdirSync(target);
@@ -595,6 +782,12 @@ function restoreState(root: string, relative: string, state: FileState): void {
     }
     if (state.kind === 'directory') {
         mkdirSync(target, { recursive: true });
+        if (state.mode !== undefined) chmodSync(target, state.mode);
+        return;
+    }
+    if (state.kind === 'file' && atomic) {
+        if (current.kind !== 'missing' && current.kind !== 'file') fail('ownership-unverified', 'Atomic layout writes require a regular file or missing destination.');
+        writeAtomicDetachedFile(root, relative, state, fileBytes!, atomic);
         return;
     }
     if (current.kind === 'directory')
@@ -608,14 +801,9 @@ function restoreState(root: string, relative: string, state: FileState): void {
         symlinkSync(state.target!, target);
         return;
     }
-    if (!state.payload)
-        fail('recovery-required', 'Recovery payload reference is absent.');
-    const payload = assertSafeFilePath(root, state.payload);
-    if (lstatSync(payload).isSymbolicLink() || sha(readFileSync(payload)) !== state.digest)
-        fail('snapshot-drift', 'Recovery payload changed.');
     const fd = openSync(target, 'w', state.mode ?? 0o644);
     try {
-        writeFileSync(fd, readFileSync(payload));
+        writeFileSync(fd, fileBytes!);
         fsyncSync(fd);
     }
     finally {
@@ -653,14 +841,12 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
                 pid: number;
                 hostname: string;
             } | undefined;
-            const pending = db.prepare("SELECT operation_id,operation FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as {
-                operation_id: string;
-                operation: string;
-            } | undefined;
+            const pending = db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as unknown as Operation | undefined;
+            const prepared = pending ? detachedSnapshot(db, pending) : null;
             const manifest = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {
                 manifest_json: string;
             } | undefined)?.manifest_json;
-            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ?? null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : 'unregistered', nextAction: pending ? `make-docs project state recover ${pending.operation_id} --resume --dry-run --target-root ${JSON.stringify(root)}` : lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : 'Review setup before installing.' };
+            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : 'unregistered', nextAction: pending ? prepared ? detachedHooks.get(pending.operation)!.nextAction(root, pending.operation_id, prepared.mode) : `make-docs project state recover ${pending.operation_id} --resume --dry-run --target-root ${JSON.stringify(root)}` : lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : 'Review setup before installing.' };
         }, { storeRoot: store, readOnly: true });
     }
     catch (e) {
@@ -681,7 +867,10 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         if (!op)
             fail('ownership-unverified', 'Operation does not belong to this checkout.');
         const steps = db.prepare('SELECT * FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(operationId) as unknown as Step[];
-        return { op, steps };
+        const detached = detachedSnapshot(db, op);
+        if (detached) assertDetachedPaths(root, detached, false);
+        const temporary = detached ? atomicTemporaryStates(db, root, op, steps) : undefined;
+        return { op, steps, detached, temporary };
     }, { storeRoot: store, readOnly: true });
     const select = (state: ReturnType<typeof read>) => {
         const ordered = mode === 'rollback' ? [...state.steps].reverse() : state.steps;
@@ -694,8 +883,8 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         const selected = new Set<number>();
         const conflicts: string[] = [];
         const equal = (a: FileState, b: FileState) => a.kind === b.kind && a.digest === b.digest && a.target === b.target && (b.mode === undefined || a.mode === b.mode);
+        const lastSteps = new Map([...byPath].map(([p, items]) => [p, items[items.length - 1]]));
         for (const [relative, steps] of byPath) {
-            const lastSteps = new Map([...byPath].map(([p, items]) => [p, items[items.length - 1]]));
             const current = subsumedByAncestor(root, steps[steps.length - 1], lastSteps) ? { kind: "missing" as const } : inspect(root, relative);
             let boundary = -2;
             if (equal(current, JSON.parse(steps[0].before_json)))
@@ -712,6 +901,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
                     selected.add(steps[i].ordinal);
         }
         const remaining = ordered.filter(s => selected.has(s.ordinal));
+        conflicts.push(...validateDetached(root, state.op, state.detached, state.detached?.mode === 'manual' && mode === 'resume' ? 'after' : 'progress', state.temporary));
         return { ordered, remaining, conflicts };
     };
     const state = read();
@@ -747,7 +937,8 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         const locked = select(current);
         if (locked.conflicts.length)
             fail('snapshot-drift', `Recovery input changed: ${locked.conflicts.join(', ')}`);
-        for (const s of locked.remaining) {
+        if (current.detached) cleanAtomicTemporaryFiles(root, current.op, current.steps, lock);
+        for (const s of (current.detached?.mode === 'manual' && mode === 'resume' ? [] : locked.remaining)) {
             assertInstallationLockActive(lock);
             const from: FileState = JSON.parse(mode === 'resume' ? s.before_json : s.after_json);
             const to: FileState = JSON.parse(mode === 'resume' ? s.after_json : s.before_json);
@@ -755,7 +946,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
                 continue;
             if (!matches(root, s.relative_path, from))
                 fail('snapshot-drift', `Recovery input changed: ${s.relative_path}`);
-            restoreState(root, s.relative_path, to);
+            restoreState(root, s.relative_path, to, current.detached ? {op: current.op, step: s, expected: from, lock} : undefined);
             if (!matches(root, s.relative_path, to))
                 fail('snapshot-drift', 'Recovery output verification failed.');
         }
@@ -769,6 +960,8 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
                 fail('snapshot-drift', `Recovery output changed before commit: ${step.relative_path}`);
         }
         assertInstallationLockActive(lock);
+        const finalIssues = validateDetached(root, current.op, current.detached, mode === 'rollback' ? 'before' : 'after');
+        if (finalIssues.length) fail('snapshot-drift', finalIssues.join('\n'));
         withInstallationDatabase(root, db => commitOperation(db, operationId, mode === 'rollback'), { storeRoot: store });
         return { ...result, status: mode === 'resume' ? 'completed' : 'rolled-back' };
     }

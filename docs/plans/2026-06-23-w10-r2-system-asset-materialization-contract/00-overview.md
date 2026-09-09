@@ -42,13 +42,13 @@ It enhances the manifest contract with asset-set provenance and preserves the Ty
 
 - [2026-06-19-system-asset-delivery-and-materialization-contract.md](../../designs/2026-06-19-system-asset-delivery-and-materialization-contract.md)
 - [2026-06-19-package-and-deployment-boundaries.md](../../designs/2026-06-19-package-and-deployment-boundaries.md)
-- [2026-04-16-asset-pipeline-completeness.md](../../assets/archive/designs/2026-04-16-asset-pipeline-completeness.md)
-- [2026-04-20-docs-assets-state-and-history.md](../../assets/archive/designs/2026-04-20-docs-assets-state-and-history.md)
-- [2026-04-22-docs-assets-resource-namespace.md](../../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md)
-- [2026-04-28-cli-skill-selection-simplification.md](../../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
-- [2026-06-18-w17-r0-static-template-router-skill-correction.md](../../assets/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md)
-- [2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md](../../assets/archive/history/2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md)
-- [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../../assets/archive/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md)
+- [2026-04-16-asset-pipeline-completeness.md](../../../.make-docs/archive/designs/2026-04-16-asset-pipeline-completeness.md)
+- [2026-04-20-docs-assets-state-and-history.md](../../../.make-docs/archive/designs/2026-04-20-docs-assets-state-and-history.md)
+- [2026-04-22-docs-assets-resource-namespace.md](../../../.make-docs/archive/designs/2026-04-22-docs-assets-resource-namespace.md)
+- [2026-04-28-cli-skill-selection-simplification.md](../../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
+- [2026-06-18-w17-r0-static-template-router-skill-correction.md](../../../.make-docs/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md)
+- [2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md](../../../.make-docs/archive/history/2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md)
+- [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../../../.make-docs/archive/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md)
 - Current implementation surfaces: `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, `packages/cli/src/utils.ts`, `packages/cli/src/planner.ts`, `packages/cli/src/install.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, `packages/cli/src/uninstall.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-resolver.ts`, `packages/cli/tests/consistency.test.ts`, and `scripts/smoke-pack.mjs`.
 
 ## Baseline Context

@@ -25,7 +25,7 @@ Every other reference file, template, and router links here instead of restating
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 | Work index file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/00-index.md` |
 | Work phase file | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/0N-<phase>.md` |
-| Breadcrumb record | `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `.make-docs/system/contracts/history-record-contract.md` for fallbacks. |
+| Breadcrumb record | `.make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; see `.make-docs/system/contracts/history-record-contract.md` for fallbacks. |
 
 `YYYY-MM-DD` is the date the artifact is written. Never backdate.
 
@@ -71,7 +71,7 @@ Designs are inputs to a wave cycle (design → plan → work), not products of o
 
 ## Archive Integration
 
-Archive rules for designs, plans, work, and PRDs live in `docs/assets/archive/AGENTS.md`. W/R/P naming is preserved when an artifact is archived; it is not rewritten.
+Archive rules for designs, plans, work, and PRDs live in `.make-docs/archive/AGENTS.md`. W/R/P naming is preserved when an artifact is archived; it is not rewritten.
 
 ## Forward Compatibility
 

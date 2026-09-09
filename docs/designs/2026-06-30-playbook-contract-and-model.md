@@ -6,7 +6,7 @@ This design establishes the authoritative contract for the Playbook primitive an
 
 It exists because Playbook contract authority is currently distributed across earlier designs, a single dogfood Playbook, and substring-based code validators, which is too weak to support deterministic execution or reliable packaging. This design is the gating foundation of the Playbook architecture: the Run Playbook state machine, the packaging compiler, the harness adapters, and conformance all compile against the model defined here, and none of them can be implemented correctly until this contract is parseable and enforceable.
 
-The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/artifacts/playbook-architecture.md), Sections 0 through 4. That artifact is the source material; this design is the authority that planning proceeds from.
+The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/project/playbook-architecture.md), Sections 0 through 4. That artifact is the source material; this design is the authority that planning proceeds from.
 
 ## Context
 
@@ -14,7 +14,7 @@ Make Docs treats a Playbook as the primitive: a persona-scoped workflow document
 
 The current implementation is insufficient in specific, verified ways. There is no first-class Playbook contract at `packages/docs/template/.make-docs/contracts/system/playbook-contract.md` or its dogfood location `./.make-docs/contracts/system/playbook-contract.md`. The Playbook step record is shallow, modeling only a generated id, an index, free text, and a source-section label, which is not enough to reason about ownership, routing, status, inputs, outputs, tools, or checks. Body validation is substring-based, so a Playbook can pass while lacking machine-usable step semantics. Dependencies are mentioned in prose rather than declared. These gaps are why packaging produced a descriptor instead of a usable plugin: the model the packaging step compiled from was never rich enough.
 
-Two cross-cutting decisions this design depends on are owned elsewhere and are referenced, not redefined, here. The step `operation` field names a Make Docs operation by a stable identifier from the operation registry; the registry and the CLI surface over it are specified in [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md). The execution-mode and degradation concepts that the step model encodes are realized at run time by the runner; run state storage lives in the global store specified in [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md). This design defines the contract fields; it does not define their runtime execution.
+Two cross-cutting decisions this design depends on are owned elsewhere and are referenced, not redefined, here. The step `operation` field names a Make Docs operation by a stable identifier from the operation registry; the registry and the CLI surface over it are specified in [CLI Command Reorganization](../assets/project/cli-command-reorganization.md). The execution-mode and degradation concepts that the step model encodes are realized at run time by the runner; run state storage lives in the global store specified in [Runtime and Global Store](../assets/project/runtime-and-global-store.md). This design defines the contract fields; it does not define their runtime execution.
 
 This repository is the Make Docs maintainer repo and simultaneously a dogfood instance of Make Docs. Make Docs-owned resources are therefore authored upstream in the shipped template at `packages/docs/template/` and dogfooded into this repository's own `./.make-docs/` and `./docs/`; this design's authoring-location rules are stated in D0.
 
@@ -41,8 +41,8 @@ R-SCOPE-1 (MUST NOT). The following are owned by other designs and MUST NOT be d
 - The Run Playbook state machine and its progression operations, including next, advance, gate, resume, and close. Owned by the Run Playbook design; see architecture artifact Section 5.
 - The packaging compiler, the harness capability and distributable model, and the harness adapters. Owned by the packaging design; see architecture artifact Sections 6 through 8.
 - Conformance and the tuple registry. See architecture artifact Section 9.
-- The CLI command reorganization and the materialization of the operation registry. See [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md).
-- The global store and run-state storage. See [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md).
+- The CLI command reorganization and the materialization of the operation registry. See [CLI Command Reorganization](../assets/project/cli-command-reorganization.md).
+- The global store and run-state storage. See [Runtime and Global Store](../assets/project/runtime-and-global-store.md).
 
 R-SCOPE-2 (MUST). This design depends on the operation registry existing and exposing stable operation identifiers, because the step `operation` field references them. The implementation MUST consume those identifiers as an external contract and MUST NOT hardcode CLI command strings in their place.
 

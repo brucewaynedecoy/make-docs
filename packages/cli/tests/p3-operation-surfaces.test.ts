@@ -49,14 +49,24 @@ afterEach(() => {
 });
 
 describe("W19 R1 P3 admitted operation surfaces", () => {
-  it("pins the exact 24 P3 IDs and separate P5 and W19 R3 admissions", () => {
+  it("pins the exact 24 P3 IDs and separate P5, W19 R3, and W19 R4 admissions", () => {
     const admitted = listAdmittedOperations();
     const r3Ids = ["project.state.status", "project.state.recover"];
-    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate" && !r3Ids.includes(entry.id));
+    const r4Ids = [
+      "project.persona.list",
+      "project.layout.preview",
+      "project.layout.prepare",
+      "project.layout.apply",
+      "project.layout.verify",
+    ];
+    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate" && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id));
     expect(admitted.filter(entry => r3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "project.state.status", status: "active" },
       { id: "project.state.recover", status: "active" },
     ]);
+    expect(admitted.filter(entry => r4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
+      r4Ids.map(id => ({ id, status: "active" })),
+    );
     const p5Admitted = admitted.filter((entry) => entry.id === "project.path-hygiene.validate");
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(p3Admitted).toHaveLength(24);

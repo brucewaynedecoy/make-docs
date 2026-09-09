@@ -71,7 +71,7 @@ describe("authoritative PRD validation", () => {
       "[example](99-revise-example.md)",
       "```",
     ]);
-    writeMarkdown(root, "docs/assets/archive/history/legacy.md", [
+    writeMarkdown(root, ".make-docs/archive/history/legacy.md", [
       "# Legacy provenance",
       "",
       "See [the former revision](../../../prd/15-revise-authentication.md).",
@@ -228,7 +228,7 @@ describe("authoritative PRD validation", () => {
       "## Source PRD Docs",
       "",
       "- [Active editorial target](../prd/12-revise-search.md)",
-      "- [Archived editorial target](../assets/archive/prds/2026/12-revise-search.md)",
+      "- [Archived editorial target](../../.make-docs/archive/prds/2026/12-revise-search.md)",
     ]);
     writeMarkdown(root, "docs/designs/migration.md", [
       "# Migration notes",
@@ -244,7 +244,7 @@ describe("authoritative PRD validation", () => {
       "",
       "[Former record](../prd/12-revise-search.md)",
     ]);
-    writeMarkdown(root, "docs/assets/archive/current.md", [
+    writeMarkdown(root, ".make-docs/archive/current.md", [
       "# Archived record",
       "",
       "## Source PRD Docs",
@@ -324,7 +324,7 @@ describe("authoritative PRD validation", () => {
     writeStructured(
       root,
       "docs/conformance/map.yaml",
-      "authority_path: docs/assets/archive/prds/2026/14-revise-archive.md\n",
+      "authority_path: .make-docs/archive/prds/2026/14-revise-archive.md\n",
     );
     writeStructured(
       root,
@@ -342,7 +342,7 @@ describe("authoritative PRD validation", () => {
     );
     writeStructured(
       root,
-      "docs/assets/archive/conformance.yaml",
+      ".make-docs/archive/conformance.yaml",
       "sourcePrds:\n  - docs/prd/18-revise-archived-source.md\n",
     );
 

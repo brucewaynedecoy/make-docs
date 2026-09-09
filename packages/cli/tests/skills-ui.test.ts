@@ -258,7 +258,7 @@ describe("skills-only UI", () => {
     config.labels.documentKinds.guide = "Handbook";
     config.labels.coordinates.wave = "Batch";
     config.personas = config.personas.map((persona) =>
-      persona.slug === "agent" ? { ...persona, label: "Automation" } : persona,
+      persona.slug === "maintainer" ? { ...persona, label: "Automation" } : persona,
     );
 
     const summary = renderSkillsPlanSummary({
@@ -276,7 +276,7 @@ describe("skills-only UI", () => {
     expect(summary).toContain("Coordinate labels:");
     expect(summary).toContain("wave=Batch");
     expect(summary).toContain("Persona labels:");
-    expect(summary).toContain("agent=Automation");
+    expect(summary).toContain("maintainer=Automation");
     expect(summary).toContain("Selected skills: decompose-codebase");
     expect(summary).toContain(".agents/skills/archive-docs");
   });

@@ -17,7 +17,7 @@ describe("make-docs MCP runtime", () => {
     }
   });
 
-  test("declares a shipped MCP tool surface (6 hand-defined + 27 derived)", () => {
+  test("declares the exact shipped MCP tool surface", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
@@ -33,6 +33,11 @@ describe("make-docs MCP runtime", () => {
       "make_docs_project_state_recover",
       "make_docs_project_surface_ensure",
       "make_docs_project_path_hygiene_validate",
+      "make_docs_project_persona_list",
+      "make_docs_project_layout_preview",
+      "make_docs_project_layout_prepare",
+      "make_docs_project_layout_apply",
+      "make_docs_project_layout_verify",
       "make_docs_work_item_resolve",
       "make_docs_work_evidence_record",
       "make_docs_work_evidence_read",

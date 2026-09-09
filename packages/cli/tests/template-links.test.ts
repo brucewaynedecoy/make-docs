@@ -12,6 +12,8 @@ import { TEMPLATE_ROOT } from "../src/utils";
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const REPRESENTATIVE_WORK_ROOT =
   "docs/work/2026-06-23-w10-r1-package-and-deployment-boundaries";
+// The representative backlog includes its own central evidence report.
+const REPRESENTATIVE_EVIDENCE_REPORT = `${REPRESENTATIVE_WORK_ROOT}/evidence.md`;
 
 function loadSystemResourceUris(): ReadonlySet<string> {
   const provider = loadSystemResourceProvider({
@@ -107,12 +109,18 @@ function templateDocument(templatePath: string): TemplateLinkDocument {
     return {
       ...base,
       renderedPath: `${REPRESENTATIVE_WORK_ROOT}/01-requirements-and-scope-gate.md`,
-      allowedWholeLinkTokens: ["SOURCE_PRD_LINK_ONE", "SOURCE_PRD_LINK_TWO"],
+      allowedWholeLinkTokens: [
+        "SOURCE_PRD_LINK_ONE",
+        "SOURCE_PRD_LINK_TWO",
+        "CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED",
+      ],
       representativeReplacements: {
         SOURCE_PRD_LINK_ONE:
           "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
         SOURCE_PRD_LINK_TWO:
           "[Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)",
+        CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED:
+          "[Acceptance evidence](evidence.md#acceptance-findings)",
       },
     };
   }
@@ -174,7 +182,7 @@ describe("template link validation", () => {
     expect(
       validateTemplateLinks({
         documents,
-        targetExists: (target) => existsSync(path.join(REPO_ROOT, target)),
+        targetExists: (target) => target === REPRESENTATIVE_EVIDENCE_REPORT || existsSync(path.join(REPO_ROOT, target)),
         systemResourceUris: SYSTEM_RESOURCE_URIS,
       }),
     ).toEqual([]);

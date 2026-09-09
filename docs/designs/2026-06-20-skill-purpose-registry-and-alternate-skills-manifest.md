@@ -6,13 +6,13 @@ Decide how make-docs v2 makes skill selection purpose-led without making first-p
 
 ## Context
 
-This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/artifacts/v2-proposed-design-and-roadmap.md). It follows [CLI Separation and MCP Boundary](2026-06-20-cli-separation-and-mcp-boundary.md) and [No-Scripts Migration and Skill Refactor](2026-06-20-no-scripts-migration-and-skill-refactor.md), which are stronger authority than the proposal artifact for this batch.
+This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/project/v2-proposed-design-and-roadmap.md). It follows [CLI Separation and MCP Boundary](2026-06-20-cli-separation-and-mcp-boundary.md) and [No-Scripts Migration and Skill Refactor](2026-06-20-no-scripts-migration-and-skill-refactor.md), which are stronger authority than the proposal artifact for this batch.
 
 The lifecycle departure is intentional. The default lifecycle runs design to plan to PRD to work to implementation, but this v2 planning wave is using artifact roadmap inputs as a source-to-design straddle before returning to that default chain. This design records the departure explicitly and does not mutate PRDs, risk registers, plans, work backlogs, guides, history records, package templates, or source code.
 
 Current product behavior is name-led. The CLI registry describes skills by `name`, `source`, `entryPoint`, `installName`, `description`, and `assets`. Selection state persists resolved skill names in `selectedSkills`, and `skillFiles` remains managed-output ownership tracking. [PRD 08](../prd/08-skills-catalog-and-distribution.md#component-and-capability-map) is current authority for the no-default-skills model: fresh defaults set `skills: false`, `selectedSkills: []`, and `skillScope: "project"`; no skill files are written on default install or default sync; every skill remains selectable and deselectable.
 
-Older skill installation designs are historical evidence, not current authority. [CLI Skill Installation](../assets/archive/designs/2026-04-16-cli-skill-installation.md), [CLI Skill Installation R2](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md), [CLI Skills Command](../assets/archive/designs/2026-04-21-cli-skills-command.md), and [CLI Skill Selection Simplification](../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md) explain why remote registry, required/optional, and selected-skill behavior exist, but v2 must not reintroduce required first-party skills or implicit default skill installation.
+Older skill installation designs are historical evidence, not current authority. [CLI Skill Installation](../../.make-docs/archive/designs/2026-04-16-cli-skill-installation.md), [CLI Skill Installation R2](../../.make-docs/archive/designs/2026-04-16-cli-skill-installation-r2.md), [CLI Skills Command](../../.make-docs/archive/designs/2026-04-21-cli-skills-command.md), and [CLI Skill Selection Simplification](../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md) explain why remote registry, required/optional, and selected-skill behavior exist, but v2 must not reintroduce required first-party skills or implicit default skill installation.
 
 The accepted no-scripts design also constrains this area. Skills may carry guidance, metadata, examples, and references, but deterministic make-docs-owned behavior belongs in CLI/shared-core operations. A purpose registry may explain why a skill is useful; it must not become a second source of deterministic workflow logic.
 
@@ -98,13 +98,13 @@ Prior Design Docs:
 - [Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md)
 - [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
 - [Agentics Ecosystem - Capability Registry, Modules, and Gateway Skill](2026-04-15-agentics-ecosystem.md)
-- [Work Backlog Source Authority](../assets/archive/designs/2026-05-06-work-backlog-source-authority.md)
-- [CLI Skill Installation](../assets/archive/designs/2026-04-16-cli-skill-installation.md)
-- [CLI Skill Installation R2](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md)
-- [CLI Skills Command](../assets/archive/designs/2026-04-21-cli-skills-command.md)
-- [CLI Skill Selection Simplification](../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
+- [Work Backlog Source Authority](../../.make-docs/archive/designs/2026-05-06-work-backlog-source-authority.md)
+- [CLI Skill Installation](../../.make-docs/archive/designs/2026-04-16-cli-skill-installation.md)
+- [CLI Skill Installation R2](../../.make-docs/archive/designs/2026-04-16-cli-skill-installation-r2.md)
+- [CLI Skills Command](../../.make-docs/archive/designs/2026-04-21-cli-skills-command.md)
+- [CLI Skill Selection Simplification](../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
 
-Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into the skill selection metadata model. It supersedes older required/optional and unpinned remote-selection intent for v2 while preserving the current selected-skill and managed `skillFiles` safety model established by [PRD 08](../prd/08-skills-catalog-and-distribution.md#component-and-capability-map) and the [W17 R0 no-default-skills correction](../assets/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md).
+Reason: this design extends accepted Batch 3 CLI and no-scripts boundaries into the skill selection metadata model. It supersedes older required/optional and unpinned remote-selection intent for v2 while preserving the current selected-skill and managed `skillFiles` safety model established by [PRD 08](../prd/08-skills-catalog-and-distribution.md#component-and-capability-map) and the [W17 R0 no-default-skills correction](../../.make-docs/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md).
 
 ## Intended Follow-On
 
@@ -114,4 +114,4 @@ Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/
 
 Why: this revises existing CLI skill registry, resolver, selection UI, manifest, audit, backup, uninstall, package, and dogfood behavior rather than creating a greenfield baseline.
 
-Coordinate Handoff: unresolved; planner must resolve before writing. Prior related work includes [W14 R1 CLI skill-selection simplification](../assets/archive/plans/2026-04-28-w14-r1-cli-skill-selection-simplification/00-overview.md) and the W17 R0 no-default-skills correction, but the downstream W/R coordinate for the v2 purpose-registry and alternate-manifest change must be assigned by the planner.
+Coordinate Handoff: unresolved; planner must resolve before writing. Prior related work includes [W14 R1 CLI skill-selection simplification](../../.make-docs/archive/plans/2026-04-28-w14-r1-cli-skill-selection-simplification/00-overview.md) and the W17 R0 no-default-skills correction, but the downstream W/R coordinate for the v2 purpose-registry and alternate-manifest change must be assigned by the planner.

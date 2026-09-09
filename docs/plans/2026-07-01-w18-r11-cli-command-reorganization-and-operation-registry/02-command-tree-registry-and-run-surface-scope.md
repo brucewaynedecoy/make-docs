@@ -26,7 +26,7 @@ Settle the implementation scope the delta backlog must encode, grounded in the d
 
 ## Out of Scope per R-SCOPE-1
 
-The backlog must not redefine the internal logic of the operations or the pruning removals (tracked by [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md)), the Playbook model, runner, packaging, and conformance (owned by the W18 R6 through R9 lineages), the global store schema and project-state model (owned by [PRD 38](../../prd/38-global-store-and-project-state.md)), or the CLI/MCP boundary and TypeScript runtime authority (preserved from the predecessor designs and not reopened).
+The backlog must not redefine the internal logic of the operations or the pruning removals (tracked by [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md)), the Playbook model, runner, packaging, and conformance (owned by the W18 R6 through R9 lineages), the global store schema and project-state model (owned by [PRD 38](../../prd/38-global-store-and-project-state.md)), or the CLI/MCP boundary and TypeScript runtime authority (preserved from the predecessor designs and not reopened).
 
 ## Validation
 

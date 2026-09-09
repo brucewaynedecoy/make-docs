@@ -12,7 +12,7 @@ The v2 roadmap makes this the first design in "Batch 1 - Packaging, Compatibilit
 
 The current accepted npm publishing design, [2026-04-15-cli-publishing.md](2026-04-15-cli-publishing.md), defines the first public package as `@brucewaynedecoy/make-docs`, with an installed `make-docs` binary, a package rooted at `packages/cli`, and a release flow that publishes release candidates on npm's `next` dist-tag before promotion to `latest`. That design also keeps the public tarball scoped to the built CLI, bundled template, skill registry files, and README, while excluding root workspace files, docs, scripts, and scratch planning material.
 
-An archived identity design, [2026-04-21-make-docs-rename.md](../assets/archive/designs/2026-04-21-make-docs-rename.md), is relevant only as lineage. It proposed a wider rename and rejected compatibility aliases. The v2 roadmap supersedes that rename direction by fixing the product naming decision as `make-docs`, `MakeDocs`, and `Make Docs`.
+An archived identity design, [2026-04-21-make-docs-rename.md](../../.make-docs/archive/designs/2026-04-21-make-docs-rename.md), is relevant only as lineage. It proposed a wider rename and rejected compatibility aliases. The v2 roadmap supersedes that rename direction by fixing the product naming decision as `make-docs`, `MakeDocs`, and `Make Docs`.
 
 The current TypeScript CLI already owns install-time behavior for the npm package. Its surfaces include the `make-docs` command, install/reconfigure/skills/backup/uninstall subcommands, template resolution from the package root, `.make-docs/manifest.json`, conflict records, audit snapshots, backup and uninstall safety, and skill registry/resolution behavior. Those surfaces are the current implementation authority until a later plan introduces Rust implementation parity.
 
@@ -77,7 +77,7 @@ R-003, R-006, and R-014 remain active implementation risks. Future package valid
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [2026-04-15-cli-publishing.md](2026-04-15-cli-publishing.md), [2026-04-21-make-docs-rename.md](../assets/archive/designs/2026-04-21-make-docs-rename.md)
+Prior Design Docs: [2026-04-15-cli-publishing.md](2026-04-15-cli-publishing.md), [2026-04-21-make-docs-rename.md](../../.make-docs/archive/designs/2026-04-21-make-docs-rename.md)
 
 Reason: This design extends the accepted npm publishing boundary for the current public package and adds the cross-distribution boundary needed for Rust, Homebrew, Crates, MCP startup ownership, and compatibility planning. It also supersedes the archived package-identity direction only where that design conflicts with the v2 roadmap's fixed naming decision; it does not restore the archived rename plan or introduce compatibility aliases.
 

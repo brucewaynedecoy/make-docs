@@ -2,15 +2,15 @@
 
 ## Purpose
 
-Use this contract for session breadcrumb records under `docs/assets/archive/history/`.
+Use this contract for session breadcrumb records under `.make-docs/archive/history/`.
 
 History records are **breadcrumbs**: concise, point-in-time references for a future auditor. A reader should be able to skim one and know what was touched and why, then follow links to deeper detail. They are not verbose narratives and not live logs.
 
 ## Required Path
 
-- When wave, revision, and phase are known: `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
-- When only wave and revision are known: `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
-- When no coordinate is known: `docs/assets/archive/history/YYYY-MM-DD-<slug>.md`
+- When wave, revision, and phase are known: `.make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md`
+- When only wave and revision are known: `.make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md`
+- When no coordinate is known: `.make-docs/archive/history/YYYY-MM-DD-<slug>.md`
 
 Use today's date in `YYYY-MM-DD`. Never backdate.
 
@@ -78,15 +78,17 @@ Each history record must include, in order:
 - `## Changes` — free-form prose, markdown tables, and/or file trees summarizing what was touched. May use sub-headings.
 - `## Documentation` — contains all required sub-sections below.
   - `### Project`
-  - `### Developer`
+  - `### Maintainer`
   - `### User`
+
+New records use `Maintainer`. Existing historical records with a `Developer` heading remain valid historical input; do not rewrite them merely to change the heading. Group custom Persona guides by their declared primitive and keep their actual paths.
 
 ## Documentation Tables
 
 All sub-sections under `## Documentation` are markdown tables with columns `Path` and `Description`.
 
 - `### Project` — project-level documentation created or updated in the session: READMEs, agent instructions (`AGENTS.md`/`CLAUDE.md`), designs, plans, work backlogs, and reference or template files.
-- `### Developer` — developer guides created or updated in the session.
+- `### Maintainer` — maintainer-primitive guides created or updated in the session.
 - `### User` — user guides created or updated in the session.
 
 If a sub-section has no entries, state `None this session.` in place of the table.
@@ -104,13 +106,13 @@ Example:
 
 | Path | Description |
 | --- | --- |
-| [docs/designs/2026-04-16-w2-r0-auth-redesign.md](../../designs/2026-04-16-w2-r0-auth-redesign.md) | New design for the auth module redesign. |
+| [docs/designs/2026-04-16-w2-r0-auth-redesign.md](../../../docs/designs/2026-04-16-w2-r0-auth-redesign.md) | New design for the auth module redesign. |
 
-### Developer
+### Maintainer
 
 | Path | Description |
 | --- | --- |
-| [docs/assets/library/developer/auth-module.md](../../library/developer/auth-module.md) | New developer reference for the auth module. |
+| [docs/assets/maintainer/auth-module.md](../../../docs/assets/maintainer/auth-module.md) | New maintainer reference for the auth module. |
 
 ### User
 

@@ -71,6 +71,13 @@ const LITERAL_P3_ADMITTED_IDENTIFIERS = [
 
 const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate"] as const;
 const LITERAL_R3_ADMITTED_IDENTIFIERS = ["project.state.status", "project.state.recover"] as const;
+const LITERAL_R4_ADMITTED_IDENTIFIERS = [
+  "project.persona.list",
+  "project.layout.preview",
+  "project.layout.prepare",
+  "project.layout.apply",
+  "project.layout.verify",
+] as const;
 
 /** Pruned per the migrated-operations inventory disposition (R-RUN-2). */
 const PRUNED_SEGMENTS = [
@@ -86,29 +93,31 @@ const PRUNED_SEGMENTS = [
 ];
 
 describe("operation registry contract", () => {
-  it("keeps the frozen P3 and P5 admissions and records the two W19 R3 admissions", () => {
+  it("keeps the frozen P3 and P5 admissions and records the separate W19 R3 and R4 admissions", () => {
     const ids = listOperations()
       .map((operation) => operation.id)
       .sort();
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate" && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(
+    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate" && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id === "project.path-hygiene.validate")).toEqual(
       LITERAL_P5_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);
+    expect(admittedIds.filter(id => LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(LITERAL_R4_ADMITTED_IDENTIFIERS);
     expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
         ...LITERAL_P3_ADMITTED_IDENTIFIERS,
         ...LITERAL_P5_ADMITTED_IDENTIFIERS,
         ...LITERAL_R3_ADMITTED_IDENTIFIERS,
+        ...LITERAL_R4_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
-    expect(ids).toHaveLength(27);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it("every identifier follows the domain.verb / domain.object.verb convention", () => {

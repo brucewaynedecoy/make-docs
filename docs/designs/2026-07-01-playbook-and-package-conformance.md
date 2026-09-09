@@ -6,7 +6,7 @@ This design defines how generated Playbook distributables earn evidence-backed s
 
 It exists to turn the provisional support claims that the contract-and-model, run-playbook, and packaging designs deliberately leave open into evidence-bound claims. The current tests assert internal file writing and symlink exposure, which can pass while a real harness fails to recognize or use the output. That gap is exactly what let a generated Codex package look correct while not being recognized by Codex. This design closes the gap by testing the user-visible outcome.
 
-The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/artifacts/playbook-architecture.md), Section 9. It extends the maintainer conformance lab established by [Agent Harness and Model Conformance Lab](2026-06-19-agent-harness-and-model-conformance-lab.md) to the Playbook packaging domain, and it verifies the outputs of [Playbook Packaging Compiler and Harness Adapters](2026-07-01-playbook-packaging-compiler-and-harness-adapters.md).
+The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/project/playbook-architecture.md), Section 9. It extends the maintainer conformance lab established by [Agent Harness and Model Conformance Lab](2026-06-19-agent-harness-and-model-conformance-lab.md) to the Playbook packaging domain, and it verifies the outputs of [Playbook Packaging Compiler and Harness Adapters](2026-07-01-playbook-packaging-compiler-and-harness-adapters.md).
 
 ## Context
 

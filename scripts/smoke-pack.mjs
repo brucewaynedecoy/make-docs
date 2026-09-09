@@ -887,7 +887,7 @@ function assertProviderOnlyDefaultInstall(targetDir, installation) {
     routerOwnership?.operationLineage !== "W19 R1 P4" ||
     JSON.stringify(routerOwnership.configuredHarnesses) !==
       JSON.stringify(["claude-code", "codex"]) ||
-    expectedPaths.length !== 26
+    expectedPaths.length !== 24
   ) {
     throw new Error("Smoke pack provider-only manifest has invalid router ownership evidence.");
   }
@@ -954,13 +954,13 @@ function assertProviderOnlyDefaultInstall(targetDir, installation) {
   assertDirectoryEntries(path.join(targetDir, "docs"), [
     "AGENTS.md",
     "CLAUDE.md",
-    "assets",
     "designs",
     "plans",
     "prd",
     "work",
   ]);
 
+  assertMissing(path.join(targetDir, "docs/assets"), "Fresh setup created the on-demand assets root.");
   for (const relativePath of expectedPaths) {
     const content = readFileSync(path.join(targetDir, relativePath), "utf8");
     assertOutputContains(
@@ -1231,41 +1231,15 @@ function assertPackedReaderFacingTemplate(packageRoot) {
     path.join(packageRoot, "template/docs/assets/AGENTS.md"),
     "utf8",
   );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/library/<persona-slug>/",
-    "Packed assets router omitted the canonical library asset namespace.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/playbooks/<persona-slug>/",
-    "Packed assets router omitted the canonical playbook asset namespace.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/archive/**",
-    "Packed assets router omitted the archive namespace handoff.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/artifacts/**",
-    "Packed assets router omitted the artifact namespace handoff.",
-  );
-  assertOutputContains(
-    assetsRouter,
-    "docs/assets/archive/history/**",
-    "Packed assets router omitted the archive history namespace handoff.",
-  );
-  assertOutputExcludes(
-    assetsRouter,
-    "docs/assets/breadcrumbs/**",
-    "Packed assets router still advertises the superseded breadcrumb namespace.",
-  );
-  assertOutputExcludes(
-    assetsRouter,
-    "belong in `docs/archive/**`",
-    "Packed assets router still advertises top-level docs/archive as a target.",
-  );
+  for (const required of ["docs/assets/<persona-slug>", "docs/assets/project", ".make-docs/archive", "user", "maintainer"]) {
+    assertOutputContains(assetsRouter, required, `Packed assets router omitted ${required}.`);
+  }
+  for (const retired of ["docs/assets/archive", "docs/assets/artifacts", "docs/assets/library", "docs/assets/playbooks", "docs/artifacts"]) {
+    assertMissing(path.join(packageRoot, "template", retired), `Packed template restored retired directory ${retired}.`);
+  }
+  for (const [file, declaration] of [["AGENTS.codex-only.md", "Asset router files: AGENTS.md"], ["CLAUDE.claude-only.md", "Asset router files: CLAUDE.md"]]) {
+    assertOutputContains(readFileSync(path.join(packageRoot, "template/docs", file), "utf8"), declaration, `Static router variant ${file} has incorrect selection.`);
+  }
 }
 
 /**

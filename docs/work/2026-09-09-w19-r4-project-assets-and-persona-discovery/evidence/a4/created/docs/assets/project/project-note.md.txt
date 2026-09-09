@@ -1,0 +1,5 @@
+# Project Note
+
+This repository currently defines its documentation structure and audiences but does not contain an implementation or runtime interface. Shared material belongs here; audience guidance belongs in the matching directory under `docs/assets/`.
+
+The configured audiences are the built-in User and Maintainer personas plus the project-specific Operators persona.

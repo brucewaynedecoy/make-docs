@@ -21,7 +21,7 @@ Settle the implementation scope the delta backlog must encode, grounded in the d
 ## Cross-Design Sequencing
 
 - Consumed by W18 R7: [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md) stores run-state here and its storage phases are gated on this store, its concurrency model, and the stable project identifier; R-019 in the risk register records that dependency and advances in place as this plan lands.
-- Consumed by the CLI reorganization's retained work operations: the work-execution evidence store and the work-item identity resolver kept by [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md) record and read evidence through this store; the reorganization lineage is planned next as W18 R11 and consumes, not defines, the store.
+- Consumed by the CLI reorganization's retained work operations: the work-execution evidence store and the work-item identity resolver kept by [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md) record and read evidence through this store; the reorganization lineage is planned next as W18 R11 and consumes, not defines, the store.
 - Documentation consequence: the `.make-docs/` runtime-state guidance naming `.make-docs/runs/` — `packages/docs/template/.make-docs/AGENTS.md` and `packages/docs/template/.make-docs/CLAUDE.md`, mirrored in the dogfood `.make-docs/` routers — must be updated upstream first and then dogfooded per the maintainer dogfooding rule; this is backlog implementation work, not part of this documentation pass.
 
 ## Out of Scope per R-SCOPE-1

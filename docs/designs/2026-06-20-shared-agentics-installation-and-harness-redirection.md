@@ -12,7 +12,7 @@ This design covers the shared installed-state model for skills first, with enoug
 
 ## Context
 
-This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/artifacts/v2-proposed-design-and-roadmap.md). The roadmap requires this design to decide whether shared skills and plugins are exposed by symlink, copy, generated harness stubs, CLI routing, or a platform-specific mix. It also requires explicit Windows, macOS, and Linux behavior and a config-overlay reading model for installed skills and plugins.
+This design is part of [Batch 3 - CLI, MCP, and Deterministic Automation](../assets/project/v2-proposed-design-and-roadmap.md). The roadmap requires this design to decide whether shared skills and plugins are exposed by symlink, copy, generated harness stubs, CLI routing, or a platform-specific mix. It also requires explicit Windows, macOS, and Linux behavior and a config-overlay reading model for installed skills and plugins.
 
 The lifecycle departure is intentional. The default lifecycle runs design to plan to PRD to work to implementation, but this v2 planning wave is using artifact roadmap inputs as a source-to-design straddle before returning to that default chain. This design records the departure explicitly and does not mutate PRDs, risk registers, plans, work backlogs, guides, history records, package templates, or source code.
 
@@ -114,7 +114,7 @@ Prior Design Docs:
 - [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md)
 - [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md)
 - [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
-- [CLI Skill Installation R2](../assets/archive/designs/2026-04-16-cli-skill-installation-r2.md)
+- [CLI Skill Installation R2](../../.make-docs/archive/designs/2026-04-16-cli-skill-installation-r2.md)
 
 Reason: this design extends the accepted Batch 3 CLI, no-scripts, and purpose-led skill decisions into the concrete shared installed-state model. It also uses the Batch 1 and Batch 2 tool-directory, materialization, audit, configuration, and source-of-truth contracts to replace older per-harness duplicated skill installation intent with a v2 shared-payload and generated-stub boundary.
 

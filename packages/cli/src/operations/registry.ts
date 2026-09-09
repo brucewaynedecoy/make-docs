@@ -7,6 +7,7 @@ import {
 } from "./context";
 import { lifecycleOperations } from "./lifecycle/registry-ops";
 import { projectOperations } from "./project/ops";
+import { projectLayoutOperations } from "./project/layout";
 import { uatOperations } from "./uat/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
@@ -95,6 +96,11 @@ export const ADMITTED_OPERATION_IDS = [
   "resource.ensure",
   "project.state.status",
   "project.state.recover",
+  "project.persona.list",
+  "project.layout.preview",
+  "project.layout.prepare",
+  "project.layout.apply",
+  "project.layout.verify",
   "project.surface.ensure",
   "project.path-hygiene.validate",
   "lifecycle.start",
@@ -125,6 +131,11 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "resource.ensure": ["resource", "ensure"],
   "project.state.status": ["project", "state status"],
   "project.state.recover": ["project", "state recover"],
+  "project.persona.list": ["project", "persona list"],
+  "project.layout.preview": ["project", "layout preview"],
+  "project.layout.prepare": ["project", "layout prepare"],
+  "project.layout.apply": ["project", "layout apply"],
+  "project.layout.verify": ["project", "layout verify"],
   "project.surface.ensure": ["project", "surface ensure"],
   "project.path-hygiene.validate": ["project", "path-hygiene validate"],
   "lifecycle.start": ["run", "lifecycle start"],
@@ -146,6 +157,11 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
+  "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
+  "project.layout.prepare": "make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--target-root <path>] [--json]",
+  "project.layout.apply": "make-docs project layout apply <operation-id> [--target-root <path>] [--json]",
+  "project.layout.verify": "make-docs project layout verify <operation-id> [--target-root <path>] [--json]",
   "project.state.status": "make-docs project state status [--json]",
   "project.state.recover": "make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--json]",
   "resource.read": "make-docs resource read <uri>",
@@ -201,6 +217,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
   const definitions: OperationDefinition[] = [
     ...prdOperations,
     ...projectOperations,
+    ...projectLayoutOperations,
     ...workOperations,
     ...resourceOperations,
     ...lifecycleOperations,

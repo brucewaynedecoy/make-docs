@@ -9,7 +9,7 @@ Author the numbered revision doc that makes the global store and unified project
 - [Global Store and Project State](../../designs/2026-07-01-global-store-and-project-state.md), all of D0–D11 and the Design Lineage and Coordinate Handoff sections.
 - The revision template at `.make-docs/templates/system/prd-change-revision.md` and the annotation rules in `.make-docs/references/system/prd-change-management.md`.
 - The impacted baselines: [PRD 21](../../prd/21-project-tool-directory-and-resource-tiers.md), [PRD 05](../../prd/05-installation-profile-and-manifest-lifecycle.md), [PRD 17](../../prd/17-system-asset-materialization-and-local-bootstrap.md), [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md), former PRD 32 (now incorporated in [PRD 38](../../prd/38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life)), and [PRD 35](../../prd/35-run-playbook-state-machine-and-portability.md), plus [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) as a consumed-unchanged constraint.
-- The work-execution evidence disposition in [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md).
+- The work-execution evidence disposition in [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md).
 
 ## Outputs
 

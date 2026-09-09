@@ -18,7 +18,7 @@ Make the four-type testing model current product authority before any implementa
 
 - [Plan overview](00-overview.md)
 - [Governing testing design](../../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md)
-- [PRD change management](../../../.make-docs/references/system/prd-change-management.md)
+- [PRD change management](../../../.make-docs/system/references/prd-change-management.md)
 - [Active PRD index](../../prd/00-index.md)
 
 ## Preconditions

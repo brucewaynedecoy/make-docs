@@ -1,7 +1,7 @@
 ---
 title: "Project Assets and Persona Discovery: Phase 1"
 kind: "plan"
-status: "draft"
+status: "completed"
 coordinate: "W19 R4 P1"
 source:
   type: "design"
@@ -68,4 +68,4 @@ This is the finite required matrix. Use existing targeted tests and the package/
 
 ## Completion Boundary
 
-The phase is complete only after all applicable matrix rows have evidence, EP1–EP5 have per-promise review results, and there are no unexplained active leftovers. Record outstanding issues as blockers or explicit owner-approved obligations. Do not replace incomplete migration with a successful package build or prose claim. This plan is not an implementation approval.
+The phase is complete only after all applicable matrix rows have evidence, EP1–EP5 have per-promise review results, and there are no unexplained active leftovers. Record outstanding issues as blockers or explicit owner-approved obligations. Do not replace incomplete migration with a successful package build or prose claim. Implementation and renewed result acceptance were supplied explicitly by the owner. The completed backlog records those separate gates.

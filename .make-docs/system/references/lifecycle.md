@@ -13,7 +13,7 @@ The lifecycle is organized as bands.
 
 ### Optional Inputs
 
-`docs/assets/artifacts/` may hold source material, notes, screenshots, analysis, or
+`docs/assets/project/` may hold source material, notes, screenshots, analysis, or
 other inputs that inform later work.
 It is an input surface, not a lifecycle stage.
 If present, read it to hydrate the design and plan.
@@ -46,7 +46,7 @@ The build segment loops per work phase:
 2. Run the coverage-pass band.
 3. Commit and pass the phase gate.
 
-Use [coverage-pass-contract.md](../../contracts/system/coverage-pass-contract.md) for the coverage-pass
+Use [coverage-pass-contract.md](../contracts/coverage-pass-contract.md) for the coverage-pass
 band.
 The band covers guide and system-resource coverage, history, PRD reconciliation,
 documentation hygiene, validation, deferred-obligation consumption, and UAT or manual-test decisions.

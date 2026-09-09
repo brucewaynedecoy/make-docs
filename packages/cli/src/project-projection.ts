@@ -23,6 +23,7 @@ import { parseManagedBlock } from "./managed-block";
 import {
   getConfiguredRouterPaths,
   isConfiguredRouterPath,
+  getRouterTemplateSourcePath,
 } from "./router-paths";
 import { readPackageFile } from "./utils";
 
@@ -139,7 +140,7 @@ export function createThinRouterAssets(profile: InstallProfile): ResolvedAsset[]
         relativePath,
         assetClass: "scoped-static",
         sourceId: `router:${harness}:${relativePath}`,
-        content: readThinRouterContent(relativePath),
+        content: readThinRouterContent(relativePath, profile),
       });
     }
   }
@@ -249,7 +250,7 @@ export function createProjectSurfaceRouterAssets(
 ): ResolvedAsset[] {
   const directory = {
     archive: ".make-docs/archive",
-    artifacts: "docs/artifacts",
+    artifacts: "docs/assets",
     assets: "docs/assets",
   }[surface];
   return Object.entries(HARNESS_TO_INSTRUCTION)
@@ -260,9 +261,7 @@ export function createProjectSurfaceRouterAssets(
         relativePath,
         assetClass: "scoped-static" as const,
         sourceId: `router:${harness}:${relativePath}`,
-        content: surface === "assets"
-          ? readThinRouterContent(relativePath)
-          : renderProjectSurfaceRouter(surface),
+        content: readThinRouterContent(relativePath, profile),
       };
     })
     .sort((left, right) => compareCodeUnits(left.relativePath, right.relativePath));
@@ -297,16 +296,16 @@ export function resourceProjectionStops(
     .sort(compareCodeUnits);
 }
 
-export function getThinRouterManagedBody(relativePath: string): string {
-  const parsed = parseManagedBlock(readThinRouterContent(relativePath));
+export function getThinRouterManagedBody(relativePath: string, profile?: InstallProfile): string {
+  const parsed = parseManagedBlock(readThinRouterContent(relativePath, profile));
   if (parsed.state !== "valid" || parsed.body === null) {
     throw new Error(`Upstream thin router is malformed: ${relativePath}.`);
   }
   return parsed.body;
 }
 
-function readThinRouterContent(relativePath: string): string {
-  const content = readPackageFile(relativePath);
+function readThinRouterContent(relativePath: string, profile?: InstallProfile): string {
+  const content = readPackageFile(profile ? getRouterTemplateSourcePath(profile, relativePath) : relativePath);
   const parsed = parseManagedBlock(content);
   if (
     parsed.state !== "valid" ||
@@ -329,42 +328,6 @@ function getRouterContentHash(asset: ResolvedAsset): string {
     throw new Error(`Router asset ${asset.relativePath} has a malformed managed block.`);
   }
   return digest;
-}
-
-function renderProjectSurfaceRouter(surface: ProjectSurface): string {
-  const body = {
-    archive: [
-      "# Archive Router",
-      "",
-      "This directory stores Make Docs-managed archive and provenance records.",
-      "",
-      "- Use a valid local history-record contract and template first. If either body is absent, read its stable system-resource URI with `make-docs resource read`.",
-      "- Keep non-authoritative source and analysis inputs in `docs/artifacts/`.",
-      "- Keep Persona-scoped reader assets and testing evidence in `docs/assets/<persona-slug>/`.",
-      "- Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.",
-    ],
-    artifacts: [
-      "# Artifacts Router",
-      "",
-      "This directory stores non-authoritative source and analysis inputs.",
-      "",
-      "- Do not treat material here as design, PRD, decision, risk, or implementation authority.",
-      "- Link an artifact from the authoritative document that reviews or adopts it.",
-      "- Keep Make Docs-managed archive and provenance records in `.make-docs/archive/`.",
-      "- Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.",
-    ],
-    assets: [
-      "# Persona Assets Router",
-      "",
-      "This directory stores Persona-scoped reader assets and testing evidence.",
-      "",
-      "- Use `docs/assets/<persona-slug>/` for reader assets and guides.",
-      "- Use `docs/assets/<persona-slug>/testing/` for Naive-UAT packets, runs, findings, and approved evidence.",
-      "- Use valid local coverage, guide, deferred-obligation, and Naive-UAT resources first. Read an absent body by stable URI with `make-docs resource read`.",
-      "- Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.",
-    ],
-  }[surface].join("\n");
-  return `<!-- make-docs:begin -->\n${body}\n<!-- make-docs:end -->\n`;
 }
 
 function projectionPath(type: ProjectResourceType, resourcePath: string): string {

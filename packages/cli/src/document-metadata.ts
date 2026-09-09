@@ -1,4 +1,6 @@
 import {
+  createDefaultMakeDocsConfig,
+  RESERVED_PERSONA_SLUGS,
   getDocumentKindLabel,
   getPersonaLabel,
   PERSONA_SLUG_PATTERN,
@@ -401,6 +403,7 @@ function validatePersonaScope(options: {
     return;
   }
 
+  if (findings.some((finding) => finding.code === "invalid-persona")) return;
   const scope = personaScopeFromPath(sourcePath);
   if (!scope) {
     return;
@@ -428,9 +431,7 @@ function validatePersonaScope(options: {
     return;
   }
 
-  const knownPersonas = config
-    ? new Set(config.personas.map((entry) => entry.slug))
-    : null;
+  const knownPersonas = new Set((config ?? createDefaultMakeDocsConfig()).personas.map((entry) => entry.slug));
   if (knownPersonas && !knownPersonas.has(persona)) {
     addFinding(
       findings,
@@ -451,20 +452,19 @@ function validatePersonaScope(options: {
   }
 }
 
-function personaScopeFromPath(sourcePath: string): { surface: "library"; persona: string } | null {
+export function isPersonaScopedDocumentPath(sourcePath: string): boolean {
+  return personaScopeFromPath(sourcePath) !== null;
+}
+
+function personaScopeFromPath(sourcePath: string): { surface: "library" | "assets"; persona: string } | null {
   const normalized = sourcePath.split("\\").join("/");
-  const match = normalized.match(/(?:^|\/)(?:packages\/docs\/template\/)?docs\/assets\/(library)\/([^/]+)\/[^/]+\.md$/);
-  if (!match) {
-    return null;
-  }
-  const persona = match[2] ?? "";
-  if (["AGENTS.md", "CLAUDE.md"].includes(normalized.split("/").at(-1) ?? "")) {
-    return null;
-  }
-  return {
-    surface: "library",
-    persona,
-  };
+  if (["AGENTS.md", "CLAUDE.md"].includes(normalized.split("/").at(-1) ?? "")) return null;
+  // Retain explicit legacy Library validation as an input reader, not a creation target.
+  const legacy = normalized.match(/(?:^|\/)docs\/assets\/library\/([^/]+)\/.+\.md$/);
+  if (legacy) return { surface: "library", persona: legacy[1]! };
+  const current = normalized.match(/(?:^|\/)docs\/assets\/([^/]+)\/.+\.md$/);
+  if (!current || RESERVED_PERSONA_SLUGS.has(current[1]!)) return null;
+  return { surface: "assets", persona: current[1]! };
 }
 
 function extractBodyFields(body: string): Map<string, string> {

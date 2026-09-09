@@ -16,15 +16,15 @@ import type {
 } from "./types";
 import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE } from "./types";
 import { getActiveInstructionKinds } from "./types";
-import { getConfiguredRouterPaths } from "./router-paths";
+import { getConfiguredRouterPaths, getRouterTemplateSourcePath } from "./router-paths";
 import { readPackageFile } from "./utils";
 
 function getPackageSourcePath(relativePath: string): string {
   return relativePath;
 }
 
-function buildAsset(relativePath: string): ResolvedAsset {
-  const sourcePath = getPackageSourcePath(relativePath);
+function buildAsset(relativePath: string, profile: InstallProfile): ResolvedAsset {
+  const sourcePath = getRouterTemplateSourcePath(profile, getPackageSourcePath(relativePath));
   return {
     relativePath,
     assetClass: "scoped-static",
@@ -62,7 +62,7 @@ export function getDesiredAssetsForMaterializationMode(
 
   return Array.from(materializedPaths)
     .sort()
-    .map((relativePath) => buildAsset(relativePath));
+    .map((relativePath) => buildAsset(relativePath, profile));
 }
 
 export function getSystemAssetMaterializationPlan(

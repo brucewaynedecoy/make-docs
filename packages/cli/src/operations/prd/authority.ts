@@ -346,7 +346,7 @@ function editorialKind(value: string): string | null {
 
 function isCanonicalArchiveSource(relativePath: string): boolean {
   const normalized = posixPath(relativePath).toLowerCase();
-  return normalized.startsWith("docs/assets/archive/");
+  return normalized.startsWith(".make-docs/archive/");
 }
 
 function resolveMarkdownTarget(
@@ -376,7 +376,7 @@ function resolveAuthorityFieldTarget(
   rawTarget: string,
 ): string | null {
   const normalized = rawTarget.trim().replace(/^["'`]|["'`]$/g, "");
-  if (/^(?:docs\/prd|docs\/assets\/archive\/prds)\//i.test(normalized)) {
+  if (/^(?:docs\/prd|\.make-docs\/archive\/prds|docs\/assets\/archive\/prds)\//i.test(normalized)) {
     return path.resolve(targetRoot, normalized);
   }
   return resolveMarkdownTarget(targetRoot, sourcePath, normalized);
@@ -386,6 +386,8 @@ function isActionPrdTarget(targetRoot: string, absoluteTarget: string): boolean 
   const targetRelative = posixPath(path.relative(targetRoot, absoluteTarget)).toLowerCase();
   const inAuthorityTree =
     targetRelative.startsWith("docs/prd/") ||
+    targetRelative.startsWith(".make-docs/archive/prds/") ||
+    // Recognize old targets only to diagnose obsolete authority links.
     targetRelative.startsWith("docs/assets/archive/prds/");
   return inAuthorityTree && ACTION_PRD_FILE_PATTERN.test(path.basename(targetRelative));
 }

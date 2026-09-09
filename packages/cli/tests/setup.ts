@@ -1,4 +1,5 @@
 import { mkdtempSync } from "node:fs";
+import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach } from "vitest";
@@ -23,6 +24,9 @@ trackTempDir(process.env.MAKE_DOCS_HOME);
 // Roots cleaned through helpers.cleanupTempDir are checked at cleanup time
 // instead; vitest's default "stack" hook order runs this sweep after each
 // test file's own afterEach cleanup, so leaked roots are still caught here.
-afterEach(() => {
+afterEach(async () => {
   sweepTrackedTempDirs();
+  // Synchronous Store/fsync test chains can starve Vitest worker RPC replies.
+  // Let queued I/O run between cases; preserve all test and RPC time limits.
+  await yieldToEventLoop();
 });

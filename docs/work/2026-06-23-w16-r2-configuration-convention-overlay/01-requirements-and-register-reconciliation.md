@@ -30,7 +30,7 @@ Land the PRD and register updates needed before implementation starts.
 - Confirmed affected baseline PRDs already cite PRD 24 or equivalent configuration-overlay language where they discuss project-owned config, presentation-only labels, persona labels, canonical metadata, package proof, agentic surfaces, plugins, playbooks, and adversarial review.
 - Confirmed Q-011 records the structural decision: configuration may relabel presentation prose, but canonical paths, metadata fields, route identifiers, prompt paths, skill names, contract names, and W/R/P lineage remain canonical.
 - Confirmed Q-009, R-010, R-011, R-004, D-014, R-003, R-013, R-014, and Q-012 already include PRD 24 where their residual risk or follow-up depends on configuration overlays.
-- Confirmed the older [Make Docs Lifecycle Playbook and Terminology Overlay](../../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md) remains lineage evidence via the active [Configuration and Convention Overlay design](../../designs/2026-06-20-configuration-and-convention-overlay.md), not active implementation authority.
+- Confirmed the older [Make Docs Lifecycle Playbook and Terminology Overlay](../../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md) remains lineage evidence via the active [Configuration and Convention Overlay design](../../designs/2026-06-20-configuration-and-convention-overlay.md), not active implementation authority.
 
 ## Coverage Decisions
 

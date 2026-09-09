@@ -33,7 +33,7 @@ Build the first adapter path and support-claim gates without changing shipped ha
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Updated [Conformance Lab Scenario and Result Contracts](../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md) to bind current executable lab coverage to the current `HARNESSES` values in `packages/cli/src/types.ts`: `codex` and `claude-code`. |
+| t1 | Updated [Conformance Lab Scenario and Result Contracts](../../assets/maintainer/conformance-lab-scenario-and-result-contracts.md) to bind current executable lab coverage to the current `HARNESSES` values in `packages/cli/src/types.ts`: `codex` and `claude-code`. |
 | t2 | The guide records OpenCode, Goose, Pi, and future agentic IDEs as future lab adapter targets that remain blocked or unattempted until accepted implementation and reviewed scenario results exist. |
 | t3 | The guide adds a support-claim gate that distinguishes no public claim, nominal tuple support, caveated tuple support, and stronger wording. Claims must stay scoped to the exact scenario/harness/model/provider/runtime tuple. |
 | t4 | The guide states that validation commands may appear in scenario steps, but they remain package validation evidence until a result record also captures tuple metadata, reviewer status, verdict, reason, and caveats. |

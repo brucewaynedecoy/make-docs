@@ -1,7 +1,7 @@
 ---
 title: "Project Assets and Persona Discovery: Phase 1"
 kind: "work"
-status: "draft"
+status: "completed"
 coordinate: "W19 R4 P1"
 source:
   type: "prd"
@@ -16,7 +16,7 @@ Make shared and audience assets easy to find, keep fresh directories small, and 
 
 ## Overview
 
-This is one implementation phase with three ordered stages and twelve acceptance cases. It depends on R3 commit `dabd0b36`. The phase is **not started**. Owner approval of the direction and documentation package does not satisfy the backlog acceptance and implementation gate.
+This is one implementation phase with three ordered stages and twelve acceptance cases. It depends on R3 commit `dabd0b36`. Implementation started after owner acceptance of package `532b29cf`. The owner then found missed current Persona names after the first verification pass. The affected audit, source, test and package tasks were reopened. Their correction and verification are now complete. The owner accepted the corrected phase on 2026-09-09 and authorized closeout and commit.
 
 Shared project material belongs in `docs/assets/project/**`. Audience assets belong in `docs/assets/<persona-slug>/**`. Adopted archive/provenance and retired Playbooks belong under `.make-docs/archive/**`. Config is local declarative knowledge; installation and migration intent, locks, receipts, and completion state belong only in the global Store.
 
@@ -47,10 +47,10 @@ Shared project material belongs in `docs/assets/project/**`. Audience assets bel
 
 ### Tasks
 
-- [ ] t1: Read the final current owners and capture the implementation baseline. Inventory all active path/default claims across PRDs, system resource bodies, template routers, router generation, CLI/core helpers, maintainer build-copy scripts, package declarations, and pipeline tests. Separate active instructions from explicitly historical/archive/backup byte copies. Record exact affected paths and close each active contradiction within this phase.
-- [ ] t2: Implement one effective Persona resolver. Keep built-in `user -> user` and `maintainer -> maintainer` mappings fixed; merge config by slug; inherit omitted built-in display fields; require all four fields for custom entries. Keep absent, empty, and comment-only config defaults. Reject wrong-type/null values, duplicate/unsafe/reserved slugs, unsupported primitives, and changed fixed mappings without rewriting config. Add `project.persona.list` through the current registry, with `--target-root`/`--json`, no Store dependency, and no identity/directory writes.
-- [ ] t3: Author short discovery rules upstream. Always-present documentation routers name shared and audience paths, both defaults, config override location, and only the selected filenames in `Asset router files:`. Use reviewed harness selection, never agent identity or raw Store state. Keep the assets root router short; move detailed testing/migration policy into its system resources. Repair obsolete active target guidance in all t1 surfaces, not just the assets router.
-- [ ] t4: Make the assets root on demand across catalog/planner/setup/reconfigure/surface ensure and build-copy behavior. Create configured root routers only, with no empty child families. Preserve the artifacts compatibility selector as an assets-root ensure plus a reported `docs/assets/project/` destination that is not yet created. Make help/results distinguish those facts. Preserve current required `.make-docs/system/` router directories and project content.
+- [x] t1: Read the final current owners and capture the implementation baseline. Inventory all active path/default claims across PRDs, system resource bodies, template routers, router generation, CLI/core helpers, maintainer build-copy scripts, package declarations, and pipeline tests. Separate active instructions from explicitly historical/archive/backup byte copies. Record exact affected paths and close each active contradiction within this phase.
+- [x] t2: Implement one effective Persona resolver. Keep built-in `user -> user` and `maintainer -> maintainer` mappings fixed; merge config by slug; inherit omitted built-in display fields; require all four fields for custom entries. Keep absent, empty, and comment-only config defaults. Reject wrong-type/null values, duplicate/unsafe/reserved slugs, unsupported primitives, and changed fixed mappings without rewriting config. Add `project.persona.list` through the current registry, with `--target-root`/`--json`, no Store dependency, and no identity/directory writes.
+- [x] t3: Author short discovery rules upstream. Always-present documentation routers name shared and audience paths, both defaults, config override location, and only the selected filenames in `Asset router files:`. Use reviewed harness selection, never agent identity or raw Store state. Keep the assets root router short; move detailed testing/migration policy into its system resources. Repair obsolete active target guidance in all t1 surfaces, not just the assets router.
+- [x] t4: Make the assets root on demand across catalog/planner/setup/reconfigure/surface ensure and build-copy behavior. Create configured root routers only, with no empty child families. Preserve the artifacts compatibility selector as an assets-root ensure plus a reported `docs/assets/project/` destination that is not yet created. Make help/results distinguish those facts. Preserve current required `.make-docs/system/` router directories and project content.
 
 ### Acceptance criteria
 
@@ -68,21 +68,21 @@ Shared project material belongs in `docs/assets/project/**`. Audience assets bel
 
 ### Closeout Notes
 
-- Planned evidence: A1–A4, A6 and the active-reference inventory. No implementation evidence has been produced by this package.
+- Evidence: A1–A4/A6 implementation and A4 fresh-context output are recorded in [the evidence report](./evidence.md#a4-first-asset-work-without-the-cli).
 - Testing decisions: targeted automated tests and fresh-context agent discovery are required. Formal Unassisted Goal Testing is `not-needed-now` for this bounded agent check; no qualified-human test is claimed.
-- Phase/capability status: not started; not delivered.
+- Phase/capability status: implemented and observed; the Persona-name correction and final current-guide audit passed; renewed owner phase acceptance is recorded on 2026-09-09.
 
 ## Stage 2 - Reviewed Layout Preview, Application, and Manual Read-Back
 
 ### Tasks
 
-- [ ] t5: Implement `project.layout.preview` with a complete file and empty-directory inventory, source provenance/byte identities, exact destination/action map, planned mechanical link repairs, explicit blockers and a review digest. Support repeated bounded `--map <source>=<destination>` choices. Bind relevant config-derived audience mappings into the digest. Prove preview makes no Store or project writes.
-- [ ] t6: Implement `project.layout.prepare --review <digest> --mode cli|manual`. Recompute and match the reviewed facts before saving full intent and recovery references in the R3 Store. Return the operation ID and exact next action. Release the live process lock before exit; keep the pending operation as the conflicting-write barrier. Required Store failures stop before project mutation, with no local plan/receipt fallback.
-- [ ] t7: Implement `project.layout.apply <operation-id>` for prepared CLI mode. Use the existing journal, checkout binding and locking for all moves, source removals and link repairs. Verify destination bytes before removing exact sources. Distinguish complete, pending, blocked and already-complete results without false success.
-- [ ] t8: Implement `project.layout.verify <operation-id>` for prepared manual mode. Give human/agent movers exact instructions only after Store preparation. Read back the recorded source/destination/link expectations, including newly added sources and leftovers, before recording completion. Reject wrong bytes, missing links, unexpected entries and target-name-only claims. Reuse `project state status` and `project state recover`; add no second state engine.
-- [ ] t9: Cover every finite legacy cohort with a reviewed disposition: empty old system directories/parents; supported old system bodies; empty obsolete template asset families; both artifact paths into `docs/assets/project/`; adopted archive facets into `.make-docs/archive/`; verified Library audiences into configured paths; and retired Playbooks into `.make-docs/archive/legacy-playbooks/` as inactive history. Map former default `developer` to `maintainer` only with proof. Require explicit decisions for custom/default conflicts and any `agent` audience. Never delete content to resolve an audience ambiguity.
-- [ ] t10: Apply one shared safety and completion contract to CLI and manual paths. Preserve substantive historical facts and project ownership; record only exact mechanical old/new link repairs. Recheck empty directories before pruning, reject escapes and conflicting destinations, and distinguish verified identical targets from unknown copies. Permit only named non-active archive/backup exclusions; active legacy directories cannot hide behind a retained exception.
-- [ ] t11: Wire CLI/MCP registry parity, human help and JSON output for all five operations. Check normal permission boundaries and pending implementation metadata. Add finite failure tests for stale review digests, unavailable Store, live/concurrent writers, interrupted files, changed targets, invalid map paths, ambiguous audiences and manual false-completion attempts.
+- [x] t5: Implement `project.layout.preview` with a complete file and empty-directory inventory, source provenance/byte identities, exact destination/action map, planned mechanical link repairs, explicit blockers and a review digest. Support repeated bounded `--map <source>=<destination>` choices. Bind relevant config-derived audience mappings into the digest. Prove preview makes no Store or project writes.
+- [x] t6: Implement `project.layout.prepare --review <digest> --mode cli|manual`. Recompute and match the reviewed facts before saving full intent and recovery references in the R3 Store. Return the operation ID and exact next action. Release the live process lock before exit; keep the pending operation as the conflicting-write barrier. Required Store failures stop before project mutation, with no local plan/receipt fallback.
+- [x] t7: Implement `project.layout.apply <operation-id>` for prepared CLI mode. Use the existing journal, checkout binding and locking for all moves, source removals and link repairs. Verify destination bytes before removing exact sources. Distinguish complete, pending, blocked and already-complete results without false success.
+- [x] t8: Implement `project.layout.verify <operation-id>` for prepared manual mode. Give human/agent movers exact instructions only after Store preparation. Read back the recorded source/destination/link expectations, including newly added sources and leftovers, before recording completion. Reject wrong bytes, missing links, unexpected entries and target-name-only claims. Reuse `project state status` and `project state recover`; add no second state engine.
+- [x] t9: Cover every finite legacy cohort with a reviewed disposition: empty old system directories/parents; supported old system bodies; empty obsolete template asset families; both artifact paths into `docs/assets/project/`; adopted archive facets into `.make-docs/archive/`; verified Library audiences into configured paths; and retired Playbooks into `.make-docs/archive/legacy-playbooks/` as inactive history. Map former default `developer` to `maintainer` only with proof. Require explicit decisions for custom/default conflicts and any `agent` audience. Never delete content to resolve an audience ambiguity.
+- [x] t10: Apply one shared safety and completion contract to CLI and manual paths. Preserve substantive historical facts and project ownership; record only exact mechanical old/new link repairs. Recheck empty directories before pruning, reject escapes and conflicting destinations, and distinguish verified identical targets from unknown copies. Permit only named non-active archive/backup exclusions; active legacy directories cannot hide behind a retained exception.
+- [x] t11: Wire CLI/MCP registry parity, human help and JSON output for all five operations. Check normal permission boundaries and pending implementation metadata. Add finite failure tests for stale review digests, unavailable Store, live/concurrent writers, interrupted files, changed targets, invalid map paths, ambiguous audiences and manual false-completion attempts.
 
 ### Acceptance criteria
 
@@ -100,19 +100,19 @@ Shared project material belongs in `docs/assets/project/**`. Audience assets bel
 
 ### Closeout Notes
 
-- Planned evidence: read-only preview snapshots, stored prepared operation/read-back proof, before/after content identities, link repair map, and A7–A11 failure/recovery results.
+- Evidence: reviewed Store preparation, CLI/manual failure checks and real dogfood read-back are summarized in [the evidence report](./evidence.md#real-dogfood-migration). The complete operational record remains in Store.
 - Testing decisions: automated integration and failure tests are required. These prove contract behavior, not the owner's lived review experience.
-- Phase/capability status: not started; no migration performed.
+- Phase/capability status: implemented; the real migration completed with 1,418 independent path checks and no errors. Owner phase acceptance is recorded on 2026-09-09.
 
 ## Stage 3 - Package, Installed CLI, Dogfood, and Final Review
 
 ### Tasks
 
-- [ ] t12: Finish the complete finite A1–A12 matrix below. Use focused unit/integration tests for shared Persona and migration behavior, then run the required full suite once after corrections. Repeat checks only for relevant changes, failures or unresolved concerns. Keep check output tied to the actual tested build. Repair the known defaults baseline failure at `tests/consistency.test.ts:669`: it expects exactly D-001 through D-031 and rejects the valid new D-032 entry. Make that check append-safe while preserving existing-record, duplicate-ID and link checks; do not merely raise its numeric ceiling.
-- [ ] t13: Build/package from upstream source and inspect the build copier output, packed tar entries and extracted filesystem. Run fresh installs for the supported configured harness sets, upgrade fixtures and unchanged repeats. Compare real directory inventories, including empty directories. Check all active PRD/system/template/CLI/build/pipeline references against the accepted target map and account for exclusions.
-- [ ] t14: Refresh the installed CLI with the documented maintainer recipe before dogfood. Use public `make-docs` persona/layout/setup commands for the exact refreshed dogfood inventory. Review the map within the accepted scope, resolve material new choices, prepare in Store, then apply or use prepared manual moves and CLI verification. Do not replace this path with `node dist` commands or a one-off cleanup script.
-- [ ] t15: Complete the dogfood source/destination/link and full-directory checks. Account for all real archive, Library and Playbook files; use the refreshed inventory rather than assuming the earlier 540/24/3 counts. Confirm old empty system/template/asset trees are gone from active targets, actual payloads are preserved at reviewed destinations, the aliases do not recreate old paths, and repeat operations make no further changes.
-- [ ] t16: Review EP1–EP5 against named observations and evidence. Report `satisfied`, `material gap`, or `insufficient evidence` per promise, with reviewer limits. Record the exact release/build and CLI recipe, update D-032 only within the evidence, and preserve R3 closure/W20-W21 pause. Request phase acceptance with no unexplained active leftovers; do not claim completion from package drafting or green tests alone.
+- [x] t12: Finish the complete finite A1–A12 matrix below. Use focused unit/integration tests for shared Persona and migration behavior, then run the required full suite once after corrections. Repeat checks only for relevant changes, failures or unresolved concerns. Keep check output tied to the actual tested build. Repair the known defaults baseline failure at `tests/consistency.test.ts:669`: it expects exactly D-001 through D-031 and rejects the valid new D-032 entry. Make that check append-safe while preserving existing-record, duplicate-ID and link checks; do not merely raise its numeric ceiling.
+- [x] t13: Build/package from upstream source and inspect the build copier output, packed tar entries and extracted filesystem. Run fresh installs for the supported configured harness sets, upgrade fixtures and unchanged repeats. Compare real directory inventories, including empty directories. Check all active PRD/system/template/CLI/build/pipeline references against the accepted target map and account for exclusions.
+- [x] t14: Refresh the installed CLI with the documented maintainer recipe before dogfood. Use public `make-docs` persona/layout/setup commands for the exact refreshed dogfood inventory. Review the map within the accepted scope, resolve material new choices, prepare in Store, then apply or use prepared manual moves and CLI verification. Do not replace this path with `node dist` commands or a one-off cleanup script.
+- [x] t15: Complete the dogfood source/destination/link and full-directory checks. Account for all real archive, Library and Playbook files; use the refreshed inventory rather than assuming the earlier 540/24/3 counts. Confirm old empty system/template/asset trees are gone from active targets, actual payloads are preserved at reviewed destinations, the aliases do not recreate old paths, and repeat operations make no further changes.
+- [x] t16: Review EP1–EP5 against named observations and evidence. Report `satisfied`, `material gap`, or `insufficient evidence` per promise, with reviewer limits. Record the exact release/build and CLI recipe, update D-032 only within the evidence, and preserve R3 closure/W20-W21 pause. Prepare the phase acceptance handoff with no unexplained active leftovers; do not claim completion from package drafting or green tests alone. Completing this task records the implementation review and handoff, not the owner's acceptance of the phase.
 
 ### Acceptance criteria
 
@@ -131,9 +131,9 @@ Shared project material belongs in `docs/assets/project/**`. Audience assets bel
 
 ### Closeout Notes
 
-- Planned evidence: full matrix, full filesystem manifests, package/tar checks, installed CLI transcript, exact dogfood map, link repairs and EP1–EP5 review.
+- Evidence: [the evidence report](./evidence.md) records A4 outputs, full-tree observations, the exact seven-map dogfood disposition, verified repeats and EP1–EP5 observations. Corrected package/check reconciliation passed: 71 test files and 1,087 tests; final defaults passed 50/50; the corrected tar hash, smoke proof and eight-guide audit are in the report.
 - Testing decisions: automated checks and fresh-context agent discovery required; guided owner review of the visible tree/results required for acceptance. Separate accessibility/visual testing is `not-needed-now` because this scope changes text/file/CLI surfaces without a new visual interface; reassess if implementation adds one. Formal Unassisted Goal Testing remains a separate PRD 46 decision.
-- Phase/capability status: not started. No commit, publication, migration or phase acceptance is claimed by this draft.
+- Phase/capability status: dogfood migration and final checks completed; owner phase acceptance is recorded on 2026-09-09. No implementation commit or publication is claimed here.
 
 ## Package Draft Validation
 
@@ -160,4 +160,10 @@ The defaults baseline returned exit code 1 with 48 of 49 tests passing. Its sole
 
 ## Completion Gate
 
-Owner acceptance of this backlog and separate implementation authorization come first. Later phase completion requires the finite evidence above and no unexplained active leftovers. W20 R0 and W21 R0 remain paused until the interrupt is accepted as complete. Neither package drafting nor a successful individual command can advance those gates.
+The owner accepted this backlog and authorized implementation after package commit `532b29cf`. That initial gate is satisfied.
+
+Checked implementation tasks record completed work and evidence. They do not record owner phase acceptance. The [actual case results and experience review](./evidence.md#a1a12-actual-results) support the final handoff. The prior build passed 70 test files and 1,077 tests with no runner errors. Owner review then found missed current Persona names in guide resources and related contracts. Tasks t1, t3, t12, t13, t14 and t16 were reopened. The correction, regressions, package and installed refreshes, and review now pass. The corrected build passed 1,087 tests in 71 files. The final audit covers all 19 current audience guides, with eight corrected. Defaults pass 50/50 and final authority, path and layout checks pass. The prior results remain evidence for the earlier build only. All technical tasks are complete. The owner explicitly accepted the corrected implementation and requested closeout and commit on 2026-09-09.
+
+The owner accepted the corrected phase and authorized closeout and commit on 2026-09-09. This record closes W19 R4 P1. The commit remains a separate authorized action; no commit hash is invented here. W20 R0 and W21 R0 remain paused until separate resume instructions. A successful test or command alone did not advance acceptance.
+
+Closeout: [W19 R4 P1 history](../../../.make-docs/archive/history/2026-09-09-w19-r4-p1-project-assets-and-persona-discovery.md). The package remains in place; no archive move was requested.

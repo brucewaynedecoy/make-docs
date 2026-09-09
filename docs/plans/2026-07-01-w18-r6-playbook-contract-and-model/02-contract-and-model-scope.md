@@ -7,7 +7,7 @@ Settle the implementation-shaping decisions the delta backlog must encode so no 
 ## Inputs
 
 - Design decisions D0 (authoring location and parity), D2 (document schema), D3 (workflow contract and step model), D4 (dependency registry), D5 (model, parser, validator, diagnostics), and D6 (non-negotiables versus implementer freedom).
-- [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Sections 1–4, including the Section 2.6 worked example the implementation must parse without error (R-WF-7).
+- [Playbook Architecture and Design](../../assets/project/playbook-architecture.md) Sections 1–4, including the Section 2.6 worked example the implementation must parse without error (R-WF-7).
 - PRD 33 packaging rails and PRD 29 runner expectations as downstream consumers of the model.
 
 ## Outputs

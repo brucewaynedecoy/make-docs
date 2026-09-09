@@ -37,7 +37,7 @@ Validate and close conformance-lab implementation with evidence that lab assets 
 | t2 | `npm run validate:defaults -w packages/cli` passed with 24 consistency tests. |
 | t3 | `npm run smoke:pack` passed, including first install, sync, skill sync, and uninstall package-smoke coverage. |
 | t4 | `find packages/docs/template packages/cli/template -path '*conformance*' -print`, `rg -n "conformance|conformance-lab" packages/docs/template packages/cli/template packages/cli/dist packages/cli/package.json`, and `npm pack --dry-run --json --ignore-scripts -w packages/cli` proved zero conformance-lab matches in shipped template, copied template, CLI dist/package metadata, and the 100-file dry-run tarball. |
-| t5 | No support-claim docs or risk-register entries were updated because no reviewed tuple-specific result evidence exists yet; [Conformance Lab Scenario and Result Contracts](../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md) keeps support wording gated on reviewed result records. |
+| t5 | No support-claim docs or risk-register entries were updated because no reviewed tuple-specific result evidence exists yet; [Conformance Lab Scenario and Result Contracts](../../assets/maintainer/conformance-lab-scenario-and-result-contracts.md) keeps support wording gated on reviewed result records. |
 
 ## Additional Hygiene
 

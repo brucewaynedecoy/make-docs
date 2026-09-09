@@ -29,8 +29,8 @@ The governing PRD invariant is:
 | Architecture overview | `docs/prd/02-architecture-overview.md` |
 | Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
-| Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
-| Breadcrumb record | `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `docs/assets/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `docs/assets/archive/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
+| Archived PRD set | `.make-docs/archive/prds/YYYY-MM-DD/` or `.make-docs/archive/prds/YYYY-MM-DD-XX/` |
+| Breadcrumb record | `.make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-p{P}-<slug>.md` when W/R/P is known; fall back to `.make-docs/archive/history/YYYY-MM-DD-w{W}-r{R}-<slug>.md` when only W/R is known or `.make-docs/archive/history/YYYY-MM-DD-<slug>.md` when no coordinate is known. |
 
 Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `.make-docs/system/references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 
@@ -45,7 +45,7 @@ For change-oriented plans and delta backlogs, carry the distinguishing context i
   - `authoritative PRD maintenance` — surgically update existing product authorities and create a new PRD only for a coherent capability, subsystem, or product boundary with no current owner
 - Editorial operations, migration sequencing, and reconciliation activity belong in plans, work backlogs, and history records, not in the active PRD namespace.
 - `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
-- Older namespaces belong under `docs/assets/archive/prds/`, not alongside the active namespace.
+- Older namespaces belong under `.make-docs/archive/prds/`, not alongside the active namespace.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
@@ -55,12 +55,12 @@ Apply these rules only when writing a fresh active PRD namespace through `full-s
 - Before writing a fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
-- On approval, move those entries into `docs/assets/archive/prds/YYYY-MM-DD/`.
-- If that dated directory already exists, use `docs/assets/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
-- Do not place loose files directly under `docs/assets/archive/prds/`; it should contain dated directories only.
+- On approval, move those entries into `.make-docs/archive/prds/YYYY-MM-DD/`.
+- If that dated directory already exists, use `.make-docs/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
+- Do not place loose files directly under `.make-docs/archive/prds/`; it should contain dated directories only.
 - Never archive designs, plans, work, or PRDs unless the user explicitly asks.
 
-Archive layout and hard rules are authoritative in `docs/assets/archive/AGENTS.md`.
+Archive layout and hard rules are authoritative in `.make-docs/archive/AGENTS.md`.
 
 ## Authoritative PRD Maintenance Rules
 
@@ -133,7 +133,7 @@ docs/prd/
 └── 08-session-lifecycle.md
 ```
 
-Do not place unnumbered Markdown files directly under `docs/prd/`. Do not place active PRD docs under `docs/assets/archive/prds/`.
+Do not place unnumbered Markdown files directly under `docs/prd/`. Do not place active PRD docs under `.make-docs/archive/prds/`.
 
 ## Section Contracts
 
@@ -257,4 +257,4 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 
 ## PRD Authority Validation
 
-Run `make-docs run prd authority validate --target-root <project>` before treating an active PRD set as downstream authority. The read-only validator enforces `PRD-AUTH-001` through `PRD-AUTH-008` as defined in `.make-docs/system/references/prd-change-management.md`: filename/H1 editorial stems use the narrow twelve-term set that allows legitimate Update Delivery, Replacement Policy, and Migration Safety subjects; controlled kinds additionally prohibit update/replace/replacement/migrate/migration; and the remaining diagnostics cover retired headings, authority targets, top-level coordinates, invalid target roots, and unsafe or escaping documentation roots. It scans authority-bearing Markdown sections and structured JSON/JSONL/YAML/YML fields, exempts standardized provenance sections/containers, and grants a path-wide provenance exemption only to `docs/assets/archive/**`. Human TTY output summarizes diagnostics and remediation; `--json` and non-TTY output return the complete report. An explicit `failed` report exits nonzero after rendering.
+Run `make-docs run prd authority validate --target-root <project>` before treating an active PRD set as downstream authority. The read-only validator enforces `PRD-AUTH-001` through `PRD-AUTH-008` as defined in `.make-docs/system/references/prd-change-management.md`: filename/H1 editorial stems use the narrow twelve-term set that allows legitimate Update Delivery, Replacement Policy, and Migration Safety subjects; controlled kinds additionally prohibit update/replace/replacement/migrate/migration; and the remaining diagnostics cover retired headings, authority targets, top-level coordinates, invalid target roots, and unsafe or escaping documentation roots. It scans authority-bearing Markdown sections and structured JSON/JSONL/YAML/YML fields, exempts standardized provenance sections/containers, and grants a path-wide provenance exemption only to `.make-docs/archive/**`. Human TTY output summarizes diagnostics and remediation; `--json` and non-TTY output return the complete report. An explicit `failed` report exits nonzero after rendering.

@@ -233,7 +233,7 @@ R-OBL-HISTORY-1 (MUST): obligation session summaries use `.make-docs/archive/his
 - [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)
 - [Deferred Obligations and Anti-Orphan Governance design](../designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md)
 - [W18 R15 combined plan](../plans/2026-07-30-w18-r15-deferred-obligations-and-naive-uat-governance/00-overview.md)
-- [W18 R15 P1 reconciliation history](../assets/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)
+- [W18 R15 P1 reconciliation history](../../.make-docs/archive/history/2026-07-30-w18-r15-p1-prd-reconciliation.md)
 - [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md)
 - [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md)
 - [09 Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md)

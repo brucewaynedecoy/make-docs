@@ -6,7 +6,7 @@ This design defines the deterministic Run Playbook state machine: the run-state 
 
 It exists to close a verified gap. The current implementation can create and read run state but has no progression engine: there is no next, advance, gate, resume, or close. It also writes run state into the repository, which reintroduces the per-repo operational-noise pattern that Make Docs v2 otherwise works to remove. This design adds the engine and relocates run state to the global store.
 
-The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/artifacts/playbook-architecture.md), Section 5. This design consumes the Playbook model defined by [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md), and it preserves, without redefining, the resolver, harness-capability, run-metadata, and concurrency decisions established by [Run Playbook Orchestration and Harness Capabilities](2026-06-27-run-playbook-orchestration-and-harness-capabilities.md).
+The full architecture this design draws from is recorded in [Playbook Architecture and Design](../assets/project/playbook-architecture.md), Section 5. This design consumes the Playbook model defined by [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md), and it preserves, without redefining, the resolver, harness-capability, run-metadata, and concurrency decisions established by [Run Playbook Orchestration and Harness Capabilities](2026-06-27-run-playbook-orchestration-and-harness-capabilities.md).
 
 ## Context
 
@@ -14,7 +14,7 @@ A Playbook is the primitive; the runner is the deterministic consumer of the Pla
 
 Two prior designs frame this one. The contract-and-model design defines the Playbook model the runner advances through, including the shared step-status vocabulary and the optional workflow-header orchestration policy. The Run Playbook orchestration design hardened the runner with resolver identity, an optional `run` orchestration policy, canonical harness-capability identifiers, reviewed harness capabilities in project config, unknown-capability handling, and nested and concurrent execution safety. Those decisions are inherited here and are not reopened.
 
-Two dependencies are owned elsewhere and are referenced, not redefined. Run state is stored in the global store specified in [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md), which also owns the store's physical schema, its concurrency model, and the stable project-identifier scheme. The progression operations are Make Docs operations addressed by stable identifiers from the operation registry and surfaced on the CLI under `run playbook`; the registry and CLI tree are specified in [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md).
+Two dependencies are owned elsewhere and are referenced, not redefined. Run state is stored in the global store specified in [Runtime and Global Store](../assets/project/runtime-and-global-store.md), which also owns the store's physical schema, its concurrency model, and the stable project-identifier scheme. The progression operations are Make Docs operations addressed by stable identifiers from the operation registry and surfaced on the CLI under `run playbook`; the registry and CLI tree are specified in [CLI Command Reorganization](../assets/project/cli-command-reorganization.md).
 
 This repository is the Make Docs maintainer repo and a dogfood instance. The runner is implemented as Make Docs operation-core code under the CLI package and is ordinary source code, not a dogfooded template asset. Any Make Docs-owned documentation, contract, or config-schema resource this design implies is authored upstream in `packages/docs/template/` and dogfooded downstream, per the maintainer dogfooding rule.
 
@@ -27,8 +27,8 @@ This design owns exactly: the run-state record content (D2), the progression ope
 R-SCOPE-1 (MUST NOT). The following are owned elsewhere and MUST NOT be redefined or reinvented in this design's implementation:
 
 - The Playbook document schema, workflow contract, step model, dependency registry, Playbook model, parser, and validator. Owned by [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md).
-- The global store's physical schema, concurrency and locking model, corruption and recovery behavior, and the stable project-identifier scheme. Owned by [Runtime and Global Store](../assets/artifacts/runtime-and-global-store.md).
-- The operation registry's materialization and the CLI command tree. Owned by [CLI Command Reorganization](../assets/artifacts/cli-command-reorganization.md).
+- The global store's physical schema, concurrency and locking model, corruption and recovery behavior, and the stable project-identifier scheme. Owned by [Runtime and Global Store](../assets/project/runtime-and-global-store.md).
+- The operation registry's materialization and the CLI command tree. Owned by [CLI Command Reorganization](../assets/project/cli-command-reorganization.md).
 - The packaging compiler, harness adapters, and conformance.
 
 R-SCOPE-2 (MUST). The resolver identity, the optional `run` orchestration policy field set, the canonical harness-capability identifiers, the `harnessCapabilities` config surface, and the unknown-capability handling rules are inherited from the Run Playbook orchestration design and MUST be consumed unchanged. This design defines their run-time behavior only where that design left it to the runner.

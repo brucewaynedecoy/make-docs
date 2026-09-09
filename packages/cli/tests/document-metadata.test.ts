@@ -248,7 +248,7 @@ ${matchingFollowOn}
     ).toEqual(["follow-on-body-missing"]);
   });
 
-  test("enforces persona frontmatter on persona-scoped library documents", () => {
+  test("enforces persona frontmatter on persona-scoped asset documents", () => {
     const markdown = `---
 title: "Guide Without Persona"
 kind: "guide"
@@ -261,17 +261,17 @@ status: "draft"
     expect(
       validateGeneratedDocumentMetadata(markdown, {
         config: createDefaultMakeDocsConfig(),
-        sourcePath: "docs/assets/library/user/guide-without-persona.md",
+        sourcePath: "docs/assets/user/guide-without-persona.md",
       }).map((finding) => finding.code),
     ).toEqual(["missing-persona"]);
   });
 
-  test("reports library path and frontmatter persona drift", () => {
+  test("reports audience path and frontmatter persona drift", () => {
     const markdown = `---
 title: "Drifted Guide"
 kind: "guide"
 status: "draft"
-persona: "developer"
+persona: "maintainer"
 ---
 
 # Drifted Guide
@@ -280,8 +280,26 @@ persona: "developer"
     expect(
       validateGeneratedDocumentMetadata(markdown, {
         config: createDefaultMakeDocsConfig(),
-        sourcePath: "packages/docs/template/docs/assets/library/user/drifted-guide.md",
+        sourcePath: "packages/docs/template/docs/assets/user/drifted-guide.md",
       }).map((finding) => finding.code),
     ).toEqual(["persona-path-mismatch"]);
   });
+  test("validates nested current audience assets and explicit legacy inputs", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.personas.push({ slug: "reviewer", label: "Reviewer", description: "Reviews outputs.", primitive: "user" });
+    const markdown = (persona: string) => `---\ntitle: Review\nkind: guide\nstatus: draft\npersona: ${persona}\n---\n# Review\n`;
+    for (const sourcePath of ["docs/assets/reviewer/testing/runs/review.md", "docs/assets/library/reviewer/review.md"]) {
+      expect(validateGeneratedDocumentMetadata(markdown("reviewer"), { config, sourcePath })).toEqual([]);
+      expect(validateGeneratedDocumentMetadata(markdown("maintainer"), { config, sourcePath }).map(f => f.code)).toEqual(["persona-path-mismatch"]);
+      expect(validateGeneratedDocumentMetadata(markdown("unknown"), { config, sourcePath }).map(f => f.code)).toEqual(["invalid-persona"]);
+    }
+    expect(validateGeneratedDocumentMetadata(markdown("reviewer"), { sourcePath: "docs/assets/reviewer/a.md" }).map(f => f.code)).toEqual(["invalid-persona"]);
+  });
+  test("does not treat shared or retired structural paths as audiences", () => {
+    const markdown = "---\ntitle: Shared\nkind: guide\nstatus: draft\n---\n# Shared\n";
+    for (const segment of ["project", "archive", "artifacts", "playbooks"]) {
+      expect(validateGeneratedDocumentMetadata(markdown, { config: createDefaultMakeDocsConfig(), sourcePath: `docs/assets/${segment}/nested/item.md` })).toEqual([]);
+    }
+  });
+
 });

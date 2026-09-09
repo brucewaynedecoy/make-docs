@@ -34,6 +34,11 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.path-hygiene.validate": "make_docs_project_path_hygiene_validate",
   "project.state.status": "make_docs_project_state_status",
   "project.state.recover": "make_docs_project_state_recover",
+  "project.persona.list": "make_docs_project_persona_list",
+  "project.layout.preview": "make_docs_project_layout_preview",
+  "project.layout.prepare": "make_docs_project_layout_prepare",
+  "project.layout.apply": "make_docs_project_layout_apply",
+  "project.layout.verify": "make_docs_project_layout_verify",
   "lifecycle.start": "make_docs_lifecycle_start",
   "lifecycle.show": "make_docs_lifecycle_show",
   "lifecycle.list": "make_docs_lifecycle_list",
@@ -120,9 +125,9 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     );
   });
 
-  test("tool names are exactly the derived spellings for all 27 identifiers", () => {
+  test("tool names are exactly the derived spellings for every admitted identifier", () => {
     const registryIds = listOperations().map((operation) => operation.id);
-    expect(registryIds).toHaveLength(27);
+    expect(new Set(registryIds).size).toBe(registryIds.length);
     expect(Object.keys(EXPECTED_DERIVED_TOOL_NAMES).sort()).toEqual([...registryIds].sort());
 
     const derivedByOperation = new Map(

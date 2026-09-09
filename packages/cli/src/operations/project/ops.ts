@@ -13,7 +13,7 @@ import {
   createLifecycleMutationReceipt,
   createLifecyclePlanSnapshot,
 } from "../../lifecycle-plan";
-import { parseManagedBlock } from "../../managed-block";
+import { parseManagedBlock, upsertManagedBlock } from "../../managed-block";
 import {
   createProjectSurfaceRouterAssets,
   createRouterOwnershipManifestEntry,
@@ -50,6 +50,9 @@ export interface ProjectSurfaceEnsureOutput {
   schemaVersion: 1;
   targetRoot: string;
   surface: "archive" | "artifacts" | "assets";
+  ensuredPath: string;
+  contentDestination: string;
+  contentDestinationExists: boolean;
   dryRun: boolean;
   plan: { snapshotId: string; actions: PlannedAction[] };
   receipt: LifecycleMutationReceipt | null;
@@ -144,15 +147,13 @@ export const projectOperations: OperationDefinition[] = [{
         throw new OperationError(`Router evidence is missing or unsafe at ${relativePath}. Run setup reconfigure and review the plan.`);
       }
       const parsed = parseManagedBlock(readFileSync(absolutePath, "utf8"));
-      if (parsed.state !== "valid" || parsed.body !== getThinRouterManagedBody(relativePath)) {
+      if (parsed.state !== "valid" || parsed.body !== getThinRouterManagedBody(relativePath, profile)) {
         throw new OperationError(`Router evidence changed or is malformed at ${relativePath}. Run setup reconfigure and review the conflict.`);
       }
       actions.push({ type: "noop", disposition: "preserve", relativePath, reason: "Configured router is valid and unchanged." });
     }
     const surfaceRouterActions: PlannedAction[] = [];
-    const expectedRouterClass = input.surface === "assets"
-      ? "bootstrap"
-      : "on-demand-surface";
+    const expectedRouterClass = "on-demand-surface";
     for (const asset of surfaceRouterAssets) {
       assertManagedPathHasNoSymlinks(targetRoot, asset.relativePath);
       const absolutePath = relativePathToTarget(targetRoot, asset.relativePath);
@@ -181,30 +182,36 @@ export const projectOperations: OperationDefinition[] = [{
       const currentHash = getManifestFileHash(asset.relativePath, currentContent);
       const fileEntry = manifest.files[asset.relativePath];
       const ownershipEntry = manifest.routerOwnership!.routers[asset.relativePath];
-      if (
-        currentContent !== asset.content ||
+      const unclaimedMatchingBlock = !fileEntry && !ownershipEntry && currentHash === contentHash;
+      const unclaimedPlainRouter = !fileEntry && !ownershipEntry && parseManagedBlock(currentContent).state === "absent";
+      const adoptUnclaimed = unclaimedMatchingBlock || unclaimedPlainRouter;
+      const adoptedContent = unclaimedPlainRouter
+        ? upsertManagedBlock(currentContent, parseManagedBlock(asset.content).body!).content
+        : currentContent;
+      if (!adoptUnclaimed && (
         currentHash !== contentHash ||
         fileEntry?.hash !== contentHash ||
         fileEntry.sourceId !== asset.sourceId ||
         fileEntry.ownershipClass !== "managed-block" ||
         ownershipEntry?.sourceId !== asset.sourceId ||
-        ownershipEntry.routerClass !== expectedRouterClass ||
+        (ownershipEntry.routerClass !== expectedRouterClass && ownershipEntry.routerClass !== "bootstrap") ||
         ownershipEntry.ownershipClass !== "managed-snapshot" ||
         ownershipEntry.provenanceState !== "verified" ||
         ownershipEntry.lifecycleDisposition !== "active" ||
         ownershipEntry.installedHash !== contentHash
-      ) {
+      )) {
         throw new OperationError(
           `Project surface router ownership or content requires explicit review: ${asset.relativePath}.`,
         );
       }
       const action: PlannedAction = {
-        type: "noop",
+        type: adoptUnclaimed ? "update" : "noop",
         disposition: "preserve",
+        content: adoptUnclaimed ? adoptedContent : undefined,
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
         contentHash,
-        reason: "Configured project surface router is valid and unchanged.",
+        reason: adoptUnclaimed ? "Explicit ensure adopts the root managed block and preserves project text." : "Configured project surface router is valid and unchanged.",
       };
       actions.push(action);
       surfaceRouterActions.push(action);
@@ -276,6 +283,9 @@ export const projectOperations: OperationDefinition[] = [{
       schemaVersion: 1,
       targetRoot,
       surface: input.surface,
+      ensuredPath: surfaceAction.relativePath,
+      contentDestination: input.surface === "artifacts" ? "docs/assets/project" : surfaceAction.relativePath,
+      contentDestinationExists: existsSync(path.join(targetRoot, input.surface === "artifacts" ? "docs/assets/project" : surfaceAction.relativePath)),
       dryRun: context.dryRun,
       plan: { snapshotId: snapshot.id, actions },
       receipt,

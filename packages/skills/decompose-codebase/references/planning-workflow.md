@@ -7,7 +7,7 @@ Use this workflow to produce a reviewable decomposition plan before generating d
 ## Preflight
 
 1. Run `scripts/probe_environment.py --format json`.
-2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active root entries. Archived PRD sets live under `docs/assets/archive/prds/YYYY-MM-DD/`.
+2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active root entries. Archived PRD sets live under `.make-docs/archive/prds/YYYY-MM-DD/`.
 3. If an active PRD set exists, determine whether the request is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Do not infer replacement authority from the presence of existing PRDs.
 4. Confirm whether live session MCP access is actually available.
 5. If `jdocmunch` or `jcodemunch` are visible in the session, index docs and code before planning the catalog.

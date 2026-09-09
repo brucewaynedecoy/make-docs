@@ -829,7 +829,7 @@ personas:
 
     try {
       await installManifest(targetDir);
-      rmSync(path.join(targetDir, ".make-docs/system/templates/guide-developer.md"));
+      rmSync(path.join(targetDir, ".make-docs/system/templates/guide-maintainer.md"));
       writeConflictingRootInstruction(targetDir);
       writeCustomManagedFile(
         targetDir,
@@ -855,7 +855,7 @@ personas:
         .filter((line) => /^- (generate|update|skip|remove): /.test(line));
 
       expect(output).toContain("Planned file operations");
-      expect(plannedLines).toContain("- generate: .make-docs/system/templates/guide-developer.md");
+      expect(plannedLines).toContain("- generate: .make-docs/system/templates/guide-maintainer.md");
       expect(plannedLines).toContain("- update: .make-docs/system/contracts/guide-contract.md");
       expect(plannedLines).toContain("- skip: AGENTS.md");
       expect(plannedLines.some((line) => line.startsWith("- remove: "))).toBe(true);

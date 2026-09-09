@@ -179,7 +179,7 @@ R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project materi
 - Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
 - Replacement contract: This document now states the current lifecycle workflow, coverage passes, and phase-close routing requirements inline as product authority.
 - Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
-- Source: [Lifecycle foundation design](../assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md)
+- Source: [Lifecycle foundation design](../../.make-docs/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md)
 
 ### 2026-08-14 — W19 R1
 

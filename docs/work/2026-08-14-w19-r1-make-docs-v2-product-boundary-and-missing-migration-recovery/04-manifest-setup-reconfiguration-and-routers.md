@@ -313,7 +313,7 @@ The correction is complete. Commit `40c4d231` corrected the accepted authority. 
 
 The accepted test matrix passed. The proof includes 1,255 CLI tests, 49 default checks, 181 focused independent-review tests, the build, PRD authority validation, template parity, dogfood dry-run parity, `git diff --check`, and the full package smoke pack. The smoke pack passed through the `npx`, `pnpm dlx`, and `bun x` package-runner paths after its stale directory expectation was corrected.
 
-Independent review found no unresolved authority, migration, routing, ownership, or smoke-proof defect. The owner reviewed and accepted each implementation boundary. The [corrective closeout](../../assets/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) records the result. The original P4 closeout and the open correction erratum remain unchanged as historical records.
+Independent review found no unresolved authority, migration, routing, ownership, or smoke-proof defect. The owner reviewed and accepted each implementation boundary. The [corrective closeout](../../../.make-docs/archive/history/2026-09-02-w19-r1-p4-router-recovery-closeout.md) records the result. The original P4 closeout and the open correction erratum remain unchanged as historical records.
 
 The P7 dependency proof is re-proved at `2f36f72`. `P7-AUTHORITY` remains accepted. D-005 and P7-BUDGET remain open. The active P7 baseline binds to the final closeout commit before owner decision review resumes at D-005. P7 implementation is not authorized.
 

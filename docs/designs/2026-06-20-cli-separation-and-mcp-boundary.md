@@ -8,7 +8,7 @@ This design decides the public `npx` posture, the long-term MCP owner, the relat
 
 ## Context
 
-[v2 Proposed Design and Roadmap](../assets/artifacts/v2-proposed-design-and-roadmap.md) places this design first in "Batch 3 - CLI, MCP, and Deterministic Automation" because no-scripts migration and skill refactoring depend on a stable command boundary. This is an intentional lifecycle departure: the v2 design set is being generated from artifact roadmap inputs as a source-to-design straddle before returning to the default design -> plan -> PRD -> work -> implementation flow.
+[v2 Proposed Design and Roadmap](../assets/project/v2-proposed-design-and-roadmap.md) places this design first in "Batch 3 - CLI, MCP, and Deterministic Automation" because no-scripts migration and skill refactoring depend on a stable command boundary. This is an intentional lifecycle departure: the v2 design set is being generated from artifact roadmap inputs as a source-to-design straddle before returning to the default design -> plan -> PRD -> work -> implementation flow.
 
 The current TypeScript npm package is the live implementation authority. [07 CLI Command Surface and Lifecycle](../prd/07-cli-command-surface-and-lifecycle.md) records a meaningful no-command workflow: `make-docs` installs when no manifest exists and syncs saved selections when a manifest exists. The explicit commands are `reconfigure`, `skills`, `backup`, and `uninstall`; removed `init`, `update`, `--reconfigure`, and `--skills` paths are intentionally rejected.
 

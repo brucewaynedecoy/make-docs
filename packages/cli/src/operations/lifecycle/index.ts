@@ -1,3 +1,4 @@
+import { loadMakeDocsConfigOrThrow } from "../../config";
 import { validateInstallationStoreRoot } from "../../store/installation-state";
 import { existsSync, readdirSync, rmdirSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -41,7 +42,7 @@ const LOCKFILE_MANIFESTS: Record<string, string[]> = {
  * Work-execution evidence kinds recorded by the checkpoint operation
  * (W18 R10 P3, Stage 2). These are the genuine-state fields of the retired
  * per-repo checkpoint JSON per the keep/remove disposition in
- * `docs/assets/artifacts/migrated-operations-inventory.md`: recorded
+ * `docs/assets/project/migrated-operations-inventory.md`: recorded
  * decisions and sign-offs that cannot be re-derived from the repository or
  * git. Everything else the old checkpoint file carried (wave/phase
  * resolution scaffolding, phase completion status, timestamps) is
@@ -206,12 +207,13 @@ export function buildScopeReport(target: string, explicitChanged?: string[]): Re
   const phase = parseWorkPhase(resolution.phasePath);
   const phaseRelative = normalizePath(path.relative(repoRoot, resolution.phasePath));
   const allowed = phase.declaredPaths;
+  const audienceSlugs = new Set(loadMakeDocsConfigOrThrow(repoRoot).config.personas.map((persona) => persona.slug));
   const files = explicitChanged && explicitChanged.length > 0 ? explicitChanged : changedFilesForWork(repoRoot);
   const outOfScope: string[] = [];
   const allowedDerived: Array<{ path: string; reason: string }> = [];
 
   for (const file of files) {
-    if (isAllowedScopePath(file, allowed, resolution.waveSlug, phaseRelative)) {
+    if (isAllowedScopePath(file, allowed, resolution.waveSlug, phaseRelative, audienceSlugs)) {
       continue;
     }
     const reason = managedStateReason(file, resolution.waveSlug) ?? derivedReason(file, files);
@@ -628,12 +630,14 @@ function isAllowedScopePath(
   allowed: string[],
   waveSlug: string,
   phasePath: string,
+  audienceSlugs: Set<string>,
 ): boolean {
   const normalized = filePath.replace(/^\/+|\/+$/g, "");
   if (normalized === phasePath || normalized.startsWith(`docs/work/${waveSlug}/`)) {
     return true;
   }
-  if (normalized.startsWith("docs/assets/archive/history/") || normalized.startsWith("docs/assets/library/")) {
+  const audience = /^docs\/assets\/([^/]+)\//.exec(normalized)?.[1];
+  if (normalized.startsWith(".make-docs/archive/history/") || (audience && audienceSlugs.has(audience))) {
     return true;
   }
   for (const item of allowed) {

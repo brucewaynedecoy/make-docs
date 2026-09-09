@@ -16,7 +16,7 @@ Relocate Playbook run state from the repository into the global store and define
 
 ## Overview
 
-Implement the run-state record content required by R-STATE-1, bind its per-step status to the shared W18 R6 vocabulary, and store it in the global store keyed by the stable project identifier plus a run identifier. The global store's physical schema, concurrency model, corruption recovery, and identifier scheme are owned by the [Runtime and Global Store](../../assets/artifacts/runtime-and-global-store.md) lineage (design planned as W18 R10); this phase consumes that store through a narrow storage interface and is sequenced after it exists.
+Implement the run-state record content required by R-STATE-1, bind its per-step status to the shared W18 R6 vocabulary, and store it in the global store keyed by the stable project identifier plus a run identifier. The global store's physical schema, concurrency model, corruption recovery, and identifier scheme are owned by the [Runtime and Global Store](../../assets/project/runtime-and-global-store.md) lineage (design planned as W18 R10); this phase consumes that store through a narrow storage interface and is sequenced after it exists.
 
 ## Source PRD Docs
 

@@ -10,7 +10,7 @@ Completion means active authority docs, package/template behavior, dogfood direc
 
 - Coordinate: `W9 R5`
 - Classification: `revision`
-- Evidence: W9 R5 revises completed W9 R4 path decisions after the user updated [evolution-direction-structure.md](../../assets/artifacts/evolution-direction-structure.md). W9 R4 remains historical evidence; W9 R5 is the next revision in the same W9 asset-IA line.
+- Evidence: W9 R5 revises completed W9 R4 path decisions after the user updated [evolution-direction-structure.md](../../assets/project/evolution-direction-structure.md). W9 R4 remains historical evidence; W9 R5 is the next revision in the same W9 asset-IA line.
 
 ## Change Classification
 
@@ -24,7 +24,7 @@ Completion means active authority docs, package/template behavior, dogfood direc
 | Input | Format | Location | Confidence |
 | ----- | ------ | -------- | ---------- |
 | Library/archive-history correction design | design | [../../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md](../../designs/2026-06-25-v2-library-and-archive-history-ia-correction.md) | high |
-| Structure seed artifact | artifact | [../../assets/artifacts/evolution-direction-structure.md](../../assets/artifacts/evolution-direction-structure.md) | high |
+| Structure seed artifact | artifact | [../../assets/artifacts/evolution-direction-structure.md](../../assets/project/evolution-direction-structure.md) | high |
 | W9 R4 implementation evidence | plan/work/history | [../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md](../2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md) | high |
 | Active PRD set | PRD | [../../prd/00-index.md](../../prd/00-index.md) | high |
 

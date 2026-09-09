@@ -47,7 +47,7 @@ Implement the unified project-state model keyed by the project identifier, hold 
 ### Tasks
 
 - [x] t4: Implement work-execution evidence keyed to the canonical work-item identity — resolved repo root, wave slug, and phase path — produced by the retained work-item identity resolver; the store records evidence against that identity and never re-derives it (R-PS-3).
-- [x] t5: Migrate the per-repo checkpoint JSON's genuine-state fields — validation-passed, review-passed or waived, closeout-approved, and equivalent recorded decisions — into work-execution evidence, and drop its re-derivable fields per the disposition in [migrated-operations-inventory.md](../../assets/artifacts/migrated-operations-inventory.md); the checkpoint JSON is not ported verbatim (R-PS-2).
+- [x] t5: Migrate the per-repo checkpoint JSON's genuine-state fields — validation-passed, review-passed or waived, closeout-approved, and equivalent recorded decisions — into work-execution evidence, and drop its re-derivable fields per the disposition in [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md); the checkpoint JSON is not ported verbatim (R-PS-2).
 - [x] t6: Retire `.make-docs/runs/<wave-slug>/state.json` as a write target in `packages/cli/src/operations/lifecycle/index.ts` and its readers, so no work-execution evidence is written to any repository path (R-BND-2).
 - [x] t7: Review the checkpoint-to-evidence field mapping against the inventory's keep/remove disposition so no genuine sign-off is dropped and no re-derivable field is ported (guards R-023).
 

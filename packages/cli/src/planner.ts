@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from "node:util";
+import { getRetiredResourceReplacement } from "./retired-resource-paths";
 import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import path from "node:path";
 import {
@@ -506,6 +507,7 @@ export async function createInstallPlan(options: {
       const currentHash = getCurrentManifestHash(relativePath, currentContent);
       const legacyFullFileHash = hashText(currentContent);
       const legacyMigrationTarget = getSystemToolResourceMigrationTarget(relativePath);
+      const replacementTarget = legacyMigrationTarget ?? getRetiredResourceReplacement(relativePath);
       const parsedInstructionBlock = isInstructionPath(relativePath)
         ? parseManagedBlock(currentContent)
         : null;
@@ -547,10 +549,10 @@ export async function createInstallPlan(options: {
           type: "remove-managed",
           relativePath,
           sourceId: manifestEntry.sourceId,
-          ...(legacyMigrationTarget && legacyMigrationTarget in desiredFiles
+          ...(replacementTarget && replacementTarget in desiredFiles
             ? {
                 reason:
-                  `Remove verified legacy system resource after ${legacyMigrationTarget} is materialized.`,
+                  `Remove verified legacy system resource after ${replacementTarget} is materialized.`,
               }
             : {}),
         });
@@ -1659,7 +1661,7 @@ function getCarriedOnDemandRouterAssets(options: {
   }
   const surfaceDirectories = {
     archive: ".make-docs/archive",
-    artifacts: "docs/artifacts",
+    assets: "docs/assets",
   } as const;
   const assets: ResolvedAsset[] = [];
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {
@@ -1673,13 +1675,13 @@ function getCarriedOnDemandRouterAssets(options: {
       const proof = options.existingManifest.routerOwnership.routers[asset.relativePath];
       const file = options.existingManifest.files[asset.relativePath];
       if (
-        proof?.routerClass === "on-demand-surface" &&
-        proof.provenanceState === "verified" &&
+        (!proof || proof.routerClass === "bootstrap" || proof.routerClass === "on-demand-surface") &&
+        (!proof || (proof.provenanceState === "verified" &&
         proof.ownershipClass === "managed-snapshot" &&
         proof.lifecycleDisposition === "active" &&
         proof.sourceId === asset.sourceId &&
         file?.sourceId === asset.sourceId &&
-        file.ownershipClass === "managed-block"
+        file.ownershipClass === "managed-block"))
       ) {
         assets.push(asset);
       }

@@ -73,7 +73,6 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const surfaces = [
       "",
       "docs",
-      "docs/assets",
       "docs/designs",
       "docs/plans",
       "docs/prd",
@@ -116,7 +115,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       const removedPaths = Object.keys(legacy.routerOwnership!.routers)
         .filter((relativePath) => !legacyPaths.has(relativePath))
         .sort();
-      expect(removedPaths).toHaveLength(10);
+      expect(removedPaths).toHaveLength(8);
       for (const relativePath of removedPaths) {
         rmSync(path.join(targetDir, relativePath), { force: true });
         delete legacy.routerOwnership!.routers[relativePath];
@@ -142,13 +141,13 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       });
       expect(repairPlan.actions.filter((action) =>
         removedPaths.includes(action.relativePath) && action.type === "create"
-      )).toHaveLength(10);
+      )).toHaveLength(8);
       const repaired = applyInstallPlan({
         targetDir,
         plan: repairPlan,
         existingManifest: acceptedLegacy,
       });
-      expect(Object.keys(repaired.manifest.routerOwnership!.routers)).toHaveLength(26);
+      expect(Object.keys(repaired.manifest.routerOwnership!.routers)).toHaveLength(24);
       for (const relativePath of removedPaths) {
         expect(existsSync(path.join(targetDir, relativePath)), relativePath).toBe(true);
       }
@@ -216,7 +215,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     });
     const repaired = applyInstallPlan({ targetDir, plan: repairPlan, existingManifest: accepted });
     expect(Object.values(repaired.manifest.routerOwnership!.routers)
-      .filter((entry) => entry.routerClass === "bootstrap")).toHaveLength(26);
+      .filter((entry) => entry.routerClass === "bootstrap")).toHaveLength(24);
     expect(Object.values(repaired.manifest.routerOwnership!.routers)
       .filter((entry) => entry.routerClass === "on-demand-surface")).toHaveLength(4);
   });
@@ -224,8 +223,9 @@ describe("W19 R1 P4 projection and lifecycle", () => {
   it("accepts legacy docs/assets on-demand routers only as exact legacy repair input", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-legacy-assets-"));
     roots.push(targetDir);
-    const installed = await installProjection(targetDir, []);
-    const legacy = structuredClone(installed.manifest);
+    await installProjection(targetDir, []);
+    await invokeOperation("project.surface.ensure", {surface: "assets", targetRoot: targetDir}, createExecutionContext({surface: "test", cwd: targetDir, writesAllowed: true}));
+    const legacy = structuredClone(loadManifest(targetDir)!);
     const legacyPaths = new Set([
       ...getLegacyIncompleteRouterPaths("AGENTS.md"),
       ...getLegacyIncompleteRouterPaths("CLAUDE.md"),
@@ -261,9 +261,9 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     });
     const repaired = applyInstallPlan({ targetDir, plan: repairPlan, existingManifest: accepted });
     expect(repaired.manifest.routerOwnership!.routers["docs/assets/AGENTS.md"]!.routerClass)
-      .toBe("bootstrap");
+      .toBe("on-demand-surface");
     expect(repaired.manifest.routerOwnership!.routers["docs/assets/CLAUDE.md"]!.routerClass)
-      .toBe("bootstrap");
+      .toBe("on-demand-surface");
 
     const partial = structuredClone(legacy);
     const missingPath = getLegacyIncompleteRouterPaths("AGENTS.md")[0]!;
@@ -277,7 +277,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       );
     writeRawStoreLedger(targetDir, partial);
     expect(() => loadManifest(targetDir)).toThrow(
-      "legacy docs/assets on-demand entries only with the exact legacy bootstrap set",
+      "must include bootstrap router",
     );
   });
 
@@ -499,12 +499,10 @@ describe("W19 R1 P4 projection and lifecycle", () => {
           const ensured = loadManifest(targetDir)!;
           const surfaceDirectory = {
             archive: ".make-docs/archive/",
-            artifacts: "docs/artifacts/",
+            artifacts: "docs/assets/",
             assets: "docs/assets/",
           }[surface];
-          const expectedRouterClass = surface === "assets"
-            ? "bootstrap"
-            : "on-demand-surface";
+          const expectedRouterClass = "on-demand-surface";
           const ownedPaths = Object.values(ensured.routerOwnership!.routers)
             .filter((entry) =>
               entry.routerClass === expectedRouterClass &&
@@ -556,8 +554,8 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const testingDir = path.join(targetDir, "docs/assets/developer/testing");
     mkdirSync(testingDir, { recursive: true });
     writeFileSync(path.join(testingDir, "evidence.md"), "project evidence\n", "utf8");
-    rmSync(path.join(targetDir, "docs/assets/AGENTS.md"));
-    rmSync(path.join(targetDir, "docs/assets/CLAUDE.md"));
+    rmSync(path.join(targetDir, "docs/assets/AGENTS.md"), { force: true });
+    rmSync(path.join(targetDir, "docs/assets/CLAUDE.md"), { force: true });
 
     const ensured = await invokeOperation(
       "project.surface.ensure",
@@ -984,17 +982,17 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       const rendered = stdout.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(rendered).toContain(`Target: ${targetDir}`);
       expect(rendered).toContain("Project surface: assets");
-      expect(rendered).toContain("State: unchanged");
-      expect(rendered).toContain("- preserve: docs/assets");
-      expect(rendered).toContain("Receipt: none (no write)");
+      expect(rendered).toContain("State: applied");
+      expect(rendered).toContain("- create: docs/assets");
+      expect(rendered).toContain("Receipt: sha256:");
       expect(rendered).toContain("Next: Run `make-docs setup --yes --dry-run`");
 
       stdout.mockClear();
       await runCli(["project", "--help"]);
       const help = stdout.mock.calls.map(([chunk]) => String(chunk)).join("");
-      expect(help).toContain("The ensure command creates only the selected on-demand directory");
-      expect(help).toContain("applied or unchanged state");
-      expect(help).not.toContain("pending");
+      expect(help).toContain("The ensure command checks Store installation evidence and configured routers");
+      expect(help).toMatch(/applied or\s+unchanged state/);
+      expect(help).toContain("State status reads the Store and reports pending work without changing files.");
 
       stdout.mockClear();
       const unchanged = await invokeOperation(

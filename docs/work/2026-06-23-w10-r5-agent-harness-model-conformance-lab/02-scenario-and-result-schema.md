@@ -31,7 +31,7 @@ Implement the compact evidence records needed for maintainer review.
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Added [Conformance Lab Scenario and Result Contracts](../../assets/library/developer/conformance-lab-scenario-and-result-contracts.md), which defines `schemaVersion`, stable scenario identity, required source requirement anchors, safety modes, prerequisite flags, execution steps, expected evidence, artifact policy, and support-claim scope. |
+| t1 | Added [Conformance Lab Scenario and Result Contracts](../../assets/maintainer/conformance-lab-scenario-and-result-contracts.md), which defines `schemaVersion`, stable scenario identity, required source requirement anchors, safety modes, prerequisite flags, execution steps, expected evidence, artifact policy, and support-claim scope. |
 | t2 | The guide defines compact result records with harness/model/provider/runtime tuple fields, make-docs version, produced files, diffs, exit status, transcript/log pointer, verdict enum, reason, caveats, reviewer status, and support-claim use. `blocked` records must use `supportClaimUse: none`. |
 | t3 | Added `.make-docs/conformance/` to `.gitignore` and documented `.make-docs/conformance/<run-id>/` plus `.make-docs/runs/conformance/<run-id>/` as generated local raw-artifact storage. |
 | t4 | The guide defines opt-in redaction and promotion for contentious evidence, stronger claim candidates, transcript excerpts, and reviewed compact result records. Raw provider logs, temporary workspaces, credentials, and full transcripts remain local by default. |

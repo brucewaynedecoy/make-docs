@@ -124,7 +124,7 @@ A clean-room rebuild must not infer a Playbook/Protocol product from historical 
 - [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-06-30-playbook-contract-and-model.md](../designs/2026-06-30-playbook-contract-and-model.md)
-- [../assets/artifacts/playbook-architecture.md](../assets/artifacts/playbook-architecture.md)
+- [../assets/artifacts/playbook-architecture.md](../assets/project/playbook-architecture.md)
 - [../plans/2026-07-01-w18-r6-playbook-contract-and-model/00-overview.md](../plans/2026-07-01-w18-r6-playbook-contract-and-model/00-overview.md)
 - [../work/2026-07-01-w18-r6-playbook-contract-and-model/00-index.md](../work/2026-07-01-w18-r6-playbook-contract-and-model/00-index.md)
 - [22 Project Documentation Asset Model](22-project-documentation-asset-model.md)

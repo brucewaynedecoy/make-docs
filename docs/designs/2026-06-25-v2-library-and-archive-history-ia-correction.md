@@ -8,7 +8,7 @@ This design is a related successor to [v2 Documentation Asset IA Hard Move](2026
 
 ## Context
 
-The edited seed input in [evolution-direction-structure.md](../assets/artifacts/evolution-direction-structure.md) now names a cleaner documentation asset tree than the W9 R4 implementation closed on. The new target keeps project asset families under `docs/assets/**`, but changes two W9 R4 conclusions:
+The edited seed input in [evolution-direction-structure.md](../assets/project/evolution-direction-structure.md) now names a cleaner documentation asset tree than the W9 R4 implementation closed on. The new target keeps project asset families under `docs/assets/**`, but changes two W9 R4 conclusions:
 
 - `docs/assets/guides/**` becomes `docs/assets/library/**`.
 - `docs/assets/breadcrumbs/**` is not the future closeout path; history/breadcrumb records move under `docs/assets/archive/history/**`.
@@ -78,7 +78,7 @@ Update Mode: `new-doc-related`
 
 Prior Design Docs: [v2 Documentation Asset IA Hard Move](2026-06-25-v2-documentation-asset-ia-hard-move.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Template, Package, and Dogfood Source-of-Truth Contract](2026-06-19-template-package-and-dogfood-source-of-truth-contract.md)
 
-Source Inputs: [evolution-direction-structure.md](../assets/artifacts/evolution-direction-structure.md)
+Source Inputs: [evolution-direction-structure.md](../assets/project/evolution-direction-structure.md)
 
 Reason: W9 R5 materially corrects W9 R4's guide and breadcrumb targets while preserving W9 R4's completed hard-move evidence for artifacts, archive, and `.make-docs/**`.
 

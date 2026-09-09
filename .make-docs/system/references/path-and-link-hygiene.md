@@ -16,10 +16,10 @@ Documentation should be portable across checkouts, machines, and users. Do not w
 
 ## Namespace Hygiene
 
-- Use `docs/artifacts/**` for optional, non-authoritative source and analysis inputs.
+- Use `docs/assets/project/**` for optional, non-authoritative source and analysis inputs.
 - Use `.make-docs/archive/**` for Make Docs-managed archive and provenance records.
 - Use `docs/assets/<persona-slug>/**` for Persona-scoped reader assets. Use `docs/assets/<persona-slug>/testing/**` for Unassisted Goal Testing packets, runs, findings, and approved evidence.
-- Treat `docs/assets/archive/**`, `docs/assets/archive/history/**`, `docs/assets/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
+- Treat `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/artifacts/**`, `docs/assets/library/**`, and `docs/assets/playbooks/**` as legacy migration inputs, not current shipped targets.
 - Current selected local resource projections live under `.make-docs/system/<resource-type>/**`. Installed-provider resources remain available without a local projection.
 - Routers, scripts, selected agentic payloads, declarative config, and backup or conflict file copies are not content-resource types.
 - Make Docs installation and operation state belongs only in the global Make Docs Store, managed through the CLI. Applied ownership, hashes, migration receipts, locks, conflict decisions, and recovery metadata must not live in project folders.
@@ -75,3 +75,19 @@ Use the allow comment sparingly. The reason must explain why a project-relative 
 ## Validation
 
 Use `.make-docs/scripts/check_path_hygiene.py` to audit local documentation content. It needs neither the CLI nor the Store and does not read or create an installation manifest. By default it checks `docs/`, root routers and `README.md`, and selected local `.make-docs/system/` bodies. Use repeated `--path <project-relative-file-or-directory>` arguments for a narrower reviewed scope or a custom docs root. Use `--include-skills` to include installed Skill text. It skips symbolic links, backup payloads, and operational directories. The inventory selects content for a check; it is not ownership or installation evidence. The script reports real checkout paths, user-home paths, local temporary paths, and absolute local Markdown links. Run it before finalizing broad documentation updates or when repairing path hygiene drift.
+
+## Effective Audiences and First Assets
+
+The only built-in Personas and primitives are `user` and `maintainer`. Both roles can be filled by humans or agents. The defaults are User (People or agents that use the project.) and Maintainer (People or agents that build, operate, maintain, or extend the project.). Each entry has `slug`, `label`, `description`, and `primitive`. Merge `.make-docs/config.yaml` entries by slug with these defaults. Built-in display fields may be omitted and inherited; supplied primitive mappings must stay fixed. Custom entries need all four fields and one of the two primitives. Absent, empty, or comment-only config and an absent or empty Persona list keep both defaults. Explicit null, wrong types, invalid YAML, duplicate/unsafe slugs, or invalid primitives are errors; do not rewrite the file to hide them. Reserve `project`, `archive`, `artifacts`, `library`, and `playbooks` as structural names. Legacy custom-name conflicts need an explicit new slug and retained-content map; never discard them silently.
+
+`make-docs project persona list --target-root <project> --json` reads the effective set and display-field origins without Store access or project writes. Without the CLI, use the same visible defaults and local config. Audience selection does not prove tester qualification.
+
+Fresh setup leaves `docs/assets/` absent. Create its needed shared or audience content paths on first use, with only the root instruction filenames declared by `Asset router files:` in the always-present docs router. Do not infer a harness from your own actor identity. Missing or invalid declarations require an explicit project choice for router creation; ordinary content work can continue. `make-docs project surface ensure assets` creates or safely adopts root routers through normal Store-backed ownership review. The retained `artifacts` selector ensures that same root and reports `docs/assets/project/` as a destination; it does not create an empty child or old `docs/artifacts/`.
+
+## Reviewed Layout Recovery
+
+Use `make-docs project layout preview` to inspect all affected files and empty directories, exact source-to-destination choices, content identities, link repairs, and blockers. Repeated `--map <source>=<destination>` options specify bounded project-relative choices. Preview is read-only. `make-docs project layout prepare --review <digest> --mode cli|manual` rechecks the digest and saves the complete operation intent and recovery evidence in the Store before any project mutation. Preparation returns an operation ID and releases its live process lock; pending Store intent still blocks conflicting supported writes.
+
+Use `make-docs project layout apply <operation-id>` for CLI mode. For manual mode, follow the prepared instructions yourself or through an agent, then run `make-docs project layout verify <operation-id>`. Both paths verify the recorded source, destination, and link expectations. Changed bytes, collisions, ambiguous audiences, unsafe paths, missing links, new source files, or unexplained leftovers keep the operation pending. Use `make-docs project state status` and `make-docs project state recover` for the next safe action. No local receipt, queue, marker, or second state engine is permitted.
+
+Old artifact homes move to `docs/assets/project/`. Adopted archives move to `.make-docs/archive/`. Proved Library audiences move to their effective Persona paths; map former default `developer` to `maintainer` only with proof, never infer `agent` as `maintainer`, and review custom mappings explicitly. Retired Playbooks move to `.make-docs/archive/legacy-playbooks/` as inactive history. Remove only exactly reviewed obsolete empty directories after rechecking them; preserve current required typed system-router directories. Preserve substantive historical bytes and project ownership. Record mechanical old/new link edits and verify their targets before source cleanup. Named archival and backup exclusions must be non-active provenance, not a way to keep active old families.

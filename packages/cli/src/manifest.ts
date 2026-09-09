@@ -1031,7 +1031,6 @@ function validateRouterOwnershipManifestState(
   const profile = resolveInstallProfile(selections);
   assertPlainObject(value.routers, "manifest.routerOwnership.routers");
   const routers: RouterOwnershipManifestState["routers"] = {};
-  const transitionalLegacyOnDemandPaths = new Set<string>();
   for (const [relativePath, rawEntry] of Object.entries(value.routers)) {
     assertPlainObject(rawEntry, `manifest.routerOwnership.routers.${relativePath}`);
     const entryPath = validateString(
@@ -1082,16 +1081,12 @@ function validateRouterOwnershipManifestState(
     const allowedPaths = routerClass === "bootstrap"
       ? getConfiguredRouterPaths(profile, instructionKind)
       : getOnDemandRouterPaths(instructionKind);
-    const isTransitionalLegacyOnDemandPath =
-      routerClass === "on-demand-surface" &&
-      getLegacyAssetsOnDemandRouterPaths(instructionKind).includes(relativePath);
-    if (!allowedPaths.includes(relativePath) && !isTransitionalLegacyOnDemandPath) {
+    const isLegacyAssetsBootstrapPath = routerClass === "bootstrap" && relativePath === `docs/assets/${instructionKind}`;
+    const isLegacyArtifactsPath = routerClass === "on-demand-surface" && relativePath === `docs/artifacts/${instructionKind}`;
+    if (!allowedPaths.includes(relativePath) && !isLegacyAssetsBootstrapPath && !isLegacyArtifactsPath) {
       throw new Error(
         `manifest.routerOwnership.routers.${relativePath} is not an allowed ${routerClass} router path`,
       );
-    }
-    if (isTransitionalLegacyOnDemandPath) {
-      transitionalLegacyOnDemandPaths.add(relativePath);
     }
     const sourceId = validateString(
       rawEntry.sourceId,
@@ -1147,11 +1142,6 @@ function validateRouterOwnershipManifestState(
   }).sort();
   const isExactLegacyIncompleteInput =
     JSON.stringify(bootstrapPaths) === JSON.stringify(legacyBootstrapPaths);
-  if (transitionalLegacyOnDemandPaths.size > 0 && !isExactLegacyIncompleteInput) {
-    throw new Error(
-      "manifest.routerOwnership.routers may use legacy docs/assets on-demand entries only with the exact legacy bootstrap set",
-    );
-  }
   if (!isExactLegacyIncompleteInput) {
     for (const harness of expectedHarnesses) {
       const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";

@@ -13,7 +13,7 @@ summary: "Records the authority and router regression that reopened P4 correctiv
 
 ## Changes
 
-The [original P4 closeout](../../../docs/assets/archive/history/2026-08-29-w19-r1-p4-manifest-setup-reconfiguration-and-routers.md) remains unchanged as historical evidence. Later review proved that commit `02002ba23` changed accepted authority without owner approval and commit `efebfa29` implemented the changed model. The old closeout therefore does not prove the corrected router and resource-tree requirements.
+The [original P4 closeout](2026-08-29-w19-r1-p4-manifest-setup-reconfiguration-and-routers.md) remains unchanged as historical evidence. Later review proved that commit `02002ba23` changed accepted authority without owner approval and commit `efebfa29` implemented the changed model. The old closeout therefore does not prove the corrected router and resource-tree requirements.
 
 [D-029](../../../docs/prd/03-open-questions-and-risk-register.md#d-029-w19-r1-resource-topology-and-router-authority-drift) records the drift, controls, and required proof. The [P4 work record](../../../docs/work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/04-manifest-setup-reconfiguration-and-routers.md#corrective-work-reopened---2026-09-02) is reopened. P7 remains paused until the recovery is accepted and its baseline and P4 dependency proof are refreshed.
 

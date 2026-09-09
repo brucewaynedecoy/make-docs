@@ -1,6 +1,6 @@
 # PRD Authority Maintenance
 
-Archive layout is authoritative in `docs/assets/archive/AGENTS.md`.
+Archive layout is authoritative in `.make-docs/archive/AGENTS.md`.
 
 ## Purpose
 
@@ -151,7 +151,7 @@ The validator uses two finite, case-insensitive sets. Filenames and H1 subjects 
 
 Markdown links are authority-bearing only within `Source PRD Docs`, `Source PRDs`, `Source PRD Documents`, `PRD Authority`, `Product Authority`, `Current PRD Authority`, `Authoritative PRDs`, `Authoritative PRD Docs`, `Source Authority`, `Authority Sources`, or `Active Authority Baseline`, plus the PRD index's `Document Map`. The provenance sections `Requirement History`, `Provenance`, `Lineage`, `Source Anchors`, `Design Provenance`, `Migration Provenance`, `Migration History`, `Historical Provenance`, and `Archive Provenance` are exempt from authority-link enforcement.
 
-Outside the only canonical path exemption, `docs/assets/archive/**`, the validator also reads JSON, JSONL, YAML, and YML. After punctuation removal and lowercasing, authority fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching the provenance section vocabulary are exempt.
+Outside the only canonical path exemption, `.make-docs/archive/**`, the validator also reads JSON, JSONL, YAML, and YML. After punctuation removal and lowercasing, authority fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching the provenance section vocabulary are exempt.
 
 These provenance exemptions do not permit an active PRD filename, H1, kind, retired heading, or document-level coordinate to violate current-authority rules. The validator resolves the target root and documentation scan roots before reading; an absent or invalid root fails with `PRD-AUTH-007`, while an escaping or otherwise unsafe `docs/` or `docs/prd/` root fails closed with `PRD-AUTH-008`.
 

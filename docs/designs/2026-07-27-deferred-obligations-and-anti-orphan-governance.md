@@ -25,18 +25,18 @@ follow_on:
 
 Define a v2 anti-orphan feature that keeps every still-required capability or obligation visible, owned, routed, and dispositioned when delivery is deferred beyond the current phase. The feature closes a system-level guarantee gap without replacing Make Docs' existing risk and open-question register, PRD-to-backlog traceability, lifecycle coordinates, acceptance criteria, coverage passes, history records, phase gates, or machine-level work-execution evidence.
 
-This design follows the normal planning arc in [lifecycle.md](../../.make-docs/references/system/lifecycle.md) after the user-authorized source-to-design straddle recorded in frontmatter. It stops at design and does not implement contracts, templates, validators, SQLite schema changes, CLI behavior, a plan, PRD revisions, or work backlogs.
+This design follows the normal planning arc in [lifecycle.md](../../.make-docs/system/references/lifecycle.md) after the user-authorized source-to-design straddle recorded in frontmatter. It stops at design and does not implement contracts, templates, validators, SQLite schema changes, CLI behavior, a plan, PRD revisions, or work backlogs.
 
 ## Context
 
 Make Docs v2 already provides most of the components needed to reason about deferred work:
 
-- The active PRD set has a living [open-question and risk register](../../.make-docs/references/system/prd-change-management.md) with stable decision, question, and risk identities.
+- The active PRD set has a living [open-question and risk register](../../.make-docs/system/references/prd-change-management.md) with stable decision, question, and risk identities.
 - Designs, plans, PRD requirements, work backlogs, tasks, acceptance criteria, and source-document links provide forward and backward traceability.
 - Wave, revision, phase, task, and acceptance-criterion coordinates describe where work belongs.
-- The [coverage-pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md) requires complete candidate enumeration, exactly one verdict per candidate, update-over-create behavior, history reconciliation, focused validation, and an explicit close summary.
-- The [execution workflow](../../.make-docs/references/system/execution-workflow.md) derives work from the active PRD set and preserves dependency-ordered plans and delta backlogs.
-- The [history-record contract](../../.make-docs/contracts/system/history-record-contract.md) preserves immutable, versioned session breadcrumbs without turning history into a live log.
+- The [coverage-pass contract](../../.make-docs/system/contracts/coverage-pass-contract.md) requires complete candidate enumeration, exactly one verdict per candidate, update-over-create behavior, history reconciliation, focused validation, and an explicit close summary.
+- The [execution workflow](../../.make-docs/system/references/execution-workflow.md) derives work from the active PRD set and preserves dependency-ordered plans and delta backlogs.
+- The [history-record contract](../../.make-docs/system/contracts/history-record-contract.md) preserves immutable, versioned session breadcrumbs without turning history into a live log.
 - [Global Store and Project State](2026-07-01-global-store-and-project-state.md) places machine-local run-state and work-execution evidence in `~/.make-docs/store.db`, keyed by stable project and work-item identity, while versioned project knowledge remains in the repository.
 
 Those mechanisms can show that a bounded phase was executed correctly, but they do not guarantee that a required outcome deferred by one authority is still owned by another. A design can say "later," a risk can carry a follow-up, an open question can resolve into future work, a PRD can defer part of a requirement, or an acceptance path can span multiple phases without a normative record requiring an owner, target coordinate, activation trigger, dependencies, and exit criteria. The coverage-pass spine can detect omitted candidates within a declared surface, but deferred obligations are not a mandatory phase-close surface. A phase can therefore be accurately phase-complete while being described imprecisely as feature-complete.
@@ -239,7 +239,7 @@ Rejected. Obligation meaning, source authority, ownership, routing, and status a
 
 ### Add a New Fixed PRD Core File
 
-Rejected. The [output contract](../../.make-docs/contracts/system/output-contract.md) defines the fixed PRD core and assigns living change-management state to `03-open-questions-and-risk-register.md`. A new numbered core file would alter the sequence and create a parallel reconciliation location.
+Rejected. The [output contract](../../.make-docs/system/contracts/output-contract.md) defines the fixed PRD core and assigns living change-management state to `03-open-questions-and-risk-register.md`. A new numbered core file would alter the sequence and create a parallel reconciliation location.
 
 ### Represent Obligations Only as Risks or Open Questions
 
@@ -291,7 +291,7 @@ No runtime, CLI, schema, contract, template, PRD, plan, work, history, or phase-
   - [Generated Metadata and Lifecycle Handoffs](2026-06-20-generated-metadata-and-lifecycle-handoffs.md)
   - [v2 Documentation Asset IA Hard Move](2026-06-25-v2-documentation-asset-ia-hard-move.md)
   - [Compatibility Audit and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md)
-  - [Coverage-Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md)
+  - [Coverage-Pass Contract and Skill Evolution](../../.make-docs/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md)
 - Reason: This design adds a distinct mandatory governance surface across the existing coverage, PRD, lifecycle, and W18 R10 state boundaries. It extends those decisions without superseding their coverage mechanics, repository IA, compatibility rules, or project-knowledge versus operational-state split.
 
 ## Intended Follow-On

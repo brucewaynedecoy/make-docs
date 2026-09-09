@@ -41,7 +41,7 @@ This plan is complete when the active PRD namespace carries the deterministic Pl
 | Input | Format | Location | Confidence |
 | ----- | ------ | -------- | ---------- |
 | Playbook Contract and Model design | design doc | [../../designs/2026-06-30-playbook-contract-and-model.md](../../designs/2026-06-30-playbook-contract-and-model.md) | High — accepted authority with D0–D7 decisions and R-* requirement IDs |
-| Playbook Architecture and Design, Sections 0–4 | artifact | [../../assets/artifacts/playbook-architecture.md](../../assets/artifacts/playbook-architecture.md) | High as source material; the design is the authority where they differ |
+| Playbook Architecture and Design, Sections 0–4 | artifact | [../../assets/artifacts/playbook-architecture.md](../../assets/project/playbook-architecture.md) | High as source material; the design is the authority where they differ |
 | PRD 29 Playbook Contract Run Playbook | baseline PRD | [../../prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements) | High — the primary baseline being revised |
 | PRD 33 Playbook Packaging and Harness Adapter Registry | baseline PRD | [../../prd/36-playbook-packaging-compiler-and-harness-adapters.md](../../prd/36-playbook-packaging-compiler-and-harness-adapters.md) | High — packaging rails must now consume the single Playbook model |
 | PRD 22 New Docs Assets Playbooks Persona Model | baseline PRD | [../../prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) | High — the playbook filename form in its namespace tree changes |
@@ -116,9 +116,9 @@ Execution validates that PRD 34 uses the revision template and carries every des
 
 ## Dependencies
 
-- [Playbook Contract and Model](../../designs/2026-06-30-playbook-contract-and-model.md) is the accepted authority; [Playbook Architecture and Design](../../assets/artifacts/playbook-architecture.md) Sections 0–4 are its source material.
-- The operation registry and stable operation identifiers are owned by the CLI command reorganization design ([../../assets/artifacts/cli-command-reorganization.md](../../assets/artifacts/cli-command-reorganization.md)); this plan consumes identifiers such as `playbook.validate` and `playbook.catalog` as an external contract per R-SCOPE-2.
-- Run-state storage and runtime execution semantics are owned by the [Run Playbook State Machine](../../designs/2026-07-01-run-playbook-state-machine.md) design and the [Runtime and Global Store](../../assets/artifacts/runtime-and-global-store.md) artifact; this plan defines contract fields only.
+- [Playbook Contract and Model](../../designs/2026-06-30-playbook-contract-and-model.md) is the accepted authority; [Playbook Architecture and Design](../../assets/project/playbook-architecture.md) Sections 0–4 are its source material.
+- The operation registry and stable operation identifiers are owned by the CLI command reorganization design ([../../assets/artifacts/cli-command-reorganization.md](../../assets/project/cli-command-reorganization.md)); this plan consumes identifiers such as `playbook.validate` and `playbook.catalog` as an external contract per R-SCOPE-2.
+- Run-state storage and runtime execution semantics are owned by the [Run Playbook State Machine](../../designs/2026-07-01-run-playbook-state-machine.md) design and the [Runtime and Global Store](../../assets/project/runtime-and-global-store.md) artifact; this plan defines contract fields only.
 - Upstream-first authoring per [2026-06-19 Template, Package, and Dogfood Source-of-Truth Contract](../../designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md): the Playbook contract and default Playbooks are authored under `packages/docs/template/` and dogfooded into `./.make-docs/` and `./docs/`; this planning round writes project planning/PRD/work content only and authors nothing under `packages/`.
 
 ## Intended Follow-On

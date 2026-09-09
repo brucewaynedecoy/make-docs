@@ -105,8 +105,8 @@ If an explicitly authorized full-set decomposition or product-authority re-basel
 
 Archive paths follow this pattern:
 
-- `docs/assets/archive/prds/YYYY-MM-DD/`
-- `docs/assets/archive/prds/YYYY-MM-DD-XX/`
+- `.make-docs/archive/prds/YYYY-MM-DD/`
+- `.make-docs/archive/prds/YYYY-MM-DD-XX/`
 
 This keeps `docs/prd/` clean and ensures there is only one current product-authority set at a time.
 
@@ -148,13 +148,13 @@ If you approve this plan, I can either save the plan only or save it and start e
 ```text
 Use `decompose-codebase` to execute the approved decomposition plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`.
 
-Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `docs/assets/archive/prds/...`.
+Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ### Stricter execution variant
 
 ```text
-Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. Re-check MCP availability in this session and use `jdocmunch` and `jcodemunch` if available. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `docs/assets/archive/prds/...`.
+Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. Re-check MCP availability in this session and use `jdocmunch` and `jcodemunch` if available. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ## Related Files

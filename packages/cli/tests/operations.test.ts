@@ -1,6 +1,6 @@
 import { rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
@@ -12,6 +12,7 @@ import {
   buildWaveStatus,
   parseWorkPhase,
   resolveWaveTarget,
+  runCloseoutHistory,
 } from "../src/operations";
 import { listWorkEvidence, loadSqliteDriver, withStoreDatabase } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
@@ -355,7 +356,7 @@ describe("make-docs shared operations", () => {
 
     const report = buildScopeReport(fixture.waveDir, [
       "packages/cli/src/operations.ts",
-      "docs/assets/archive/history/2026-06-26-example.md",
+      ".make-docs/archive/history/2026-06-26-example.md",
       `.make-docs/runs/${WAVE_SLUG}/state.json`,
       "package.json",
       "package-lock.json",
@@ -376,6 +377,48 @@ describe("make-docs shared operations", () => {
     expect(report.outOfScope).toEqual(["package.json", "unrelated.txt"]);
   });
 
+  test("scope guard allows effective audiences but requires explicit shared and legacy scope", () => {
+    const fixture = createWaveFixture();
+    tempRoots.push(fixture.root);
+    writeFile(fixture.root, ".make-docs/config.yaml", "personas:\n  - slug: reviewer\n    label: Reviewer\n    description: Reviews content.\n    primitive: user\n");
+    const report = buildScopeReport(fixture.waveDir, [
+      "docs/assets/maintainer/guide.md", "docs/assets/user/testing/run.md", "docs/assets/reviewer/custom.md",
+      "docs/assets/project/proposal.md", "docs/assets/library/user/old.md", "docs/assets/unknown/guide.md",
+    ]);
+    expect(report.outOfScope).toEqual(["docs/assets/project/proposal.md", "docs/assets/library/user/old.md", "docs/assets/unknown/guide.md"]);
+  });
+
+  test("closeout discovers custom audience paths from their declared primitive", () => {
+    const fixture = createWaveFixture();
+    tempRoots.push(fixture.root);
+    writeFile(fixture.root, ".make-docs/config.yaml", "personas:\n  - slug: engineer\n    label: Engineer\n    description: Builds the project.\n    primitive: maintainer\n");
+    mkdirSync(path.join(fixture.root, "docs/assets/engineer"), {recursive: true});
+    const probe = buildCloseoutProbe({repoRoot: fixture.root, scope: "full"});
+    expect(probe.contracts).toMatchObject({maintainerGuides: {exists: true, paths: ["docs/assets/engineer"]}});
+    expect(probe.contracts).not.toHaveProperty("developerGuides");
+  });
+
+  test("closeout drafts current audience headings and preserves existing historical Developer evidence", () => {
+    const root = createTempDir("make-docs-closeout-history-");
+    tempRoots.push(root);
+    const options = { repoRoot: root, mode: "commit" as const, title: "Example", date: "2026-09-09", outputDir: ".make-docs/archive/history", write: false };
+    const preview = runCloseoutHistory(options);
+    expect(preview.contents).toContain("### Project\n");
+    expect(preview.contents).toContain("### Maintainer\n");
+    expect(preview.contents).toContain("### User\n");
+    expect(preview.contents).toContain("create/update-existing/link-only/none");
+    expect(preview.contents).toContain("effective Persona slug");
+    expect(preview.contents).not.toContain("developer");
+    expect(existsSync(preview.path as string)).toBe(false);
+    const historical = "# Prior record\n\n### Developer\n\nExisting guide evidence.\n";
+    mkdirSync(path.dirname(preview.path as string), { recursive: true });
+    writeFileSync(preview.path as string, historical);
+    const result = runCloseoutHistory({ ...options, write: true });
+    expect(result.wrote).toBe(false);
+    expect(result.contents).toBe(historical);
+    expect(readFileSync(preview.path as string, "utf8")).toBe(historical);
+  });
+
   test("closeout probe reports current contracts, changed files, and validation hints", () => {
     const root = createTempDir("make-docs-closeout-probe-");
     tempRoots.push(root);
@@ -387,16 +430,16 @@ describe("make-docs shared operations", () => {
       "docs/prd/03-open-questions-and-risk-register.md",
       ["### D-005 Drift", "", "### Q-012 Question", "", "### R-014 Risk", ""].join("\n"),
     );
-    writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3\n");
+    writeFile(root, ".make-docs/archive/history/2026-06-26-w16-r3-example.md", "W16 R3\n");
     writeFile(root, ".make-docs/system/contracts/commit-message-convention.md", "# Convention\n");
     writeFile(root, "packages/cli/src/operations.ts", "export {}\n");
     writeFile(
       root,
-      "docs/assets/library/user/example-guide.md",
+      "docs/assets/user/example-guide.md",
       [
         "---",
         'title: "Example Guide"',
-        "persona: developer",
+        "persona: maintainer",
         "status: draft",
         "---",
         "",
@@ -417,16 +460,16 @@ describe("make-docs shared operations", () => {
       "docs/prd/03-open-questions-and-risk-register.md",
       ["### D-005 Drift", "", "### Q-012 Question", "", "### R-014 Risk", "", "changed", ""].join("\n"),
     );
-    writeFile(root, "docs/assets/archive/history/2026-06-26-w16-r3-example.md", "W16 R3 changed\n");
+    writeFile(root, ".make-docs/archive/history/2026-06-26-w16-r3-example.md", "W16 R3 changed\n");
     writeFile(root, ".make-docs/system/contracts/commit-message-convention.md", "# Convention\n\nChanged\n");
     writeFile(root, "packages/cli/src/operations.ts", "export const changed = true;\n");
     writeFile(
       root,
-      "docs/assets/library/user/example-guide.md",
+      "docs/assets/user/example-guide.md",
       [
         "---",
         'title: "Example Guide"',
-        "persona: developer",
+        "persona: maintainer",
         "status: draft",
         "---",
         "",
@@ -439,12 +482,12 @@ describe("make-docs shared operations", () => {
     const probe = buildCloseoutProbe({ repoRoot: root, scope: "full" });
 
     expect(probe.files).toEqual([
+      expect.objectContaining({ path: ".make-docs/archive/history/2026-06-26-w16-r3-example.md", category: "docs" }),
       expect.objectContaining({
         path: ".make-docs/system/contracts/commit-message-convention.md",
         category: "other",
       }),
-      expect.objectContaining({ path: "docs/assets/archive/history/2026-06-26-w16-r3-example.md", category: "docs" }),
-      expect.objectContaining({ path: "docs/assets/library/user/example-guide.md", category: "docs" }),
+      expect.objectContaining({ path: "docs/assets/user/example-guide.md", category: "docs" }),
       expect.objectContaining({ path: "docs/prd/03-open-questions-and-risk-register.md", category: "docs" }),
       expect.objectContaining({ path: "docs/work/.gitkeep", category: "docs" }),
       expect.objectContaining({ path: "package.json", category: "config" }),
@@ -462,13 +505,13 @@ describe("make-docs shared operations", () => {
     );
     expect(probe.metadataValidation).toEqual([
       {
-        path: "docs/assets/library/user/example-guide.md",
+        path: "docs/assets/user/example-guide.md",
         findings: [
           {
             code: "persona-path-mismatch",
             field: "persona",
             message:
-              "Persona frontmatter 'developer' does not match library path persona 'user' in docs/assets/library/user/example-guide.md.",
+              "Persona frontmatter 'maintainer' does not match assets path persona 'user' in docs/assets/user/example-guide.md.",
           },
         ],
       },

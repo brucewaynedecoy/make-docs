@@ -43,7 +43,7 @@ export const PROMPT_RULES: PromptRule[] = [
     requires: ["prd", "work"],
   },
   {
-    relativePath: ".make-docs/system/prompts/coverage-pass-developer-guide.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md",
     requires: ["work"],
   },
   {
@@ -107,7 +107,7 @@ const WORK_TEMPLATE_PATHS = [
 ];
 
 const ALWAYS_TEMPLATE_PATHS = [
-  ".make-docs/system/templates/guide-developer.md",
+  ".make-docs/system/templates/guide-maintainer.md",
   ".make-docs/system/templates/guide-user.md",
   ".make-docs/system/templates/history-record.md",
   ".make-docs/system/templates/naive-uat-scenario.md",

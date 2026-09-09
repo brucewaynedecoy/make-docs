@@ -24,7 +24,7 @@ The governing invariant is: `docs/prd/` describes the current authoritative shap
 | Risk and gap register | `docs/prd/03-open-questions-and-risk-register.md` |
 | Glossary | `docs/prd/04-glossary.md` |
 | Work directory | `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` |
-| Archived PRD set | `docs/assets/archive/prds/YYYY-MM-DD/` or `docs/assets/archive/prds/YYYY-MM-DD-XX/` |
+| Archived PRD set | `.make-docs/archive/prds/YYYY-MM-DD/` or `.make-docs/archive/prds/YYYY-MM-DD-XX/` |
 
 Plan directories contain:
 
@@ -46,7 +46,7 @@ Work directories contain:
 - Preserve a material prior contract only in an optional, non-normative `## Requirement History` section. Record the date, coordinate when known, affected requirement or section, previous contract, replacement contract, rationale, and source. Current requirements always win.
 - Express removals and deprecations in the owning PRD's current scope, non-goals, or status, then preserve material prior state in `## Requirement History` when useful.
 - `docs/prd/03-open-questions-and-risk-register.md` is the living register for discovered gaps, confirmed drift, open questions, decisions, and rebuild risks in the active namespace.
-- Older PRD sets belong under `docs/assets/archive/prds/`, not alongside the active PRD set.
+- Older PRD sets belong under `.make-docs/archive/prds/`, not alongside the active PRD set.
 - Archived PRD sets are historical records and are not part of active PRD validation.
 
 ## Archive Rules
@@ -55,9 +55,9 @@ Work directories contain:
 - Before writing an authorized fresh PRD set, inspect `docs/prd/` for active root entries.
 - If no such entries exist, proceed normally.
 - If active root entries exist, summarize them and ask for explicit approval before moving them.
-- On approval, move those entries into `docs/assets/archive/prds/YYYY-MM-DD/`.
-- If that dated directory already exists, use `docs/assets/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
-- Do not place loose files directly under `docs/assets/archive/prds/`; it should contain dated directories only.
+- On approval, move those entries into `.make-docs/archive/prds/YYYY-MM-DD/`.
+- If that dated directory already exists, use `.make-docs/archive/prds/YYYY-MM-DD-XX/`, where `XX` is a zero-padded increment starting at `01`.
+- Do not place loose files directly under `.make-docs/archive/prds/`; it should contain dated directories only.
 
 ## PRD Tree Rules
 
@@ -108,7 +108,7 @@ docs/prd/
 ```
 
 Do not place unnumbered Markdown files directly under `docs/prd/`.
-Do not place active PRD docs under `docs/assets/archive/prds/`.
+Do not place active PRD docs under `.make-docs/archive/prds/`.
 
 ## Section Contracts
 

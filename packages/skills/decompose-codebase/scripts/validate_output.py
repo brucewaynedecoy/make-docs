@@ -285,16 +285,16 @@ def validate_archive_root(archive_root: Path, errors: list[str]) -> None:
     if not archive_root.exists():
         return
     if not archive_root.is_dir():
-        errors.append(f"{archive_root}: docs/assets/archive/prds must be a directory")
+        errors.append(f"{archive_root}: .make-docs/archive/prds must be a directory")
         return
     for entry in sorted(archive_root.iterdir()):
         if entry.name.startswith("."):
             continue
         if entry.is_file():
-            errors.append(f"{entry}: docs/assets/archive/prds must contain dated directories only")
+            errors.append(f"{entry}: .make-docs/archive/prds must contain dated directories only")
             continue
         if not entry.is_dir():
-            errors.append(f"{entry}: unexpected entry in docs/assets/archive/prds")
+            errors.append(f"{entry}: unexpected entry in .make-docs/archive/prds")
             continue
         if not ARCHIVE_DIR_RE.match(entry.name):
             errors.append(
@@ -325,7 +325,7 @@ def validate_prd_structure(repo_root: Path, errors: list[str]) -> None:
             continue
         if child.name == "archive":
             errors.append(
-                f"{child}: legacy archive namespace is no longer supported; use docs/assets/archive/prds/"
+                f"{child}: legacy archive namespace is no longer supported; use .make-docs/archive/prds/"
             )
             continue
         if child.is_file():
@@ -455,7 +455,7 @@ def validate_work_phase_doc(
 
 
 def validate_assets_archive(repo_root: Path, errors: list[str]) -> None:
-    validate_archive_root(repo_root / "docs" / "assets" / "archive" / "prds", errors)
+    validate_archive_root(repo_root / ".make-docs" / "archive" / "prds", errors)
 
 
 def validate_backlog(repo_root: Path, errors: list[str]) -> None:

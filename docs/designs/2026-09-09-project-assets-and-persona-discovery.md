@@ -1,7 +1,7 @@
 ---
 title: "Project Assets and Persona Discovery"
 kind: "design"
-status: "draft"
+status: "accepted"
 follow_on:
   route: "change-plan"
   next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
@@ -15,7 +15,7 @@ follow_on:
 
 Give people and agents one clear place for shared project material and one clear place for audience assets. Make the effective audiences easy to discover before an asset directory exists in an initialized or cloned Make Docs project. Finish the old directory transitions through a permanent CLI path with reviewed destinations and verified completion.
 
-The owner approved this direction and package drafting. This package remains a draft for review. Implementation requires acceptance of the work backlog and separate implementation authority.
+The owner accepted this package and authorized implementation after package commit `532b29cf`. W19 R4 implementation started on 2026-09-09. The owner accepted the corrected implementation later that day and requested closeout and commit. The work backlog and central evidence report record the completed phase and preserved review limits.
 
 ## Context
 
@@ -166,4 +166,4 @@ This changes the fresh-install directory tree, the effective Persona defaults, a
 - Route: `change-plan`
 - Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md), also available as `make-docs://system/prompt/designs-to-plan-change.prompt.md`.
 - Why: Existing PRDs already own every changed capability. Maintain them surgically, then derive the one-phase work backlog.
-- Coordinate Handoff: Continue W19 at R4 after closed R3 commit `dabd0b36`. The [plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md) carries the same coordinate. W20 R0 and W21 R0 remain paused; package drafting does not authorize implementation.
+- Coordinate Handoff: Continue W19 at R4 after closed R3 commit `dabd0b36`. The [plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md) carries the same coordinate. The package and implementation gates are complete. W20 R0 and W21 R0 remain paused pending separate instructions.

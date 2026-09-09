@@ -423,16 +423,23 @@ describe("claim surfaces: the wording rule encoded where support language lives 
         );
       }
       writeFileSync(
-        path.join(root, "docs/assets/library/rogue-claims.md"),
+        path.join(root, "docs/assets/maintainer/rogue-claims.md"),
         `This output is ${CONFORMANCE_CLAIM_VOCABULARY_MARKER} everywhere!\n`,
         "utf8",
       );
+      for (const excluded of ["docs/assets/project/prior-proposal.md", ".make-docs/archive/history/prior-claim.md"]) {
+        const absolute = path.join(root, excluded);
+        mkdirSync(path.dirname(absolute), { recursive: true });
+        writeFileSync(absolute, `Prior proposal: ${CONFORMANCE_CLAIM_VOCABULARY_MARKER}.\n`, "utf8");
+      }
       const errors = listSupportClaimGovernanceErrors({
         registry: { tuples: [] },
         repoRoot: root,
       });
-      expect(errors.join("\n")).toContain("docs/assets/library/rogue-claims.md");
+      expect(errors.join("\n")).toContain("docs/assets/maintainer/rogue-claims.md");
       expect(errors.join("\n")).toContain("not a declared claim surface");
+      expect(errors.join("\n")).not.toContain("prior-proposal.md");
+      expect(errors.join("\n")).not.toContain("prior-claim.md");
     } finally {
       cleanupTempDir(root);
     }

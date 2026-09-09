@@ -168,7 +168,7 @@ Downstream docs and tests should use the term `diff` or `conflict` consistently.
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-28-cli-asset-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-22-cli-lifecycle-clack-standardization.md](../assets/archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md)
+- Prior Design Docs: [2026-04-28-cli-asset-selection-simplification.md](../../.make-docs/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-22-cli-lifecycle-clack-standardization.md](../../.make-docs/archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md)
 - Reason: this design builds on the always-managed asset model from asset-selection simplification and applies the Clack interaction standard to the remaining install-time conflict workflow.
 
 ## Intended Follow-On

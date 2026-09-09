@@ -43,10 +43,10 @@ The problem is not a lack of technical quality. It is a missing form of product 
 
 The current system has useful but incomplete parts:
 
-- The [lifecycle anchor](../../.make-docs/references/system/lifecycle.md) has a Persona lens. It keeps one audience from replacing another. It does not define the quality of the experience.
-- The [design contract](../../.make-docs/contracts/system/design-contract.md) requires purpose, context, decision, alternatives, consequences, and follow-on routing. It does not require human experience intent.
-- The [coverage-pass contract](../../.make-docs/contracts/system/coverage-pass-contract.md) can route testing, manual review, accessibility work, visual checks, and naive UAT. It acts after work exists. It does not author the intended experience.
-- The [Naive-UAT contract](../../.make-docs/contracts/system/naive-uat-contract.md) can show whether a human can complete a public goal. It cannot replace design intent, automated correctness, accessibility review, or informed product judgment.
+- The [lifecycle anchor](../../.make-docs/system/references/lifecycle.md) has a Persona lens. It keeps one audience from replacing another. It does not define the quality of the experience.
+- The [design contract](../../.make-docs/system/contracts/design-contract.md) requires purpose, context, decision, alternatives, consequences, and follow-on routing. It does not require human experience intent.
+- The [coverage-pass contract](../../.make-docs/system/contracts/coverage-pass-contract.md) can route testing, manual review, accessibility work, visual checks, and naive UAT. It acts after work exists. It does not author the intended experience.
+- The [Naive-UAT contract](../../.make-docs/system/contracts/naive-uat-contract.md) can show whether a human can complete a public goal. It cannot replace design intent, automated correctness, accessibility review, or informed product judgment.
 - [PRD 47](../prd/47-persona-model.md) defines Personas. A Persona says who receives an experience. It does not say what that experience must help the person understand or do.
 - Some product areas have local experience rules. For example, the CLI can separate human text from machine JSON. These local rules do not form a universal Make Docs standard.
 

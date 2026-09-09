@@ -1,6 +1,6 @@
 # Pseudo-Monorepo Restructuring
 
-> Filename: `2026-04-15-monorepo-restructuring.md`. See the [wave model](../../.make-docs/references/system/wave-model.md) for W/R semantics.
+> Filename: `2026-04-15-monorepo-restructuring.md`. See the [wave model](../../.make-docs/system/references/wave-model.md) for W/R semantics.
 
 ## Purpose
 
