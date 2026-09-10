@@ -277,7 +277,7 @@ The first full integration run found old local-file expectations, durable-write 
 - Repeat: packaged `setup --yes --target <this checkout>` passed again. All 1,215 files under `docs/` and `.make-docs/` were unchanged. No local state returned. Store read-back retained one legacy import and recorded the user-invoked repeat as another completed setup operation: three completed operations, 33 receipts, and zero pending operations. The repeat did not import the old inputs again.
 - Environment limit: the workspace sandbox could not open SQLite shared-memory files for the live Store. The same read-only status and preservation queries passed with access to the Store directory. No Store repair was required.
 
-At the transfer checkpoint, the corrected built CLI (`node packages/cli/dist/index.js`) was used because the global executable had not yet been replaced. The owner later installed the corrected CLI through `just install-cli-pack`; see the final closeout evidence below. Obsolete writers remain unsupported after transfer.
+At the transfer checkpoint, the corrected built CLI (`node packages/cli/dist/index.js`) was used because the global executable had not yet been replaced. The owner later installed the corrected CLI through `just install-cli`; see the final closeout evidence below. Obsolete writers remain unsupported after transfer.
 
 ### Human Experience Review — 2026-09-09
 
@@ -292,7 +292,7 @@ Reviewer: Codex, using actual package, file inventory, Store read-back, and faul
 
 ### Acceptance Handoff
 
-The owner explicitly accepted W19 R3 and authorized its commit on 2026-09-09. D-031 is closed. The corrected CLI has been installed through `just install-cli-pack`. The implementation commit is the next authorized action; no push, publication, or release is authorized. W20 P1/P2 remain accepted and closed. W20 P3 has not started. W20 and W21 remain paused for the next owner-requested interrupt package. That package will be drafted only after this commit; its implementation awaits backlog review and acceptance.
+The owner explicitly accepted W19 R3 and authorized its commit on 2026-09-09. D-031 is closed. The corrected CLI has been installed through `just install-cli`. The implementation commit is the next authorized action; no push, publication, or release is authorized. W20 P1/P2 remain accepted and closed. W20 P3 has not started. W20 and W21 remain paused for the next owner-requested interrupt package. That package will be drafted only after this commit; its implementation awaits backlog review and acceptance.
 
 
 ### Final Integration Reconciliation — 2026-09-09
@@ -307,7 +307,7 @@ Final document checks passed: 39 PRDs, 848 links, no diagnostics. `git diff --ch
 
 - Final review found a race between reserving an installation lock and taking the full Store lease. The fix checks pending installation operations and installation locks inside `BEGIN IMMEDIATE` before it records a machine operation. The existing reverse check blocks installation while a tool operation is pending.
 - The focused regression set passed 23 tool/global-asset tests. It covers the SQL-lock/full-lease gap, two paths to the same physical Store, interrupted setup after lock release, and tool-first blocking of installation. TypeScript and diff checks passed. This was a bounded review and focused rerun, not a second whole-suite run.
-- `just install-cli-pack` rebuilt, packed, and installed the corrected CLI without publishing it. Final tarball SHA-256: `2836f23b43307c8dca12853c73e2f8a9758b0bd47a92a9379f169ba29406be09`. The installed `make-docs project state status --target-root <this checkout> --json` reported `ready`, `storeAvailable: true`, and no pending operation. The known sandbox shared-memory access limit required filesystem access; it did not indicate a Store fault. Final defaults passed 49/49.
+- `just install-cli` rebuilt, packed, and installed the corrected CLI without publishing it. Final tarball SHA-256: `2836f23b43307c8dca12853c73e2f8a9758b0bd47a92a9379f169ba29406be09`. The installed `make-docs project state status --target-root <this checkout> --json` reported `ready`, `storeAvailable: true`, and no pending operation. The known sandbox shared-memory access limit required filesystem access; it did not indicate a Store fault. Final defaults passed 49/49.
 - The installed CLI created the archive surface through `make-docs project surface ensure archive`. It preserved all existing configured routers and added only `.make-docs/archive/AGENTS.md` and `.make-docs/archive/CLAUDE.md`. The Store recorded receipt `sha256:741f154973478af791dde70d5fa9bc28ab7b21c123d777a8750694fdc2f84778`. No local operation state was written.
 - The owner explicitly accepted the closeout and authorized its commit. t24 and t25 are complete. D-031 is closed. The [history record](../../../.make-docs/archive/history/2026-09-09-w19-r3-p1-store-state-closeout.md) records this accepted result. No new `O-###`, `NUAT-###`, or `PERF-###` was created; the recorded `not-needed-now` testing disposition remains in force.
 - W20 P1/P2 remain closed; P3 has not started. W20 and W21 remain paused. After the R3 commit, draft the next interrupt package with one phase where scope permits. No next package or W20/W21 implementation is authorized by this closeout.

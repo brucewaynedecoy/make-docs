@@ -167,7 +167,7 @@ When updating the skills model:
 - author Skill content only under `packages/skills/<name>/` and update `packages/cli/skill-registry.json` when the declared inventory changes
 - build directly from declared files into embedded CLI output; never create a separate copied Skill tree under `packages/cli` or `packages/docs`, even ignored or temporary mirrors
 - inspect actual package disk paths, empty directories, and source/embedded/installed byte hashes; compiled output and genuine CLI-installed copies are allowed
-- prove the extracted package offline before `just install-cli-pack`, then use the public installed CLI for reviewed maintainer adoption
+- prove the extracted package offline before `just install-cli`, then use the public installed CLI for reviewed maintainer adoption
 - keep registry descriptions aligned with the actual skill contract
 - keep purpose ids stable once shipped; add new purpose ids only when the existing purpose vocabulary cannot accurately describe the skill
 - require supported harness and provenance metadata for every skill

@@ -110,7 +110,7 @@ The session automatically supplied prior context and extra tools. The reviewer s
 
 ### A14 Real Maintainer Adoption
 
-The original public adoption completed Store operation `0218ddd2-cf04-4cb1-a8dc-c17f5d181ff2`, using project scope, Claude Code and Codex, and exactly human-experience/preflight/software-factory. Review digest: `50c3bd3424ae340d045438cf7bc37f470b6273278ebe4dff7e5e69a0d93624f3`. The final CLI was refreshed through the normal [install recipe](evidence/tests/final-install-cli-pack.txt), and exact package parity passed.
+The original public adoption completed Store operation `0218ddd2-cf04-4cb1-a8dc-c17f5d181ff2`, using project scope, Claude Code and Codex, and exactly human-experience/preflight/software-factory. Review digest: `50c3bd3424ae340d045438cf7bc37f470b6273278ebe4dff7e5e69a0d93624f3`. The final CLI was refreshed through the normal [install recipe](evidence/tests/final-install-cli.txt), and exact package parity passed.
 
 Independent [final verification](evidence/maintainer/final-verification.json) confirms twelve shared payload files and both native paths match source bytes. Eleven originals remain preserved: eight backups and three unchanged human-experience files. Exposures are three Claude links, two Codex links, and one managed human-experience Codex copy. No manual copy/delete performed real adoption.
 

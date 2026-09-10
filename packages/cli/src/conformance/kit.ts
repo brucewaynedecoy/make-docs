@@ -901,7 +901,7 @@ function renderPreflightInstrument(cliVersion: string): string {
     '      "  actual `make-docs --version`:  " + (actual || "(no output / --version unsupported — an older build)") + "\\n" +',
     '      "The kit commands were validated against the repository CLI at generation time; running a\\n" +',
     '      "different make-docs produces meaningless results. Rebuild and reinstall the CLI first,\\n" +',
-    '      "e.g. run `just install-cli-pack` from the repo root, then re-check `make-docs --version` (register item D-027).",',
+    '      "e.g. run `just install-cli` from the repo root, then re-check `make-docs --version` (register item D-027).",',
     "  );",
     "  process.exit(1);",
     "}",

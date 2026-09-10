@@ -61,7 +61,7 @@ Change those documents in place only when they are the intended output of the ta
 
 1. Edit shipped files in `packages/docs/template/` and change CLI code when needed.
 2. Run the checks that match the change.
-3. Run `just install-cli-pack` to build and install the reviewed package.
+3. Run `just install-cli` to build and install the reviewed package.
 4. Run `make-docs setup --target . --dry-run --yes` and review its exact changes.
 5. Run `make-docs setup --target . --yes` after that review.
 6. Repeat the dry run and inspect the installed files to confirm the intended result.

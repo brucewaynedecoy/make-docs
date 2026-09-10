@@ -15,7 +15,7 @@ dev:
 test:
     npm test -w packages/cli
 
-install-cli-pack:
+install-cli:
     cd {{cli_dir}} && npm run prepack
     cd {{cli_dir}} && npm pack
     npm uninstall -g @brucewaynedecoy/make-docs make-docs >/dev/null 2>&1 || true

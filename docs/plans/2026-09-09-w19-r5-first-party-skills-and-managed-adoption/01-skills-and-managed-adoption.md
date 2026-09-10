@@ -57,7 +57,7 @@ The stage exits with coherent CLI review, apply, and recovery paths; an interrup
 
 During implementation, add concise source-rule guidance to package authoring instructions and align package README/release wording. Complete that content before final candidate checks. Run the finite matrix below against the actual candidate. Fix findings before final evidence. Use an independent reviewer for material code and a fresh-context reviewer for the public Skill/adoption path. Keep reviewers' scope and limits explicit.
 
-After offline package and isolated lifecycle proof, use `just install-cli-pack` to refresh the installed CLI. Then use its public CLI to preview and review adoption of the real `preflight`, `software-factory`, and `human-experience` copies. Bind that review to the candidate package and current local bytes. Apply only under the accepted implementation scope. Verify native exposure, Store ownership, preserved backups, and no pending operation. Do not test removal on the real project or global user installation; use isolated targets.
+After offline package and isolated lifecycle proof, use `just install-cli` to refresh the installed CLI. Then use its public CLI to preview and review adoption of the real `preflight`, `software-factory`, and `human-experience` copies. Bind that review to the candidate package and current local bytes. Apply only under the accepted implementation scope. Verify native exposure, Store ownership, preserved backups, and no pending operation. Do not test removal on the real project or global user installation; use isolated targets.
 
 ## Verification and Human Review
 

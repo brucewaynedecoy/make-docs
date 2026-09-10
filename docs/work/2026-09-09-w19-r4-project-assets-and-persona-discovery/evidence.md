@@ -78,7 +78,7 @@ The independent results were read from the root run's bounded evidence: `w19-r4-
 
 ## Installed CLI Recipe
 
-The actual maintainer path was `just install-cli-pack`, then the public installed CLI. It used no one-off cleanup script or direct repository `node dist` command.
+The actual maintainer path was `just install-cli`, then the public installed CLI. It used no one-off cleanup script or direct repository `node dist` command.
 
 1. Run `make-docs setup --target . --dry-run --yes` and review the result.
 2. Run `make-docs setup --target . --yes`.
@@ -153,7 +153,7 @@ The correction uses `guide-maintainer.md` and `coverage-pass-maintainer-guide.pr
 
 The bounded audit kept explicit custom `developer` Personas, retired-path test fixtures and ordinary human developer roles intact. Optional archive guidance now covers configured Persona guides instead of naming only former defaults. Regression tests cover the new resource names, safe upgrade removal of owned former resources, current coverage/default wording, and exact preservation of an existing historical Developer record. The closeout suite passed 11 of 11 tests in an isolated Store. The other source owners reported 215 distinct scoped checks plus TypeScript validation passing before the rebuild.
 
-The root ran `just install-cli-pack` and `just smoke-pack`; both passed. The corrected tar SHA-256 is `8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e`. Its proof records 127 entries, 92 template files and 17 template directories. Source, build and extracted trees and bytes match. Both former resource filenames are absent from the packed template.
+The root ran `just install-cli` and `just smoke-pack`; both passed. The corrected tar SHA-256 is `8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e`. Its proof records 127 entries, 92 template files and 17 template directories. Source, build and extracted trees and bytes match. Both former resource filenames are absent from the packed template.
 
 The public installed CLI then previewed and applied two generated resources, eight updates and two removals. It skipped the same archived Playbook. The two removals were the former managed guide template and coverage prompt. The two generated resources carry the current maintainer names. The apply returned exit code 0. The existing 598-file project-content migration was not repeated or replaced by manual cleanup.
 

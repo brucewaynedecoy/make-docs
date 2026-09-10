@@ -114,7 +114,7 @@ Remove the obsolete UAT authoring tree from the docs template and prune its empt
 
 ### One implementation phase
 
-Use three ordered stages in one W19 R5 phase: promotion and packaging; installation and adoption; tests and maintainer proof. Implement only after the owner accepts the backlog. Build and verify the package before `just install-cli-pack`, then use the installed public CLI to review and adopt the real three local Skills. Keep removal tests isolated. No publication or broader wave resume is implied.
+Use three ordered stages in one W19 R5 phase: promotion and packaging; installation and adoption; tests and maintainer proof. Implement only after the owner accepts the backlog. Build and verify the package before `just install-cli`, then use the installed public CLI to review and adopt the real three local Skills. Keep removal tests isolated. No publication or broader wave resume is implied.
 
 ## Alternatives Considered
 
