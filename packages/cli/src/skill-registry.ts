@@ -1,6 +1,6 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { readTextFile, resolveTemplateRoot } from "./utils";
+import { readTextFile } from "./utils";
 
 export type SkillManifestSourcePolicyKind =
   | "first-party"
@@ -77,8 +77,7 @@ export type EffectiveSkillRegistrySource =
 
 const REGISTRY_FILENAME = "skill-registry.json";
 const FIRST_PARTY_MANIFEST_ID = "make-docs.first-party";
-// D-005 permits only the P7 UGT payload to use bundled first-party delivery.
-const BUNDLED_UGT_SOURCE = "local:template/.make-docs/agentics/skills/naive-uat";
+const EMBEDDED_SOURCE_PREFIX = "embedded:";
 const FIRST_PARTY_PURPOSE_IDS = new Set([
   "archive-management",
   "codebase-decomposition",
@@ -128,8 +127,12 @@ export function loadEffectiveSkillRegistry(options: {
   }
 
   const registryPath = path.resolve(options.manifestReference);
+  const registry = loadSkillRegistryFromPath(registryPath);
+  if (registry.sourcePolicy.kind === "first-party") {
+    throw new Error("An alternate skills manifest cannot claim the built-in first-party source policy.");
+  }
   return {
-    registry: loadSkillRegistryFromPath(registryPath),
+    registry,
     source: { kind: "file", path: registryPath },
   };
 }
@@ -282,12 +285,14 @@ function validateEntry(
   if (source === null || entryPoint === null || installName === null)
     return null;
 
-  const bundledUgt = sourcePolicy.kind === "first-party" &&
-    name === "naive-uat" && source === BUNDLED_UGT_SOURCE;
-  if (sourcePolicy.kind !== "local" && !isRemoteSource(source) && !bundledUgt) {
-    errors.push(
-      `skill \`${name}\` must use a remote source URL unless the manifest source policy is local`,
-    );
+  if (sourcePolicy.kind === "first-party") {
+    if (source !== `${EMBEDDED_SOURCE_PREFIX}${name}`) {
+      errors.push(`skill \`${name}\` must use its embedded first-party source`);
+    }
+  } else if (source.startsWith(EMBEDDED_SOURCE_PREFIX)) {
+    errors.push(`skill \`${name}\` embedded sources are reserved for the first-party registry`);
+  } else if (sourcePolicy.kind !== "local" && !isRemoteSource(source)) {
+    errors.push(`skill \`${name}\` must use a remote source URL unless the manifest source policy is local`);
   }
 
   const description = readRequiredString(
@@ -668,21 +673,6 @@ function normalizeLocalSkillSources(
   registry: SkillRegistry,
   registryPath: string,
 ): SkillRegistry {
-  if (registry.sourcePolicy.kind === "first-party") {
-    return {
-      ...registry,
-      skills: registry.skills.map((skill) => {
-        if (skill.source !== BUNDLED_UGT_SOURCE) return skill;
-        return {
-          ...skill,
-          source: pathToFileURL(path.join(
-            resolveTemplateRoot(path.dirname(path.resolve(registryPath))),
-            ".make-docs/agentics/skills/naive-uat",
-          )).href,
-        };
-      }),
-    };
-  }
   if (registry.sourcePolicy.kind !== "local") {
     return registry;
   }

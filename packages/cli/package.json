@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsx src/index.ts",
+    "dev": "npm run build && node dist/index.js",
     "test": "vitest run",
     "validate:defaults": "vitest run tests/consistency.test.ts tests/template-links.test.ts",
     "conformance:kit": "tsx scripts/conformance-kit.ts",

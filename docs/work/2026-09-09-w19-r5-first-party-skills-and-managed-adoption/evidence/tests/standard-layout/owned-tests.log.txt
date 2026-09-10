@@ -1,0 +1,1752 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/cli.test.ts tests/p7-ugt-skill.test.ts tests/skills-ui.test.ts tests/consistency.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-YOMhK6[22m  [90m│[39m
+[90m│[39m  [2mMode: existing install reconfigure[22m                                      [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (found or verified for [22m     [90m│[39m
+[90m│[39m  [2mtransfer)[22m                                                               [90m│[39m
+[90m│[39m  [2mInstalled version: 2.0.0-rc[22m                                             [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mCompatibility state: clean-v2-full-snapshot[22m                             [90m│[39m
+[90m│[39m  [2mDisposition: sync[22m                                                       [90m│[39m
+[90m│[39m  [2mSelection source: interactive reconfigure wizard[22m                        [90m│[39m
+[90m│[39m  [2mLocal resource projection: legacy install (not yet selected)[22m            [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 71[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 71[22m                                                     [90m│[39m
+[90m│[39m  [2mChanges planned: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mGenerate: 0[22m                                                             [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mResults[0m [90m──────────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                            [90m│[39m
+[90m│[39m  [2mNo managed file changes are needed.[22m                                       [90m│[39m
+[90m│[39m  [2mEvery managed file already matched the desired content.[22m                   [90m│[39m
+[90m│[39m  [2m[22m                                                                          [90m│[39m
+[90m│[39m  [2mUseful next steps:[22m                                                        [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup reconfigure` to change which docs, harnesses, or [22m  [90m│[39m
+[90m│[39m  [2mproject resources are managed.[22m                                            [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup skills` to change managed skills.[22m                  [90m│[39m
+[90m│[39m  [2m- Run `make-docs --dry-run` after upgrading make-docs to preview future [22m  [90m│[39m
+[90m│[39m  [2mchanges.[22m                                                                  [90m│[39m
+[90m│[39m                                                                            [90m│[39m
+[90m├────────────────────────────────────────────────────────────────────────────╯[39m
+│
+◇  Information ────────────────────────────────────────────────────────────╮
+│                                                                          │
+│  Target:                                                                 │
+│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-Xurm3p  │
+│  Mode: first install                                                     │
+│  Installation record: global Make Docs Store (will be created)           │
+│  Installed version: none detected                                        │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                    │
+│  Selection source: default selections                                    │
+│  Local resource projection: none                                         │
+│  Safety stops: none                                                      │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,     │
+│  history=history, guide=guide                                            │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  implementation=implementation, history=history, guide=guide             │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase            │
+│  Persona labels: user=User, maintainer=Maintainer                        │
+│  Managed files evaluated: 24                                             │
+│  Already current: 0                                                      │
+│  Changes planned: 24                                                     │
+│  Generate: 24                                                            │
+│  Update: 0                                                               │
+│  Skip: 0                                                                 │
+│  Remove: 0                                                               │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ────────────────────────────╮
+│                                                      │
+│  - generate: .make-docs/AGENTS.md                    │
+│  - generate: .make-docs/CLAUDE.md                    │
+│  - generate: .make-docs/system/AGENTS.md             │
+│  - generate: .make-docs/system/CLAUDE.md             │
+│  - generate: .make-docs/system/contracts/AGENTS.md   │
+│  - generate: .make-docs/system/contracts/CLAUDE.md   │
+│  - generate: .make-docs/system/prompts/AGENTS.md     │
+│  - generate: .make-docs/system/prompts/CLAUDE.md     │
+│  - generate: .make-docs/system/references/AGENTS.md  │
+│  - generate: .make-docs/system/references/CLAUDE.md  │
+│  - generate: .make-docs/system/templates/AGENTS.md   │
+│  - generate: .make-docs/system/templates/CLAUDE.md   │
+│  - generate: AGENTS.md                               │
+│  - generate: CLAUDE.md                               │
+│  - generate: docs/AGENTS.md                          │
+│  - generate: docs/CLAUDE.md                          │
+│  - generate: docs/designs/AGENTS.md                  │
+│  - generate: docs/designs/CLAUDE.md                  │
+│  - generate: docs/plans/AGENTS.md                    │
+│  - generate: docs/plans/CLAUDE.md                    │
+│  - generate: docs/prd/AGENTS.md                      │
+│  - generate: docs/prd/CLAUDE.md                      │
+│  - generate: docs/work/AGENTS.md                     │
+│  - generate: docs/work/CLAUDE.md                     │
+│                                                      │
+├──────────────────────────────────────────────────────╯
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-Xurm3p.
+ ✓ tests/p7-ugt-skill.test.ts (4 tests) 20436ms
+   ✓ P7 optional bundled UGT Skill lifecycle > S1 installs the embedded payload only after explicit selection  2076ms
+   ✓ P7 optional bundled UGT Skill lifecycle > S2 backs up the owned payload and updates it through the shared lifecycle  4242ms
+   ✓ P7 optional bundled UGT Skill lifecycle > S3 exposes the same Skill through native symlinks and copy mirrors  4335ms
+   ✓ P7 optional bundled UGT Skill lifecycle > S4 removes only owned Skill files and preserves ownership-conflict and custom content  9782ms
+ ✓ tests/consistency.test.ts (38 tests) 397ms
+ ✓ tests/skills-ui.test.ts (6 tests) 12ms
+│
+◇  Information ────────────────────────────────────────────────────────────╮
+│                                                                          │
+│  Target:                                                                 │
+│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-pgKB0y  │
+│  Mode: existing install sync                                             │
+│  Installation record: global Make Docs Store (found or verified for      │
+│  transfer)                                                               │
+│  Installed version: 2.0.0-rc                                             │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                    │
+│  Compatibility state: clean-v2-full-snapshot                             │
+│  Disposition: sync                                                       │
+│  Selection source: saved manifest selections                             │
+│  Local resource projection: legacy install (not yet selected)            │
+│  Safety stops: none                                                      │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,     │
+│  history=history, guide=guide                                            │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  implementation=implementation, history=history, guide=guide             │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase            │
+│  Persona labels: user=User, maintainer=Maintainer                        │
+│  Managed files evaluated: 71                                             │
+│  Already current: 71                                                     │
+│  Changes planned: 0                                                      │
+│  Generate: 0                                                             │
+│  Update: 0                                                               │
+│  Skip: 0                                                                 │
+│  Remove: 0                                                               │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+│
+◇  Results ──────────────────────────────────────────────────────────────────╮
+│                                                                            │
+│  No managed file changes are needed.                                       │
+│  Every managed file already matched the desired content.                   │
+│                                                                            │
+│  Useful next steps:                                                        │
+│  - Run `make-docs setup reconfigure` to change which docs, harnesses, or   │
+│  project resources are managed.                                            │
+│  - Run `make-docs setup skills` to change managed skills.                  │
+│  - Run `make-docs --dry-run` after upgrading make-docs to preview future   │
+│  changes.                                                                  │
+│                                                                            │
+├────────────────────────────────────────────────────────────────────────────╯
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-vvFrDm[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 22[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 22[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 22[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-vvFrDm.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-lOoogY[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 25[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 25[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 25[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m───────────────────────────────────────╮[39m
+[90m│[39m                                                                 [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/acme-release/SKILL.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                                [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                [90m│[39m
+[90m│[39m                                                                 [90m│[39m
+[90m├─────────────────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-lOoogY.
+Legacy installation state will move to the global Make Docs Store. These verified records will be removed after Store readback:
+- .make-docs/manifest.json
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-MCQGrl[22m  [90m│[39m
+[90m│[39m  [2mMode: existing install sync[22m                                             [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (found or verified for [22m     [90m│[39m
+[90m│[39m  [2mtransfer)[22m                                                               [90m│[39m
+[90m│[39m  [2mInstalled version: 2.0.0-rc[22m                                             [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mCompatibility state: clean-v2-full-snapshot[22m                             [90m│[39m
+[90m│[39m  [2mDisposition: sync[22m                                                       [90m│[39m
+[90m│[39m  [2mSelection source: saved manifest selections[22m                             [90m│[39m
+[90m│[39m  [2mLocal resource projection: legacy install (not yet selected)[22m            [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 85[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 85[22m                                                     [90m│[39m
+[90m│[39m  [2mChanges planned: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mGenerate: 0[22m                                                             [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mResults[0m [90m──────────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                            [90m│[39m
+[90m│[39m  [2mNo managed file changes are needed.[22m                                       [90m│[39m
+[90m│[39m  [2mEvery managed file already matched the desired content.[22m                   [90m│[39m
+[90m│[39m  [2m[22m                                                                          [90m│[39m
+[90m│[39m  [2mUseful next steps:[22m                                                        [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup reconfigure` to change which docs, harnesses, or [22m  [90m│[39m
+[90m│[39m  [2mproject resources are managed.[22m                                            [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup skills` to change managed skills.[22m                  [90m│[39m
+[90m│[39m  [2m- Run `make-docs --dry-run` after upgrading make-docs to preview future [22m  [90m│[39m
+[90m│[39m  [2mchanges.[22m                                                                  [90m│[39m
+[90m│[39m                                                                            [90m│[39m
+[90m├────────────────────────────────────────────────────────────────────────────╯[39m
+
+Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-MCQGrl.
+[90m│[39m
+[32m◇[39m  [0mCompatibility review required[0m [90m───────────────────────────────────────╮[39m
+[90m│[39m                                                                       [90m│[39m
+[90m│[39m  [2mCompatibility state: missing-manifest-recognizable[22m                   [90m│[39m
+[90m│[39m  [2mDisposition: migrate-with-review[22m                                     [90m│[39m
+[90m│[39m  [2mAudit removable files: 0[22m                                             [90m│[39m
+[90m│[39m  [2mAudit preserved paths: 5[22m                                             [90m│[39m
+[90m│[39m  [2mAudit skipped paths: 84[22m                                              [90m│[39m
+[90m│[39m  [2mEvidence:[22m                                                            [90m│[39m
+[90m│[39m  [2m- state=missing-manifest-recognizable[22m                                [90m│[39m
+[90m│[39m  [2m- disposition=migrate-with-review[22m                                    [90m│[39m
+[90m│[39m  [2m- manifest: Manifest is missing.[22m                                     [90m│[39m
+[90m│[39m  [2m- filesystem: Recognized make-docs fallback paths: AGENTS.md.[22m        [90m│[39m
+[90m│[39m  [2m- bootstrap: Bootstrap trust requires a trusted manifest.[22m            [90m│[39m
+[90m│[39m  [2m- skills: Skill trust requires a trusted manifest.[22m                   [90m│[39m
+[90m│[39m  [2m- provider-cache: Provider/cache trust requires a trusted manifest.[22m  [90m│[39m
+[90m│[39m                                                                       [90m│[39m
+[90m├───────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-YSuVxi[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mCompatibility state: missing-manifest-recognizable[22m                      [90m│[39m
+[90m│[39m  [2mDisposition: migrate-with-review[22m                                        [90m│[39m
+[90m│[39m  [2mSelection source: interactive wizard selections[22m                         [90m│[39m
+[90m│[39m  [2mLocal resource projection: legacy install (not yet selected)[22m            [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 85[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 85[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 84[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 1[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m───────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/scripts/check_path_hygiene.py[22m                       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system-resources.catalog.json[22m                       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system-resources.schema.json[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m                                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/commit-message-convention.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/coverage-pass-contract.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/deferred-obligation-contract.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/design-contract.md[22m                 [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/guide-contract.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/history-record-contract.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/human-experience-contract.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/naive-uat-contract.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/output-contract.md[22m                 [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/system-resource-contract.md[22m        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m                            [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                            [90m│[39m
+[90m│[39m  [2m- generate: [22m                                                               [90m│[39m
+[90m│[39m  [2m.make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: [22m                                                               [90m│[39m
+[90m│[39m  [2m.make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/coverage-pass-testing-uat.prompt.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/coverage-pass-user-guide.prompt.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/designs-to-plan-change.prompt.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/designs-to-plan.prompt.md[22m            [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/naive-uat-facilitator.prompt.md[22m      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/naive-uat-tester.prompt.md[22m           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/plan-to-prd-change.prompt.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/plan-to-prd-green-field.prompt.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/prd-change-to-work.prompt.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/prd-to-work-full-prd.prompt.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/prd-to-work-prd-feature.prompt.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/request-to-design.prompt.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/session-to-history-record.prompt.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/update-readme-green-field.prompt.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/work-to-commit-message.prompt.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/work-to-guides.prompt.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m                         [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m                         [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/design-workflow.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/execution-workflow.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/harness-capability-matrix.md[22m      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/human-experience.md[22m               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/lifecycle.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/naive-uat-validation.md[22m           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/naive-uat-workflow.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/path-and-link-hygiene.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/planning-workflow.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/prd-change-management.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/wave-model.md[22m                     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/design.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/guide-maintainer.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/guide-user.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/history-record.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/naive-uat-scenario.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/plan-overview.md[22m                   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/plan-prd-change.md[22m                 [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/plan-prd-decompose.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/plan-prd.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-architecture.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-glossary.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-index.md[22m                       [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-overview.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-reference.md[22m                   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-risk-register.md[22m               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/prd-subsystem.md[22m                   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/work-index.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/work-phase.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                                      [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                                         [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                                         [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                                           [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                                           [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                                             [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                             [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                            [90m│[39m
+[90m│[39m  [2m- update: AGENTS.md[22m                                                        [90m│[39m
+[90m│[39m                                                                             [90m│[39m
+[90m├─────────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-bceqf1[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 32[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 32[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 32[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: Skill files: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/[22m  [90m│[39m
+[90m│[39m  [2mmake-docs-home-a534hb/.agents/skills/decompose-codebase/SKILL.md[22m            [90m│[39m
+[90m│[39m  [2m- generate: Skill files: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/[22m  [90m│[39m
+[90m│[39m  [2mmake-docs-home-a534hb/.agents/skills/decompose-codebase/agents/openai.yaml[22m  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/decomposition-plan.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-architecture.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-glossary.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-index.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-overview.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-reference.md[22m            [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-risk-register.md[22m        [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/prd-subsystem.md[22m            [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/references/execution-workflow.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/references/harness-capability-matrix.md[22m      [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/references/mcp-playbook.md[22m                   [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/references/output-contract.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/references/planning-workflow.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/scripts/probe_environment.py[22m                 [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-a534hb/.ag[22m  [90m│[39m
+[90m│[39m  [2ments/skills/decompose-codebase/scripts/validate_output.py[22m                   [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: /var/folders/x8/zvcz1qzj2v7_pdsktm01v[22m  [90m│[39m
+[90m│[39m  [2m0ww0000gn/T/make-docs-home-a534hb/.claude/skills/decompose-codebase[22m         [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                                       [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                              [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                             [90m│[39m
+[90m│[39m                                                                              [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-bceqf1.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-Mbqwrr[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 12[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 12[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 12[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-Mbqwrr.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-AvIKc6[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 12[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 12[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 12[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-AvIKc6.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0jOuAV[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 24[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 24[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 24[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0jOuAV.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-y4z34B[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 24[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 24[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 24[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-y4z34B.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-dJuPln[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 70[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 70[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 70[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                              [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/archive-docs/SKILL.md[22m               [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/archive-docs/agents/openai.yaml[22m     [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/archive-docs/references/archive-workflow.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/archive-docs/scripts/trace_relationships.py[22m                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/cleanup-docs/SKILL.md[22m               [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/cleanup-docs/agents/openai.yaml[22m     [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/cleanup-docs/scripts/check_markdown_style.py[22m                 [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/decompose-codebase/SKILL.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/agents/openai.yaml[22m                        [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/decomposition-plan.md[22m    [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-architecture.md[22m      [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-glossary.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-index.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-overview.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-reference.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-risk-register.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/assets/templates/prd-subsystem.md[22m         [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/decompose-codebase/assets/template[22m  [90m│[39m
+[90m│[39m  [2ms/rebuild-backlog-index.md[22m                                                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/decompose-codebase/assets/template[22m  [90m│[39m
+[90m│[39m  [2ms/rebuild-backlog-phase.md[22m                                                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/references/execution-workflow.md[22m          [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/references/harness-capability-matrix.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/references/mcp-playbook.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/references/output-contract.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/references/planning-workflow.md[22m           [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/scripts/probe_environment.py[22m              [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/decompose-codebase/scripts/validate_output.py[22m                [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/human-experience/SKILL.md[22m           [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/human-experience/agents/openai.yaml[22m                          [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/human-experience/references/surfaces.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/naive-uat/SKILL.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/preflight/SKILL.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/preflight/agents/openai.yaml[22m        [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/preflight/references/decisions.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/preflight/references/store.md[22m       [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/software-factory/SKILL.md[22m           [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/software-factory/agents/openai.yaml[22m                          [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/software-factory/references/profiles.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/software-factory/references/store.md[22m                         [90m│[39m
+[90m│[39m  [2m- generate: Skill files: [22m                                                   [90m│[39m
+[90m│[39m  [2m.agents/skills/software-factory/references/work-methods.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/archive-docs[22m            [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/cleanup-docs[22m            [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/decompose-codebase[22m      [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/human-experience[22m        [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/naive-uat[22m               [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/preflight[22m               [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: .claude/skills/software-factory[22m        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m                           [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                                                       [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                                       [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                                                  [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                                            [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                                              [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                              [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                                             [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                             [90m│[39m
+[90m│[39m                                                                              [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-dJuPln.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-VPhb7b[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 25[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 25[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 25[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m───────────────────────────────────────╮[39m
+[90m│[39m                                                                 [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/acme-release/SKILL.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                                [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                [90m│[39m
+[90m│[39m                                                                 [90m│[39m
+[90m├─────────────────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-VPhb7b.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-qQiZYi[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 24[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 24[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 24[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-qQiZYi.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0cQa3s[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 24[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 24[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 24[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0cQa3s.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-IRJh2U[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 12[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 12[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 12[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-IRJh2U.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0uEJX9[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 12[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 12[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 12[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m────────────────────────────╮[39m
+[90m│[39m                                                      [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m     [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m   [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                          [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                  [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                    [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                      [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                     [90m│[39m
+[90m│[39m                                                      [90m│[39m
+[90m├──────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-0uEJX9.
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-CWCeW3[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 0[22m                                              [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mGenerate: 0[22m                                                             [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mResults[0m [90m──────────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                            [90m│[39m
+[90m│[39m  [2mNo managed file changes are needed.[22m                                       [90m│[39m
+[90m│[39m  [2mmake-docs did not find an existing manifest, so this run used [22m            [90m│[39m
+[90m│[39m  [2mfirst-install mode.[22m                                                       [90m│[39m
+[90m│[39m  [2mThe selected files already matched make-docs content.[22m                     [90m│[39m
+[90m│[39m  [2mApplying will create the manifest that tracks future syncs.[22m               [90m│[39m
+[90m│[39m  [2m[22m                                                                          [90m│[39m
+[90m│[39m  [2mUseful next steps:[22m                                                        [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup reconfigure` to change which docs, harnesses, or [22m  [90m│[39m
+[90m│[39m  [2mproject resources are managed.[22m                                            [90m│[39m
+[90m│[39m  [2m- Run `make-docs setup skills` to change managed skills.[22m                  [90m│[39m
+[90m│[39m  [2m- Run `make-docs --dry-run` after upgrading make-docs to preview future [22m  [90m│[39m
+[90m│[39m  [2mchanges.[22m                                                                  [90m│[39m
+[90m│[39m                                                                            [90m│[39m
+[90m├────────────────────────────────────────────────────────────────────────────╯[39m
+[90m┌[39m  make-docs setup backup
+[90m│[39m
+[32m◇[39m  [0mmake-docs setup backup[0m [90m─────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                              [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                    [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-esTPBu[22m      [90m│[39m
+[90m│[39m  [2mDestination: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-te[22m  [90m│[39m
+[90m│[39m  [2mst-esTPBu/.make-docs/backup/2026-09-09[22m                                      [90m│[39m
+[90m│[39m  [2mSkills: disabled[22m                                                            [90m│[39m
+[90m│[39m  [2mPlugins: disabled[22m                                                           [90m│[39m
+[90m│[39m  [2mFiles to copy: 85[22m                                                           [90m│[39m
+[90m│[39m  [2mDirectories to materialize: 11[22m                                              [90m│[39m
+[90m│[39m  [2mRetained: 2[22m                                                                 [90m│[39m
+[90m│[39m  [2mSkipped: 0[22m                                                                  [90m│[39m
+[90m│[39m  [2m[22m                                                                            [90m│[39m
+[90m│[39m  [2mFiles to copy:[22m                                                              [90m│[39m
+[90m│[39m  [2m- .make-docs/AGENTS.md (The instruction file's managed block matches the [22m   [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- .make-docs/CLAUDE.md (The instruction file's managed block matches the [22m   [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- .make-docs/scripts/check_path_hygiene.py (The file still matches the [22m     [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system-resources.catalog.json (The file still matches the [22m     [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system-resources.schema.json (The file still matches the [22m      [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/AGENTS.md (The instruction file's managed block [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest and no user content exists outside the block.)[22m         [90m│[39m
+[90m│[39m  [2m- .make-docs/system/CLAUDE.md (The instruction file's managed block [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest and no user content exists outside the block.)[22m         [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/AGENTS.md (The instruction file's managed [22m    [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/CLAUDE.md (The instruction file's managed [22m    [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/commit-message-convention.md (The file still[22m  [90m│[39m
+[90m│[39m  [2m matches the manifest-tracked make-docs content.)[22m                           [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/coverage-pass-contract.md (The file still [22m    [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/deferred-obligation-contract.md (The file [22m    [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/design-contract.md (The file still matches [22m   [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/guide-contract.md (The file still matches [22m    [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/history-record-contract.md (The file still [22m   [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/human-experience-contract.md (The file still[22m  [90m│[39m
+[90m│[39m  [2m matches the manifest-tracked make-docs content.)[22m                           [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/naive-uat-contract.md (The file still [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/output-contract.md (The file still matches [22m   [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts/system-resource-contract.md (The file still [22m  [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/AGENTS.md (The instruction file's managed [22m      [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/CLAUDE.md (The instruction file's managed [22m      [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md (The [22m  [90m│[39m
+[90m│[39m  [2mfile still matches the manifest-tracked make-docs content.)[22m                 [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md [22m     [90m│[39m
+[90m│[39m  [2m(The file still matches the manifest-tracked make-docs content.)[22m            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/coverage-pass-testing-uat.prompt.md (The file [22m  [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/coverage-pass-user-guide.prompt.md (The file [22m   [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/designs-to-plan-change.prompt.md (The file [22m     [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/designs-to-plan.prompt.md (The file still [22m      [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md (The file [22m  [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/naive-uat-facilitator.prompt.md (The file [22m      [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/naive-uat-tester.prompt.md (The file still [22m     [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/plan-to-prd-change.prompt.md (The file still [22m   [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/plan-to-prd-green-field.prompt.md (The file [22m    [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/prd-change-to-work.prompt.md (The file still [22m   [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/prd-to-work-full-prd.prompt.md (The file still[22m  [90m│[39m
+[90m│[39m  [2m matches the manifest-tracked make-docs content.)[22m                           [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/prd-to-work-prd-feature.prompt.md (The file [22m    [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/request-to-design.prompt.md (The file still [22m    [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/session-to-history-record.prompt.md (The file [22m  [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/update-readme-green-field.prompt.md (The file [22m  [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/work-to-commit-message.prompt.md (The file [22m     [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts/work-to-guides.prompt.md (The file still [22m       [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/AGENTS.md (The instruction file's managed [22m   [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/CLAUDE.md (The instruction file's managed [22m   [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/design-workflow.md (The file still matches [22m  [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/execution-workflow.md (The file still [22m       [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/harness-capability-matrix.md (The file [22m      [90m│[39m
+[90m│[39m  [2mstill matches the manifest-tracked make-docs content.)[22m                      [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/human-experience.md (The file still matches[22m  [90m│[39m
+[90m│[39m  [2m the manifest-tracked make-docs content.)[22m                                   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/lifecycle.md (The file still matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/naive-uat-validation.md (The file still [22m     [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/naive-uat-workflow.md (The file still [22m       [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/path-and-link-hygiene.md (The file still [22m    [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/planning-workflow.md (The file still [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/prd-change-management.md (The file still [22m    [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references/wave-model.md (The file still matches the [22m   [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/AGENTS.md (The instruction file's managed [22m    [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/CLAUDE.md (The instruction file's managed [22m    [90m│[39m
+[90m│[39m  [2mblock matches the manifest and no user content exists outside the block.)[22m   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/design.md (The file still matches the [22m        [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/guide-maintainer.md (The file still matches [22m  [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/guide-user.md (The file still matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/history-record.md (The file still matches [22m    [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/naive-uat-scenario.md (The file still [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/plan-overview.md (The file still matches the[22m  [90m│[39m
+[90m│[39m  [2m manifest-tracked make-docs content.)[22m                                       [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/plan-prd-change.md (The file still matches [22m   [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/plan-prd-decompose.md (The file still [22m        [90m│[39m
+[90m│[39m  [2mmatches the manifest-tracked make-docs content.)[22m                            [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/plan-prd.md (The file still matches the [22m      [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-architecture.md (The file still matches [22m  [90m│[39m
+[90m│[39m  [2mthe manifest-tracked make-docs content.)[22m                                    [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-glossary.md (The file still matches the [22m  [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-index.md (The file still matches the [22m     [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-overview.md (The file still matches the [22m  [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-reference.md (The file still matches the[22m  [90m│[39m
+[90m│[39m  [2m manifest-tracked make-docs content.)[22m                                       [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-risk-register.md (The file still matches[22m  [90m│[39m
+[90m│[39m  [2m the manifest-tracked make-docs content.)[22m                                   [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/prd-subsystem.md (The file still matches the[22m  [90m│[39m
+[90m│[39m  [2m manifest-tracked make-docs content.)[22m                                       [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/work-index.md (The file still matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates/work-phase.md (The file still matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest-tracked make-docs content.)[22m                                        [90m│[39m
+[90m│[39m  [2m- AGENTS.md (The instruction file's managed block matches the manifest and[22m  [90m│[39m
+[90m│[39m  [2m no user content exists outside the block.)[22m                                 [90m│[39m
+[90m│[39m  [2m- CLAUDE.md (The instruction file's managed block matches the manifest and[22m  [90m│[39m
+[90m│[39m  [2m no user content exists outside the block.)[22m                                 [90m│[39m
+[90m│[39m  [2m- docs/AGENTS.md (The instruction file's managed block matches the [22m         [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/CLAUDE.md (The instruction file's managed block matches the [22m         [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/designs/AGENTS.md (The instruction file's managed block matches the[22m  [90m│[39m
+[90m│[39m  [2m manifest and no user content exists outside the block.)[22m                    [90m│[39m
+[90m│[39m  [2m- docs/designs/CLAUDE.md (The instruction file's managed block matches the[22m  [90m│[39m
+[90m│[39m  [2m manifest and no user content exists outside the block.)[22m                    [90m│[39m
+[90m│[39m  [2m- docs/plans/AGENTS.md (The instruction file's managed block matches the [22m   [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/plans/CLAUDE.md (The instruction file's managed block matches the [22m   [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/prd/AGENTS.md (The instruction file's managed block matches the [22m     [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/prd/CLAUDE.md (The instruction file's managed block matches the [22m     [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/work/AGENTS.md (The instruction file's managed block matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m- docs/work/CLAUDE.md (The instruction file's managed block matches the [22m    [90m│[39m
+[90m│[39m  [2mmanifest and no user content exists outside the block.)[22m                     [90m│[39m
+[90m│[39m  [2m[22m                                                                            [90m│[39m
+[90m│[39m  [2mDirectories to materialize:[22m                                                 [90m│[39m
+[90m│[39m  [2m- .make-docs/system/contracts[22m                                               [90m│[39m
+[90m│[39m  [2m- .make-docs/system/prompts[22m                                                 [90m│[39m
+[90m│[39m  [2m- .make-docs/system/references[22m                                              [90m│[39m
+[90m│[39m  [2m- .make-docs/system/templates[22m                                               [90m│[39m
+[90m│[39m  [2m- .make-docs/scripts[22m                                                        [90m│[39m
+[90m│[39m  [2m- .make-docs/system[22m                                                         [90m│[39m
+[90m│[39m  [2m- docs/designs[22m                                                              [90m│[39m
+[90m│[39m  [2m- docs/plans[22m                                                                [90m│[39m
+[90m│[39m  [2m- docs/prd[22m                                                                  [90m│[39m
+[90m│[39m  [2m- docs/work[22m                                                                 [90m│[39m
+[90m│[39m  [2m- docs[22m                                                                      [90m│[39m
+[90m│[39m  [2m[22m                                                                            [90m│[39m
+[90m│[39m  [2mRetained paths:[22m                                                             [90m│[39m
+[90m│[39m  [2m- .make-docs (The directory still contains preserved descendants after [22m     [90m│[39m
+[90m│[39m  [2msubtracting removable make-docs paths.)[22m                                     [90m│[39m
+[90m│[39m  [2m- .make-docs/config.yaml (The make-docs config file is project-owned local[22m  [90m│[39m
+[90m│[39m  [2m configuration and is preserved separately from managed files, conflicts, [22m  [90m│[39m
+[90m│[39m  [2mprovider state, and cache state.)[22m                                           [90m│[39m
+[90m│[39m  [2m[22m                                                                            [90m│[39m
+[90m│[39m  [2mSkipped paths:[22m                                                              [90m│[39m
+[90m│[39m  [2m- none[22m                                                                      [90m│[39m
+[90m│[39m                                                                              [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[90m└[39m  Backup cancelled.
+
+┌  make-docs setup backup
+│
+◇  make-docs setup backup ─────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8mz1BZ      │
+│  Destination: (no backup directory will be created)                          │
+│  Files to copy: 0                                                            │
+│  Directories to materialize: 0                                               │
+│  Retained: 4                                                                 │
+│  Skipped: 85                                                                 │
+│                                                                              │
+│  Files to copy:                                                              │
+│  - none                                                                      │
+│                                                                              │
+│  Directories to materialize:                                                 │
+│  - none                                                                      │
+│                                                                              │
+│  Retained paths:                                                             │
+│  - /Users/tylerkneisly/.agents/skills (The selected-agentics root exists,    │
+│  but fallback mode cannot prove which contents are make-docs-managed.)       │
+│  - /Users/tylerkneisly/.claude/plugins (The selected-agentics root exists,   │
+│  but fallback mode cannot prove which contents are make-docs-managed.)       │
+│  - /Users/tylerkneisly/.claude/skills (The selected-agentics root exists,    │
+│  but fallback mode cannot prove which contents are make-docs-managed.)       │
+│  - /Users/tylerkneisly/.codex/skills (The selected-agentics root exists,     │
+│  but fallback mode cannot prove which contents are make-docs-managed.)       │
+│                                                                              │
+│  Skipped paths:                                                              │
+│  - .make-docs/AGENTS.md (The candidate path is already absent on disk.)      │
+│  - .make-docs/CLAUDE.md (The candidate path is already absent on disk.)      │
+│  - .make-docs/scripts/check_path_hygiene.py (The candidate path is already   │
+│  absent on disk.)                                                            │
+│  - .make-docs/system-resources.catalog.json (The candidate path is already   │
+│  absent on disk.)                                                            │
+│  - .make-docs/system-resources.schema.json (The candidate path is already    │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/AGENTS.md (The candidate path is already absent on      │
+│  disk.)                                                                      │
+│  - .make-docs/system/CLAUDE.md (The candidate path is already absent on      │
+│  disk.)                                                                      │
+│  - .make-docs/system/contracts/AGENTS.md (The candidate path is already      │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/contracts/CLAUDE.md (The candidate path is already      │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/contracts/commit-message-convention.md (The candidate   │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/contracts/coverage-pass-contract.md (The candidate      │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/contracts/deferred-obligation-contract.md (The          │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/contracts/design-contract.md (The candidate path is     │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/contracts/guide-contract.md (The candidate path is      │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/contracts/history-record-contract.md (The candidate     │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/contracts/human-experience-contract.md (The candidate   │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/contracts/naive-uat-contract.md (The candidate path is  │
+│   already absent on disk.)                                                   │
+│  - .make-docs/system/contracts/output-contract.md (The candidate path is     │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/contracts/system-resource-contract.md (The candidate    │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/prompts/AGENTS.md (The candidate path is already        │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/prompts/CLAUDE.md (The candidate path is already        │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md (The   │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md      │
+│  (The candidate path is already absent on disk.)                             │
+│  - .make-docs/system/prompts/coverage-pass-testing-uat.prompt.md (The        │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/coverage-pass-user-guide.prompt.md (The         │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/designs-to-plan-change.prompt.md (The           │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/designs-to-plan.prompt.md (The candidate path   │
+│  is already absent on disk.)                                                 │
+│  - .make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md (The        │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/naive-uat-facilitator.prompt.md (The candidate  │
+│   path is already absent on disk.)                                           │
+│  - .make-docs/system/prompts/naive-uat-tester.prompt.md (The candidate path  │
+│   is already absent on disk.)                                                │
+│  - .make-docs/system/prompts/plan-to-prd-change.prompt.md (The candidate     │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/prompts/plan-to-prd-green-field.prompt.md (The          │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/prd-change-to-work.prompt.md (The candidate     │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/prompts/prd-to-work-full-prd.prompt.md (The candidate   │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/prompts/prd-to-work-prd-feature.prompt.md (The          │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/request-to-design.prompt.md (The candidate      │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/prompts/session-to-history-record.prompt.md (The        │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/update-readme-green-field.prompt.md (The        │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/work-to-commit-message.prompt.md (The           │
+│  candidate path is already absent on disk.)                                  │
+│  - .make-docs/system/prompts/work-to-guides.prompt.md (The candidate path    │
+│  is already absent on disk.)                                                 │
+│  - .make-docs/system/references/AGENTS.md (The candidate path is already     │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/references/CLAUDE.md (The candidate path is already     │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/references/design-workflow.md (The candidate path is    │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/references/execution-workflow.md (The candidate path    │
+│  is already absent on disk.)                                                 │
+│  - .make-docs/system/references/harness-capability-matrix.md (The candidate  │
+│   path is already absent on disk.)                                           │
+│  - .make-docs/system/references/human-experience.md (The candidate path is   │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/references/lifecycle.md (The candidate path is already  │
+│   absent on disk.)                                                           │
+│  - .make-docs/system/references/naive-uat-validation.md (The candidate path  │
+│   is already absent on disk.)                                                │
+│  - .make-docs/system/references/naive-uat-workflow.md (The candidate path    │
+│  is already absent on disk.)                                                 │
+│  - .make-docs/system/references/path-and-link-hygiene.md (The candidate      │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/references/planning-workflow.md (The candidate path is  │
+│   already absent on disk.)                                                   │
+│  - .make-docs/system/references/prd-change-management.md (The candidate      │
+│  path is already absent on disk.)                                            │
+│  - .make-docs/system/references/wave-model.md (The candidate path is         │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/AGENTS.md (The candidate path is already      │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/templates/CLAUDE.md (The candidate path is already      │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/templates/design.md (The candidate path is already      │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/templates/guide-maintainer.md (The candidate path is    │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/guide-user.md (The candidate path is already  │
+│   absent on disk.)                                                           │
+│  - .make-docs/system/templates/history-record.md (The candidate path is      │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/naive-uat-scenario.md (The candidate path is  │
+│   already absent on disk.)                                                   │
+│  - .make-docs/system/templates/plan-overview.md (The candidate path is       │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/plan-prd-change.md (The candidate path is     │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/plan-prd-decompose.md (The candidate path is  │
+│   already absent on disk.)                                                   │
+│  - .make-docs/system/templates/plan-prd.md (The candidate path is already    │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/templates/prd-architecture.md (The candidate path is    │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/prd-glossary.md (The candidate path is        │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/prd-index.md (The candidate path is already   │
+│  absent on disk.)                                                            │
+│  - .make-docs/system/templates/prd-overview.md (The candidate path is        │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/prd-reference.md (The candidate path is       │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/prd-risk-register.md (The candidate path is   │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/prd-subsystem.md (The candidate path is       │
+│  already absent on disk.)                                                    │
+│  - .make-docs/system/templates/work-index.md (The candidate path is already  │
+│   absent on disk.)                                                           │
+│  - .make-docs/system/templates/work-phase.md (The candidate path is already  │
+│   absent on disk.)                                                           │
+│  - AGENTS.md (The candidate path is already absent on disk.)                 │
+│  - CLAUDE.md (The candidate path is already absent on disk.)                 │
+│  - docs/AGENTS.md (The candidate path is already absent on disk.)            │
+│  - docs/CLAUDE.md (The candidate path is already absent on disk.)            │
+│  - docs/designs/AGENTS.md (The candidate path is already absent on disk.)    │
+│  - docs/designs/CLAUDE.md (The candidate path is already absent on disk.)    │
+│  - docs/plans/AGENTS.md (The candidate path is already absent on disk.)      │
+│  - docs/plans/CLAUDE.md (The candidate path is already absent on disk.)      │
+│  - docs/prd/AGENTS.md (The candidate path is already absent on disk.)        │
+│  - docs/prd/CLAUDE.md (The candidate path is already absent on disk.)        │
+│  - docs/work/AGENTS.md (The candidate path is already absent on disk.)       │
+│  - docs/work/CLAUDE.md (The candidate path is already absent on disk.)       │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+└  No make-docs-managed files required backup. No backup destination was created.
+
+ ❯ tests/cli.test.ts (103 tests | 1 failed) 81383ms
+   ✓ cli interactive flows > uses the wizard for interactive setup without an existing manifest  2417ms
+   ✓ cli interactive flows > uses the wizard for setup reconfigure  1726ms
+   ✓ cli interactive flows > syncs saved selections on an interactive setup without opening the wizard  1756ms
+   ✓ cli interactive flows > ignores root instruction headings outside managed blocks during CLI sync  2100ms
+   ✓ cli interactive flows > renders configured labels in CLI summaries without changing selections  2236ms
+   ✓ cli interactive flows > installs default selections on a non-interactive setup  962ms
+   ✓ cli interactive flows > rejects invalid project config before writing install outputs 9ms
+   ✓ cli interactive flows > presents the pre-v2 warning-and-choice flow on setup against a v1 install and cancels non-interactively  2535ms
+   ✓ cli interactive flows > allows first install into non-empty projects without make-docs ownership evidence  3219ms
+   ✓ cli interactive flows > cancels non-interactive modified-v1 migration at the pre-v2 gate before writing changes  5402ms
+   ✓ cli interactive flows > blocks backup-and-reinstall disposition from ordinary apply 50ms
+   ✓ cli interactive flows > blocks manual-review-required disposition for ambiguous first-install collisions 134ms
+   ✓ cli interactive flows > syncs saved selections on a non-interactive setup  5739ms
+   ✓ cli interactive flows > preserves non-interactive flag behavior with --yes  1616ms
+   ✓ cli interactive flows > rejects an existing-install skill enabled-state change before any write  4677ms
+   ✓ cli interactive flows > rejects existing-install skill source and provenance changes before any write  839ms
+   ✓ cli interactive flows > transfers a legacy manifest to Store before unchanged setup  3184ms
+   ✓ cli interactive flows > fails closed before overwriting a managed block without manifest ownership  1521ms
+   ✓ cli interactive flows > blocks ambiguous missing-manifest conflicts before applying 29ms
+   ✓ cli interactive flows > fails non-interactive ambiguous missing-manifest conflicts before writing outputs 27ms
+   ✓ cli interactive flows > renders planned file operations by final generate update skip and remove groups  1767ms
+   ✓ cli interactive flows > supports canonical harness and skill flags for non-interactive apply  1377ms
+   ✓ cli interactive flows > applies --no-claude-code to the harness selections  1875ms
+   ✓ cli interactive flows > applies --no-codex to the harness selections  392ms
+   ✓ cli interactive flows > supports --no-skills for non-interactive apply  987ms
+   ✓ cli interactive flows > supports --selected-skills all and none for non-interactive apply  5946ms
+   × cli interactive flows > expands --selected-skills all against an alternate local skills manifest 2088ms
+     → expected [ Array(1) ] to include '.agents/skills/acme-release'
+   ✓ cli interactive flows > rejects remote skills manifests before writing install state 7ms
+   ✓ cli interactive flows > rejects unpinned remote skill payloads from alternate manifests before writing install state 13ms
+   ✓ cli interactive flows > supports --skill-scope project for non-interactive apply  904ms
+   ✓ cli interactive flows > supports --skill-scope global for non-interactive apply  2075ms
+   ✓ cli interactive flows > routes skills removal through the skills command boundary 40ms
+   ✓ cli interactive flows > parses skills sync options without entering the apply path 5ms
+   ✓ cli interactive flows > skills removal without a manifest does not create one 87ms
+   ✓ cli interactive flows > skills removal with no tracked skills is a no-op  2217ms
+   ✓ cli interactive flows > skills sync output uses skills-specific language  1507ms
+   ✓ cli interactive flows > supports deprecated harness alias --no-claude  836ms
+   ✓ cli interactive flows > supports deprecated harness alias --no-agents  1485ms
+   ✓ cli interactive flows > supports deprecated harness aliases for backward compatibility  920ms
+   ✓ cli interactive flows > rejects a reconfigure skill enabled-state change before any write  4907ms
+   ✓ cli interactive flows > rejects reconfigure skill scope and selected-name changes before any write  4320ms
+   ✓ cli interactive flows > rejects non-interactive setup reconfigure without selection flags  3847ms
+   ✓ cli interactive flows > rejects setup reconfigure without a manifest with first-run guidance 18ms
+   ✓ cli interactive flows > rejects conflicting and invalid selected-skill selections 2ms
+   ✓ cli interactive flows > rejects content selection flags under setup skills --no-designs 0ms
+   ✓ cli interactive flows > rejects removed asset-selection flag --no-prompts 0ms
+   ✓ cli interactive flows > rejects removed asset-selection flag --templates 0ms
+   ✓ cli interactive flows > rejects removed asset-selection flag --references 1ms
+   ✓ cli interactive flows > rejects removed asset-selection flag --optional-skills 0ms
+   ✓ cli interactive flows > rejects selected skill selection during skills removal 0ms
+   ✓ cli interactive flows > rejects invalid root and cross-command skills flags for --remove 4ms
+   ✓ cli interactive flows > rejects invalid root and cross-command skills flags for setup,reconfigure,--remove 0ms
+   ✓ cli interactive flows > rejects invalid root and cross-command skills flags for --skills 0ms
+   ✓ cli interactive flows > rejects dry-run on lifecycle command setup backup 0ms
+   ✓ cli interactive flows > rejects dry-run on lifecycle command setup remove 0ms
+   ✓ cli interactive flows > `--version` prints the package version and exits 0ms
+   ✓ cli interactive flows > `-v` is an alias for `--version` 0ms
+   ✓ cli interactive flows > prints structured top-level help with exactly the seven public commands 1ms
+   ✓ cli interactive flows > does not expose internal system asset materialization modes in --help help 0ms
+   ✓ cli interactive flows > does not expose internal system asset materialization modes in setup help 0ms
+   ✓ cli interactive flows > does not expose internal system asset materialization modes in setup help 0ms
+   ✓ cli interactive flows > documents setup reconfigure selection-change behavior 0ms
+   ✓ cli interactive flows > documents setup skills command help with skills-specific options 0ms
+   ✓ cli interactive flows > prints command-specific help for setup reconfigure 0ms
+   ✓ cli interactive flows > prints command-specific help for setup skills 0ms
+   ✓ cli interactive flows > prints command-specific help for setup backup 0ms
+   ✓ cli interactive flows > prints command-specific help for setup remove 0ms
+   ✓ cli interactive flows > prints setup help with the subcommand model 0ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface init,--yes 3ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface reconfigure 4ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface skills,--dry-run 0ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface backup,--yes 0ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface operations,closeout,probe 0ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface --reconfigure 0ms
+   ✓ cli interactive flows > reports migration guidance for removed command surface update,--reconfigure,--yes 0ms
+   ✓ cli interactive flows > rejects default compatibility alias makedocs 0ms
+   ✓ cli interactive flows > rejects default compatibility alias make-docs-js 1ms
+   ✓ cli interactive flows > rejects default compatibility alias make-docs-rs 0ms
+   ✓ cli interactive flows > documents setup backup help with lifecycle-specific options 0ms
+   ✓ cli interactive flows > documents setup remove help with backup and yes options 0ms
+   ✓ cli interactive flows > keeps setup remove help on the help path without dispatching lifecycle work 0ms
+   ✓ cli interactive flows > routes backup through the implemented lifecycle flow 18ms
+   ✓ cli interactive flows > defaults backup to confirmation mode  1515ms
+   ✓ cli interactive flows > uses --yes to skip backup confirmation prompts 17ms
+   ✓ cli interactive flows > routes setup remove through the implemented lifecycle flow 1ms
+   ✓ cli interactive flows > defaults setup remove to confirmation mode 1ms
+   ✓ cli interactive flows > uses --yes to skip setup remove confirmation prompts 5ms
+   ✓ cli interactive flows > rejects invalid cross-command flag mixes for setup,backup,--no-skills 6ms
+   ✓ cli interactive flows > rejects invalid cross-command flag mixes for setup,remove,--selected-skills,decompose-codebase 0ms
+   ✓ cli interactive flows > rejects invalid cross-command flag mixes for --permissions,confirm 0ms
+   ✓ cli interactive flows > rejects invalid cross-command flag mixes for --backup 0ms
+   ✓ cli interactive flows > rejects invalid cross-command flag mixes for setup,reconfigure,--backup 0ms
+   ✓ cli interactive flows > bare invocation with an install prints status and never syncs  1803ms
+   ✓ cli interactive flows > bare invocation without an install and no TTY prints guided-setup guidance and writes nothing 18ms
+   ✓ cli interactive flows > bare invocation without an install and a TTY starts the guided setup without writing on cancel 26ms
+   ✓ cli interactive flows > bare invocation rejects install and sync flag --yes and names make-docs setup 1ms
+   ✓ cli interactive flows > bare invocation rejects install and sync flag --dry-run and names make-docs setup 1ms
+   ✓ cli interactive flows > bare invocation rejects install and sync flag --no-work and names make-docs setup 0ms
+   ✓ cli interactive flows > top-level update reports without executing for remote execution and migrates the temp store 144ms
+   ✓ cli interactive flows > top-level uninstall refuses without confirmation and never runs project removal 1ms
+   ✓ cli interactive flows > top-level uninstall rejects --target as a project-removal confusion guard 0ms
+   ✓ cli interactive flows > prints machine-level self-management help for update without acting 1ms
+   ✓ cli interactive flows > prints machine-level self-management help for uninstall without acting 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cli.test.ts > cli interactive flows > expands --selected-skills all against an alternate local skills manifest
+AssertionError: expected [ Array(1) ] to include '.agents/skills/acme-release'
+ ❯ tests/cli.test.ts:1019:36
+    1017|       expect(manifest?.selections.skills).toBe(true);
+    1018|       expect(manifest?.selections.selectedSkills).toEqual(["acme-relea…
+    1019|       expect(manifest?.skillFiles).toContain(".agents/skills/acme-rele…
+       |                                    ^
+    1020|       expect(manifest?.skillFiles).not.toContain(".agents/skills/archi…
+    1021|       expect(manifest?.selections.skillManifest).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 150 passed (151)
+   Start at  22:27:14
+   Duration  81.98s (transform 642ms, setup 100ms, collect 1.45s, tests 102.23s, environment 0ms, prepare 173ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error workspace @brucewaynedecoy/make-docs@2.0.0-rc
+npm error location /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error command failed
+npm error command sh -c vitest run --run tests/cli.test.ts tests/p7-ugt-skill.test.ts tests/skills-ui.test.ts tests/consistency.test.ts

@@ -370,7 +370,7 @@ async function runProjectLayoutCommand(argv: string[]): Promise<void> {
 
 async function runProjectStateCommand(argv: string[]): Promise<void> {
   const [verb, ...args] = argv;
-  if (!verb || verb === "--help" || verb === "-h") {
+  if (!verb || verb === "--help" || verb === "-h" || ((verb === "status" || verb === "recover") && args.some(arg => arg === "--help" || arg === "-h"))) {
     process.stdout.write([
       "Usage: make-docs project state status [--target-root <path>] [--json]",
       "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
@@ -381,6 +381,7 @@ async function runProjectStateCommand(argv: string[]): Promise<void> {
       "Use --resume to apply the remaining verified steps of a complete saved plan.",
       "Use --rollback to restore verified prior file state. Changed files block recovery.",
       "Add --dry-run to inspect recovery without applying changes.",
+      "Use --help or -h on status or recover to read help without reading the Store or changing files.",
       "",
     ].join("\n"));
     return;

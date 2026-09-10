@@ -148,7 +148,7 @@ When generating or revising `docs/work/**`, use this authority order:
 2. Live repository contracts: `docs/work/AGENTS.md`, this workflow, `output-contract.md`, `wave-model.md`, and the current work templates.
 3. Product/template source contracts when maintaining make-docs-owned shipped assets; dogfood copies validate those assets but do not replace their source.
 4. Archived backlogs as examples of style or lineage only.
-5. Bundled skill references, generated harness stubs, and mirrored or installed skill copies only when live repo contracts are unavailable or the task explicitly concerns those assets.
+5. Bundled Skill references, native harness exposures, and installed Skill copies only when live repo contracts are unavailable or the task explicitly concerns those assets.
 
 If a fallback source is used, record which fallback was used and why.
 

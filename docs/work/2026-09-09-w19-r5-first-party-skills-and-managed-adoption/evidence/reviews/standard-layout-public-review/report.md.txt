@@ -1,0 +1,124 @@
+The public text gives a clear entry rule for the three optional Skills. The sample dry run shows a bounded adoption plan. It does not prove that adoption or failure handling works.
+
+Candidate: `@brucewaynedecoy/make-docs`, live version `2.0.0-rc`.
+
+Supplied package SHA-256: `a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c`. I did not verify the package hash. The CLI reports a separate `packageDigest`; I did not assume these hashes identify the same bytes.
+
+**Commands and files read**
+
+All commands ran from the supplied `fresh-review` workspace.
+
+The CLI command prefix was:
+
+```text
+/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js
+```
+
+I ran these arguments:
+
+```text
+--help
+--version
+setup skills --help
+project state status --help
+setup skills --target /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review/sample-project --skill-scope project --no-codex --selected-skills human-experience,preflight,software-factory --adopt-existing human-experience,preflight,software-factory --dry-run
+```
+
+Other tools were `pwd`, `find`, `cat`, `rg`, and shell path checks.
+
+I read:
+
+- All seven installed `SKILL.md` files.
+- All six Markdown support files for preflight, software-factory, and human-experience.
+- Those three Skills’ `agents/openai.yaml` files.
+- Selected lines from archive-docs’ workflow, all six decompose-codebase references, and the four declared Python scripts.
+- All five `public-output/*.txt` files.
+
+I listed installed support-file paths. I checked sample link paths and the absence of `.agents` and `.make-docs/agentics`. I did not read sample project documents or configuration contents.
+
+An extra inline Node check failed before execution: `can't create temp file for here document: operation not permitted`. I stopped that check.
+
+**1. Skill discovery and needs**
+
+Seven Skills were found. Their stated uses are:
+
+| Skill | Purpose and needs | Use without Make Docs |
+|---|---|---|
+| archive-docs | Check stale docs, assess archive effects, archive, or mark docs as replaced. Needs project docs and its bundled workflow. Python helper is optional. | Ordinary content work can continue without the CLI. It assumes Make Docs path rules. |
+| cleanup-docs | Check and fix Markdown format. Needs a chosen scope, document rules, and its Python script. | No CLI dependency is stated. |
+| decompose-codebase | Turn code into requirements and rebuild work. Needs source access, bundled references, templates, and Python helpers. | Text says ordinary documentation work can continue without the CLI. Outputs follow Make Docs rules. |
+| human-experience | Shape or review a result for the affected person. Needs the person’s goal and actual surface. | Yes. Make Docs rules apply only where relevant. |
+| preflight | Review a named phase and settle owner choices. Needs existing requirements and backlog. | CLI capture is optional. Use outside Make Docs planning is not stated. |
+| software-factory | Coordinate approved work, workers, review, and correction. Needs requirements, backlog, permission, and a usable worker method. | Store capture is optional. It still depends on Make Docs planning. |
+| naive-uat | Run Unassisted Goal Testing through shared resources and typed operations. | No. It states: “This Skill is a CLI entry point.” |
+
+The file listing contains every local support file named by the seven entry files. This was a path check, not a script test. The remote resource needed by naive-uat was not fetched.
+
+**2. Optional use and workflow entry**
+
+The three entry descriptions use the same explicit rule:
+
+- Preflight: “Use only when the user explicitly requests $preflight or this preflight skill.”
+- Software-factory: “Use only when the user explicitly requests $software-factory or this software factory skill.”
+- Human-experience: “Use only when the user explicitly requests $human-experience or this human experience skill.”
+
+Each corresponding `agents/openai.yaml` sets `allow_implicit_invocation: false`.
+
+Preflight adds: “Do not activate another skill unless the user requested it.” Software-factory says: “Do not invent a backlog or invoke preflight automatically.”
+
+Thus, installation, adoption, related subject matter, and optional Store capture do not start these Skills under the installed rules. I did not test agent application behavior.
+
+**3. Sample adoption review**
+
+Help permits the dry run: “Adoption dry runs write no files or Store records.”
+
+Observed live output:
+
+- Status: `ready`.
+- Scope: `project`.
+- Selected application: `claude-code` only.
+- Selected and proposed adoption set: human-experience, preflight, software-factory.
+- File changes: zero.
+- Backups: zero; no backup paths are proposed.
+- Ownership effects: 12 registrations, each from `before: null` to `managed-snapshot`.
+- Blockers and recovery limits: none listed.
+
+All proposed ownership paths stay under `.claude/skills`. No `.agents` Skill root or `.make-docs/agentics` layer appears in the plan. Both paths were absent after review.
+
+The live review digest matches the supplied review output.
+
+**No file changes does not mean no ownership change.** Applying this plan would place 12 existing files under CLI management. The dry run itself does not record that ownership.
+
+**4. Failure rules and safe next actions**
+
+These are help-text conclusions. I did not run these failure cases.
+
+| Case | Public rule | Next safe owner action |
+|---|---|---|
+| Stale review | “A stale review cannot be applied.” | Repeat the same dry run. Inspect its new plan and digest. |
+| Unknown extra files | Extras block adoption. | Preserve and inspect them. Resolve their location before a new review. |
+| Unsafe links or copy conflicts | These block adoption. | Resolve the listed link or copy issue, then review again. |
+| Changed local files | Known unowned differences can be reviewed for replacement. Edited managed files block adoption. | Check ownership and proposed replacements. Review backup paths before any later write. |
+| Required Store unavailable | Managed writes stop. There is no project-local fallback. | Resolve the reported Store fault. Then inspect project state for pending work. |
+
+Help says changed existing bytes receive backups before replacement. This sample has no replacements, so it provides no evidence about actual backup creation.
+
+Optional lifecycle capture has a separate rule. Both Store references warn: “Exit 0 alone is insufficient.” An unavailable capture must not be reported as saved.
+
+**5. Concrete finding**
+
+**Medium — the normal adoption review lacks a plain ownership summary.**
+
+Reproduction: run the exact adoption dry run above.
+
+Observed output presents raw JSON with `"changes": []` and `"backups": []`. The owner must count and interpret 12 separate `"effect": "register"` entries to understand the material effect.
+
+This conflicts with the installed human-experience guidance: “without making people join IDs or read raw JSON to understand ordinary results.”
+
+A bounded improvement is a short summary: “No file contents will change. Make Docs will manage 12 existing files across 3 Skills.” Keep the JSON available.
+
+I found no false claim that adoption had completed. `ready` describes the review plan.
+
+The public surfaces support informed review of this sample. They do not establish safe adoption across failure cases. No installation, adoption, workflow, apply, or recovery action ran.
+
+Prior context and extra tools were present in the session. I did not use them. This is an agent review of public surfaces, not a human usability test, live agent application test, code review, or owner acceptance.

@@ -36,7 +36,7 @@ The governing principle is unchanged: **ship the smallest real abstraction that 
 
 - A publishable CLI installs docs scaffolding plus harness-aware skills.
 - Skills are selected explicitly through the packaged registry and resolved payload sources.
-- Selected skills install one canonical shared payload under `.make-docs/agentics/skills/<name>/`.
+- Selected Skills install at standard scope/harness locations; no private `.make-docs/agentics` layer is allowed.
 - Enabled harnesses receive generated `SKILL.md` stubs under `.claude/skills/<name>/` and `.agents/skills/<name>/`.
 - Bare default installs write no selected skill payloads or harness stubs.
 
@@ -86,19 +86,20 @@ Those should be introduced when there is a concrete need to install and manage t
 
 ### Current rule: one skill source, multiple harness targets
 
-Canonical skill content lives once under `packages/skills/<name>/`. The CLI installs the selected payload once into `.make-docs/agentics/skills/<name>/` per scope and then exposes generated entrypoint stubs to the selected harness roots:
+Canonical Skill authoring lives only under `packages/skills/<name>/`. The CLI embeds declared bytes and installs them through the standard agent-location contract.
 
-| Surface | Path |
-| --- | --- |
-| Canonical payload | `.make-docs/agentics/skills/<name>/` |
-| Claude Code stub | `.claude/skills/<name>/SKILL.md` |
-| Codex stub | `.agents/skills/<name>/SKILL.md` |
+Install Skill files in standard agent locations, selected by scope and harness:
 
-This is the right level of abstraction today:
+| Scope and selected harnesses | Real Skill directory | Other selected access |
+| --- | --- | --- |
+| Project, Claude only | `.claude/skills/<name>/` | None; do not create `.agents/skills/`. |
+| Project, Codex only | `.agents/skills/<name>/` | None; do not create `.claude/skills/`. |
+| Project, both | `.agents/skills/<name>/` | `.claude/skills/<name>` links to it, or is a supported managed native copy. |
+| Global, any selection | `~/.agents/skills/<name>/` | Selected Codex uses `~/.codex/skills/<name>` (or `CODEX_HOME/skills`); selected Claude uses its configured native Skill root, normally `~/.claude/skills/<name>`. Native access links to the canonical directory or uses a supported copy. Direct access applies only if the configured native path equals the canonical path. |
 
-- shared content stays shared
-- harness differences stay in generated stubs and router logic
-- skills remain easy to author and reason about
+A harness that uses the real directory reads it directly. Never create a self-link or duplicate ownership entry for that same path. `none` creates no Skill directories. Preserve pre-existing unrelated content; absence checks on fresh fixtures must prove no unselected project Skill root was created.
+
+There is no active `.make-docs/agentics/` installation layer, in the project or home. Skill source stays solely in `packages/skills/<name>/`; compiled CLI output embeds declared bytes. Installation identity, ownership, intent and recovery belong only in the global Make Docs Store. A symbolic link to a Make Docs resource URL is unsupported and is not a feature or deferred task in this correction.
 
 ### Why `archive-docs` became one skill
 

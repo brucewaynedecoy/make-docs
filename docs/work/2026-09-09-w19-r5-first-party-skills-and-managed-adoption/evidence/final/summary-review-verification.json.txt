@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "inputSnapshot": {
+    "path": "/tmp/w19-r5-standard-layout-summary-review-inputs.json",
+    "sha256": "394d922d843a6329da1bbc1c8bc9ce9c37fd1ad1b9543e013bcf6bb4cebbd886"
+  },
+  "run": {
+    "path": "/tmp/w19-r5-standard-layout-summary-review-run.json",
+    "available": true,
+    "sha256": "ec36658982637a8e8f982a382d7cbc205770459944be126a6fb1a1544b2cc745",
+    "record": {
+      "args": [
+        "codex",
+        "exec",
+        "--ephemeral",
+        "--sandbox",
+        "read-only",
+        "--skip-git-repo-check",
+        "--cd",
+        "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review",
+        "--json",
+        "--output-last-message",
+        "/tmp/w19-r5-standard-layout-summary-review-report.md",
+        "-"
+      ],
+      "packageSha256": "68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b",
+      "prompt": "/tmp/w19-r5-standard-layout-summary-review-prompt.txt",
+      "inputs": "/tmp/w19-r5-standard-layout-summary-review-inputs.json",
+      "started": "2026-09-10T04:07:15.903451+00:00",
+      "version": "codex-cli 0.154.0",
+      "exitCode": 0,
+      "finished": "2026-09-10T04:08:49.272159+00:00"
+    }
+  },
+  "roots": [
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review"
+  ],
+  "candidateIdentity": [
+    {
+      "kind": "package",
+      "path": "/private/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+      "expectedSha256": "68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b",
+      "actualSha256": "68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b",
+      "matched": true
+    },
+    {
+      "kind": "cli-entry",
+      "path": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/extracted/package/dist/index.js",
+      "expectedSha256": "7d50e979c0c44a49f7cdffd762ced8b946848bd24f81f326208ca6794a8f70d0",
+      "actualSha256": "7d50e979c0c44a49f7cdffd762ced8b946848bd24f81f326208ca6794a8f70d0",
+      "matched": true
+    }
+  ],
+  "beforeCounts": {
+    "files": 53,
+    "directories": 28,
+    "symlinks": 0
+  },
+  "afterCounts": {
+    "files": 53,
+    "directories": 28,
+    "symlinks": 0
+  },
+  "addedPaths": [],
+  "missingPaths": [],
+  "changedPaths": [],
+  "readErrors": [],
+  "checks": [
+    "Full named-root walk, including empty directories and roots",
+    "No symlink traversal; exact raw link targets compared",
+    "Regular-file bytes, SHA256, size, and permission mode compared",
+    "Directory and symlink permission modes compared",
+    "Type changes reported through one path map",
+    "Candidate tar and CLI entry compared against prepared hashes"
+  ],
+  "limits": [
+    "This proves the named public input trees match their baseline. It does not prove the reviewer made no writes elsewhere.",
+    "This does not judge review quality or establish owner acceptance.",
+    "File timestamps and ownership IDs are not included in the saved baseline."
+  ]
+}

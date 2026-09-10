@@ -20,6 +20,7 @@ export const TOOL_RESOURCE_FAMILIES = [
 
 export type ToolResourceFamily = (typeof TOOL_RESOURCE_FAMILIES)[number];
 
+/** Retired product layout. These names support read-only inventory and reviewed removal only. */
 export const RESERVED_AGENTICS_FAMILIES = ["skills", "plugins"] as const;
 
 export type ReservedAgenticsFamily = (typeof RESERVED_AGENTICS_FAMILIES)[number];
@@ -87,6 +88,7 @@ export function getToolResourcePaths(): string[] {
   return TOOL_RESOURCE_FAMILIES.map(getToolResourcePath);
 }
 
+/** Legacy input path; never a current installation destination. */
 export function getReservedAgenticsPath(family: ReservedAgenticsFamily): string {
   return `${TOOL_DIRECTORY_RELATIVE_PATH}/agentics/${family}`;
 }

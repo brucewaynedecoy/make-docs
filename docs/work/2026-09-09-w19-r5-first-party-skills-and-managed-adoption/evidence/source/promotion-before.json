@@ -1,0 +1,50 @@
+{
+  ".agents/skills/preflight/SKILL.md": {
+    "size": 3792,
+    "sha256": "1ffb3e09905389074ea6586b423144bd2b29b5da100f54ad4eefe93f33c13f08"
+  },
+  ".agents/skills/preflight/agents/openai.yaml": {
+    "size": 244,
+    "sha256": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d"
+  },
+  ".agents/skills/preflight/references/decisions.md": {
+    "size": 1941,
+    "sha256": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36"
+  },
+  ".agents/skills/software-factory/SKILL.md": {
+    "size": 4532,
+    "sha256": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce"
+  },
+  ".agents/skills/software-factory/agents/openai.yaml": {
+    "size": 256,
+    "sha256": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4"
+  },
+  ".agents/skills/software-factory/references/profiles.md": {
+    "size": 1690,
+    "sha256": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd"
+  },
+  ".agents/skills/software-factory/references/store.md": {
+    "size": 4741,
+    "sha256": "5be7f27aa44bba7229baac47b890de8e3770f28b4a9d9ea84bef3cb9e38c124e"
+  },
+  ".agents/skills/software-factory/references/work-methods.md": {
+    "size": 2961,
+    "sha256": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442"
+  },
+  ".agents/skills/human-experience/SKILL.md": {
+    "size": 3067,
+    "sha256": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df"
+  },
+  ".agents/skills/human-experience/agents/openai.yaml": {
+    "size": 244,
+    "sha256": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24"
+  },
+  ".agents/skills/human-experience/references/surfaces.md": {
+    "size": 1910,
+    "sha256": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd"
+  },
+  "packages/docs/template/.make-docs/agentics/skills/naive-uat/SKILL.md": {
+    "size": 870,
+    "sha256": "f487ade528bc3dfeef8ba4de163d6d89d7bd57e6a1077fbf54eb1798ae2a6b63"
+  }
+}

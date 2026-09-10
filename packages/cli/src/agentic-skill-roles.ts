@@ -1,8 +1,9 @@
 import type { AgenticFileRole } from "./types";
 
-const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
+const CANONICAL_SKILL_DIRS = [".agents/skills", ".claude/skills"] as const;
+const LEGACY_SHARED_SKILL_DIR = ".make-docs/agentics/skills";
 const SHARED_AGENTICS_PLUGIN_DIR = ".make-docs/agentics/plugins";
-const HARNESS_SKILL_DIRS = [".claude/skills", ".agents/skills"] as const;
+const HARNESS_SKILL_DIRS = [".claude/skills", ".agents/skills", ".codex/skills"] as const;
 
 export function classifyAgenticSkillFileRole(options: {
   relativePath: string;
@@ -20,8 +21,7 @@ export function classifyAgenticFileRole(options: {
 
   if (
     sourceId.startsWith("skill:shared:") ||
-    sourceId.startsWith("skill-shared-asset:") ||
-    isSharedAgenticsSkillPath(normalizedPath)
+    sourceId.startsWith("skill-shared-asset:")
   ) {
     return "shared-payload";
   }
@@ -66,6 +66,8 @@ export function classifyAgenticFileRole(options: {
     return "generated-stub";
   }
 
+  if (isSharedAgenticsSkillPath(normalizedPath)) return "shared-payload";
+
   if (isHarnessSkillPath(normalizedPath)) {
     return "legacy-duplicated-payload";
   }
@@ -84,7 +86,7 @@ export function formatAgenticFileRole(
 ): string | undefined {
   switch (role) {
     case "shared-payload":
-      return "shared payload";
+      return "Skill files";
     case "native-exposure":
       return "native harness exposure";
     case "copy-mirror":
@@ -109,7 +111,7 @@ export function formatAgenticFileRole(
 }
 
 export function isSharedAgenticsSkillPath(relativePath: string): boolean {
-  return matchesKnownRoot(normalizePath(relativePath), SHARED_AGENTICS_SKILL_DIR);
+  return [...CANONICAL_SKILL_DIRS, LEGACY_SHARED_SKILL_DIR].some(root => matchesKnownRoot(normalizePath(relativePath), root));
 }
 
 export function isHarnessSkillPath(relativePath: string): boolean {

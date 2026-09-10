@@ -140,11 +140,19 @@ R-ASSET-TEMPLATE-2 (MUST): static router variants or selection must expose exact
 
 R-SKILL-SOURCE-1 (MUST): first-party Skill authoring belongs under `packages/skills/<name>/` and follows [PRD 08](08-skills-catalog-and-distribution.md). The docs template remains the source for system contracts, references, prompts, templates, and instruction routers. It must not retain a competing `naive-uat` Skill author tree under `.make-docs/agentics/skills/`. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed.
 
-R-SKILL-SOURCE-2 (MUST): the complete registry-declared UAT Skill payload must be present in its canonical Skill source and embedded CLI artifact before obsolete template source files and their empty parents are retired. This source rule does not remove a valid installed `.make-docs/agentics/skills/naive-uat/` payload or its native exposure. Installed ownership and changes follow [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+R-SKILL-SOURCE-2 (MUST): the complete registry-declared UAT Skill payload must be present in its canonical Skill source and embedded CLI artifact before obsolete template source files and their empty parents are retired. Source promotion itself does not delete installed content. The retired private UAT payload is moved only through the reviewed standard-location upgrade, with bytes and ownership preserved. Installed ownership and changes follow [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
 
 R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identities and authority. Moving a Skill's authoring source must not duplicate UAT policy in the Skill, make it required, or change the shared CLI operations under [PRD 46](46-naive-end-user-acceptance-testing.md).
 
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: a private Make Docs Skill installation layer.
+- Replacement: standard scope/harness directories and reviewed legacy upgrade under [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: correct the coordinator's repeated installation-layer error; source, installed files and Store state remain distinct.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — Not assigned
 

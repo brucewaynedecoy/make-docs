@@ -63,6 +63,15 @@ export function writeTextFile(filePath: string, content: string): void {
   writeFileSync(filePath, content, "utf8");
 }
 
+export function writeContentFile(filePath: string, content: string | Uint8Array): void {
+  ensureParentDir(filePath);
+  writeFileSync(filePath, content);
+}
+
+export function contentEquals(left: string | Uint8Array, right: string | Uint8Array): boolean {
+  return Buffer.from(left).equals(Buffer.from(right));
+}
+
 export function ensureParentDir(filePath: string): void {
   mkdirSync(path.dirname(filePath), { recursive: true });
 }
@@ -71,7 +80,7 @@ export function normalizeRelativePath(relativePath: string): string {
   return relativePath.split(path.sep).join("/");
 }
 
-export function hashText(content: string): string {
+export function hashText(content: string | Uint8Array): string {
   return createHash("sha256").update(content).digest("hex");
 }
 

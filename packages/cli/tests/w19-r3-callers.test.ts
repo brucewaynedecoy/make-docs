@@ -61,9 +61,9 @@ describe("W19 R3 installation callers", () => {
   test("a sealed install resumes all prepared files and commits its intended ledger", async () => {
     const root = fixture();
     const plan = await smallPlan(root);
-    const write = fileUtils.writeTextFile;
+    const write = fileUtils.writeContentFile;
     let count = 0;
-    vi.spyOn(fileUtils, "writeTextFile").mockImplementation((target, content) => {
+    vi.spyOn(fileUtils, "writeContentFile").mockImplementation((target, content) => {
       if (++count === 2) throw new Error("simulated interrupted writer");
       return write(target, content);
     });

@@ -458,9 +458,9 @@ describe("shared audit engine", () => {
       const docsEntry = findEntry(removableEntries, "docs/AGENTS.md");
       const sharedPayloadEntry = findEntry(
         removableEntries,
-        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+        ".agents/skills/archive-docs/SKILL.md",
       );
-      const skillEntry = findEntry(removableEntries, ".agents/skills/archive-docs");
+      const skillEntry = findEntry(removableEntries, ".claude/skills/archive-docs");
       const rootAgentsEntry = findEntry(removableEntries, "AGENTS.md");
       const rootClaudeEntry = findEntry(removableEntries, "CLAUDE.md");
 
@@ -471,10 +471,10 @@ describe("shared audit engine", () => {
       expect(rootClaudeEntry, summarizeAudit(report)).toBeDefined();
       expect(docsEntry?.backupRelativePath ?? docsEntry?.path).toBe("docs/AGENTS.md");
       expect(sharedPayloadEntry?.backupRelativePath ?? sharedPayloadEntry?.path).toBe(
-        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+        ".agents/skills/archive-docs/SKILL.md",
       );
       expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
-        ".agents/skills/archive-docs",
+        ".claude/skills/archive-docs",
       );
 
       const auditReport = report as {
@@ -486,26 +486,26 @@ describe("shared audit engine", () => {
       expect(auditReport.removableFiles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            path: ".make-docs/agentics/skills/archive-docs/SKILL.md",
+            path: ".agents/skills/archive-docs/SKILL.md",
             agenticRole: "shared-payload",
           }),
           expect.objectContaining({
-            path: ".agents/skills/archive-docs",
+            path: ".claude/skills/archive-docs",
             agenticRole: "native-exposure",
             kind: "directory",
           }),
         ]),
       );
       expect(
-        findEntry(prunableDirectories, ".make-docs/agentics/skills/archive-docs"),
+        findEntry(prunableDirectories, ".agents/skills/archive-docs"),
         summarizeAudit(report),
       ).toBeDefined();
       expect(
-        findEntry(prunableDirectories, ".make-docs/agentics/skills"),
+        findEntry(prunableDirectories, ".agents/skills"),
         summarizeAudit(report),
       ).toBeDefined();
       expect(
-        findEntry(prunableDirectories, ".make-docs/agentics"),
+        findEntry(prunableDirectories, ".agents"),
         summarizeAudit(report),
       ).toBeDefined();
     } finally {
@@ -542,7 +542,7 @@ describe("shared audit engine", () => {
       expect(auditReport.removableFiles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            path: ".agents/skills/archive-docs",
+            path: ".claude/skills/archive-docs",
             agenticRole: "native-exposure",
             kind: "directory",
           }),
@@ -552,11 +552,11 @@ describe("shared audit engine", () => {
             kind: "directory",
           }),
           expect.objectContaining({
-            path: ".make-docs/agentics/skills/archive-docs/SKILL.md",
+            path: ".agents/skills/archive-docs/SKILL.md",
             agenticRole: "shared-payload",
           }),
           expect.objectContaining({
-            path: ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
+            path: ".agents/skills/archive-docs/references/archive-workflow.md",
             agenticRole: "shared-payload",
           }),
         ]),
@@ -576,9 +576,9 @@ describe("shared audit engine", () => {
           selections.skills = true;
           selections.selectedSkills = ["archive-docs"];
         });
-        const exposurePath = ".agents/skills/archive-docs";
+        const exposurePath = ".claude/skills/archive-docs";
         const absoluteExposurePath = path.join(targetDir, exposurePath);
-        const wrongTargetPath = path.join(targetDir, ".agents/wrong-archive-docs");
+        const wrongTargetPath = path.join(targetDir, ".claude/wrong-archive-docs");
 
         rmSync(absoluteExposurePath, { force: true, recursive: true });
         mkdirSync(wrongTargetPath, { recursive: true });
@@ -621,7 +621,7 @@ describe("shared audit engine", () => {
         selections.skills = true;
         selections.selectedSkills = ["archive-docs"];
       });
-      const exposurePath = ".agents/skills/archive-docs";
+      const exposurePath = ".claude/skills/archive-docs";
       const modifiedPath = path.join(
         targetDir,
         exposurePath,
@@ -670,7 +670,7 @@ describe("shared audit engine", () => {
       });
       const unmanagedDescendant = path.join(
         targetDir,
-        ".make-docs/agentics/skills/archive-docs/local-notes.md",
+        ".agents/skills/archive-docs/local-notes.md",
       );
       writeFileSync(unmanagedDescendant, "keep this local note\n", "utf8");
 
@@ -685,15 +685,15 @@ describe("shared audit engine", () => {
       ]);
 
       expect(
-        findEntry(removableEntries, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+        findEntry(removableEntries, ".agents/skills/archive-docs/SKILL.md"),
         summarizeAudit(report),
       ).toBeDefined();
       expect(
-        findEntry(prunableDirectories, ".make-docs/agentics/skills/archive-docs"),
+        findEntry(prunableDirectories, ".agents/skills/archive-docs"),
         summarizeAudit(report),
       ).toBeUndefined();
       expect(
-        findEntry(preservedEntries, ".make-docs/agentics/skills/archive-docs"),
+        findEntry(preservedEntries, ".agents/skills/archive-docs"),
         summarizeAudit(report),
       ).toBeDefined();
     } finally {
@@ -847,7 +847,7 @@ describe("shared audit engine", () => {
     try {
       const sharedSkillRoot = path.join(
         targetDir,
-        ".make-docs/agentics/skills/archive-docs",
+        ".agents/skills/archive-docs",
       );
       mkdirSync(sharedSkillRoot, { recursive: true });
       writeFileSync(path.join(sharedSkillRoot, "SKILL.md"), "# Local skill\n", "utf8");
@@ -858,13 +858,13 @@ describe("shared audit engine", () => {
       expect(report.preservedPaths).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            path: ".make-docs/agentics/skills",
+            path: ".agents/skills",
             ownershipSource: "fallback",
             reasonCode: "fallback-ambiguous",
           }),
         ]),
       );
-      expect(findEntry(report.removableFiles, ".make-docs/agentics/skills/archive-docs/SKILL.md")).toBeUndefined();
+      expect(findEntry(report.removableFiles, ".agents/skills/archive-docs/SKILL.md")).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1015,7 +1015,7 @@ describe("shared audit engine", () => {
       const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs");
       const sharedGlobalSkillPath = path.join(
         fakeHome,
-        ".make-docs/agentics/skills/archive-docs/SKILL.md",
+        ".agents/skills/archive-docs/SKILL.md",
       );
       const sharedGlobalSkillEntry = findEntry(removableEntries, sharedGlobalSkillPath);
       const globalSkillEntry = findEntry(removableEntries, globalSkillPath);
@@ -1023,7 +1023,7 @@ describe("shared audit engine", () => {
       expect(sharedGlobalSkillEntry, summarizeAudit(report)).toBeDefined();
       expect(globalSkillEntry, summarizeAudit(report)).toBeDefined();
       expect(sharedGlobalSkillEntry?.backupRelativePath?.endsWith(
-        "_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+        "_home/.agents/skills/archive-docs/SKILL.md",
       )).toBe(true);
       expect(globalSkillEntry?.backupRelativePath, summarizeAudit(report)).toBeDefined();
       expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs")).toBe(

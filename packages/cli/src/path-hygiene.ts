@@ -321,6 +321,7 @@ function markdownDestinationAt(line: string, start: number, end: number): boolea
 }
 
 const DEFAULT_CONTENT_ROOTS = ["README.md", "AGENTS.md", "CLAUDE.md", "docs", ".make-docs/system"];
+// Include the retired root only to inspect existing content during migration.
 const SKILL_CONTENT_ROOTS = [".make-docs/agentics/skills", ".agents/skills", ".claude/skills", ".codex/skills"];
 const EXCLUDED_CONTENT_DIRECTORIES = new Set([".git", ".backup", "node_modules", "__pycache__", ".venv"]);
 

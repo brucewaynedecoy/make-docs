@@ -411,8 +411,20 @@ describe("selection wizard", () => {
           "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
       },
       {
+        name: "human-experience",
+        description: "Shape or review a clear, usable human interaction. Explicit use only.",
+      },
+      {
+        name: "software-factory",
+        description: "Coordinate approved backlog work, review, and correction. Explicit use only.",
+      },
+      {
         name: "naive-uat",
         description: "Thin CLI access to the shared Unassisted Goal Testing workflow.",
+      },
+      {
+        name: "preflight",
+        description: "Review a named phase and settle needed owner choices. Explicit use only.",
       },
     ]);
     expect(result?.skillScope).toBe("global");

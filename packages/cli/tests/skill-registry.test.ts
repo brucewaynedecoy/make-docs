@@ -68,12 +68,18 @@ describe("skill registry", () => {
       "cleanup-docs",
       "decompose-codebase",
       "naive-uat",
+      "preflight",
+      "software-factory",
+      "human-experience",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
       "cleanup-docs",
       "decompose-codebase",
+      "human-experience",
       "naive-uat",
+      "preflight",
+      "software-factory",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
@@ -112,9 +118,8 @@ describe("skill registry", () => {
       registry.skills.flatMap((skill) => skill.purposes),
     );
 
-    // The withdrawn lifecycle skills were the only occupants of these two
-    // canonical purposes; the purposes remain declared (PRD 27 taxonomy) but
-    // ship no skills until the Q-022 pipeline regenerates them.
+    // Retired lifecycle Skills stay withdrawn. The explicit Software Factory
+    // now occupies workflow-execution without restoring those Skill names.
     expect(registry.purposes.map((purpose) => purpose.id)).toContain(
       "lifecycle-closeout",
     );
@@ -122,7 +127,7 @@ describe("skill registry", () => {
       "workflow-execution",
     );
     expect(skillPurposeIds.has("lifecycle-closeout")).toBe(false);
-    expect(skillPurposeIds.has("workflow-execution")).toBe(false);
+    expect(skillPurposeIds.has("workflow-execution")).toBe(true);
   });
 
   test("declares the cleanup docs skill asset surface", () => {
@@ -235,7 +240,7 @@ describe("skill registry", () => {
       );
 
       expect(() => loadSkillRegistry(packageRoot)).toThrow(
-        "must use a remote source URL unless the manifest source policy is local",
+        "must use its embedded first-party source",
       );
     } finally {
       rmSync(packageRoot, { recursive: true, force: true });
@@ -402,7 +407,7 @@ function createSkill(
   return {
     name: "test-skill",
     displayName: "Test skill",
-    source: "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/test-skill",
+    source: "embedded:test-skill",
     entryPoint: "SKILL.md",
     installName: "test-skill",
     description: "Test skill.",

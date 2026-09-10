@@ -1,0 +1,9 @@
+Skill adoption review: unchanged.
+Target: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+Scope: project.
+Selected tools: Claude Code, Codex.
+Skill roots: .agents/skills, .claude/skills.
+Make Docs already manages 12 files and 3 native exposures across 3 Skills.
+No file or ownership changes are needed.
+Ownership entries: 0 to register, 0 to update, 0 to remove, 15 to retain.
+These Skill files and ownership already match. No adoption is needed.

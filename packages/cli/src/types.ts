@@ -118,6 +118,8 @@ export interface SystemAssetManifestState extends SystemAssetMaterializationPlan
 }
 
 export interface InstallSelections {
+  /** Native Skill tools can differ from the project router tool set. */
+  skillHarnesses?: Record<Harness, boolean>;
   capabilities: Record<Capability, boolean>;
   harnesses: Record<Harness, boolean>;
   skills: boolean;
@@ -190,13 +192,17 @@ export interface InstallProfile {
   profileId: string;
 }
 
-export interface ResolvedAsset {
+export type FileContent = string | Buffer;
+
+export interface ResolvedAsset<Content extends FileContent = string> {
   kind?: "file";
   relativePath: string;
   assetClass: "static" | "scoped-static";
   sourceId: string;
-  content: string;
+  content: Content;
 }
+
+export type ResolvedFileAsset = ResolvedAsset<FileContent>;
 
 export interface ResolvedSkillExposureAsset {
   kind: "skill-exposure";
@@ -204,7 +210,7 @@ export interface ResolvedSkillExposureAsset {
   assetClass: "static" | "scoped-static";
   sourceId: string;
   skillExposure: SkillExposureMetadata;
-  copyMirrorAssets: ResolvedAsset[];
+  copyMirrorAssets: ResolvedFileAsset[];
 }
 
 export interface ResolvedPluginPayloadAsset {
@@ -230,7 +236,7 @@ export interface ResolvedPluginExposureAsset {
 }
 
 export type ResolvedInstallAsset =
-  | ResolvedAsset
+  | ResolvedFileAsset
   | ResolvedSkillExposureAsset;
 
 export type SkillExposureMode = "symlink" | "copy-mirror";
@@ -591,8 +597,8 @@ export interface PlannedAction {
   agenticRole?: AgenticFileRole;
   agenticOwnership?: AgenticOwnershipMetadata;
   skillExposure?: SkillExposureMetadata;
-  copyMirrorAssets?: ResolvedAsset[];
-  content?: string;
+  copyMirrorAssets?: ResolvedFileAsset[];
+  content?: FileContent;
   contentHash?: string;
   reason?: string;
   disposition?: LifecyclePlanDisposition;

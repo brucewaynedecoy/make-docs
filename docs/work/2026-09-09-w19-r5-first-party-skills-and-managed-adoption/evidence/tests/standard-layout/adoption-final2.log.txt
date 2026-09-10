@@ -1,0 +1,63 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/w19-r5-skill-adoption.test.ts tests/skill-adoption-store.test.ts tests/w19-r5-skills-command.test.ts tests/w19-r5-state-help.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/w19-r5-skill-adoption.test.ts (32 tests) 28587ms
+   ✓ reviewed first-party Skill adoption > keeps canonical symlink ownership after adoption, normal setup and skills sync  2289ms
+   ✓ reviewed first-party Skill adoption > keeps canonical copy-mirror ownership after adoption, normal setup and skills sync  2033ms
+   ✓ reviewed first-party Skill adoption > applies a complete fresh project plan and repeats without changes  1029ms
+   ✓ reviewed first-party Skill adoption > applies a complete fresh global plan and repeats without changes  1034ms
+   ✓ reviewed first-party Skill adoption > backs up known changed bytes and restores missing declared files  866ms
+   ✓ reviewed first-party Skill adoption > recovers with resume after exact native tree removal  1098ms
+   ✓ reviewed first-party Skill adoption > recovers with rollback after exact native tree removal  1103ms
+   ✓ reviewed first-party Skill adoption > registers matching copied bytes with no file actions and exposes their owner  1249ms
+   ✓ reviewed first-party Skill adoption > reviews and completes a same-Skill scope and tool change  1202ms
+   ✓ reviewed first-party Skill adoption > clearly blocks mixed adoption and deselection before saving state  784ms
+   ✓ reviewed first-party Skill adoption > uses only reviewed copy fallback bytes in project scope  1071ms
+   ✓ reviewed first-party Skill adoption > uses only reviewed copy fallback bytes in global scope  1311ms
+   ✓ reviewed first-party Skill adoption > blocks another checkout owner of the selected global bytes  952ms
+   ✓ reviewed first-party Skill adoption > invalidates review when this checkout gains installation ownership  1049ms
+   ✓ reviewed first-party Skill adoption > updates and removes adopted files through the normal lifecycle while preserving unrelated content  1029ms
+   ✓ reviewed first-party Skill adoption > does not implicitly adopt exact unowned bytes during normal skills with missing files  1189ms
+   ✓ reviewed first-party Skill adoption > does not implicitly adopt exact unowned bytes during normal setup with missing files  1063ms
+   ✓ standard native Skill layout adoption > blocks unowned retired content and cleans only reviewed empty retired parents  825ms
+   ✓ standard native Skill layout adoption > installs only the selected project codex tree  521ms
+   ✓ standard native Skill layout adoption > installs only the selected project claude-code tree  469ms
+   ✓ standard native Skill layout adoption > reviews both to Claude-only and back without self-links or lost bytes  1502ms
+   ✓ standard native Skill layout adoption > accepts exact configured global native homes outside the user home  862ms
+   ✓ standard native Skill layout adoption > cuts over three old managed payloads and two old native links: normal  1645ms
+   ✓ standard native Skill layout adoption > cuts over three old managed payloads and two old native links: no-op destination drift  1993ms
+ ✓ tests/skill-adoption-store.test.ts (20 tests) 30583ms
+   ✓ bounded detached Skill adoption service > reads path claims while a normal uninstall has a null intended ledger  1827ms
+   ✓ bounded detached Skill adoption service > allows unrelated normal writes while another checkout has a pending ledger removal  2709ms
+   ✓ bounded detached Skill adoption service > can resume a pending normal uninstall with a null intended ledger  1648ms
+   ✓ bounded detached Skill adoption service > can rollback a pending normal uninstall with a null intended ledger  1377ms
+   ✓ bounded detached Skill adoption service > saves every path and alternate before writes, then uses the existing executor  1414ms
+   ✓ bounded detached Skill adoption service > selects only a saved copy alternative after no-effect OS failure  1459ms
+   ✓ bounded detached Skill adoption service > does not overwrite a target that appeared during the symlink failure  1240ms
+   ✓ bounded detached Skill adoption service > rejects unrelated paths and wrong raw link targets before preparation  1328ms
+   ✓ bounded detached Skill adoption service > keeps relative-only and no-symlink policy for layout operations  1320ms
+   ✓ bounded detached Skill adoption service > persists zero-file ownership intent and commits it on resume  1244ms
+   ✓ bounded detached Skill adoption service > finds overlapping claims from another checkout and does not create an absent Store  1285ms
+   ✓ bounded detached Skill adoption service > resumes the saved selected fallback after a later interruption  1378ms
+   ✓ bounded detached Skill adoption service > blocks another checkout normal writer on a pending global adoption path  1240ms
+   ✓ bounded detached Skill adoption service > blocks ledger-only ownership claims over another pending adoption  2897ms
+   ✓ bounded detached Skill adoption service > rejects a global Skill parent symlink before saving intent  1336ms
+   ✓ bounded detached Skill adoption service > can resume an existing native directory after its final link exists but before commit  1475ms
+   ✓ bounded detached Skill adoption service > can rollback an existing native directory after its final link exists but before commit  1529ms
+   ✓ bounded detached Skill adoption service > resumes a saved copy fallback after removing the reviewed native tree  1527ms
+   ✓ bounded detached Skill adoption service > keeps retired-path cutover forward-resume-only after source cleanup  1198ms
+   ✓ bounded detached Skill adoption service > refuses retired paths in saved writes and ownership-only adoption plans  1147ms
+ ✓ tests/w19-r5-skills-command.test.ts (5 tests) 1937ms
+   ✓ public Skill adoption approval gate > uses the displayed digest for interactive confirmation  490ms
+   ✓ public Skill adoption approval gate > keeps Codex-only Skill selection on later plain sync in a two-router project  1371ms
+ ✓ tests/w19-r5-state-help.test.ts (6 tests) 1115ms
+
+ Test Files  4 passed (4)
+      Tests  63 passed (63)
+   Start at  22:38:09
+   Duration  33.29s (transform 1.20s, setup 247ms, collect 2.14s, tests 62.22s, environment 1ms, prepare 278ms)
+

@@ -84,7 +84,7 @@ const sampleActions: PlannedAction[] = [
   },
   {
     type: "update",
-    relativePath: ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+    relativePath: ".agents/skills/decompose-codebase/SKILL.md",
     agenticRole: "shared-payload",
   },
   {
@@ -156,7 +156,10 @@ describe("skills-only UI", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
+      "human-experience",
+      "software-factory",
       "naive-uat",
+      "preflight",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",
@@ -246,7 +249,7 @@ describe("skills-only UI", () => {
     expect(summary).toContain("Planned skill file operations:");
     expect(summary).toContain("generate: native harness exposure: .agents/skills/archive-docs");
     expect(summary).toContain(
-      "update: shared payload: .make-docs/agentics/skills/decompose-codebase/SKILL.md",
+      "update: Skill files: .agents/skills/decompose-codebase/SKILL.md",
     );
     expect(summary).not.toContain("docs/assets/prompts");
     expect(summary).not.toContain("templates");

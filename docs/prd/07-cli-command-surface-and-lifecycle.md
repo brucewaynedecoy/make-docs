@@ -104,7 +104,7 @@ Backup and uninstall share one audit contract. `createAuditReport` in `packages/
 
 When a manifest exists, `classifyManifestPresent` and `classifyManifestRecord` in `packages/cli/src/audit.ts` treat Store-ledger-owned project files and skill files as candidates, but remove instruction files only when the managed block still matches the manifest and no user content exists outside the block, or when a legacy full-file hash proves the file is clean. Without a manifest, `classifyManifestMissing` and `classifyFallbackRecord` use the default profile, canonical static template assets, and known project/home skill roots while preserving ambiguous paths rather than guessing.
 
-Directory pruning is leaf-first and conservative. `classifyPrunableDirectories` only proposes directories whose remaining contents can be proven empty after audited removals in `packages/cli/src/audit.ts`, while backup-root guardrails prevent lifecycle operations from recursing into `.make-docs/backup/**` or legacy root `.backup/**`. Empty managed `.make-docs/agentics/**` parent directories may be pruned only when no unmanaged descendants remain. [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) owns selected-agentics lifecycle safety, [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns plugin cleanup, and [38-global-store-and-project-state.md](./38-global-store-and-project-state.md) owns machine-level state lifecycle. The preservation tests in `packages/cli/tests/lifecycle.test.ts` and `packages/cli/tests/uninstall.test.ts` lock down those guarantees.
+Directory pruning is leaf-first and conservative. `classifyPrunableDirectories` only proposes directories whose remaining contents can be proven empty after audited removals in `packages/cli/src/audit.ts`, while backup-root guardrails prevent lifecycle operations from recursing into `.make-docs/backup/**` or legacy root `.backup/**`. Prune only reviewed empty managed Skill parents. Retire old private-layout parents during verified upgrade only when no unmanaged descendants remain. [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) owns selected-agentics lifecycle safety, [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns plugin cleanup, and [38-global-store-and-project-state.md](./38-global-store-and-project-state.md) owns machine-level state lifecycle. The preservation tests in `packages/cli/tests/lifecycle.test.ts` and `packages/cli/tests/uninstall.test.ts` lock down those guarantees.
 
 Code anchors:
 
@@ -124,7 +124,7 @@ Code anchors:
 - First-party helper behavior moves into tested modular TypeScript CLI/shared-core operations before standalone scripts are removed or reduced to thin wrappers, and CLI commands plus MCP tools share those operation semantics.
 - `setup skills` and every full-install skill-selection surface use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation under [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md).
 - `setup skills` command, dry-run, review, `setup backup`, and `setup remove` output distinguish canonical shared payloads, native harness exposures, symlink links, managed copy mirrors, legacy generated stubs, and custom harness files; bare installs remain skill-free, and managed copy-mirror fallback is available when symlink creation is unavailable or disabled under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
-- `setup backup` output, `setup remove --backup` behavior, audit exclusions, and smoke-pack proof use `.make-docs/backup/**` for new backup writes, preserve legacy root `.backup/**`, and prune empty managed `.make-docs/agentics/**` directories only when audit proves them safe under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
+- `setup backup` output, `setup remove --backup` behavior, audit exclusions, and smoke-pack proof use `.make-docs/backup/**` for new backup writes, preserve legacy root `.backup/**`, and prune reviewed empty managed Skill directories (including obsolete private-layout parents during upgrade) only when audit proves them safe under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
 - The root parser implements the seven-command tree: project lifecycle under `setup`, project-surface operations under `project`, read-only resource discovery under `resource`, registry operations under `run`, MCP serving under `mcp`, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require classification plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
 
 The root command contract must encode the PRD 39 tree and retain the established flag partitions: `--backup` belongs only to `setup remove`, `--remove` belongs only to `setup skills`, selection flags are invalid on other lifecycle commands, and selected skill identifiers must be known registry entries. `Command`, `InstallIntent`, `ParsedArgs`, `parseArgs`, and `validateParsedArgs` in `packages/cli/src/cli.ts` are implementation seams for that contract, not an independent source of command spellings.
@@ -200,6 +200,14 @@ Code and documentation anchors:
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: private Make Docs Skill payload roots or generic shared-root installation guidance.
+- Replacement: the scope/harness standard-location matrix and safe old-path upgrade in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: remove the coordinator's repeated private-layer assumption. Standard agent paths own files; the Store owns state.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — Not assigned
 

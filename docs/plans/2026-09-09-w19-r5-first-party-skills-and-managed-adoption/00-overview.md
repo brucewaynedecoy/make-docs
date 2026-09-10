@@ -1,7 +1,7 @@
 ---
 title: W19 R5 First-Party Skills and Managed Adoption Plan
 kind: plan
-status: active
+status: completed
 coordinate: W19 R5
 source:
   type: design
@@ -14,6 +14,25 @@ follow_on:
 
 # W19 R5 First-Party Skills and Managed Adoption Plan
 
+## Standard-Layout Correction
+
+Wrong-private-layout cutover is forward-resume-only: review must state before apply that rollback would recreate the forbidden private layer and is not offered. Ordinary adoption already using standard locations keeps normal resume/rollback. Older saved operations that would write a retired private root refuse safely; never execute them to restore that layer. This correction adds no new URL-backed installation mode.
+
+The coordinator retained a private `.make-docs/agentics/skills/` installation layer from earlier authority. That was our error, not an owner clarification of an approved outcome. The owner reported that a prior Skill installation had already been removed for this same mistake. The correction stays within W19 R5: one phase, three stages, existing task and acceptance IDs. Earlier private-layout test results are superseded for installation acceptance. They do not prove the standard layout.
+
+Install Skill files in standard agent locations, selected by scope and harness:
+
+| Scope and selected harnesses | Real Skill directory | Other selected access |
+| --- | --- | --- |
+| Project, Claude only | `.claude/skills/<name>/` | None; do not create `.agents/skills/`. |
+| Project, Codex only | `.agents/skills/<name>/` | None; do not create `.claude/skills/`. |
+| Project, both | `.agents/skills/<name>/` | `.claude/skills/<name>` links to it, or is a supported managed native copy. |
+| Global, any selection | `~/.agents/skills/<name>/` | Selected Codex uses `~/.codex/skills/<name>` (or `CODEX_HOME/skills`); selected Claude uses its configured native Skill root, normally `~/.claude/skills/<name>`. Native access links to the canonical directory or uses a supported copy. Direct access applies only if the configured native path equals the canonical path. |
+
+A harness that uses the real directory reads it directly. Never create a self-link or duplicate ownership entry for that same path. `none` creates no Skill directories. Preserve pre-existing unrelated content; absence checks on fresh fixtures must prove no unselected project Skill root was created.
+
+There is no active `.make-docs/agentics/` installation layer, in the project or home. Skill source stays solely in `packages/skills/<name>/`; compiled CLI output embeds declared bytes. Installation identity, ownership, intent and recovery belong only in the global Make Docs Store. A symbolic link to a Make Docs resource URL is unsupported and is not a feature or deferred task in this correction.
+
 ## Purpose
 
 Turn the [design](../../designs/2026-09-09-first-party-skills-and-managed-adoption.md) into current product authority and one reviewable work phase. Embed all seven first-party Skills directly from their sole `packages/skills/<name>/` sources in CLI build output. Package the compiled output, preserve optional behavior, and add safe CLI adoption of existing copies. No replicated Skill trees may be created under `packages/cli` or `packages/docs`, even as ignored or temporary build mirrors.
@@ -22,7 +41,7 @@ Turn the [design](../../designs/2026-09-09-first-party-skills-and-managed-adopti
 
 The owner accepted the corrected design, plan, maintained PRDs, and one-phase backlog on 2026-09-09 and authorized implementation. They agree on source ownership, embedded offline delivery, exact adoption review, Store recovery, and proof.
 
-The backlog acceptance gate is satisfied. All implementation tasks remain pending at this documentation-only package commit. W20 and W21 remain paused.
+The owner accepted the completed implementation on 2026-09-09 and requested closeout and commit. W19 R5 is closed; the authorized implementation commit is next. The [final evidence](../../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md) records the results. W20 and W21 remain paused.
 
 ## Governing Invariant
 
@@ -34,7 +53,7 @@ The backlog acceptance gate is satisfied. All implementation tasks remain pendin
 - Classification: `revision`
 - Evidence: The owner selected a further W19 interrupt after R3 Store ownership and R4 asset/Persona recovery. This work resolves the retained D-005 delivery choice and extends the existing Skill lifecycle, rather than creating a new wave.
 
-## Maintenance Inputs
+## Maintenance Inputs at Package Drafting
 
 | Input | Role and confidence |
 | --- | --- |
@@ -101,11 +120,11 @@ Use disjoint document workers: design/plan and template/command/proof owners; co
 
 R3/R4 are the state and layout baseline. PRD maintenance follows this plan before work generation. The backlog derives from the maintained PRDs and traces each design promise to a task, numbered acceptance case, phase, and evidence source. Keep implementation tasks unchecked until their work and required evidence are complete.
 
-Validate links, frontmatter, Human Experience Intent, follow-on routing, candidate coverage, owner/history placement, task shape, and the one-phase gate. Independently review the assembled package for unsafe adoption gaps and unsupported completion claims. See the [phase proof map](01-skills-and-managed-adoption.md#verification-and-human-review) for implementation evidence; it is planned evidence, not a result.
+Validate links, frontmatter, Human Experience Intent, follow-on routing, candidate coverage, owner/history placement, task shape, and the one-phase gate. Independently review the assembled package for unsafe adoption gaps and unsupported completion claims. See the [phase proof map](01-skills-and-managed-adoption.md#verification-and-human-review) for implementation evidence; it is the planned proof map. Actual results and owner acceptance are in the work bundle linked above.
 
 ## Intended Follow-On
 
 - Route: `prd-generation`
-- Next step: Maintain the existing PRDs from this plan, then generate the one-phase work backlog.
+- Next step: The PRD and backlog handoff is complete. Create the owner-requested implementation commit from the accepted phase closeout.
 - Why: Product owners must carry the settled behavior before implementation tasks are derived.
 - Coordinate Handoff: Carry W19 R5 into requirement history and work. The owner accepted the corrected backlog on 2026-09-09 and authorized code work after the package commit. W20 and W21 remain paused.

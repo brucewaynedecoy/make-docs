@@ -1,0 +1,42 @@
+2026-09-10T02:43:47.576796Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:47.577380Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:47.645782Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:47.688765Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:47.724471Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:47.759479Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:47.824721Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="drafts" error=No such file or directory (os error 2)
+2026-09-10T02:43:47.859681Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="teable" error=handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response
+2026-09-10T02:43:48.105694Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:48.105736Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:48.198530Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="computer-history" error=handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T02:43:48.199577Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:48.199613Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-09-10T02:43:48.200959Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.233662Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="drafts" error=No such file or directory (os error 2)
+2026-09-10T02:43:48.261296Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="teable" error=handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response
+2026-09-10T02:43:48.327446Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="computer-history" error=handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T02:43:48.346129Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.394901Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.412928Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="linear" error=OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required
+2026-09-10T02:43:48.447802Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.485581Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.523570Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.560412Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.594587Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.628360Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.682529Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:48.847866Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.017803Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.184295Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.320547Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.440039Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.482046Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.530672Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:43:49.573122Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T02:44:20.991522Z  WARN codex_core_plugins::manager: failed to auto-upgrade configured marketplace marketplace="azure-skills" error=git clone marketplace source timed out after 30s: Cloning into '/Users/tylerkneisly/.codex/.tmp/marketplaces/.staging/marketplace-upgrade-lUoqsx'...
+fatal: early EOF
+2026-09-10T02:45:53.161931Z  WARN codex_sandboxing::violation: recorded sandbox violation: resource=filesystem backend=seatbelt reason=operation_not_permitted path=unknown
+2026-09-10T02:47:20.059444Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required
+2026-09-10T02:47:20.059789Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: No such file or directory (os error 2)
+2026-09-10T02:47:20.060573Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T02:47:20.060953Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response

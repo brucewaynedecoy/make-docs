@@ -1,0 +1,15 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/lifecycle.test.ts -t lifecycle audits preserve alternate
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/lifecycle.test.ts (10 tests | 9 skipped) 2902ms
+   ✓ lifecycle validation > lifecycle audits preserve alternate skill manifest provenance without default expansion  2902ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 9 skipped (10)
+   Start at  22:31:06
+   Duration  3.31s (transform 200ms, setup 17ms, collect 258ms, tests 2.90s, environment 0ms, prepare 39ms)
+

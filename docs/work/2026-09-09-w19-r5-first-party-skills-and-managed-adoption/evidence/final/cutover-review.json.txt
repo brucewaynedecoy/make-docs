@@ -1,0 +1,1667 @@
+{
+  "schemaVersion": 1,
+  "status": "ready",
+  "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+  "reviewDigest": "167456a834291145bddbdd65ad4746a25244473118702a30c9308139b8f8e283",
+  "package": {
+    "name": "@brucewaynedecoy/make-docs",
+    "version": "2.0.0-rc"
+  },
+  "packageDigest": "5ddbf9dbb5fd9489d47c79ed6eb6455a6c548004e5ca9c4b2c4777fb1421294c",
+  "scope": "project",
+  "selectedTools": [
+    "claude-code",
+    "codex"
+  ],
+  "selectedSkills": [
+    "human-experience",
+    "preflight",
+    "software-factory"
+  ],
+  "adoptExisting": [
+    "human-experience",
+    "preflight",
+    "software-factory"
+  ],
+  "inventory": [
+    {
+      "path": ".agents/skills/human-experience",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".agents/skills/human-experience/SKILL.md",
+      "kind": "file",
+      "digest": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+      "mode": 420
+    },
+    {
+      "path": ".agents/skills/human-experience/agents",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".agents/skills/human-experience/agents/openai.yaml",
+      "kind": "file",
+      "digest": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+      "mode": 420
+    },
+    {
+      "path": ".agents/skills/human-experience/references",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".agents/skills/human-experience/references/surfaces.md",
+      "kind": "file",
+      "digest": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+      "mode": 420
+    },
+    {
+      "path": ".agents/skills/preflight",
+      "kind": "symlink",
+      "target": "../../.make-docs/agentics/skills/preflight"
+    },
+    {
+      "path": ".agents/skills/software-factory",
+      "kind": "symlink",
+      "target": "../../.make-docs/agentics/skills/software-factory"
+    },
+    {
+      "path": ".claude/skills/human-experience",
+      "kind": "symlink",
+      "target": "../../.make-docs/agentics/skills/human-experience"
+    },
+    {
+      "path": ".claude/skills/preflight",
+      "kind": "symlink",
+      "target": "../../.make-docs/agentics/skills/preflight"
+    },
+    {
+      "path": ".claude/skills/software-factory",
+      "kind": "symlink",
+      "target": "../../.make-docs/agentics/skills/software-factory"
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/SKILL.md",
+      "kind": "file",
+      "digest": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/agents",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "kind": "file",
+      "digest": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/references",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "kind": "file",
+      "digest": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/SKILL.md",
+      "kind": "file",
+      "digest": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/agents",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "kind": "file",
+      "digest": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/decisions.md",
+      "kind": "file",
+      "digest": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/store.md",
+      "kind": "file",
+      "digest": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/SKILL.md",
+      "kind": "file",
+      "digest": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/agents",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "kind": "file",
+      "digest": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/profiles.md",
+      "kind": "file",
+      "digest": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/store.md",
+      "kind": "file",
+      "digest": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "kind": "file",
+      "digest": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/config.yaml",
+      "kind": "file",
+      "digest": "1ca6b496fa2c25f39c3b52a480f63cae2270fe0e6d407bf9f2a939421812985a",
+      "mode": 420
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e",
+      "kind": "missing"
+    },
+    {
+      "path": ".agents/skills",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".agents",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".claude/skills",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".claude",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup",
+      "kind": "directory",
+      "mode": 448
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/agents",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/references",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/agents",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/agents",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references",
+      "kind": "missing"
+    },
+    {
+      "path": ".make-docs/agentics/skills",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".make-docs/agentics",
+      "kind": "directory",
+      "mode": 493
+    }
+  ],
+  "changes": [
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/agents",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/references",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/agents",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/agents",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/SKILL.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/SKILL.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references/decisions.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references/store.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/SKILL.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/profiles.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/store.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/preflight",
+      "before": {
+        "kind": "symlink",
+        "target": "../../.make-docs/agentics/skills/preflight"
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory",
+      "before": {
+        "kind": "symlink",
+        "target": "../../.make-docs/agentics/skills/software-factory"
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".claude/skills/human-experience",
+      "before": {
+        "kind": "symlink",
+        "target": "../../.make-docs/agentics/skills/human-experience"
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".claude/skills/preflight",
+      "before": {
+        "kind": "symlink",
+        "target": "../../.make-docs/agentics/skills/preflight"
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".claude/skills/software-factory",
+      "before": {
+        "kind": "symlink",
+        "target": "../../.make-docs/agentics/skills/software-factory"
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".agents/skills/preflight",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/agents",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/references",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/agents",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "directory",
+        "mode": 493
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/SKILL.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/agents/openai.yaml",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/references/decisions.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/references/store.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/SKILL.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/agents/openai.yaml",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/profiles.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/store.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/work-methods.md",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "file",
+        "digest": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+        "mode": 420
+      }
+    },
+    {
+      "path": ".claude/skills/human-experience",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "symlink",
+        "target": "../../.agents/skills/human-experience"
+      }
+    },
+    {
+      "path": ".claude/skills/preflight",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "symlink",
+        "target": "../../.agents/skills/preflight"
+      }
+    },
+    {
+      "path": ".claude/skills/software-factory",
+      "before": {
+        "kind": "missing"
+      },
+      "after": {
+        "kind": "symlink",
+        "target": "../../.agents/skills/software-factory"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "before": {
+        "kind": "file",
+        "digest": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "before": {
+        "kind": "file",
+        "digest": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "before": {
+        "kind": "file",
+        "digest": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/decisions.md",
+      "before": {
+        "kind": "file",
+        "digest": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/store.md",
+      "before": {
+        "kind": "file",
+        "digest": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "before": {
+        "kind": "file",
+        "digest": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/profiles.md",
+      "before": {
+        "kind": "file",
+        "digest": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/store.md",
+      "before": {
+        "kind": "file",
+        "digest": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "before": {
+        "kind": "file",
+        "digest": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/agents",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/references",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/SKILL.md",
+      "before": {
+        "kind": "file",
+        "digest": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/agents",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/SKILL.md",
+      "before": {
+        "kind": "file",
+        "digest": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/agents",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/SKILL.md",
+      "before": {
+        "kind": "file",
+        "digest": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+        "mode": 420
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    },
+    {
+      "path": ".make-docs/agentics",
+      "before": {
+        "kind": "directory",
+        "mode": 493
+      },
+      "after": {
+        "kind": "missing"
+      }
+    }
+  ],
+  "backups": [
+    {
+      "source": ".make-docs/agentics/skills/human-experience/SKILL.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/SKILL.md",
+      "digest": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df"
+    },
+    {
+      "source": ".make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "digest": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24"
+    },
+    {
+      "source": ".make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "digest": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd"
+    },
+    {
+      "source": ".make-docs/agentics/skills/preflight/SKILL.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/SKILL.md",
+      "digest": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed"
+    },
+    {
+      "source": ".make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "digest": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d"
+    },
+    {
+      "source": ".make-docs/agentics/skills/preflight/references/decisions.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references/decisions.md",
+      "digest": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36"
+    },
+    {
+      "source": ".make-docs/agentics/skills/preflight/references/store.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/preflight/references/store.md",
+      "digest": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479"
+    },
+    {
+      "source": ".make-docs/agentics/skills/software-factory/SKILL.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/SKILL.md",
+      "digest": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce"
+    },
+    {
+      "source": ".make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "digest": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4"
+    },
+    {
+      "source": ".make-docs/agentics/skills/software-factory/references/profiles.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/profiles.md",
+      "digest": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd"
+    },
+    {
+      "source": ".make-docs/agentics/skills/software-factory/references/store.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/store.md",
+      "digest": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448"
+    },
+    {
+      "source": ".make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "destination": ".make-docs/backup/skill-adoption-1c7bfa6cf24e/.make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "digest": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442"
+    }
+  ],
+  "recoveryLimits": [
+    "This layout cutover supports forward resume. Rollback that would recreate retired .make-docs/agentics paths is blocked; preserved bytes remain in the reviewed backups and Store."
+  ],
+  "currentOwner": {
+    "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+    "checkoutRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+  },
+  "ownership": [
+    {
+      "path": ".agents/skills/human-experience",
+      "effect": "remove",
+      "before": {
+        "hash": "7d57a94607ee61876659d08644e5583b14b4a1715da3978b0207182fb504b939",
+        "sourceId": "skill-exposure:codex:human-experience",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "human-experience",
+          "installName": "human-experience",
+          "harness": "codex",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/human-experience",
+          "exposurePath": ".agents/skills/human-experience",
+          "symlinkTarget": "../../.make-docs/agentics/skills/human-experience",
+          "preferredMode": "symlink",
+          "mode": "copy-mirror",
+          "copyMirrorSource": ".make-docs/agentics/skills/human-experience"
+        }
+      },
+      "after": null
+    },
+    {
+      "path": ".agents/skills/preflight",
+      "effect": "remove",
+      "before": {
+        "hash": "2f634811e5102f7a9a6e1a9e87cc1d59ff09963fb4ffd25532d167bd9c148b42",
+        "sourceId": "skill-exposure:codex:preflight",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "preflight",
+          "installName": "preflight",
+          "harness": "codex",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/preflight",
+          "exposurePath": ".agents/skills/preflight",
+          "symlinkTarget": "../../.make-docs/agentics/skills/preflight",
+          "preferredMode": "symlink",
+          "mode": "symlink",
+          "copyMirrorSource": ".make-docs/agentics/skills/preflight"
+        }
+      },
+      "after": null
+    },
+    {
+      "path": ".agents/skills/software-factory",
+      "effect": "remove",
+      "before": {
+        "hash": "edcf230238eac0a41e7bd8635bd6209c36b5dc2910b7b24a1e5d386dc5f36b1e",
+        "sourceId": "skill-exposure:codex:software-factory",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "software-factory",
+          "installName": "software-factory",
+          "harness": "codex",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/software-factory",
+          "exposurePath": ".agents/skills/software-factory",
+          "symlinkTarget": "../../.make-docs/agentics/skills/software-factory",
+          "preferredMode": "symlink",
+          "mode": "symlink",
+          "copyMirrorSource": ".make-docs/agentics/skills/software-factory"
+        }
+      },
+      "after": null
+    },
+    {
+      "path": ".claude/skills/human-experience",
+      "effect": "update",
+      "before": {
+        "hash": "6b8af995c3c3efcc04469e2ba21410a7e578b2c1e475b17ecf2915d76ffe49b8",
+        "sourceId": "skill-exposure:claude-code:human-experience",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "human-experience",
+          "installName": "human-experience",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/human-experience",
+          "exposurePath": ".claude/skills/human-experience",
+          "symlinkTarget": "../../.make-docs/agentics/skills/human-experience",
+          "preferredMode": "symlink",
+          "mode": "symlink",
+          "copyMirrorSource": ".make-docs/agentics/skills/human-experience"
+        }
+      },
+      "after": {
+        "hash": "487433ba0b21bf60948e567461d8d504c3e6e38c4dc4d04664affefe409b685a",
+        "sourceId": "skill-exposure:claude-code:human-experience",
+        "skillExposure": {
+          "skillName": "human-experience",
+          "installName": "human-experience",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".agents/skills/human-experience",
+          "exposurePath": ".claude/skills/human-experience",
+          "symlinkTarget": "../../.agents/skills/human-experience",
+          "preferredMode": "symlink",
+          "copyMirrorSource": ".agents/skills/human-experience",
+          "mode": "symlink"
+        },
+        "ownershipClass": "selected-skill"
+      }
+    },
+    {
+      "path": ".claude/skills/preflight",
+      "effect": "update",
+      "before": {
+        "hash": "858fc79680dcbed8eaaf43b126b706306ca795e49414e5cc3ec336a3e141b196",
+        "sourceId": "skill-exposure:claude-code:preflight",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "preflight",
+          "installName": "preflight",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/preflight",
+          "exposurePath": ".claude/skills/preflight",
+          "symlinkTarget": "../../.make-docs/agentics/skills/preflight",
+          "preferredMode": "symlink",
+          "mode": "symlink",
+          "copyMirrorSource": ".make-docs/agentics/skills/preflight"
+        }
+      },
+      "after": {
+        "hash": "c75a4516dc21f23c13b9c557f1f608e4b5ccab53f77a8694cacc65dd523f91e4",
+        "sourceId": "skill-exposure:claude-code:preflight",
+        "skillExposure": {
+          "skillName": "preflight",
+          "installName": "preflight",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".agents/skills/preflight",
+          "exposurePath": ".claude/skills/preflight",
+          "symlinkTarget": "../../.agents/skills/preflight",
+          "preferredMode": "symlink",
+          "copyMirrorSource": ".agents/skills/preflight",
+          "mode": "symlink"
+        },
+        "ownershipClass": "selected-skill"
+      }
+    },
+    {
+      "path": ".claude/skills/software-factory",
+      "effect": "update",
+      "before": {
+        "hash": "c1f0218731328af6cd1fd1e280bd30ea1372314936bcef1bd532e948256f6f08",
+        "sourceId": "skill-exposure:claude-code:software-factory",
+        "ownershipClass": "selected-skill",
+        "skillExposure": {
+          "skillName": "software-factory",
+          "installName": "software-factory",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/skills/software-factory",
+          "exposurePath": ".claude/skills/software-factory",
+          "symlinkTarget": "../../.make-docs/agentics/skills/software-factory",
+          "preferredMode": "symlink",
+          "mode": "symlink",
+          "copyMirrorSource": ".make-docs/agentics/skills/software-factory"
+        }
+      },
+      "after": {
+        "hash": "e8cca6978e612af2a9f38cdbc2e46e96c30d882053862d7d48d273b015b7ed31",
+        "sourceId": "skill-exposure:claude-code:software-factory",
+        "skillExposure": {
+          "skillName": "software-factory",
+          "installName": "software-factory",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".agents/skills/software-factory",
+          "exposurePath": ".claude/skills/software-factory",
+          "symlinkTarget": "../../.agents/skills/software-factory",
+          "preferredMode": "symlink",
+          "copyMirrorSource": ".agents/skills/software-factory",
+          "mode": "symlink"
+        },
+        "ownershipClass": "selected-skill"
+      }
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "effect": "remove",
+      "before": {
+        "hash": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+        "sourceId": "skill-shared-asset:human-experience:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "effect": "remove",
+      "before": {
+        "hash": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+        "sourceId": "skill-shared-asset:human-experience:references/surfaces.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/human-experience/SKILL.md",
+      "effect": "remove",
+      "before": {
+        "hash": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+        "sourceId": "skill:shared:human-experience",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "effect": "remove",
+      "before": {
+        "hash": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+        "sourceId": "skill-shared-asset:preflight:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/decisions.md",
+      "effect": "remove",
+      "before": {
+        "hash": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+        "sourceId": "skill-shared-asset:preflight:references/decisions.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/references/store.md",
+      "effect": "remove",
+      "before": {
+        "hash": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+        "sourceId": "skill-shared-asset:preflight:references/store.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/preflight/SKILL.md",
+      "effect": "remove",
+      "before": {
+        "hash": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+        "sourceId": "skill:shared:preflight",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "effect": "remove",
+      "before": {
+        "hash": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+        "sourceId": "skill-shared-asset:software-factory:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/profiles.md",
+      "effect": "remove",
+      "before": {
+        "hash": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+        "sourceId": "skill-shared-asset:software-factory:references/profiles.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/store.md",
+      "effect": "remove",
+      "before": {
+        "hash": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+        "sourceId": "skill-shared-asset:software-factory:references/store.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "effect": "remove",
+      "before": {
+        "hash": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+        "sourceId": "skill-shared-asset:software-factory:references/work-methods.md",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".make-docs/agentics/skills/software-factory/SKILL.md",
+      "effect": "remove",
+      "before": {
+        "hash": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+        "sourceId": "skill:shared:software-factory",
+        "ownershipClass": "managed-snapshot"
+      },
+      "after": null
+    },
+    {
+      "path": ".agents/skills/human-experience/agents/openai.yaml",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+        "sourceId": "skill-shared-asset:human-experience:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/human-experience/references/surfaces.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+        "sourceId": "skill-shared-asset:human-experience:references/surfaces.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/human-experience/SKILL.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+        "sourceId": "skill:shared:human-experience",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/agents/openai.yaml",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+        "sourceId": "skill-shared-asset:preflight:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/references/decisions.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+        "sourceId": "skill-shared-asset:preflight:references/decisions.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/references/store.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "48053150199ec6b0a12288da9533dd2ece07101ef1c94a3ad34e2186e936c479",
+        "sourceId": "skill-shared-asset:preflight:references/store.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/preflight/SKILL.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "823718483e0381b55e385c75ed605cfd5cc56ba16454fd627c95f70bddbab6ed",
+        "sourceId": "skill:shared:preflight",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/agents/openai.yaml",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+        "sourceId": "skill-shared-asset:software-factory:agents/openai.yaml",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/profiles.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+        "sourceId": "skill-shared-asset:software-factory:references/profiles.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/store.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "f96fcc954e28fb3f4ee7f75751ccd13e03534e77acf84ed4420506fa6ef89448",
+        "sourceId": "skill-shared-asset:software-factory:references/store.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/references/work-methods.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+        "sourceId": "skill-shared-asset:software-factory:references/work-methods.md",
+        "ownershipClass": "managed-snapshot"
+      }
+    },
+    {
+      "path": ".agents/skills/software-factory/SKILL.md",
+      "effect": "register",
+      "before": null,
+      "after": {
+        "hash": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+        "sourceId": "skill:shared:software-factory",
+        "ownershipClass": "managed-snapshot"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.agents/skills/human-experience",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.agents/skills/preflight",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.agents/skills/software-factory",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.claude/skills/human-experience",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.claude/skills/preflight",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.claude/skills/software-factory",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/human-experience/agents/openai.yaml",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/human-experience/references/surfaces.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/human-experience/SKILL.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/preflight/agents/openai.yaml",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/preflight/references/decisions.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/preflight/references/store.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/preflight/SKILL.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/software-factory/agents/openai.yaml",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/software-factory/references/profiles.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/software-factory/references/store.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/software-factory/references/work-methods.md",
+      "kind": "ownership"
+    },
+    {
+      "checkoutId": "fb3f0042-91fa-445b-bfec-16e3dde15fc2",
+      "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
+      "rootPath": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "path": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/.make-docs/agentics/skills/software-factory/SKILL.md",
+      "kind": "ownership"
+    }
+  ],
+  "blockers": [],
+  "nextAction": "Repeat setup skills with the same target, scope, tools, selected Skills, and --adopt-existing human-experience,preflight,software-factory; replace --dry-run with --review 167456a834291145bddbdd65ad4746a25244473118702a30c9308139b8f8e283."
+}

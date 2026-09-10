@@ -191,7 +191,7 @@ describe("uninstall command", () => {
     }
   });
 
-  test("allow-all prunes empty project selected-agentics parents after uninstall", async () => {
+  test("allow-all prunes empty project native Skill parents after uninstall", async () => {
     const targetDir = createTempDir();
 
     try {
@@ -209,9 +209,9 @@ describe("uninstall command", () => {
       expectCompletedUninstall(result);
       expect(result.prunedDirectories).toEqual(
         expect.arrayContaining([
-          ".make-docs/agentics/skills/archive-docs",
-          ".make-docs/agentics/skills",
-          ".make-docs/agentics",
+          ".agents/skills/archive-docs",
+          ".agents/skills",
+          ".agents",
         ]),
       );
       expect(existsSync(path.join(targetDir, ".make-docs/agentics"))).toBe(false);
@@ -515,7 +515,7 @@ describe("uninstall command", () => {
         existsSync(
           path.join(
             targetDir,
-            ".make-docs/backup/2026-04-18/_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+            ".make-docs/backup/2026-04-18/_home/.agents/skills/archive-docs/SKILL.md",
           ),
         ),
       ).toBe(true);

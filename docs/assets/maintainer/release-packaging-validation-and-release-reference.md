@@ -71,7 +71,7 @@ A release-sensitive run should normally include all four.
 - packaged installation creates the configured documentation routers and project config identity, with installation ownership and operation records only in the isolated global Make Docs Store
 - managed writes require Store records, while no project-local manifest, state directory, lock, or receipt is created as a fallback
 - fresh installs leave assets absent until needed; on-demand routing creates only selected assets-root instruction files
-- bare installs write no skill payloads or stubs, selected skills install one shared payload plus generated harness stubs, and legacy or duplicated skill artifacts are absent
+- bare installs write no Skill payloads or native exposures; selected Skills use the scope/harness standard-location matrix (project Claude-only `.claude/skills`, Codex-only `.agents/skills`, both `.agents/skills` plus Claude access; global `~/.agents/skills` plus selected access), direct native access where paths match, and links or supported native copies only for additional selected access; no private Make Docs Skill layer or unselected project Skill root is created; legacy stubs and unowned duplicate Skill artifacts are absent
 - backup and project removal preserve unmanaged content and protected physical backup payloads while the CLI updates Store records within the reviewed scope
 
 That makes smoke-pack the bridge between local development, bundled template correctness, and release confidence.

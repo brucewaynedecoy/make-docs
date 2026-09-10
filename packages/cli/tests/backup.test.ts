@@ -276,19 +276,19 @@ describe("backup command", () => {
       const backupDir = path.join(targetDir, ".make-docs/backup/2026-04-18");
       expect(result.status).toBe("completed");
       expect(result.copiedFiles).toContain(
-        "_home/.make-docs/agentics/skills/archive-docs/SKILL.md",
+        "_home/.agents/skills/archive-docs/SKILL.md",
       );
       expect(result.materializedDirectories).toContain("_home/.agents/skills/archive-docs");
       expect(result.materializedDirectories).toContain("_home/.claude/skills/archive-docs");
       expect(
         existsSync(
-          path.join(backupDir, "_home/.make-docs/agentics/skills/archive-docs/SKILL.md"),
+          path.join(backupDir, "_home/.agents/skills/archive-docs/SKILL.md"),
         ),
       ).toBe(true);
       expect(existsSync(path.join(backupDir, "_home/.agents/skills/archive-docs"))).toBe(true);
       expect(existsSync(path.join(backupDir, "_home/.claude/skills/archive-docs"))).toBe(true);
       expect(
-        existsSync(path.join(fakeHome, ".make-docs/agentics/skills/archive-docs/SKILL.md")),
+        existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md")),
       ).toBe(true);
       expect(existsSync(path.join(fakeHome, ".agents/skills/archive-docs/SKILL.md"))).toBe(true);
       expect(existsSync(path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md"))).toBe(true);
@@ -319,7 +319,7 @@ describe("backup command", () => {
       });
       const managedDirectory = prepared.materializableDirectories.find(
         (entry) =>
-          entry.backupRelativePath === "_home/.agents/skills/archive-docs",
+          entry.backupRelativePath === "_home/.codex/skills/archive-docs",
       );
 
       expect(managedDirectory).toBeDefined();

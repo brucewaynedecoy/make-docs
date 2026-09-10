@@ -136,15 +136,29 @@ Maintainer-dogfood capability status is currently `Capability status unverified`
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W19 R5 settles first-party delivery: all seven declared Skills ship in the CLI, with no network or maintainer-checkout fallback. The implementation and delivery gap remains open. | Implement the [one-phase backlog](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-index.md), then assess actual package, offline, adoption, upgrade, and recovery evidence before closure. |
+| Closed | Seven first-party Skills are embedded from their sole package sources. Installation must use the scope/harness standard-location matrix in PRD 28, never a private `.make-docs` Skill layer. | Resolved by W19 R5 final delivery and real reviewed cutover; see the central evidence. Owner phase acceptance remains separate. |
 
-**Issue**: The bundled delivery decision is complete. Current runtime and package behavior still need the approved change and proof.
+**Issue**: The coordinator wrongly retained the private `.make-docs/agentics/skills` installation layer. The owner reported a prior Skill installation had already been removed for this same mistake. The earlier closure relied on proof of that wrong layout and was reopened. The corrected final delivery now resolves the defect.
 
-**Why it matters**: A user must be able to install any first-party Skill alone from the package and adopt existing copies without losing edits or creating local installation state.
+**To close**: The [central evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md) proves all seven embedded payloads; standard scope/harness directories; no unselected project Skill root; reviewed old-to-standard upgrade with preserved edits and backups; Store-only ownership and recovery; and true normal setup/Skills sync/adoption repeat. Successful cutover leaves no active private Skill tree or unexplained legacy content. Fresh public review and owner phase acceptance remain separate gates.
 
-**Recommendation**: Apply the [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md) under PRDs 08, 16, 25, 28, 38, and 39. Keep alternate-source trust separate; do not restore a plugin product or Skill-local workflow authority.
+**Prior private-layout disposition (superseded)**
 
-**To close**: The central [acceptance evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md) proves all seven complete bundled payloads, offline individual/all/none selection, prior-source upgrades, reviewed adoption, edited-content preservation, and Store-owned recovery through the installed CLI. Draft authority and a settled decision alone do not close this drift.
+The prior closure below is historical proof of the wrong layout, not current acceptance.
+
+
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | W19 R5 ships all seven declared first-party Skills from embedded CLI bytes, without a network or maintainer-checkout fallback. Final offline, upgrade, adoption, preservation, installed recovery and cross-command repeat proof meet this drift's criteria. | Keep the [central evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md) bound to candidate `6e46d754…f4d1fade`. Fresh-context review and owner phase acceptance remain separate and do not inherit closure from this row. |
+
+**Issue**: The former delivery gap is resolved. Two late checks found missing fresh-process recovery registration and noncanonical ownership metadata after normal setup. Both were fixed and verified before this disposition.
+
+**Why it matters**: A user can install any first-party Skill alone from the package and adopt existing copies without losing edits or creating local installation state.
+
+**Resolution (2026-09-09)**: The final artifact passed all 21 strict offline selection/exposure cases and exact source/embedded/archive/installed byte checks. Isolated tests cover prior-source upgrades, edited content and owned removal. The real maintainer adoption preserves eleven originals, including eight verified backups. Five fresh CLI/MCP recovery cases pass against extracted and installed output. Real normal setup and Skills sync followed by adoption review and exact repeat retain all 18 ownership entries without changes. Source authority remains `packages/skills/<name>/`; no duplicate package Skill trees or first-party fallback remain.
+
+**Scope of closure**: This resolves bundled delivery and its ownership lifecycle. The quiet full suite passed 1196/1196 tests across 78 files. This closure does not claim fresh agent review, lived human validation, phase acceptance, or permission to close/commit the phase. Those gates remain in the work backlog.
 
 **Prior disposition retained on 2026-09-09 (non-normative)**
 

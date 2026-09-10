@@ -279,7 +279,7 @@ export function stateFromSkillsSelections(options: {
   return {
     action: options.action,
     targetDir: options.targetDir,
-    harnesses: getSelectedHarnesses(options.selections),
+    harnesses: getSelectedHarnesses({...options.selections,harnesses:options.selections.skillHarnesses ?? options.selections.harnesses}),
     skillScope: options.selections.skillScope,
     selectedSkills: [...options.selections.selectedSkills],
   };
@@ -298,6 +298,7 @@ export function applySkillsUiStateToSelections(
   selections.harnesses = Object.fromEntries(
     HARNESSES.map((harness) => [harness, state.harnesses.includes(harness)]),
   ) as Record<Harness, boolean>;
+  selections.skillHarnesses = {...selections.harnesses};
   selections.skillScope = state.skillScope;
   selections.selectedSkills = [...state.selectedSkills];
   return selections;

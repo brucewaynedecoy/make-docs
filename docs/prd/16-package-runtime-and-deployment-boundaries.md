@@ -1,5 +1,9 @@
 # 16 Package Runtime and Deployment Boundaries
 
+## Current R5 Layout Correction
+
+The coordinator retained a rejected private Skill installation layer. R5 now uses standard scope/harness paths under [PRD 28](28-shared-agentics-installation-and-harness-exposure.md). Prior private-layout proof is superseded for installation acceptance; corrected implementation and evidence remain open.
+
 ## Purpose
 
 This document defines the current product contract for package identity, runtime ownership, and deployment boundaries. Normative requirements are stated in the sections below; Requirement History is provenance only.
@@ -32,11 +36,11 @@ TypeScript package ownership:
 - `packages/docs/template/` remains the upstream authoring authority for shipped contracts, prompts, references, templates, and default assets. Package preparation derives the CLI provider from that tree; the repository-root `.make-docs/` and `docs/` trees are downstream dogfood projections and never package source authority.
 - The package contains no Playbook or Protocol compiler, registry, asset kind, or runtime surface.
 
-- R-PACK-SKILLS-1 (MUST): `packages/skills/<name>/` is the sole authoring source for the seven first-party Skills owned by PRD 08. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Retain package version and embedded payload hash evidence. Do not rename the source workspace or installed `.make-docs/agentics/skills/**` roots.
+- R-PACK-SKILLS-1 (MUST): `packages/skills/<name>/` is the sole authoring source for the seven first-party Skills owned by PRD 08. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Retain package version and embedded payload hash evidence. Keep the source workspace unchanged; installed files use the scope/harness standard-location matrix in PRD 28. No private Make Docs Skill layer is allowed.
 - R-PACK-SKILLS-2 (MUST): first-party resolution uses only the embedded candidate bytes; missing or corrupt bundles fail clearly, with no GitHub, network, or maintainer-checkout fallback. Package validation must prove each Skill alone, all, and none from an extracted artifact with the repository unavailable and network denied. Alternate manifests retain PRD 08's separate source policy.
 - R-PACK-SKILLS-3 (MUST): after the complete `naive-uat` payload is sourced from `packages/skills/`, remove its obsolete docs-template authoring tree and only empty source parents during implementation. Remove obsolete manual mirror-copy instructions. Preserve valid installed shared content; promotion alone does not delete the three existing local Skill copies.
 
-These W19 R5 Skill package requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation; delivery proof remains pending and D-005 remains open.
+These W19 R5 Skill package requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Prior bundled delivery, adoption and recovery tests used the wrong private layout. Corrected standard-location implementation and acceptance proof remain open. D-005 is reopened because the prior proof used the wrong private installation layer. The authorized public-surface review ran and found four instruction/help issues; corrections and follow-up review remain open. Phase acceptance remains pending.
 
 Remote execution and runtime boundary:
 
@@ -67,7 +71,7 @@ Skills and plugin boundary:
 - Explicit skills installs are opt-in through the skills selection flow; [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) owns changes to that selection contract.
 - [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) narrows the no-scripts implementation target: TypeScript owns the first CLI/shared-core operation boundary, and deterministic first-party skill behavior must be available from the CLI package rather than only from remote or skill-local script payloads.
 - [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) narrows skills metadata and source policy: purpose-led selection remains opt-in, alternate manifests are explicit effective-manifest inputs, and unpinned remote manifests or skill payloads are invalid for installation.
-- [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) narrows selected-agentics placement: explicitly selected skills install one canonical shared payload and expose native harness skill directories through symlink-preferred behavior with managed copy-mirror fallback.
+- [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) narrows selected-agentics placement: explicitly selected Skills use the standard scope/harness directory matrix, direct native access where paths match, and links or supported copies only for selected additional access.
 - [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns the admission boundary for other agentic artifacts. Make Docs has no current general plugin installation contract; this Skill package change adds none.
 - PRD 08 fixes bundled delivery for all seven first-party Skills. Broader alternate-source trust changes, plugin implementation parity, and per-bundle public UX remain outside this Skill packaging change and retain their owning authorities.
 
@@ -89,6 +93,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: a private Make Docs Skill installation layer.
+- Replacement: standard scope/harness directories and reviewed legacy upgrade under [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: correct the coordinator's repeated installation-layer error; source, installed files and Store state remain distinct.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — W10 R1
 

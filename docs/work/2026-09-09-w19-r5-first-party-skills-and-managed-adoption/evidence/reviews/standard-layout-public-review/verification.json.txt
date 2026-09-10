@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "inputSnapshot": {
+    "path": "/tmp/w19-r5-standard-layout-fresh-review-inputs.json",
+    "sha256": "cf355df4574bad9eb401385e2918758a950d93cb91710a203a83bdcfebba583c"
+  },
+  "run": {
+    "path": "/tmp/w19-r5-standard-layout-fresh-review-run.json",
+    "available": true,
+    "sha256": "2aef52ddd7ce3a9e12c4df7e2f2f385b39f76b2a854e25824c7970d7d5007c29",
+    "record": {
+      "args": [
+        "codex",
+        "exec",
+        "--ephemeral",
+        "--sandbox",
+        "read-only",
+        "--skip-git-repo-check",
+        "--cd",
+        "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review",
+        "--json",
+        "--output-last-message",
+        "/tmp/w19-r5-standard-layout-fresh-review-report.md",
+        "-"
+      ],
+      "packageSha256": "a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c",
+      "prompt": "/tmp/w19-r5-standard-layout-fresh-review-prompt.txt",
+      "inputs": "/tmp/w19-r5-standard-layout-fresh-review-inputs.json",
+      "started": "2026-09-10T03:56:31.661722+00:00",
+      "version": "codex-cli 0.154.0",
+      "exitCode": 0,
+      "finished": "2026-09-10T03:59:20.088940+00:00"
+    }
+  },
+  "roots": [
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review",
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/all-project-claude-code-copy/project/.claude/skills"
+  ],
+  "candidateIdentity": [
+    {
+      "kind": "package",
+      "path": "/private/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+      "expectedSha256": "a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c",
+      "actualSha256": "a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c",
+      "matched": true
+    },
+    {
+      "kind": "cli-entry",
+      "path": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js",
+      "expectedSha256": "71f6068ffba7a10452a54277d15141617cd873ce975231533ab468568f343d35",
+      "actualSha256": "71f6068ffba7a10452a54277d15141617cd873ce975231533ab468568f343d35",
+      "matched": true
+    }
+  ],
+  "beforeCounts": {
+    "files": 82,
+    "directories": 52,
+    "symlinks": 0
+  },
+  "afterCounts": {
+    "files": 82,
+    "directories": 52,
+    "symlinks": 0
+  },
+  "addedPaths": [],
+  "missingPaths": [],
+  "changedPaths": [],
+  "readErrors": [],
+  "checks": [
+    "Full named-root walk, including empty directories and roots",
+    "No symlink traversal; exact raw link targets compared",
+    "Regular-file bytes, SHA256, size, and permission mode compared",
+    "Directory and symlink permission modes compared",
+    "Type changes reported through one path map",
+    "Candidate tar and CLI entry compared against prepared hashes"
+  ],
+  "limits": [
+    "This proves the named public input trees match their baseline. It does not prove the reviewer made no writes elsewhere.",
+    "This does not judge review quality or establish owner acceptance.",
+    "File timestamps and ownership IDs are not included in the saved baseline."
+  ]
+}

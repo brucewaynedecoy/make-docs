@@ -99,6 +99,8 @@ interface ParsedArgs {
   selectedSkillsValue?: string;
   projectResources?: ProjectResourceType[];
   skillsManifest?: string;
+  adoptExisting?: string[];
+  review?: string;
   runArgs: string[];
 }
 
@@ -121,6 +123,8 @@ type SkillsCommandOptions = {
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
+  adoptExisting?: string[];
+  review?: string;
 };
 
 type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
@@ -234,6 +238,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
       skillsManifest: parsed.skillsManifest,
+      ...(parsed.adoptExisting ? { adoptExisting: [...parsed.adoptExisting] } : {}),
+      ...(parsed.review ? { review: parsed.review } : {}),
     });
     return;
   }
@@ -1018,6 +1024,27 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.selectedSkillsValue = value;
         break;
       }
+      case "--adopt-existing": {
+        if (parsed.command !== "setup" || parsed.setupSubcommand !== "skills") {
+          throw new Error("`--adopt-existing` is valid only with `make-docs setup skills`.");
+        }
+        const value = args.shift();
+        const names = value?.split(",").map((name) => name.trim());
+        if (!names?.length || names.some((name) => !/^[a-z0-9][a-z0-9-]*$/.test(name) || name === "all" || name === "none")) {
+          throw new Error("`--adopt-existing` requires comma-separated first-party Skill names, not `all` or `none`.");
+        }
+        parsed.adoptExisting = [...new Set(names)];
+        break;
+      }
+      case "--review": {
+        if (parsed.command !== "setup" || parsed.setupSubcommand !== "skills") {
+          throw new Error("This `--review` flag is valid only with `make-docs setup skills --adopt-existing`.");
+        }
+        const value = args.shift();
+        if (!value || !/^[a-f0-9]{64}$/i.test(value)) throw new Error("`--review` requires the 64-character digest from the adoption preview.");
+        parsed.review = value.toLowerCase();
+        break;
+      }
       case "--project-resources": {
         const value = args.shift();
         if (!value) {
@@ -1031,6 +1058,11 @@ function parseArgs(argv: string[]): ParsedArgs {
     }
   }
 
+  if (parsed.review && !parsed.adoptExisting) throw new Error("`--review` requires `--adopt-existing`.");
+  if (parsed.adoptExisting && parsed.remove) throw new Error("`--adopt-existing` cannot be combined with `--remove`.");
+  if (parsed.adoptExisting && parsed.yes && !parsed.dryRun && !parsed.review) {
+    throw new Error("`--yes` alone cannot authorize adoption. Preview with `--dry-run`, then supply its matching `--review <digest>`.");
+  }
   return parsed;
 }
 
@@ -1243,11 +1275,16 @@ function validateParsedArgs(parsed: ParsedArgs): void {
 }
 
 function validateParsedSelectedSkills(parsed: ParsedArgs, registry: SkillRegistry): void {
+  const registrySkills = new Set(getSkillRegistryNames(registry));
+  for (const name of parsed.adoptExisting ?? []) {
+    if (!registrySkills.has(name)) throw new Error(`Unknown adoption Skill \`${name}\`.`);
+    if (parsed.selectedSkills && !parsed.selectedSkills.includes(name)) {
+      throw new Error(`Adoption Skill \`${name}\` must be included in \`--selected-skills\`.`);
+    }
+  }
   if (parsed.selectedSkills === undefined) {
     return;
   }
-
-  const registrySkills = new Set(getSkillRegistryNames(registry));
 
   for (const skillName of parsed.selectedSkills) {
     if (!registrySkills.has(skillName)) {
@@ -1656,7 +1693,7 @@ Harness options:
 Skill options:
   --no-skills                    Skip skill installation entirely.
   --skill-manifest <file>       Use an explicit local skills manifest for this run.
-  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
+  --skill-scope project|global   Choose project or global agent locations.
   --selected-skills <csv|all|none>
                                   Replace the selected skill set.
 
@@ -1717,6 +1754,7 @@ Examples:
         output.write(`make-docs setup skills
 
 Sync or remove managed make-docs skills without changing the docs scaffold.
+Adopt existing first-party copies only after reviewing their files and ownership.
 
 Usage:
   make-docs setup skills [options]
@@ -1735,9 +1773,38 @@ Platform options:
 Skill options:
   --remove                       Remove managed skills owned by make-docs.
   --skill-manifest <file>       Use an explicit local skills manifest for this run.
-  --skill-scope project|global   Choose whether skills install in the repo or the global Codex home.
+  --skill-scope project|global   Use project paths or shared ~/.agents/skills with selected native tools.
   --selected-skills <csv|all|none>
                                   Replace the selected skill set.
+  --adopt-existing <csv>          Review named, selected first-party copies for adoption.
+  --review <digest>               Apply the exact reviewed adoption plan.
+
+Adoption dry runs write no files or Store records. Review shows backups,
+file changes, ownership changes, and blockers. Non-interactive adoption requires
+the matching --review digest; --yes alone is insufficient. Interactive adoption
+shows the same plan before confirmation. Adoption cannot be combined with --remove.
+
+Project Codex-only uses .agents/skills; Claude-only uses .claude/skills.
+Both use .agents/skills with Claude links or copies. Global payloads use
+~/.agents/skills with the selected tools' native links or copies.
+Global Codex uses CODEX_HOME/skills (default ~/.codex/skills).
+Global Claude Code uses CLAUDE_CONFIG_DIR/skills (default ~/.claude/skills).
+Old .make-docs/agentics payloads require this same reviewed adoption flow.
+That layout cutover supports forward resume only. Recovery will not recreate
+the retired directory. The review shows this limit before any change.
+
+If adoption stops:
+  Unknown extra files, unsafe links, conflicting copies, or another owner block adoption.
+  Preserve existing content. Review and relocate unknown extras, correct unsafe links,
+  or resolve the listed copy or owner conflict before running a new dry run.
+  Known unowned file differences and missing declared files can be reviewed for replacement.
+  Edited managed files stay protected and block adoption.
+  The plan backs up changed existing bytes before replacement.
+  A stale review cannot be applied. Repeat the same target, scope, tools, and Skills
+  with --dry-run; inspect the new plan and use its new --review digest.
+  A required Store failure stops managed writes. Resolve the reported Store error,
+  then use make-docs project state status to check for pending recovery.
+  Installation state has no project-local fallback.
 
 Examples:
   make-docs setup skills
@@ -1745,6 +1812,8 @@ Examples:
   make-docs setup skills --remove
   make-docs setup skills --skill-scope global
   make-docs setup skills --selected-skills all
+  make-docs setup skills --selected-skills preflight --adopt-existing preflight --dry-run
+  make-docs setup skills --selected-skills preflight --adopt-existing preflight --review <digest> --yes
 `);
         return;
       case "backup":

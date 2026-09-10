@@ -1,7 +1,9 @@
 import { isDeepStrictEqual } from "node:util";
+import { resolveInstallProfile } from "./profile";
 import { getRetiredResourceReplacement } from "./retired-resource-paths";
-import { existsSync, lstatSync, readdirSync, readlinkSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import path from "node:path";
+import { homedir } from "node:os";
 import {
   getDesiredAssetsForMaterializationMode,
   getSystemAssetMaterializationPlan,
@@ -41,6 +43,8 @@ import type {
   PackageMeta,
   PlannedAction,
   ResolvedAsset,
+  ResolvedFileAsset,
+  FileContent,
   ResolvedInstallAsset,
   ResolvedSkillExposureAsset,
   SystemAssetMaterializationMode,
@@ -50,6 +54,7 @@ import { DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE, INSTRUCTION_KINDS } from "./
 import {
   assertManagedPathHasNoSymlinks,
   createRunId,
+  contentEquals,
   hashText,
   readTextFile,
   relativePathToTarget,
@@ -60,6 +65,7 @@ export async function createInstallPlan(options: {
   packageMeta: PackageMeta;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
+  reviewedSkillAdoption?: boolean;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
   skillRegistry?: SkillRegistry;
@@ -75,6 +81,7 @@ export async function createInstallPlan(options: {
     skillRegistry,
     operation = existingManifest ? "setup.sync" : "setup",
   } = options;
+  if (!options.reviewedSkillAdoption) assertStandardSkillLayout(existingManifest, targetDir, profile.selections);
   const p4ProjectionSelected = profile.selections.resourceProjection !== undefined;
   if (p4ProjectionSelected) {
     assertManagedPathHasNoSymlinks(targetDir, MANIFEST_RELATIVE_PATH);
@@ -142,6 +149,7 @@ export async function createInstallPlan(options: {
     profile.selections,
     skillRegistry,
   );
+  if (!options.reviewedSkillAdoption) assertStandardSkillDestinations(existingManifest, desiredSkillAssets);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
   const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
@@ -223,6 +231,7 @@ export async function createInstallPlan(options: {
         `Skill exposure asset ${asset.relativePath} is missing from the desired skill file set.`,
       );
     }
+    assertTextDocumentAsset(asset);
     if (p4ProjectionSelected) {
       assertManagedPathHasNoSymlinks(targetDir, asset.relativePath);
     }
@@ -657,23 +666,26 @@ export async function createSkillsOnlyInstallPlan(options: {
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
   remove: boolean;
+  reviewedSkillAdoption?: boolean;
   skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
   const { targetDir, packageMeta, profile, existingManifest, remove, skillRegistry } = options;
+  if (!remove && !options.reviewedSkillAdoption) assertStandardSkillLayout(existingManifest, targetDir, profile.selections);
   const desiredSkillAssets = remove
     ? []
     : await getDesiredSkillAssets(profile.selections, skillRegistry);
+  if (!remove && !options.reviewedSkillAdoption) assertStandardSkillDestinations(existingManifest, desiredSkillAssets);
   const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredFiles = Object.fromEntries(
     desiredSkillAssets.map((asset) => [
       asset.relativePath,
-      {
+      applyP4ManifestOwnership(asset.relativePath, {
         hash: getManifestHashForAsset(asset),
         sourceId: asset.sourceId,
         ...(isSkillExposureAsset(asset)
           ? { skillExposure: asset.skillExposure }
           : {}),
-      },
+      }),
     ]),
   );
   const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
@@ -736,6 +748,7 @@ export async function createSkillsOnlyInstallPlan(options: {
         },
         existingManifest,
         operation: existingManifest ? "setup.sync" : "setup",
+        reviewedSkillAdoption: options.reviewedSkillAdoption,
       })
     : null;
   const routerActions = proofPlan?.actions.filter((action) =>
@@ -750,7 +763,7 @@ export async function createSkillsOnlyInstallPlan(options: {
   return {
     packageName: packageMeta.name,
     packageVersion: packageMeta.version,
-    profile,
+    profile: existingManifest && !proofPlan ? resolveInstallProfile({...profile.selections, skillHarnesses:profile.selections.skillHarnesses ?? profile.selections.harnesses, harnesses:existingManifest.selections.harnesses}) : profile,
     systemAssetMaterialization:
       proofPlan?.systemAssetMaterialization ?? createSkillsOnlySystemAssetMaterializationPlan(),
     actions: [...routerActions, ...annotatedActions].sort(comparePlannedActions),
@@ -798,10 +811,20 @@ function planDesiredSkillAsset(options: {
   asset: ResolvedInstallAsset;
   existingManifest: InstallManifest | null;
   existingSkillFiles: Set<string>;
-  previousSkillContent: Map<string, string>;
+  previousSkillContent: Map<string, FileContent>;
 }): PlannedAction {
   const { targetDir, asset, existingManifest, existingSkillFiles, previousSkillContent } =
     options;
+
+  const root = asset.relativePath.match(/^(.*(?:^|\/)(?:\.make-docs\/agentics|\.agents|\.claude|\.codex)\/skills\/[^/]+)(?:\/|$)/)?.[1];
+  const guardedRoots = [...new Set((isSkillExposureAsset(asset) ? [asset.relativePath, asset.skillExposure.canonicalPayloadPath] : [root]).filter((p):p is string=>!!p))];
+  if (guardedRoots.some(root=>lstatSync(relativePathToTarget(targetDir,root),{throwIfNoEntry:false}) && !Object.keys(existingManifest?.files ?? {}).some(p=>p===root || p.startsWith(root+"/")) && ![...existingSkillFiles].some(p=>p===root || p.startsWith(root+"/")))) {
+    return {
+      type:"skip-conflict",relativePath:asset.relativePath,sourceId:asset.sourceId,
+      ...(isSkillExposureAsset(asset) ? {skillExposure:asset.skillExposure,copyMirrorAssets:asset.copyMirrorAssets} : {content:asset.content}),
+      reason:"Existing unowned Skill content needs setup skills --adopt-existing and an exact reviewed digest before managed changes.",
+    };
+  }
 
   if (isSkillExposureAsset(asset)) {
     return planDesiredSkillExposure({
@@ -825,8 +848,8 @@ function planDesiredSkillAsset(options: {
     };
   }
 
-  const currentContent = readTextFile(absolutePath);
-  if (currentContent === asset.content) {
+  const currentContent = readFileSync(absolutePath);
+  if (contentEquals(currentContent, asset.content)) {
     return {
       type: "noop",
       relativePath: asset.relativePath,
@@ -851,7 +874,7 @@ function planDesiredSkillAsset(options: {
   if (
     existingSkillFiles.has(asset.relativePath) &&
     previousContent !== undefined &&
-    currentContent === previousContent
+    contentEquals(currentContent, previousContent)
   ) {
     return {
       type: "update",
@@ -879,7 +902,7 @@ function planDesiredSkillExposure(options: {
   targetDir: string;
   asset: ResolvedSkillExposureAsset;
   existingManifest: InstallManifest | null;
-  previousSkillContent: Map<string, string>;
+  previousSkillContent: Map<string, FileContent>;
 }): PlannedAction {
   const { targetDir, asset, existingManifest, previousSkillContent } = options;
   const absolutePath = relativePathToTarget(targetDir, asset.relativePath);
@@ -920,7 +943,7 @@ function planDesiredSkillExposure(options: {
     };
   }
 
-  if (manifestEntry?.hash === getSkillExposureHash(asset)) {
+  if (manifestEntry?.skillExposure?.skillName === asset.skillExposure.skillName && manifestEntry.skillExposure.canonicalPayloadPath === asset.skillExposure.canonicalPayloadPath && isCleanOwnedSkillCopy(targetDir, asset, existingManifest)) {
     return {
       ...baseAction,
       type: "update",
@@ -959,11 +982,34 @@ function planDesiredSkillExposure(options: {
   };
 }
 
+function isCleanOwnedSkillCopy(targetDir: string, asset: Pick<ResolvedSkillExposureAsset,"relativePath"|"skillExposure">, manifest: InstallManifest | null): boolean {
+  const absolute = relativePathToTarget(targetDir, asset.relativePath);
+  if (!manifest || !lstatSync(absolute).isDirectory()) return false;
+  const canonicalRoot = asset.skillExposure.canonicalPayloadPath;
+  const expected = Object.keys(manifest.files).filter(p => p.startsWith(canonicalRoot + "/"));
+  const files: string[] = [];
+  const visit = (directory: string): boolean => readdirSync(directory,{withFileTypes:true}).every(entry => {
+    const target=path.join(directory,entry.name);
+    const ownedPath=canonicalRoot+"/"+path.relative(absolute,target).split(path.sep).join("/");
+    if (entry.isDirectory()) return expected.some(p=>p.startsWith(ownedPath+"/")) && visit(target);
+    if (!entry.isFile()) return false;
+    files.push(target); return true;
+  });
+  if (!visit(absolute)) return false;
+  if (files.length !== expected.length) return false;
+  return files.every(p => {
+    if (!lstatSync(p).isFile()) return false;
+    const canonicalPath = canonicalRoot + "/" + path.relative(absolute, p).split(path.sep).join("/");
+    const entry = manifest.files[canonicalPath];
+    return entry !== undefined && hashText(readFileSync(p)) === entry.hash;
+  });
+}
+
 function planStaleSkillFile(options: {
   targetDir: string;
   relativePath: string;
   existingManifest: InstallManifest;
-  previousSkillContent: Map<string, string>;
+  previousSkillContent: Map<string, FileContent>;
 }): PlannedAction {
   const { targetDir, relativePath, existingManifest, previousSkillContent } = options;
   const manifestEntry = existingManifest.files[relativePath];
@@ -981,13 +1027,13 @@ function planStaleSkillFile(options: {
   if (!stats.isFile()) {
       if (
         (manifestEntry?.skillExposure || isSkillExposurePath(relativePath)) &&
-        isManagedSkillExposurePath(
+        ((manifestEntry?.skillExposure && isCleanOwnedSkillCopy(targetDir,{relativePath,skillExposure:manifestEntry.skillExposure},existingManifest)) || isManagedSkillExposurePath(
           absolutePath,
           targetDir,
           relativePath,
           previousSkillContent,
           manifestEntry?.skillExposure,
-        )
+        ))
       ) {
         return {
           type: "remove-managed",
@@ -1006,7 +1052,7 @@ function planStaleSkillFile(options: {
     };
   }
 
-  const currentContent = readTextFile(absolutePath);
+  const currentContent = readFileSync(absolutePath);
   const currentHash = hashText(currentContent);
   if (manifestEntry && manifestEntry.hash === currentHash) {
     return {
@@ -1017,7 +1063,7 @@ function planStaleSkillFile(options: {
   }
 
   const previousContent = previousSkillContent.get(relativePath);
-  if (!manifestEntry && (previousContent === undefined || currentContent === previousContent)) {
+  if (!manifestEntry && (previousContent === undefined || contentEquals(currentContent, previousContent))) {
     return {
       type: "remove-managed",
       relativePath,
@@ -1036,7 +1082,7 @@ function planStaleSkillFile(options: {
 
 async function getPreviousSkillContentByPath(
   existingManifest: InstallManifest | null,
-): Promise<Map<string, string>> {
+): Promise<Map<string, FileContent>> {
   if (!existingManifest) {
     return new Map();
   }
@@ -1116,7 +1162,7 @@ function isCleanManifestOwnedLegacySkillExposureDirectory(
       isLegacySkillSourceId(manifestEntry.sourceId) &&
       getManifestFileHash(
         descendantPath,
-        readTextFile(relativePathToTarget(targetDir, descendantPath)),
+        readFileSync(relativePathToTarget(targetDir, descendantPath)),
       ) === manifestEntry.hash
     );
   });
@@ -1134,7 +1180,7 @@ function isLegacySkillSourceId(sourceId: string): boolean {
 function isCleanLegacySkillExposureDirectory(
   targetDir: string,
   relativePath: string,
-  previousSkillContent: Map<string, string>,
+  previousSkillContent: Map<string, FileContent>,
 ): boolean {
   const absolutePath = relativePathToTarget(targetDir, relativePath);
   if (!existsSync(absolutePath) || !lstatSync(absolutePath).isDirectory()) {
@@ -1152,13 +1198,13 @@ function isCleanLegacySkillExposureDirectory(
     const expectedContent = previousSkillContent.get(descendantPath);
     return (
       expectedContent !== undefined &&
-      readTextFile(relativePathToTarget(targetDir, descendantPath)) === expectedContent
+      contentEquals(readFileSync(relativePathToTarget(targetDir, descendantPath)), expectedContent)
     );
   });
 }
 
 function copyMirrorMatches(
-  copyMirrorAssets: ResolvedAsset[],
+  copyMirrorAssets: ResolvedFileAsset[],
   targetDir: string,
   exposurePath: string,
 ): boolean {
@@ -1182,7 +1228,7 @@ function copyMirrorMatches(
     const expectedContent = expectedContentByPath.get(relativePath);
     return (
       expectedContent !== undefined &&
-      readTextFile(relativePathToTarget(targetDir, relativePath)) === expectedContent
+      contentEquals(readFileSync(relativePathToTarget(targetDir, relativePath)), expectedContent)
     );
   });
 }
@@ -1205,7 +1251,7 @@ function isManagedSkillExposurePath(
   absolutePath: string,
   targetDir: string,
   relativePath: string,
-  previousSkillContent: Map<string, string>,
+  previousSkillContent: Map<string, FileContent>,
   manifestSkillExposure?: InstallManifest["files"][string]["skillExposure"],
 ): boolean {
   const stats = lstatSync(absolutePath);
@@ -1239,7 +1285,7 @@ function skillExposureSymlinkTargetMatches(
 function skillExposureDescendantsMatch(
   targetDir: string,
   relativePath: string,
-  previousSkillContent: Map<string, string>,
+  previousSkillContent: Map<string, FileContent>,
 ): boolean {
   const absolutePath = relativePathToTarget(targetDir, relativePath);
   if (!existsSync(absolutePath) || !statSync(absolutePath).isDirectory()) {
@@ -1254,7 +1300,7 @@ function skillExposureDescendantsMatch(
     const expectedContent = previousSkillContent.get(descendantPath);
     return (
       expectedContent !== undefined &&
-      readTextFile(relativePathToTarget(targetDir, descendantPath)) === expectedContent
+      contentEquals(readFileSync(relativePathToTarget(targetDir, descendantPath)), expectedContent)
     );
   });
 }
@@ -1688,4 +1734,33 @@ function getCarriedOnDemandRouterAssets(options: {
     }
   }
   return assets.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+}
+
+function assertTextDocumentAsset(asset: ResolvedFileAsset): asserts asset is ResolvedAsset {
+  if (typeof asset.content !== "string") throw new Error(`Document asset ${asset.relativePath} must contain text.`);
+}
+
+/** Legacy ownership is input to explicit reviewed adoption or removal only. */
+export function assertStandardSkillLayout(manifest: InstallManifest | null, targetDir?: string, selections?: import("./types").InstallSelections): void {
+  if (selections && (!selections.skills || selections.selectedSkills.length === 0)) return;
+  if (targetDir && selections) {
+    const oldRoot = path.join(selections.skillScope === "global" ? homedir() : targetDir, ".make-docs/agentics");
+    if (lstatSync(oldRoot, {throwIfNoEntry:false})) throw new Error(`Existing legacy directory needs inspection and reviewed cutover before Skill changes: ${oldRoot}. Preserve its content. Review named owned Skills with setup skills --adopt-existing <selected names> --dry-run, then --review <digest>. Unowned or unknown legacy content needs an explicit resolution before normal setup.`);
+  }
+
+  if ((manifest?.skillFiles ?? []).some(p => /(?:^|\/)\.make-docs\/agentics\/skills(?:\/|$)/.test(p.replace(/\\/g, "/"))) || Object.entries(manifest?.files ?? {}).some(([p, entry]) =>
+    /(?:^|\/)\.make-docs\/agentics\/skills(?:\/|$)/.test(p.replace(/\\/g, "/")) ||
+    /(?:^|\/)\.make-docs\/agentics\/skills(?:\/|$)/.test(entry.skillExposure?.canonicalPayloadPath ?? ""))) {
+    throw new Error("Legacy Skill layout needs reviewed cutover. Run setup skills --adopt-existing <selected names> --dry-run with the same target, scope, and tools; review the result, then repeat with --review <digest>. Existing content is preserved.");
+  }
+}
+
+function assertStandardSkillDestinations(manifest: InstallManifest | null, assets: ResolvedInstallAsset[]): void {
+  if (!manifest) return;
+  const entries = Object.entries(manifest.files);
+  if (assets.some(asset => isSkillExposureAsset(asset)
+    ? entries.some(([p, entry]) => p.startsWith(asset.relativePath + "/") && (entry.sourceId.startsWith("skill:shared:") || entry.sourceId.startsWith("skill-shared-asset:")))
+    : entries.some(([p, entry]) => entry.skillExposure && asset.relativePath.startsWith(p + "/")))) {
+    throw new Error("The selected Skill tools change a native link or canonical directory. Run setup skills --adopt-existing <selected names> --dry-run with the new target, scope, and tools; review the result, then repeat with --review <digest>. Existing content is preserved.");
+  }
 }

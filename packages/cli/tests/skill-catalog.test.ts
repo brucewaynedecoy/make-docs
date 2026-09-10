@@ -6,15 +6,18 @@ import {
 } from "../src/skill-catalog";
 import { defaultSelections } from "../src/profile";
 import type {
-  ResolvedAsset,
+  ResolvedFileAsset,
   ResolvedSkillExposureAsset,
 } from "../src/types";
-import { mockSkillFetches } from "./helpers";
 
 const ALL_SKILL_NAMES = [
   "archive-docs",
   "cleanup-docs",
   "decompose-codebase",
+  "preflight",
+  "software-factory",
+  "human-experience",
+  "naive-uat",
 ];
 
 // Withdrawn from the shipped registry by the D-020 stopgap; regeneration is
@@ -51,19 +54,20 @@ function findExposure(
 function findFileAsset(
   assets: Awaited<ReturnType<typeof getDesiredSkillAssets>>,
   relativePath: string,
-): ResolvedAsset | undefined {
+): ResolvedFileAsset | undefined {
   return assets.find(
-    (asset): asset is ResolvedAsset =>
+    (asset): asset is ResolvedFileAsset =>
       asset.kind !== "skill-exposure" && asset.relativePath === relativePath,
   );
 }
 
 describe("skill catalog", () => {
   beforeEach(() => {
-    mockSkillFetches();
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network disabled")));
   });
 
   afterEach(() => {
+    expect(fetch).not.toHaveBeenCalled();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
@@ -82,14 +86,17 @@ describe("skill catalog", () => {
       "archive-docs",
       "decompose-codebase",
       "cleanup-docs",
+      "human-experience",
+      "software-factory",
       "naive-uat",
+      "preflight",
     ]);
     expect(choices[0]).toMatchObject({
       name: "archive-docs",
       displayName: "Archive docs",
       sourcePolicyKind: "first-party",
       provenanceKind: "first-party",
-      provenanceLabel: "make-docs first-party skill",
+      provenanceLabel: "make-docs embedded first-party Skill",
       supportedHarnesses: ["claude-code", "codex"],
       purposes: [
         {
@@ -107,7 +114,7 @@ describe("skill catalog", () => {
     const assets = await getDesiredSkillAssets(selections);
     const archiveSharedPayload = findFileAsset(
       assets,
-      ".make-docs/agentics/skills/archive-docs/SKILL.md",
+      ".agents/skills/archive-docs/SKILL.md",
     );
     const archiveSkillForClaude = findExposure(
       assets,
@@ -120,31 +127,31 @@ describe("skill catalog", () => {
 
     expect(archiveSharedPayload).toBeDefined();
     expect(archiveSkillForClaude).toBeDefined();
-    expect(archiveSkillForCodex).toBeDefined();
+    expect(archiveSkillForCodex).toBeUndefined();
 
     expect(
       hasAsset(
         assets,
-        ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
+        ".agents/skills/archive-docs/references/archive-workflow.md",
       ),
     ).toBe(true);
     expect(
       hasAsset(
         assets,
-        ".make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py",
+        ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
     ).toBe(true);
     expect(
       hasAsset(
         assets,
-        ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
+        ".agents/skills/archive-docs/agents/openai.yaml",
       ),
     ).toBe(true);
     expect(hasAsset(assets, ".claude/skills/cleanup-docs")).toBe(true);
     expect(
       hasAsset(
         assets,
-        ".make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py",
+        ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
       ),
     ).toBe(true);
     expect(
@@ -158,7 +165,7 @@ describe("skill catalog", () => {
         assets,
         ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
-    ).toBe(false);
+    ).toBe(true);
     for (const withdrawnSkill of WITHDRAWN_SKILL_NAMES) {
       expect(
         assets.some((asset) =>
@@ -176,9 +183,9 @@ describe("skill catalog", () => {
     expect(archiveSkillForClaude?.kind).toBe("skill-exposure");
     expect(archiveSkillForClaude?.skillExposure).toMatchObject({
       harness: "claude-code",
-      canonicalPayloadPath: ".make-docs/agentics/skills/archive-docs",
+      canonicalPayloadPath: ".agents/skills/archive-docs",
       exposurePath: ".claude/skills/archive-docs",
-      symlinkTarget: "../../.make-docs/agentics/skills/archive-docs",
+      symlinkTarget: "../../.agents/skills/archive-docs",
       preferredMode: "symlink",
     });
     expect(archiveSkillForClaude?.copyMirrorAssets.map((asset) => asset.relativePath)).toContain(
@@ -187,8 +194,7 @@ describe("skill catalog", () => {
     expect(archiveSkillForClaude?.copyMirrorAssets.find((asset) => asset.relativePath.endsWith("SKILL.md"))?.content).toContain(
       "./references/archive-workflow.md",
     );
-    expect(archiveSkillForCodex?.kind).toBe("skill-exposure");
-    expect(archiveSkillForCodex?.skillExposure.harness).toBe("codex");
+    expect(new Set(assets.map(asset => asset.relativePath)).size).toBe(assets.length);
   });
 
   test("uses the home directory for global scope and omits deselected harnesses", async () => {
@@ -202,12 +208,12 @@ describe("skill catalog", () => {
     expect(assets.length).toBeGreaterThan(0);
     expect(
       assets.every((asset) =>
-        asset.relativePath.startsWith(`${homedir()}/.make-docs/agentics/skills/`) ||
+        asset.relativePath.startsWith(`${homedir()}/.agents/skills/`) ||
         asset.relativePath.startsWith(`${homedir()}/.claude/skills/`),
       ),
     ).toBe(true);
     expect(
-      assets.some((asset) => asset.relativePath.includes(".agents/")),
+      assets.some((asset) => asset.relativePath.includes(".codex/")),
     ).toBe(false);
   });
 
@@ -218,9 +224,9 @@ describe("skill catalog", () => {
     const assets = await getDesiredSkillAssets(selections);
 
     for (const skillName of ALL_SKILL_NAMES) {
-      expect(hasAsset(assets, `.make-docs/agentics/skills/${skillName}/SKILL.md`)).toBe(true);
+      expect(hasAsset(assets, `.agents/skills/${skillName}/SKILL.md`)).toBe(true);
       expect(hasAsset(assets, `.claude/skills/${skillName}`)).toBe(true);
-      expect(hasAsset(assets, `.agents/skills/${skillName}`)).toBe(true);
+      expect(hasAsset(assets, `.agents/skills/${skillName}`)).toBe(false);
       expect(findExposure(assets, `.claude/skills/${skillName}`)?.copyMirrorAssets).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -238,12 +244,12 @@ describe("skill catalog", () => {
 
     const archiveOnly = await getDesiredSkillAssets(archiveSelections);
     expect(
-      hasAsset(archiveOnly, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
+      hasAsset(archiveOnly, ".agents/skills/archive-docs/SKILL.md"),
     ).toBe(true);
     expect(
       hasAsset(
         archiveOnly,
-        ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+        ".agents/skills/decompose-codebase/SKILL.md",
       ),
     ).toBe(false);
     expect(
@@ -273,7 +279,7 @@ describe("skill catalog", () => {
     expect(
       hasAsset(
         withDecompose,
-        ".make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md",
+        ".agents/skills/decompose-codebase/references/mcp-playbook.md",
       ),
     ).toBe(true);
     expect(
@@ -291,13 +297,13 @@ describe("skill catalog", () => {
     expect(
       hasAsset(
         withDecompose,
-        ".make-docs/agentics/skills/decompose-codebase/assets/templates/decomposition-plan.md",
+        ".agents/skills/decompose-codebase/assets/templates/decomposition-plan.md",
       ),
     ).toBe(true);
     expect(
       hasAsset(
         withDecompose,
-        ".make-docs/agentics/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
+        ".agents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md",
       ),
     ).toBe(true);
     expect(

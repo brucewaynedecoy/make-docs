@@ -232,7 +232,7 @@ describe("lifecycle validation", () => {
       );
 
       const homeSkillPath = ".agents/skills/archive-docs";
-      const sharedHomeSkillPath = ".make-docs/agentics/skills/archive-docs/SKILL.md";
+      const sharedHomeSkillPath = ".agents/skills/archive-docs/SKILL.md";
       expect(result.status).toBe("completed");
       expect(result.copiedFiles).toContain(`_home/${sharedHomeSkillPath}`);
       expect(result.materializedDirectories).toContain(`_home/${homeSkillPath}`);
@@ -284,8 +284,9 @@ describe("lifecycle validation", () => {
           }),
         ],
       });
-      expect(removablePaths).toContain(".make-docs/agentics/skills/acme-release/SKILL.md");
-      expect(removablePaths).toContain(".agents/skills/acme-release");
+      expect(removablePaths).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(removablePaths).not.toContain(".agents/skills/acme-release");
+      expect(existsSync(path.join(targetDir,".claude/skills/acme-release"))).toBe(false);
       expect(removablePaths).not.toContain(".agents/skills/archive-docs");
       expect(compatibilityEvidence).toContain(
         "selection: skills project; manifest Acme local skills (local); selected acme-release; provenance acme-release:local",
@@ -298,7 +299,7 @@ describe("lifecycle validation", () => {
           now: NOW,
         }),
       );
-      expect(backupResult.copiedFiles).toContain(".make-docs/agentics/skills/acme-release/SKILL.md");
+      expect(backupResult.copiedFiles).toContain(".agents/skills/acme-release/SKILL.md");
       expect(backupResult.materializedDirectories).toContain(".agents/skills/acme-release");
       expect(backupResult.copiedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
 
@@ -311,9 +312,9 @@ describe("lifecycle validation", () => {
       );
       expectCompletedUninstall(uninstallResult);
       expect(uninstallResult.removedFiles).toContain(
-        ".make-docs/agentics/skills/acme-release/SKILL.md",
+        ".agents/skills/acme-release/SKILL.md",
       );
-      expect(uninstallResult.removedFiles).toContain(".agents/skills/acme-release");
+      expect(uninstallResult.prunedDirectories).toContain(".agents/skills/acme-release");
       expect(uninstallResult.removedFiles).not.toContain(".agents/skills/archive-docs");
     } finally {
       cleanupTempDir(targetDir);

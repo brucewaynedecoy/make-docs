@@ -1,0 +1,23 @@
+{
+  "args": [
+    "codex",
+    "exec",
+    "--ephemeral",
+    "--sandbox",
+    "read-only",
+    "--skip-git-repo-check",
+    "--cd",
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review",
+    "--json",
+    "--output-last-message",
+    "/tmp/w19-r5-standard-layout-fresh-review-report.md",
+    "-"
+  ],
+  "packageSha256": "a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c",
+  "prompt": "/tmp/w19-r5-standard-layout-fresh-review-prompt.txt",
+  "inputs": "/tmp/w19-r5-standard-layout-fresh-review-inputs.json",
+  "started": "2026-09-10T03:56:31.661722+00:00",
+  "version": "codex-cli 0.154.0",
+  "exitCode": 0,
+  "finished": "2026-09-10T03:59:20.088940+00:00"
+}

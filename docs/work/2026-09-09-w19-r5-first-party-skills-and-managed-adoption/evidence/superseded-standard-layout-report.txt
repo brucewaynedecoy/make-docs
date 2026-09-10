@@ -1,0 +1,168 @@
+---
+title: "W19 R5 Acceptance Evidence"
+kind: "work"
+status: "active"
+coordinate: "W19 R5 P1"
+source:
+  type: "prd"
+  path: "docs/prd/08-skills-catalog-and-distribution.md"
+---
+
+# W19 R5 Acceptance Evidence
+
+## Current Result
+
+The coordinator retained a private `.make-docs/agentics/skills/` installation layer from earlier authority. That was our error, not an owner clarification of an approved outcome. The owner reported that a prior Skill installation had already been removed for this same mistake. The correction stays within W19 R5: one phase, three stages, existing task and acceptance IDs. Earlier private-layout test results are superseded for installation acceptance. They do not prove the standard layout.
+
+The owner directs the standard-location correction within R5. Implementation is authorized, but none of the prior private-layout package or live-adoption results accepts the correction. D-005 is reopened. Phase acceptance, closeout and commit remain open; W20/W21 remain paused. No corrected real installation has been applied.
+
+Install Skill files in standard agent locations, selected by scope and harness:
+
+| Scope and selected harnesses | Real Skill directory | Other selected access |
+| --- | --- | --- |
+| Project, Claude only | `.claude/skills/<name>/` | None; do not create `.agents/skills/`. |
+| Project, Codex only | `.agents/skills/<name>/` | None; do not create `.claude/skills/`. |
+| Project, both | `.agents/skills/<name>/` | `.claude/skills/<name>` links to it, or is a supported managed native copy. |
+| Global, any selection | `~/.agents/skills/<name>/` | Selected Codex uses `~/.codex/skills/<name>` (or `CODEX_HOME/skills`); selected Claude uses its configured native Skill root, normally `~/.claude/skills/<name>`. Native access links to the canonical directory or uses a supported copy. Direct access applies only if the configured native path equals the canonical path. |
+
+A harness that uses the real directory reads it directly. Never create a self-link or duplicate ownership entry for that same path. `none` creates no Skill directories. Preserve pre-existing unrelated content; absence checks on fresh fixtures must prove no unselected project Skill root was created.
+
+There is no active `.make-docs/agentics/` installation layer, in the project or home. Skill source stays solely in `packages/skills/<name>/`; compiled CLI output embeds declared bytes. Installation identity, ownership, intent and recovery belong only in the global Make Docs Store. A symbolic link to a Make Docs resource URL is unsupported and is not a feature or deferred task in this correction.
+
+## Current Public-Summary Candidate
+
+Successor SHA-256: `68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b`. This package adds the bounded human summary and help correction from A13. The [package delta](evidence/tests/standard-layout/summary-package-delta.json.txt) records 126 unchanged files; changes are the CLI entry/map and the replaced command chunk/map. The seven embedded Skill payloads are unchanged.
+
+The strict 21-case delivery matrix passed again on this exact tar: [report](evidence/tests/standard-layout/summary-delivery-proof.json.txt), [output](evidence/tests/standard-layout/summary-delivery-proof.log.txt). The prior 1227-test suite remains attributed to the a378 production candidate; affected display/help tests passed separately as reported by the implementation worker. This is not a claim that the entire suite was rerun on the successor.
+
+A bounded follow-up fixture now contains actual Claude-only ownership-ready and unchanged previews from the successor CLI. Complete JSON stdout and plain stderr summaries are separate. The fixture adoption used the reviewed public CLI in a new isolated Store solely to obtain the unchanged state. The before baseline is 53 files, 28 directories, and zero links. The sample has no `.agents` or private Skill root. The reviewer will see public help/output only, not prior findings or unchanged Skill source. Its result and after-tree proof remain pending. The real cutover, D005, and owner acceptance remain open.
+
+## Prior Standard-Layout Candidate Checkpoint
+
+Candidate package SHA-256: `a37863dd08f7a3d3441fcbb8f0842cc090568142bc0be8319c12f672c0c6d98c`. The coordinator packed this candidate with scripts disabled after the corrected smoke run. It is not yet the final accepted delivery. The strict isolated delivery matrix passed all 21 cases. The clean full run passed 1227 of 1227 tests in 80 files (256.63 seconds, exit zero). The first run passed 1223 of 1227 tests; four stale recovery-fixture path assumptions were then corrected without production changes. Installed maintainer cutover and the public-review correction/follow-up remain pending. The upcoming summary/help change needs a successor package; this candidate’s full test and delivery proof remains attributed to a378.
+
+| Check | Observed result | Retained evidence |
+| --- | --- | --- |
+| Owned CLI/UI/P7/static cases | 151 distinct cases passed: the first run passed 150 and found one stale direct-payload ledger assertion; that assertion was corrected and its one-case rerun passed. This is combined focused coverage, not a new whole-suite pass. | [Initial run](evidence/tests/standard-layout/owned-tests.log.txt), [rerun](evidence/tests/standard-layout/cli-rerun.log.txt). |
+| Standard paths and normal-write guards | 22 focused cases passed. The three code-review findings were corrected and read back. | [Guard tests](evidence/tests/standard-layout/guards-final.log.txt), [bounded independent review](evidence/reviews/standard-layout-review.md). |
+| Adoption and Store correction | 63 focused cases passed: domain 32, Store 20, command 5, state help 6. Cases cover selected project roots, configured global homes, reviewed legacy removal, unknown/late content refusal, resume, and the forward-only legacy boundary. | [Focused output](evidence/tests/standard-layout/adoption-final2.log.txt). |
+| Typecheck | Worker-reported exit zero. The command produced no stdout; the retained empty file alone is not proof of success. | [Captured stdout](evidence/tests/standard-layout/typecheck-final2.log.txt). |
+| Packed CLI smoke | Passed after one stale smoke assertion was fixed. The earlier failure expected the removed private payload path; it did not show a runtime layout failure. | [Earlier failed assertion](evidence/tests/standard-layout/smoke-pack.log.txt), [corrected smoke](evidence/tests/standard-layout/smoke-pack-final.log.txt). |
+| Strict isolated delivery | All 21 cases passed on this tar. Inner sandbox checks denied network and source-checkout access. The literal path table, full directory checks, declared bytes, selected-only roots, and no-private-layer checks passed. The first launch could not apply an inner sandbox within the outer sandbox; an approved outer escalation ran the same strict inner checks. | [Report](evidence/tests/standard-layout/delivery-proof.json.txt), [output](evidence/tests/standard-layout/delivery-proof.log.txt). |
+| Renewed public review preparation | Claude-only sample prepared with public help, version, and a zero-file-change adoption preview for three Skills. No `.agents` or private Skill root exists in the sample. Baseline: 82 files, 52 directories, zero links. The approved review finished with one medium public-output finding. Full before/after tree and candidate identity checks passed; a bounded follow-up is pending. | Prepared input snapshot and prompt remain outside the repository in `/tmp/w19-r5-standard-layout-fresh-review-inputs.json` and `/tmp/w19-r5-standard-layout-fresh-review-prompt.txt`. |
+
+The [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) records 1227/1227 passing tests across 80 files. The coordinator’s [defaults run](evidence/tests/standard-layout/defaults.log.txt) passed 50/50 tests in two files. These runs used the frozen corrected production source. They do not establish live cutover or human acceptance.
+
+The [capture index](evidence/tests/standard-layout/capture-index.json.txt) records source paths and exact hashes. These files retain test output only. Installation state remains in the global Store. Candidate acceptance, phase closeout, and commit remain gated.
+
+## Recovery Boundary
+
+Wrong-private-layout cutover is forward-resume-only: review must state before apply that rollback would recreate the forbidden private layer and is not offered. Ordinary adoption already using standard locations keeps normal resume/rollback. Older saved operations that would write a retired private root refuse safely; never execute them to restore that layer. This correction adds no new URL-backed installation mode.
+
+## Acceptance Results
+
+The rows below separate measured package/isolated results from the pending live and review gates. Candidate identity is the SHA-256 in the checkpoint above.
+
+| Case | Current result | Evidence summary |
+| --- | --- | --- |
+| A1 | Passed source checks; public review pending | Seven registered Skills and 39 declared files; explicit-only and standalone metadata checks passed. Final public reading is A13. |
+| A2 | Passed | The tar, registry, package identity, embedded bytes, and all isolated installed outputs match the declared source bytes. |
+| A3 | Passed | Seven individual cases, all/none/bare cases, and the complete 21-case matrix pass with source and network denied. |
+| A4 | Passed isolated delivery | Every scope/harness row passes the literal path table. Direct payloads, links/copies, and unselected-root absence are checked. |
+| A5 | Passed isolated tests | Reviewed exact paths, backups, byte preservation, and ownership registration pass. Real cutover remains A14. |
+| A6 | Passed automated tests | Parser/command/help suites cover digest approval, no --yes bypass, cancellation, selected tools, and safe next actions. Public-review judgment remains A13. |
+| A7 | Passed isolated tests | Unknown extras, unsafe links, competing owners, custom-home conflicts, and legacy unknown content stop without deletion. |
+| A8 | Passed isolated tests | Byte, link, inventory, package, ownership, scope, and tool changes invalidate the reviewed digest or locked apply. |
+| A9 | Passed isolated tests | Ownership-only adoption and cross-command repeats retain canonical ownership. Real repeat remains A14. |
+| A10 | Passed isolated tests; installed readback pending | Store refusal, pending-path guards, saved fallback, fresh CLI/MCP recovery, and forward-only legacy recovery are covered. Final installed proof remains pending. |
+| A11 | Passed isolated tests | Legacy cutover, scope/tool changes, clean old-copy updates, and edited/unrelated content preservation pass. Live cutover remains A14. |
+| A12 | Passed package/isolated proof; live tree pending | Actual package disk includes ignored and empty paths. Complete isolated trees reject private or unselected roots. The real installed tree remains A14. |
+| A13 | Finding open | Approved review finished and input trees are unchanged. One medium finding asks for a plain ownership summary. Fix and bounded follow-up remain pending. |
+| A14 | Pending | No final corrected real cutover, preservation readback, or cross-command repeat is claimed yet. |
+
+### A1 Source and Standalone Intent
+
+The strict delivery report confirms exactly seven registered first-party Skills and 39 declared files. The full run passed `embedded-skills` (29), `skill-registry` (12), `skill-catalog` (6), and `template-links` (12). The source checks cover standalone declarations, explicit-only policies, undeclared-file exclusion, and installed references. This proves source/metadata contracts; it does not prove that every external tool or Skill workflow works. The public reading remains A13. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A2 Payload Membership and Bytes
+
+The strict report compares packed package/version and registry hashes with source, then compares the compiled embedded inventory and each installed byte/hash inventory. Binary preservation and corrupt/missing bundle refusal also passed in the embedded and byte test suites. No separate copied Skill payload tree was found under packages. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A3 Offline Selection
+
+All 21 strict cases passed with network and source-checkout reads denied by the inner OS sandbox. They include each of the seven Skills alone, all Skills across the scope/tool/copy matrix, and none/bare cases. The proof does not claim a Windows run or live harness loading. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A4 Scope and Harness Exposure
+
+The literal independent path table passed for project Codex-only, Claude-only, and both; global canonical `.agents` with selected `.codex`/`.claude` native paths also passed. Tests check real canonical directories, exact link targets or copied bytes, complete trees, and no private or newly created unselected project roots. The focused standard-layout suite adds configured global homes and canonical equality. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A5 Reviewed Adoption
+
+The 32 adoption domain cases passed. They cover read-only review, exact reviewed changes, backups of known changed bytes, restoration of declared missing files, explicit ownership, and the old three-Skill migration shape. The 20 Store cases prove intent is saved before mutation. These are isolated fixtures; A14 will report the real operation. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A6 Command Edges
+
+The full run passed the adoption parser (22), command (5), state-help (6), and CLI (103) suites. They cover review-only no-write behavior, exact digest acceptance, interactive cancel/confirmation, no --yes bypass, scope/tool preservation, and invalid argument combinations. Human clarity is still subject to A13. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A7 Unsafe or Ambiguous Input
+
+The adoption and Store suites passed unknown-extra, conflicting-copy, unsafe-parent/link, another-checkout owner, pending-overlap, and arrival-after-review refusal. Standard-path guards also block disk-only legacy roots and custom-native unowned copies. The code review found and checked the fixes for the three guard gaps; no silent ownership claim or broad deletion is accepted. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A8 Stale Review
+
+The passing domain and embedded suites bind the review to selected Skills, scope/tools, canonical target, file bytes, link targets, full inventory, package/runtime identity, and current ownership. Locked rechecks reject drift. This includes late destination changes before legacy source deletion. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A9 Ownership-Only and Repeat
+
+Isolated tests pass matching-copy ownership registration with zero file actions and true repeats after ordinary setup and Skills sync. Native entries and canonical file entries retain their normal ownership classes. Final real-project repeat proof is still A14. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A10 Store and Recovery
+
+The full run passed Store adoption (20), installation state (22), and fresh-process recovery (5) cases. Public fresh CLI resume/rollback and MCP read/status/write-gate cases use isolated fixtures. Legacy private-layout cleanup has a separate forward-resume-only guard; ordinary standard adoption keeps rollback. A completed real-operation dry run alone will not be used as interruption proof. Final installed CLI recovery/readback remains pending. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A11 Upgrade, Update, and Removal
+
+The passing adoption, byte (5), P7 (4), backup (12), audit (17), lifecycle (10), and uninstall (12) suites cover prior copied payloads, known old source bytes, updates/removal, scope/tool transitions, exact backup bytes, and preservation of edited or unrelated content. The legacy domain cases cover reviewed cleanup and refusal of unknown arrivals. These proofs do not replace the real A14 cutover. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A12 Complete Directory Proof
+
+The independent disk scan inspected 586 package entries, including 96 directories and zero symlinks, without using git-ignore filters. It found no duplicate Skill trees or retired empty payload mirrors. The 21 isolated installs compare complete files/links/directories and reject active private or unselected roots. Packed source/embedded/installed byte parity passed. The real tree is still pending A14. See the [clean full-suite log](evidence/tests/standard-layout/full-tests-clean.log.txt) and [strict delivery report](evidence/tests/standard-layout/delivery-proof.json.txt).
+
+### A13 Independent and Fresh-Context Review
+
+The owner-authorized public review completed with Codex 0.154, exit zero. The reviewer used read-only public commands and installed Skill files. It observed a Claude-only sample with no `.agents` or private root, zero file changes, and 12 proposed file-ownership registrations across three Skills. It did not apply adoption or execute a Skill workflow.
+
+One medium finding remains open: raw JSON makes the owner count ownership entries to understand a zero-file-change plan. The bounded correction adds a plain summary while retaining machine-readable stdout. A stale global-Codex help phrase is also being corrected. A successor package and focused public follow-up are required; the a378 package is evidence for this run, not the final accepted candidate.
+
+The read-only verifier passed all 82 files, 52 directories, and zero links; modes, hashes, paths, tar identity, and entry identity match the before snapshot. The reviewer had prior context and extra tools supplied automatically but reported that it did not use them. An inline Node check could not create a temporary here-document file, so that check stopped. This was a fresh process and agent review of public surfaces, not strict zero-context, a live harness workflow, human UAT, or owner acceptance.
+
+Retained: [report](evidence/reviews/standard-layout-public-review/report.md.txt), [actual actions](evidence/reviews/standard-layout-public-review/actions.jsonl.txt), [run identity](evidence/reviews/standard-layout-public-review/run.json.txt), [stderr](evidence/reviews/standard-layout-public-review/stderr.log.txt), and [full read-back](evidence/reviews/standard-layout-public-review/verification.json.txt).
+
+### A14 Real Maintainer Adoption
+
+Corrected-layout proof is pending. Use the required case in the table above; prior private-layout captures are not a pass for this case.
+
+## Prior Evidence and Findings
+
+The [complete prior report](evidence/superseded-private-layout-report.txt) and its linked captures remain unchanged. It records the tested `fade83de`, `204e7c02`, `6e46d754` and related candidates, prior recovery/ownership fixes, real adoption and the 1196-test clean run. Those runs proved the wrong installation layout and are superseded for current layout acceptance. The later `456c811d…ed173b198` archive passed 21 offline cases after public help/Skill fixes; it also uses the wrong layout and is not corrected-layout evidence.
+
+The authorized public review ran under Codex 0.154.0 with 25 read-only commands and four findings. The supplied-context and blocked temporary-file helper limits remain explicit. All 84 review-input files stayed unchanged. The second fixture has a full directory snapshot. No reviewer was launched for that later fixture before the owner stopped work. Follow-up review remains authorized only within the existing public input scope and will use corrected candidate files.
+
+## Experience Promises
+
+| Promise | Human goal | Current conclusion and next proof |
+| --- | --- | --- |
+| P1 | Find installed Skills where the selected agent already reads them. | Material gap in the prior layout. Prove standard scope/harness directories and direct use without a private layer. |
+| P2 | See what review will move, preserve and own. | Prior review showed real effects but the wrong destination. Recheck exact standard paths and old-tree disposition. |
+| P3 | Preserve edits and recover interrupted managed changes. | Prior bounded safety evidence is retained. Reprove safe old-to-standard migration and recovery, including conflicts and repeats. |
+| P4 | Use each Skill by choice with no hidden sibling or automatic gate. | Source intent evidence remains useful. Repeat installed public review after the final candidate is built. |
+
+## Coverage and Authoring Rule
+
+Standard agent locations own installed Skill files. The global Make Docs Store owns installation state. `packages/skills/<name>/` owns authoring source. Do not add a private `.make-docs` Skill layer or treat a Make Docs resource URL as a filesystem symlink target. This rule must remain in current package and PRD guidance because the same wrong layout had already caused a prior installation to be removed.
+
+System instructions are corrected upstream; installed copies change only through the public CLI. Project guides are corrected in place. No new phase, test framework, deferred URL feature, or local state file is introduced. Final package/tree, migration, real CLI and public review evidence must replace the affected gates before owner review.
+
+## Acceptance and Follow-Up
+
+Implement the current phase matrix, run corrected package and isolated upgrade/recovery checks, perform reviewed real cutover through the installed CLI, and repeat the public review on the final candidate. Retain actual files and directory inventories. Present the result for owner acceptance. No closeout, commit or broader wave resumption is implied.

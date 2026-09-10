@@ -1,11 +1,12 @@
-import { stdin as input, stdout as output } from "node:process";
-import { note } from "@clack/prompts";
+import { stdin as input, stdout as output, stderr as reviewOutput } from "node:process";
+import { confirm, isCancel, note } from "@clack/prompts";
 import {
   applySkillsOnlyInstallPlan,
   planSkillsOnlyInstall,
 } from "./install";
 import { loadMakeDocsConfigOrThrow, type MakeDocsConfig } from "./config";
-import { loadManifest, MANIFEST_RELATIVE_PATH } from "./manifest";
+import { loadManifest } from "./manifest";
+import { applySkillAdoptionReview, buildSkillAdoptionReview, presentSkillAdoptionReview } from "./skills-adoption";
 import { cloneSelections, defaultSelections } from "./profile";
 import {
   applySkillRegistrySelectionMetadata,
@@ -38,9 +39,13 @@ export type SkillsCommandOptions = {
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
+  adoptExisting?: string[];
+  review?: string;
 };
 
 export async function runSkillsCommand(options: SkillsCommandOptions): Promise<void> {
+  if (options.review && !options.adoptExisting) throw new Error("--review requires --adopt-existing.");
+  if (options.adoptExisting && options.remove) throw new Error("--adopt-existing cannot be used with --remove.");
   const loadedConfig = loadMakeDocsConfigOrThrow(options.targetDir);
   const makeDocsConfig = loadedConfig.config;
   const existingManifest = loadManifest(options.targetDir);
@@ -54,6 +59,24 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
   );
   const packageMeta = readPackageMeta();
   validateSelectedSkills(initialSelections, effectiveSkillRegistry.registry);
+  if (options.adoptExisting) {
+    const review = await buildSkillAdoptionReview({targetDir:options.targetDir,selections:initialSelections,adoptExisting:options.adoptExisting,effectiveRegistry:effectiveSkillRegistry});
+    const presented = presentSkillAdoptionReview(review);
+    reviewOutput.write(renderAdoptionSummary(presented));
+    if (options.dryRun) { output.write(`${JSON.stringify(presented,null,2)}\n`); return; }
+    if (presented.status === "blocked") throw new Error(review.blockers.join("\n"));
+    let digest = options.review;
+    if (!digest && presented.status !== "unchanged") {
+      if (options.yes || !input.isTTY || !output.isTTY) throw new Error("Adoption requires --review <digest> from a complete dry run. --yes does not approve adoption.");
+      output.write(`${JSON.stringify(presented,null,2)}\n`);
+      const accepted = await confirm({message:"Apply this exact Skill adoption review?"});
+      if (isCancel(accepted) || !accepted) { output.write("Skill adoption cancelled.\n"); return; }
+      digest = review.digest;
+    }
+    const result = applySkillAdoptionReview(review,digest ?? review.digest);
+    output.write(`${JSON.stringify({...result,review:presented},null,2)}\n`);
+    return;
+  }
   const interactiveState = await resolveInteractiveSkillsState({
     options,
     existingManifest,
@@ -131,6 +154,47 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
   }
 }
 
+function renderAdoptionSummary(review: ReturnType<typeof presentSkillAdoptionReview>): string {
+  const effects = {register: 0, update: 0, remove: 0, retain: 0};
+  for (const row of review.ownership) effects[row.effect]++;
+  const files = review.ownership.filter(row => row.after && !row.after.skillExposure).length;
+  const exposures = review.ownership.filter(row => row.after?.skillExposure).length;
+  const registrations = review.ownership.filter(row => row.effect === 'register' && row.after && !row.after.skillExposure);
+  const registeredFiles = registrations.length;
+  const registeredSkills = new Set(registrations.flatMap(row => review.selectedSkills.filter(name => row.path.includes(`/skills/${name}/`)))).size;
+  const skills = new Set(review.selectedSkills).size;
+  const toolLabels: Record<string, string> = { codex: 'Codex', 'claude-code': 'Claude Code' };
+  const skillRoots = [...new Set(review.ownership.flatMap(row => {
+    if (!row.after) return [];
+    const normalized = row.path.replace(/\\/g, '/');
+    const segment = normalized.lastIndexOf('/skills/');
+    return segment < 0 ? [] : [normalized.slice(0, segment + '/skills'.length)];
+  }))].sort();
+  const lines = [
+    `Skill adoption review: ${review.status}.`,
+    `Target: ${review.targetRoot}`,
+    `Scope: ${review.scope}.`,
+    `Selected tools: ${review.selectedTools.map(tool => toolLabels[tool] ?? tool).join(', ') || 'none'}.`,
+    `Skill roots: ${skillRoots.join(', ') || 'none'}.`,
+  ];
+  if (review.status === 'blocked') {
+    lines.push('Adoption is blocked. No changes have been made.', ...review.blockers.map(message => `- ${message}`));
+  } else if (review.status === 'unchanged') {
+    lines.push(`Make Docs already manages ${files} files and ${exposures} native exposures across ${skills} Skills.`, 'No file or ownership changes are needed.');
+  } else {
+    if (!review.changes.length) {
+      lines.push('No file contents will change.');
+      if (registeredFiles) lines.push(`If approved, Make Docs will manage ${registeredFiles} existing files across ${registeredSkills} ${registeredSkills === 1 ? 'Skill' : 'Skills'}.`);
+      else lines.push('Ownership records will change only if you approve.');
+    }
+    lines.push(`Planned path changes: ${new Set(review.changes.map(change => change.path)).size}. Backup files: ${review.backups.length}.`);
+    lines.push('No adoption changes have been applied.');
+  }
+  lines.push(`Ownership entries: ${effects.register} to register, ${effects.update} to update, ${effects.remove} to remove, ${effects.retain} to retain.`);
+  lines.push(...review.recoveryLimits, review.nextAction);
+  return lines.join('\n') + '\n';
+}
+
 async function resolveInteractiveSkillsState(options: {
   options: SkillsCommandOptions;
   existingManifest: InstallManifest | null;
@@ -202,6 +266,7 @@ function resolveSkillsSelections(
 ): InstallSelections {
   const baseSelections = existingManifest ? existingManifest.selections : defaultSelections();
   const selections = cloneSelections(baseSelections);
+  selections.harnesses = {...(baseSelections.skillHarnesses ?? baseSelections.harnesses)};
 
   selections.skills = true;
   if (options.noCodex) {
@@ -216,6 +281,7 @@ function resolveSkillsSelections(
   if (options.selectedSkills !== undefined) {
     selections.selectedSkills = [...options.selectedSkills];
   }
+  selections.skillHarnesses = {...selections.harnesses};
 
   return selections;
 }
@@ -259,9 +325,8 @@ function writeSkillsCompletion(options: {
   state: SkillsUiState;
   plan: InstallPlan;
 }): void {
-  const manifestPath = `${options.state.targetDir}/${MANIFEST_RELATIVE_PATH}`;
   if (options.state.action === "remove") {
-    output.write(`Removed managed skills. Manifest: ${manifestPath}\n`);
+    output.write("Removed managed skills. Ownership is recorded in the global Make Docs Store.\n");
     return;
   }
 
@@ -274,5 +339,5 @@ function writeSkillsCompletion(options: {
     counts["strip-managed-block"] +
     counts["remove-managed"];
   const verb = options.existingManifest ? "Updated" : "Installed";
-  output.write(`${verb} skills (${changedCount} changed). Manifest: ${manifestPath}\n`);
+  output.write(`${verb} skills (${changedCount} changed). Ownership is recorded in the global Make Docs Store.\n`);
 }

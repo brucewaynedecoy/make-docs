@@ -1,5 +1,6 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { registerSkillAdoptionRecovery } from "../../skills-adoption";
 import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "../../store/installation-state";
 import { z } from "zod";
 import {
@@ -75,6 +76,7 @@ export const projectOperations: OperationDefinition[] = [{
   inputSchema: stateStatusInput,
   handler(rawInput, context) {
     const input = stateStatusInput.parse(rawInput);
+    registerSkillAdoptionRecovery();
     return readInstallationStatus(path.resolve(input.targetRoot ?? context.cwd));
   },
 }, {
@@ -85,6 +87,7 @@ export const projectOperations: OperationDefinition[] = [{
   inputSchema: stateRecoverInput,
   handler(rawInput, context) {
     const input = stateRecoverInput.parse(rawInput);
+    registerSkillAdoptionRecovery();
     return recoverInstallationOperation(path.resolve(input.targetRoot ?? context.cwd), input.operationId, input.mode, context.dryRun);
   },
 }, {
@@ -262,7 +265,8 @@ export const projectOperations: OperationDefinition[] = [{
         const changes: Array<() => void> = [];
         if (surfaceAction.type !== "noop") changes.push(preparePlannedFileChange(targetRoot, surfaceAction.relativePath, { kind: "directory" }, () => mkdirSync(relativePathToTarget(targetRoot, surfaceAction.relativePath), { recursive: true })));
         for (const action of surfaceRouterActions) {
-          if (action.type !== "noop" && typeof action.content === "string") changes.push(preparePlannedFileChange(targetRoot, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(relativePathToTarget(targetRoot, action.relativePath), action.content!)));
+          const content = action.content;
+          if (action.type !== "noop" && typeof content === "string") changes.push(preparePlannedFileChange(targetRoot, action.relativePath, { kind: "file", content }, () => writeTextFile(relativePathToTarget(targetRoot, action.relativePath), content)));
         }
         sealInstallationOperation(targetRoot);
         for (const change of changes) change();

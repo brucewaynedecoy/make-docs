@@ -18,11 +18,17 @@ Make all first-party Skills available from the installed CLI package, and let an
 
 ## Context
 
-Three useful Skills currently live only in this repository's `.agents/skills/`: `preflight`, `software-factory`, and `human-experience`. The optional `naive-uat` adapter lives in the docs template's `.make-docs/agentics/skills/` tree. The other three first-party Skills have sources in `packages/skills/`, but their delivery still includes remote-source assumptions. This split makes packaging, offline use, upgrades, and ownership unclear.
+At package drafting, three useful Skills lived only in this repository's `.agents/skills/`: `preflight`, `software-factory`, and `human-experience`. The optional `naive-uat` adapter lived in the docs template's `.make-docs/agentics/skills/` tree. The other three first-party Skills have sources in `packages/skills/`, but their delivery still includes remote-source assumptions. This split makes packaging, offline use, upgrades, and ownership unclear.
 
 The owner has settled the delivery choice: bundle all seven first-party Skills in the CLI. This resolves D-005's product choice; implementation evidence and drift closure remain outstanding. R3 established Store-only operational authority. R4 established current project asset and Persona paths. This revision reuses those boundaries.
 
 The owner accepted this corrected package and backlog on 2026-09-09 and authorized implementation. The package followed design → plan → existing PRD maintenance → work backlog. All 14 implementation tasks remain pending at package commit. W20 and W21 remain paused. This package commit contains documentation only.
+
+## Standard-Layout Correction
+
+Wrong-private-layout cutover is forward-resume-only: review must state before apply that rollback would recreate the forbidden private layer and is not offered. Ordinary adoption already using standard locations keeps normal resume/rollback. Older saved operations that would write a retired private root refuse safely; never execute them to restore that layer. This correction adds no new URL-backed installation mode.
+
+The coordinator retained a private `.make-docs/agentics/skills/` installation layer from earlier authority. That was our error, not an owner clarification of an approved outcome. The owner reported that a prior Skill installation had already been removed for this same mistake. The correction stays within W19 R5: one phase, three stages, existing task and acceptance IDs. Earlier private-layout test results are superseded for installation acceptance. They do not prove the standard layout.
 
 ## Human Experience Intent
 
@@ -65,15 +71,30 @@ Keep `packages/skills/` as the source workspace. Do not rename it to `agentics`.
 
 Together with `archive-docs`, `cleanup-docs`, and `decompose-codebase`, these form the seven first-party entries. Read each Skill's required references, examples, and harness metadata from its registry declaration. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Reject missing or unsafe source entries. Missing or corrupt embedded bundles fail clearly. First-party resolution in a packed CLI must use embedded bytes and must not fall back to a network fetch or the maintainer checkout. Existing third-party and alternate-manifest trust rules remain separate.
 
-The owner clarified this source rule after the first package draft. It replaces the earlier copied bundled-directory proposal; it does not change installed shared payload paths. Implementation must add concise source-rule guidance to package authoring instructions and align package README/release text with this model. Validate the actual disk under `packages`, including ignored paths and empty directories, to reject duplicate Skill trees and obsolete empty mirror roots. Compare source, embedded build/archive/extracted, and installed byte/hash inventories.
+The owner clarified this source rule after the first package draft. It replaces the earlier copied bundled-directory proposal; the installed-path assumption retained at that point was wrong and is corrected below. Implementation must add concise source-rule guidance to package authoring instructions and align package README/release text with this model. Validate the actual disk under `packages`, including ignored paths and empty directories, to reject duplicate Skill trees and obsolete empty mirror roots. Compare source, embedded build/archive/extracted, and installed byte/hash inventories.
 
 Keep explicit selection: `all` selects the effective registry's entries; `none` and bare defaults select no Skills. Each entry must work without a sibling Skill installation. Give preflight its own Store reference. Remove maintainer-specific PRD links, local-manifest prerequisites, and repository-only proof claims from promoted portable instructions. Follow the existing CLI and Store guidance; ordinary review does not require optional capture.
 
 Preserve the three Skills' explicit invocation policy and their limits on automatic cross-activation. Keep `naive-uat` as the stable Skill name with Unassisted Goal Testing as its display language. It remains a thin adapter to the shared workflow resources and typed CLI operations, not another UAT policy implementation.
 
-### Keep installed paths and add reviewed adoption
+### Standard Installed Paths and Reviewed Adoption
 
-Keep the canonical installed shared payload at `.make-docs/agentics/skills/<name>/` for project scope and the existing corresponding global location. Keep Codex and Claude native exposure, including the supported symlink and copy paths. Existing setup and setup-skills selection, scope, update, backup, and removal behavior remain the entry points.
+Install Skill files in standard agent locations, selected by scope and harness:
+
+| Scope and selected harnesses | Real Skill directory | Other selected access |
+| --- | --- | --- |
+| Project, Claude only | `.claude/skills/<name>/` | None; do not create `.agents/skills/`. |
+| Project, Codex only | `.agents/skills/<name>/` | None; do not create `.claude/skills/`. |
+| Project, both | `.agents/skills/<name>/` | `.claude/skills/<name>` links to it, or is a supported managed native copy. |
+| Global, any selection | `~/.agents/skills/<name>/` | Selected Codex uses `~/.codex/skills/<name>` (or `CODEX_HOME/skills`); selected Claude uses its configured native Skill root, normally `~/.claude/skills/<name>`. Native access links to the canonical directory or uses a supported copy. Direct access applies only if the configured native path equals the canonical path. |
+
+A harness that uses the real directory reads it directly. Never create a self-link or duplicate ownership entry for that same path. `none` creates no Skill directories. Preserve pre-existing unrelated content; absence checks on fresh fixtures must prove no unselected project Skill root was created.
+
+There is no active `.make-docs/agentics/` installation layer, in the project or home. Skill source stays solely in `packages/skills/<name>/`; compiled CLI output embeds declared bytes. Installation identity, ownership, intent and recovery belong only in the global Make Docs Store. A symbolic link to a Make Docs resource URL is unsupported and is not a feature or deferred task in this correction.
+
+Upgrade the wrong private layout through a reviewed CLI operation. The review names every old source, new standard destination, link/copy change, backup and ownership effect. Recheck exact bytes, links, scope, selected tools and Store ownership before mutation. Verify the complete destination tree and access paths before removing clean owned old files. Preserve changed, unknown or conflicting content and stop for an explicit disposition; never infer ownership from a path. Remove the retired `.make-docs/agentics/skills` tree and its ancestors only when proven empty and managed. Success must leave no active private Skill layer or unexplained legacy content. Historical backup byte copies may remain under declared backup/archive roots; they are not active installation paths. Ordinary standard-path update, removal, scope/tool changes, resume/rollback and repeated normal setup/Skills sync must use the same standard-path rules.
+
+Existing setup and setup-skills selection, scope, update, backup and removal remain the entry points.
 
 Add `--adopt-existing <csv>` only to `setup skills`. Ordinary `setup` gains the bundled Skill choices but no adoption flags. Every name must identify a selected first-party Skill in the effective registry. The flag authorizes a review path, not an overwrite by name. `--review` without adoption and adoption combined with `--remove` are invalid.
 
@@ -89,7 +110,7 @@ Use the existing global Store installation and operation services for required i
 
 Clean managed upgrades resolve first-party payloads from the new package even when older ownership records name remote sources. Prove the first-party identity rather than treating any same-named third-party entry as first-party. Edited managed files retain conflict protection. Update, removal, repetition, and recovery use the same ownership rules after adoption.
 
-Remove the obsolete UAT authoring tree from the docs template and prune its empty source parents only after its complete declared payload is available from `packages/skills/`. Do not remove valid installed shared payloads. The existing three local `.agents/skills/` copies are brought under management by the later reviewed public CLI adoption; promotion itself is not permission to delete them.
+Remove the obsolete UAT authoring tree from the docs template and prune its empty source parents only after its complete declared payload is available from `packages/skills/`. Do not delete existing installed content during source promotion; the reviewed standard-layout migration above owns its later move. The existing three local `.agents/skills/` copies are brought under management by the later reviewed public CLI adoption; promotion itself is not permission to delete them.
 
 ### One implementation phase
 
@@ -103,7 +124,8 @@ Use three ordered stages in one W19 R5 phase: promotion and packaging; installat
 | Bundle only the four promoted Skills | Rejected. It would preserve two first-party delivery rules. All seven are in scope. |
 | Copy local Skills manually and add ownership later | Rejected. It separates mutation from required Store intent and review. |
 | Allow adoption by `--yes` or matching names | Rejected. Neither binds approval to the existing bytes and ownership facts. |
-| Rename the workspace or installed payload roots | Rejected. The current source and installed boundaries already serve the chosen outcome. |
+| Keep a private Make Docs Skill install root | Rejected. Standard agent directories own installed payloads; Store records own state. |
+| Symlink an agent directory to a Make Docs resource URL | Unsupported and out of scope; no new product or deferred feature. |
 | Split the work into several implementation phases | Rejected. One phase with ordered internal stages keeps the interrupt small without dropping proof. |
 
 ## Consequences

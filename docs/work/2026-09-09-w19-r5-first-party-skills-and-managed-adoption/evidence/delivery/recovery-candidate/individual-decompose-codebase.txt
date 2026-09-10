@@ -1,0 +1,85 @@
+│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-p  │
+│  roof-AFi1nj/individual-decompose-codebase/project                           │
+│  Mode: first install                                                         │
+│  Installation record: global Make Docs Store (will be created)               │
+│  Installed version: none detected                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Selection source: default selections plus command-line flags                │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide                                                │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide                 │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: user=User, maintainer=Maintainer                            │
+│  Managed files evaluated: 32                                                 │
+│  Already current: 0                                                          │
+│  Changes planned: 32                                                         │
+│  Generate: 32                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ────────────────────────────────────────────────────╮
+│                                                                              │
+│  - generate: native harness exposure: .agents/skills/decompose-codebase      │
+│  - generate: .make-docs/AGENTS.md                                            │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/SKILL.md                      │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/agents/openai.yaml            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/decomposition-plan.md                                      │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-architecture.md                                        │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-glossary.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-index.md                                               │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-overview.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-reference.md                                           │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-risk-register.md                                       │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-subsystem.md                                           │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/rebuild-backlog-index.md                                   │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/rebuild-backlog-phase.md                                   │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/execution-workflow.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/harness-capability-matrix.md                                     │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md    │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/output-contract.md                                               │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/planning-workflow.md                                             │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/probe_environment.py  │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/validate_output.py    │
+│  - generate: .make-docs/system/AGENTS.md                                     │
+│  - generate: .make-docs/system/contracts/AGENTS.md                           │
+│  - generate: .make-docs/system/prompts/AGENTS.md                             │
+│  - generate: .make-docs/system/references/AGENTS.md                          │
+│  - generate: .make-docs/system/templates/AGENTS.md                           │
+│  - generate: AGENTS.md                                                       │
+│  - generate: docs/AGENTS.md                                                  │
+│  - generate: docs/designs/AGENTS.md                                          │
+│  - generate: docs/plans/AGENTS.md                                            │
+│  - generate: docs/prd/AGENTS.md                                              │
+│  - generate: docs/work/AGENTS.md                                             │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-decompose-codebase/project.

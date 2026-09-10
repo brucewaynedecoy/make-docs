@@ -8,7 +8,7 @@ This directory owns the resource catalog, the always-local router skeleton, decl
 - Use a valid local resource body first. If the body is absent, read its stable `make-docs://system/<type>/<posix-relative-path>` URI with `make-docs resource read`.
 - Resource selection controls optional bodies only. It does not remove this router, `.make-docs/system/`, or any typed router.
 - The installed provider supplies resource bytes when no valid local body exists. A local body must retain recorded provider and hash evidence.
-- Use `.make-docs/agentics/` only for explicitly selected Skill files governed by accepted product authority.
+- Install selected Skills only at standard agent Skill paths for the chosen scope and harnesses. Keep installation state in the global Store; do not create a private `.make-docs` Skill layer.
 - Make Docs installation and operation state belongs only in the global Make Docs Store, managed through the CLI. This includes applied hashes, provenance, migration receipts, locks, conflict decisions, and recovery records. Never create project-local operational state or write directly to the Store.
 - Treat `.make-docs/manifest.json` and `.make-docs/state/` only as legacy CLI transfer inputs. Do not repair, recreate, or delete them by hand. Use `make-docs project state status` for state and safe next steps.
 - Keep declarative identity and desired settings in project config. Local backup, conflict, and archive file copies may remain under their content contracts. Their live recovery metadata belongs in the Store.

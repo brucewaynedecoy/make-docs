@@ -1,0 +1,58 @@
+2026-09-10T03:56:32.943199Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-09-10T03:56:32.944058Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-09-10T03:56:33.088787Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:33.207481Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:33.327614Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="drafts" error=No such file or directory (os error 2)
+2026-09-10T03:56:33.479248Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="teable" error=handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response
+2026-09-10T03:56:33.603902Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="linear" error=OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required
+2026-09-10T03:56:33.989184Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:34.035957Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="computer-history" error=handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T03:56:34.992758Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:35.274430Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:36.001056Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:36.643228Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:37.093241Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:37.286824Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:37.468468Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:37.735129Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:38.119213Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:38.522505Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:38.688368Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="browser" marketplace="openai-bundled"
+2026-09-10T03:56:38.688418Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="chrome" marketplace="openai-bundled"
+2026-09-10T03:56:38.688429Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="code-simplifier" marketplace="claude-plugins-official"
+2026-09-10T03:56:38.688438Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="codex-app-tools" marketplace="openai-bundled"
+2026-09-10T03:56:38.688446Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="computer-history" marketplace="openai-bundled"
+2026-09-10T03:56:38.688466Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="computer-use" marketplace="openai-bundled"
+2026-09-10T03:56:38.688475Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="documents" marketplace="openai-primary-runtime"
+2026-09-10T03:56:38.688482Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="frontend-design" marketplace="claude-plugins-official"
+2026-09-10T03:56:38.688489Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="pdf" marketplace="openai-primary-runtime"
+2026-09-10T03:56:38.688495Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="playground" marketplace="claude-plugins-official"
+2026-09-10T03:56:38.688500Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="plugin-dev" marketplace="claude-plugins-official"
+2026-09-10T03:56:38.688506Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="presentations" marketplace="openai-primary-runtime"
+2026-09-10T03:56:38.688511Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="sites" marketplace="openai-bundled"
+2026-09-10T03:56:38.688516Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="spreadsheets" marketplace="openai-primary-runtime"
+2026-09-10T03:56:38.688521Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="storytime" marketplace="storytime-local"
+2026-09-10T03:56:38.688527Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="template-creator" marketplace="openai-primary-runtime"
+2026-09-10T03:56:38.688532Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="unified-computer-use" marketplace="openai-bundled"
+2026-09-10T03:56:38.688538Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="visual-explainer" marketplace="visual-explainer-local"
+2026-09-10T03:56:38.688543Z  WARN codex_core_plugins::loader: configured non-curated plugin no longer exists in discovered marketplaces during cache refresh plugin="visualize" marketplace="openai-bundled"
+2026-09-10T03:56:38.784963Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:38.892722Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/
+2026-09-10T03:56:38.895358Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/
+2026-09-10T03:56:39.020134Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="teable" error=handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response
+2026-09-10T03:56:39.030964Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="drafts" error=No such file or directory (os error 2)
+2026-09-10T03:56:39.092831Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:39.125399Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="linear" error=OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required
+2026-09-10T03:56:39.220932Z  WARN codex_mcp::rmcp_client: MCP server startup failed server_name="computer-history" error=handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T03:56:39.347792Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:39.524166Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:39.770154Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:39.883982Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:39.994074Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:40.088447Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:56:40.198709Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-09-10T03:58:20.355660Z  WARN codex_sandboxing::violation: recorded sandbox violation: resource=filesystem backend=seatbelt reason=operation_not_permitted path=unknown
+2026-09-10T03:59:18.636318Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: handshaking with MCP server failed: JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."}): JSON-RPC error: -32603: Internal error: The data couldn’t be read because it isn’t in the correct format.({"detail":"The data couldn’t be read because it isn’t in the correct format."})
+2026-09-10T03:59:18.639265Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: handshaking with MCP server failed: connection closed: initialize response: connection closed: initialize response
+2026-09-10T03:59:18.639454Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: No such file or directory (os error 2)
+2026-09-10T03:59:18.639938Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required

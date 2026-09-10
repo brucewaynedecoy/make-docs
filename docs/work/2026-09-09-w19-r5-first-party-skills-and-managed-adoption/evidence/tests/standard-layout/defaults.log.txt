@@ -1,0 +1,19 @@
+
+> make-docs-monorepo@0.0.0 validate:defaults
+> npm run validate:defaults -w packages/cli
+
+
+> @brucewaynedecoy/make-docs@2.0.0-rc validate:defaults
+> vitest run tests/consistency.test.ts tests/template-links.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/template-links.test.ts (12 tests) 11ms
+ ✓ tests/consistency.test.ts (38 tests) 104ms
+
+ Test Files  2 passed (2)
+      Tests  50 passed (50)
+   Start at  22:58:24
+   Duration  715ms (transform 404ms, setup 36ms, collect 683ms, tests 115ms, environment 0ms, prepare 75ms)
+

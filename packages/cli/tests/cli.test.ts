@@ -639,7 +639,7 @@ personas:
       const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const sharedSkillPath = path.join(
         targetDir,
-        ".make-docs/agentics/skills/acme-release/SKILL.md",
+        ".agents/skills/acme-release/SKILL.md",
       );
       const codexSkillPath = path.join(targetDir, ".agents/skills/acme-release/SKILL.md");
       const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
@@ -977,11 +977,18 @@ personas:
         "archive-docs",
         "cleanup-docs",
         "decompose-codebase",
+        "human-experience",
         "naive-uat",
+        "preflight",
+        "software-factory",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/decompose-codebase");
+      expect(manifest?.skillFiles).toContain(".claude/skills/human-experience");
+      expect(manifest?.skillFiles).toContain(".claude/skills/naive-uat");
+      expect(manifest?.skillFiles).toContain(".claude/skills/preflight");
+      expect(manifest?.skillFiles).toContain(".claude/skills/software-factory");
     } finally {
       cleanupTempDir(targetDir);
       cleanupTempDir(allTargetDir);
@@ -1009,7 +1016,7 @@ personas:
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(true);
       expect(manifest?.selections.selectedSkills).toEqual(["acme-release"]);
-      expect(manifest?.skillFiles).toContain(".agents/skills/acme-release");
+      expect(manifest?.skillFiles).toContain(".agents/skills/acme-release/SKILL.md");
       expect(manifest?.skillFiles).not.toContain(".agents/skills/archive-docs");
       expect(manifest?.selections.skillManifest).toEqual({
         manifestId: "acme.local",
@@ -1251,14 +1258,13 @@ personas:
 
       expect(output).toContain("make-docs setup skills plan");
       expect(output).toContain("Planned skill file operations:");
-      expect(output).toContain("shared payload:");
-      expect(output).toContain(".make-docs/agentics/skills/archive-docs/SKILL.md");
+      expect(output).toContain("Skill files:");
+      expect(output).toContain(".agents/skills/archive-docs/SKILL.md");
       expect(output).toContain(
         "native harness exposure: .claude/skills/archive-docs",
       );
-      expect(output).toContain(
-        "native harness exposure: .agents/skills/archive-docs",
-      );
+      expect(output).not.toContain("native harness exposure: .agents/skills/archive-docs");
+      expect(output).not.toContain(".make-docs/agentics");
       expect(output).toContain("Installed skills");
       expect(output).not.toContain("Installed make-docs");
       expect(output).not.toContain("Reconfigured make-docs");
@@ -1316,7 +1322,7 @@ personas:
         selections.selectedSkills = ["decompose-codebase"];
       });
       const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
-      const skillPath = path.join(fakeHome, ".make-docs/agentics/skills/decompose-codebase/SKILL.md");
+      const skillPath = path.join(fakeHome, ".agents/skills/decompose-codebase/SKILL.md");
       const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
       const skillBefore = readFileSync(skillPath);
 
@@ -1357,7 +1363,7 @@ personas:
         const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
         const skillPath = path.join(
           fakeHome,
-          ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
+          ".agents/skills/decompose-codebase/SKILL.md",
         );
         const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
         const skillBefore = readFileSync(skillPath);
@@ -1460,7 +1466,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase, naive-uat.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase, human-experience, naive-uat, preflight, software-factory.",
       );
     } finally {
       cleanupTempDir(targetDir);

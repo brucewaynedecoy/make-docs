@@ -10,10 +10,12 @@ Mode detection is intent-based: infer the mode from user phrasing and confirm be
 
 | Mode | Trigger phrases | Behavior |
 | --- | --- | --- |
-| **Direct** | "archive this file", "move X to archive" | Archive the named artifact(s) only. No relationship tracing. |
-| **Related** | "archive this and anything related", "archive the whole chain" | Archive the target plus all upstream, downstream, and lateral relatives. |
+| **Direct** | "archive this file", "move X to archive" | Propose only the named artifact(s) for archival. Trace relationships to check link and dependency impact, without adding related files to the archive candidates. |
+| **Related** | "archive the artifacts related to X", "archive X's related work" | Trace upstream, downstream, lateral, and slug-based relatives and propose a related archive set. Keep the named origin unless the user explicitly includes it. |
 | **Replacement** | "this replaces X", "archive the old version" | Archive the superseded artifact and link the replacement. |
 | **Project** | "archive everything for this project", "clean up wave N" | Archive all artifacts sharing a wave/revision scope. |
+
+Tracing supplies evidence; it does not approve a move or expand the requested scope. A request such as "archive this and anything related" explicitly includes the origin. Show that origin as a requested target and the related candidates separately. Move only the final set approved by the user.
 
 ## Relationship Tracing
 
@@ -41,7 +43,7 @@ When link-based tracing produces no results, fall back to slug matching. A plan 
 
 1. **Identify target(s)** — resolve the user's request to one or more concrete file paths.
 2. **Trace relationships** — run upstream, downstream, and lateral tracing from each target.
-3. **Present findings** — group results by relationship type (upstream, downstream, lateral, slug-matched) with a recommendation for each (archive, skip, or flag for review).
+3. **Present findings** — group results by relationship type (upstream, downstream, lateral, slug-matched). Separate archive candidates within the requested scope from impact notes about files that will stay in place. Direct mode has only the named archive candidates; related mode excludes the origin unless the user explicitly includes it.
 4. **Confirm** — wait for explicit user approval. The user may select all, some, or none.
 5. **Execute** — move approved artifacts to `.make-docs/archive/` per the sub-directory mapping below.
 6. **Post-archive link rewriting** — scan remaining active artifacts for broken links and propose rewrites.

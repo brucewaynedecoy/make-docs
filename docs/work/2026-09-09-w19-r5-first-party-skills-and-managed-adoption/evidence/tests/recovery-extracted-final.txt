@@ -1,0 +1,19 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/w19-r5-recovery-cli.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/w19-r5-recovery-cli.test.ts (5 tests) 3877ms
+   ✓ fresh public CLI Skill adoption recovery > loads pending adoption recovery through a fresh MCP stdio process  318ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished project adoption with resume  870ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished project adoption with rollback  835ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished global adoption with resume  907ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished global adoption with rollback  946ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  21:00:33
+   Duration  4.31s (transform 177ms, setup 15ms, collect 298ms, tests 3.88s, environment 0ms, prepare 33ms)
+

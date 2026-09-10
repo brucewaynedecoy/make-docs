@@ -1,0 +1,74 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/cli.test.ts -t expands --selected-skills all against an alternate local skills manifest
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+[90m│[39m
+[32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
+[90m│[39m                                                                          [90m│[39m
+[90m│[39m  [2mTarget: [22m                                                                [90m│[39m
+[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-5K07KD[22m  [90m│[39m
+[90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
+[90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
+[90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
+[90m│[39m  [2mPackage version: @brucewaynedecoy/make-docs 2.0.0-rc[22m                    [90m│[39m
+[90m│[39m  [2mSelection source: default selections plus command-line flags[22m            [90m│[39m
+[90m│[39m  [2mLocal resource projection: none[22m                                         [90m│[39m
+[90m│[39m  [2mSafety stops: none[22m                                                      [90m│[39m
+[90m│[39m  [2mDocument kind labels: design=design, plan=plan, prd=PRD, work=work, [22m    [90m│[39m
+[90m│[39m  [2mhistory=history, guide=guide[22m                                            [90m│[39m
+[90m│[39m  [2mLifecycle labels: design=design, plan=plan, prd=PRD, work=work, [22m        [90m│[39m
+[90m│[39m  [2mimplementation=implementation, history=history, guide=guide[22m             [90m│[39m
+[90m│[39m  [2mCoordinate labels: wave=Wave, revision=Revision, phase=Phase[22m            [90m│[39m
+[90m│[39m  [2mPersona labels: user=User, maintainer=Maintainer[22m                        [90m│[39m
+[90m│[39m  [2mManaged files evaluated: 25[22m                                             [90m│[39m
+[90m│[39m  [2mAlready current: 0[22m                                                      [90m│[39m
+[90m│[39m  [2mChanges planned: 25[22m                                                     [90m│[39m
+[90m│[39m  [2mGenerate: 25[22m                                                            [90m│[39m
+[90m│[39m  [2mUpdate: 0[22m                                                               [90m│[39m
+[90m│[39m  [2mSkip: 0[22m                                                                 [90m│[39m
+[90m│[39m  [2mRemove: 0[22m                                                               [90m│[39m
+[90m│[39m                                                                          [90m│[39m
+[90m├──────────────────────────────────────────────────────────────────────────╯[39m
+[90m│[39m
+[32m◇[39m  [0mPlanned file operations[0m [90m───────────────────────────────────────╮[39m
+[90m│[39m                                                                 [90m│[39m
+[90m│[39m  [2m- generate: Skill files: .agents/skills/acme-release/SKILL.md[22m  [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/AGENTS.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/CLAUDE.md[22m                        [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/contracts/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/AGENTS.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/AGENTS.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m             [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/AGENTS.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m              [90m│[39m
+[90m│[39m  [2m- generate: AGENTS.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: CLAUDE.md[22m                                          [90m│[39m
+[90m│[39m  [2m- generate: docs/AGENTS.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                     [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/AGENTS.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/designs/CLAUDE.md[22m                             [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/AGENTS.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/plans/CLAUDE.md[22m                               [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/AGENTS.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/prd/CLAUDE.md[22m                                 [90m│[39m
+[90m│[39m  [2m- generate: docs/work/AGENTS.md[22m                                [90m│[39m
+[90m│[39m  [2m- generate: docs/work/CLAUDE.md[22m                                [90m│[39m
+[90m│[39m                                                                 [90m│[39m
+[90m├─────────────────────────────────────────────────────────────────╯[39m
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-5K07KD.
+ ✓ tests/cli.test.ts (103 tests | 102 skipped) 840ms
+   ✓ cli interactive flows > expands --selected-skills all against an alternate local skills manifest  840ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 102 skipped (103)
+   Start at  22:31:56
+   Duration  1.34s (transform 517ms, setup 22ms, collect 322ms, tests 840ms, environment 0ms, prepare 46ms)
+

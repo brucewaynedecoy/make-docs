@@ -1,0 +1,81 @@
+The ownership counts are correct. The unchanged summary is correct. Two gaps remain in the public path and selection text.
+
+Candidate: `@brucewaynedecoy/make-docs`, version `2.0.0-rc`.
+Supplied tar SHA-256: `68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b`.
+I did not read or hash the tar. Both review captures report package digest `a7728269a9902b7154edf2d1018fa65ca44d7a54c6bb720a09a2f2fc1722ee79`. This is a separate value.
+
+**Live commands run**
+
+I used the supplied Node executable and CLI entry:
+
+```text
+/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node
+/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/extracted/package/dist/index.js
+```
+
+I ran these argument sets:
+
+```text
+--help
+--version
+setup --help
+setup skills --help
+project state --help
+```
+
+All commands returned exit code 0. Live version output was `2.0.0-rc`. Live Skills and state help matched the captures.
+
+I also ran `pwd`, `rg --files public-output -g '*.txt'`, `cat`, and `nl -ba`. I used `test -e` for the three allowed sample paths:
+
+| Sample path | Live result |
+|---|---|
+| `.claude/skills` | Exists |
+| `.agents` | Absent |
+| `.make-docs/agentics` | Absent |
+
+**Captured files read**
+
+All file reads were within this workspace’s `public-output/` folder:
+
+- `capture-order.txt`
+- Both `.stdout.txt` and `.stderr.txt` files for `ownership-ready-review`, `unchanged-review`, `skills-help`, `state-help`, `version`, `sample-setup`, and `isolated-fixture-adoption`
+
+I read all 15 files. I used numbered output for the Skills help and the two review summaries. I did not run the captured setup or adoption commands.
+
+**Observations and findings**
+
+1. **Zero file changes can still add ownership: clear and correct.**
+
+   The ready summary states: “No file contents will change.” It then states: “If approved, Make Docs will manage 12 existing files across 3 Skills.” Its matching JSON has 12 `register` entries, no other ownership effects, no file changes, and no backups.
+
+   The three Skills are `human-experience`, `preflight`, and `software-factory`. The JSON scope is `project`. The only selected tool is `claude-code`.
+
+   The summary says no adoption changes have been applied. Its next action matches the JSON, including the three adoption names and the full review digest. This is a ready plan, not proof of completion.
+
+2. **Unchanged state: correct.**
+
+   The unchanged summary states: “No file or ownership changes are needed.”
+
+   Its matching JSON has status `unchanged`, 12 `retain` entries, and no register, update, or remove entries. Each retained entry has equal before and after values. File changes and backups are empty. The 12 files span three Skills. No separate native exposure entries appear.
+
+   Its next action correctly says: “These Skill files and ownership already match. No adoption is needed.”
+
+3. **Project paths: correct in help and JSON; missing from the human summaries.**
+
+   Skills help states: “Project Codex-only uses .agents/skills; Claude-only uses .claude/skills.”
+
+   All reviewed Skill ownership paths use `.claude/skills`. The live path checks agree. Help mentions `.make-docs/agentics` only as an old layout.
+
+   **Finding:** Neither human review summary prints `.claude/skills`, `scope: project`, or `claude-code`. The ready summary says to repeat with the “same target, scope, tools,” but does not state the scope or tool values. An owner must consult the JSON or earlier command to confirm them. No wrong root is shown, but the summary alone does not meet the full selection and path goal.
+
+4. **Global paths: partly stated.**
+
+   Skills help identifies `~/.agents/skills` as the shared payload path. It limits native links or copies to selected tools.
+
+   **Finding:** The next line only says: “Global native paths honor CODEX_HOME and CLAUDE_CONFIG_DIR.” It omits the `/skills` suffix and both default paths. This appears in live help and [captured Skills help, line 37](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review/public-output/skills-help.stdout.txt:37).
+
+   To meet the stated goal, help must name `CODEX_HOME/skills` or `~/.codex/skills`, and `CLAUDE_CONFIG_DIR/skills` or `~/.claude/skills`.
+
+The narrow review supports the two summaries’ counts and state claims. It does not fully support the path-disclosure goal.
+
+Prior context and extra tools were supplied automatically. I did not use them. No tool was blocked. I made no file changes. This was a public-output agent review. It was not a human usability test, code review, live harness workflow, or owner acceptance.

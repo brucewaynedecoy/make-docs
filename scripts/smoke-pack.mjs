@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
@@ -28,7 +28,7 @@ const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-
 // Sandbox global-store root for every direct packed-CLI invocation, so the
 // smoke never touches the real `~/.make-docs/` and can assert store behavior.
 const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-store-root-"));
-const packedCliEnv = { ...process.env, MAKE_DOCS_HOME: storeRoot };
+const packedCliEnv = { ...process.env, HOME: npmHome, USERPROFILE: npmHome, CODEX_HOME: path.join(npmHome, ".codex"), CLAUDE_CONFIG_DIR: path.join(npmHome, ".claude"), MAKE_DOCS_HOME: storeRoot };
 /** Extra temp directories created by the W18 R11 P6 smokes; removed at exit. */
 const auxSmokeDirs = [];
 
@@ -44,6 +44,22 @@ try {
   throw new Error("Package smoke requires a Node runtime with node:sqlite for mandatory Store state.");
 }
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
+// Independent acceptance table. Project Codex is direct; global Codex has a
+// separate native exposure. Do not derive these expected paths from runtime code.
+const STANDARD_SKILL_LAYOUTS = {
+  project: {
+    codex: { canonical: ".agents/skills", native: { codex: ".agents/skills" } },
+    "claude-code": { canonical: ".claude/skills", native: { "claude-code": ".claude/skills" } },
+    both: { canonical: ".agents/skills", native: { codex: ".agents/skills", "claude-code": ".claude/skills" } },
+  },
+  global: {
+    codex: { canonical: ".agents/skills", native: { codex: ".codex/skills" } },
+    "claude-code": { canonical: ".agents/skills", native: { "claude-code": ".claude/skills" } },
+    both: { canonical: ".agents/skills", native: { codex: ".codex/skills", "claude-code": ".claude/skills" } },
+  },
+};
+
+
 const PACKAGE_RUNNER_SMOKES = [
   {
     name: "npx",
@@ -121,28 +137,6 @@ function getRouterHeading(relativePath) {
   return heading;
 }
 
-const EXPECTED_SKILL_PATHS = [
-  ".make-docs/agentics/skills/archive-docs/SKILL.md",
-  ".make-docs/agentics/skills/archive-docs/agents/openai.yaml",
-  ".make-docs/agentics/skills/archive-docs/references/archive-workflow.md",
-  ".make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py",
-  ".make-docs/agentics/skills/cleanup-docs/SKILL.md",
-  ".make-docs/agentics/skills/cleanup-docs/agents/openai.yaml",
-  ".make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py",
-  ".make-docs/agentics/skills/decompose-codebase/SKILL.md",
-  ".make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md",
-  ".make-docs/agentics/skills/decompose-codebase/assets/templates/decomposition-plan.md",
-  ".make-docs/agentics/skills/naive-uat/SKILL.md",
-  ".claude/skills/archive-docs",
-  ".claude/skills/cleanup-docs",
-  ".claude/skills/decompose-codebase",
-  ".claude/skills/naive-uat",
-  ".agents/skills/archive-docs",
-  ".agents/skills/cleanup-docs",
-  ".agents/skills/decompose-codebase",
-  ".agents/skills/naive-uat",
-];
-
 // The four lifecycle skills were withdrawn from the shipped registry by the
 // D-020 stopgap (they instructed the removed `make-docs operations` surface).
 // No install path may produce them until the Q-022 agentics production
@@ -162,23 +156,13 @@ const WITHDRAWN_SKILL_PATHS = [
   ".agents/skills/work-on-wave",
 ];
 
-const EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS = [
-  ".claude/skills/archive-docs/agents/openai.yaml",
-  ".claude/skills/archive-docs/references/archive-workflow.md",
-  ".claude/skills/archive-docs/scripts/trace_relationships.py",
-  ".claude/skills/cleanup-docs/agents/openai.yaml",
-  ".claude/skills/cleanup-docs/scripts/check_markdown_style.py",
-  ".agents/skills/archive-docs/agents/openai.yaml",
-  ".agents/skills/archive-docs/references/archive-workflow.md",
-  ".agents/skills/archive-docs/scripts/trace_relationships.py",
-  ".agents/skills/cleanup-docs/agents/openai.yaml",
-  ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
-];
-
 const EXPECTED_ALL_SKILLS = [
   "archive-docs",
   "cleanup-docs",
   "decompose-codebase",
+  "preflight",
+  "software-factory",
+  "human-experience",
   "naive-uat",
 ];
 
@@ -302,6 +286,9 @@ function packageRunnerEnv(smokeRoot, envKind) {
     CI: "1",
     FORCE_COLOR: "0",
     HOME: homeDir,
+    USERPROFILE: homeDir,
+    CODEX_HOME: path.join(homeDir, ".codex"),
+    CLAUDE_CONFIG_DIR: path.join(homeDir, ".claude"),
     NO_COLOR: "1",
     XDG_CACHE_HOME: xdgCacheDir,
     MAKE_DOCS_HOME: path.join(homeDir, ".make-docs"),
@@ -361,6 +348,7 @@ try {
   execFileSync("tar", ["-xzf", tarballPath, "-C", unpackDir], { stdio: "inherit" });
   const packageRoot = path.join(unpackDir, "package");
   const packedPackage = readPackedPackage(packageRoot);
+  const { expectedSkillPaths: EXPECTED_SKILL_PATHS, nativePayloadPaths: EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS } = readPackedSkillExpectations(packageRoot);
   assertOnlyMakeDocsBin(packedPackage);
   assertPackedRouterGuidanceParity(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
@@ -384,10 +372,7 @@ try {
   runPackageRunnerSmokes(tarballPath);
 
   const installation = { targetDir, storeRoot };
-  const fixtureServer = await startRepoFixtureServer(repoRoot);
-
-  try {
-    rewritePackedSkillRegistry(packageRoot, fixtureServer.baseUrl);
+  {
     const skillsDryRun = execFileSync(
       "node",
       [packedMakeDocs, "setup", "skills", "--dry-run", "--target", targetDir],
@@ -473,8 +458,8 @@ try {
       "Smoke pack setup install should not produce Codex skill files.",
     );
     assertMissing(
-      path.join(targetDir, ".make-docs/agentics/skills"),
-      "Smoke pack setup install should not produce shared skill payloads.",
+      path.join(targetDir, ".make-docs/agentics"),
+      "Smoke pack setup must not produce a private Skill layer.",
     );
 
     execFileSync(
@@ -482,8 +467,6 @@ try {
       [packedMakeDocs, "setup", "skills", "--yes", "--selected-skills", "all", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
-  } finally {
-    await fixtureServer.close();
   }
 
   readInstallationLedger(installation);
@@ -498,7 +481,15 @@ try {
   assertManifestContainsSkillFiles(installation, EXPECTED_SKILL_PATHS);
   assertManifestOmitsSkillFilePrefixes(installation, WITHDRAWN_SKILL_PATHS);
   assertManifestOmitsSkillFiles(installation, EXPECTED_DUPLICATED_SKILL_PAYLOAD_PATHS);
-  assertDirectoryEntries(path.join(targetDir, ".make-docs/agentics/skills"), EXPECTED_ALL_SKILLS);
+  assertMissing(path.join(targetDir, ".make-docs/agentics"), "Smoke pack must not create a private Skill layer.");
+  assertMissing(path.join(targetDir, ".codex/skills"), "Project Codex must use .agents/skills directly.");
+  assertManifestSkillFiles(installation, EXPECTED_SKILL_PATHS.length);
+  for (const skill of EXPECTED_ALL_SKILLS) {
+    const canonical = path.join(targetDir, ".agents/skills", skill);
+    if (!lstatSync(canonical).isDirectory() || lstatSync(canonical).isSymbolicLink()) throw new Error(`Canonical Skill payload must be a real directory: ${canonical}`);
+    const native = path.join(targetDir, ".claude/skills", skill);
+    if (lstatSync(native).isSymbolicLink() && path.resolve(path.dirname(native), readlinkSync(native)) !== canonical) throw new Error(`Native Skill link has the wrong target: ${native}`);
+  }
   assertDirectoryEntries(path.join(targetDir, ".claude/skills"), EXPECTED_ALL_SKILLS);
   assertDirectoryEntries(path.join(targetDir, ".agents/skills"), EXPECTED_ALL_SKILLS);
   assertExists(
@@ -541,10 +532,6 @@ try {
     path.join(targetDir, ".agents/skills/archive-docs/SKILL.md"),
     "Smoke pack skills removal dry run removed Codex skill files.",
   );
-  assertExists(
-    path.join(targetDir, ".make-docs/agentics/skills/archive-docs/SKILL.md"),
-    "Smoke pack skills removal dry run removed shared skill payloads.",
-  );
 
   assertExists(
     path.join(targetDir, ".claude/skills/decompose-codebase/SKILL.md"),
@@ -553,10 +540,6 @@ try {
   assertExists(
     path.join(targetDir, ".agents/skills/decompose-codebase/SKILL.md"),
     "Smoke pack install did not expose the Codex decompose-codebase skill.",
-  );
-  assertExists(
-    path.join(targetDir, ".make-docs/agentics/skills/decompose-codebase/SKILL.md"),
-    "Smoke pack install did not install the shared decompose-codebase skill payload.",
   );
   assertMissing(
     path.join(targetDir, ".claude/skill-assets"),
@@ -1312,133 +1295,35 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
   }
 }
 
-function rewritePackedSkillRegistry(packageRoot, baseUrl) {
-  const registryPath = path.join(packageRoot, "skill-registry.json");
-  const registry = JSON.parse(readFileSync(registryPath, "utf8"));
 
-  registry.skills = registry.skills.map((entry) => ({
-    ...entry,
-    source: rewriteSkillSource(entry.source, baseUrl),
-  }));
-
-  writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, "utf8");
-}
-
-function rewriteSkillSource(source, baseUrl) {
-  // Keep the P7 local bundle in the packed resolver path, without a fixture URL.
-  if (source === "local:template/.make-docs/agentics/skills/naive-uat") return source;
-  const normalizedSource = source.startsWith("url:") ? source.slice("url:".length) : source;
-  const marker = "/packages/skills/";
-  const markerIndex = normalizedSource.indexOf(marker);
-
-  if (markerIndex === -1) {
-    throw new Error(`Smoke pack could not map skill source ${source} to a local fixture.`);
+function readPackedSkillExpectations(packageRoot, scope = "project", tools = "both") {
+  const layout = STANDARD_SKILL_LAYOUTS[scope]?.[tools];
+  if (!layout) throw new Error(`Unknown Skill smoke layout: ${scope}/${tools}`);
+  const nativeRoots = [...new Set(Object.values(layout.native))].filter(root => root !== layout.canonical);
+  const registry = JSON.parse(readFileSync(path.join(packageRoot, "skill-registry.json"), "utf8"));
+  const names = registry.skills.map(skill => skill.name).sort();
+  if (JSON.stringify(names) !== JSON.stringify([...EXPECTED_ALL_SKILLS].sort())) {
+    throw new Error(`Packed first-party registry must contain exactly the seven shipped Skills: ${names.join(", ")}`);
   }
-
-  const relativePath = normalizedSource.slice(markerIndex);
-  return new URL(ensureTrailingSlash(relativePath), ensureTrailingSlash(baseUrl)).href;
-}
-
-async function startRepoFixtureServer(rootDir) {
-  const fixtureScript = `
-    import { createServer } from "node:http";
-    import { readFileSync, statSync } from "node:fs";
-    import path from "node:path";
-
-    const rootDir = process.argv[1];
-
-    function guessContentType(filePath) {
-      if (filePath.endsWith(".md")) return "text/markdown; charset=utf-8";
-      if (filePath.endsWith(".yaml") || filePath.endsWith(".yml")) return "application/yaml; charset=utf-8";
-      if (filePath.endsWith(".py")) return "text/x-python; charset=utf-8";
-      return "application/octet-stream";
+  const expectedSkillPaths = [];
+  const nativePayloadPaths = [];
+  for (const skill of registry.skills) {
+    if (skill.source !== `embedded:${skill.name}`) throw new Error(`First-party Skill must use embedded bytes: ${skill.name}`);
+    const declared = [{source: skill.entryPoint, installPath: "SKILL.md"}, ...(skill.assets ?? [])];
+    const seen = new Set();
+    for (const item of declared) {
+      for (const value of [item.source, item.installPath]) {
+        if (typeof value !== "string" || !value || path.isAbsolute(value) || value.includes("\\") || value.split("/").some(part => !part || part === "." || part === "..")) throw new Error(`Unsafe declared Skill file: ${skill.name}`);
+      }
+      if (seen.has(item.installPath)) throw new Error(`Duplicate declared Skill destination: ${skill.name}/${item.installPath}`);
+      seen.add(item.installPath);
+      expectedSkillPaths.push(`${layout.canonical}/${skill.name}/${item.installPath}`);
+      for (const native of nativeRoots) nativePayloadPaths.push(`${native}/${skill.name}/${item.installPath}`);
     }
-
-    const server = createServer((request, response) => {
-      if (!request.url) {
-        response.writeHead(400).end("Missing request URL");
-        return;
-      }
-
-      const requestUrl = new URL(request.url, "http://127.0.0.1");
-      const relativePath = decodeURIComponent(requestUrl.pathname);
-      const absolutePath = path.resolve(rootDir, \`.\${relativePath}\`);
-      const rootWithSep = \`\${rootDir}\${path.sep}\`;
-
-      if (absolutePath !== rootDir && !absolutePath.startsWith(rootWithSep)) {
-        response.writeHead(403).end("Forbidden");
-        return;
-      }
-
-      let stats;
-      try {
-        stats = statSync(absolutePath);
-      } catch {
-        response.writeHead(404).end("Not Found");
-        return;
-      }
-
-      if (!stats.isFile()) {
-        response.writeHead(404).end("Not Found");
-        return;
-      }
-
-      const body = readFileSync(absolutePath);
-      response.writeHead(200, {
-        "Content-Length": body.byteLength,
-        "Content-Type": guessContentType(absolutePath),
-      });
-
-      if (request.method === "HEAD") {
-        response.end();
-        return;
-      }
-
-      response.end(body);
-    });
-
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      if (!address || typeof address === "string") {
-        console.error("Smoke pack fixture server did not expose a TCP port.");
-        process.exit(1);
-        return;
-      }
-
-      process.stdout.write(\`\${address.port}\\n\`);
-    });
-  `;
-
-  const serverProcess = spawn(process.execPath, ["--input-type=module", "-e", fixtureScript, rootDir], {
-    stdio: ["ignore", "pipe", "inherit"],
-  });
-
-  const baseUrl = await new Promise((resolve, reject) => {
-    const onExit = (code) => {
-      reject(new Error(`Smoke pack fixture server exited before startup (code ${code ?? "null"}).`));
-    };
-
-    serverProcess.once("exit", onExit);
-    serverProcess.stdout.once("data", (chunk) => {
-      serverProcess.off("exit", onExit);
-      resolve(`http://127.0.0.1:${String(chunk).trim()}`);
-    });
-    serverProcess.once("error", reject);
-  });
-
-  return {
-    baseUrl,
-    close: () =>
-      new Promise((resolve) => {
-        if (serverProcess.exitCode !== null) {
-          resolve();
-          return;
-        }
-
-        serverProcess.once("exit", () => resolve());
-        serverProcess.kill();
-      }),
-  };
+    for (const native of nativeRoots) expectedSkillPaths.push(`${native}/${skill.name}`);
+    nativePayloadPaths.push(`${layout.canonical}/${skill.name}`); // No duplicate directory ownership for a direct payload.
+  }
+  return {expectedSkillPaths, nativePayloadPaths};
 }
 
 function assertExists(filePath, message) {
@@ -1448,7 +1333,7 @@ function assertExists(filePath, message) {
 }
 
 function assertMissing(filePath, message) {
-  if (existsSync(filePath)) {
+  if (lstatSync(filePath, { throwIfNoEntry: false })) {
     throw new Error(message);
   }
 }
@@ -1500,9 +1385,7 @@ function getOnlyBackupDirectory(backupRoot) {
   return path.join(backupRoot, backupEntries[0]);
 }
 
-function ensureTrailingSlash(value) {
-  return value.endsWith("/") ? value : `${value}/`;
-}
+
 
 /**
  * Opaque legacy project content for packed CLI refusal and uninstall preservation.

@@ -15,11 +15,11 @@ When spawning succeeds, the primary agent becomes coordinator only. Hand the wor
 
 - the user's request
 - the current working directory
-- the skill name and `packages/skills/archive-docs/SKILL.md` path
+- the skill name and the absolute path of this loaded `SKILL.md` file, as supplied by skill discovery in the current installation
 - the inferred mode if it is obvious from the request, or instructions to resolve mode ambiguity
 - the required output contract: mode, candidate or changed files, approvals needed, validation run, blockers, and concise summary
 
-The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
+Resolve the reference and script paths relative to that installed entry file. Do not substitute a maintainer source-tree path. The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
 
 When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
 
@@ -61,17 +61,18 @@ Use this mode when the user wants to move docs into `.make-docs/archive/`.
    - `replacement` when a newer artifact supersedes an older one
    - `project` when the user wants the full initiative, slug, or wave archived
 3. State `Mode: archive (<submode>)` before continuing.
-4. Trace upstream, downstream, lateral, and slug-based relationships per [`references/archive-workflow.md`](./references/archive-workflow.md).
+4. Trace upstream, downstream, lateral, and slug-based relationships per [`references/archive-workflow.md`](./references/archive-workflow.md). In `direct` mode, use tracing to check link and dependency impact; do not add related artifacts to the archive candidates.
 5. Present a grouped candidate list, clearly separating:
    - `[requested]` user-specified targets
    - `[traced]` artifacts discovered by relationship analysis
+   Keep traced artifacts outside the chosen scope as impact notes, not archive candidates.
 6. Wait for explicit approval of the final archive set.
 7. Move approved artifacts into `.make-docs/archive/`, preserving filenames and directory structure.
 8. After the move, scan active artifacts for broken links and propose rewrites for user approval.
 
 Archive-mode reminders:
 
-- `related` mode does not archive the named origin unless the user later adds it.
+- `related` mode does not archive the named origin unless the user explicitly includes it in the request or later adds it.
 - `replacement` mode archives the superseded artifact, never the replacement.
 - If the user expands scope mid-flow, restate the new submode and re-present the candidate set.
 

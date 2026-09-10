@@ -1,0 +1,54 @@
+{
+  "kind": "validation-output-capture",
+  "limits": "These are validation logs, not an installation plan, payload backup, or Store receipt. Empty typecheck stdout relies on the reported exit-zero result. Full candidate gates remain pending.",
+  "files": [
+    {
+      "source": "/tmp/w19-r5-standard-layout-owned-tests.log",
+      "retained": "owned-tests.log.txt",
+      "sha256": "2eb80c7fa00f5f6d2d581a45c07734f9ad50b561a2b595834ae3cb3df0e07fbd",
+      "bytes": 180740
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-cli-rerun.log",
+      "retained": "cli-rerun.log.txt",
+      "sha256": "4513bf157af78d4ace42c6895b41fb431bf0647cdf97a4f82a7274622a32e9f2",
+      "bytes": 6938
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-guards-final.log",
+      "retained": "guards-final.log.txt",
+      "sha256": "9dbb1ff0e9ba42ae3428c78808cabbbd2978c90bfb474e6a18cda74a27496c70",
+      "bytes": 1307
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-adoption-final2.log",
+      "retained": "adoption-final2.log.txt",
+      "sha256": "91ef620852b5225888c0d3e7e2dea381d8c52e5a1042d816055e59ac4878ae73",
+      "bytes": 6433
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-typecheck-final2.log",
+      "retained": "typecheck-final2.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-alternate-regression.log",
+      "retained": "alternate-regression.log.txt",
+      "sha256": "67594bab2767e6c03d0469c6a19c715ff74582eefebace1c9947643a154eebdf",
+      "bytes": 599
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-smoke-pack.log",
+      "retained": "smoke-pack.log.txt",
+      "sha256": "f4ce9d9afa06db238a47459928acb66e0393b0d1d45bd2eb3f58695dd901eb13",
+      "bytes": 21340
+    },
+    {
+      "source": "/tmp/w19-r5-standard-layout-smoke-pack-final.log",
+      "retained": "smoke-pack-final.log.txt",
+      "sha256": "a38d5362db9e25b98c6fb5e5813a80bb337512aa87a08b4c58e53da459539f21",
+      "bytes": 64723
+    }
+  ]
+}

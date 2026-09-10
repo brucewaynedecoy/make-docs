@@ -51,10 +51,17 @@
     "sourcePolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "label"],
+      "required": [
+        "kind",
+        "label"
+      ],
       "properties": {
         "kind": {
-          "enum": ["first-party", "local", "remote-pinned"]
+          "enum": [
+            "first-party",
+            "local",
+            "remote-pinned"
+          ]
         },
         "label": {
           "type": "string",
@@ -68,10 +75,18 @@
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "label"],
+      "required": [
+        "kind",
+        "label"
+      ],
       "properties": {
         "kind": {
-          "enum": ["first-party", "local", "remote-pinned", "third-party"]
+          "enum": [
+            "first-party",
+            "local",
+            "remote-pinned",
+            "third-party"
+          ]
         },
         "label": {
           "type": "string",
@@ -98,7 +113,12 @@
     "purpose": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "label", "description", "provenance"],
+      "required": [
+        "id",
+        "label",
+        "description",
+        "provenance"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -123,7 +143,10 @@
     "asset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source", "installPath"],
+      "required": [
+        "source",
+        "installPath"
+      ],
       "properties": {
         "source": {
           "type": "string",
@@ -161,7 +184,8 @@
         },
         "source": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "First-party sources use embedded:<name>; explicit alternate manifests retain their local or pinned remote source policy."
         },
         "entryPoint": {
           "type": "string",
@@ -188,7 +212,10 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": {
-            "enum": ["claude-code", "codex"]
+            "enum": [
+              "claude-code",
+              "codex"
+            ]
           }
         },
         "provenance": {

@@ -1,0 +1,531 @@
+{
+  "status": "passed",
+  "tar": "/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+  "tarSha256": "33ac19ff4b05caa0253b8f572b975c335c64239dd2e054a0cf47b40afc0fe462",
+  "packed": "/tmp/w19-r5-corrected-package-vkazhec3/package",
+  "installed": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "fileCount": 130,
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "cf44954e17a2f0dfdd02b7f3dab0f230bc04cb958bcdbe27bea3581d5968b56e"
+    },
+    {
+      "path": "dist/backup-OZSSJN4T.js",
+      "sha256": "a589d01d0f330e9e05a54e862e2c77c8c2a1ff809144c2d454aacb186208ca06"
+    },
+    {
+      "path": "dist/chunk-4YLUAT5O.js",
+      "sha256": "0720f476805280aee647f63f1c0259c8d28ac7a017c3691ee4a4245825edfeee"
+    },
+    {
+      "path": "dist/chunk-AV4B3MSG.js",
+      "sha256": "3afeb93d4825de0a56c3fec2cc7e5f76489e751d003ddf8e343537f80d8c58f5"
+    },
+    {
+      "path": "dist/chunk-B7CJ7ISO.js",
+      "sha256": "a49013d6aca19bf08fbc2a20be0c85dcb5f5b5fc8857d3dab59ef1846d61d95e"
+    },
+    {
+      "path": "dist/chunk-D4HDZEJT.js",
+      "sha256": "7455b7f2c53401211a368afb9fccd71d26fc84a33b520f9d81fbaf0c03ec9e76"
+    },
+    {
+      "path": "dist/chunk-FRTSNTB2.js",
+      "sha256": "c80d6b27d30f2635e5a2d4c6e14ffc49e87bf452d193e0c00b94788f70a9cb34"
+    },
+    {
+      "path": "dist/chunk-ILH6LOIN.js",
+      "sha256": "f1bea8a14d9fa202ce876d9a120db6f790ab51bf218a5fcaf9e5ae3f12b42f6a"
+    },
+    {
+      "path": "dist/chunk-QTO5YSNB.js",
+      "sha256": "172af05113087a72d0b7f17301f4f8a52d994a73482a039858edc16d4bbb3edd"
+    },
+    {
+      "path": "dist/chunk-SXBHWF2O.js",
+      "sha256": "8112be99cf5d789a8c37677d14d69a9321e8cf53816ad4676d8822700cb14464"
+    },
+    {
+      "path": "dist/chunk-WIQ5WBOD.js",
+      "sha256": "6b7b7b9d35b4cb0766aed5af69df4ec9ccbcd71f081449a74f8b3d9a35849014"
+    },
+    {
+      "path": "dist/chunk-Z5K4FHYP.js",
+      "sha256": "1c1af11ed315e452008533b351337aeb2b83e69965b2d23bd3e4691d89f83fd8"
+    },
+    {
+      "path": "dist/index.js",
+      "sha256": "4cb2a10aa2ae4184bd3cc1ddf7e892f5557236750a55a45b90b0d17a40704564"
+    },
+    {
+      "path": "dist/self-DYMVQ7U2.js",
+      "sha256": "39c8bc6a0bf5617b315c2b0199bd5dea67a7741c37a3f134fa54f0b27e0ea7a2"
+    },
+    {
+      "path": "dist/server-MS6Q76MH.js",
+      "sha256": "24ebd1faa183436e71363cf028d69feeed486f7c93b76445b8465de10f1f2183"
+    },
+    {
+      "path": "dist/skills-command-2K7OXVTL.js",
+      "sha256": "517432bf569547ded4e0f412cfa51060a3e5cf56a9dff27f54ab9ca8a29052e0"
+    },
+    {
+      "path": "dist/uninstall-D4MV6SCN.js",
+      "sha256": "ed94e1aed5ce6d9f51cdfa01225e524ed6ac078faf3129af5abf392ffe2ddd7d"
+    },
+    {
+      "path": "dist/virtual_make-docs-first-party-skills-ZNKJHPP2.js",
+      "sha256": "f00025d3835ab3cc9aec9155ab5f24271fcb688b0c2a3dec8f5bdf0ade2ff7ff"
+    },
+    {
+      "path": "package.json",
+      "sha256": "b6c00f563c0b34f1170decfbdd5b82ed31158ea30caa74b98cc59b8838d96e69"
+    },
+    {
+      "path": "skill-registry.json",
+      "sha256": "49ca54af71c35052c427b6992d2fb001f10b7ec097d73e76734eb4397dd37318"
+    },
+    {
+      "path": "skill-registry.schema.json",
+      "sha256": "44eb33fb2e605ad7783f84c1d550d242da849f36b8f6987d7b9ae406298a5962"
+    },
+    {
+      "path": "template/.make-docs/system-resources.catalog.json",
+      "sha256": "5ef65544536f88748116c79f7378d7e21d24531a071ca7cd475ef80190a981c1"
+    },
+    {
+      "path": "template/.make-docs/system-resources.schema.json",
+      "sha256": "ebb5d4e866897b599c056abd21a5e990f8105e94de3be9f52f4c416e5f363122"
+    },
+    {
+      "path": "dist/backup-OZSSJN4T.js.map",
+      "sha256": "cba81f7ad4d5b1b629bf43823f1082e73a10d0c3114c937515e7f8c1047629b3"
+    },
+    {
+      "path": "dist/chunk-4YLUAT5O.js.map",
+      "sha256": "142eb3f3aef45e57cde716055d0391c1b08e394ddcc0152fbb0e33578e878ad6"
+    },
+    {
+      "path": "dist/chunk-AV4B3MSG.js.map",
+      "sha256": "1d8ba27a98e10e1ef475892707464aa567be1bdbeb755a8aea3f57fdc964312c"
+    },
+    {
+      "path": "dist/chunk-B7CJ7ISO.js.map",
+      "sha256": "5d7be606d82ef7e323bc6509f3399ed67590f72da071c040922a4c325ce0e087"
+    },
+    {
+      "path": "dist/chunk-D4HDZEJT.js.map",
+      "sha256": "cba81f7ad4d5b1b629bf43823f1082e73a10d0c3114c937515e7f8c1047629b3"
+    },
+    {
+      "path": "dist/chunk-FRTSNTB2.js.map",
+      "sha256": "d3d50f9fbaa2275875a220075d8d325c360ea8a228fb330366eb3683c4e803db"
+    },
+    {
+      "path": "dist/chunk-ILH6LOIN.js.map",
+      "sha256": "d83a9e50ae62361e3594e50a807c640ff34d23a05ba025301cbe7415340b10bf"
+    },
+    {
+      "path": "dist/chunk-QTO5YSNB.js.map",
+      "sha256": "08791094419f78edcc2f3585be112e3de477c4bbc7c081e0b5a867915b97a437"
+    },
+    {
+      "path": "dist/chunk-SXBHWF2O.js.map",
+      "sha256": "efa607384fe140446be9009de9aa493e2d3b2c08bcb9da1c28dace925a1b6390"
+    },
+    {
+      "path": "dist/chunk-WIQ5WBOD.js.map",
+      "sha256": "39eaad460a698b746f3cedc4b84d3746a16c274ab93a0c0e3162739f3aad1475"
+    },
+    {
+      "path": "dist/chunk-Z5K4FHYP.js.map",
+      "sha256": "5cf6a8aa97ded3fb28b846eedf0a5bf85f54634eef357f80415607aa6b64b33c"
+    },
+    {
+      "path": "dist/index.js.map",
+      "sha256": "444c337071fee7cf97f301158d9d02f05b56781067fc1ced45d7f471e971b78e"
+    },
+    {
+      "path": "dist/self-DYMVQ7U2.js.map",
+      "sha256": "bdc36bf4044d9531e0bec4b6b63fedde19fa08a56876ba3a427fc67d3acba760"
+    },
+    {
+      "path": "dist/server-MS6Q76MH.js.map",
+      "sha256": "a6d2b92e716ffb0fd55a5a49ab3b9a01457ea5e4987992600831a3b7235c0094"
+    },
+    {
+      "path": "dist/skills-command-2K7OXVTL.js.map",
+      "sha256": "03b9a0e52642a9ed53f919d3824c38917d7a85122402abfc6ff57647e25ef6a7"
+    },
+    {
+      "path": "dist/uninstall-D4MV6SCN.js.map",
+      "sha256": "0fde57294140b97c737c89c202cf0077a2eb08d31c2eb9869c79e93570119bd0"
+    },
+    {
+      "path": "dist/virtual_make-docs-first-party-skills-ZNKJHPP2.js.map",
+      "sha256": "d9a02c6e0075bedd2c3b5a9d0bef8568329c7ffa02a7800b3b06a672af9c118a"
+    },
+    {
+      "path": "template/docs/AGENTS.codex-only.md",
+      "sha256": "13f4b386969083d15ec9a254d0520f7432288a99c41b052461b244042733ea27"
+    },
+    {
+      "path": "template/.make-docs/AGENTS.md",
+      "sha256": "e619d4b128fc46ff0b1b426b1c2246fe36840de680f9053f7cbe58ff0eb1501a"
+    },
+    {
+      "path": "template/.make-docs/archive/AGENTS.md",
+      "sha256": "7dc8d59804a8bb342de66ad4421b94cdbc992ad88e5a9c30dbd348dffdff790d"
+    },
+    {
+      "path": "template/.make-docs/system/AGENTS.md",
+      "sha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/AGENTS.md",
+      "sha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/AGENTS.md",
+      "sha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92"
+    },
+    {
+      "path": "template/.make-docs/system/references/AGENTS.md",
+      "sha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da"
+    },
+    {
+      "path": "template/.make-docs/system/templates/AGENTS.md",
+      "sha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+    },
+    {
+      "path": "template/AGENTS.md",
+      "sha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6"
+    },
+    {
+      "path": "template/docs/AGENTS.md",
+      "sha256": "56663e271f6350967d9c1b9403b5f58624acc62d68ab6449bf9c5bcee170efcf"
+    },
+    {
+      "path": "template/docs/assets/AGENTS.md",
+      "sha256": "36184c6acd1dc15cc0175ff769a995b9a1e06c62a828449625b0eb2a723b6b0f"
+    },
+    {
+      "path": "template/docs/designs/AGENTS.md",
+      "sha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767"
+    },
+    {
+      "path": "template/docs/plans/AGENTS.md",
+      "sha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82"
+    },
+    {
+      "path": "template/docs/prd/AGENTS.md",
+      "sha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656"
+    },
+    {
+      "path": "template/docs/work/AGENTS.md",
+      "sha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243"
+    },
+    {
+      "path": "template/docs/CLAUDE.claude-only.md",
+      "sha256": "7c8ce6871b29b0552b0bb96e8fa33ae1d412662d02a8388e16dce32b70bb132d"
+    },
+    {
+      "path": "template/.make-docs/archive/CLAUDE.md",
+      "sha256": "7dc8d59804a8bb342de66ad4421b94cdbc992ad88e5a9c30dbd348dffdff790d"
+    },
+    {
+      "path": "template/.make-docs/CLAUDE.md",
+      "sha256": "e619d4b128fc46ff0b1b426b1c2246fe36840de680f9053f7cbe58ff0eb1501a"
+    },
+    {
+      "path": "template/.make-docs/system/CLAUDE.md",
+      "sha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/CLAUDE.md",
+      "sha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/CLAUDE.md",
+      "sha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92"
+    },
+    {
+      "path": "template/.make-docs/system/references/CLAUDE.md",
+      "sha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da"
+    },
+    {
+      "path": "template/.make-docs/system/templates/CLAUDE.md",
+      "sha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0"
+    },
+    {
+      "path": "template/CLAUDE.md",
+      "sha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6"
+    },
+    {
+      "path": "template/docs/assets/CLAUDE.md",
+      "sha256": "36184c6acd1dc15cc0175ff769a995b9a1e06c62a828449625b0eb2a723b6b0f"
+    },
+    {
+      "path": "template/docs/CLAUDE.md",
+      "sha256": "56663e271f6350967d9c1b9403b5f58624acc62d68ab6449bf9c5bcee170efcf"
+    },
+    {
+      "path": "template/docs/designs/CLAUDE.md",
+      "sha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767"
+    },
+    {
+      "path": "template/docs/plans/CLAUDE.md",
+      "sha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82"
+    },
+    {
+      "path": "template/docs/prd/CLAUDE.md",
+      "sha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656"
+    },
+    {
+      "path": "template/docs/work/CLAUDE.md",
+      "sha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/commit-message-convention.md",
+      "sha256": "5b7a61cffee7a892324cc8eec4e6165e9e78f2853aefd5a52977bdb4eb4b7222"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/coverage-pass-contract.md",
+      "sha256": "2f97c7fb8f2a0b96f2287dafe91cc870a3c70e088985a095f3ce04374e47f14b"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md",
+      "sha256": "299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
+      "sha256": "f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
+      "sha256": "012c39da188c9e90ade37210cba1dabfaaf52e75e172a6ed7e19341e8865b4d2"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
+      "sha256": "e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/deferred-obligation-contract.md",
+      "sha256": "ff39716897eeffaf1b03d8a952db31d5fabc2c16c19403f93d24ef4717eaf2c5"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/design-contract.md",
+      "sha256": "df6a516f28df35a42d8dbbd71f9e2ec149e74d096c16fc2a58de9882ef6196ec"
+    },
+    {
+      "path": "template/.make-docs/system/references/design-workflow.md",
+      "sha256": "12fd4f525c2227b5df8e414de3ac29916117205b78558785a5eaaea62e63f79e"
+    },
+    {
+      "path": "template/.make-docs/system/templates/design.md",
+      "sha256": "fbf1acc52d2436f722d16b16135ef7569516b9339560e67afd243a06460414a3"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/designs-to-plan-change.prompt.md",
+      "sha256": "a96a4150c60c7a2ccd9220cc386bcdbefc6e3d10fa23a3d01f2d1f28b77279a4"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/designs-to-plan.prompt.md",
+      "sha256": "c67674b1a9ceedf0f01699e587fd59e338c6680964b6b3d2bf7030589cc4f118"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
+      "sha256": "af17935dcf98b0ec503705fe4d3ba3227744e814432ff021321c9d011058137e"
+    },
+    {
+      "path": "template/.make-docs/system/references/execution-workflow.md",
+      "sha256": "0ce022825d2b9ea315402077cf62ad2d95b542799dd86e2d6f3cb329698bef67"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/guide-contract.md",
+      "sha256": "20d611a783c263e76517cfb27f34baed6d99a6a64f4555ff1d131ce43cba1a83"
+    },
+    {
+      "path": "template/.make-docs/system/templates/guide-maintainer.md",
+      "sha256": "bab2d2081350c585579246fcc514a0e20285e7d4f7a58d30a9642321d01ab6ea"
+    },
+    {
+      "path": "template/.make-docs/system/templates/guide-user.md",
+      "sha256": "75ab31f72b685ab079dc2d4033e11fcb42fdc34cc4e5deb633e18cb87e167afb"
+    },
+    {
+      "path": "template/.make-docs/system/references/harness-capability-matrix.md",
+      "sha256": "20bf1ab3931a34f6cc7714376f2236fc44c4d74b4a6265fc2536b482290b44f2"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/history-record-contract.md",
+      "sha256": "5cf372c76075e04dbd719fc89ae0b84a524d3e5503ddb555c749223a72b7e701"
+    },
+    {
+      "path": "template/.make-docs/system/templates/history-record.md",
+      "sha256": "1be01e04aab2678c0cb918ba0c80dcbb712a912f9039c9a67fd85a92d0a7f879"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/human-experience-contract.md",
+      "sha256": "a97745ca27301509a0a8a2e910d37a910a365d6ce31f393ff84a022236035c05"
+    },
+    {
+      "path": "template/.make-docs/system/references/human-experience.md",
+      "sha256": "3c4d9918f7b8e7ed7e6fbe34d7f099cdb997216e658c3cb0392178accfff2063"
+    },
+    {
+      "path": "template/.make-docs/system/references/lifecycle.md",
+      "sha256": "c1d1c669737add7fd7b0bfbf3d6142086121c708e5dc54509730b2f87276380b"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/naive-uat-contract.md",
+      "sha256": "94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/naive-uat-facilitator.prompt.md",
+      "sha256": "eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596"
+    },
+    {
+      "path": "template/.make-docs/system/templates/naive-uat-scenario.md",
+      "sha256": "669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/naive-uat-tester.prompt.md",
+      "sha256": "adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6"
+    },
+    {
+      "path": "template/.make-docs/system/references/naive-uat-validation.md",
+      "sha256": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca"
+    },
+    {
+      "path": "template/.make-docs/system/references/naive-uat-workflow.md",
+      "sha256": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/output-contract.md",
+      "sha256": "e817c141940b1d573f2391ecbb1b7574c5287a1e523b28c7b8c1125ca5fe0b72"
+    },
+    {
+      "path": "template/.make-docs/system/references/path-and-link-hygiene.md",
+      "sha256": "ad4428756f7afcd25db9401d132fd1e0a3ded14c12fe0f03968d4a0db02a8f6c"
+    },
+    {
+      "path": "template/.make-docs/system/templates/plan-overview.md",
+      "sha256": "e9d7d6b2b6093790ff93ffadcc7b46a435475de578f26867fcf379206b109085"
+    },
+    {
+      "path": "template/.make-docs/system/templates/plan-prd-change.md",
+      "sha256": "eda2a04cac67d18ecf1cf4d8367ae0ae309a58fd2571396167cb1e16f21d7f7f"
+    },
+    {
+      "path": "template/.make-docs/system/templates/plan-prd-decompose.md",
+      "sha256": "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c"
+    },
+    {
+      "path": "template/.make-docs/system/templates/plan-prd.md",
+      "sha256": "a4f254c517f4d57cd122c263b4afb9183590e5634de2d6256e26311f891d4843"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/plan-to-prd-change.prompt.md",
+      "sha256": "6f5cb086fc6456545987385de306ae445c0c23cdd93e57ef05a0749779f01101"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
+      "sha256": "dc8a99a88db72626dc9e0ae6bb05aad81a96e5d9fdc2c43d401b731c9e6c3999"
+    },
+    {
+      "path": "template/.make-docs/system/references/planning-workflow.md",
+      "sha256": "abb9e9d0b0365cb64a7ba607eb102b2dc8bdc643fcf2caba0674fbfa88b65eb7"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-architecture.md",
+      "sha256": "4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b"
+    },
+    {
+      "path": "template/.make-docs/system/references/prd-change-management.md",
+      "sha256": "0729cf8b2869973069320788dcda18e183d1911f84f837f763b51725fbcb816c"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/prd-change-to-work.prompt.md",
+      "sha256": "ba25a9056cabc9784e20441bfd7f6cba1f202a8558967f48acf8be29038c4bf0"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-glossary.md",
+      "sha256": "570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-index.md",
+      "sha256": "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-overview.md",
+      "sha256": "10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-reference.md",
+      "sha256": "41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-risk-register.md",
+      "sha256": "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628"
+    },
+    {
+      "path": "template/.make-docs/system/templates/prd-subsystem.md",
+      "sha256": "d405d41e27627fc09b7f41dc48ff03083c651c98139daace7d9535f3ae0eb5bc"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
+      "sha256": "aee80bf8b797ba32a03bc2074a323698732d58f6338d735a1d555928445bcef0"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
+      "sha256": "0a158f7d95252d2bb621d2dc062a6bae3c3d80770f8261fe577f70361bede579"
+    },
+    {
+      "path": "README.md",
+      "sha256": "a1ac72f43b60980c618d635012f929778f6c1111d5307d1793ce84e67cfcfde3"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/request-to-design.prompt.md",
+      "sha256": "6432efb83e6da3ce7d6702824209f42b1e56fcc72c6a694ae816f417b448b771"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/session-to-history-record.prompt.md",
+      "sha256": "6619eb41106cc67c4efca431759ddc54011328d77f067d421d951b7b139fd620"
+    },
+    {
+      "path": "template/.make-docs/system/contracts/system-resource-contract.md",
+      "sha256": "1f66bd3a8d5191874c76a71eb8425f074cf7ab6cdb0c9fccc79fee75b1cdc243"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/update-readme-green-field.prompt.md",
+      "sha256": "2f695d40b34cf7d6c484401afc26584f834050d368fe38ba52c45ee3b2544fbf"
+    },
+    {
+      "path": "template/.make-docs/system/references/wave-model.md",
+      "sha256": "c203ff8435cd3a13fe5aab84bd1287c6d90301ac798d9420224369df84c7d1c3"
+    },
+    {
+      "path": "template/.make-docs/system/templates/work-index.md",
+      "sha256": "2df85998fe9e943ed09d198c74f295ca788ff0f7a8fa6753aa4a2fdafe6834b0"
+    },
+    {
+      "path": "template/.make-docs/system/templates/work-phase.md",
+      "sha256": "f4bcc888490db3b98c0cfe91f10880ddcc5c9f420d419843d7a9a9c2c293d3b1"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/work-to-commit-message.prompt.md",
+      "sha256": "377c646876fadde079ab16f484e33dcdc1dd3cc6be24fb62280609ce52e33fdd"
+    },
+    {
+      "path": "template/.make-docs/system/prompts/work-to-guides.prompt.md",
+      "sha256": "0a379428d09df9f163c71c25521486a502493c8ec625d1eb6446b7d2bfa70a38"
+    },
+    {
+      "path": "template/.make-docs/scripts/check_path_hygiene.py",
+      "sha256": "77c66f924a14118f124a4d9b321b6a9f68f194ecfbf97f18e21fc801e2a88b4c"
+    }
+  ],
+  "completeDistAndTemplateTreesEqual": true
+}

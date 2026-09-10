@@ -1,6 +1,9 @@
 import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "node:url";
+import { embeddedSkillsTestPlugin } from "./scripts/embedded-skills";
 
 export default defineConfig({
+  plugins: [embeddedSkillsTestPlugin(fileURLToPath(new URL(".", import.meta.url)))],
   test: {
     // Redirects the make-docs global store (~/.make-docs) to a temp directory
     // for every test worker so tests never touch the real home directory.

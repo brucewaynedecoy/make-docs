@@ -52,30 +52,21 @@ The current npm package ships a read-first MCP stdio surface through `make-docs 
 
 ## Package Contents
 
+All seven optional first-party Skills are embedded in the compiled `dist/` output. Selecting a first-party Skill needs no network fetch or source checkout. A missing or corrupt embedded payload stops safely; it does not fall back to a remote copy. `preflight`, `software-factory`, and `human-experience` activate only on explicit request. `naive-uat` keeps the Unassisted Goal Testing workflow and CLI interface.
+
 The published npm tarball contains npm metadata and license files, this README, built CLI output under `dist/`, the bundled `template/`, `skill-registry.json`, and `skill-registry.schema.json`. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not shipped as tarball-root package contents.
 
 ## What Gets Installed
 
-The default profile can create or manage:
+The selected setup manages root and lifecycle instruction routers for `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. System resources resolve through the installed CLI; local `.make-docs/system/` bodies are optional selected projections.
 
-- `docs/designs/` for architectural decisions and design rationale
-- `docs/plans/` for approach and strategy documents
-- `docs/prd/` for product requirement documents
-- `docs/work/` for implementation backlogs and task lists
-- `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, and `docs/assets/playbooks/` for people-and-agent-managed project documentation assets
-- `.make-docs/system/contracts/`, `.make-docs/system/references/`, `.make-docs/system/templates/`, and `.make-docs/scripts/` for make-docs system resources
-- root and per-directory `AGENTS.md` / `CLAUDE.md` instruction routers
-- `.make-docs/manifest.json` runtime state for future sync, backup, and uninstall operations
-- `.make-docs/conflicts/<run-id>/` review output when existing local files must not be overwritten
+Project assets are created on demand under `docs/assets/project/` or `docs/assets/<persona>/`. The default audiences are `user` and `maintainer`. Archive and history content lives under `.make-docs/archive/`. Empty asset children are not scaffolded.
 
-History records are created on demand under `docs/assets/archive/history/` by the documentation lifecycle. A blank install does not need preexisting history files.
+Selected Skills use standard agent locations. Project Claude-only installs directly under `.claude/skills/<name>`; Codex-only installs directly under `.agents/skills/<name>`; both use `.agents/skills` plus Claude links or supported native copies. Global scope uses `~/.agents/skills` plus selected harness access. Do not create unselected project Skill roots or an active `.make-docs/agentics` layer. Skills are optional: bare setup and `--selected-skills none` install no Skill files. `--selected-skills all` selects the effective registry. Existing unmanaged copies need the reviewed `setup skills --adopt-existing` path before the CLI may own them.
 
-The installer is intentionally conservative:
+The global Make Docs Store owns installation, upgrade, backup metadata, migration, and recovery state. `.make-docs/config.yaml` may retain project identity and configuration. Local backup payload copies may live under `.make-docs/backup/`; they do not replace Store records. Required recording failure stops a managed write safely. Ordinary document work can continue without the CLI or optional lifecycle capture.
 
-- unchanged managed files are updated in place
-- locally modified managed files are skipped
-- unmanaged conflicting files are not overwritten
-- proposed replacements are staged under `.make-docs/conflicts/<run-id>/`
+Clean managed files can update in place. Local edits and unmanaged conflicts remain protected. Review the CLI's conflict and recovery output before an affected apply.
 
 ## Capability Profile
 

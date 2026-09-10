@@ -1,0 +1,53 @@
+│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-p  │
+│  roof-5y2LZN/individual-human-experience/project                             │
+│  Mode: first install                                                         │
+│  Installation record: global Make Docs Store (will be created)               │
+│  Installed version: none detected                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Selection source: default selections plus command-line flags                │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide                                                │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide                 │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: user=User, maintainer=Maintainer                            │
+│  Managed files evaluated: 16                                                 │
+│  Already current: 0                                                          │
+│  Changes planned: 16                                                         │
+│  Generate: 16                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ──────────────────────────────────────────────╮
+│                                                                        │
+│  - generate: native harness exposure: .agents/skills/human-experience  │
+│  - generate: .make-docs/AGENTS.md                                      │
+│  - generate: shared payload:                                           │
+│  .make-docs/agentics/skills/human-experience/SKILL.md                  │
+│  - generate: shared payload:                                           │
+│  .make-docs/agentics/skills/human-experience/agents/openai.yaml        │
+│  - generate: shared payload:                                           │
+│  .make-docs/agentics/skills/human-experience/references/surfaces.md    │
+│  - generate: .make-docs/system/AGENTS.md                               │
+│  - generate: .make-docs/system/contracts/AGENTS.md                     │
+│  - generate: .make-docs/system/prompts/AGENTS.md                       │
+│  - generate: .make-docs/system/references/AGENTS.md                    │
+│  - generate: .make-docs/system/templates/AGENTS.md                     │
+│  - generate: AGENTS.md                                                 │
+│  - generate: docs/AGENTS.md                                            │
+│  - generate: docs/designs/AGENTS.md                                    │
+│  - generate: docs/plans/AGENTS.md                                      │
+│  - generate: docs/prd/AGENTS.md                                        │
+│  - generate: docs/work/AGENTS.md                                       │
+│                                                                        │
+├────────────────────────────────────────────────────────────────────────╯
+
+Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-5y2LZN/individual-human-experience/project.

@@ -12,11 +12,14 @@ import {
   writeManifest,
 } from "./manifest";
 import {
+  assertStandardSkillLayout,
   classifyReviewableManagedFileConflictPath,
   createInstallPlan,
   createSkillsOnlyInstallPlan,
 } from "./planner";
 import { resolveInstallProfile } from "./profile";
+import { getHarnessSkillDirectory } from "./skill-paths";
+import { homedir } from "node:os";
 import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 import type { SkillRegistry } from "./skill-registry";
 import type {
@@ -36,7 +39,7 @@ import {
   ensureParentDir,
   readPackageMeta,
   relativePathToTarget,
-  writeTextFile,
+  writeContentFile,
 } from "./utils";
 import {
   assertLifecyclePlanSnapshotCurrent,
@@ -73,6 +76,7 @@ export async function planSkillsOnlyInstall(options: {
   selections: InstallSelections;
   existingManifest: InstallManifest | null;
   remove: boolean;
+  reviewedSkillAdoption?: boolean;
   packageMeta?: PackageMeta;
   skillRegistry?: SkillRegistry;
 }): Promise<InstallPlan> {
@@ -85,6 +89,7 @@ export async function planSkillsOnlyInstall(options: {
     profile,
     existingManifest: options.existingManifest,
     remove: options.remove,
+    reviewedSkillAdoption: options.reviewedSkillAdoption,
     skillRegistry: options.skillRegistry,
   });
 }
@@ -96,7 +101,7 @@ export function findReviewableManagedFileConflicts(
     .flatMap((action) => {
       if (
         action.type !== "skip-conflict" ||
-        typeof action.content !== "string" ||
+        action.content === undefined ||
         !action.reason
       ) {
         return [];
@@ -163,6 +168,7 @@ function applyInstallPlanInternal(options: {
   trackSkillFilesInManifestFiles: boolean;
 }): ApplyResult {
   const { targetDir, plan, existingManifest } = options;
+  if (plan.desiredSkillFiles.length > 0) assertStandardSkillLayout(existingManifest, targetDir, plan.profile.selections);
   if (plan.actions.some((action) => action.type === "remove-managed" &&
       action.relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH)) {
     throw new Error("Retired Playbook contract removal requires reviewed migration checkpoint 11.");
@@ -305,15 +311,15 @@ function prepareInstallAction(targetDir: string, plan: InstallPlan, action: Plan
   const absolute = relativePathToTarget(targetDir, action.relativePath);
   if (action.relativePath === ".make-docs/config.yaml" && existsSync(absolute)) return [];
   if (["create", "update", "generate", "update-conflict", "strip-managed-block"].includes(action.type)) {
-    if (typeof action.content !== "string") throw new Error(`Missing content for ${action.relativePath}.`);
-    return [preparePlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolute, action.content!))];
+    if (action.content === undefined) throw new Error(`Missing content for ${action.relativePath}.`);
+    return [preparePlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeContentFile(absolute, action.content!))];
   }
   if (action.type === "remove-managed") return prepareInstallationRemoval(targetDir, action.relativePath);
-  if (action.type === "skip-conflict" && typeof action.content === "string" && plan.conflictsRunId) {
+  if (action.type === "skip-conflict" && action.content !== undefined && plan.conflictsRunId) {
     const relative = path.join(CONFLICTS_RELATIVE_DIR, plan.conflictsRunId, toConflictRelativePath(action.relativePath));
     const conflictPath = path.join(targetDir, relative);
     return [preparePlannedFileChange(targetDir, relative, { kind: "file", content: action.content }, () => {
-      writeTextFile(conflictPath, action.content!);
+      writeContentFile(conflictPath, action.content!);
       conflictFiles.push(conflictPath);
     })];
   }
@@ -363,20 +369,20 @@ function applyAction(options: {
         return;
       }
 
-      if (typeof action.content !== "string" || !desiredEntry) {
+      if (action.content === undefined || !desiredEntry) {
         throw new Error(`Missing content for ${action.type} action on ${action.relativePath}.`);
       }
 
-      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeContentFile(absolutePath, action.content!));
       nextFiles[action.relativePath] = desiredEntry;
       return;
     }
     case "update-conflict": {
-      if (typeof action.content !== "string") {
+      if (action.content === undefined) {
         throw new Error(`Missing content for ${action.type} action on ${action.relativePath}.`);
       }
 
-      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeContentFile(absolutePath, action.content!));
       delete nextFiles[action.relativePath];
       return;
     }
@@ -395,10 +401,10 @@ function applyAction(options: {
       return;
     }
     case "strip-managed-block": {
-      if (typeof action.content !== "string") {
+      if (action.content === undefined) {
         throw new Error(`Missing preserved content for ${action.type} action on ${action.relativePath}.`);
       }
-      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeTextFile(absolutePath, action.content!));
+      recordPlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeContentFile(absolutePath, action.content!));
       delete nextFiles[action.relativePath];
       return;
     }
@@ -410,14 +416,14 @@ function applyAction(options: {
       return;
     }
     case "skip-conflict": {
-      if (typeof action.content === "string" && plan.conflictsRunId) {
+      if (action.content !== undefined && plan.conflictsRunId) {
         const conflictPath = path.join(
           targetDir,
           CONFLICTS_RELATIVE_DIR,
           plan.conflictsRunId,
           toConflictRelativePath(action.relativePath),
         );
-        recordPlannedFileChange(targetDir, path.relative(targetDir, conflictPath), { kind: "file", content: action.content }, () => writeTextFile(conflictPath, action.content!));
+        recordPlannedFileChange(targetDir, path.relative(targetDir, conflictPath), { kind: "file", content: action.content }, () => writeContentFile(conflictPath, action.content!));
         conflictFiles.push(conflictPath);
       }
       return;
@@ -501,7 +507,14 @@ function writeCopyMirror(assets: PlannedAction["copyMirrorAssets"], targetDir: s
   }
 
   for (const asset of assets) {
-    recordPlannedFileChange(targetDir, asset.relativePath, { kind: "file", content: asset.content }, () => writeTextFile(relativePathToTarget(targetDir, asset.relativePath), asset.content));
+    const parents: string[] = [];
+    let parent = path.dirname(asset.relativePath);
+    while (!existsSync(relativePathToTarget(targetDir,parent)) && parent !== "." && parent !== path.dirname(parent)) {
+      parents.unshift(parent);
+      parent=path.dirname(parent);
+    }
+    for (const directory of parents) recordPlannedFileChange(targetDir,directory,{kind:"directory"},()=>mkdirSync(relativePathToTarget(targetDir,directory)));
+    recordPlannedFileChange(targetDir, asset.relativePath, { kind: "file", content: asset.content }, () => writeContentFile(relativePathToTarget(targetDir, asset.relativePath), asset.content));
   }
 }
 
@@ -531,6 +544,9 @@ function getRemoveManagedPruneBoundary(
 }
 
 function getGlobalSelectedAgenticsPruneBoundary(absolutePath: string): string | null {
+  const currentRoots = [path.join(homedir(), ".agents/skills"), getHarnessSkillDirectory("codex", "global"), getHarnessSkillDirectory("claude-code", "global")];
+  const root = currentRoots.find(root => absolutePath.startsWith(root + path.sep));
+  if (root) return path.dirname(root);
   const segments = path.resolve(absolutePath).split(path.sep);
   const agenticsIndex = segments.lastIndexOf("agentics");
   if (agenticsIndex < 1 || segments[agenticsIndex - 1] !== ".make-docs") {

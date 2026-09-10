@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This subsystem defines which agent skills `make-docs` can install, how users select them, how canonical skill payloads land under `.make-docs/agentics/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The public entry is `make-docs setup skills` under [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md); `runSkillsCommand` in `packages/cli/src/skills-command.ts` reads the packaged registry in `packages/cli/skill-registry.json` through `loadEffectiveSkillRegistry` and resolves payloads through `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`.
+This subsystem defines which agent skills `make-docs` can install, how users select them, how Skill payloads use standard scope/harness directories under `.agents/skills/**` or project Claude-only `.claude/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The public entry is `make-docs setup skills` under [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md); `runSkillsCommand` in `packages/cli/src/skills-command.ts` reads the packaged registry in `packages/cli/skill-registry.json` through `loadEffectiveSkillRegistry` and resolves payloads through `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`.
 
 The first-party authoring source is `packages/skills/<name>/` for all seven Skills: `archive-docs`, `cleanup-docs`, `decompose-codebase`, `preflight`, `software-factory`, `human-experience`, and `naive-uat`. Each selected Skill is delivered from the installed CLI package with its declared support files.
 
@@ -220,6 +220,14 @@ Implementation must prove:
 A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Unassisted Goal Testing Skill remains an optional routing adapter and must never become a second policy authority. P7 uses its bundled local payload without closing the general selected-Skill delivery question.
 
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: private Make Docs Skill payload roots or generic shared-root installation guidance.
+- Replacement: the scope/harness standard-location matrix and safe old-path upgrade in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: remove the coordinator's repeated private-layer assumption. Standard agent paths own files; the Store owns state.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-07-04 — W18 R11 follow-up
 

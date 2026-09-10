@@ -1,0 +1,129 @@
+The public files explain the main Skill roles and the adoption review. They contain some instruction conflicts and gaps. The sample dry run returned a review plan. Safe adoption was not tested.
+
+**Candidate identity**
+
+- CLI version observed: `2.0.0-rc`.
+- Package named in the review: `@brucewaynedecoy/make-docs`.
+- Candidate SHA-256 supplied by you: `6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade`.
+- I did not verify that package hash.
+
+For paths below, **Skills** means the supplied [installed Skills directory](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills).
+
+**Commands and files read**
+
+All commands ran from the supplied `fresh-review` workspace. CLI calls used the exact Node executable and installed entry point you supplied.
+
+CLI arguments used:
+
+```text
+--version
+--help
+setup --help
+setup skills --help
+project state status --help
+
+setup skills
+  --target /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project
+  --skill-scope project
+  --no-claude-code
+  --selected-skills preflight,software-factory,human-experience
+  --adopt-existing preflight,software-factory,human-experience
+  --dry-run
+```
+
+Other commands used: `pwd`, `rg --files`, `rg -n`, `awk`, `sed`, `cat`, `tail`, `jq`, `diff -u`, and `test -e`.
+
+Files read:
+
+- All seven installed `SKILL.md` files and six `agents/openai.yaml` files.
+- All references for preflight, software-factory, and human-experience.
+- `archive-docs/references/archive-workflow.md`.
+- Decompose-codebase reference files through full or targeted reads.
+- Python helper headers and import lines only.
+- The sample preflight `SKILL.md`, through a comparison with the installed copy.
+- All four files in [public-output](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/public-output).
+
+File listings also returned project router, configuration, and backup names. I did not read those files.
+
+**1. Available Skills — text-based conclusions**
+
+| Skill | Purpose and needs | Use outside Make Docs |
+|---|---|---|
+| archive-docs | Finds stale docs, reviews archive effects, moves approved docs, or marks them as replaced. Needs project docs and archive rules. Its Python helper is optional. | Can work without the CLI. It retains Make Docs folder rules. |
+| cleanup-docs | Checks and fixes Markdown format. Needs a scope, local document rules, and Python 3. | Yes, with suitable local document rules. |
+| decompose-codebase | Turns repository evidence into requirements and a rebuild backlog. Needs repository access, Python helpers, and bundled templates. It prefers delegated agents and index tools, with fallbacks. | Can work without the CLI. It retains Make Docs output rules. |
+| human-experience | Reviews or improves a result for the affected person. Needs a goal and an actual result to inspect. | Yes. No required CLI dependency is stated. |
+| preflight | Reviews a named phase and settles owner choices. Needs the governing requirements and backlog. Saved progress is optional. | CLI-free review is supported. Use without Make Docs planning documents is not defined. |
+| software-factory | Coordinates approved backlog work and review. Needs requirements, a backlog, and an available worker method. | The CLI is optional for ordinary work. The workflow still depends on Make Docs planning. |
+| naive-uat | Starts the shared Unassisted Goal Testing workflow. Needs Make Docs resource access and typed CLI operations. | No. It states: “This Skill is a CLI entry point.” |
+
+The file inventory contains all local support files named by the seven entry files. The naive-uat workflow is an external CLI resource, not a bundled file. I did not resolve it.
+
+**2. Workflow entry — text-based conclusions**
+
+Each of these entry files says: “Use only when the user explicitly requests” its named Skill:
+
+- `preflight/SKILL.md:3`
+- `software-factory/SKILL.md:3`
+- `human-experience/SKILL.md:3`
+
+Their `agents/openai.yaml:6` files also set `allow_implicit_invocation: false`.
+
+Further boundaries are clear:
+
+- Preflight does not start factory. Its Store reference “is not an invocation of the factory skill” (`preflight/SKILL.md:38`).
+- Factory must “not … invoke preflight automatically” (`software-factory/SKILL.md:16`).
+- Human-experience must not activate another Skill merely because its subject is related (`human-experience/SKILL.md:35`).
+- Preflight can continue into implementation when the original request already permits it (`preflight/SKILL.md:40`).
+
+These are installed instructions. I did not test enforcement by an agent application.
+
+**3. Sample adoption — observed plan**
+
+The live dry run returned `status: ready`, with no listed blockers. Its review digest matched the supplied review:
+
+`ce85e0ea055dde26fc129896b31a8af4f0abcf0adcb7d12d8ea4a934fd2705fa`
+
+The plan selects preflight, software-factory, and human-experience. Its scope is this project. Its agent application is Codex.
+
+The proposed effects are:
+
+- Create the three managed Skill payloads under `.make-docs/agentics/skills/`.
+- Back up all four files in the existing preflight copy under `.make-docs/backup/skill-adoption-e0c3b1ff4533/.agents/skills/preflight/`.
+- Replace `.agents/skills/preflight` with a link to the managed payload.
+- Keep the existing human-experience and software-factory copies as managed mirror copies.
+- Register 15 ownership entries: three Skill locations and 12 payload files.
+
+The sample preflight file contains an added owner note. The plan preserves its original file hash in the proposed backup.
+
+**A dry run changes no ownership**, according to help. A later adoption can register ownership for files whose content does not change. The two unchanged copies show this distinction. This sample is not a wholly file-free adoption plan.
+
+**4. Failure handling — evidence and next safe action**
+
+| Case | Public evidence | Test limit and next safe owner action |
+|---|---|---|
+| Stale review | Help requires the “matching `--review` digest”; `--yes` alone is insufficient. | Rejection was not tested. Run a new dry run after any change and review its new plan. |
+| Unknown extra files | Help says the review shows blockers. It gives no specific extra-file rule. | Not tested. Inspect the reported path and preserve its content before deciding how to resolve it. |
+| Unsafe links | The sample plan names its proposed link target. No unsafe-link rule appears in the inspected help. | Not tested. Stop if a link or destination is unexpected. Resolve it before a new review. |
+| Changed local files | The sample’s edited preflight copy receives a backup plan. | Planning was observed. Backup creation and preservation were not tested. Review the content difference before adoption. |
+| Required state unavailable | Both Store references say managed CLI writes “must stop safely” if required records cannot be saved (`references/store.md:47`). | Failure was not tested. Restore required state through supported owner steps before adoption. |
+
+The Store references also warn that exit code zero alone does not prove optional progress was saved. They name `status: run-capture-unavailable` as a possible result.
+
+**5. Concrete findings**
+
+- **Medium — conflicting archive scope.** Compare `archive-docs/SKILL.md:60,74` with `references/archive-workflow.md:14`. The entry file excludes the named origin in related mode. The reference says “Archive the target plus all … relatives.” Direct mode also conflicts: the reference says “No relationship tracing,” while the entry workflow requires tracing. Reproduce by reading those passages. Align the target and tracing rules.
+
+- **Medium — source-tree path in an installed handoff.** `archive-docs/SKILL.md:18` tells the coordinator to pass `packages/skills/archive-docs/SKILL.md` to a worker. That is not the supplied installed path. Reproduce by reading line 18. Use the current installed Skill path in the handoff.
+
+- **Medium — adoption failure rules lack an owner explanation.** `setup skills --help` promises “blockers,” but does not explain unknown files, unsafe links, stale-review recovery, or required Store failure. The supplied sample has no blockers. Add a short failure guide with the next safe action for each case.
+
+- **Low — command help fails.** `project state status --help` exited 1 with “Unexpected argument for project state status: --help.” Root help says command-specific help is available with any command. Reproduce with the same help call. Make this help path work.
+
+No observed result supports a claim of data loss or failed adoption.
+
+The review supports owner understanding of Skill entry and the sample plan. The findings above limit confidence in an unaided owner’s next steps.
+
+The session supplied prior context and extra tools. I did not use them as review evidence. No Skill workflow, adoption, apply, recovery, or write operation ran. One automatic link-check attempt was blocked because the shell tried to create a temporary file. I stopped that check.
+
+This was an agent review of public files and command output. It was not a human usability test, live agent-application test, code review, or owner acceptance.

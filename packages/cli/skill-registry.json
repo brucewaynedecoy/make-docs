@@ -7,7 +7,7 @@
   "sourcePolicy": {
     "kind": "first-party",
     "label": "First-party make-docs registry",
-    "allowRemoteSkillSources": true
+    "allowRemoteSkillSources": false
   },
   "purposes": [
     {
@@ -103,17 +103,22 @@
     {
       "name": "archive-docs",
       "displayName": "Archive docs",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
+      "source": "embedded:archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
       "description": "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
-      "purposes": ["archive-management"],
-      "supportedHarnesses": ["claude-code", "codex"],
+      "purposes": [
+        "archive-management"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
       "provenance": {
         "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
       },
       "assets": [
         {
@@ -133,17 +138,22 @@
     {
       "name": "cleanup-docs",
       "displayName": "Clean up docs",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/cleanup-docs",
+      "source": "embedded:cleanup-docs",
       "entryPoint": "SKILL.md",
       "installName": "cleanup-docs",
       "description": "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
-      "purposes": ["documentation-maintenance"],
-      "supportedHarnesses": ["claude-code", "codex"],
+      "purposes": [
+        "documentation-maintenance"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
       "provenance": {
         "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
       },
       "assets": [
         {
@@ -159,17 +169,23 @@
     {
       "name": "decompose-codebase",
       "displayName": "Decompose codebase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
+      "source": "embedded:decompose-codebase",
       "entryPoint": "SKILL.md",
       "installName": "decompose-codebase",
       "description": "Plan and reverse-engineer repos into structured PRDs.",
-      "purposes": ["codebase-decomposition", "plan-creation"],
-      "supportedHarnesses": ["claude-code", "codex"],
+      "purposes": [
+        "codebase-decomposition",
+        "plan-creation"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
       "provenance": {
         "kind": "first-party",
-        "label": "make-docs first-party skill",
-        "repository": "brucewaynedecoy/make-docs",
-        "ref": "main"
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
       },
       "assets": [
         {
@@ -249,7 +265,7 @@
     {
       "name": "naive-uat",
       "displayName": "Unassisted Goal Testing",
-      "source": "local:template/.make-docs/agentics/skills/naive-uat",
+      "source": "embedded:naive-uat",
       "entryPoint": "SKILL.md",
       "installName": "naive-uat",
       "description": "Thin CLI access to the shared Unassisted Goal Testing workflow.",
@@ -262,10 +278,116 @@
       ],
       "provenance": {
         "kind": "first-party",
-        "label": "make-docs bundled local Skill",
-        "manifestId": "make-docs.first-party"
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
       },
       "assets": []
+    },
+    {
+      "name": "preflight",
+      "displayName": "Preflight",
+      "source": "embedded:preflight",
+      "entryPoint": "SKILL.md",
+      "installName": "preflight",
+      "description": "Review a named phase and settle needed owner choices. Explicit use only.",
+      "purposes": [
+        "plan-creation"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/decisions.md",
+          "installPath": "references/decisions.md"
+        },
+        {
+          "source": "references/store.md",
+          "installPath": "references/store.md"
+        }
+      ]
+    },
+    {
+      "name": "software-factory",
+      "displayName": "Software Factory",
+      "source": "embedded:software-factory",
+      "entryPoint": "SKILL.md",
+      "installName": "software-factory",
+      "description": "Coordinate approved backlog work, review, and correction. Explicit use only.",
+      "purposes": [
+        "workflow-execution"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/profiles.md",
+          "installPath": "references/profiles.md"
+        },
+        {
+          "source": "references/store.md",
+          "installPath": "references/store.md"
+        },
+        {
+          "source": "references/work-methods.md",
+          "installPath": "references/work-methods.md"
+        }
+      ]
+    },
+    {
+      "name": "human-experience",
+      "displayName": "Human Experience",
+      "source": "embedded:human-experience",
+      "entryPoint": "SKILL.md",
+      "installName": "human-experience",
+      "description": "Shape or review a clear, usable human interaction. Explicit use only.",
+      "purposes": [
+        "documentation-maintenance"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/surfaces.md",
+          "installPath": "references/surfaces.md"
+        }
+      ]
     }
   ]
 }

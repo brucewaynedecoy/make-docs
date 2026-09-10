@@ -8,7 +8,8 @@ import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAsset
 import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, loadSqliteDriver, type StoreDatabase } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
-import type { InstallManifest } from '../types';
+import type { InstallManifest, ManifestFileEntry } from '../types';
+import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
 export class InstallationStateError extends Error {
     constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string) { super(message); this.name = 'InstallationStateError'; }
 }
@@ -78,6 +79,22 @@ const active = new Map<string, {
 const sha = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex');
 const now = () => new Date().toISOString();
 
+function isRetiredSkillPath(root: string, relative: string): boolean {
+    const absolute = path.resolve(root, relative);
+    return [root, os.homedir()].some(base => inside(path.join(base, '.make-docs/agentics'), absolute));
+}
+
+/** New children are absent while their exact reviewed former exposure is still a link. */
+function underSavedBeforeLink(root: string, relative: string, changes: DetachedInstallationPlan['changes']): boolean {
+    const absolute = path.resolve(root, relative);
+    return changes.some(change => {
+        const ancestor = path.resolve(root, change.path);
+        return absolute !== ancestor && inside(ancestor, absolute) && change.before.kind === 'symlink'
+            && changes.some(final => final.path === change.path && final.after.kind === 'directory')
+            && matches(root, change.path, change.before);
+    });
+}
+
 export interface DetachedInstallationPlan {
     schemaVersion: 1;
     reviewDigest: string;
@@ -85,9 +102,71 @@ export interface DetachedInstallationPlan {
     metadata: unknown;
     changes: Array<{ path: string; before: InstallationFileState; after: InstallationFileState }>;
     afterLedger?: InstallManifest | null;
+    /** Only setup.skills.adopt may opt into the bounded Skill path policy. */
+    skillScope?: { roots: string[]; symlinkTargets: Record<string, string>; beforeSymlinkTargets?: Record<string, string>; bootstrapPaths?: string[]; backupRoots?: string[] };
+    copyFallbacks?: Record<string, {
+        changes: Array<{path: string; before: InstallationFileState; after: InstallationFileState}>;
+        ledgerEntry: ManifestFileEntry;
+    }>;
+    /** Written only by the executor after a proved no-effect symlink failure. */
+    selectedCopyFallbacks?: string[];
+}
+export interface InstallationPathClaim {
+    checkoutId: string;
+    projectId: string;
+    rootPath: string;
+    path: string;
+    kind: 'ownership' | 'pending';
+    operationId?: string;
+}
+/** Read current ownership and pending intent without creating a Store or binding. */
+export function readInstallationPathClaims(projectRoot: string, roots: string[], storeRoot?: string): InstallationPathClaim[] {
+    const root = canonicalInstallationPath(projectRoot);
+    if (!hasInstallationSchema(root, storeRoot)) return [];
+    const requested = roots.map(p => { const absolute = path.resolve(root, p); return path.join(canonicalInstallationPath(path.dirname(absolute)), path.basename(absolute)); });
+    return withInstallationDatabase(root, db => {
+        const claims: InstallationPathClaim[] = [];
+        const append = (row: Checkout, p: string, kind: InstallationPathClaim['kind'], operationId?: string) => {
+            const resolved = path.resolve(row.root_path, p);
+            const absolute = path.join(canonicalInstallationPath(path.dirname(resolved)), path.basename(resolved));
+            if (requested.some(r => inside(r, absolute) || inside(absolute, r))) claims.push({checkoutId: row.checkout_id, projectId: row.project_id, rootPath: row.root_path, path: absolute, kind, ...(operationId ? {operationId} : {})});
+        };
+        for (const row of db.prepare('SELECT * FROM installation_checkouts').all() as unknown as Checkout[]) {
+            const ledger = db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined;
+            if (ledger) for (const p of Object.keys((JSON.parse(ledger.manifest_json) as InstallManifest).files)) append(row, p, 'ownership');
+            for (const op of db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status='pending'").all(row.checkout_id) as unknown as Operation[]) {
+                for (const step of db.prepare('SELECT relative_path FROM installation_steps WHERE operation_id=?').all(op.operation_id) as {relative_path: string}[]) append(row, step.relative_path, 'pending', op.operation_id);
+                const intendedLedger = op.after_ledger ? JSON.parse(op.after_ledger) as InstallManifest | null : null;
+                if (intendedLedger) for (const p of Object.keys(intendedLedger.files)) append(row, p, 'pending', op.operation_id);
+            }
+        }
+        return [...new Map(claims.map(c => [canonicalJson(c), c])).values()].sort((a, b) => canonicalJson(a).localeCompare(canonicalJson(b)));
+    }, {storeRoot, readOnly: true});
+}
+function assertNoOtherPendingPathClaims(root: string, paths: string[], storeRoot?: string): void {
+    if (!paths.length) return;
+    // Ordinary writers need pending reservations only. Do not parse every committed ledger per file.
+    const conflict = withInstallationDatabase(root, db => {
+        const pending = db.prepare("SELECT o.operation_id,o.after_ledger,c.root_path FROM installation_operations o JOIN installation_checkouts c ON c.checkout_id=o.checkout_id WHERE o.status='pending' AND c.root_path<>?").all(root) as {operation_id: string; after_ledger: string | null; root_path: string}[];
+        if (!pending.length) return undefined;
+        const canonicalPath = (base: string, p: string) => { const absolute = path.resolve(base, p); return path.join(canonicalInstallationPath(path.dirname(absolute)), path.basename(absolute)); };
+        const requested = paths.map(p => canonicalPath(root, p));
+        for (const op of pending) {
+            const planned = db.prepare('SELECT relative_path FROM installation_steps WHERE operation_id=?').all(op.operation_id) as {relative_path: string}[];
+            const intendedLedger = op.after_ledger ? JSON.parse(op.after_ledger) as InstallManifest | null : null;
+            const reserved = [...planned.map(step => step.relative_path), ...Object.keys(intendedLedger?.files ?? {})];
+            for (const p of reserved) {
+                const absolute = canonicalPath(op.root_path, p);
+                if (requested.some(r => inside(r, absolute) || inside(absolute, r))) return {operationId: op.operation_id, rootPath: op.root_path, path: absolute};
+            }
+        }
+        return undefined;
+    }, {storeRoot, readOnly: true});
+    if (conflict) fail('recovery-required', `Pending operation ${conflict.operationId} in ${conflict.rootPath} reserves ${conflict.path}. Recover that operation before overlapping managed writes.`);
 }
 interface DetachedOperationHooks {
     validate(root: string, metadata: unknown, phase: 'before' | 'after' | 'progress', temporaryFiles?: Record<string, FileState>): string[];
+    beforeRetiredCleanup?(root: string, metadata: unknown): string[];
     nextAction(root: string, operationId: string, mode: 'cli' | 'manual'): string;
 }
 const detachedHooks = new Map<string, DetachedOperationHooks>();
@@ -113,20 +192,73 @@ function detachedSnapshot(db: StoreDatabase, op: Operation): DetachedInstallatio
 function validateDetached(root: string, op: Operation, plan: DetachedInstallationPlan | null, phase: 'before' | 'after' | 'progress', temporaryFiles?: Record<string, FileState>): string[] {
     return plan ? detachedHooks.get(op.operation)!.validate(root, plan.metadata, phase, temporaryFiles) : [];
 }
-function assertDetachedPaths(root: string, plan: DetachedInstallationPlan, checkBefore = true): void {
+function assertDetachedPaths(root: string, plan: DetachedInstallationPlan, checkBefore = true, operation?: string, hypotheticalFallback = false): void {
+    if ([...Object.keys(plan.afterLedger?.files ?? {}), ...(plan.afterLedger?.skillFiles ?? [])].some(p => isRetiredSkillPath(root, p))) fail('recovery-required', 'The saved final ownership uses retired .make-docs/agentics paths. Use a current reviewed Skill layout cutover.');
+    if ((plan.skillScope || plan.copyFallbacks) && operation !== 'setup.skills.adopt') fail('ownership-unverified', 'Skill path policy is only valid for reviewed Skill adoption.');
+    if (operation === 'setup.skills.adopt' && !plan.skillScope) fail('ownership-unverified', 'Adoption requires its complete selected Skill roots.');
+    const selected = plan.afterLedger?.selections;
+    const permittedDirectories = [path.join(root,'.agents/skills'),path.join(root,'.claude/skills'),path.join(root,'.codex/skills'),path.join(root,'.make-docs/agentics/skills'),path.join(os.homedir(),'.agents/skills'),path.join(os.homedir(),'.claude/skills'),path.join(os.homedir(),'.codex/skills'),path.join(os.homedir(),'.make-docs/agentics/skills'),getHarnessSkillDirectory('codex','global'),getHarnessSkillDirectory('claude-code','global')].map(p=>path.resolve(p));
+    const canonicalDirectory = selected ? path.resolve(selected.skillScope === 'project' ? root : os.homedir(),getCanonicalSkillDirectory(selected)) : '';
+    const skillRoots = plan.skillScope?.roots.map(p => {
+        const absolute = path.resolve(root, p);
+        if (!permittedDirectories.includes(path.dirname(absolute)) || !/^[a-z0-9][a-z0-9-]*$/.test(path.basename(absolute))) fail('ownership-unverified', `Invalid selected Skill root: ${p}`);
+        if (!plan.afterLedger?.selections.selectedSkills.includes(path.basename(absolute))) fail('ownership-unverified', 'Skill root is not in the selected set.');
+        assertSafeFilePath(root, p);
+        return absolute;
+    }) ?? [];
+    const bootstrap = (plan.skillScope?.bootstrapPaths ?? []).map(p => {
+        const router = plan.afterLedger?.routerOwnership?.routers[p];
+        if (path.isAbsolute(p) || !router || router.relativePath !== p || router.routerClass !== 'bootstrap' || !plan.afterLedger?.files[p] || !/^(?:(?:docs(?:\/(?:designs|plans|prd|work))?|\.make-docs(?:\/system(?:\/(?:contracts|references|prompts|templates))?)?)\/)?(?:AGENTS|CLAUDE)\.md$/.test(p)) fail('ownership-unverified', `Unproved bootstrap router: ${p}`);
+        return path.resolve(root, p);
+    });
+    const backups = (plan.skillScope?.backupRoots ?? []).map(p => {
+        if (!/^\.make-docs\/backup\/skill-adoption-[a-f0-9]{12}$/.test(p) || (checkBefore && inspect(root, p).kind !== 'missing')) fail('ownership-unverified', 'Adoption backup must use its reviewed, initially absent root.');
+        return path.resolve(root, p);
+    });
+    const checkSkillPath = (change: DetachedInstallationPlan['changes'][number]) => {
+        const absolute = path.resolve(root, change.path);
+        const identity = change.path === '.make-docs/config.yaml';
+        const backup = backups.some(p => inside(p, absolute));
+        if (!backup && isRetiredSkillPath(root,change.path) && change.after.kind !== 'missing') fail('recovery-required','This saved plan would recreate retired .make-docs/agentics paths. Preserve its evidence; use a current reviewed Skill layout cutover.');
+        const parentOnly = [...skillRoots, ...bootstrap, ...backups, path.join(root, '.make-docs/config.yaml')].some(p => inside(absolute, p)) && change.before.kind !== 'file' && change.after.kind !== 'file' && change.before.kind !== 'symlink' && change.after.kind !== 'symlink';
+        if (absolute === root || absolute === os.homedir() || (!identity && !parentOnly && !backup && !bootstrap.includes(absolute) && !skillRoots.some(p => inside(p, absolute)))) fail('ownership-unverified', `Path is outside the reviewed Skill roots: ${change.path}`);
+        if (backup && (change.before.kind !== 'missing' || !['file', 'directory'].includes(change.after.kind))) fail('ownership-unverified', 'Adoption backups cannot replace existing content.');
+        if (backup && change.after.kind === 'file' && !plan.changes.some(c => c.before.kind === 'file' && c.before.digest === change.after.digest && c.before.contentBase64 === change.after.contentBase64)) fail('ownership-unverified', 'Backup bytes do not match reviewed existing content.');
+        if (identity && change.after.kind === 'file') {
+            const config = parseDocument(Buffer.from(change.after.contentBase64 ?? '', 'base64').toString('utf8')).toJS() as {projectId?: string} | null;
+            if (!config || config.projectId !== plan.afterLedger?.projectId) fail('ownership-unverified', 'The prepared config and final ledger identities disagree.');
+        }
+    };
     const prior = new Map<string, FileState>();
+    const lastSteps = new Map<string, Step>();
+    plan.changes.forEach((change, index) => lastSteps.set(change.path, {ordinal: index + 1, relative_path: change.path, before_json: JSON.stringify(change.before), after_json: JSON.stringify(change.after), applied: 0}));
     for (const change of plan.changes) {
-        if (!change.path || change.path === '.' || path.isAbsolute(change.path) || change.path.includes('\\') || change.path.split('/').some(part => !part || part === '.' || part === '..')) fail('ownership-unverified', 'A saved layout path must be project-relative and cannot escape the project.');
-        assertSafeFilePath(root, change.path);
-        for (const state of [change.before, change.after]) {
+        if (!change.path || change.path === '.' || (!plan.skillScope && path.isAbsolute(change.path)) || change.path.includes('\\') || change.path.split('/').slice(path.isAbsolute(change.path) ? 1 : 0).some(part => !part || part === '.' || part === '..')) fail('ownership-unverified', 'A saved operation path cannot escape its reviewed scope.');
+        if (plan.skillScope) checkSkillPath(change);
+        // A later, verified parent link subsumes removed children. Never walk that link to inspect the old tree.
+        const removedUnderRecordedAncestor = !checkBefore && change.after.kind === 'missing' && subsumedByAncestor(root, lastSteps.get(change.path)!, lastSteps);
+        const absentUnderOldLink = change.before.kind === 'missing' && underSavedBeforeLink(root,change.path,plan.changes);
+        if (!hypotheticalFallback && !removedUnderRecordedAncestor && !absentUnderOldLink) assertSafeFilePath(root, change.path);
+        for (const [index,state] of [change.before, change.after].entries()) {
             if (!['missing', 'directory', 'file', 'symlink'].includes(state.kind) || state.payload !== undefined) fail('ownership-unverified', 'Unsupported detached file state.');
             if (state.kind === 'file' && (typeof state.contentBase64 !== 'string' || sha(Buffer.from(state.contentBase64, 'base64')) !== state.digest || !Number.isInteger(state.mode) || state.mode! < 0 || state.mode! > 0o777)) fail('snapshot-drift', `Saved file bytes or mode are invalid: ${change.path}`);
-            if (state.kind === 'symlink') fail('ownership-unverified', 'Layout migration does not follow or create symbolic links.');
+            if (state.kind === 'symlink') {
+                const target = index === 0 ? plan.skillScope?.beforeSymlinkTargets?.[change.path] ?? plan.skillScope?.symlinkTargets[change.path] : plan.skillScope?.symlinkTargets[change.path];
+                const destination = target ? path.resolve(path.dirname(path.resolve(root,change.path)),target) : '';
+                if (!target || state.target !== target || destination === path.resolve(root,change.path) || !skillRoots.includes(destination) || (index === 1 && path.dirname(destination) !== canonicalDirectory)) fail('ownership-unverified', 'Only the exact reviewed native Skill link target is allowed.');
+            }
         }
         const preceding = prior.get(change.path);
         if (preceding && canonicalJson(preceding) !== canonicalJson(change.before)) fail('snapshot-drift', `Non-contiguous file plan: ${change.path}`);
-        if (checkBefore && !preceding && !matches(root, change.path, change.before)) fail('snapshot-drift', `Input changed before preparation: ${change.path}`);
+        if (checkBefore && !preceding && !absentUnderOldLink && !matches(root, change.path, change.before)) fail('snapshot-drift', `Input changed before preparation: ${change.path}`);
         prior.set(change.path, change.after);
+    }
+    for (const [exposure, fallback] of Object.entries(plan.copyFallbacks ?? {})) {
+        const trigger = plan.changes.find(c => c.path === exposure && c.after.kind === 'symlink');
+        const selected = plan.selectedCopyFallbacks?.includes(exposure);
+        if ((!selected && (!trigger || trigger.before.kind !== 'missing')) || !fallback.changes.length || fallback.changes.some(c => !inside(path.resolve(root, exposure), path.resolve(root, c.path)) || c.before.kind !== 'missing' || !['file', 'directory'].includes(c.after.kind)) || fallback.ledgerEntry.skillExposure?.mode !== 'copy-mirror') fail('ownership-unverified', 'Invalid predeclared native copy fallback.');
+        if (selected && canonicalJson(plan.afterLedger?.files[exposure]) !== canonicalJson(fallback.ledgerEntry)) fail('snapshot-drift', 'Selected copy fallback and ledger disagree.');
+        assertDetachedPaths(root, {...plan, changes: fallback.changes, copyFallbacks: undefined}, false, operation, true);
     }
 }
 /** Persist a sealed plan without creating config, project backup files, or changing content. */
@@ -137,13 +269,16 @@ export function prepareDetachedInstallationOperation(projectRoot: string, operat
     if (!hooks) fail('recovery-required', 'No validator is registered for this operation.');
     const lock = acquireInstallationLock(root, storeRoot);
     try {
+        if (operation === 'setup.skills.adopt') held.get(root)!.globalLock = acquireGlobalAssetLock(root);
         const plan = build();
+        if (plan.selectedCopyFallbacks?.length) fail('ownership-unverified', 'A new adoption cannot claim an executor-selected fallback.');
         const issues = hooks.validate(root, plan.metadata, 'before');
         if (issues.length) fail('snapshot-drift', issues.join('\n'));
-        assertDetachedPaths(root, plan);
+        assertDetachedPaths(root, plan, true, operation);
+        assertNoOtherPendingPathClaims(root, [...plan.changes.map(c => c.path), ...Object.keys(plan.afterLedger?.files ?? {})], lock.storeRoot);
         const id = randomUUID();
         withInstallationDatabase(root, db => transaction(db, () => {
-            const row = bindCheckout(db, root);
+            const row = bindCheckout(db, root, operation === 'setup.skills.adopt' ? plan.afterLedger?.projectId : undefined);
             const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as {operation_id: string} | undefined;
             if (pending) fail('recovery-required', `Operation ${pending.operation_id} is pending. Inspect project state status.`);
             const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined)?.manifest_json ?? null;
@@ -155,6 +290,7 @@ export function prepareDetachedInstallationOperation(projectRoot: string, operat
             db.prepare("INSERT INTO installation_operations (operation_id,checkout_id,operation,status,before_ledger,after_ledger,created_at,finished_at,plan_complete) VALUES (?,?,?,'pending',?,?,?,NULL,1)").run(id, row.checkout_id, operation, ledger, afterLedger, now());
             for (const [index, change] of plan.changes.entries()) db.prepare('INSERT INTO installation_steps VALUES (?,?,?,?,?,0)').run(id, index + 1, change.path, JSON.stringify(change.before), JSON.stringify(change.after));
             db.prepare("INSERT INTO installation_migration_records VALUES (?,'snapshot',?,?)").run(row.checkout_id, `detached:${id}`, JSON.stringify({digest: sha(canonicalJson(plan)), plan}));
+            if (operation === 'setup.skills.adopt') db.prepare("INSERT INTO installation_migration_records VALUES (?,'snapshot',?,?)").run(row.checkout_id, `detached-original:${id}`, JSON.stringify({digest: sha(canonicalJson(plan)), plan}));
         }), {storeRoot: lock.storeRoot});
         // Read the committed receipt back before giving a mover instructions.
         withInstallationDatabase(root, db => {
@@ -476,6 +612,13 @@ export function saveInstallationManifest(projectRoot: string, manifest: InstallM
         return withInstallationOperation(root, 'installation.ledger', () => saveInstallationManifest(root, manifest), { projectId: manifest.projectId });
     if (manifest.projectId !== op.projectId)
         fail('ownership-unverified', 'Installation ledger projectId differs from the reserved identity.');
+    const paths = Object.keys(manifest.files);
+    if (paths.some(p => path.isAbsolute(p))) {
+        const lock = held.get(root)!;
+        if (!lock.globalLock) lock.globalLock = acquireGlobalAssetLock(root);
+        assertGlobalAssetLockActive(lock.globalLock);
+    }
+    assertNoOtherPendingPathClaims(root, paths, op.storeRoot);
     withInstallationDatabase(root, db => { db.prepare('UPDATE installation_operations SET after_ledger=? WHERE operation_id=?').run(JSON.stringify(manifest), op.id); }, { storeRoot: op.storeRoot });
     return `${getStoreDatabasePath(op.storeRoot)}#installation-ledger/${op.projectId}`;
 }
@@ -575,7 +718,9 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
 }
 function targetPath(root: string, relative: string): string {
     if (path.isAbsolute(relative)) {
-        const allowed = ['.agents', '.claude', '.codex'].some(p => canonicalInstallationPath(path.join(os.homedir(), p)) === path.join(canonicalInstallationPath(path.dirname(relative)), path.basename(relative))) || ['.agents/skills', '.codex/skills', '.claude/skills', '.make-docs/agentics'].some(p => inside(canonicalInstallationPath(path.join(os.homedir(), p)), path.join(canonicalInstallationPath(path.dirname(relative)), path.basename(relative)))) || inside(path.join(active.get(root)?.storeRoot ?? resolveStoreRoot(), 'agentics'), path.join(canonicalInstallationPath(path.dirname(relative)), path.basename(relative)));
+        const target = path.join(canonicalInstallationPath(path.dirname(relative)),path.basename(relative));
+        const nativeDirectories = [getHarnessSkillDirectory('codex','global'),getHarnessSkillDirectory('claude-code','global')];
+        const allowed = ['.agents', '.claude', '.codex'].some(p => canonicalInstallationPath(path.join(os.homedir(), p)) === target) || ['.agents/skills', '.codex/skills', '.claude/skills', '.make-docs/agentics'].some(p => inside(canonicalInstallationPath(path.join(os.homedir(), p)), target)) || nativeDirectories.some(p=>inside(canonicalInstallationPath(p),target) || canonicalInstallationPath(path.dirname(p)) === target) || inside(path.join(active.get(root)?.storeRoot ?? resolveStoreRoot(), 'agentics'), target);
         if (!allowed)
             fail('ownership-unverified', `External mutation path is not an approved skill location: ${relative}`);
         return path.join(canonicalInstallationPath(path.dirname(relative)), path.basename(relative));
@@ -586,6 +731,14 @@ function targetPath(root: string, relative: string): string {
     return target;
 }
 function assertSafeFilePath(root: string, relative: string): string {
+    if (path.isAbsolute(relative)) {
+        let lexicalParent = path.dirname(relative);
+        const home = os.homedir();
+        while (lexicalParent !== path.dirname(lexicalParent) && lexicalParent !== home) {
+            if (lstatSync(lexicalParent, {throwIfNoEntry: false})?.isSymbolicLink()) fail('ownership-unverified', `Symbolic-link parent: ${lexicalParent}`);
+            lexicalParent = path.dirname(lexicalParent);
+        }
+    }
     const target = targetPath(root, relative);
     let current = path.dirname(target);
     while (current !== path.dirname(current)) {
@@ -639,6 +792,7 @@ export function sealInstallationOperation(projectRoot: string): void { const roo
     return; withInstallationDatabase(root, db => db.prepare('UPDATE installation_operations SET plan_complete=1 WHERE operation_id=?').run(op.id), { storeRoot: op.storeRoot }); }
 export function preparePlannedFileChange(projectRoot: string, relativePath: string, after: PlannedFileState, apply: () => void): () => void {
     const root = canonicalInstallationPath(projectRoot);
+    if (isRetiredSkillPath(root,relativePath) && after.kind !== 'missing') fail('recovery-required','The retired .make-docs/agentics tree is read/remove-only. Review setup skills --adopt-existing --dry-run for layout cutover.');
     if (relativePath === '.')
         fail('ownership-unverified', 'Only bootstrap can create the target root.');
     const op = active.get(root);
@@ -650,6 +804,7 @@ export function preparePlannedFileChange(projectRoot: string, relativePath: stri
             lock.globalLock = acquireGlobalAssetLock(root);
         assertGlobalAssetLockActive(lock.globalLock);
     }
+    assertNoOtherPendingPathClaims(root, [relativePath], op.storeRoot);
     const prior = withInstallationDatabase(root, db => db.prepare('SELECT after_json FROM installation_steps WHERE operation_id=? AND relative_path=? ORDER BY ordinal DESC LIMIT 1').get(op.id, relativePath) as {
         after_json: string;
     } | undefined, { storeRoot: op.storeRoot, readOnly: true });
@@ -760,6 +915,7 @@ function writeAtomicDetachedFile(root: string, relative: string, state: FileStat
     try {fsyncSync(directory);} finally {closeSync(directory);}
 }
 function restoreState(root: string, relative: string, state: FileState, atomic?: {op: Operation; step: Step; expected: FileState; lock: InstallationLock}): void {
+    if (isRetiredSkillPath(root,relative) && state.kind !== 'missing') fail('recovery-required','Recovery cannot recreate retired .make-docs/agentics paths. Preserve the saved bytes and inspect forward resume.');
     const target = assertSafeFilePath(root, relative);
     const current = inspect(root, relative);
     let fileBytes: Buffer | undefined;
@@ -810,6 +966,31 @@ function restoreState(root: string, relative: string, state: FileState, atomic?:
         closeSync(fd);
     }
     chmodSync(target, state.mode ?? 0o644);
+}
+function selectDetachedCopyFallback(root: string, op: Operation, plan: DetachedInstallationPlan, step: Step, error: unknown, lock: InstallationLock): boolean {
+    const fallback = plan.copyFallbacks?.[step.relative_path];
+    const from = JSON.parse(step.before_json) as FileState, to = JSON.parse(step.after_json) as FileState;
+    if (op.operation !== 'setup.skills.adopt' || !fallback || plan.selectedCopyFallbacks?.includes(step.relative_path) || from.kind !== 'missing' || to.kind !== 'symlink' || error instanceof InstallationStateError || !['EPERM', 'EACCES', 'ENOSYS', 'ENOTSUP', 'EOPNOTSUPP'].includes((error as NodeJS.ErrnoException)?.code ?? '')) return false;
+    assertInstallationLockActive(lock);
+    if (!matches(root, step.relative_path, from)) fail('snapshot-drift', 'Failed symlink creation changed the target; no copy fallback is safe.');
+    const replacement: DetachedInstallationPlan = structuredClone(plan);
+    const index = step.ordinal - 1;
+    if (canonicalJson(replacement.changes[index]) !== canonicalJson({path: step.relative_path, before: from, after: to})) fail('snapshot-drift', 'Fallback trigger no longer matches its sealed plan.');
+    replacement.changes.splice(index, 1, ...fallback.changes);
+    replacement.selectedCopyFallbacks = [...(replacement.selectedCopyFallbacks ?? []), step.relative_path];
+    if (!replacement.afterLedger) fail('ownership-unverified', 'Copy fallback has no final ledger.');
+    replacement.afterLedger.files[step.relative_path] = fallback.ledgerEntry;
+    assertDetachedPaths(root, replacement, false, op.operation);
+    validateAndMigrateManifest(replacement.afterLedger, 'Prepared copy fallback ledger');
+    withInstallationDatabase(root, db => transaction(db, () => {
+        const current = db.prepare('SELECT * FROM installation_operations WHERE operation_id=?').get(op.operation_id) as unknown as Operation;
+        if (current.status !== 'pending' || canonicalJson(detachedSnapshot(db, current)) !== canonicalJson(plan)) fail('snapshot-drift', 'Pending operation changed before fallback selection.');
+        db.prepare('DELETE FROM installation_steps WHERE operation_id=?').run(op.operation_id);
+        for (const [i, change] of replacement.changes.entries()) db.prepare('INSERT INTO installation_steps VALUES (?,?,?,?,?,0)').run(op.operation_id, i + 1, change.path, JSON.stringify(change.before), JSON.stringify(change.after));
+        db.prepare('UPDATE installation_operations SET after_ledger=? WHERE operation_id=?').run(JSON.stringify(replacement.afterLedger), op.operation_id);
+        db.prepare("UPDATE installation_migration_records SET record_json=? WHERE checkout_id=? AND kind='snapshot' AND record_id=?").run(JSON.stringify({digest: sha(canonicalJson(replacement)), plan: replacement}), op.checkout_id, `detached:${op.operation_id}`);
+    }), {storeRoot: lock.storeRoot});
+    return true;
 }
 export function readInstallationStatus(projectRoot: string, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
@@ -868,7 +1049,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
             fail('ownership-unverified', 'Operation does not belong to this checkout.');
         const steps = db.prepare('SELECT * FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(operationId) as unknown as Step[];
         const detached = detachedSnapshot(db, op);
-        if (detached) assertDetachedPaths(root, detached, false);
+        if (detached) assertDetachedPaths(root, detached, false, op.operation);
         const temporary = detached ? atomicTemporaryStates(db, root, op, steps) : undefined;
         return { op, steps, detached, temporary };
     }, { storeRoot: store, readOnly: true });
@@ -885,7 +1066,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         const equal = (a: FileState, b: FileState) => a.kind === b.kind && a.digest === b.digest && a.target === b.target && (b.mode === undefined || a.mode === b.mode);
         const lastSteps = new Map([...byPath].map(([p, items]) => [p, items[items.length - 1]]));
         for (const [relative, steps] of byPath) {
-            const current = subsumedByAncestor(root, steps[steps.length - 1], lastSteps) ? { kind: "missing" as const } : inspect(root, relative);
+            const current = subsumedByAncestor(root, steps[steps.length - 1], lastSteps) || (state.detached && JSON.parse(steps[0].before_json).kind === 'missing' && underSavedBeforeLink(root,relative,state.detached.changes)) ? { kind: "missing" as const } : inspect(root, relative);
             let boundary = -2;
             if (equal(current, JSON.parse(steps[0].before_json)))
                 boundary = -1;
@@ -905,6 +1086,8 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         return { ordered, remaining, conflicts };
     };
     const state = read();
+    if (state.op.status === 'pending' && mode === 'resume' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.after_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['This saved plan writes retired .make-docs/agentics paths. Preserve its Store evidence and saved bytes; a current reviewed Skill layout cutover is required.']};
+    if (state.op.status === 'pending' && mode === 'rollback' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.before_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['Rollback would recreate retired .make-docs/agentics paths. This cutover supports forward resume only. Preserve the reviewed backup and Store bytes; inspect --resume --dry-run.']};
     const { ordered, remaining, conflicts } = select(state);
     const result = { schemaVersion: 1 as const, operationId, mode, dryRun, status: state.op.status === 'pending' ? (conflicts.length ? 'blocked' : 'ready') : state.op.status, changes: ordered.map(s => ({ path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind })), conflicts };
     if (mode === 'resume' && !state.op.plan_complete)
@@ -929,24 +1112,49 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
     } }), { storeRoot: store });
     const lock = acquireInstallationLock(root, store);
     try {
-        if (state.steps.some(step => path.isAbsolute(step.relative_path)))
+        if (state.op.operation === 'setup.skills.adopt' || state.steps.some(step => path.isAbsolute(step.relative_path)))
             held.get(root)!.globalLock = acquireGlobalAssetLock(root);
-        const current = read();
+        let current = read();
         if (current.op.status !== 'pending')
             return { ...result, status: current.op.status };
+        assertNoOtherPendingPathClaims(root, [...current.steps.map(s => s.relative_path), ...Object.keys(current.op.after_ledger ? JSON.parse(current.op.after_ledger)?.files ?? {} : {})], store);
         const locked = select(current);
         if (locked.conflicts.length)
             fail('snapshot-drift', `Recovery input changed: ${locked.conflicts.join(', ')}`);
         if (current.detached) cleanAtomicTemporaryFiles(root, current.op, current.steps, lock);
-        for (const s of (current.detached?.mode === 'manual' && mode === 'resume' ? [] : locked.remaining)) {
+        let pendingSteps = current.detached?.mode === 'manual' && mode === 'resume' ? [] : [...locked.remaining];
+        let checkedCutoverDestinations = false;
+        while (pendingSteps.length) {
+            const s = pendingSteps.shift()!;
             assertInstallationLockActive(lock);
+            if (!checkedCutoverDestinations && mode === 'resume' && current.detached?.skillScope && isRetiredSkillPath(root, s.relative_path)) {
+                const cleanupCheck = detachedHooks.get(current.op.operation)?.beforeRetiredCleanup;
+                if (!cleanupCheck) fail('recovery-required', 'This CLI cannot verify all standard Skill destinations before retired source cleanup.');
+                const issues = cleanupCheck(root, current.detached.metadata);
+                if (issues.length) fail('snapshot-drift', issues.join('\n'));
+                const final = new Map(current.steps.map(step => [step.relative_path, step]));
+                for (const step of final.values()) {
+                    if (isRetiredSkillPath(root, step.relative_path) || subsumedByAncestor(root, step, final)) continue;
+                    if (!matches(root, step.relative_path, JSON.parse(step.after_json))) fail('snapshot-drift', `Standard Skill destination must match before retired source cleanup: ${step.relative_path}`);
+                }
+                checkedCutoverDestinations = true;
+            }
             const from: FileState = JSON.parse(mode === 'resume' ? s.before_json : s.after_json);
             const to: FileState = JSON.parse(mode === 'resume' ? s.after_json : s.before_json);
             if (matches(root, s.relative_path, to))
                 continue;
             if (!matches(root, s.relative_path, from))
                 fail('snapshot-drift', `Recovery input changed: ${s.relative_path}`);
-            restoreState(root, s.relative_path, to, current.detached ? {op: current.op, step: s, expected: from, lock} : undefined);
+            try {
+                restoreState(root, s.relative_path, to, current.detached ? {op: current.op, step: s, expected: from, lock} : undefined);
+            } catch (error) {
+                if (mode !== 'resume' || !current.detached || !selectDetachedCopyFallback(root, current.op, current.detached, s, error, lock)) throw error;
+                current = read();
+                const reselected = select(current);
+                if (reselected.conflicts.length) fail('snapshot-drift', `Fallback inputs changed: ${reselected.conflicts.join(', ')}`);
+                pendingSteps = [...reselected.remaining];
+                continue;
+            }
             if (!matches(root, s.relative_path, to))
                 fail('snapshot-drift', 'Recovery output verification failed.');
         }
@@ -962,8 +1170,15 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         assertInstallationLockActive(lock);
         const finalIssues = validateDetached(root, current.op, current.detached, mode === 'rollback' ? 'before' : 'after');
         if (finalIssues.length) fail('snapshot-drift', finalIssues.join('\n'));
+        if (mode === 'resume' && current.detached?.skillScope && current.detached.afterLedger) for (const exposure of Object.keys(current.detached.skillScope.symlinkTargets)) {
+            const entry = current.detached.afterLedger.files[exposure];
+            const finalStep = finalSteps.get(exposure);
+            if (!entry && finalStep && JSON.parse(finalStep.after_json).kind === 'missing' && matches(root, exposure, {kind: 'missing'})) continue;
+            const recorded = entry?.skillExposure?.mode;
+            if (!recorded || inspect(root, exposure).kind !== (recorded === 'symlink' ? 'symlink' : 'directory')) fail('snapshot-drift', 'Final native exposure and ownership mode disagree.');
+        }
         withInstallationDatabase(root, db => commitOperation(db, operationId, mode === 'rollback'), { storeRoot: store });
-        return { ...result, status: mode === 'resume' ? 'completed' : 'rolled-back' };
+        return { ...result, changes: current.steps.map(s => ({path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind})), status: mode === 'resume' ? 'completed' : 'rolled-back' };
     }
     finally {
         releaseInstallationLock(lock);
@@ -1059,7 +1274,7 @@ function canonicalJson(value: unknown): string { const sort = (v: any): any => A
 function subsumedByAncestor(root: string, step: Step, last: Map<string, Step>): boolean { for (const candidate of [...last.values()].sort((a, b) => a.relative_path.split(path.sep).length - b.relative_path.split(path.sep).length)) {
     if (candidate.ordinal <= step.ordinal)
         continue;
-    const rel = path.relative(targetPath(root, candidate.relative_path), targetPath(root, step.relative_path));
+    const rel = path.relative(path.resolve(root, candidate.relative_path), path.resolve(root, step.relative_path));
     if (!rel || rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel))
         continue;
     const after: FileState = JSON.parse(candidate.after_json);

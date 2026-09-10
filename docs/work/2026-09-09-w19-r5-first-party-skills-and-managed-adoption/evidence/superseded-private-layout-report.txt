@@ -1,0 +1,170 @@
+---
+title: "W19 R5 Acceptance Evidence"
+kind: "work"
+status: "active"
+coordinate: "W19 R5 P1"
+source:
+  type: "prd"
+  path: "docs/prd/08-skills-catalog-and-distribution.md"
+---
+
+# W19 R5 Acceptance Evidence
+
+## Current Result and Evidence Rules
+
+The owner accepted the corrected one-phase backlog and authorized implementation on 2026-09-09. Package commit: `9d87b06`. Bundled delivery, reviewed adoption, recovery, normal lifecycle repeat, and guidance refresh are implemented and verified. The owner authorized the review transfer. The public-surface agent review ran and found four issues; fixes and follow-up review remain open. Owner phase acceptance, closeout and implementation commit remain pending. W20 and W21 remain paused.
+
+The final candidate is version `2.0.0-rc`, tar SHA-256 **`6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade`**. It passed package smoke, TypeScript, all 21 strict offline delivery cases, five extracted CLI/MCP recovery cases, five installed CLI/MCP recovery cases, and exact installed-package parity. The real sequence adoption → normal setup → normal Skills sync → adoption review and repeated apply is now a true no-op: zero file changes, backups or blockers, and all 18 ownership entries retained. All eleven original files remain preserved. D-005's delivery and lifecycle criteria are fulfilled; this does not accept the phase or supply the blocked fresh review.
+
+The final candidate's [quiet full suite](evidence/tests/final-full-suite-quiet.txt) passed **1196/1196 tests across 78 files** in **257.96 seconds**, exit 0. No source changed after the tested `6e46d754…f4d1fade` artifact. The prior run had one P4 uninstall timeout at 20,845 ms against a 20-second limit; that case passed alone in 8,037 ms before the clean full rerun. Concurrent checks were observed during the timed run, but that does not prove the cause.
+
+Evidence here is inert review material. It is not installation state, a saved mutation plan, a receipt, a queue, or a fallback for the global Store. Retained hashes and public read-back do not duplicate Store operation payloads.
+
+## Acceptance Results
+
+| Case | Tasks | Actual result | Evidence and limit |
+| --- | --- | --- | --- |
+| [A1](#a1-source-and-standalone-intent) | t1,t2,t4,t13 | Byte/reference checks passed; **two archive instruction findings remain open**. | The review found conflicting archive scope and a source-tree handoff path. |
+| [A2](#a2-payload-membership-and-bytes) | t3,t4 | Passed. | 39 declared files match source, embedded, archive, extracted and installed bytes. |
+| [A3](#a3-offline-selection) | t3,t4 | Passed. | Seven individual, twelve all-Skill, none and bare cases with strict network/source denial. |
+| [A4](#a4-scope-and-harness-exposure) | t8,t10 | Passed. | Both scopes, three tool selections, symlink and copy paths; no live harness execution claim. |
+| [A5](#a5-reviewed-adoption) | t5–t7,t9 | Passed. | Real review, apply, eight backups and eleven preserved originals verified. |
+| [A6](#a6-command-edges) | t5,t9,t13 | Guard tests passed; **two public help findings remain open**. | Failure guidance is incomplete; status command help exits 1. |
+| [A7](#a7-unsafe-or-ambiguous-input) | t6,t9 | Passed in isolated tests. | Unknown, unsafe, conflicting and other-owner inputs remain intact. |
+| [A8](#a8-stale-review) | t6,t9 | Passed in isolated tests. | Inventory, bytes, links, owner, scope, tools, selection and executable identity bind review. |
+| [A9](#a9-ownership-only-and-repeat) | t7,t9 | Passed after correction. | Ownership-only registration and real cross-command repeat retain all 18 entries. |
+| [A10](#a10-store-and-recovery) | t7,t9 | Passed after correction. | Five fresh CLI/MCP cases pass in source, extracted and installed forms; real read-back passes. |
+| [A11](#a11-upgrade-update-and-removal) | t8,t10 | Passed. | Isolated upgrade/update/removal and corrected real cross-command repeat. |
+| [A12](#a12-complete-directory-proof) | t1,t4,t10 | Passed. | Actual disk, ignored paths, empty-directory, archive and exact installed-byte checks. |
+| [A13](#a13-independent-and-fresh-context-review) | t11,t13 | Review ran; **four findings open**. | 25 read-only commands; supplied prior context limits strict freshness. |
+| [A14](#a14-real-maintainer-adoption) | t12–t14 | Passed. | Final installed CLI, retained originals, ready Store, normal setup/sync and exact repeat verified. |
+
+### A1 Source and Standalone Intent
+
+The [four-source inventory](evidence/source/promotion-before.json) records the inputs before promotion. All seven Skills have sole source homes under `packages/skills/<name>/`. [Embedded-source tests](../../../packages/cli/tests/embedded-skills.test.ts), registry/catalog/UI tests and standalone UAT tests passed. The source worker validated all seven Skill structures. Declared references are self-contained; preflight/software-factory/human-experience retain explicit-only entry; UAT keeps its shared-CLI boundary. The unchanged final 39-file payload inventory binds these source checks to the final artifact. These checks do not prove every external tool. The later public review found two archive instruction defects that these byte/reference checks did not cover; see A13.
+
+### A2 Payload Membership and Bytes
+
+The [final delivery report](evidence/delivery/final-candidate/proof.json) binds 39 declared source files to exact embedded byte hashes, raw package and registry data, the 130-member archive, and genuine installed output. Byte comparison does not decode binary assets as text. [Final installed parity](evidence/delivery/final-candidate/installed-parity.json) matches all 34 compiled entries, 105 template entries, registry, schema and package JSON. All 130 original archive files also remain unchanged after installing declared MCP dependencies in the isolated extraction. Build payload identity is separate from the review digest, which additionally binds executable bytes and selected installation facts.
+
+### A3 Offline Selection
+
+All 21 final extracted-CLI runs passed; see the [report](evidence/delivery/final-candidate/proof.json), [transcript](evidence/delivery/final-candidate/runner-transcript.txt), and individual outputs beside them. Seven cases install one Skill each; twelve install all Skills across the scope/tool/exposure matrix; two cover explicit none and bare selection. The macOS sandbox probe verified denied network access and denied source-checkout reads before these runs. Scoped outer permission was needed to create that stricter inner sandbox; no weaker fallback was used. Missing/corrupt first-party bundle refusal passed in embedded-source tests. Declared MCP dependencies were installed only after the offline matrix; they were not needed for those 21 CLI cases.
+
+### A4 Scope and Harness Exposure
+
+The twelve all-Skill cases cover project/global × Codex/Claude/both × symlink/copy. Each shared and native file matches its source. Links resolve to shared payloads; copy roots contain the same declared bytes. The existing `MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1` path forces copy mode on macOS. This does not prove Windows behavior or a live Codex/Claude Skill session. The real maintainer keeps one valid managed copy and five links.
+
+### A5 Reviewed Adoption
+
+The [adoption tests](../../../packages/cli/tests/w19-r5-skill-adoption.test.ts) include read-only fresh-target review, canonical targets, known changed-file backups and missing declared files. [Command tests](../../../packages/cli/tests/w19-r5-skills-command.test.ts) cover preview and interactive cancellation. The real CLI showed three Skills, both tools, project scope, eight exact backups and ownership effects before apply. Independent [final read-back](evidence/maintainer/final-verification.json) verifies all eight backup hashes and the three unchanged human-experience files; all eleven original files remain available.
+
+### A6 Command Edges
+
+CLI/parser and command tests passed: adoption names must be selected first-party Skills; invalid review/removal combinations refuse; noninteractive `--yes` is insufficient. Cases cover the displayed digest, cancellation without writes and confirmed review. Real adoption used the explicit digest. Only `setup skills` has adoption flags. Ordinary setup cannot silently adopt unowned files. A13 later found incomplete failure guidance and a broken status help path; the guard tests do not close those public-help defects.
+
+### A7 Unsafe or Ambiguous Input
+
+Adoption tests cover unknown extras, conflicting native copies, unsafe parents and another checkout's owner. [Store tests](../../../packages/cli/tests/skill-adoption-store.test.ts) cover unsafe global parents and target arrival during failed link creation. Mixed-action normal setup tests keep exact unowned bytes outside ownership without review. Inputs remain intact. These are bounded isolated fault cases, not all possible filesystem failures.
+
+### A8 Stale Review
+
+Adoption tests reject changed bytes, links, extra inventory, ownership, selection, scope, tools and package identity. Resolver tests bind raw registry/package data and the complete installed executable inventory. Store checks recapture pending claims under locks. A review is valid only for its recorded facts. The real final review digest is recorded in A14.
+
+### A9 Ownership-Only and Repeat
+
+Matching copied bytes still register ownership through a Store operation; normal setup cannot claim them silently. Initial immediate adoption repeat passed. A later real adoption → normal setup → adoption review found 18 false metadata updates: six native `selected-skill` and twelve shared `managed-snapshot` classes were omitted from the proposed ledger. The [prior failure](evidence/maintainer/post-setup-ownership-drift.json) is retained.
+
+The fix reuses the existing canonical ownership classifier for Skills-only plans. Two [regressions](evidence/tests/canonical-ownership-focused.txt), for symlink and copy modes, prove adoption → normal setup → normal Skills sync → adoption review keeps all entries. The final public real sequence and exact repeated apply now report `unchanged`, zero changes/backups/blockers, and all 18 ownership entries retained. [Final read-back](evidence/maintainer/final-verification.json) confirms it. No real apply was run for the spurious metadata proposal.
+
+### A10 Store and Recovery
+
+Service/domain tests cover required Store failure, competing checkout file and ledger writes, interrupted native-tree removal, saved copy fallback, resume/rollback, changed recovery inputs and no-effect link failure. The late JSON `null` intended-ledger uninstall bug was fixed, with explicit pending-uninstall resume and rollback cases. Ordinary per-file guards query only pending other-checkout operations; explicit adoption review retains the full ownership query.
+
+The first candidate's [public recovery failure](evidence/maintainer/public-recovery-failure.txt) exposed missing domain registration in a fresh CLI process. The fix registers the existing validator through shared status/recover handlers. Five fresh-process cases now pass against the [extracted final CLI](evidence/tests/final-extracted-recovery.txt) and [installed final CLI](evidence/tests/final-installed-recovery.txt): project/global × resume/rollback, plus MCP stdio status/recovery and its write gate. Each lifecycle case exercises prepared, interrupted and completed states. The real completed-operation dry-run also succeeds. It is only a read-back; isolated interrupted cases supply the recovery proof. No real installation was deliberately interrupted.
+
+### A11 Upgrade, Update, and Removal
+
+The [byte/lifecycle tests](../../../packages/cli/tests/w19-r5-skill-bytes.test.ts) cover clean legacy-source/copy upgrades and edited native-copy protection. Adoption tests cover normal updates and isolated removal while preserving unrelated content. A clean-copy defect was fixed by journaling recreated parents before writes. Final canonical-class tests and the real setup/sync/review sequence cover cross-command repeat. Normal uninstall, backup and config preservation passed; the one final full-run P4 timeout passed in its [isolated rerun](evidence/tests/final-p4-timeout-rerun.txt). No real installation was used for removal testing.
+
+### A12 Complete Directory Proof
+
+The final [actual-disk scan](evidence/delivery/final-candidate/proof.json) ignores no Git paths. It checks files, empty directories and symlinks under packages, while excluding dependencies from the maintainer-source scan. The archive is checked separately in full. No duplicate Skill source/payload tree, obsolete empty mirror root or symlink mirror remains. Only seven canonical Skill source homes, compiled embedded artifacts and genuine CLI-installed copies are allowed. All 130 archive members, 146 extracted entries and 39 declared payload files are recorded; links are inspected without recursive traversal.
+
+### A13 Independent and Fresh-Context Review
+
+The [code review](evidence/reviews/independent-code-review.txt) retains findings, fixes and scope. The guidance worker reviewed other workers' adoption, Store, planner and ownership code. The parent separately reviewed the guidance worker's source/embed/resolver/catalog/parser/byte/digest changes. The parent also reviewed idempotent recovery registration and reuse of canonical ownership classification. These scopes complement each other; neither reviewer claims independence for authored code.
+
+The owner explicitly authorized the content transfer after the earlier automatic approval rejection. The first approved attempt used Codex CLI 0.149.1 and failed before model actions because its configured model required a newer CLI. The owner updated the CLI and explicitly requested retry. The authorized 0.154.0 [run](evidence/reviews/approved-public-review/run.json) completed with exit 0 against candidate `6e46d754…f4d1fade`.
+
+The [actual report](evidence/reviews/approved-public-review/report.txt) and [action stream](evidence/reviews/approved-public-review/actions.jsonl) record 25 read-only commands. The reviewer read the seven installed Skill entry files and supporting instructions, invoked public help, and repeated the sample adoption dry run. It observed the expected review digest and backup plan. No Skill workflow, adoption, apply, recovery mutation, or write operation ran. The parent and an independent [input check](evidence/reviews/approved-public-review/input-verification.json) verified all 84 before/after files with no changes, additions, removals or new links. The file snapshot did not record empty directories; current enumeration found 52 directories, all ancestors of those files, but cannot prove a complete before/after empty-directory comparison.
+
+| Finding | Observation | Owner and next proof |
+| --- | --- | --- |
+| F1 — archive scope | Entry and reference instructions disagree about inclusion of the origin and relationship tracing. | Skill source worker will align the rule; repeat public instruction review. |
+| F2 — installed handoff path | The archive coordinator names `packages/skills/archive-docs/SKILL.md` instead of its installed path. | Skill source worker will use the current installed entry path; inspect shipped output. |
+| F3 — adoption failure guidance | Help does not explain unknown extras, unsafe links, stale reviews, or required Store failure and safe next steps. | CLI worker will add bounded owner guidance; repeat help review. |
+| F4 — command-specific help | `project state status --help` exits 1 despite root help's command-help promise. | CLI worker will repair the route and add a regression; verify installed command. |
+
+The session automatically supplied prior context and extra tools. The reviewer says it did not use them as evidence; this was a fresh process with default configuration, not a strict zero-context session. One link-check helper was blocked when the shell tried to create a temporary file; the reviewer stopped it. The review supports understanding of explicit entry rules and the sample plan, but the four findings remain open. It did not test adoption safety, live harness execution, all external Skill tools, or human experience. Earlier transfer rejection and CLI-version failure are historical limits, not current blockers. Final changed public files require follow-up review under the same authorized scope; no phase acceptance is inferred.
+
+### A14 Real Maintainer Adoption
+
+The original public adoption completed Store operation `0218ddd2-cf04-4cb1-a8dc-c17f5d181ff2`, using project scope, Claude Code and Codex, and exactly human-experience/preflight/software-factory. Review digest: `50c3bd3424ae340d045438cf7bc37f470b6273278ebe4dff7e5e69a0d93624f3`. The final CLI was refreshed through the normal [install recipe](evidence/tests/final-install-cli-pack.txt), and exact package parity passed.
+
+Independent [final verification](evidence/maintainer/final-verification.json) confirms twelve shared payload files and both native paths match source bytes. Eleven originals remain preserved: eight backups and three unchanged human-experience files. Exposures are three Claude links, two Codex links, and one managed human-experience Codex copy. No manual copy/delete performed real adoption.
+
+Final public [normal setup](evidence/maintainer/final-setup.txt) and [Skills sync](evidence/maintainer/final-skills-sync.txt) made no content changes; setup retained its known historical Playbook skip. The next adoption review and actual repeated apply were unchanged. Final review digest: `2914087623b9eb66c6463ced115228c5a3fd3bb59fb0ab84cee6fcf2c0bbdf48`. All 18 ownership entries remain. [Store status](evidence/maintainer/final-state.json) is ready with no pending operation. Project-local state and manifest files are absent.
+
+The installed execution-workflow resource matches upstream SHA-256 `0ce022825d2b9ea315402077cf62ad2d95b542799dd86e2d6f3cb329698bef67`. It was refreshed through public CLI setup, not by a manual mirror. Initial sandbox-only Store read-back lacked access; scoped read-only access confirmed the real state.
+
+## Experience Promises
+
+| Promise | Human goal and visible surface | Observed evidence | Conclusion and limits |
+| --- | --- | --- | --- |
+| P1 | Select any first-party Skill without locating another checkout or download. | 21 final isolated public installs and exact bytes; A1–A4/A12. | Delivery observed on macOS. Public reading found archive scope/path conflicts; fixes remain open. External tools were not executed. |
+| P2 | See file effects and ownership before accepting adoption. | Public preview, eight named backups, final repeat and 18 retained entries; A5/A6/A9/A14. | Effects and preservation verified. The reviewer understood the sample, but found missing failure guidance. No human clarity verdict is claimed. |
+| P3 | Keep edits safe and receive a true stop or recovery route when facts change. | Eleven originals preserved; refusal tests; five extracted/installed recovery cases; corrected cross-command repeat. | Bounded preservation and recovery observed. Public failure guidance needs correction. No real destructive or interrupted installation test ran. |
+| P4 | Invoke each Skill by choice, without hidden siblings or automatic gates. | Standalone source checks, unchanged final payload identity and complementary code review; A1/A13. | The reviewer correctly identified explicit entry rules from installed text. Supplied context limits freshness; workflows and external tools were not executed. |
+
+## Verification and Development Findings
+
+Current proof is bound to `6e46d754…f4d1fade`: final smoke, TypeScript, strict offline 21, extracted recovery five, installed recovery five, package parity, real preservation and canonical repeat all pass. The [quiet full suite](evidence/tests/final-full-suite-quiet.txt) passed 1196/1196 tests across 78 files in 257.96 seconds. The first final-candidate full run had 1195 passes and one timeout; the exact timed case then passed alone. Do not attribute that timeout conclusively to concurrent checks.
+
+Prior candidates remain identifiable. `fade83de…6034cf` passed 1189 tests before the public recovery route gap was found. `204e7c…72fb9a9` passed 1194 tests and recovery checks before normal setup exposed ownership metadata churn. Neither prior total is presented as the final candidate's clean full-suite proof. The two observed defects have specific fixes and regressions; later read-back verifies the user-visible path.
+
+Earlier focused corrections covered native-tree-to-link recovery, retired exposure validation, implicit ownership in mixed normal setup, saved tool selection, journaled copy parents, and null-ledger uninstall. Those findings are retained in the independent review and prior transcripts. Final source Skill bytes did not change during the two late runtime fixes.
+
+## Coverage and Testing Decisions
+
+- System coverage: `update-existing`, execution-workflow.md, authored upstream and refreshed by installed CLI. Universal routers needed no new installation policy.
+- Guide coverage: `update-existing`, user → skills-installing-and-managing-skills.md; maintainer → skills-catalog-and-distribution-model.md and release-packaging-validation-and-release-reference.md. Existing anchors remain; no new guide was needed.
+- Package/Skill guidance: `update-existing` for source rules, registry/help and standalone instructions. Copied Skill trees under CLI/docs packages remain forbidden.
+- Automated/runtime/package checks and complementary independent code review ran. Authorized public review ran with four open findings and the stated context/tool limits. Formal Unassisted Goal Testing, visual and accessibility modes remain `not-needed-now`; no NUAT or human usability pass is claimed.
+- D-005's specific delivery and lifecycle drift is resolved by final proof. This does not waive A13, owner phase acceptance, or closeout. No new deferred-obligation ID is needed. W20/W21 remain paused.
+
+## Package Validation
+
+Final installed-CLI [document authority validation](evidence/tests/final-document-authority.json) passed: 39 PRDs, 534 Markdown files, 191 structured files, 1,034 links, and zero diagnostics. The final whitespace check passed. The staged `.gitignore` remains outside this work.
+
+### Prior Planning Checks
+
+The parent task's pre-draft read-only baseline passed: public PRD authority validation reported 39 PRDs and 867 links with no diagnostics; managed path hygiene checked 84 files with no findings or changes. These were direct tool observations, with no saved log. They establish a baseline only. They do not test R5 implementation or validate new package links.
+
+The owner then clarified that bundled delivery means embedding bytes directly from the sole source, with no replicated build payload tree. A2/A12 and t3/t4/t13 now capture that correction. This changes planned implementation proof; no runtime result is claimed.
+
+Initial post-assembly checks passed on 2026-09-09 (before the embedding clarification):
+
+- Installed public `make-docs run prd authority validate --target-root .`: 39 PRDs, 534 Markdown files, 169 structured files, 882 links, zero diagnostics; exit 0.
+- A bounded relative file/heading-link check across the six design, plan, and work package files: 76 links, zero errors. Package metadata parsed as YAML; required fields and work follow-on passed.
+- Backlog shape: one phase, three stages, 14 contiguous unchecked tasks, and A1–A14 cases. No completed implementation task.
+- `git diff --check`: passed. The staged `.gitignore` remains outside this documentation work.
+- The parent reviewed the index and phase against the accepted plan. A separate agent reviewed the backlog and report against scope and updated PRDs, with no material findings. Review led to two wording fixes: retain current output conventions without implying a new JSON flag; complete content/help changes before final candidate checks, review, and real adoption.
+
+After the embedding clarification, the same public authority command passed again: 39 PRDs, 534 Markdown files, 169 structured files, 882 links, zero diagnostics. The 76 package links, one-phase/three-stage/14-task/14-case shape, five directly affected embedding authorities, and whitespace checks passed again. This narrow correction ran no runtime suite and made no build or installation change.
+
+These prior planning checks are direct tool observations and document reviews. No raw redirected logs or runtime acceptance captures were created for that planning stage. Those checks prove package structure, links, and authority consistency only. The later implementation evidence above separately proves delivery and adoption results.
+
+## Acceptance and Follow-Up
+
+The owner accepted the backlog for implementation, not the completed phase. The final quiet full-suite gate is complete. The exact review transfer is authorized and the review ran. Fix the four findings, reconcile the changed candidate proof, and complete the public follow-up review. Then finish A13 and present the phase for owner acceptance. Closeout, implementation commit, publication and W20/W21 resumption remain gated. No installation state is kept in this evidence package.

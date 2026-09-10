@@ -80,6 +80,7 @@ export function resolveInstallProfile(
     JSON.stringify({
       capabilities: capabilityState,
       harnesses: selections.harnesses,
+      ...(selections.skillHarnesses ? {skillHarnesses:selections.skillHarnesses} : {}),
       skills: selections.skills,
       skillScope: selections.skillScope,
       selectedSkills: [...selections.selectedSkills].sort(),

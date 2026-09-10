@@ -1,0 +1,46 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/w19-r5-recovery-cli.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ❯ tests/w19-r5-recovery-cli.test.ts (5 tests | 1 failed) 13263ms
+   × fresh public CLI Skill adoption recovery > loads pending adoption recovery through a fresh MCP stdio process 1301ms
+     → McpError: MCP error -32000: Connection closed
+{"ok":false,"code":"ERR_MODULE_NOT_FOUND","message":"Cannot find package '@modelcontextprotocol/sdk' imported from /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/extracted/package/dist/server-4YJL3EUS.js"}
+
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished project adoption with resume  4404ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished project adoption with rollback  1468ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished global adoption with resume  1866ms
+   ✓ fresh public CLI Skill adoption recovery > handles prepared, interrupted and finished global adoption with rollback  4224ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/w19-r5-recovery-cli.test.ts > fresh public CLI Skill adoption recovery > loads pending adoption recovery through a fresh MCP stdio process
+Error: McpError: MCP error -32000: Connection closed
+{"ok":false,"code":"ERR_MODULE_NOT_FOUND","message":"Cannot find package '@modelcontextprotocol/sdk' imported from /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/extracted/package/dist/server-4YJL3EUS.js"}
+
+ ❯ tests/w19-r5-recovery-cli.test.ts:46:66
+     44|     let diagnostics='';transport.stderr?.on('data',chunk=>{diagnostics…
+     45|     try {
+     46|       try {await client.connect(transport);} catch(error) {throw new E…
+       |                                                                  ^
+     47|       const status=await client.callTool({name:'make_docs_project_stat…
+     48|       expect(status.isError).not.toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  20:57:00
+   Duration  14.49s (transform 293ms, setup 57ms, collect 1.03s, tests 13.26s, environment 0ms, prepare 50ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error workspace @brucewaynedecoy/make-docs@2.0.0-rc
+npm error location /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error command failed
+npm error command sh -c vitest run --run tests/w19-r5-recovery-cli.test.ts

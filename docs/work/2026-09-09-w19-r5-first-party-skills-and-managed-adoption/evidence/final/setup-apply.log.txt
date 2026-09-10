@@ -1,0 +1,40 @@
+│
+◇  Information ───────────────────────────────────────────────────────────╮
+│                                                                         │
+│  Target: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs  │
+│  Mode: existing install sync                                            │
+│  Installation record: global Make Docs Store (found or verified for     │
+│  transfer)                                                              │
+│  Installed version: 2.0.0-rc                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                   │
+│  Compatibility state: clean-v2-provider-backed                          │
+│  Disposition: sync                                                      │
+│  Selection source: saved manifest selections                            │
+│  Local resource projection: contract, prompt, reference, template       │
+│  Safety stops: none                                                     │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,    │
+│  history=history, guide=guide                                           │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,        │
+│  implementation=implementation, history=history, guide=guide            │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase           │
+│  Persona labels: user=User, maintainer=Maintainer                       │
+│  Managed files evaluated: 105                                           │
+│  Already current: 102                                                   │
+│  Changes planned: 3                                                     │
+│  Generate: 0                                                            │
+│  Update: 2                                                              │
+│  Skip: 1                                                                │
+│  Remove: 0                                                              │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ───────────────────────────────────────────────────╮
+│                                                                             │
+│  - update: .make-docs/AGENTS.md                                             │
+│  - update: .make-docs/CLAUDE.md                                             │
+│  - skip:                                                                    │
+│  .make-docs/archive/legacy-playbooks/agent/make-docs-lifecycle.playbook.md  │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────╯
+
+Synced make-docs 2.0.0-rc in /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs.

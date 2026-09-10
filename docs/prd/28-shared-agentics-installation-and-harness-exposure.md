@@ -13,26 +13,24 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 ### Shared Agentics Store
 
-Selected agentic payloads are installed once into a shared Make Docs-owned content root. This content root is distinct from the global operational Store in PRD 38:
+The historical section name does not define a private Make Docs payload directory. Standard agent directories own installed Skill files; the global Store owns operational state.
 
-- project scope: `.make-docs/agentics/`
-- global scope: the user's home-scoped `.make-docs/agentics/`
+Install Skill files in standard agent locations, selected by scope and harness:
 
-Within that content root, reserve:
+| Scope and selected harnesses | Real Skill directory | Other selected access |
+| --- | --- | --- |
+| Project, Claude only | `.claude/skills/<name>/` | None; do not create `.agents/skills/`. |
+| Project, Codex only | `.agents/skills/<name>/` | None; do not create `.claude/skills/`. |
+| Project, both | `.agents/skills/<name>/` | `.claude/skills/<name>` links to it, or is a supported managed native copy. |
+| Global, any selection | `~/.agents/skills/<name>/` | Selected Codex uses `~/.codex/skills/<name>` (or `CODEX_HOME/skills`); selected Claude uses its configured native Skill root, normally `~/.claude/skills/<name>`. Native access links to the canonical directory or uses a supported copy. Direct access applies only if the configured native path equals the canonical path. |
 
-- `skills/<skill-name>/` for selected skill payloads
+A harness that uses the real directory reads it directly. Never create a self-link or duplicate ownership entry for that same path. `none` creates no Skill directories. Preserve pre-existing unrelated content; absence checks on fresh fixtures must prove no unselected project Skill root was created.
 
-Resolved purpose, source, trust, integrity, provenance, ownership, and operation records live in the global Store. Do not create project-local manifests or equivalent operational metadata under the shared content root.
+There is no active `.make-docs/agentics/` installation layer, in the project or home. Skill source stays solely in `packages/skills/<name>/`; compiled CLI output embeds declared bytes. Installation identity, ownership, intent and recovery belong only in the global Make Docs Store. A symbolic link to a Make Docs resource URL is unsupported and is not a feature or deferred task in this correction.
 
 ### Native Harness Exposure
 
-Harness directories receive native skill directories, not generic forwarding stubs.
-
-For current harnesses, project-scoped selected skills expose the selected skill under `.claude/skills/<skill-name>/` and `.agents/skills/<skill-name>/`; global selected skills expose equivalent directories under home-scoped harness roots.
-
-The preferred exposure mode is a directory symlink from the harness-native skill directory to the canonical shared payload directory. The fallback exposure mode is a managed copy mirror of the full canonical skill payload. The harness-visible `SKILL.md` must be the real skill entrypoint with meaningful skill frontmatter, not Make Docs installation metadata.
-
-Windows behavior must be explicit. The CLI may use symlinks where supported, including modern Windows configurations with Developer Mode or elevated permissions, and must use managed copy mirrors when symlink creation is unavailable or explicitly disabled. Non-interactive runs must not silently downgrade to generic stubs.
+The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. Direct canonical native directories are not duplicated or linked to themselves. Additional selected access uses an exact directory link to the real Skill path or the supported full-copy fallback. Windows symlink limits retain the existing managed-copy behavior; a copy is written directly under the selected native Skill root.
 
 ### Manifest Ownership
 
@@ -53,21 +51,11 @@ Until that schema exists, implementation may represent shared payload files and 
 
 ### Migration and Lifecycle Safety
 
-Migration is state-classification first.
+Wrong-private-layout cutover is forward-resume-only: review must state before apply that rollback would recreate the forbidden private layer and is not offered. Ordinary adoption already using standard locations keeps normal resume/rollback. Older saved operations that would write a retired private root refuse safely; never execute them to restore that layer. This correction adds no new URL-backed installation mode.
 
-A clean manifest-owned per-harness skill install may migrate to shared payload plus native harness exposure.
+Upgrade the wrong private layout through a reviewed CLI operation. The review names every old source, new standard destination, link/copy change, backup and ownership effect. Recheck exact bytes, links, scope, selected tools and Store ownership before mutation. Verify the complete destination tree and access paths before removing clean owned old files. Preserve changed, unknown or conflicting content and stop for an explicit disposition; never infer ownership from a path. Remove the retired `.make-docs/agentics/skills` tree and its ancestors only when proven empty and managed. Success must leave no active private Skill layer or unexplained legacy content. Historical backup byte copies may remain under declared backup/archive roots; they are not active installation paths. Update, removal, scope/tool changes, resume/rollback and repeated normal setup/Skills sync must use the same standard-path rules.
 
-A clean manifest-owned legacy generated stub may migrate to symlink exposure or copy mirror. A modified generated stub, modified copy mirror, wrong-target symlink, custom user skill, malformed manifest, or missing-manifest ambiguous state must flow through existing review, backup-and-reinstall, or manual-review disposition rules.
-
-Migration must never infer ownership over a user-authored harness skill because its path matches a make-docs skill name.
-
-Audit, backup, uninstall, and migration must classify shared payloads, symlink exposures, copy mirrors, legacy generated stubs, old duplicated per-harness payloads, modified local skill files, home-scoped skill files, and custom user skills separately.
-
-The single reviewed audit snapshot rule remains mandatory before destructive migration or uninstall. Link-aware lifecycle operations must unlink symlink exposures without following targets and remove only reviewed Make Docs-owned copy mirrors.
-
-After selected-agentics removal, lifecycle operations prune empty managed parents under project- and home-scoped `.make-docs/agentics/**` only when the same reviewed ownership evidence proves there are no unmanaged descendants. Eligible empty parents include `skills/<skill-name>/`, `skills/`, and `agentics/`.
-
-Pruning must preserve sibling selected Skills, user-authored and modified managed files, wrong-target symlinks, ambiguous missing-ownership state, legacy generated stubs or copy mirrors requiring review, and any unowned agentics content not approved by the reviewed snapshot. In-use ownership and operation records remain in the global Store; directory pruning must not remove them. Symlink exposures are unlinked without following targets, and copy mirrors are removed only when classified clean.
+Audit distinguishes direct standard directories, additional native links/copies, legacy private payloads, old generated stubs and unowned user content. Link operations unlink without traversing targets. Removal prunes only reviewed empty managed parents and preserves all unrelated contents and sibling Skills. A same-path canonical/native entry has one effective ownership identity.
 
 ### Reviewed Existing-Skill Adoption
 
@@ -122,7 +110,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Manifest/dry-run output distinguishes shared payloads, symlink exposures, copy mirrors, legacy stubs, and migrated duplicated payloads.
 - Modified or custom harness skills are preserved or reviewed rather than inferred as make-docs-owned.
 - Backup and uninstall use one reviewed audit snapshot.
-- Empty managed `.make-docs/agentics/**` parent directories are pruned after selected-agentics removal only when audit proves no unmanaged descendants remain.
+- Successful fresh installation and verified upgrade leave no active `.make-docs/agentics` layer. Project single-harness setup creates only that selected standard Skill root; legacy or unselected roots are removed only with exact managed ownership and empty-parent proof.
 - Cross-platform validation proves symlink-preferred behavior and copy-mirror fallback without relying on generic stubs.
 - The optional Unassisted Goal Testing Skill remains absent from default installs, delegates only to typed CLI operations, and does not duplicate testing policy.
 - Core routers, resources, CLI, and MCP remain complete when no Skill is selected or exposed.
@@ -139,6 +127,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard-Location Correction
+
+- Prior requirement: private project/home `.make-docs/agentics/skills` payloads with native links/copies.
+- Replacement: scope/harness-aware standard agent directories defined above, with Store-only state and reviewed old-path upgrade.
+- Rationale: the coordinator repeated a rejected installation-layer assumption; the owner reported a prior Skill installation had already been removed for this same mistake. This is our correction, not a new owner clarification or URL-symlink product.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction) and [R5 phase](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/01-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — Not assigned
 

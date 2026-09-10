@@ -11,7 +11,7 @@ import {
   HARNESSES,
   type Harness,
   type InstallSelections,
-  type ResolvedAsset,
+  type ResolvedFileAsset,
   type ResolvedInstallAsset,
   type ResolvedSkillExposureAsset,
   type SkillManifestSelectionSource,
@@ -19,12 +19,8 @@ import {
 } from "./types";
 import { PACKAGE_ROOT } from "./utils";
 
-const HARNESS_SKILL_DIRS: Record<Harness, string> = {
-  "claude-code": ".claude/skills",
-  codex: ".agents/skills",
-};
-
-const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
+import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from "./skill-paths";
+export { getCanonicalSkillDirectory, getHarnessSkillDirectory } from "./skill-paths";
 
 // No registry skill currently carries retired managed assets. The map stays
 // as the seam for future skill-asset retirements; the four withdrawn
@@ -67,11 +63,19 @@ export async function getDesiredSkillAssets(
   const desiredAssets = (
     await Promise.all(
       selectedEntries.map(async (entry) => {
-        const sharedAssets = await buildSharedSkillAssets(entry, installRoot);
+        const selectedTools = selections.skillHarnesses ?? selections.harnesses;
+        const supportedTools = Object.fromEntries(HARNESSES.map(harness => [harness, selectedTools[harness] && entry.supportedHarnesses.includes(harness)])) as Record<Harness, boolean>;
+        if (!HARNESSES.some(harness => supportedTools[harness])) return [];
+        const canonicalDirectory = getCanonicalSkillDirectory({ ...selections, skillHarnesses: supportedTools });
+        const canonicalRoot = getInstallPath(installRoot, canonicalDirectory);
+        const nativeRoots = HARNESSES.filter(harness => supportedTools[harness]).map(harness => getInstallPath(installRoot, getHarnessSkillDirectory(harness, selections.skillScope)));
+        if (nativeRoots.some((root,index) => root !== canonicalRoot && nativeRoots.indexOf(root) !== index)) throw new Error(`Selected tools share the same noncanonical Skill directory: ${nativeRoots.join(", ")}. Use distinct CODEX_HOME and CLAUDE_CONFIG_DIR values, or select one tool, then run a fresh review.`);
+        const sharedAssets = await buildSharedSkillAssets(entry, installRoot, canonicalDirectory);
         const exposureAssets = HARNESSES.flatMap((harness) => {
           if (
-            !selections.harnesses[harness] ||
-            !entry.supportedHarnesses.includes(harness)
+            !(selections.skillHarnesses ?? selections.harnesses)[harness] ||
+            !entry.supportedHarnesses.includes(harness) ||
+            getInstallPath(installRoot, getHarnessSkillDirectory(harness, selections.skillScope)) === getInstallPath(installRoot, canonicalDirectory)
           ) {
             return [];
           }
@@ -82,6 +86,8 @@ export async function getDesiredSkillAssets(
               harness,
               installRoot,
               sharedAssets,
+              canonicalDirectory,
+              getHarnessSkillDirectory(harness, selections.skillScope),
             ),
           ];
         });
@@ -99,7 +105,7 @@ export async function getDesiredSkillAssets(
 export async function getRetiredManagedSkillAssets(
   selections: InstallSelections,
   registry = loadSkillRegistry(PACKAGE_ROOT),
-): Promise<ResolvedAsset[]> {
+): Promise<ResolvedFileAsset[]> {
   if (!selections.skills) {
     return [];
   }
@@ -117,7 +123,7 @@ export async function getRetiredManagedSkillAssets(
   const retiredAssets = (
     await Promise.all(
       HARNESSES.flatMap((harness) => {
-        if (!selections.harnesses[harness]) {
+        if (!(selections.skillHarnesses ?? selections.harnesses)[harness]) {
           return [];
         }
 
@@ -271,7 +277,8 @@ function createSkillSelectionProvenance(
 async function buildSharedSkillAssets(
   entry: SkillRegistryEntry,
   installRoot: string,
-): Promise<ResolvedAsset[]> {
+  canonicalDirectory: string,
+): Promise<ResolvedFileAsset[]> {
   const resolvedSkill = await resolveSkillSource(
     entry.source,
     entry.entryPoint,
@@ -279,11 +286,11 @@ async function buildSharedSkillAssets(
   );
   const skillInstallRoot = getInstallPath(
     installRoot,
-    SHARED_AGENTICS_SKILL_DIR,
+    canonicalDirectory,
     entry.installName,
   );
 
-  const desiredAssets: ResolvedAsset[] = [
+  const desiredAssets: ResolvedFileAsset[] = [
     {
       relativePath: getInstallPath(skillInstallRoot, entry.entryPoint),
       assetClass: "static",
@@ -297,10 +304,7 @@ async function buildSharedSkillAssets(
       relativePath: getInstallPath(skillInstallRoot, asset.installPath),
       assetClass: "static",
       sourceId: getSharedSkillAssetSourceId(entry.name, asset.installPath),
-      content:
-        typeof asset.content === "string"
-          ? asset.content
-          : asset.content.toString("utf8"),
+      content: asset.content,
     });
   });
 
@@ -311,16 +315,18 @@ function buildHarnessSkillExposureAsset(
   entry: SkillRegistryEntry,
   harness: Harness,
   installRoot: string,
-  sharedAssets: ResolvedAsset[],
+  sharedAssets: ResolvedFileAsset[],
+  canonicalDirectory: string,
+  harnessDirectory: string,
 ): ResolvedSkillExposureAsset {
   const exposureRoot = getInstallPath(
     installRoot,
-    HARNESS_SKILL_DIRS[harness],
+    harnessDirectory,
     entry.installName,
   );
   const canonicalPayloadPath = getInstallPath(
     installRoot,
-    SHARED_AGENTICS_SKILL_DIR,
+    canonicalDirectory,
     entry.installName,
   );
   const copyMirrorAssets = sharedAssets.map((asset) => {
@@ -361,8 +367,9 @@ async function buildRetiredManagedSkillAssets(
   entry: SkillRegistryEntry,
   harness: Harness,
   installRoot: string,
-): Promise<ResolvedAsset[]> {
+): Promise<ResolvedFileAsset[]> {
   const retiredAssetPaths = RETIRED_MANAGED_SKILL_ASSETS[entry.name] ?? [];
+  if (retiredAssetPaths.length === 0) return [];
   const resolvedSkill = await resolveSkillSource(
     entry.source,
     entry.entryPoint,
@@ -373,7 +380,7 @@ async function buildRetiredManagedSkillAssets(
   );
   const skillInstallRoot = getInstallPath(
     installRoot,
-    HARNESS_SKILL_DIRS[harness],
+    getHarnessSkillDirectory(harness, "project"),
     entry.installName,
   );
 
@@ -381,10 +388,7 @@ async function buildRetiredManagedSkillAssets(
     relativePath: getInstallPath(skillInstallRoot, asset.installPath),
     assetClass: "static",
     sourceId: getRetiredSkillAssetSourceId(harness, entry.name, asset.installPath),
-    content:
-      typeof asset.content === "string"
-        ? asset.content
-        : asset.content.toString("utf8"),
+    content: asset.content,
   }));
 }
 
@@ -392,7 +396,7 @@ async function buildRetiredDuplicatedSkillPayloadAssets(
   entry: SkillRegistryEntry,
   harness: Harness,
   installRoot: string,
-): Promise<ResolvedAsset[]> {
+): Promise<ResolvedFileAsset[]> {
   const resolvedSkill = await resolveSkillSource(
     entry.source,
     entry.entryPoint,
@@ -400,11 +404,11 @@ async function buildRetiredDuplicatedSkillPayloadAssets(
   );
   const skillInstallRoot = getInstallPath(
     installRoot,
-    HARNESS_SKILL_DIRS[harness],
+    getHarnessSkillDirectory(harness, "project"),
     entry.installName,
   );
 
-  const retiredAssets: ResolvedAsset[] = [
+  const retiredAssets: ResolvedFileAsset[] = [
     {
       relativePath: getInstallPath(skillInstallRoot, entry.entryPoint),
       assetClass: "static",
@@ -422,10 +426,7 @@ async function buildRetiredDuplicatedSkillPayloadAssets(
         entry.name,
         asset.installPath,
       ),
-      content:
-        typeof asset.content === "string"
-          ? asset.content
-          : asset.content.toString("utf8"),
+      content: asset.content,
     });
   });
 
@@ -433,7 +434,8 @@ async function buildRetiredDuplicatedSkillPayloadAssets(
 }
 
 function getInstallPath(...segments: string[]): string {
-  return path.join(...segments);
+  return segments.length > 1 && path.isAbsolute(segments[1])
+    ? path.join(...segments.slice(1)) : path.join(...segments);
 }
 
 function getSharedSkillSourceId(entry: SkillRegistryEntry): string {

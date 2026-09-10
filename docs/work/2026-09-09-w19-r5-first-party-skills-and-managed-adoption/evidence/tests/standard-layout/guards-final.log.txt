@@ -1,0 +1,22 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/w19-r5-standard-skill-layout.test.ts tests/skill-catalog.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/skill-catalog.test.ts (6 tests) 61ms
+ ✓ tests/w19-r5-standard-skill-layout.test.ts (16 tests) 5042ms
+   ✓ W19 R5 standard native Skill layout > project codex creates only selected native folders  685ms
+   ✓ W19 R5 standard native Skill layout > project claude-code creates only selected native folders  622ms
+   ✓ W19 R5 standard native Skill layout > project both creates only selected native folders  696ms
+   ✓ W19 R5 standard native Skill layout > both-to-claude requires reviewed native type cutover  695ms
+   ✓ W19 R5 standard native Skill layout > claude-to-both requires reviewed native type cutover  645ms
+   ✓ W19 R5 standard native Skill layout > normal sync cannot claim an unowned matching copy in a configured global home  853ms
+   ✓ W19 R5 standard native Skill layout > normal setup and sync refuse old Store ownership without touching old bytes  769ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  22:37:11
+   Duration  5.37s (transform 190ms, setup 30ms, collect 268ms, tests 5.10s, environment 0ms, prepare 64ms)
+

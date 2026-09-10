@@ -59,7 +59,7 @@ Installation records live in the global Store under [PRD 38](38-global-store-and
 - Install, reconfigure, provider refresh, package sync, cache recovery, audit, backup, and uninstall planning must preserve project-owned `.make-docs/config.yaml` separately from make-docs-owned manifest/runtime state under [24-project-configuration-and-convention-overlay.md](./24-project-configuration-and-convention-overlay.md).
 - Selected-agentics manifest state must distinguish resolved `selectedSkills`, transitional flat `skillFiles`, canonical shared payload paths, generated harness stub paths, exposure mode, scope, source manifest/version/ref/digest/trust metadata, and migrated duplicated-payload disposition before audit, backup, uninstall, or migration treats v2 agentic state as clean; [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) owns the exposure contract.
 - Make Docs v2 has no current Playbook or Protocol selection, discovery, or execution behavior. Legacy Playbook/Protocol files and Store rows are opaque preservation inputs and never become a managed-file class through setup, reconfigure, update, uninstall, backup, or migration.
-- New backup writes use `.make-docs/backup/**`; root `.backup/**` remains protected legacy backup state; and empty managed `.make-docs/agentics/**` directories are pruned only when audit proves no unmanaged descendants remain, consistent with [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
+- New backup writes use `.make-docs/backup/**`; root `.backup/**` remains protected legacy backup state; and reviewed empty managed Skill directories (including obsolete private-layout parents during upgrade) are pruned only when audit proves no unmanaged descendants remain, consistent with [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
 - Backup snapshots use `.make-docs/backup/<date>`. The first snapshot for a date uses the plain date; later same-day snapshots use deterministic zero-padded ordinals. Home-scoped managed files are stored under `_home/**` within that snapshot.
 - Root `.backup/**` is excluded from new snapshot ordinal calculation and remains protected legacy recovery state. Audit, backup, uninstall, fallback recognition, and pruning must not delete it, recurse destructively into it, or treat it as removable managed output; new runs never create snapshots there.
 - Backup and uninstall consume one reviewed audit snapshot saved in the Store. `setup remove` with backup verifies content copies and commits Store-owned restoration metadata before deletion. It removes only approved, verified clean managed paths or blocks. Project-owned, modified, mixed, ambiguous, archive, project-documentation, and opaque legacy state is preserved.
@@ -102,6 +102,14 @@ R-ASSET-INSTALL-1 (MUST): fresh setup excludes the assets root from the uncondit
 R-ASSET-INSTALL-2 (MUST): layout preparation binds the exact source inventory, destination map, expected bytes, link edits, conflicts, and recovery evidence to one reviewed Store operation under PRD 18. An explicitly approved move may relocate project-owned content without claiming it as managed product content. No destination collision or stale input can silently expand overwrite or removal authority.
 
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: private Make Docs Skill payload roots or generic shared-root installation guidance.
+- Replacement: the scope/harness standard-location matrix and safe old-path upgrade in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: remove the coordinator's repeated private-layer assumption. Standard agent paths own files; the Store owns state.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — Not assigned
 

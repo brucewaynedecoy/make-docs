@@ -1,0 +1,256 @@
+cd packages/cli && npm run prepack
+
+> @brucewaynedecoy/make-docs@2.0.0-rc prepack
+> node ../../scripts/copy-template-to-cli.mjs && npm run build
+
+Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/docs/template -> /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/template
+
+> @brucewaynedecoy/make-docs@2.0.0-rc build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js                                             126.17 KB
+ESM dist/server-4YJL3EUS.js                                   13.90 KB
+ESM dist/virtual_make-docs-first-party-skills-YLGORKYX.js     227.53 KB
+ESM dist/self-3K4OYHKX.js                                     22.77 KB
+ESM dist/backup-L7ZJLD6B.js                                   438.00 B
+ESM dist/chunk-3WV2TQRU.js                                    35.12 KB
+ESM dist/chunk-UNXI22IC.js                                    23.99 KB
+ESM dist/chunk-5BHSEQ5K.js                                    41.09 KB
+ESM dist/chunk-JSZSV5UK.js                                    139.04 KB
+ESM dist/skills-command-UZQDVD2M.js                           20.66 KB
+ESM dist/chunk-Y2YYG7O3.js                                    6.44 KB
+ESM dist/chunk-D4HDZEJT.js                                    1.52 KB
+ESM dist/uninstall-YN3EZNAJ.js                                7.64 KB
+ESM dist/chunk-NHXJKY2E.js                                    437.62 KB
+ESM dist/chunk-NZJLVBB3.js                                    766.61 KB
+ESM dist/chunk-Q6ZTXD7B.js                                    18.35 KB
+ESM dist/chunk-Z5K4FHYP.js                                    48.18 KB
+ESM dist/self-3K4OYHKX.js.map                                 51.42 KB
+ESM dist/chunk-5BHSEQ5K.js.map                                72.00 KB
+ESM dist/chunk-3WV2TQRU.js.map                                64.55 KB
+ESM dist/backup-L7ZJLD6B.js.map                               71.00 B
+ESM dist/chunk-UNXI22IC.js.map                                72.66 KB
+ESM dist/server-4YJL3EUS.js.map                               77.23 KB
+ESM dist/chunk-JSZSV5UK.js.map                                256.27 KB
+ESM dist/chunk-Y2YYG7O3.js.map                                11.83 KB
+ESM dist/skills-command-UZQDVD2M.js.map                       40.11 KB
+ESM dist/chunk-D4HDZEJT.js.map                                71.00 B
+ESM dist/index.js.map                                         232.35 KB
+ESM dist/virtual_make-docs-first-party-skills-YLGORKYX.js.map 230.81 KB
+ESM dist/uninstall-YN3EZNAJ.js.map                            14.12 KB
+ESM dist/chunk-Q6ZTXD7B.js.map                                37.21 KB
+ESM dist/chunk-Z5K4FHYP.js.map                                220.28 KB
+ESM dist/chunk-NHXJKY2E.js.map                                881.36 KB
+ESM dist/chunk-NZJLVBB3.js.map                                1.32 MB
+ESM ⚡️ Build success in 178ms
+cd packages/cli && npm pack
+
+> @brucewaynedecoy/make-docs@2.0.0-rc prepack
+> node ../../scripts/copy-template-to-cli.mjs && npm run build
+
+Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/docs/template -> /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/template
+
+> @brucewaynedecoy/make-docs@2.0.0-rc build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js                                             126.17 KB
+ESM dist/server-4YJL3EUS.js                                   13.90 KB
+ESM dist/self-3K4OYHKX.js                                     22.77 KB
+ESM dist/backup-L7ZJLD6B.js                                   438.00 B
+ESM dist/chunk-3WV2TQRU.js                                    35.12 KB
+ESM dist/chunk-UNXI22IC.js                                    23.99 KB
+ESM dist/chunk-Q6ZTXD7B.js                                    18.35 KB
+ESM dist/skills-command-UZQDVD2M.js                           20.66 KB
+ESM dist/chunk-5BHSEQ5K.js                                    41.09 KB
+ESM dist/uninstall-YN3EZNAJ.js                                7.64 KB
+ESM dist/virtual_make-docs-first-party-skills-YLGORKYX.js     227.53 KB
+ESM dist/chunk-Y2YYG7O3.js                                    6.44 KB
+ESM dist/chunk-D4HDZEJT.js                                    1.52 KB
+ESM dist/chunk-Z5K4FHYP.js                                    48.18 KB
+ESM dist/chunk-JSZSV5UK.js                                    139.04 KB
+ESM dist/chunk-NHXJKY2E.js                                    437.62 KB
+ESM dist/chunk-NZJLVBB3.js                                    766.61 KB
+ESM dist/index.js.map                                         232.35 KB
+ESM dist/chunk-3WV2TQRU.js.map                                64.55 KB
+ESM dist/backup-L7ZJLD6B.js.map                               71.00 B
+ESM dist/chunk-UNXI22IC.js.map                                72.66 KB
+ESM dist/self-3K4OYHKX.js.map                                 51.42 KB
+ESM dist/server-4YJL3EUS.js.map                               77.23 KB
+ESM dist/chunk-Q6ZTXD7B.js.map                                37.21 KB
+ESM dist/chunk-5BHSEQ5K.js.map                                72.00 KB
+ESM dist/chunk-Y2YYG7O3.js.map                                11.83 KB
+ESM dist/chunk-D4HDZEJT.js.map                                71.00 B
+ESM dist/skills-command-UZQDVD2M.js.map                       40.11 KB
+ESM dist/uninstall-YN3EZNAJ.js.map                            14.12 KB
+ESM dist/chunk-Z5K4FHYP.js.map                                220.28 KB
+ESM dist/virtual_make-docs-first-party-skills-YLGORKYX.js.map 230.81 KB
+ESM dist/chunk-JSZSV5UK.js.map                                256.27 KB
+ESM dist/chunk-NHXJKY2E.js.map                                881.36 KB
+ESM dist/chunk-NZJLVBB3.js.map                                1.32 MB
+ESM ⚡️ Build success in 157ms
+npm notice
+npm notice 📦  @brucewaynedecoy/make-docs@2.0.0-rc
+npm notice Tarball Contents
+npm notice 11.4kB LICENSE
+npm notice 5.5kB README.md
+npm notice 438B dist/backup-L7ZJLD6B.js
+npm notice 71B dist/backup-L7ZJLD6B.js.map
+npm notice 36.0kB dist/chunk-3WV2TQRU.js
+npm notice 66.1kB dist/chunk-3WV2TQRU.js.map
+npm notice 42.1kB dist/chunk-5BHSEQ5K.js
+npm notice 73.7kB dist/chunk-5BHSEQ5K.js.map
+npm notice 1.6kB dist/chunk-D4HDZEJT.js
+npm notice 71B dist/chunk-D4HDZEJT.js.map
+npm notice 142.4kB dist/chunk-JSZSV5UK.js
+npm notice 262.4kB dist/chunk-JSZSV5UK.js.map
+npm notice 448.1kB dist/chunk-NHXJKY2E.js
+npm notice 902.5kB dist/chunk-NHXJKY2E.js.map
+npm notice 785.0kB dist/chunk-NZJLVBB3.js
+npm notice 1.4MB dist/chunk-NZJLVBB3.js.map
+npm notice 18.8kB dist/chunk-Q6ZTXD7B.js
+npm notice 38.1kB dist/chunk-Q6ZTXD7B.js.map
+npm notice 24.6kB dist/chunk-UNXI22IC.js
+npm notice 74.4kB dist/chunk-UNXI22IC.js.map
+npm notice 6.6kB dist/chunk-Y2YYG7O3.js
+npm notice 12.1kB dist/chunk-Y2YYG7O3.js.map
+npm notice 49.3kB dist/chunk-Z5K4FHYP.js
+npm notice 225.7kB dist/chunk-Z5K4FHYP.js.map
+npm notice 129.2kB dist/index.js
+npm notice 238.0kB dist/index.js.map
+npm notice 23.3kB dist/self-3K4OYHKX.js
+npm notice 52.7kB dist/self-3K4OYHKX.js.map
+npm notice 14.2kB dist/server-4YJL3EUS.js
+npm notice 79.1kB dist/server-4YJL3EUS.js.map
+npm notice 21.2kB dist/skills-command-UZQDVD2M.js
+npm notice 41.1kB dist/skills-command-UZQDVD2M.js.map
+npm notice 7.8kB dist/uninstall-YN3EZNAJ.js
+npm notice 14.5kB dist/uninstall-YN3EZNAJ.js.map
+npm notice 233.0kB dist/virtual_make-docs-first-party-skills-YLGORKYX.js
+npm notice 236.3kB dist/virtual_make-docs-first-party-skills-YLGORKYX.js.map
+npm notice 1.5kB package.json
+npm notice 12.0kB skill-registry.json
+npm notice 5.0kB skill-registry.schema.json
+npm notice 2.4kB template/.make-docs/AGENTS.md
+npm notice 956B template/.make-docs/archive/AGENTS.md
+npm notice 956B template/.make-docs/archive/CLAUDE.md
+npm notice 2.4kB template/.make-docs/CLAUDE.md
+npm notice 19.7kB template/.make-docs/scripts/check_path_hygiene.py
+npm notice 1.7kB template/.make-docs/system-resources.catalog.json
+npm notice 4.5kB template/.make-docs/system-resources.schema.json
+npm notice 760B template/.make-docs/system/AGENTS.md
+npm notice 760B template/.make-docs/system/CLAUDE.md
+npm notice 978B template/.make-docs/system/contracts/AGENTS.md
+npm notice 978B template/.make-docs/system/contracts/CLAUDE.md
+npm notice 9.4kB template/.make-docs/system/contracts/commit-message-convention.md
+npm notice 15.1kB template/.make-docs/system/contracts/coverage-pass-contract.md
+npm notice 6.0kB template/.make-docs/system/contracts/deferred-obligation-contract.md
+npm notice 3.1kB template/.make-docs/system/contracts/design-contract.md
+npm notice 9.9kB template/.make-docs/system/contracts/guide-contract.md
+npm notice 5.8kB template/.make-docs/system/contracts/history-record-contract.md
+npm notice 9.3kB template/.make-docs/system/contracts/human-experience-contract.md
+npm notice 12.0kB template/.make-docs/system/contracts/naive-uat-contract.md
+npm notice 17.4kB template/.make-docs/system/contracts/output-contract.md
+npm notice 5.2kB template/.make-docs/system/contracts/system-resource-contract.md
+npm notice 860B template/.make-docs/system/prompts/AGENTS.md
+npm notice 860B template/.make-docs/system/prompts/CLAUDE.md
+npm notice 2.5kB template/.make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md
+npm notice 2.5kB template/.make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md
+npm notice 2.6kB template/.make-docs/system/prompts/coverage-pass-testing-uat.prompt.md
+npm notice 2.5kB template/.make-docs/system/prompts/coverage-pass-user-guide.prompt.md
+npm notice 2.0kB template/.make-docs/system/prompts/designs-to-plan-change.prompt.md
+npm notice 1.0kB template/.make-docs/system/prompts/designs-to-plan.prompt.md
+npm notice 1.5kB template/.make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md
+npm notice 2.4kB template/.make-docs/system/prompts/naive-uat-facilitator.prompt.md
+npm notice 1.1kB template/.make-docs/system/prompts/naive-uat-tester.prompt.md
+npm notice 1.4kB template/.make-docs/system/prompts/plan-to-prd-change.prompt.md
+npm notice 1.1kB template/.make-docs/system/prompts/plan-to-prd-green-field.prompt.md
+npm notice 1.3kB template/.make-docs/system/prompts/prd-change-to-work.prompt.md
+npm notice 806B template/.make-docs/system/prompts/prd-to-work-full-prd.prompt.md
+npm notice 952B template/.make-docs/system/prompts/prd-to-work-prd-feature.prompt.md
+npm notice 1.9kB template/.make-docs/system/prompts/request-to-design.prompt.md
+npm notice 2.5kB template/.make-docs/system/prompts/session-to-history-record.prompt.md
+npm notice 972B template/.make-docs/system/prompts/update-readme-green-field.prompt.md
+npm notice 1.4kB template/.make-docs/system/prompts/work-to-commit-message.prompt.md
+npm notice 2.3kB template/.make-docs/system/prompts/work-to-guides.prompt.md
+npm notice 1.2kB template/.make-docs/system/references/AGENTS.md
+npm notice 1.2kB template/.make-docs/system/references/CLAUDE.md
+npm notice 5.3kB template/.make-docs/system/references/design-workflow.md
+npm notice 10.8kB template/.make-docs/system/references/execution-workflow.md
+npm notice 2.8kB template/.make-docs/system/references/harness-capability-matrix.md
+npm notice 6.4kB template/.make-docs/system/references/human-experience.md
+npm notice 4.8kB template/.make-docs/system/references/lifecycle.md
+npm notice 8.9kB template/.make-docs/system/references/naive-uat-validation.md
+npm notice 4.8kB template/.make-docs/system/references/naive-uat-workflow.md
+npm notice 10.5kB template/.make-docs/system/references/path-and-link-hygiene.md
+npm notice 10.1kB template/.make-docs/system/references/planning-workflow.md
+npm notice 12.9kB template/.make-docs/system/references/prd-change-management.md
+npm notice 6.3kB template/.make-docs/system/references/wave-model.md
+npm notice 875B template/.make-docs/system/templates/AGENTS.md
+npm notice 875B template/.make-docs/system/templates/CLAUDE.md
+npm notice 2.2kB template/.make-docs/system/templates/design.md
+npm notice 1.8kB template/.make-docs/system/templates/guide-maintainer.md
+npm notice 1.6kB template/.make-docs/system/templates/guide-user.md
+npm notice 1.9kB template/.make-docs/system/templates/history-record.md
+npm notice 4.1kB template/.make-docs/system/templates/naive-uat-scenario.md
+npm notice 2.0kB template/.make-docs/system/templates/plan-overview.md
+npm notice 6.9kB template/.make-docs/system/templates/plan-prd-change.md
+npm notice 3.0kB template/.make-docs/system/templates/plan-prd-decompose.md
+npm notice 6.8kB template/.make-docs/system/templates/plan-prd.md
+npm notice 1.4kB template/.make-docs/system/templates/prd-architecture.md
+npm notice 857B template/.make-docs/system/templates/prd-glossary.md
+npm notice 2.8kB template/.make-docs/system/templates/prd-index.md
+npm notice 1.3kB template/.make-docs/system/templates/prd-overview.md
+npm notice 871B template/.make-docs/system/templates/prd-reference.md
+npm notice 2.7kB template/.make-docs/system/templates/prd-risk-register.md
+npm notice 1.4kB template/.make-docs/system/templates/prd-subsystem.md
+npm notice 2.4kB template/.make-docs/system/templates/work-index.md
+npm notice 1.9kB template/.make-docs/system/templates/work-phase.md
+npm notice 850B template/AGENTS.md
+npm notice 850B template/CLAUDE.md
+npm notice 6.1kB template/docs/AGENTS.codex-only.md
+npm notice 6.1kB template/docs/AGENTS.md
+npm notice 2.0kB template/docs/assets/AGENTS.md
+npm notice 2.0kB template/docs/assets/CLAUDE.md
+npm notice 6.1kB template/docs/CLAUDE.claude-only.md
+npm notice 6.1kB template/docs/CLAUDE.md
+npm notice 1.7kB template/docs/designs/AGENTS.md
+npm notice 1.7kB template/docs/designs/CLAUDE.md
+npm notice 2.3kB template/docs/plans/AGENTS.md
+npm notice 2.3kB template/docs/plans/CLAUDE.md
+npm notice 3.1kB template/docs/prd/AGENTS.md
+npm notice 3.1kB template/docs/prd/CLAUDE.md
+npm notice 2.0kB template/docs/work/AGENTS.md
+npm notice 2.0kB template/docs/work/CLAUDE.md
+npm notice Tarball Details
+npm notice name: @brucewaynedecoy/make-docs
+npm notice version: 2.0.0-rc
+npm notice filename: brucewaynedecoy-make-docs-2.0.0-rc.tgz
+npm notice package size: 1.3 MB
+npm notice unpacked size: 6.1 MB
+npm notice shasum: 682c67597932672153af784aeaf5ba00477bd031
+npm notice integrity: sha512-DSQty69UXsoyS[...]yP4RWZlJKsVgA==
+npm notice total files: 130
+npm notice
+brucewaynedecoy-make-docs-2.0.0-rc.tgz
+npm uninstall -g @brucewaynedecoy/make-docs make-docs >/dev/null 2>&1 || true
+bin_path="$(npm prefix -g)/bin/make-docs"; if [ -L "$bin_path" ]; then target="$(readlink "$bin_path")"; case "$target" in *"/node_modules/make-docs/"*|*"/node_modules/@brucewaynedecoy/make-docs/"*) rm "$bin_path";; esac; fi
+cd packages/cli && npm install -g ./brucewaynedecoy-make-docs-2.0.0-rc.tgz
+
+added 102 packages in 6s
+
+34 packages are looking for funding
+  run `npm fund` for details

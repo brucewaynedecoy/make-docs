@@ -1,0 +1,9 @@
+Actual tool-output capture, 2026-09-09
+Command: make-docs project state recover 0218ddd2-cf04-4cb1-a8dc-c17f5d181ff2 --resume --dry-run --target-root . --json
+Environment: installed public CLI; scoped permission for read-only protected global Store access
+Exit: 1
+stdout: empty
+stderr:
+{"ok":false,"code":"recovery-required","message":"This CLI cannot validate the saved setup.skills.adopt operation."}
+
+No file or Store mutation was requested or performed. This completed-operation dry-run found a missing fresh-process validator route; it does not test interrupted live recovery.

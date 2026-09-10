@@ -115,11 +115,12 @@ export function mintProjectId(): string {
   return randomUUID();
 }
 
-export function getManifestFileHash(relativePath: string, content: string): string | null {
+export function getManifestFileHash(relativePath: string, content: string | Buffer): string | null {
   if (!isInstructionManifestPath(relativePath)) {
     return hashText(content);
   }
 
+  if (typeof content !== "string") return null;
   const parsed = parseManagedBlock(content);
   return parsed.state === "valid" && parsed.body !== null
     ? hashText(parsed.body)
@@ -148,6 +149,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
     throw new Error("selections.optionalSkills is no longer supported");
   }
   const selectedSkills = validateSelectedSkills(legacy.selectedSkills);
+  const skillHarnesses = legacy.skillHarnesses === undefined ? undefined : validateHarnesses(legacy.skillHarnesses);
   const skillManifest =
     "skillManifest" in legacy && legacy.skillManifest !== undefined
       ? validateSkillManifestSelectionSource(legacy.skillManifest)
@@ -198,6 +200,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
           : validateBoolean(legacy.skills, "selections.skills"),
       skillScope: validateSkillScope(legacy.skillScope ?? "project"),
       selectedSkills,
+      ...(skillHarnesses === undefined ? {} : { skillHarnesses }),
       ...(skillManifest === undefined ? {} : { skillManifest }),
       ...(skillSelectionProvenance === undefined
         ? {}
@@ -220,6 +223,7 @@ export function migrateSelections(selections: unknown): InstallSelections {
     skills: validateBoolean(legacy.skills, "selections.skills"),
     skillScope: validateSkillScope(legacy.skillScope ?? "project"),
     selectedSkills,
+    ...(skillHarnesses === undefined ? {} : { skillHarnesses }),
     ...(skillManifest === undefined ? {} : { skillManifest }),
     ...(skillSelectionProvenance === undefined
       ? {}
@@ -2276,8 +2280,12 @@ function compareAuditRecords(
   return left.ordering.sortKey.localeCompare(right.ordering.sortKey);
 }
 
-function isInstructionManifestPath(relativePath: string): boolean {
-  const basename = path.posix.basename(normalizeRelativePath(relativePath));
+export function isInstructionManifestPath(relativePath: string): boolean {
+  const normalized = normalizeRelativePath(relativePath);
+  // A Skill may carry a plain file with a harness-instruction filename.
+  // Its ownership covers all bytes, not a Make Docs managed router block.
+  if (/(?:^|\/)(?:\.make-docs\/agentics|\.agents|\.claude|\.codex)\/skills\//.test(normalized)) return false;
+  const basename = path.posix.basename(normalized);
   return INSTRUCTION_KINDS.includes(basename as InstructionKind);
 }
 

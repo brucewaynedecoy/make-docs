@@ -254,7 +254,7 @@ describe("template completeness", () => {
       for (const payload of payloads) {
         const sourcePath = path.join(sourceRoot, payload.source);
         const sourceLocalPath = localPathForPackageSource(path.relative(TEMPLATE_ROOT, sourcePath));
-        const installPath = path.join(".make-docs/agentics/skills", entry.installName, payload.installPath);
+        const installPath = path.join(".agents/skills", entry.installName, payload.installPath);
         const asset = assets.find((candidate) => candidate.relativePath === installPath);
         expect(asset, sourceLocalPath).toBeDefined();
         expect(asset!.sourceId, sourceLocalPath).toMatch(/^skill:shared:/);

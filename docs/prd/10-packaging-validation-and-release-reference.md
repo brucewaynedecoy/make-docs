@@ -84,7 +84,7 @@ The current prerelease state uses Apache-2.0 licensing, scoped package identity,
 - Packed validation proves Make Docs v2 ships no current Playbook or Protocol discovery/execution surface and does not include legacy `playbook_runs` in current run listings. Representative legacy assets remain migration fixtures whose bytes and Store rows are preserved unless a separately authorized disposition applies.
 - Packed validation proves no-default plugin behavior, explicit selected-plugin payload and native exposure or plugin-specific adapter behavior, plugin asset inclusion/exclusion rules, and exclusion of conformance-lab records, generated local run artifacts, and unreviewed plugin outputs from shipped template/package surfaces under [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md).
 - Packed validation covers adversarial prompts, references, plugins, CLI/MCP affordances, or conformance records only when a downstream plan explicitly selects that surface. Package proof preserves template-first authoring, no-default exposure, prompt-rule coverage, plugin validation, and evidence-bound support claims under [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md).
-- Packed validation proves new backup writes use `.make-docs/backup/**`, fresh installs do not create root `.backup/**`, legacy root `.backup/**` is protected, and selected-agentics uninstall prunes empty managed `.make-docs/agentics/**` directories safely under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
+- Packed validation proves new backup writes use `.make-docs/backup/**`, fresh installs do not create root `.backup/**`, legacy root `.backup/**` is protected, and selected-agentics uninstall prunes reviewed empty managed Skill directories (including obsolete private-layout parents during upgrade) safely under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
 - Packed validation proves generated plugin and skills-bundle outputs are included only when a reviewed package plan selects them as shipped assets, while local generated outputs, export-only artifacts, run state, and conformance records stay out of templates and tarballs by default under [36-playbook-packaging-compiler-and-harness-adapters.md](./36-playbook-packaging-compiler-and-harness-adapters.md).
 - Packaged runner and CLI/MCP validation covers general lifecycle `runs`, bounded `run_evidence`, typed Store receipts, repository authority, and `run-capture-unavailable`; it proves no run state is written under `.make-docs/runs/**`, no document/evidence bodies or secrets enter the Store, and no operational state ships in templates or tarballs.
 
@@ -123,6 +123,14 @@ R-SKILL-PACK-3 (MUST): package proof covers old-source managed upgrades without 
 R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, including the real installed CLI proof owned by [PRD 09](09-dogfood-and-maintainer-operations.md). The same package must contain the selected `naive-uat` adapter from its canonical Skill source and preserve the stable shared-workflow boundary in [PRD 46](46-naive-end-user-acceptance-testing.md).
 
 ## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: private Make Docs Skill payload roots or generic shared-root installation guidance.
+- Replacement: the scope/harness standard-location matrix and safe old-path upgrade in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: remove the coordinator's repeated private-layer assumption. Standard agent paths own files; the Store owns state.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
 
 ### 2026-08-08 — Not assigned
 

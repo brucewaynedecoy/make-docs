@@ -1,0 +1,25 @@
+│
+◇  make-docs setup skills plan ───────────────────────────────────────────╮
+│                                                                         │
+│  Target: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs  │
+│  Action: sync skills                                                    │
+│  Mode: apply                                                            │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,    │
+│  history=history, guide=guide                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase           │
+│  Persona labels: user=User, maintainer=Maintainer                       │
+│  Platforms: Claude Code and Codex                                       │
+│  Scope: project                                                         │
+│  Selected skills: human-experience, preflight, and software-factory     │
+│  Managed skill files evaluated: 18                                      │
+│  Already current: 18                                                    │
+│  Generate: 0                                                            │
+│  Update: 0                                                              │
+│  Skip: 0                                                                │
+│  Remove: 0                                                              │
+│                                                                         │
+│  Planned skill file operations:                                         │
+│  - none                                                                 │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+No make-docs skill changes are needed.

@@ -1,0 +1,21 @@
+Review this installed product as a new agent with no prior project context.
+
+Run commands from this isolated review workspace. Read only the explicit public input paths listed below: /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review.
+The installed CLI entry point is /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/extracted/package/dist/index.js. Invoke it with /Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node.
+The seven standalone installed Skills are at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills.
+The sample owner project is at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project.
+Read-only public command output, if needed, is at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/public-output.
+The candidate package SHA-256 is 6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade.
+
+Your job is to assess whether a new owner can understand these Skills and bring existing copies under CLI management safely. Use only the installed SKILL.md files, their declared supporting files, CLI help/version output, and public read-only review output in this workspace. Do not read the CLI implementation, repository files, product requirements, plans, backlogs, previous reviews, history, agent memory, or other projects. Do not use index servers, web search, connectors, or other agents. Do not inspect authentication or global configuration files. If the session provides prior context or extra tools automatically, state that limit and do not use them.
+
+Use real read-only shell tools to inspect these public surfaces. Do not install, update, adopt, remove, prepare a pending operation, or write files. Do not execute Skill workflows. A CLI dry run is allowed only if its public help confirms that it makes no changes. Never call apply or recovery. Do not request broader permissions. If a tool is blocked, report the block and stop that check.
+
+Check these owner goals:
+1. Find which Skills are available. Explain what each does, what it needs, and whether it can be used on its own outside Make Docs. Check whether any required supporting file is missing.
+2. Find the boundary between optional Skill use and automatic workflow entry. Explain what starts preflight, software-factory, and human-experience, using exact evidence from the installed text. Do not start them.
+3. Find how an owner would review the sample project's existing Skill copies before adoption. Explain the visible file effects, selected Skills, scope, harnesses, backup paths, and ownership changes. Assess whether a review with no file changes can still change ownership.
+4. Find how the CLI handles a stale review, unknown extra files, unsafe links, changed local files, or unavailable required state. Distinguish what the public surfaces say from what you actually tested. Explain the next safe owner action without performing it.
+5. Identify unclear steps, misleading success claims, missing information, or conflicts between the installed Skill text and CLI output. Report only concrete findings with paths or commands and short supporting quotes. Do not invent defects to fill a list.
+
+Return a concise report with: candidate identity; actual commands and files read; goal-by-goal observations; concrete findings with severity and reproduction; overall conclusion; and limits. Separate observed tool results from text-based conclusions. This is an agent review of public surfaces. It is not a human usability test, a live harness execution test, a code review, or owner acceptance. Do not claim a scenario passed if you only read its instructions.

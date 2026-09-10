@@ -1,4 +1,5 @@
-import { existsSync, lstatSync, readdirSync, readlinkSync } from "node:fs";
+import { getHarnessSkillDirectory } from "./skill-paths";
+import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
@@ -10,6 +11,7 @@ import { getDesiredAssets } from "./catalog";
 import {
   createAuditPathMetadata,
   getManifestFileHash,
+  isInstructionManifestPath,
   getManifestAuditContext,
   getManifestPath,
   RETIRED_PLAYBOOK_CONTRACT_PATH,
@@ -39,13 +41,15 @@ import {
   type AuditRemovableFile,
   type AuditSkillSelectionReview,
   type AuditSkippedPath,
+  type FileContent,
   type Harness,
   type InstallManifest,
   type InstallSelections,
   type ManifestAuditRecord,
 } from "./types";
-import { assertManagedPathHasNoSymlinks, hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
+import { assertManagedPathHasNoSymlinks, contentEquals, hashText, PACKAGE_ROOT, readTextFile, relativePathToTarget } from "./utils";
 
+// Legacy source inventory is read-only; current payloads live in native Skill directories.
 const SHARED_AGENTICS_SKILL_DIR = ".make-docs/agentics/skills";
 const SHARED_AGENTICS_PLUGIN_DIR = ".make-docs/agentics/plugins";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
@@ -195,7 +199,7 @@ async function classifyManifestPresent(options: {
 function classifyManifestRecord(options: {
   targetDir: string;
   record: ManifestAuditRecord;
-  manifestSkillContentByPath: Map<string, string> | null;
+  manifestSkillContentByPath: Map<string, FileContent> | null;
   manifestRecordByPath: Map<string, ManifestAuditRecord>;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
@@ -300,8 +304,8 @@ function classifyManifestRecord(options: {
     return;
   }
 
-  const currentContent = readTextFile(record.absolutePath);
-  const currentHash = hashText(currentContent);
+  const currentBytes = readFileSync(record.absolutePath);
+  const currentHash = hashText(currentBytes);
 
   if (record.ownershipSource === "managed-state") {
     addRemovable(
@@ -318,6 +322,7 @@ function classifyManifestRecord(options: {
   }
 
   if (isInstructionPath(record.path)) {
+    const currentContent = currentBytes.toString("utf8");
     const currentBlockHash = getManifestFileHash(record.path, currentContent);
     if (currentBlockHash && record.manifestHash && currentBlockHash === record.manifestHash) {
       const parsed = parseManagedBlock(currentContent);
@@ -399,7 +404,7 @@ function classifyManifestRecord(options: {
       return;
     }
 
-    if (currentContent === expectedContent) {
+    if (contentEquals(currentBytes, expectedContent)) {
       addRemovable(
         removableFiles,
         record,
@@ -437,7 +442,7 @@ function classifyManifestRecord(options: {
 function classifyManifestSkillExposureRecord(options: {
   targetDir: string;
   record: ManifestAuditRecord;
-  manifestSkillContentByPath: Map<string, string> | null;
+  manifestSkillContentByPath: Map<string, FileContent> | null;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
 }): void {
@@ -601,8 +606,8 @@ function classifyManifestPluginOwnershipRecord(options: {
     return;
   }
 
-  const currentContent = readTextFile(record.absolutePath);
-  const currentHash = hashText(currentContent);
+  const currentBytes = readFileSync(record.absolutePath);
+  const currentHash = hashText(currentBytes);
   if (record.manifestHash && currentHash === record.manifestHash) {
     addRemovable(
       removableFiles,
@@ -702,7 +707,7 @@ async function classifyManifestMissing(options: {
   const fallbackSelections = defaultSelections();
   const fallbackProfile = resolveInstallProfile(fallbackSelections);
   const fallbackCandidates = new Map<string, AuditManagedPathMetadata>();
-  const canonicalContentByPath = new Map<string, string>();
+  const canonicalContentByPath = new Map<string, FileContent>();
 
   for (const asset of getDesiredAssets(fallbackProfile)) {
     const record = createManagedPathRecord(targetDir, homeDir, asset.relativePath, "fallback", {
@@ -798,7 +803,7 @@ async function classifyManifestMissing(options: {
 function classifyFallbackRecord(options: {
   targetDir: string;
   record: AuditManagedPathMetadata;
-  canonicalContentByPath: Map<string, string>;
+  canonicalContentByPath: Map<string, FileContent>;
   removableFiles: Map<string, AuditRemovableFile>;
   preservedPaths: Map<string, AuditPreservedPath>;
   skippedPaths: Map<string, AuditSkippedPath>;
@@ -860,8 +865,8 @@ function classifyFallbackRecord(options: {
     return;
   }
 
-  const currentContent = readTextFile(record.absolutePath);
-  const currentHash = hashText(currentContent);
+  const currentBytes = readFileSync(record.absolutePath);
+  const currentHash = hashText(currentBytes);
 
   if (record.ownershipSource === "managed-state") {
     if (looksLikeMakeDocsManifest(record.absolutePath)) {
@@ -889,6 +894,7 @@ function classifyFallbackRecord(options: {
   }
 
   if (isInstructionPath(record.path)) {
+    const currentContent = currentBytes.toString("utf8");
     const expectedContent = canonicalContentByPath.get(record.path);
     const currentBlockHash = getManifestFileHash(record.path, currentContent);
     const expectedBlockHash =
@@ -931,7 +937,7 @@ function classifyFallbackRecord(options: {
   }
 
   const expectedContent = canonicalContentByPath.get(record.path);
-  if (typeof expectedContent === "string" && currentContent === expectedContent) {
+  if (expectedContent !== undefined && contentEquals(currentBytes, expectedContent)) {
     addRemovable(
       removableFiles,
       record,
@@ -1062,7 +1068,7 @@ function getRemainingDirectoryEntries(
 function copyMirrorMatchesCanonicalContent(
   record: ManifestAuditRecord,
   targetDir: string,
-  canonicalContentByPath: Map<string, string>,
+  canonicalContentByPath: Map<string, FileContent>,
 ): boolean {
   const expectedEntries = [...canonicalContentByPath.entries()].filter(([candidate]) =>
     isDescendantAuditPath(candidate, record.path),
@@ -1083,7 +1089,7 @@ function copyMirrorMatchesCanonicalContent(
     const expectedContent = expectedContentByPath.get(relativePath);
     return (
       expectedContent !== undefined &&
-      readTextFile(relativePathToTarget(targetDir, relativePath)) === expectedContent
+      contentEquals(readFileSync(relativePathToTarget(targetDir, relativePath)), expectedContent)
     );
   });
 }
@@ -1267,7 +1273,7 @@ async function loadCanonicalSkillContentByPath(
   homeDir: string,
   selections: InstallSelections,
   shouldLoad: boolean,
-): Promise<Map<string, string> | null> {
+): Promise<Map<string, FileContent> | null> {
   if (!shouldLoad) {
     return new Map();
   }
@@ -1351,7 +1357,7 @@ async function loadFallbackSkillCandidates(options: {
   targetDir: string;
   homeDir: string;
   selections: InstallSelections;
-}): Promise<Array<{ record: AuditManagedPathMetadata; content: string }> | null> {
+}): Promise<Array<{ record: AuditManagedPathMetadata; content: FileContent }> | null> {
   try {
     const assets = await getDesiredSkillAssets(options.selections);
     return assets.flatMap((asset) =>
@@ -1427,6 +1433,10 @@ function getKnownAgenticsRoots(
       pathScope: "home" as const,
       agenticKind: "plugin" as const,
     },
+    {
+      ...createCandidatePathRecord(targetDir, homeDir, path.join(homeDir, ".agents/skills"), "directory", "fallback"),
+      pathScope: "home" as const, agenticKind: "skill" as const,
+    },
     ...HARNESSES.flatMap((harness) => [
       {
         ...createCandidatePathRecord(
@@ -1443,7 +1453,7 @@ function getKnownAgenticsRoots(
         ...createCandidatePathRecord(
           targetDir,
           homeDir,
-          path.join(homeDir, HARNESS_SKILL_DIRS[harness]),
+          getHarnessSkillDirectory(harness, "global", homeDir),
           "directory",
           "fallback",
         ),
@@ -1573,8 +1583,7 @@ function formatAuditAgenticRole(record: AuditManagedPathMetadata): string {
 }
 
 function isInstructionPath(auditPath: string): boolean {
-  const basename = path.posix.basename(auditPath);
-  return basename === "AGENTS.md" || basename === "CLAUDE.md";
+  return isInstructionManifestPath(auditPath);
 }
 
 function isInsideProjectBackupRoot(targetDir: string, absolutePath: string): boolean {

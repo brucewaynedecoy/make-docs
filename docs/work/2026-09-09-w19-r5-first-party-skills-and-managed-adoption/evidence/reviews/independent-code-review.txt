@@ -1,0 +1,50 @@
+Retained review transcript
+Source: /tmp/w19-r5-independent-review.md
+Source SHA-256: 93aa228dbc6cd36077e352aa5b7db2462194c11abc7e1c94872df258af848cea
+Reviewer: guidance worker
+Capture: 2026-09-09; after resumed pending-query review
+This is review evidence, not product instructions or installation state.
+
+# W19 R5 independent code review
+
+Date: 2026-09-09
+Reviewer: guidance worker
+Result: The bounded review found no remaining material issue in the final reviewed paths. The fixes below passed focused checks. Full integration, packed delivery proof, real adoption, and the separate A13 fresh-context review are not proved by this record.
+
+## Scope and independence
+
+I reviewed `packages/cli/src/skills-adoption.ts`, `skills-command.ts`, `skills-ui.ts`, the changed Skill paths in `planner.ts`, `profile.ts`, `types.ts`, `manifest.ts`, and `store/installation-state.ts`. Other workers wrote these changes.
+
+I wrote the Skill source/bundle resolver, catalog exposure selection, and CLI parser/help changes. This record does not claim an independent review of that work. Root reviewed those changes. The separate fresh-context Skill/CLI review remains pending.
+
+The review covered the target and package digest, selected tools and scope, full file inventory, owner checks under the lock, unknown files and unsafe links, backups before file replacement, ownership-only adoption, saved copy fallback, interrupted recovery, and managed-file edit protection.
+
+## Findings and fixes
+
+1. **Recovery could fail after a native directory became a link.** The Store worker first reported and reproduced this case. I reviewed the failure path and the fix. Recovery now treats a removed child as absent only when a later saved parent state matches the disk. It does not allow arbitrary link parents. The exact tests `can resume an existing native directory after its final link exists but before commit`, `can rollback an existing native directory after its final link exists but before commit`, and `resumes a saved copy fallback after removing the reviewed native tree` pass.
+
+2. **A removed native tool path could prevent final commit.** The saved link map must retain old link targets for rollback. The final check had required every entry in that map to remain installed. I reported the tool-change case; the worker's scope-change test also caught it. The check now permits an unowned retired path only when its saved final step and actual disk state are both missing. `reviews and completes a same-Skill scope and tool change` passes.
+
+3. **Normal setup could adopt exact existing bytes without review.** An unowned file or copy could be marked as unchanged and then gain ownership when another missing file caused an apply. I reported this mixed case. The planner now treats existing unowned Skill roots as conflicts and directs the user to reviewed adoption. Both `does not implicitly adopt exact unowned bytes during normal skills with missing files` and the corresponding `normal setup` case pass.
+
+4. **The profile ID did not include the new Skill tool choice.** I reported the missing field. The profile hash now includes the saved native Skill tool set. `uses different profile IDs for different saved native Skill tools` passes. `keeps Codex-only Skill selection on later plain sync in a two-router project` also passes. Explicit Skill tools stay separate from project router tools during full reconfigure; `setup skills` changes the Skill tool choice.
+
+## Confirming checks
+
+- `npx vitest run tests/skill-adoption-store.test.ts tests/installation-state.test.ts`: 36/36 passed.
+- `npx vitest run tests/w19-r4-layout-state.test.ts`: 20/20 passed.
+- `npx vitest run tests/w19-r5-skill-adoption.test.ts -t 'same-Skill scope'`: 1/1 passed.
+- `npm test --workspace packages/cli -- --run tests/w19-r5-skill-adoption.test.ts tests/w19-r5-skills-command.test.ts tests/w19-r5-skill-bytes.test.ts tests/skills-ui.test.ts tests/profile.test.ts`: 42/42 passed.
+- Final owner TypeScript and diff checks passed.
+
+The workers ran the checks above and supplied their results. I read the final source fixes. I did not repeat the full suite or run the live adoption during this review. No implementation commit, publication, or W20/W21 resume is approved by this record.
+
+## Late Store review after the full-suite failure
+
+The first full suite found an uninstall regression. A pending uninstall stores a JSON `null` final ledger. The new path-claim reader had treated that value as an object. The fixed reader checks the parsed value before reading its files. Recovery also uses an empty file set for a null final ledger. Saved file steps still reserve their paths. I requested explicit pending-uninstall resume and rollback cases and reviewed the final code.
+
+The per-write conflict check now queries only pending operations from other checkouts. It reads their saved file steps and intended ledger paths, then uses the same canonical path and ancestor overlap checks. It does not cache the result or skip a later guarded write. The full ownership query remains in the adoption review. This change removes the repeated scan of committed ledgers without removing pending reservations or owner review.
+
+The Store worker reported 28/28 passing cases in `tests/skill-adoption-store.test.ts` and `tests/uninstall.test.ts`. The later targeted `null intended ledger` run passed 3/3 cases, including the two new pending-uninstall resume/rollback cases. These runs cover 30 distinct tests. The exact new case names are `can resume a pending normal uninstall with a null intended ledger` and `can rollback a pending normal uninstall with a null intended ledger`. Final TypeScript and diff checks passed.
+
+I found no remaining material issue in this late, read-only review. The broader full-suite rerun and the package/live checks remain separate gates. I made no production change during this review.

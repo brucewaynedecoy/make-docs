@@ -1,0 +1,15 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/p4-projection-lifecycle.test.ts -t keeps projected resources safe during uninstall and omits no-op receipts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/p4-projection-lifecycle.test.ts (22 tests | 21 skipped) 8038ms
+   ✓ W19 R1 P4 projection and lifecycle > keeps projected resources safe during uninstall and omits no-op receipts  8037ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 21 skipped (22)
+   Start at  21:15:35
+   Duration  9.57s (transform 799ms, setup 43ms, collect 1.23s, tests 8.04s, environment 0ms, prepare 83ms)
+

@@ -1,0 +1,39 @@
+
+> @brucewaynedecoy/make-docs@2.0.0-rc test
+> vitest run --run tests/w19-r5-skill-adoption.test.ts tests/w19-r5-skills-command.test.ts tests/w19-r5-skill-bytes.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/w19-r5-skills-command.test.ts (5 tests) 2031ms
+   ✓ public Skill adoption approval gate > uses the displayed digest for interactive confirmation  593ms
+   ✓ public Skill adoption approval gate > keeps Codex-only Skill selection on later plain sync in a two-router project  1332ms
+ ✓ tests/w19-r5-skill-bytes.test.ts (5 tests) 9382ms
+   ✓ W19 R5 Skill byte preservation > keeps raw bytes through symlink install, repeat, audit, backup, and removal  2743ms
+   ✓ W19 R5 Skill byte preservation > keeps raw bytes through copy-mirror install, repeat, audit, backup, and removal  2855ms
+   ✓ W19 R5 Skill byte preservation > hashes changed binary bytes and protects edited binary payloads  1542ms
+   ✓ W19 R5 Skill byte preservation > updates a clean old copy from prior ledger hashes and preserves an edited native copy  2240ms
+ ✓ tests/w19-r5-skill-adoption.test.ts (25 tests) 13299ms
+   ✓ reviewed first-party Skill adoption > keeps canonical symlink ownership after adoption, normal setup and skills sync  1402ms
+   ✓ reviewed first-party Skill adoption > keeps canonical copy-mirror ownership after adoption, normal setup and skills sync  1465ms
+   ✓ reviewed first-party Skill adoption > applies a complete fresh project plan and repeats without changes  478ms
+   ✓ reviewed first-party Skill adoption > applies a complete fresh global plan and repeats without changes  702ms
+   ✓ reviewed first-party Skill adoption > backs up known changed bytes and restores missing declared files  511ms
+   ✓ reviewed first-party Skill adoption > recovers with resume after exact native tree removal  828ms
+   ✓ reviewed first-party Skill adoption > recovers with rollback after exact native tree removal  878ms
+   ✓ reviewed first-party Skill adoption > registers matching copied bytes with no file actions and exposes their owner  1043ms
+   ✓ reviewed first-party Skill adoption > reviews and completes a same-Skill scope and tool change  736ms
+   ✓ reviewed first-party Skill adoption > clearly blocks mixed adoption and deselection before saving state  413ms
+   ✓ reviewed first-party Skill adoption > uses only reviewed copy fallback bytes in project scope  497ms
+   ✓ reviewed first-party Skill adoption > uses only reviewed copy fallback bytes in global scope  611ms
+   ✓ reviewed first-party Skill adoption > blocks another checkout owner of the selected global bytes  469ms
+   ✓ reviewed first-party Skill adoption > invalidates review when this checkout gains installation ownership  830ms
+   ✓ reviewed first-party Skill adoption > updates and removes adopted files through the normal lifecycle while preserving unrelated content  544ms
+   ✓ reviewed first-party Skill adoption > does not implicitly adopt exact unowned bytes during normal skills with missing files  775ms
+   ✓ reviewed first-party Skill adoption > does not implicitly adopt exact unowned bytes during normal setup with missing files  748ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  21:07:30
+   Duration  15.80s (transform 220ms, setup 36ms, collect 388ms, tests 24.71s, environment 0ms, prepare 91ms)
+

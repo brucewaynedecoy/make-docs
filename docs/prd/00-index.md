@@ -12,7 +12,7 @@ Numbering gaps are intentional. Existing product authorities retain stable numbe
 
 The Store owns Make Docs installation and migration state under [PRD 38](38-global-store-and-project-state.md). The owner accepted the completed [W19 R3 interrupt](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md), committed at `dabd0b36`, and the corrected [W19 R4 asset and Persona recovery](../work/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-index.md). D-031 and D-032 are closed.
 
-The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md), [plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md), and [one-phase backlog](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-index.md) cover bundled first-party Skills and reviewed adoption. The owner accepted the corrected package and backlog on 2026-09-09 and authorized implementation. The implementation tasks have not started. [D-005](03-open-questions-and-risk-register.md#d-005-skills-delivery-diverges-from-earlier-bundled-payload-expectations) remains open for implementation proof. W20 and W21 remain paused. W20 P1/P2 remain accepted; P3 has not started.
+The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md), [plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md), and [one-phase backlog](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-index.md) are complete and owner-accepted on 2026-09-09. W19 R5 is closed and D-005 is resolved. The corrected CLI installs Skills in standard agent locations; the retired private layer was removed through the reviewed public CLI. The owner requested the implementation commit; prior wrong-layout proof remains superseded. W20 and W21 remain paused; W20 P1/P2 remain accepted and P3 has not started.
 
 ## Reading Order
 
@@ -110,7 +110,7 @@ Resolve product authority from this active map, not from a historical action-nam
 
 ## Intended Follow-On
 
-Current interrupt: implement the accepted W19 R5 package through its one-phase backlog after the authorized package commit. Do not resume W20 or W21 from this planning handoff.
+W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions.
 
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.

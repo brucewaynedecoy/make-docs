@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup";
+import { embeddedSkillsEsbuildPlugin } from "./scripts/embedded-skills";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -18,6 +19,7 @@ export default defineConfig({
   // `node dist/index.js` and no installed node_modules.
   noExternal: ["@clack/core", "@clack/prompts", "yaml", "zod"],
   esbuildPlugins: [
+    embeddedSkillsEsbuildPlugin(packageDir),
     {
       name: "yaml-browser-entry",
       setup(build) {

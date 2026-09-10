@@ -7,12 +7,12 @@ import { applyInstallPlan, applySkillsOnlyInstallPlan, planInstall, planSkillsOn
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
 import { loadSkillRegistry, type SkillRegistry } from "../src/skill-registry";
-import { PACKAGE_ROOT, TEMPLATE_ROOT } from "../src/utils";
+import { PACKAGE_ROOT } from "../src/utils";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
-const canonical = ".make-docs/agentics/skills/naive-uat";
-const exposures = [".claude/skills/naive-uat", ".agents/skills/naive-uat"];
-const payload = () => readFileSync(path.join(TEMPLATE_ROOT, canonical, "SKILL.md"), "utf8");
+const canonical = ".agents/skills/naive-uat";
+const exposures = [".claude/skills/naive-uat"];
+const payload = () => readFileSync(path.join(PACKAGE_ROOT, "../skills/naive-uat/SKILL.md"), "utf8");
 const roots: string[] = [];
 const temp = () => { const root = createTempDir("make-docs-p7-skill-"); roots.push(root); return root; };
 
@@ -38,14 +38,14 @@ describe("P7 optional bundled UGT Skill lifecycle", () => {
     for (const root of roots.splice(0)) cleanupTempDir(root);
   });
 
-  test("S1 installs the local payload only after explicit selection", async () => {
+  test("S1 installs the embedded payload only after explicit selection", async () => {
     const target = temp();
     const bare = await install(target, false);
     expect(bare.selections.selectedSkills).toEqual([]);
     expect(existsSync(path.join(target, canonical))).toBe(false);
     const registry = loadSkillRegistry(PACKAGE_ROOT);
     const entry = registry.skills.find((skill) => skill.name === "naive-uat")!;
-    expect(entry.source.startsWith("file:")).toBe(true);
+    expect(entry.source).toBe("embedded:naive-uat");
     expect(entry.defaultForPurposes ?? []).toEqual([]);
     const manifest = await install(target);
     expect(manifest.selections.selectedSkills).toEqual(["naive-uat"]);
@@ -81,6 +81,9 @@ describe("P7 optional bundled UGT Skill lifecycle", () => {
       vi.stubEnv("MAKE_DOCS_DISABLE_SKILL_SYMLINKS", mode === "copy-mirror" ? "1" : "0");
       const target = temp();
       const manifest = await install(target);
+      expect(lstatSync(path.join(target, canonical)).isSymbolicLink()).toBe(false);
+      expect(lstatSync(path.join(target, canonical)).isDirectory()).toBe(true);
+      expect(existsSync(path.join(target, ".make-docs/agentics"))).toBe(false);
       for (const exposure of exposures) {
         expect(manifest.files[exposure]?.skillExposure?.mode).toBe(mode);
         expect(lstatSync(path.join(target, exposure)).isSymbolicLink()).toBe(mode === "symlink");
@@ -105,14 +108,14 @@ describe("P7 optional bundled UGT Skill lifecycle", () => {
     writeFileSync(custom, "User Skill\n");
     const changed = path.join(target, exposures[0], "SKILL.md");
     writeFileSync(changed, "User changed mirror\n");
-    const extra = path.join(target, exposures[1], "notes.txt");
+    const extra = path.join(target, canonical, "notes.txt");
     writeFileSync(extra, "User notes\n");
     const existingManifest = loadManifest(target)!;
     const plan = await planSkillsOnlyInstall({ targetDir: target, selections: existingManifest.selections, existingManifest, remove: true });
     applySkillsOnlyInstallPlan({ targetDir: target, plan, existingManifest });
     expect(existsSync(path.join(target, canonical, "SKILL.md"))).toBe(false);
-    // A custom child removes proof of ownership for the complete native mirror.
-    expect(readFileSync(path.join(target, exposures[1], "SKILL.md"), "utf8")).toBe(payload());
+    // Canonical files have individual ownership; the unrelated note stays.
+    // The edited additional native copy also remains protected.
     expect(readFileSync(changed, "utf8")).toBe("User changed mirror\n");
     expect(readFileSync(extra, "utf8")).toBe("User notes\n");
     expect(readFileSync(custom, "utf8")).toBe("User Skill\n");
