@@ -169,8 +169,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.command === "project") {
-    if (parsed.runArgs[0] === "path-hygiene" && parsed.runArgs[1] === "validate") {
-      await runProjectPathHygieneCommand(parsed.runArgs.slice(2));
+    if (parsed.runArgs[0] === "path-hygiene" && ["validate", "repair"].includes(parsed.runArgs[1] ?? "")) {
+      await runProjectPathHygieneCommand(parsed.runArgs.slice(2), parsed.runArgs[1] === "repair");
       return;
     }
     await runProjectCommand(parsed.runArgs);
@@ -568,43 +568,82 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
 }
 
-async function runProjectPathHygieneCommand(argv: string[]): Promise<void> {
-  let targetRoot: string | undefined;
-  let manifest: string | undefined;
-  let includeSkills = false;
-  let allowCommentToken: string | undefined;
-  const args = [...argv];
-  while (args.length > 0) {
-    const arg = args.shift()!;
-    if (arg === "--target" || arg === "--target-root") {
-      const value = args.shift();
-      if (!value) throw new Error(`\`${arg}\` requires a path.`);
-      targetRoot = path.resolve(value);
-    } else if (arg === "--manifest") {
-      const value = args.shift();
-      if (!value) throw new Error("`--manifest` requires a path.");
-      manifest = value;
-    } else if (arg === "--include-skills") {
-      includeSkills = true;
-    } else if (arg === "--allow-comment-token") {
-      const value = args.shift();
-      if (!value) throw new Error("`--allow-comment-token` requires text.");
-      allowCommentToken = value;
-    } else {
-      throw new Error(`Unknown project path-hygiene option: \`${arg}\`.`);
+async function runProjectPathHygieneCommand(argv: string[], repair = false): Promise<void> {
+  try {
+    let scope: "content" | "managed" | undefined;
+    const paths: string[] = [];
+    let format = "json";
+    let apply = false;
+    let preview = false;
+    let targetRoot: string | undefined;
+    let manifest: string | undefined;
+    let includeSkills = false;
+    let allowCommentToken: string | undefined;
+    const args = [...argv];
+    while (args.length > 0) {
+      const arg = args.shift()!;
+      if (arg === "--target" || arg === "--target-root") {
+        const value = args.shift();
+        if (!value) throw new Error(`\`${arg}\` requires a path.`);
+        targetRoot = path.resolve(value);
+      } else if (arg === "--manifest") {
+        const value = args.shift();
+        if (!value) throw new Error("`--manifest` requires a path.");
+        manifest = value;
+      } else if (arg === "--include-skills") {
+        includeSkills = true;
+      } else if (arg === "--allow-comment-token") {
+        const value = args.shift();
+        if (!value) throw new Error("`--allow-comment-token` requires text.");
+        allowCommentToken = value;
+      } else if (arg === "--scope") {
+        const value = args.shift();
+        if (value !== "content" && value !== "managed") throw new Error("--scope requires content or managed.");
+        scope = value;
+      } else if (arg === "--path") {
+        const value = args.shift();
+        if (!value) throw new Error("--path requires a path.");
+        paths.push(value);
+      } else if (arg === "--format") {
+        const value = args.shift();
+        if (value !== "text" && value !== "json") throw new Error("--format requires text or json.");
+        format = value;
+      } else if (repair && arg === "--apply") {
+        apply = true;
+      } else if (repair && arg === "--dry-run") {
+        preview = true;
+      } else {
+        throw new Error(`Unknown project path-hygiene option: \`${arg}\`.`);
+      }
     }
+    if (apply && preview) throw new Error("--apply and --dry-run cannot be combined.");
+    const invocation = await invokeOperation(
+      repair ? "project.path-hygiene.repair" : "project.path-hygiene.validate",
+      {
+        ...(targetRoot ? { targetRoot } : {}),
+        ...(manifest ? { manifest } : {}),
+        ...(includeSkills ? { includeSkills } : {}),
+        ...(allowCommentToken ? { allowCommentToken } : {}),
+        ...(scope ? { scope } : {}),
+        ...(paths.length ? { paths } : {}),
+        ...(repair ? { apply } : {}),
+      },
+      createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: repair, dryRun: repair && !apply }),
+    );
+    const result = invocation.value as unknown as import("./path-hygiene").PathHygieneRepairResult;
+    if (format === "json") output.write(JSON.stringify(result, null, 2) + "\n");
+    else {
+      output.write("Scope: " + result.inventorySource + "; checked " + result.checkedFiles + " file(s).\n");
+      for (const finding of result.findings) output.write(finding.file + ":" + finding.line + ":" + finding.column + " " + (finding.allowed ? "allowed " : "") + finding.kind + " " + finding.match + "\n");
+      for (const error of result.ioErrors) output.write("ERROR: " + error + "\n");
+      for (const change of result.proposedChanges ?? []) output.write((result.dryRun ? "Proposed: " : "Repair: ") + change.file + "\n" + change.after + "\n");
+      output.write((result.valid ? "PASS" : "FAIL") + ": " + result.failingFindings + " finding(s), " + result.changedFiles.length + " file(s) changed.\n");
+    }
+    process.exitCode = result.ioErrors.length ? 2 : result.valid ? 0 : 1;
+  } catch (error) {
+    process.stderr.write("Path check error: " + (error instanceof Error ? error.message : String(error)) + "\n");
+    process.exitCode = 2;
   }
-  const invocation = await invokeOperation(
-    "project.path-hygiene.validate",
-    {
-      ...(targetRoot ? { targetRoot } : {}),
-      ...(manifest ? { manifest } : {}),
-      ...(includeSkills ? { includeSkills } : {}),
-      ...(allowCommentToken ? { allowCommentToken } : {}),
-    },
-    createExecutionContext({ surface: "cli", cwd: targetRoot }),
-  );
-  output.write(`${JSON.stringify(invocation.value, null, 2)}\n`);
 }
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
@@ -1902,7 +1941,8 @@ Usage:
   make-docs project surface ensure <archive|artifacts|assets>
   make-docs project state status [--target-root <path>] [--json]
   make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
-  make-docs project path-hygiene validate [--target <dir>] [--manifest <path>] [--include-skills] [--allow-comment-token <text>]
+  make-docs project path-hygiene <validate|repair> [--target <dir>] [--scope content|managed] [--path <path> ...] [--manifest <path>] [--include-skills] [--allow-comment-token <text>] [--format text|json]
+  Repair previews by default. Add --apply to write, or --dry-run to preview.
 
 The ensure command checks Store installation evidence and configured routers
 before it creates the selected on-demand directory. It reports the applied or
@@ -1914,7 +1954,7 @@ Use --resume to apply the remaining verified steps of a complete saved plan.
 Use --rollback to restore verified prior file state. Changed files block recovery.
 Add --dry-run to inspect recovery without applying changes.
 
-The path-hygiene command validates managed text paths through the same typed
+The path-hygiene command checks local docs by default through the same typed
 operation that the MCP tool and migration checkpoint use.
 `);
       return;

@@ -378,8 +378,8 @@ describe("installer integration", () => {
       expect(existsSync(path.join(targetDir, "docs/assets/artifacts/AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "docs/assets/artifacts/CLAUDE.md"))).toBe(false);
       expect(
-        existsSync(path.join(targetDir, ".make-docs/scripts/check_path_hygiene.py")),
-      ).toBe(true);
+        existsSync(path.join(targetDir, ".make-docs/scripts")),
+      ).toBe(false);
       expect(
         existsSync(
           path.join(targetDir, ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"),
@@ -425,9 +425,7 @@ describe("installer integration", () => {
       expect(docsRouter).toContain("docs/assets/project/");
       expect(docsRouter).toContain(".make-docs/archive/");
       expect(docsRouter).toContain("Asset router files: AGENTS.md, CLAUDE.md");
-      expect(manifest.files[".make-docs/scripts/check_path_hygiene.py"]?.sourceId).toBe(
-        "file:.make-docs/scripts/check_path_hygiene.py",
-      );
+      expect(manifest.files[".make-docs/scripts/check_path_hygiene.py"]).toBeUndefined();
       expect(
         manifest.files[".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"]?.sourceId,
       ).toBe("file:.make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md");

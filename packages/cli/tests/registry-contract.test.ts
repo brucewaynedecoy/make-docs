@@ -69,7 +69,7 @@ const LITERAL_P3_ADMITTED_IDENTIFIERS = [
   "uat.result.validate",
 ] as const;
 
-const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate"] as const;
+const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate", "project.path-hygiene.repair"] as const;
 const LITERAL_R3_ADMITTED_IDENTIFIERS = ["project.state.status", "project.state.recover"] as const;
 const LITERAL_R4_ADMITTED_IDENTIFIERS = [
   "project.persona.list",
@@ -100,10 +100,10 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => id !== "project.path-hygiene.validate" && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("project.path-hygiene.") && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
-    expect(admittedIds.filter((id) => id === "project.path-hygiene.validate")).toEqual(
+    expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
       LITERAL_P5_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);

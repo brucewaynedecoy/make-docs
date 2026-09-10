@@ -31,6 +31,7 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "resource.read": "make_docs_resource_read",
   "resource.ensure": "make_docs_resource_ensure",
   "project.surface.ensure": "make_docs_project_surface_ensure",
+  "project.path-hygiene.repair": "make_docs_project_path_hygiene_repair",
   "project.path-hygiene.validate": "make_docs_project_path_hygiene_validate",
   "project.state.status": "make_docs_project_state_status",
   "project.state.recover": "make_docs_project_state_recover",

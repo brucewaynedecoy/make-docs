@@ -536,6 +536,7 @@ function getRemoveManagedPruneBoundary(
   relativePath: string,
   absolutePath: string,
 ): string | null {
+  if (relativePath === ".make-docs/scripts/check_path_hygiene.py") return path.join(targetDir, ".make-docs");
   if (!path.isAbsolute(relativePath)) {
     return targetDir;
   }

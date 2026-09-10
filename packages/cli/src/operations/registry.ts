@@ -103,6 +103,7 @@ export const ADMITTED_OPERATION_IDS = [
   "project.layout.verify",
   "project.surface.ensure",
   "project.path-hygiene.validate",
+  "project.path-hygiene.repair",
   "lifecycle.start",
   "lifecycle.show",
   "lifecycle.list",
@@ -138,6 +139,7 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.layout.verify": ["project", "layout verify"],
   "project.surface.ensure": ["project", "surface ensure"],
   "project.path-hygiene.validate": ["project", "path-hygiene validate"],
+  "project.path-hygiene.repair": ["project", "path-hygiene repair"],
   "lifecycle.start": ["run", "lifecycle start"],
   "lifecycle.show": ["run", "lifecycle show"],
   "lifecycle.list": ["run", "lifecycle list"],
@@ -169,6 +171,7 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
   "project.surface.ensure":
     "make-docs project surface ensure <archive|artifacts|assets>",
   "project.path-hygiene.validate": "make-docs project path-hygiene validate",
+  "project.path-hygiene.repair": "make-docs project path-hygiene repair",
 };
 
 export function operationDomain(id: string): string {

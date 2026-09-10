@@ -45,7 +45,6 @@ const PLAYBOOK_DEFAULT_PARITY_PATHS = [
 ];
 
 const PATH_HYGIENE_PARITY_PATHS = [
-  ".make-docs/scripts/check_path_hygiene.py",
   ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
   ".make-docs/system/references/AGENTS.md",
   ".make-docs/system/references/CLAUDE.md",
@@ -935,6 +934,16 @@ describe("guide generation routing contract", () => {
 });
 
 describe("path hygiene contract", () => {
+  test("shipped system templates contain no Python or deprecated scripts directory", () => {
+    const visit = (directory: string): void => {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        expect(entry.name.endsWith(".py")).toBe(false);
+        if (entry.isDirectory()) visit(path.join(directory, entry.name));
+      }
+    };
+    expect(existsSync(path.join(TEMPLATE_ROOT, ".make-docs/scripts"))).toBe(false);
+    visit(TEMPLATE_ROOT);
+  });
   test("dogfood path-hygiene assets match the shipped template copies", () => {
     for (const relativePath of PATH_HYGIENE_PARITY_PATHS) {
       const dogfoodContents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
@@ -1064,11 +1073,11 @@ describe("Store-owned installation guidance", () => {
 
   test("path cleanup does not require an installation manifest or Store write", () => {
     const prompt = readFileSync(path.join(TEMPLATE_ROOT, ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md"), "utf8");
-    const checker = readFileSync(path.join(TEMPLATE_ROOT, ".make-docs/scripts/check_path_hygiene.py"), "utf8");
+    expect(existsSync(path.join(TEMPLATE_ROOT, ".make-docs/scripts"))).toBe(false);
     expect(prompt).not.toContain("--manifest");
     expect(prompt).not.toContain("read `.make-docs/manifest.json`");
-    expect(prompt).toContain("without a manifest, CLI, or Store");
-    expect(checker).not.toContain("def load_manifest(");
-    expect(checker).not.toContain('parser.add_argument("--manifest"');
+    expect(prompt).toContain("without a manifest or Store");
+    expect(prompt).toContain("make-docs project path-hygiene validate");
+
   });
 });

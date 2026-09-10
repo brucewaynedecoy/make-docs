@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { assertManagedPathHasNoSymlinks } from "./utils";
 import { readInstallationManifest } from "./store/installation-state";
@@ -41,14 +41,19 @@ export interface PathHygieneValidationResult extends PathHygieneScanResult {
   failingFindings: number;
 }
 
-export function validateProjectPathHygiene(input: {
+export interface PathHygieneInput {
   projectRoot: string;
+  scope?: "content" | "managed";
+  paths?: string[];
   manifestPath?: string;
   includeSkills?: boolean;
   allowToken?: string;
-}): PathHygieneValidationResult {
+}
+
+export function validateProjectPathHygiene(input: PathHygieneInput): PathHygieneValidationResult {
   const targetRoot = realpathSync(path.resolve(input.projectRoot));
   const result = scanPathHygieneManifest({
+    ...input,
     projectRoot: targetRoot,
     ...(input.manifestPath ? { manifestPath: input.manifestPath } : {}),
     ...(input.includeSkills !== undefined ? { includeSkills: input.includeSkills } : {}),
@@ -121,15 +126,17 @@ export function scanPathHygieneText(input: {
       });
     };
 
-    const normalizedRoot = input.repoRoot.replace(/[\\/]+$/, "");
+    const normalizedRoot = input.repoRoot.replace(/[\\/]+$/, "") || input.repoRoot;
     for (let position = line.indexOf(normalizedRoot); position >= 0; position = line.indexOf(normalizedRoot, position + 1)) {
       const tail = line.slice(position + normalizedRoot.length).match(/^[^\s`"'<>()\[\]{}]*/)?.[0] ?? "";
+      if (tail && !tail.startsWith("/") && !tail.startsWith("\\")) continue;
+      if (position > 0 && /[^\s`"'(<>=]/.test(line[position - 1]!)) continue;
       const match = `${normalizedRoot}${tail}`;
       add(
         "repo_root_absolute_path",
         match,
         position,
-        repositorySuggestion(normalizedRoot, match, markdownDestinationAt(line, position, position + match.length)),
+        repositorySuggestion(normalizedRoot, match, markdownDestinationAt(line, position, position + match.length), input.file),
         true,
       );
       occupied.push([position, position + match.length]);
@@ -175,13 +182,14 @@ export function scanPathHygieneText(input: {
   );
 }
 
-export function scanPathHygieneManifest(input: {
-  projectRoot: string;
-  manifestPath?: string;
-  includeSkills?: boolean;
-  allowToken?: string;
-}): PathHygieneScanResult {
+export function scanPathHygieneManifest(input: PathHygieneInput): PathHygieneScanResult {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
+  if (input.paths && (input.scope === "managed" || input.manifestPath !== undefined)) {
+    throw new Error("--path cannot be combined with managed scope or a legacy manifest.");
+  }
+  if (input.scope === "content" && input.manifestPath !== undefined) {
+    throw new Error("Content scope cannot use a legacy manifest.");
+  }
   // The public name remains compatible. Local manifests are read only when
   // explicitly selected as legacy inventory, never as installation authority.
   let inventorySource: PathHygieneScanResult["inventorySource"] = "content";
@@ -198,21 +206,18 @@ export function scanPathHygieneManifest(input: {
     }
     inventory = value as { files?: unknown; skillFiles?: unknown };
     inventorySource = "legacy-manifest";
-  } else {
-    try {
-      inventory = readInstallationManifest(projectRoot);
-      if (inventory) inventorySource = "store";
-    } catch {
-      inventoryNotice = "Store installation inventory unavailable; checked local content only. This is not installation evidence.";
-    }
+  } else if (input.scope === "managed") {
+    inventory = readInstallationManifest(projectRoot);
+    if (!inventory) throw new Error("Managed installation inventory is unavailable. Use content scope to check local docs.");
+    inventorySource = "store";
   }
   const paths = new Set<string>();
   if (inventory) {
     collectManifestPaths(paths, inventory.files);
     if (input.includeSkills) collectManifestPaths(paths, inventory.skillFiles);
   } else {
-    inventoryNotice ??= "No Store installation inventory; checked local content only. This is not installation evidence.";
-    collectContentPaths(projectRoot, paths, Boolean(input.includeSkills));
+    inventoryNotice = "Checked local content only. This is not installation evidence.";
+    collectContentPaths(projectRoot, paths, Boolean(input.includeSkills), input.paths);
   }
   const findings: PathHygieneFinding[] = [];
   const ioErrors: string[] = [];
@@ -260,22 +265,47 @@ export function failingPathHygieneFindings(
   return findings.filter((finding) => !finding.allowed);
 }
 
-export function fixRepositoryRootPaths(text: string, repoRoot: string): string {
-  const root = repoRoot.replace(/[\\/]+$/, "");
-  return text
-    .split(/\r?\n/)
-    .map((line) => {
-      let updated = line;
-      let position = updated.indexOf(root);
-      while (position >= 0) {
-        const tail = updated.slice(position + root.length).match(/^[^\s`"'<>()\[\]{}]*/)?.[0] ?? "";
-        const matched = `${root}${tail}`;
-        updated = `${updated.slice(0, position)}${repositorySuggestion(root, matched)}${updated.slice(position + matched.length)}`;
-        position = updated.indexOf(root, position + 1);
-      }
-      return updated;
-    })
-    .join("\n");
+export function fixRepositoryRootPaths(text: string, repoRoot: string, file = "README.md", allowToken?: string): string {
+  const findings = scanPathHygieneText({ file, text, repoRoot, allowToken })
+    .filter(finding => finding.autoFixable && !finding.allowed);
+  const lines = text.split(/(\r?\n)/);
+  for (const finding of findings.reverse()) {
+    const index = (finding.line - 1) * 2;
+    const line = lines[index]!;
+    lines[index] = line.slice(0, finding.column - 1) + finding.suggestion + line.slice(finding.column - 1 + finding.match.length);
+  }
+  return lines.join("");
+}
+
+export interface PathHygieneRepairResult extends PathHygieneValidationResult {
+  dryRun: boolean;
+  proposedChanges: Array<{ file: string; before: string; after: string }>;
+}
+
+export function repairProjectPathHygiene(input: PathHygieneInput & { apply?: boolean }): PathHygieneRepairResult {
+  const result = validateProjectPathHygiene(input);
+  const proposedChanges = [...new Set(result.findings.filter(f => f.autoFixable && !f.allowed).map(f => f.file))].map(file => {
+    assertManagedPathHasNoSymlinks(result.targetRoot, file);
+    const before = readFileSync(path.join(result.targetRoot, file), "utf8");
+    return { file, before, after: fixRepositoryRootPaths(before, result.targetRoot, file, input.allowToken) };
+  }).filter(change => change.before !== change.after);
+  if (!input.apply || result.ioErrors.length) return { ...result, dryRun: !input.apply, proposedChanges };
+  const check = (change: typeof proposedChanges[number]) => {
+    assertManagedPathHasNoSymlinks(result.targetRoot, change.file);
+    if (readFileSync(path.join(result.targetRoot, change.file), "utf8") !== change.before) throw new Error("Content changed before repair: " + change.file);
+  };
+  proposedChanges.forEach(check);
+  const changedFiles: string[] = [];
+  for (const change of proposedChanges) {
+    try {
+      check(change);
+      writeFileSync(path.join(result.targetRoot, change.file), change.after);
+      changedFiles.push(change.file);
+    } catch (error) {
+      return { ...result, valid: false, ioErrors: [String(error)], changedFiles, dryRun: false, proposedChanges };
+    }
+  }
+  return { ...validateProjectPathHygiene(input), changedFiles, dryRun: false, proposedChanges };
 }
 
 function collectRegex(
@@ -290,10 +320,15 @@ function collectRegex(
   }
 }
 
-function repositorySuggestion(root: string, matched: string, inLink = false): string {
+function repositorySuggestion(root: string, matched: string, inLink = false, file = "README.md"): string {
   const relative = matched.slice(root.length).replace(/^[/\\]+/, "").replace(/\\/g, "/");
+  if (inLink) {
+    const suffix = relative.search(/[?#]/);
+    const target = suffix < 0 ? relative : relative.slice(0, suffix);
+    return (path.posix.relative(path.posix.dirname(file), target || ".") || ".") + (suffix < 0 ? "" : relative.slice(suffix));
+  }
   if (relative.length === 0) return ".";
-  return inLink ? relative : `./${relative}`;
+  return `./${relative}`;
 }
 
 function homeSuggestion(value: string): string {
@@ -334,7 +369,7 @@ function isProtectedContentPath(relativePath: string): boolean {
 }
 
 /** Select readable content only. This does not mint or infer managed ownership. */
-function collectContentPaths(projectRoot: string, paths: Set<string>, includeSkills: boolean): void {
+function collectContentPaths(projectRoot: string, paths: Set<string>, includeSkills: boolean, selected?: string[]): void {
   const visit = (relativePath: string): void => {
     if (isProtectedContentPath(relativePath)) return;
     const absolute = path.join(projectRoot, ...relativePath.split("/"));
@@ -350,10 +385,19 @@ function collectContentPaths(projectRoot: string, paths: Set<string>, includeSki
     if (!stat.isDirectory()) return;
     for (const entry of readdirSync(absolute, { withFileTypes: true })) {
       if (entry.isSymbolicLink() || (!includeSkills && entry.name === "skills")) continue;
-      visit(`${relativePath}/${entry.name}`);
+      visit(path.posix.join(relativePath, entry.name));
     }
   };
-  for (const root of [...DEFAULT_CONTENT_ROOTS, ...(includeSkills ? SKILL_CONTENT_ROOTS : [])]) visit(root);
+  const roots = selected?.map(value => {
+    if (value.split("/").includes("..")) throw new Error(`Invalid content path: ${value}`);
+    return path.posix.normalize(value).replace(/\/$/, "") || "/";
+  });
+  for (const root of roots ?? []) {
+    if (!isSafeManifestPath(root) || isProtectedContentPath(root)) throw new Error(`Invalid content path: ${root}`);
+    assertManagedPathHasNoSymlinks(projectRoot, root);
+    if (!existsSync(path.join(projectRoot, root))) throw new Error(`Content path not found: ${root}`);
+  }
+  for (const root of [...(roots ?? DEFAULT_CONTENT_ROOTS), ...(includeSkills ? SKILL_CONTENT_ROOTS : [])]) visit(root);
 }
 
 function collectManifestPaths(paths: Set<string>, value: unknown): void {
@@ -379,6 +423,7 @@ function isSafeManifestPath(value: string): boolean {
   return (
     value.length > 0 &&
     !value.includes("\\") &&
+    !/^[A-Za-z]:/.test(value) &&
     !path.posix.isAbsolute(value) &&
     path.posix.normalize(value) === value &&
     !value.startsWith("../") &&

@@ -21,7 +21,6 @@ export {
   applyMigrationRoutingSurface,
   planMigrationRoutingSurface,
   releaseProjectMigrationLock,
-  removeTrustedPythonPathHelper,
   restoreMigrationBackup,
   verifyMigrationBackup,
 } from "./migration";
@@ -47,6 +46,7 @@ export {
   scanPathHygieneManifest,
   scanPathHygieneText,
   validateProjectPathHygiene,
+  repairProjectPathHygiene,
 } from "./path-hygiene";
 export type {
   PathHygieneFinding,

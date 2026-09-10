@@ -867,44 +867,6 @@ export function applyMigrationRoutingSurface(
   }
 }
 
-export function removeTrustedPythonPathHelper(input: {
-  projectRoot: string;
-  relativePath: string;
-  trustedHashes: readonly string[];
-  replacementParityProved: boolean;
-  consumers: readonly { name: string; replaced: boolean }[];
-}): { removed: boolean; digest: string } {
-  if (!input.replacementParityProved) {
-    throw new MigrationSafetyError(
-      "helper-replacement-unproved",
-      "The TypeScript path-hygiene replacement has not proved parity.",
-    );
-  }
-  const activeConsumers = input.consumers.filter((consumer) => !consumer.replaced);
-  if (activeConsumers.length > 0) {
-    throw new MigrationSafetyError(
-      "helper-consumer-active",
-      `The Python helper still has active consumers: ${activeConsumers.map((item) => item.name).join(", ")}.`,
-    );
-  }
-  const relativePath = assertProjectRelativePosix(input.relativePath);
-  assertManagedPathHasNoSymlinks(input.projectRoot, relativePath);
-  const absolutePath = path.join(input.projectRoot, ...relativePath.split("/"));
-  const stats = lstatSync(absolutePath);
-  if (!stats.isFile()) {
-    throw new MigrationSafetyError("helper-hash-mismatch", "The Python helper is not a regular file.");
-  }
-  const fileDigest = digest(readFileSync(absolutePath));
-  if (!input.trustedHashes.includes(fileDigest)) {
-    throw new MigrationSafetyError(
-      "helper-hash-mismatch",
-      "The Python helper does not match a trusted managed hash.",
-    );
-  }
-  rmSync(absolutePath, { force: false });
-  return { removed: true, digest: fileDigest };
-}
-
 export class ImmutableMigrationCoordinator {
   private checkpoint = 0;
   private expectedPaths: MigrationPathSnapshot[];
@@ -1075,7 +1037,7 @@ export class ImmutableMigrationCoordinator {
         ]);
         return;
       case 8: {
-        const result = validateProjectPathHygiene({ projectRoot: this.lock.projectRoot });
+        const result = validateProjectPathHygiene({ projectRoot: this.lock.projectRoot, scope: "managed" });
         if (!result.valid) {
           throw new MigrationSafetyError(
             "path-hygiene-failed",

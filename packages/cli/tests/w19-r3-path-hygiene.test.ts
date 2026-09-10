@@ -30,7 +30,7 @@ describe("W19 R3 content checks without local installation state", () => {
     put("docs/legacy.md", "/home/alice/private\n");
     put(".make-docs/manifest.json", JSON.stringify(inventory(["docs/legacy.md"])));
     readInventory.mockReturnValue(inventory(["docs/store.md"]));
-    const result = validateProjectPathHygiene({ projectRoot: root });
+    const result = validateProjectPathHygiene({ projectRoot: root, scope: "managed" });
     expect(result.inventorySource).toBe("store");
     expect(result.checkedFiles).toBe(1);
     expect(result.valid).toBe(true);
@@ -55,7 +55,8 @@ describe("W19 R3 content checks without local installation state", () => {
     readInventory.mockImplementation(() => { throw new Error("Store is corrupt"); });
     const result = validateProjectPathHygiene({ projectRoot: root });
     expect(result.inventorySource).toBe("content");
-    expect(result.inventoryNotice).toContain("unavailable");
+    expect(readInventory).not.toHaveBeenCalled();
+    expect(() => validateProjectPathHygiene({ projectRoot: root, scope: "managed" })).toThrow("Store is corrupt");
     expect(result.valid).toBe(false);
     expect(result.failingFindings).toBe(1);
     expect(result.ioErrors).toEqual([]);
@@ -89,7 +90,7 @@ describe("W19 R3 content checks without local installation state", () => {
     symlinkSync(path.join(root, "legacy.json"), path.join(root, "linked.json"));
     expect(() => validateProjectPathHygiene({ projectRoot: root, manifestPath: "linked.json" })).toThrow();
     readInventory.mockReturnValue(inventory(["../escape.md"]));
-    const result = validateProjectPathHygiene({ projectRoot: root });
+    const result = validateProjectPathHygiene({ projectRoot: root, scope: "managed" });
     expect(result.valid).toBe(false);
     expect(result.checkedFiles).toBe(0);
     expect(result.ioErrors).toEqual(["../escape.md: inventory path is not repository-relative POSIX."]);

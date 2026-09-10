@@ -7,5 +7,5 @@ import { installSqliteExperimentalWarningFilter } from "./run/warnings";
 installSqliteExperimentalWarningFilter();
 
 runCliEntry(runCli).then((exitCode) => {
-  process.exitCode = exitCode;
+  process.exitCode = process.exitCode ?? exitCode;
 });

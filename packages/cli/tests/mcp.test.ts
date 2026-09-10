@@ -33,6 +33,7 @@ describe("make-docs MCP runtime", () => {
       "make_docs_project_state_recover",
       "make_docs_project_surface_ensure",
       "make_docs_project_path_hygiene_validate",
+      "make_docs_project_path_hygiene_repair",
       "make_docs_project_persona_list",
       "make_docs_project_layout_preview",
       "make_docs_project_layout_prepare",

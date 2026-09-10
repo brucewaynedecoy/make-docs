@@ -59,7 +59,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       "project.layout.apply",
       "project.layout.verify",
     ];
-    const p3Admitted = admitted.filter((entry) => entry.id !== "project.path-hygiene.validate" && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id));
+    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("project.path-hygiene.") && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id));
     expect(admitted.filter(entry => r3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "project.state.status", status: "active" },
       { id: "project.state.recover", status: "active" },
@@ -67,13 +67,14 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(admitted.filter(entry => r4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
       r4Ids.map(id => ({ id, status: "active" })),
     );
-    const p5Admitted = admitted.filter((entry) => entry.id === "project.path-hygiene.validate");
+    const p5Admitted = admitted.filter((entry) => entry.id.startsWith("project.path-hygiene."));
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(p3Admitted).toHaveLength(24);
     expect(p3Admitted.filter((entry) => entry.status === "active")).toHaveLength(24);
     expect(p3Admitted.filter((entry) => entry.status === "pending")).toHaveLength(0);
     expect(p5Admitted).toEqual([
       expect.objectContaining({ id: "project.path-hygiene.validate", status: "active" }),
+      expect.objectContaining({ id: "project.path-hygiene.repair", status: "active" }),
     ]);
 
     for (const entry of admitted) {

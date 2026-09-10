@@ -187,6 +187,7 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
       "project.layout.prepare",
       "project.layout.preview",
       "project.layout.verify",
+      "project.path-hygiene.repair",
       "project.path-hygiene.validate",
       "project.persona.list",
       "project.state.recover",

@@ -1,3 +1,4 @@
+import { planRetiredPathHelper, RETIRED_PATH_HELPER } from "./retired-path-helper";
 import { isDeepStrictEqual } from "node:util";
 import { resolveInstallProfile } from "./profile";
 import { getRetiredResourceReplacement } from "./retired-resource-paths";
@@ -387,6 +388,7 @@ export async function createInstallPlan(options: {
 
   if (existingManifest) {
     for (const [relativePath, manifestEntry] of Object.entries(existingManifest.files)) {
+      if (relativePath === RETIRED_PATH_HELPER) continue;
       if (relativePath in desiredFiles) {
         continue;
       }
@@ -615,6 +617,9 @@ export async function createInstallPlan(options: {
       actions.push(action);
     }
   }
+
+  const helperRetirement = planRetiredPathHelper(targetDir, existingManifest, actions);
+  if (helperRetirement) actions.push(helperRetirement);
 
   const annotatedActions = annotateLifecycleActions(actions
     .map(withAgenticRole)

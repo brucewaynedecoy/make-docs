@@ -50,6 +50,7 @@ describe("operation domain modules", () => {
       "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.validate",
+      "project.path-hygiene.repair",
       "project.persona.list",
       "project.layout.preview",
       "project.layout.prepare",
@@ -100,6 +101,7 @@ describe("operation domain modules", () => {
     ).toEqual([
       "project.state.recover",
       "project.surface.ensure",
+      "project.path-hygiene.repair",
       "project.layout.prepare",
       "project.layout.apply",
       "project.layout.verify",

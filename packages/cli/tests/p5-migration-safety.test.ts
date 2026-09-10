@@ -30,7 +30,6 @@ import {
   LEGACY_COMPATIBILITY_OPERATION_IDS,
   MigrationSafetyError,
   releaseProjectMigrationLock,
-  removeTrustedPythonPathHelper,
   restoreMigrationBackup,
   verifyMigrationBackup,
 } from "../src/migration";
@@ -573,36 +572,7 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     }
   }, 20_000);
 
-  it("fixture 12: removes the Python helper only with parity, replaced consumers, and a trusted hash", () => {
-    const root = fixtureRoot();
-    const relativePath = ".make-docs/scripts/check_path_hygiene.py";
-    mkdirSync(path.dirname(path.join(root, relativePath)), { recursive: true });
-    writeFileSync(path.join(root, relativePath), "print('managed')\n");
-    const trustedHash = createHash("sha256").update("print('managed')\n").digest("hex");
-    expect(() => removeTrustedPythonPathHelper({
-      projectRoot: root,
-      relativePath,
-      trustedHashes: [trustedHash],
-      replacementParityProved: false,
-      consumers: [],
-    })).toThrow("has not proved parity");
-    expect(() => removeTrustedPythonPathHelper({
-      projectRoot: root,
-      relativePath,
-      trustedHashes: [trustedHash],
-      replacementParityProved: true,
-      consumers: [{ name: "installer", replaced: false }],
-    })).toThrow("active consumers");
-    expect(removeTrustedPythonPathHelper({
-      projectRoot: root,
-      relativePath,
-      trustedHashes: [trustedHash],
-      replacementParityProved: true,
-      consumers: [{ name: "installer", replaced: true }],
-    })).toEqual({ removed: true, digest: trustedHash });
-  });
-
-  it("fixture 13: matches Python Path.resolve behavior on the same platform fixture", () => {
+  it("fixture 13: reports fixed path classes using the real project root", () => {
     const root = fixtureRoot();
     const realRoot = realpathSync(root);
     const relativePath = "docs/fixture.md";
@@ -630,42 +600,6 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     );
 
     const typescript = validateProjectPathHygiene({ projectRoot: root });
-    const python = spawnSync(
-      "python3",
-      [
-        path.join(REPO_ROOT, ".make-docs/scripts/check_path_hygiene.py"),
-        "--repo-root",
-        root,
-        "--format",
-        "json",
-      ],
-      { encoding: "utf8" },
-    );
-    expect(python.error).toBeUndefined();
-    expect(python.status).toBe(1);
-    const pythonResult = JSON.parse(python.stdout);
-    const normalizeTypeScriptFinding = (finding: (typeof typescript.findings)[number]) => ({
-      file: finding.file,
-      line: finding.line,
-      column: finding.column,
-      kind: finding.kind,
-      match: finding.match,
-      suggestion: finding.suggestion,
-      autoFixable: finding.autoFixable,
-      allowed: finding.allowed,
-      reason: finding.reason,
-    });
-    const normalizePythonFinding = (finding: Record<string, unknown>) => ({
-      file: finding.file,
-      line: finding.line,
-      column: finding.column,
-      kind: finding.kind,
-      match: finding.match,
-      suggestion: finding.suggestion,
-      autoFixable: finding.auto_fixable,
-      allowed: finding.allowed,
-      reason: finding.reason,
-    });
     expect(typescript.targetRoot).toBe(realRoot);
     if (root.startsWith("/var/")) {
       expect(realRoot).toMatch(/^\/private\/var\//);
@@ -676,19 +610,9 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
         match: `${realRoot}/docs/guide.md`,
       }),
     );
-    expect({
-      checkedFiles: typescript.checkedFiles,
-      changedFiles: typescript.changedFiles,
-      findings: typescript.findings.map(normalizeTypeScriptFinding),
-      ioErrors: typescript.ioErrors,
-      errors: typescript.failingFindings,
-    }).toEqual({
-      checkedFiles: pythonResult.checked_files,
-      changedFiles: pythonResult.changed_files,
-      findings: pythonResult.findings.map(normalizePythonFinding),
-      ioErrors: pythonResult.io_errors ?? [],
-      errors: pythonResult.summary.errors,
-    });
+    expect(typescript.checkedFiles).toBe(1);
+    expect(typescript.failingFindings).toBe(7);
+    expect(typescript.ioErrors).toEqual([]);
     expect(new Set(typescript.findings.map((finding) => finding.kind))).toEqual(new Set([
       "repo_root_absolute_path",
       "posix_user_home_path",

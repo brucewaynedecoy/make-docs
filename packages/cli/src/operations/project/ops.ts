@@ -30,6 +30,7 @@ import {
 } from "../../migration";
 import {
   validateProjectPathHygiene,
+  repairProjectPathHygiene,
   type PathHygieneValidationResult,
 } from "../../path-hygiene";
 import type { OperationDefinition } from "../registry";
@@ -41,6 +42,8 @@ const inputSchema = z.object({
 }).strict();
 
 const pathHygieneInputSchema = z.object({
+  scope: z.enum(["content", "managed"]).optional(),
+  paths: z.array(z.string().min(1)).min(1).optional(),
   targetRoot: z.string().min(1).optional(),
   manifest: z.string().min(1).optional(),
   includeSkills: z.boolean().optional(),
@@ -297,7 +300,7 @@ export const projectOperations: OperationDefinition[] = [{
   },
 }, {
   id: "project.path-hygiene.validate",
-  summary: "Validate managed project paths with the TypeScript path-hygiene core.",
+  summary: "Check local documentation paths.",
   mutates: "read",
   status: "active",
   inputSchema: pathHygieneInputSchema,
@@ -306,9 +309,29 @@ export const projectOperations: OperationDefinition[] = [{
     const targetRoot = path.resolve(input.targetRoot ?? context.cwd);
     return validateProjectPathHygiene({
       projectRoot: targetRoot,
+      scope: input.scope,
+      paths: input.paths,
       ...(input.manifest ? { manifestPath: input.manifest } : {}),
       ...(input.includeSkills !== undefined ? { includeSkills: input.includeSkills } : {}),
       ...(input.allowCommentToken ? { allowToken: input.allowCommentToken } : {}),
+    });
+  },
+}, {
+  id: "project.path-hygiene.repair",
+  summary: "Preview or apply repairs to current-project paths in documentation.",
+  mutates: "write",
+  status: "active",
+  inputSchema: pathHygieneInputSchema.extend({ apply: z.boolean().optional() }),
+  handler(rawInput, context) {
+    const input = pathHygieneInputSchema.extend({ apply: z.boolean().optional() }).parse(rawInput);
+    return repairProjectPathHygiene({
+      projectRoot: path.resolve(input.targetRoot ?? context.cwd),
+      scope: input.scope,
+      paths: input.paths,
+      manifestPath: input.manifest,
+      includeSkills: input.includeSkills,
+      allowToken: input.allowCommentToken,
+      apply: input.apply === true && !context.dryRun,
     });
   },
 }];

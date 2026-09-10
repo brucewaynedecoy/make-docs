@@ -154,7 +154,7 @@ const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/system-resources.schema.json",
 ];
 
-const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];
+const ALWAYS_SCRIPT_PATHS: string[] = [];
 
 export function profileHasCapabilities(
   profile: InstallProfile,
