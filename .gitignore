@@ -56,6 +56,7 @@ pnpm-debug.log*
 .temp/
 .tmp/
 .templates/
+.make-docs/backup/
 
 # OS junk
 .DS_Store
