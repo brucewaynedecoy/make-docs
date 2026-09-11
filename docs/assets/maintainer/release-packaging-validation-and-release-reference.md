@@ -53,16 +53,18 @@ Run the validation set that matches the change, then escalate to the full chain 
 
 | Command | What it proves |
 | --- | --- |
-| `npm test -w packages/cli` | CLI behavior, planner/install flows, skills behavior, and integration coverage |
+| `npm test` | smoke-harness behavior plus CLI behavior, planner/install flows, skills behavior, and integration coverage |
 | `npm run validate:defaults -w packages/cli` | profile-aware generated assets still match the checked-in default surface |
 | `bash scripts/check-instruction-routers.sh` | router pairs, byte identity, and line-budget rules still hold |
-| `node scripts/smoke-pack.mjs` | prepack bundling, tarball install, remote package-runner execution, Store installation records, skills, backup, and uninstall still work together |
+| `npm run smoke:pack:local` | prepack bundling, local tarball checks, Store installation records, skills, backup, and uninstall work without package registry access |
+| `npm run smoke:pack:runners` | the cold-cache `npx`, `pnpm dlx`, and `bun x` package-runner checks pass with package registry access |
+| `npm run smoke:pack` | the local and package-runner paths pass together as the complete release gate |
 
-A release-sensitive run should normally include all four.
+A release-sensitive run must include `npm run smoke:pack`. A successful local-only run is not release evidence.
 
 ## Smoke-Pack Context
 
-`node scripts/smoke-pack.mjs` is not just a tarball existence check. It is the main packaged-end-to-end proof that:
+`npm run smoke:pack` is not just a tarball existence check. It is the main packaged end-to-end proof that:
 
 - `prepack` copied the template into `packages/cli/template/`
 - the tarball exposes the expected `make-docs` binary
@@ -75,6 +77,8 @@ A release-sensitive run should normally include all four.
 - backup and project removal preserve unmanaged content and protected physical backup payloads while the CLI updates Store records within the reviewed scope
 
 That makes smoke-pack the bridge between local development, bundled template correctness, and release confidence.
+
+The smoke harness has three modes. `smoke:pack:local` runs the local packed-file and direct packed-CLI checks. `smoke:pack:runners` runs the cold package-runner checks. `smoke:pack` runs both and remains the required release gate. The runner modes check for `npm`, `npx`, `pnpm`, Bun, and registry access before `prepack`. A blocked registry fails within seconds and points to the local command. Each runner action streams its output and reports its time.
 
 ## Broken-Link Validation Note
 
@@ -90,10 +94,10 @@ When link validation changes or appears to regress:
 
 Use this order for release work:
 
-1. Run `npm test -w packages/cli`.
+1. Run `npm test`.
 2. Run `npm run validate:defaults -w packages/cli`.
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
-4. Run `node scripts/smoke-pack.mjs`.
+4. Run `npm run smoke:pack` in an environment with package registry access.
 5. Inspect a tarball with `npm pack --json -w packages/cli` when package contents need manual review. The smoke pack already exercises `npx`, `pnpm dlx`, and Bun package-runner installs from the tarball.
 6. Publish from `packages/cli/`, not from `packages/docs` or `packages/skills`.
 

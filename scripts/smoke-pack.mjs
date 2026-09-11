@@ -15,13 +15,37 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  COMMAND_TIMEOUT_MS,
+  createPackageRunnerEnv,
+  formatDuration,
+  getSmokeModePlan,
+  parseSmokePackOptions,
+  preflightPackageRunners,
+  runObservedCommand,
+} from "./lib/smoke-pack-runner.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 const cliPackageDir = path.join(repoRoot, "packages", "cli");
-const verifyDogfood = process.argv.includes("--verify-dogfood");
-for (const arg of process.argv.slice(2)) {
-  if (arg !== "--verify-dogfood") throw new Error(`Unknown smoke-pack option: ${arg}`);
+let smokeOptions;
+try {
+  smokeOptions = parseSmokePackOptions(process.argv.slice(2));
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(error && typeof error.exitCode === "number" ? error.exitCode : 2);
+}
+const { mode, verifyDogfood } = smokeOptions;
+const { runLocalChecks, runPackageRunners } = getSmokeModePlan(mode);
+const suiteStartedAt = performance.now();
+console.log(`[smoke:pack] mode=${mode}`);
+if (runPackageRunners) {
+  try {
+    await preflightPackageRunners({ cwd: repoRoot });
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }
 const npmHome = mkdtempSync(path.join(os.tmpdir(), "make-docs-npm-home-"));
 const packOutputDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-output-"));
@@ -194,14 +218,48 @@ function npmEnv() {
   };
 }
 
-function runPackageRunnerSmokes(tarballPath) {
+async function runPackageRunnerSmokes(tarballPath) {
+  const startedAt = performance.now();
+  console.log("[smoke:pack][package-runners] START");
   for (const runner of PACKAGE_RUNNER_SMOKES) {
-    runPackageRunnerSmoke({ runner, tarballPath });
+    await runPackageRunnerSmoke({ runner, tarballPath });
+  }
+  console.log(`[smoke:pack][package-runners] PASS ${formatDuration(performance.now() - startedAt)}`);
+}
+
+async function runPackageRunnerCommand(options) {
+  const { runner, action, args, cwd, env } = options;
+  const label = `[smoke:pack][${runner.name}][${action}]`;
+  console.log(`${label} START`);
+
+  try {
+    const result = await runObservedCommand({
+      command: runner.command,
+      args,
+      cwd,
+      env,
+      timeoutMs: COMMAND_TIMEOUT_MS,
+    });
+    if (result.stdout && !result.stdout.endsWith("\n")) process.stdout.write("\n");
+    if (result.stderr && !result.stderr.endsWith("\n")) process.stderr.write("\n");
+    console.log(`${label} PASS ${formatDuration(result.durationMs)}`);
+    return result.stdout;
+  } catch (error) {
+    const durationMs = error && typeof error.durationMs === "number" ? error.durationMs : 0;
+    console.error(`${label} FAIL ${formatDuration(durationMs)}`);
+    if (error && error.timedOut) {
+      throw new Error(
+        `Smoke pack ${runner.name} ${action} timed out after ${COMMAND_TIMEOUT_MS} ms.`,
+        { cause: error },
+      );
+    }
+    throw error;
   }
 }
 
-function runPackageRunnerSmoke(options) {
+async function runPackageRunnerSmoke(options) {
   const { runner, tarballPath } = options;
+  const runnerStartedAt = performance.now();
   const smokeRoot = mkdtempSync(
     path.join(os.tmpdir(), `make-docs-${runner.envKind}-runner-smoke-`),
   );
@@ -211,11 +269,12 @@ function runPackageRunnerSmoke(options) {
   mkdirSync(workDir, { recursive: true });
 
   try {
-    execFileSync(runner.command, runner.args(tarballPath, targetDir), {
+    await runPackageRunnerCommand({
+      runner,
+      action: "setup",
+      args: runner.args(tarballPath, targetDir),
       cwd: workDir,
-      encoding: "utf8",
-      env: packageRunnerEnv(smokeRoot, runner.envKind),
-      timeout: 120000,
+      env: createPackageRunnerEnv(smokeRoot, runner.envKind),
     });
 
     const installation = { targetDir, storeRoot: path.join(smokeRoot, "home", ".make-docs") };
@@ -244,8 +303,12 @@ function runPackageRunnerSmoke(options) {
     const runnerArgs = runner.args(tarballPath, targetDir);
     const commandPrefix = runnerArgs.slice(0, runnerArgs.indexOf("setup"));
     const beforeUninstall = snapshotTree(targetDir);
-    const preserveOutput = execFileSync(runner.command, [...commandPrefix, "uninstall", "--yes"], {
-      cwd: workDir, encoding: "utf8", env: packageRunnerEnv(smokeRoot, runner.envKind), timeout: 120000,
+    const preserveOutput = await runPackageRunnerCommand({
+      runner,
+      action: "uninstall-preserve-store",
+      args: [...commandPrefix, "uninstall", "--yes"],
+      cwd: workDir,
+      env: createPackageRunnerEnv(smokeRoot, runner.envKind),
     });
     const recognizedRunner = preserveOutput.includes("No persistent make-docs binary is installed");
     if (runner.envKind === "npm" && !recognizedRunner) throw new Error("Smoke pack npx uninstall did not recognize the runner.");
@@ -254,8 +317,12 @@ function runPackageRunnerSmoke(options) {
     }
     readInstallationLedger(installation);
     if (snapshotTree(targetDir) !== beforeUninstall) throw new Error(`Smoke pack ${runner.name} uninstall changed project files.`);
-    const removalOutput = execFileSync(runner.command, [...commandPrefix, "uninstall", "--yes", "--remove-store"], {
-      cwd: workDir, encoding: "utf8", env: packageRunnerEnv(smokeRoot, runner.envKind), timeout: 120000,
+    const removalOutput = await runPackageRunnerCommand({
+      runner,
+      action: "uninstall-remove-store",
+      args: [...commandPrefix, "uninstall", "--yes", "--remove-store"],
+      cwd: workDir,
+      env: createPackageRunnerEnv(smokeRoot, runner.envKind),
     });
     if (recognizedRunner) {
       assertOutputContains(removalOutput, `Removed the global store at ${installation.storeRoot}`, `Smoke pack ${runner.name} explicit Store removal did not complete.`);
@@ -265,6 +332,7 @@ function runPackageRunnerSmoke(options) {
       readInstallationLedger(installation);
     }
     if (snapshotTree(targetDir) !== beforeUninstall) throw new Error(`Smoke pack ${runner.name} Store removal changed project files.`);
+    console.log(`[smoke:pack][${runner.name}] PASS ${formatDuration(performance.now() - runnerStartedAt)}`);
   } catch (error) {
     if (error && error.code === "ENOENT") {
       throw new Error(
@@ -276,51 +344,6 @@ function runPackageRunnerSmoke(options) {
   } finally {
     rmSync(smokeRoot, { recursive: true, force: true });
   }
-}
-
-function packageRunnerEnv(smokeRoot, envKind) {
-  const homeDir = path.join(smokeRoot, "home");
-  const xdgCacheDir = path.join(smokeRoot, "xdg-cache");
-  const env = {
-    ...process.env,
-    CI: "1",
-    FORCE_COLOR: "0",
-    HOME: homeDir,
-    USERPROFILE: homeDir,
-    CODEX_HOME: path.join(homeDir, ".codex"),
-    CLAUDE_CONFIG_DIR: path.join(homeDir, ".claude"),
-    NO_COLOR: "1",
-    XDG_CACHE_HOME: xdgCacheDir,
-    MAKE_DOCS_HOME: path.join(homeDir, ".make-docs"),
-  };
-
-  mkdirSync(homeDir, { recursive: true });
-  mkdirSync(xdgCacheDir, { recursive: true });
-
-  if (envKind === "npm") {
-    return {
-      ...env,
-      npm_config_cache: path.join(smokeRoot, "npm-cache"),
-      npm_config_userconfig: path.join(homeDir, ".npmrc"),
-    };
-  }
-
-  if (envKind === "pnpm") {
-    return {
-      ...env,
-      COREPACK_HOME: path.join(smokeRoot, "corepack"),
-      PNPM_HOME: path.join(smokeRoot, "pnpm-home"),
-      npm_config_cache: path.join(smokeRoot, "pnpm-npm-cache"),
-      npm_config_store_dir: path.join(smokeRoot, "pnpm-store"),
-      npm_config_userconfig: path.join(homeDir, ".npmrc"),
-    };
-  }
-
-  return {
-    ...env,
-    BUN_CACHE_DIR: path.join(smokeRoot, "bun-cache"),
-    BUN_INSTALL_CACHE_DIR: path.join(smokeRoot, "bun-install-cache"),
-  };
 }
 
 execFileSync("npm", ["run", "prepack"], {
@@ -344,7 +367,7 @@ const tarballPath = path.join(packOutputDir, filename);
 const unpackDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-"));
 const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-smoke-"));
 
-try {
+function runLocalPackedSmoke() {
   execFileSync("tar", ["-xzf", tarballPath, "-C", unpackDir], { stdio: "inherit" });
   const packageRoot = path.join(unpackDir, "package");
   const packedPackage = readPackedPackage(packageRoot);
@@ -369,8 +392,6 @@ try {
     "--skill-scope project|global",
     "Smoke pack skills help omitted skill scope option.",
   );
-  runPackageRunnerSmokes(tarballPath);
-
   const installation = { targetDir, storeRoot };
   {
     const skillsDryRun = execFileSync(
@@ -765,6 +786,17 @@ try {
     path.join(runFixtureDir, "docs/assets/playbooks/user/run-stack.md"),
     "Smoke pack uninstall --yes removed playbook fixture repository content.",
   );
+}
+
+try {
+  if (runLocalChecks) {
+    const localStartedAt = performance.now();
+    console.log("[smoke:pack][local] START");
+    runLocalPackedSmoke();
+    console.log(`[smoke:pack][local] PASS ${formatDuration(performance.now() - localStartedAt)}`);
+  }
+  if (runPackageRunners) await runPackageRunnerSmokes(tarballPath);
+  console.log(`[smoke:pack] PASS mode=${mode} ${formatDuration(performance.now() - suiteStartedAt)}`);
 } finally {
   for (const dir of auxSmokeDirs) {
     rmSync(dir, { recursive: true, force: true });

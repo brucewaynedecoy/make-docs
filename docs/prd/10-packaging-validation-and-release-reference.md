@@ -27,25 +27,30 @@ Current package mechanics therefore split into two modes: local development work
 | Step | What happens | Primary anchors |
 | --- | --- | --- |
 | Prepack entry | `npm run prepack` runs inside `packages/cli`, copies the template, validates `packages/cli/skill-registry.json`, then builds `dist/index.js`. | `packages/cli/package.json` (`scripts.prepack`), `scripts/copy-template-to-cli.mjs:24-47` |
+| Mode selection | The smoke script selects `full`, `local`, or `runners`. The default `full` mode remains the complete release gate. | `package.json` (`smoke:pack`, `smoke:pack:local`, `smoke:pack:runners`), `scripts/smoke-pack.mjs` |
+| Runner preflight | Full and runner-only modes check required commands and npm registry access before `prepack`. A blocked registry fails quickly and directs restricted environments to the local mode. | `scripts/lib/smoke-pack-runner.mjs` |
 | Tarball creation | The smoke script executes `npm pack --json --ignore-scripts` only after running `prepack`, so the tarball reflects the already-bundled template and built output. | `scripts/smoke-pack.mjs` (`packResult`) |
 | Bin validation | After unpacking, the script reads the packed `package.json` and asserts the package exposes only the `make-docs` bin before invoking it. | `scripts/smoke-pack.mjs` (`packedPackageJson`, `packedMakeDocs`) |
-| Package-runner validation | Smoke-pack invokes the packed tarball through `npx --package`, `pnpm dlx`, and `bun x --package` into isolated temp working directories, targets, `HOME`, and package-manager cache roots. | `scripts/smoke-pack.mjs` |
+| Package-runner validation | Runner-only and full modes invoke the packed tarball through `npx --package`, `pnpm dlx`, and `bun x --package` into isolated temp working directories, targets, `HOME`, and package-manager cache roots. Each action streams output and reports its time. | `scripts/smoke-pack.mjs`, `scripts/lib/smoke-pack-runner.mjs` |
 | Skills validation | Smoke-pack rewrites the packed skill registry to a repo-backed fixture server, runs `make-docs setup skills --dry-run`, installs the base package, verifies shared skill payloads plus native harness exposure, and asserts stale generated stubs, legacy duplicated payloads, or unsafe fallback artifacts are absent. | `scripts/smoke-pack.mjs` |
 | Installer validation | Smoke proves the Store installation record, absent local operational manifest/state, configured documentation routers, repeat setup with no unintended changes, and project-removal boundaries. | `scripts/smoke-pack.mjs` |
 | Project backup and removal validation | Smoke verifies Store-owned backup/restore metadata and completion, local backup payload copies, safe managed project removal, preserved unmanaged content, and protected legacy root `.backup/**`. | `scripts/smoke-pack.mjs` |
 | Machine uninstall validation | Sandboxed uninstall proves separate binary-removal confirmation and Store cleanup choice. The Store remains by default, including with `--yes`; only explicit `--remove-store` enters reviewed Store cleanup. | `scripts/smoke-pack.mjs`; [PRD 39](39-cli-command-model-and-operation-registry.md) |
 
-The smoke script is therefore more than a tarball smoke test. It is the encoded proof that prepack bundling, remote package-runner execution, packaged installation, skill distribution, backup, and uninstall still agree on the same release surface (`scripts/smoke-pack.mjs`).
+The smoke script is therefore more than a tarball smoke test. Local mode gives bounded evidence in a restricted test area. It is not release evidence. Full mode proves that prepack bundling, remote package-runner execution, packaged installation, skill distribution, backup, and uninstall agree on the same release surface.
 
 ### Validation Matrix
 
 | Command | Scope | What it proves | Primary anchors |
 | --- | --- | --- | --- |
-| `npm test` or `npm test -w packages/cli` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `package.json:16`, `packages/cli/package.json` (`scripts.test`), `packages/cli/src/README.md:152-177` |
+| `npm test` | Root automated suite | Covers the smoke harness plus the full CLI Vitest suite. | `package.json` (`scripts.test`, `scripts.test:smoke-harness`) |
+| `npm test -w packages/cli` | Full CLI Vitest suite | Covers profile logic, CLI flows, installer integration, skills behavior, and lifecycle commands. | `packages/cli/package.json` (`scripts.test`) |
 | `npm run validate:defaults` | Default-asset consistency | Runs `packages/cli/tests/consistency.test.ts`, which checks that desired scaffold assets match packaged template bytes, every template file is covered by the static asset pipeline, and every instruction router has managed-block markers. | `package.json:17`, `packages/cli/package.json` (`scripts.validate:defaults`), `packages/cli/tests/consistency.test.ts` |
 | `bash scripts/check-instruction-routers.sh` | Router integrity | Enforces `AGENTS.md`/`CLAUDE.md` pairing, byte identity, per-directory line budgets, and banned headings. | `scripts/check-instruction-routers.sh:1-58`, `packages/cli/src/README.md:165-176` |
 | `bash scripts/check-wave-numbering.sh` | Docs/work namespace hygiene | Warns on duplicate `wN-rN` coordinates across both repo-root docs and `packages/docs/template/docs`. | `scripts/check-wave-numbering.sh:15-58`, `docs/assets/archive/work/2026-04-16-w5-r2-cli-skill-installation/07-tests-and-validation.md` |
-| `node scripts/smoke-pack.mjs` | Packaged end-to-end validation | Exercises prepack, tarball creation, `npx` / `pnpm dlx` / Bun package-runner install, packaged CLI install, skills, backup, and uninstall in isolated temp directories. | `package.json:18`, `scripts/smoke-pack.mjs` |
+| `npm run smoke:pack:local` | Local packaged validation | Exercises prepack, tarball creation, packed CLI install, skills, backup, and uninstall without package-runner or registry access. It is not release evidence. | `package.json`, `scripts/smoke-pack.mjs` |
+| `npm run smoke:pack:runners` | Online package-runner validation | Exercises cold-cache `npx`, `pnpm dlx`, and Bun installs after a bounded command and registry preflight. | `package.json`, `scripts/smoke-pack.mjs`, `scripts/lib/smoke-pack-runner.mjs` |
+| `npm run smoke:pack` | Complete packaged end-to-end validation | Runs the local and online paths against one tarball. This is the required release proof. | `package.json`, `scripts/smoke-pack.mjs` |
 | Package-runner spot checks | Manual packaged run | Use only when diagnosing runner-specific behavior beyond smoke-pack. The maintained automated proof is the tarball smoke run, not a persistent local CLI install. | `scripts/smoke-pack.mjs` |
 
 For Performance Evidence Governance changes, the validation matrix also requires focused proof that the four stable resource URIs resolve to the intended upstream bytes, the packaged projection is generated rather than hand-edited, selected root dogfood matches upstream where parity is required, router pairs remain thin and byte-consistent where required, and installed-project resolution preserves the selected local-projection and machine-installed fallback precedence. This is resource-delivery proof, not benchmark execution or a new validator operation.
@@ -54,9 +59,9 @@ For Performance Evidence Governance changes, the validation matrix also requires
 
 The current maintainer runbook is spread across `packages/cli/src/README.md:179-204`, the repo-root workspace scripts in `package.json:13-18`, and the first-publish design in `docs/designs/2026-04-15-cli-publishing.md`. The current procedural baseline is:
 
-1. Run the validation chain from the repo root: `npm test`, `npm run validate:defaults`, `npm run build`, `node scripts/smoke-pack.mjs`, and the router/wave checks when docs assets or W/R folders changed (`package.json:13-18`, `packages/cli/src/README.md:165-176`, `scripts/check-instruction-routers.sh:1-58`, `scripts/check-wave-numbering.sh:48-58`).
+1. Run the validation chain from the repo root: `npm test`, `npm run validate:defaults`, `npm run build`, `npm run smoke:pack`, and the router/wave checks when docs assets or W/R folders changed.
 2. Create and inspect a tarball with `npm pack --json` or `npm pack --dry-run -w packages/cli` before publish (`packages/cli/src/README.md:183-201`, `designs/2026-04-15-cli-publishing.md`).
-3. Treat `node scripts/smoke-pack.mjs` as the maintained package-runner proof for packaging-sensitive changes because it runs the packed tarball through `npx`, `pnpm dlx`, and Bun in isolated temp environments.
+3. Treat `npm run smoke:pack` as the maintained release proof because it runs local packed-CLI checks and the packed tarball through `npx`, `pnpm dlx`, and Bun. Use `npm run smoke:pack:local` only for bounded local evidence when registry access is unavailable.
 4. Publish from the CLI workspace with `npm publish --access public --tag next -w packages/cli`, not from `packages/docs` or `packages/skills`, because those workspaces remain `private` (`packages/cli/package.json`, `packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`).
 
 The current prerelease state uses Apache-2.0 licensing, scoped package identity, repository metadata, version `2.0.0-rc`, and the `next` dist-tag strategy (`docs/designs/2026-04-15-cli-publishing.md`, `packages/cli/package.json` (`name`, `version`, `license`, `repository`, `publishConfig`)).
@@ -90,7 +95,7 @@ The current prerelease state uses Apache-2.0 licensing, scoped package identity,
 
 ## Package Projection Proof
 
-- Local CLI development may resolve sibling `packages/docs/template/`, but tarball and publish validation exercise the generated `packages/cli/template/` after copy/prepack. `npm run smoke:pack` and package dry-run are the required packaged-path proof surfaces.
+- Local CLI development may resolve sibling `packages/docs/template/`, but tarball and publish validation exercise the generated `packages/cli/template/` after copy/prepack. `npm run smoke:pack` and package dry-run are the required packaged-path proof surfaces. `npm run smoke:pack:local` is useful bounded evidence, but it does not replace the full release gate.
 - Package validation verifies the complete managed template set, including mixed-directory routers and starter structure, while proving project-authored dogfood content, local records, run evidence, and maintainer-only conformance assets are excluded unless explicitly selected for shipping.
 - If packaged-template drift appears, the fix starts in `packages/docs/template/` or the copy/package pipeline and regenerates `packages/cli/template/`; the bundled copy is never repaired by hand.
 - Package validation remains dry-run unless publication is separately authorized, and dogfood freshness requires targeted exact-parity evidence for files expected to match.

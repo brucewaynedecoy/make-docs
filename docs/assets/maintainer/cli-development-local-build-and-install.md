@@ -68,7 +68,8 @@ Run the smallest command set that matches the change:
 | TypeScript logic, planner, installer, wizard, profile rules | `npm test -w packages/cli` |
 | template-owned defaults or profile-aware generated assets | `npm run validate:defaults -w packages/cli` |
 | instruction routers or copied router content | `bash scripts/check-instruction-routers.sh` |
-| packaged install behavior or tarball-sensitive flow | `node scripts/smoke-pack.mjs` |
+| packaged install behavior without registry access | `npm run smoke:pack:local` |
+| cold package-runner behavior or release-sensitive packaging | `npm run smoke:pack` |
 
 These commands are the local development baseline for L12:
 
@@ -76,8 +77,10 @@ These commands are the local development baseline for L12:
 npm test -w packages/cli
 npm run validate:defaults -w packages/cli
 bash scripts/check-instruction-routers.sh
-node scripts/smoke-pack.mjs
+npm run smoke:pack:local
 ```
+
+`npm run smoke:pack:local` proves the local tarball and packed CLI path. It does not prove `npx`, `pnpm dlx`, or `bun x` installation. Use `npm run smoke:pack:runners` for those package runners. Use `npm run smoke:pack` for the complete release gate. Both runner commands require package registry access.
 
 ## Local Install Entry Paths
 

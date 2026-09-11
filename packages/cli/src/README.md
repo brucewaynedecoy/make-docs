@@ -152,7 +152,7 @@ node dist/index.js setup --target "$CONFLICT_DIR"
 
 ### Packaged `npx` validation
 
-The automated smoke test validates the packed tarball offline, but before publishing it is still worth doing one real npm launcher run:
+`npm run smoke:pack:local` validates the local packed tarball without package registry access. The full `npm run smoke:pack` gate also runs a real cold-cache npm launcher check before publishing. Use this manual flow only when you need to inspect npm launcher behavior outside the maintained smoke gate:
 
 ```bash
 npm run build
@@ -177,14 +177,18 @@ Useful focused checks:
 
 ```bash
 npm run validate:defaults
+npm run smoke:pack:local
+npm run smoke:pack:runners
 npm run smoke:pack
 ```
 
 What each script covers:
 
-- `npm test`: Vitest suite across profile logic, managed blocks, wizard state, CLI flows, and installer integration
+- `npm test`: Node smoke-harness tests plus the Vitest suite across profile logic, managed blocks, wizard state, CLI flows, and installer integration
 - `npm run validate:defaults`: validates the default asset set and consistency assumptions
-- `npm run smoke:pack`: builds the package, creates a tarball, unpacks it into a temp directory, and runs the packaged CLI against a temp target
+- `npm run smoke:pack:local`: builds and checks the tarball and packed CLI without starting a package runner
+- `npm run smoke:pack:runners`: runs the cold-cache `npx`, `pnpm dlx`, and `bun x` checks with registry access
+- `npm run smoke:pack`: runs both smoke paths and remains the complete release gate
 
 For confidence before merging or publishing, run all three:
 
@@ -204,7 +208,7 @@ Recommended release-validation checklist:
 2. Run `npm test`.
 3. Run `npm run build`.
 4. Run `npm run smoke:pack`.
-5. Run one real `npm exec --package "./<tarball>"` install test.
+5. Run a separate `npm exec --package "./<tarball>"` install only when diagnosing npm launcher behavior beyond the maintained smoke gate.
 6. Inspect the tarball contents with `npm pack --dry-run --json --ignore-scripts` if you changed packaging inputs.
 7. Validate registry metadata with `npm publish --dry-run --access public --tag next`.
 

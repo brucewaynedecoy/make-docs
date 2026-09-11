@@ -13,10 +13,13 @@
   "scripts": {
     "build": "npm run build -w packages/cli",
     "dev": "npm run dev -w packages/cli",
-    "test": "npm test -w packages/cli",
+    "test": "npm run test:smoke-harness && npm test -w packages/cli",
+    "test:smoke-harness": "node --test scripts/tests/smoke-pack-runner.test.mjs",
     "validate:defaults": "npm run validate:defaults -w packages/cli",
     "conformance:kit": "npm run conformance:kit -w packages/cli --",
     "conformance:ingest": "npm run conformance:ingest -w packages/cli --",
-    "smoke:pack": "node scripts/smoke-pack.mjs"
+    "smoke:pack": "node scripts/smoke-pack.mjs",
+    "smoke:pack:local": "node scripts/smoke-pack.mjs --mode local",
+    "smoke:pack:runners": "node scripts/smoke-pack.mjs --mode runners"
   }
 }
