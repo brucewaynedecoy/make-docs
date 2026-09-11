@@ -9,7 +9,7 @@
 
 # Agent Responses
 
-- Whenever possible, describe what you're doing or are proposing using tactile terms, e.g., what the user will *see*, *feel*, *experience*, etc., and be able to verify based on their tactile feedback.  This does not need to be overly verbose, but it should at minimum sum up your points and/or what you are proposing into something tactile and real for the user.  When your responses must provide the user with operational, functional, and/or technical details, do so; but also include a nice summary sub-section at the end which summarizes your points into this tactile feedback-friendly format.
+- Describe work in concrete, user-verifiable terms. End technical responses with a brief statement of what the user will see or experience.  Ground it in the user's perspective and avoid technical jargon.
 
 # Maintainer Dogfooding — Upstream First, Then Dogfood
 
