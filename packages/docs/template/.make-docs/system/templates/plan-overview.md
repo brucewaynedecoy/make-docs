@@ -23,6 +23,18 @@ State what this plan covers and why it exists in one short paragraph. Link back 
 
 List the concrete goals and the completion criteria for the plan. A reader should be able to tell when the plan is done.
 
+## Human Experience Propagation
+
+Use `.make-docs/system/contracts/human-experience-contract.md` as authority and `.make-docs/system/references/human-experience.md` for examples. Link to the source design. Do not copy the standard into this plan.
+
+For `direct` or `indirect` impact, map each accepted promise:
+
+| Promise | Owning PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
+| --- | --- | --- | --- | --- | --- |
+| {{PROMISE}} | {{PRD_AUTHORITY}} | {{SURFACE_OR_EFFECT}} | {{WORK_PHASE}} | {{EVIDENCE_OR_TESTING_TYPE}} | {{O_REF_OR_NONE}} |
+
+For `none`, replace the table with the preserved human boundary and the evidence that will prove it unchanged.
+
 ## Coordinate Decision
 
 - Coordinate: `W{{W}} R{{R}}`
@@ -44,7 +56,7 @@ Call out external dependencies, upstream artifacts, or prerequisites that must b
 
 ## Validation
 
-Describe how success of the overall plan is verified once all phases complete. Reference the review pass or acceptance gate that closes the plan.
+Describe how success of the overall plan is verified once all phases complete. Reference the review pass or acceptance gate that closes the plan. Include observable proof for each accepted Human Experience promise or preserved `none` boundary.
 
 ## Intended Follow-On
 

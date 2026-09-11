@@ -9,6 +9,8 @@ Please read the design docs {{DESIGN DOCS}} and inspect each doc's `## Intended 
 
 Confirm that the referenced design docs point to the `change-plan` route. If they point to `baseline-plan`, use the baseline planning prompt instead unless the user explicitly instructs otherwise.
 
+Read `make-docs://system/contract/human-experience-contract.md`, `make-docs://system/reference/human-experience.md`, and `make-docs://system/reference/lifecycle.md` through valid local bodies or `make-docs resource read`. Treat each source design's Human Experience Intent as the local outcome authority. Map each accepted promise or preserved `none` boundary to its owning PRD, affected surface or artifact, work phase, evidence source or current testing decision, evidence executor when current authority selects one, and obligation route for accepted deferral. Preserve the source design and W/R lineage through existing links and allowed metadata. Do not copy the full intent section or standard into the plan.
+
 Then inspect the active PRD namespace in `docs/prd/` and create a detailed PRD authority-maintenance plan in `docs/plans/`. Follow the instructions, references, and templates in the `docs` directory, especially `.make-docs/system/references/wave-model.md` and `.make-docs/system/references/prd-change-management.md`.
 
 Resolve the plan coordinate before writing. Source lineage from the user request, design handoff, prior plans, prior work backlogs, and history records takes precedence over the highest existing wave. If the change revises, reworks, corrects, standardizes, or finishes work delivered in an earlier wave, keep that wave and use the next unused revision.

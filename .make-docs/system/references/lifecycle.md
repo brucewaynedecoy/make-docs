@@ -70,6 +70,25 @@ The Persona lens separates maintainer-facing coverage, user-facing coverage, and
 project/history coverage so one audience does not quietly substitute for another.
 Testing types keep separate decisions. Each activated Unassisted Goal Test selects one eligible configured Persona for audience framing and evidence routing. Persona selection does not prove executor qualification.
 
+### Human Experience
+
+Human Experience is a cross-cutting lens. It is not a new lifecycle stage. Use the [Human Experience Contract](../contracts/human-experience-contract.md) as authority and the [Human Experience Reference](human-experience.md) for explanation and examples. Link to that authority from local artifacts. Do not copy the standard into each plan, PRD, backlog, prompt, or router.
+
+| Lifecycle point | Local action |
+| --- | --- |
+| Design | Record the impact and Human Experience Intent before product and architecture decisions. |
+| Plan | For `direct` or `indirect` impact, map each accepted promise to its owning PRD, affected human-facing surface or indirect effect, work phase, evidence source or selected testing type, and any accepted obligation. For `none`, name the preserved human boundary and how it will be proved unchanged. |
+| PRD | Put each current observable human outcome in the PRD that owns the capability. Link to the canonical contract instead of creating an editorial Human Experience PRD. |
+| Work backlog | Trace tasks and observable acceptance to the owning requirement and promise, or to the preserved boundary for `none`. Keep phase order, evidence decisions, and the implementation gate visible. |
+| Implementation | Preserve the intended human path and the required technical result. Keep useful meaning, state, next action, and recovery clear on the affected surface. |
+| Review | Inspect the actual human-facing surface for `direct` impact when it exists. Tie `indirect` evidence to the stated human effect. Record the reviewer and the limits of the observation. |
+| Coverage | Apply Human Experience Review as a lens over suitable evidence for each applicable promise. Reuse evidence that answers the promise. If evidence is insufficient, use current testing authority to select the smallest useful added activity. Human Experience Review is not a separate testing type. |
+| Acceptance | Record the promise, evidence, observation, conclusion, reviewer, and limit. Keep an accepted material gap open or route later owed work through an accepted obligation. |
+| Release / publish | Keep claims within the accepted evidence and the human paths that were reviewed. Preserve an accepted obligation when later work remains owed. |
+| Retrospective | Route a repeatable lesson through the normal change process to the contract, reference, or PRD that owns it. Do not turn one local preference into universal policy. |
+
+This lens does not replace architecture, accessibility, visual design, security, privacy, safety, performance, Persona, or testing authority. Use those owners when their specialized decision is required. Direct impact does not activate Unassisted Goal Testing by itself.
+
 ## Default Ordering
 
 Implementation normally derives from a work backlog.

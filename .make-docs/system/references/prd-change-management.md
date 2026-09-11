@@ -35,6 +35,7 @@ Do not create PRDs whose subject is an editorial action. Active filenames, H1 ti
 - Create a new numbered PRD only when the product gains a coherent capability, subsystem, or boundary that has no suitable existing owner.
 - If a candidate cuts across several owners, update each owning PRD rather than creating a cross-cutting editorial record.
 - If the current PRDs already cover the decision, create no PRD and record `none` with its rationale outside the active PRD tree.
+- Put each current observable Human Experience outcome in the PRD that owns the affected capability. Link to the [Human Experience Contract](../contracts/human-experience-contract.md) and use the [Human Experience Reference](human-experience.md) for examples. Do not create an editorial Human Experience PRD, copy the universal standard, or add Human Experience frontmatter.
 
 ## Requirement History Contract
 
@@ -117,6 +118,7 @@ Changes that activate, defer, narrow, cancel, or supersede user-observable accep
 - Plans and backlogs are always directories: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` and `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
 - A scoped maintenance effort normally produces a dated delta backlog rather than rewriting an earlier backlog.
 - Every delta backlog phase cites the updated or genuinely new authoritative PRDs that constrain implementation.
+- For `direct` or `indirect` Human Experience impact, the plan and backlog map each accepted promise to its owning PRD, affected surface or effect, work phase, evidence source or selected testing type, and any accepted obligation. For `none` Human Experience impact, they name the preserved human boundary and its proof. These links carry the accepted outcome forward without making the plan or backlog a second product authority.
 
 ## Validation Checklist
 
@@ -131,6 +133,8 @@ Before closing PRD authority maintenance, confirm:
 7. Downstream work cites updated authoritative PRDs rather than retired change records.
 8. Newly discovered or resolved gaps, drift, questions, decisions, and risks are reflected in `docs/prd/03-open-questions-and-risk-register.md`.
 9. No existing PRD was renumbered or broadly rewritten without an ownership-based reason.
+10. Observable Human Experience outcomes are current requirements in their capability owners, with links to canonical authority and no copied standard, editorial experience PRD, or new frontmatter field.
+11. Plans and work preserve each accepted promise or `none` boundary through observable acceptance, evidence, and any accepted obligation.
 
 ## Deterministic Authority Validation
 

@@ -13,6 +13,7 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 ## Agent Instructions
 
 - Before writing, use a valid local `.make-docs/system/references/execution-workflow.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/execution-workflow.md`.
+- For a new or materially updated governed backlog, also read `.make-docs/system/contracts/human-experience-contract.md`, `.make-docs/system/references/human-experience.md`, and `.make-docs/system/references/lifecycle.md`. When a valid local body is absent, use its matching `make-docs://system/contract/human-experience-contract.md`, `make-docs://system/reference/human-experience.md`, or `make-docs://system/reference/lifecycle.md` URI.
 - For `00-index.md`, use `.make-docs/system/templates/work-index.md` or run `make-docs resource read make-docs://system/template/work-index.md` when the local body is absent. For phase files, use `.make-docs/system/templates/work-phase.md` or run `make-docs resource read make-docs://system/template/work-phase.md` when the local body is absent.
 - Use the current repository's accepted design, plan, PRD, and work contracts as backlog authority before consulting archived examples or installed skill projections.
 - Treat bundled skill assets, generated harness stubs, and archived backlogs as fallback/reference material only; they are not independent backlog-shape authority when live repo contracts are available.

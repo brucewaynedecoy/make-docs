@@ -9,4 +9,6 @@ Please read the design docs {{DESIGN DOCS}} and inspect each doc's `## Intended 
 
 Confirm that the referenced design docs point to the `baseline-plan` route. If they point to `change-plan`, use the change-planning prompt instead unless the user explicitly instructs otherwise.
 
+Read `make-docs://system/contract/human-experience-contract.md`, `make-docs://system/reference/human-experience.md`, and `make-docs://system/reference/lifecycle.md` through valid local bodies or `make-docs resource read`. Treat each source design's Human Experience Intent as the local outcome authority. Map each accepted promise or preserved `none` boundary to its owning PRD, affected surface or artifact, work phase, evidence source or current testing decision, evidence executor when current authority selects one, and obligation route for accepted deferral. Preserve the source design and W/R lineage through existing links and allowed metadata. Do not copy the full intent section or standard into the plan.
+
 Then help me create a detailed plan document in `docs/plans` to implement this design idea. Follow `.make-docs/system/references/wave-model.md` and record the coordinate decision in the plan.

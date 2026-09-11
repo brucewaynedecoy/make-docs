@@ -46,6 +46,18 @@ List every source of truth that feeds into the maintenance plan. Each entry shou
 
 Open questions or ambiguities should be captured here and promoted into `docs/prd/03-open-questions-and-risk-register.md` during execution when appropriate.
 
+## Human Experience Propagation
+
+Use `.make-docs/system/contracts/human-experience-contract.md` as authority and `.make-docs/system/references/human-experience.md` for examples. Link to the source design or accepted change authority. Do not copy the standard into this plan.
+
+For `direct` or `indirect` impact, map each accepted promise:
+
+| Promise | Existing or planned owning PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
+| --- | --- | --- | --- | --- | --- |
+| {{PROMISE}} | {{PRD_AUTHORITY}} | {{SURFACE_OR_EFFECT}} | {{WORK_PHASE}} | {{EVIDENCE_OR_TESTING_TYPE}} | {{O_REF_OR_NONE}} |
+
+For `none`, replace the table with the preserved human boundary and the evidence that will prove it unchanged.
+
 ## Active Authority Baseline
 
 - Active `docs/prd/` status: {{ACTIVE_PRD_STATUS}}
@@ -133,6 +145,7 @@ List delegated workers, their scopes, write scopes, dependencies, and deliverabl
 Explain how execution will validate the outputs. Validation should confirm:
 
 - every candidate has one decision and a reason
+- every accepted Human Experience promise reaches its owning capability PRD, work phase, and suitable evidence or an accepted obligation; a `none` decision records and proves its preserved human boundary
 - current normative requirements live inline in their owning PRDs
 - every new PRD is a coherent product authority rather than an editorial record
 - every material prior contract is preserved only in a standardized, non-normative `## Requirement History` entry

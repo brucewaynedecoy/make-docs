@@ -20,6 +20,7 @@ Inspect:
 - any `docs/assets/project/` inputs; if present, read them to hydrate the design and
   plan
 - any referenced design docs and whether they include `## Intended Follow-On`
+- the impact and Human Experience Intent in each applicable source design, using the [Human Experience Contract](../contracts/human-experience-contract.md) and [Human Experience Reference](human-experience.md)
 - any `Coordinate Handoff` or source-lineage notes in referenced designs
 - any existing plans, PRD docs, and work backlogs
 - any history records for prior phases that the request revises, reworks, corrects, standardizes, or finishes
@@ -49,6 +50,8 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 - the coordinator role and write scope
 - the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - the validation pass and any follow-up review
+- for `direct` or `indirect` impact, a per-promise map to the owning PRD, affected human-facing surface or indirect effect, work phase, evidence source or selected testing type, and any accepted obligation
+- for `none`, the preserved human boundary and the evidence that will prove it unchanged
 
 For authoritative PRD maintenance, the plan should also settle:
 
@@ -59,6 +62,22 @@ For authoritative PRD maintenance, the plan should also settle:
 - the affected links, risks, plans, work artifacts, and downstream source-authority relationships
 - whether a scoped delta backlog is sufficient or the user explicitly wants a regenerated full backlog
 - any deferred-obligation dispositions, material current human-experience uncertainties, proposed `NUAT-###` ownership for activated tests, and `not-needed-now` reasons needed before implementation
+
+## Human Experience Planning
+
+Use the accepted Human Experience Intent as a cross-cutting planning input. Keep the full standard in the canonical contract and reference. Do not copy it into the plan.
+
+For `direct` or `indirect` impact, map each accepted promise to:
+
+- the current or planned PRD that owns the capability;
+- the affected human-facing surface or indirect human effect;
+- the phase that implements it;
+- the evidence source or testing type selected by current testing authority; and
+- an accepted `O-###` obligation only when authorized work remains owed after the current closeout.
+
+For `none`, state the human boundary that must remain unchanged and the evidence that will prove the boundary. Do not invent a human flow for a change with no human effect.
+
+The map preserves the human goal through planning. It does not replace product requirements, testing decisions, specialist reviews, or the obligation register.
 
 ## User Preference Questions
 
@@ -95,6 +114,7 @@ Every plan should cover:
 - worker ownership, write scopes, and dependencies
 - MCP strategy and fallback strategy
 - validation and review steps
+- the Human Experience promise map or preserved `none` boundary, with links to the source design and canonical authority
 
 PRD authority-maintenance plans should additionally cover:
 
@@ -169,6 +189,7 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - if the task is authoritative PRD maintenance, the plan names existing owners, any genuinely new product PRDs, requirement-history entries, affected links/risks/plans/work, and delta backlog scope
 - workstreams are disjoint
 - validation is mandatory
+- the plan keeps each accepted Human Experience promise or preserved boundary traceable to current PRD authority, work, evidence, and any accepted obligation
 
 Every plan `00-overview.md` includes `## Intended Follow-On` recommending PRD
 generation as the next step.

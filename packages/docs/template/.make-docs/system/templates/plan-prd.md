@@ -38,6 +38,18 @@ List every source of truth that feeds into PRD generation. Each entry should not
 
 Open questions or ambiguities in the inputs should be captured here and promoted into `03-open-questions-and-risk-register.md` during execution.
 
+## Human Experience Propagation
+
+Use `.make-docs/system/contracts/human-experience-contract.md` as authority and `.make-docs/system/references/human-experience.md` for examples. Link to the source design. Do not copy the standard into this plan.
+
+For `direct` or `indirect` impact, map each accepted promise:
+
+| Promise | Owning or planned PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
+| --- | --- | --- | --- | --- | --- |
+| {{PROMISE}} | {{PRD_AUTHORITY}} | {{SURFACE_OR_EFFECT}} | {{WORK_PHASE}} | {{EVIDENCE_OR_TESTING_TYPE}} | {{O_REF_OR_NONE}} |
+
+For `none`, replace the table with the preserved human boundary and the evidence that will prove it unchanged.
+
 ## Existing Codebase Context
 
 - Codebase status: {{CODEBASE_STATUS}} <!-- greenfield | existing-active | existing-legacy -->
@@ -129,6 +141,7 @@ Describe how workers should derive acceptance criteria within each PRD. Criteria
 Explain how the execution step will validate the generated outputs. Validation should confirm:
 
 - Every design input is accounted for in at least one PRD.
+- Every accepted Human Experience promise is assigned to the PRD that owns the affected capability, a work phase, and suitable evidence or an accepted obligation. A `none` boundary has proof that it stays unchanged.
 - Every adaptive PRD traces back to a design input or a discovered integration need.
 - The implementation backlog covers all PRDs with no orphaned or unreachable items.
 - Open questions are captured and none block backlog generation without explicit acknowledgment.

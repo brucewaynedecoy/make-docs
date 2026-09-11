@@ -21,6 +21,16 @@ follow_on:
 
 Describe what this work directory covers and how to navigate its phase files.
 
+## Human Experience Trace
+
+Use `.make-docs/system/contracts/human-experience-contract.md` as authority. Retain the source design, plan, owning PRDs, dependency-ordered phase, evidence decision, implementation gate, and accepted obligation for each applicable promise.
+
+| Impact or promise | Source design and plan | Owning PRD or preserved boundary | Work phase | Evidence source or selected testing type | Implementation gate | Accepted obligation, if any |
+| --- | --- | --- | --- | --- | --- | --- |
+| {{IMPACT_OR_PROMISE}} | {{SOURCE_DESIGN_AND_PLAN}} | {{PRD_OR_BOUNDARY}} | {{WORK_PHASE}} | {{EVIDENCE_OR_TESTING_TYPE}} | {{IMPLEMENTATION_GATE}} | {{O_REF_OR_NONE}} |
+
+For `none`, state the preserved human boundary and link the proof that it stays unchanged. Do not invent a human flow.
+
 ## Phase Map
 
 | File | Purpose |
@@ -34,6 +44,7 @@ Describe what this work directory covers and how to navigate its phase files.
 - Keep phase files dependency-ordered.
 - Every phase file must include `## Source PRD Docs`.
 - Link every phase back to the relevant PRD docs.
+- Keep each accepted Human Experience promise or preserved `none` boundary traceable through its owning phase, evidence decision, implementation gate, and any accepted obligation.
 - When this backlog retains evidence for acceptance or review, create or update its central `evidence.md` report and add a relative link to it in this index. Follow the Acceptance-Case Evidence Retention section in `.make-docs/system/contracts/coverage-pass-contract.md`. The report explains the findings and links supporting evidence, including evidence already stored elsewhere. Do not create an empty report or link to a report that does not exist.
 - When deferred obligations or Unassisted Goal Testing are in scope, inventory applicable `O-###`, activated `NUAT-###`, and finding links plus the expected phase versus capability status. Record `not-needed-now` without inventing an ID.
 

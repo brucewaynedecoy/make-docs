@@ -33,6 +33,7 @@ In every mode, `docs/prd/` describes the current authoritative shape of the prod
 3. Inspect `docs/prd/` and determine whether active root entries already exist outside the archive.
 4. Classify the task as `full-set generation` or `authoritative PRD maintenance`.
 5. If the task is authoritative PRD maintenance, identify current owner PRDs and genuinely ownerless product subjects before spawning authoring work.
+6. Read the source design and plan for each accepted Human Experience promise or preserved `none` boundary. Use the [Human Experience Contract](../contracts/human-experience-contract.md) and [Human Experience Reference](human-experience.md) as the shared authority.
 
 ## Delegation Ladder
 
@@ -90,6 +91,7 @@ Apply this gate only in `authoritative PRD maintenance` mode:
 - Express removals and deprecations as current scope, non-goal, limitation, status, or boundary text before recording history.
 - Update `docs/prd/00-index.md` so current product ownership, status, focus, and navigation are accurate.
 - Do not create PRDs whose filename, title, kind, or subject describes an editorial operation.
+- Put each current observable human outcome in the PRD that owns the affected capability. Link to the canonical Human Experience authority. Do not create a cross-cutting editorial PRD, copy the universal standard, or add Human Experience frontmatter.
 
 ## Writing Order
 
@@ -161,6 +163,10 @@ If a fallback source is used, record which fallback was used and why.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 - Include phase-level PRD traceability via `Source PRD Docs`.
+- Make the backlog index retain the source design, plan, owning PRDs, phase order, evidence decisions, and implementation gate for each accepted Human Experience promise or preserved boundary.
+- In each applicable phase, state the intended human outcome, affected human-facing surface or indirect effect, implementation work, observable acceptance, evidence source or testing type selected under current authority, executor, and accepted obligation route when work remains owed.
+- In each generated phase, record the current decision for Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing. Record `not-needed-now` when a type cannot change a current decision. Keep Human Experience Review separate as the required acceptance lens for applicable promises, not a fifth testing type.
+- Reject acceptance such as `UX is good`, `easy to use`, or `intuitive`. Replace it with a result that a reviewer can observe on the named surface or in evidence tied to the stated indirect effect.
 - When deferred-obligation or Unassisted Goal Testing routing is active, include applicable `O-###`, `NUAT-###`, and finding traceability plus phase and capability closeout language. Do not invent an ID for `not-needed-now`.
 - Delta backlogs cite the updated or genuinely new authoritative PRDs that constrain implementation. Maintenance plans provide sequencing and history provides provenance; neither replaces current PRD authority.
 
@@ -173,3 +179,6 @@ Before closing the task:
 3. Confirm the backlog links to the relevant PRD docs.
 4. For authoritative PRD maintenance, confirm current requirements are inline, history is non-normative, every new PRD is a coherent product authority, and delta backlog traceability points to current PRDs rather than retired change records.
 5. When deferred-obligation or Unassisted Goal Testing routing is in scope, confirm closeout records separate testing decisions, any applicable `O-###` disposition, any activated `NUAT-###` scenario, evidence references, and explicit phase versus capability status. Record `not-needed-now` without creating a scenario or obligation.
+6. Confirm each accepted Human Experience promise reaches current PRD authority, work, and suitable evidence or an accepted obligation. For `none`, confirm the backlog records and proves the preserved human boundary.
+7. Confirm acceptance is observable. It must let a reviewer determine the subject, relationship, state, next action, recovery path, useful level of detail, or goal completion without relying on an unexplained internal identifier when one of those outcomes is promised.
+8. Confirm each generated phase records all four current testing decisions and keeps Human Experience Review separate as the acceptance lens.

@@ -19,9 +19,7 @@ This backlog is a directory. Use this index first. Then use the phase files in o
 
 ## Interrupt Pause
 
-W20 R0 remains paused for the [W19 R4 asset and Persona recovery interrupt](../../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). [W19 R3](../2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-index.md) is accepted and committed at `dabd0b36`. R4 has one implementation phase; its package awaits backlog review and acceptance. Drafting does not authorize implementation. W21 stays paused.
-
-P1 and P2 remain accepted and closed. P3 has not started. Preserve existing task IDs and evidence. After R4 closes, review both interrupt handoffs against the P3 entry conditions and obtain separate authority to resume W20 implementation.
+The W19 recovery interrupt is closed. P1 and P2 remain accepted and closed. P3 is implemented and reviewed. No P3 commit, publication, or release has started. P4 needs separate implementation authority. W21 stays paused.
 ## Purpose
 
 Implement the Human Experience Standard as a small, shared Make Docs rule that stays visible from design through acceptance.
@@ -54,8 +52,8 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 | Phase | File | Outcome |
 | --- | --- | --- |
 | 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Complete and owner-authorized for closeout: [authority, source/test ownership, and proof map](01-prd-authority-and-requirement-trace.md#read-this-first). The known baseline defaults failure is disclosed; P2 needs separate authority. |
-| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. The known D-031 defaults failure remains disclosed. |
-| 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Carry the human goal and promises through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. |
+| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. |
+| 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Implemented and reviewed: the human goal and promises now pass through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. Source, package, installed files, and Store evidence agree. |
 | 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Apply required Human Experience Review and select only the proportionate testing needed for current decisions. |
 | 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Prove package, dogfood, installed-project, agent, adoption, and real human outcomes before W20 R0 closeout. |
 
@@ -86,4 +84,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Keep W20 paused while the W19 R4 package is reviewed and its accepted interrupt work is completed. Then use both interrupt handoffs and the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) for P3 planning. P3 implementation, publication, and release need separate authority.
+Current next step: Review P4 and obtain separate implementation authority before applying the broader evidence and acceptance phase. Use the [closed P2 result and evidence](02-contract-reference-and-design-entry.md#coverage-and-handoff) and the implemented P3 propagation paths as inputs. Publication and release remain outside the current authority.

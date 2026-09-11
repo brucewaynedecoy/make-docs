@@ -14,6 +14,7 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 ## Agent Instructions
 
 - Before writing, use a valid local `.make-docs/system/references/design-workflow.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/design-workflow.md`; use a valid local `.make-docs/system/contracts/design-contract.md` body or run `make-docs resource read make-docs://system/contract/design-contract.md`; and use a valid local `.make-docs/system/templates/design.md` body or run `make-docs resource read make-docs://system/template/design.md`.
+- For a new or materially updated governed design, also read `.make-docs/system/contracts/human-experience-contract.md`, `.make-docs/system/references/human-experience.md`, and `.make-docs/system/references/lifecycle.md`. When a valid local body is absent, use its matching `make-docs://system/contract/human-experience-contract.md`, `make-docs://system/reference/human-experience.md`, or `make-docs://system/reference/lifecycle.md` URI.
 - Use `.make-docs/system/contracts/design-contract.md` or its `make-docs://system/contract/design-contract.md` fallback as the authority for lineage, required headings, and follow-on links.
 - Always apply date-slug naming.
 - Do not backdate designs — use today's date.

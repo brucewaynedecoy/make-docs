@@ -78,6 +78,20 @@ Apply these rules when a decision, design, implementation, or finding may change
 - Update `docs/prd/03-open-questions-and-risk-register.md` directly for newly discovered or resolved gaps, drift, questions, decisions, and risks.
 - Update `docs/prd/00-index.md` so current ownership, status, focus, and navigation remain readable.
 
+## Human Experience Propagation
+
+Use the [Human Experience Contract](human-experience-contract.md) as the canonical authority and the [Human Experience Reference](../references/human-experience.md) for explanation and examples. Human Experience is a cross-cutting lens. It is not a lifecycle stage, frontmatter schema, PRD kind, or testing type. Plans, PRDs, work, evidence, and review records link to the authority and record their local mapping or verdict. They do not copy the standard. Apply this shape to new generated artifacts and to substantial updates when the planned change affects the human path. Existing and archived artifacts remain valid without a backfill.
+
+- A `direct` or `indirect` plan maps each accepted promise to its owning PRD, affected human-facing surface or indirect effect, work phase, evidence source or testing type selected under current testing authority, and any accepted `O-###` obligation.
+- A `none` plan names the preserved human boundary and the evidence that will prove it unchanged.
+- A PRD puts each current observable human outcome in the document that owns the affected capability. Do not create an editorial Human Experience PRD or add Human Experience fields to frontmatter.
+- A work index retains the source design, plan, owning PRDs, phase order, evidence decisions, implementation gate, and any accepted obligation for the applicable promises or preserved boundary.
+- Each applicable work phase states the intended human outcome, affected surface or indirect effect, implementation work, observable acceptance, evidence source or selected testing type, executor, and accepted obligation route when work remains owed.
+- Each generated work phase records the current decision for Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing. A type that cannot change a current decision records `not-needed-now`; the phase does not invent an activity to make every type active. Human Experience Review remains a separate required acceptance lens for applicable promises and is not a fifth testing type.
+- Acceptance must identify an observable result. `UX is good`, `easy to use`, and `intuitive` are invalid without a stated observation and evidence.
+
+For example, acceptance can require that a person can identify the current subject, understand an important relationship, distinguish success from partial or failed state, find the next useful action, recover from an error, reach exact detail through a clear secondary path, or complete the goal without first learning an unexplained internal identifier.
+
 ## PRD Tree Rules
 
 ### Fixed core
@@ -245,6 +259,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - For PRD authority-maintenance work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
 - Treat updated and genuinely new product PRDs as downstream requirement authority. Plans describe sequencing and requirement-history entries preserve provenance; neither overrides the current normative PRD body.
 - Every phase file must include `## Source PRD Docs`.
+- New generated work indexes and phases, and substantial active-work updates that affect the human path, must carry the mapping required by `## Human Experience Propagation`, including a proved preserved boundary for `none`. This does not require a repository-wide backfill.
 - Every work `00-index.md` includes `## Intended Follow-On` recommending the implementation loop as the next step. The handoff is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
 ## Link Rules

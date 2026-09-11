@@ -25,6 +25,8 @@ Code anchors:
 
 Describe the subsystem's components, modules, or pages and the capabilities they implement.
 
+When this PRD owns an observable Human Experience outcome, state it as a current capability requirement here or in the closest owning section. Link to `.make-docs/system/contracts/human-experience-contract.md`. Keep the outcome observable. Do not copy the universal standard, create a separate editorial experience PRD, or add Human Experience frontmatter.
+
 Code anchors:
 
 - `{{COMPONENT_PATHS}}`
