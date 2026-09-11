@@ -87,6 +87,16 @@ export interface SerializedOperationError {
   runId?: string;
   currentStatus?: string;
   allowedStatuses?: string[];
+  issue?: {
+    code: string;
+    path: string;
+    operation: string;
+    systemCode?: string;
+    retryable: boolean;
+    attempts: number;
+    waitedMs: number;
+    cause: string;
+  };
 }
 
 /** Stable machine error fields shared by CLI and MCP transport envelopes. */
@@ -96,6 +106,28 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
       ? (error as Record<string, unknown>)
       : {};
   const message = error instanceof Error ? error.message : String(error);
+  const issue = record.issue !== null && typeof record.issue === "object"
+    ? record.issue as Record<string, unknown>
+    : null;
+  const serializedIssue = issue &&
+    typeof issue.code === "string" &&
+    typeof issue.path === "string" &&
+    typeof issue.operation === "string" &&
+    typeof issue.retryable === "boolean" &&
+    typeof issue.attempts === "number" &&
+    typeof issue.waitedMs === "number" &&
+    typeof issue.cause === "string"
+    ? {
+        code: issue.code,
+        path: issue.path,
+        operation: issue.operation,
+        ...(typeof issue.systemCode === "string" ? { systemCode: issue.systemCode } : {}),
+        retryable: issue.retryable,
+        attempts: issue.attempts,
+        waitedMs: issue.waitedMs,
+        cause: issue.cause,
+      }
+    : null;
   return {
     code: typeof record.code === "string" ? record.code : "operation-error",
     message,
@@ -117,6 +149,7 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
     record.allowedStatuses.every((value) => typeof value === "string")
       ? { allowedStatuses: [...record.allowedStatuses] as string[] }
       : {}),
+    ...(serializedIssue ? { issue: serializedIssue } : {}),
   };
 }
 

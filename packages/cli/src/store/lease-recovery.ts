@@ -1,11 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { closeSync, constants, fstatSync, fsyncSync, lstatSync, openSync, readFileSync, unlinkSync, writeFileSync, type Stats } from "node:fs";
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, unlinkSync, type Stats } from "node:fs";
 import { hostname } from "node:os";
 import path from "node:path";
+import { recoverDeadStoreAccessSessions, tryCreateExclusiveStoreLease } from "./database";
 
 /** Writers and Store removal must check this marker before and after acquisition. */
 export const STORE_LEASE_RECOVERY_FILE = "installation-lease-recovery.lock";
-const RECOVERABLE_LEASES = ["installation-bootstrap.lock", "store-access.lock", "global-assets.lock"] as const;
+const RECOVERABLE_LEASES = ["installation-bootstrap.lock", "global-assets.lock"] as const;
 
 export class StoreLeaseRecoveryError extends Error {
   readonly code = "writer-active";
@@ -77,18 +78,21 @@ export function recoverDeadStoreLeases(storeRoot: string): { removed: string[] }
   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) blocked("The Store root is unsafe.");
   if (lstatSync(path.join(root, "removal.lock"), { throwIfNoEntry: false })) blocked("Store removal is active or requires review.");
   const guard = path.join(root, STORE_LEASE_RECOVERY_FILE);
-  let fd: number;
-  try { fd = openSync(guard, "wx", 0o600); }
-  catch { return blocked("Another lease recovery owns the recovery guard. Inspect its owner before retrying."); }
   const token = randomUUID();
-  const guardStat = fstatSync(fd);
+  const created = tryCreateExclusiveStoreLease(guard, { token, pid: process.pid, hostname: hostname(), startedAt: new Date().toISOString() });
+  if (!created.created) return blocked("Another lease recovery owns the recovery guard. Inspect its owner before retrying.");
+  const guardStat = created.stat;
   try {
-    writeFileSync(fd, JSON.stringify({ token, pid: process.pid, hostname: hostname() }));
-    fsyncSync(fd);
     if (lstatSync(path.join(root, "removal.lock"), { throwIfNoEntry: false })) blocked("Store removal began during recovery.");
     const leases = RECOVERABLE_LEASES.map(name => readLease(path.join(root, name))).filter((lease): lease is LeaseSnapshot => lease !== null);
     // Validate the entire set first. A live bootstrap/access owner prevents any cleanup.
     for (const lease of leases) assertOwnerDead(lease);
+    try {
+      const sessions = recoverDeadStoreAccessSessions(root, false);
+      if (sessions.active.length > 0) blocked(`A live process owns ${sessions.active.map((session) => path.basename(session.file)).join(", ")}.`);
+    } catch (error) {
+      blocked(error instanceof Error ? error.message : String(error));
+    }
     for (const lease of leases) { assertUnchanged(lease); assertOwnerDead(lease); }
     const removed: string[] = [];
     for (const lease of leases) {
@@ -96,11 +100,20 @@ export function recoverDeadStoreLeases(storeRoot: string): { removed: string[] }
       unlinkSync(lease.file);
       removed.push(path.basename(lease.file));
     }
+    try {
+      const sessions = recoverDeadStoreAccessSessions(root);
+      if (sessions.active.length > 0) {
+        blocked(`A live process owns ${sessions.active.map((session) => path.basename(session.file)).join(", ")}.`);
+      }
+      removed.push(...sessions.removed);
+    } catch (error) {
+      blocked(error instanceof Error ? error.message : String(error));
+    }
+    const order = ["installation-bootstrap.lock", "store-access.lock", "global-assets.lock"];
+    removed.sort((left, right) => order.indexOf(left.split(path.sep)[0]) - order.indexOf(right.split(path.sep)[0]));
     return { removed };
   } finally {
-    try {
-      const current = readLease(guard);
-      if (current && sameFile(guardStat, current.stat) && current.token === token) unlinkSync(guard);
-    } finally { closeSync(fd); }
+    const current = readLease(guard);
+    if (current && sameFile(guardStat, current.stat) && current.token === token) unlinkSync(guard);
   }
 }

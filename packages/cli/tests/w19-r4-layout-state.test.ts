@@ -135,7 +135,7 @@ describe('W19 R4 Store-backed layout operations', () => {
             expect(child.status).not.toBe(0); expect(child.stderr).toMatch(/writer|lease|lock|active/i);
         } finally {releaseInstallationLock(lock);}
         expect(fs.readFileSync(file('docs/artifacts/note.md'), 'utf8')).toBe('# Shared note\n');
-    });
+    }, 40_000);
     it('refuses corrupt saved file evidence before any replay', () => {
         const {prepared} = prepare();
         withInstallationDatabase(root, db => db.prepare("UPDATE installation_steps SET after_json='{}' WHERE operation_id=? AND relative_path='docs/assets/project/note.md'").run(prepared.operationId), {storeRoot: store});

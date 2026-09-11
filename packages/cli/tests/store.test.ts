@@ -374,7 +374,7 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
     }
   });
 
-  it("tolerates concurrent writes from a second process without corruption or deadlock", async () => {
+  it("keeps the raw SQLite WAL baseline safe under concurrent writes", async () => {
     bootstrapInto(storeRoot);
     const databasePath = getStoreDatabasePath(storeRoot);
     const childRows = 40;

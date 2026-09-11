@@ -5,13 +5,13 @@ import os from 'node:os';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock, type GlobalAssetLock } from './global-asset-lock';
-import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, loadSqliteDriver, type StoreDatabase } from './database';
+import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, formatStoreIssue, isSqliteContention, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
 import type { InstallManifest, ManifestFileEntry } from '../types';
 import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
 export class InstallationStateError extends Error {
-    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string) { super(message); this.name = 'InstallationStateError'; }
+    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue) { super(message); this.name = 'InstallationStateError'; }
 }
 export interface InstallationLock {
     projectRoot: string;
@@ -314,7 +314,7 @@ export function readDetachedInstallationOperation(projectRoot: string, operation
         return {status: op.status, plan};
     }, {storeRoot, readOnly: true});
 }
-function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string): never { throw new InstallationStateError(code, message); }
+function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue): never { throw new InstallationStateError(code, message, issue); }
 /** Resolve absent leaves without trusting a symlink spelling of an external path. */
 export function canonicalInstallationPath(input: string): string {
     if (process.platform !== 'win32' && (/^[A-Za-z]:/.test(input) || input.startsWith('\\\\')))
@@ -339,18 +339,58 @@ function inside(root: string, candidate: string): boolean { const rel = path.rel
 export function validateInstallationStoreRoot(projectRoot: string, storeRoot = resolveStoreRoot()): string {
     const project = canonicalInstallationPath(projectRoot);
     const store = canonicalInstallationPath(storeRoot);
-    if (existsSync(path.join(store, 'removal.lock')) || existsSync(path.join(store, 'installation-lease-recovery.lock')))
-        fail('writer-active', 'The Store has an exclusive removal lock.');
-    if (inside(project, store))
-        fail('store-unavailable', 'The Make Docs Store must be outside the project.');
-    for (const suffix of ['store.db', 'store.db-wal', 'store.db-shm', 'installation-bootstrap.lock']) {
+    if (inside(project, store)) {
+        const issue = makeStoreIssue('unsafe-path', store, 'validate Store root', new Error('The Make Docs Store must be outside the project.'));
+        fail('store-unavailable', formatStoreIssue(issue), issue);
+    }
+    for (const suffix of ['store.db', 'store.db-wal', 'store.db-shm', 'store-access.lock', 'removal.lock', 'installation-bootstrap.lock', 'installation-lease-recovery.lock']) {
         const child = path.join(store, suffix);
-        if (lstatSync(child, { throwIfNoEntry: false })?.isSymbolicLink())
-            fail('store-unavailable', `Unsafe Store path: ${child}`);
-        if (!inside(store, canonicalInstallationPath(child)))
-            fail('store-unavailable', 'A derived Store path escapes the Store.');
+        try {
+            if (lstatSync(child, { throwIfNoEntry: false })?.isSymbolicLink()) {
+                const issue = makeStoreIssue('unsafe-path', child, 'validate Store path', new Error('Symbolic links are not allowed for Store state.'));
+                fail('store-unavailable', formatStoreIssue(issue), issue);
+            }
+        }
+        catch (error) {
+            if (error instanceof InstallationStateError)
+                throw error;
+            const issue = makeStoreIssue('io-error', child, 'validate Store path', error);
+            fail('store-unavailable', formatStoreIssue(issue), issue);
+        }
+        if (!inside(store, path.resolve(child))) {
+            const issue = makeStoreIssue('unsafe-path', child, 'validate Store path', new Error('A derived Store path escapes the Store.'));
+            fail('store-unavailable', formatStoreIssue(issue), issue);
+        }
     }
     return store;
+}
+function acquireStorePreparationLease(storeRoot: string, lockPath: string, token: string): import('node:fs').Stats {
+    const started = Date.now();
+    const deadline = started + STORE_OWNER_WAIT_MS;
+    let attempts = 0;
+    while (true) {
+        try {
+            const result = tryCreateExclusiveStoreLease(lockPath, { token, pid: process.pid, hostname: os.hostname(), startedAt: new Date().toISOString() });
+            if (result.created)
+                return result.stat;
+            throw Object.assign(new Error('The Store preparation lock exists.'), { code: 'EEXIST' });
+        }
+        catch (error) {
+            if (error instanceof StoreUnavailableError)
+                throw error;
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+                const issue = makeStoreIssue('io-error', lockPath, 'create Store preparation lock', error, { attempts: attempts + 1, waitedMs: Date.now() - started });
+                return fail('store-unavailable', formatStoreIssue(issue), issue);
+            }
+            if (Date.now() >= deadline) {
+                const issue: StoreIssue = { code: 'contention-timeout', path: lockPath, operation: 'wait for Store preparation', retryable: true, attempts: attempts + 1, waitedMs: Date.now() - started, cause: 'The Store preparation owner is still active.' };
+                return fail('writer-active', formatStoreIssue(issue), issue);
+            }
+            const release = acquireStoreAccess(storeRoot, false, Math.max(0, deadline - Date.now()));
+            release();
+            attempts++;
+        }
+    }
 }
 function isDead(pid: number, host: string): boolean {
     if (host !== os.hostname() || !Number.isSafeInteger(pid) || pid <= 0)
@@ -363,8 +403,6 @@ function isDead(pid: number, host: string): boolean {
         return (e as NodeJS.ErrnoException).code === 'ESRCH';
     }
 }
-function driver() { const result = loadSqliteDriver(); if (!result.available)
-    return fail('store-unavailable', result.reason); return result.sqlite; }
 function transaction<T>(db: StoreDatabase, fn: () => T): T { db.exec('BEGIN IMMEDIATE'); try {
     const result = fn();
     db.exec('COMMIT');
@@ -379,32 +417,76 @@ catch (e) {
 } }
 function prepareStore(projectRoot: string, storeRoot: string): void {
     validateInstallationStoreRoot(projectRoot, storeRoot);
-    mkdirSync(storeRoot, { recursive: true, mode: 0o700 });
-    if (['installation-bootstrap.lock','store-access.lock'].some(name=>lstatSync(path.join(storeRoot,name),{throwIfNoEntry:false}))) recoverDeadStoreLeases(storeRoot);
+    try {
+        mkdirSync(storeRoot, { recursive: true, mode: 0o700 });
+    }
+    catch (error) {
+        const issue = makeStoreIssue('io-error', storeRoot, 'create Store directory', error);
+        fail('store-unavailable', formatStoreIssue(issue), issue);
+    }
+    let release: () => void;
+    try {
+        release = acquireStoreAccess(storeRoot);
+    }
+    catch (error) {
+        if (error instanceof StoreUnavailableError && error.issue.code === 'owner-unverified' && path.basename(error.issue.path) === 'installation-bootstrap.lock') {
+            recoverDeadStoreLeases(storeRoot);
+            release = acquireStoreAccess(storeRoot);
+        }
+        else {
+            throw error;
+        }
+    }
+    try {
+        const current = classifyStoreCheckpoint9State(storeRoot);
+        if (current.state === 'supported-current')
+            return;
+        if (current.state !== 'supported-legacy' && current.state !== 'absent') {
+            const issue = ('issue' in current ? current.issue : undefined) ?? {
+                code: current.state === 'corrupt' ? 'corrupt' as const : current.state === 'newer-unknown' ? 'schema-newer' as const : 'schema-unknown' as const,
+                path: current.databasePath,
+                operation: 'prepare',
+                retryable: false,
+                attempts: 1,
+                waitedMs: 0,
+                cause: current.reason,
+            };
+            fail('store-unavailable', formatStoreIssue(issue), issue);
+        }
+    }
+    finally {
+        release();
+    }
     const lockPath = path.join(storeRoot, 'installation-bootstrap.lock');
     const token = randomUUID();
-    let fd: number;
+    const lockStat = acquireStorePreparationLease(storeRoot, lockPath, token);
     try {
-        fd = openSync(lockPath, 'wx', 0o600);
-    }
-    catch (e) {
-        if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
-            // Never steal the lock from a timeout or an unverified owner.
-            return fail('writer-active', 'Store preparation is locked. Verify the prior writer has stopped before recovery.');
-        }
-        throw e;
-    }
-    try {
-        writeFileSync(fd, JSON.stringify({ token, pid: process.pid, hostname: os.hostname() }));
-        fsyncSync(fd);
         validateInstallationStoreRoot(projectRoot, storeRoot);
+        const beforeDrain = classifyStoreCheckpoint9State(storeRoot);
+        if (beforeDrain.state === 'supported-current')
+            return;
+        if (beforeDrain.state !== 'absent' && beforeDrain.state !== 'supported-legacy') {
+            const issue = ('issue' in beforeDrain ? beforeDrain.issue : undefined) ?? makeStoreIssue(
+                beforeDrain.state === 'corrupt' ? 'corrupt' : beforeDrain.state === 'newer-unknown' ? 'schema-newer' : 'schema-unknown',
+                beforeDrain.databasePath,
+                'prepare Store',
+                new Error(beforeDrain.reason),
+            );
+            fail('store-unavailable', formatStoreIssue(issue), issue);
+        }
+        waitForStoreAccessToDrain(storeRoot);
         const c = classifyStoreCheckpoint9State(storeRoot);
-        if (!['absent', 'supported-current', 'supported-legacy'].includes(c.state))
-            fail('store-unavailable', `Store is ${c.state}; preserve it and repair it before managed changes.`);
-        const release = acquireStoreAccess(storeRoot, true);
-        const db = new (driver().DatabaseSync)(getStoreDatabasePath(storeRoot));
+        if (!['absent', 'supported-current', 'supported-legacy'].includes(c.state)) {
+            const issue = ('issue' in c ? c.issue : undefined) ?? makeStoreIssue(
+                c.state === 'corrupt' ? 'corrupt' : c.state === 'newer-unknown' ? 'schema-newer' : 'schema-unknown',
+                c.databasePath,
+                'prepare Store',
+                new Error(c.reason),
+            );
+            fail('store-unavailable', formatStoreIssue(issue), issue);
+        }
+        const db = openStoreSqliteConnection(getStoreDatabasePath(storeRoot), {}, 'prepare');
         try {
-            db.exec('PRAGMA busy_timeout=5000; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON');
             // Check prior registered locations before any schema or project change.
             if (c.state !== 'absent') {
                 const tables = db.prepare("SELECT name FROM sqlite_schema WHERE type='table'").all() as {
@@ -430,12 +512,11 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
         }
         finally {
             db.close();
-            release();
         }
     }
     finally {
-        closeSync(fd);
-        if (existsSync(lockPath)) {
+        const current = lstatSync(lockPath, { throwIfNoEntry: false });
+        if (current?.isFile() && current.dev === lockStat.dev && current.ino === lockStat.ino) {
             const value = JSON.parse(readFileSync(lockPath, 'utf8'));
             if (value.token === token)
                 unlinkSync(lockPath);
@@ -450,22 +531,35 @@ export function withInstallationDatabase<T>(projectRoot: string, fn: (db: StoreD
     const store = validateInstallationStoreRoot(root, options.storeRoot ?? active.get(root)?.storeRoot ?? held.get(root)?.storeRoot ?? resolveStoreRoot());
     if (!options.readOnly && !held.has(root))
         prepareStore(root, store);
-    if (!existsSync(getStoreDatabasePath(store)))
-        return fail('store-unavailable', 'The Store is absent.');
-    const release = options.readOnly ? () => { } : acquireStoreAccess(store);
+    const databasePath = getStoreDatabasePath(store);
+    try {
+        if (!lstatSync(databasePath, { throwIfNoEntry: false }))
+            return fail('store-unavailable', 'The Store is absent. No project files changed. Run setup before this command.');
+    }
+    catch (error) {
+        if (error instanceof InstallationStateError)
+            throw error;
+        const issue = makeStoreIssue('io-error', databasePath, options.readOnly ? 'read Store database path' : 'write Store database path', error);
+        return fail('store-unavailable', formatStoreIssue(issue), issue);
+    }
+    const release = acquireStoreAccess(store);
     let db: StoreDatabase;
     try {
-        db = new (driver().DatabaseSync)(getStoreDatabasePath(store), { readOnly: options.readOnly ?? false });
+        db = openStoreSqliteConnection(databasePath, { readOnly: options.readOnly ?? false }, options.readOnly ? 'read' : 'write');
     }
     catch (e) {
         release();
         throw e;
     }
     try {
-        db.exec('PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON');
-        if (!options.readOnly)
-            db.exec('PRAGMA synchronous=FULL');
-        return fn(db);
+        try {
+            return fn(db);
+        }
+        catch (error) {
+            if (!isSqliteContention(error))
+                throw error;
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, options.readOnly ? 'read Store data' : 'write Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+        }
     }
     finally {
         db.close();
@@ -535,24 +629,52 @@ export function acquireInstallationLock(projectRoot: string, storeRoot?: string)
         return existing;
     }
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    const token = randomUUID();
-    withInstallationDatabase(root, db => transaction(db, () => {
-        const machine = db.prepare("SELECT operation_id FROM tool_operations WHERE status='pending' LIMIT 1").get() as {
-            operation_id: string;
-        } | undefined;
-        if (machine)
-            fail('recovery-required', `Tool operation ${machine.operation_id} is pending. Inspect project state status before managed changes.`);
-        const previous = db.prepare('SELECT * FROM installation_locks WHERE root_path=?').get(root) as {
-            pid: number;
-            hostname: string;
-        } | undefined;
-        if (previous)
-            fail('writer-active', `A writer owns this checkout (${previous.pid}). Use project state recovery after it stops.`);
-        db.prepare('INSERT INTO installation_locks VALUES (?,?,?,?,?)').run(root, token, process.pid, os.hostname(), now());
-    }), { storeRoot: store });
-    const lock = { projectRoot: root, storeRoot: store, token, lockPath: `${getStoreDatabasePath(store)}#installation-lock/${sha(root)}`, depth: 1, releaseAccess: acquireStoreAccess(store) };
-    held.set(root, lock);
-    return lock;
+    prepareStore(root, store);
+    const releaseAccess = acquireStoreAccess(store);
+    try {
+        const token = randomUUID();
+        const started = Date.now();
+        const deadline = started + STORE_OWNER_WAIT_MS;
+        let attempt = 0;
+        while (true) {
+            const previous = withInstallationDatabase(root, db => transaction(db, () => {
+                const machine = db.prepare("SELECT operation_id FROM tool_operations WHERE status='pending' LIMIT 1").get() as {
+                    operation_id: string;
+                } | undefined;
+                if (machine)
+                    fail('recovery-required', `Tool operation ${machine.operation_id} is pending. Inspect project state status before managed changes.`);
+                const owner = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
+                    pid: number;
+                    hostname: string;
+                } | undefined;
+                if (!owner)
+                    db.prepare('INSERT INTO installation_locks VALUES (?,?,?,?,?)').run(root, token, process.pid, os.hostname(), now());
+                return owner;
+            }), { storeRoot: store });
+            if (!previous)
+                break;
+            if (previous.hostname !== os.hostname())
+                fail('ownership-unverified', `The checkout writer belongs to another or unknown host (${previous.hostname}). No project files changed.`);
+            try {
+                process.kill(previous.pid, 0);
+            }
+            catch (error) {
+                if ((error as NodeJS.ErrnoException).code === 'ESRCH')
+                    fail('recovery-required', `Checkout writer ${previous.pid} stopped. Inspect project state status before recovery. No project files changed.`);
+                fail('ownership-unverified', `Make Docs cannot verify checkout writer ${previous.pid}. No project files changed.`);
+            }
+            if (Date.now() >= deadline)
+                fail('writer-active', `Make Docs waited ${Math.ceil((Date.now() - started) / 1000)} seconds for checkout writer ${previous.pid}. The writer is still active. No project files changed. Run the command after it finishes.`);
+            waitForStoreRetry(attempt++, deadline);
+        }
+        const lock = { projectRoot: root, storeRoot: store, token, lockPath: `${getStoreDatabasePath(store)}#installation-lock/${sha(root)}`, depth: 1, releaseAccess };
+        held.set(root, lock);
+        return lock;
+    }
+    catch (error) {
+        releaseAccess();
+        throw error;
+    }
 }
 export function assertInstallationLockActive(lock: InstallationLock): void {
     const current = held.get(lock.projectRoot);
@@ -580,13 +702,21 @@ export function releaseInstallationLock(lock: InstallationLock): void {
 export function readInstallationManifest(projectRoot: string, storeRoot?: string): InstallManifest | null {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, storeRoot ?? active.get(root)?.storeRoot ?? held.get(root)?.storeRoot ?? resolveStoreRoot());
-    if (!existsSync(getStoreDatabasePath(store)))
-        return null;
     const c = classifyStoreCheckpoint9State(store);
-    if (c.state === 'supported-legacy')
+    if (c.state === 'supported-legacy' || c.state === 'absent')
         return null;
-    if (c.state !== 'supported-current')
-        return fail('store-unavailable', `Store is ${c.state}.`);
+    if (c.state !== 'supported-current') {
+        const issue = c.issue ?? {
+            code: c.state === 'corrupt' ? 'corrupt' as const : c.state === 'newer-unknown' ? 'schema-newer' as const : 'schema-unknown' as const,
+            path: c.databasePath,
+            operation: 'inspect',
+            retryable: false,
+            attempts: 1,
+            waitedMs: 0,
+            cause: c.reason,
+        };
+        return fail('store-unavailable', formatStoreIssue(issue), issue);
+    }
     return withInstallationDatabase(root, db => {
         const row = checkout(db, root);
         if (!row)
@@ -665,6 +795,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
     }
     const lock = acquireInstallationLock(root, options.storeRoot);
     let opId: string | null = null;
+    let projectMutationStarted = false;
     try {
         const bound = withInstallationDatabase(root, db => transaction(db, () => {
             const row = bindCheckout(db, root, options.projectId);
@@ -688,6 +819,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
             const st = statSync(root);
             withInstallationDatabase(root, db => transaction(db, () => { db.prepare('UPDATE installation_checkouts SET root_device=?,root_inode=? WHERE root_path=?').run(String(st.dev), String(st.ino), root); db.prepare('UPDATE installation_steps SET applied=1 WHERE operation_id=? AND ordinal=0').run(bound.id); }), { storeRoot: lock.storeRoot });
         }
+        projectMutationStarted = true;
         ensureDeclarativeIdentity(root);
         const result = fn();
         if (result && typeof (result as {
@@ -707,8 +839,14 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
         return result;
     }
     catch (e) {
-        if (opId && e instanceof Error)
-            e.message += ` Pending operation: ${opId}. Inspect make-docs project state status.`;
+        if (e instanceof StoreUnavailableError)
+            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId } : {}) });
+        else if (e instanceof InstallationStateError && e.issue)
+            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId } : {}) });
+        else if (opId && e instanceof Error)
+            e.message += projectMutationStarted
+                ? ` Project files may have changed. Pending operation: ${opId}. Run make-docs project state status before recovery.`
+                : ` No project files changed. Pending operation: ${opId}. Run make-docs project state status.`;
         throw e;
     }
     finally {

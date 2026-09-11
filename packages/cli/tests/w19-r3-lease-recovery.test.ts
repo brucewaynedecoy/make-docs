@@ -133,7 +133,7 @@ describe("explicit dead Store lease recovery", () => {
     const target = path.join(root, "other-data");
     writeFileSync(target, "preserve");
     symlinkSync(target, path.join(root, "store-access.lock"));
-    expect(() => recoverDeadStoreLeases(root)).toThrow("Unsafe lease file");
+    expect(() => recoverDeadStoreLeases(root)).toThrow("Unsafe Store path");
     expect(readFileSync(target, "utf8")).toBe("preserve");
   });
 });

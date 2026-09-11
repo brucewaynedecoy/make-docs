@@ -270,7 +270,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(() => executeStoreCheckpoint9Migration({
       projectRoot: corruptProject,
       storeRoot: corruptRoot,
-    })).toThrow(/classified as corrupt/);
+    })).toThrow(/preserved the Store/);
     expect(readFileSync(corruptPath)).toEqual(corruptBytes);
     expect(readdirSync(corruptRoot)).toEqual(["store.db"]);
 

@@ -1,12 +1,15 @@
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { runToolUpdateCommand } from "../src/self/update-tool";
 import { runToolUninstallCommand } from "../src/self/uninstall-tool";
 import * as installationState from "../src/store/installation-state";
 import { withInstallationDatabase } from "../src/store/installation-state";
 import { prepareToolOperationStore, runRecordedToolOperation, withStoreRemovalLock, listPendingToolOperations } from "../src/store/tool-operations";
+import { acquireStoreAccess } from "../src/store/database";
 const roots: string[]=[];
 function fixture(){const parent=mkdtempSync(path.join(os.tmpdir(),"make-docs-tool-r3-"));roots.push(parent);const root=path.join(parent,"project"),store=path.join(parent,"store");mkdirSync(root);return{root,store};}
 const binary="/usr/local/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js";
@@ -90,11 +93,20 @@ describe("required global tool operation state",()=>{
   expect(exec).not.toHaveBeenCalled();rmSync(path.join(f.store,"removal.lock"));
   expect(rows(f.root,f.store)).toMatchObject([{status:"pending"}]);
  });
- it.each(["store-access.lock","installation-bootstrap.lock","global-assets.lock","installation-lease-recovery.lock"])("preserves the Store while %s is held",name=>{
+ it.each(["global-assets.lock","installation-lease-recovery.lock"])("preserves the Store while %s is held",name=>{
   const f=fixture();prepareToolOperationStore(f.root,f.store);writeFileSync(path.join(f.store,name),JSON.stringify({token:"test",pid:process.pid,hostname:os.hostname()}));
   const remove=vi.fn();expect(()=>withStoreRemovalLock(f.root,f.store,remove)).toThrow();
   expect(remove).not.toHaveBeenCalled();expect(existsSync(path.join(f.store,"store.db"))).toBe(true);expect(existsSync(path.join(f.store,name))).toBe(true);
   expect(existsSync(path.join(f.store,"removal.lock"))).toBe(false);
+ });
+ it("waits for a shared Store session before removal",async()=>{
+  const f=fixture();prepareToolOperationStore(f.root,f.store);const release=acquireStoreAccess(f.store);const marker=path.join(path.dirname(f.store),"removed");const admitted=path.join(path.dirname(f.store),"admitted");
+  const script=`import {withStoreRemovalLock} from './packages/cli/src/store/tool-operations.ts';import{writeFileSync}from'node:fs';withStoreRemovalLock(${JSON.stringify(f.root)},${JSON.stringify(f.store)},()=>writeFileSync(${JSON.stringify(marker)},'done'));`;
+  const child=spawn(process.execPath,['--import','tsx','--input-type=module','-e',script],{cwd:path.resolve('../..'),stdio:['ignore','pipe','pipe']});const exited=once(child,'exit');let stderr='';child.stderr.on('data',value=>{stderr+=value});
+  await new Promise<void>((resolve,reject)=>{const deadline=Date.now()+5000;const check=()=>{if(existsSync(path.join(f.store,'removal.lock')))return resolve();if(Date.now()>=deadline)return reject(new Error('Removal lock was not created.'));setTimeout(check,20);};check();});
+  const contenderScript=`import{acquireStoreAccess}from'./packages/cli/src/store/database.ts';import{writeFileSync}from'node:fs';const release=acquireStoreAccess(${JSON.stringify(f.store)});writeFileSync(${JSON.stringify(admitted)},'yes');release();`;const contender=spawn(process.execPath,['--import','tsx','--input-type=module','-e',contenderScript],{cwd:path.resolve('../..'),stdio:['ignore','pipe','pipe']});const contenderExited=once(contender,'exit');let contenderError='';contender.stderr.on('data',value=>{contenderError+=value});
+  try{await new Promise(resolve=>setTimeout(resolve,150));expect(existsSync(marker)).toBe(false);expect(existsSync(admitted)).toBe(false);expect(existsSync(path.join(f.store,"store.db"))).toBe(true);}finally{release();}
+  const [[code],[contenderCode]]=await Promise.all([exited,contenderExited]);expect(code,stderr).toBe(0);expect(contenderCode,contenderError).toBe(0);expect(existsSync(marker)).toBe(true);expect(existsSync(admitted)).toBe(true);
  });
  it("preserves the Store when --yes confirms binary uninstall",async()=>{
   const f=fixture();const exec=vi.fn(async()=>({exitCode:0}));
