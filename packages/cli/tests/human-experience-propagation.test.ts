@@ -85,41 +85,157 @@ const TESTING_RECORD_FIELDS = [
   "Rerun trigger",
 ] as const;
 
+const HUMAN_EXPERIENCE_REVIEW_FIELDS = [
+  "Promise",
+  "Evidence",
+  "Observation",
+  "Conclusion",
+  "Reviewer",
+  "Reviewer limit",
+  "Disposition",
+] as const;
+
+const P4_TESTING_RECORD_FIELDS = [...TESTING_RECORD_FIELDS, "Decision"] as const;
+
+const P4_TESTING_DECISIONS = [
+  [
+    "Automated Implementation Testing",
+    "Does the synthetic transcript satisfy the required technical output shape?",
+    "selected",
+  ],
+  [
+    "Performance Testing",
+    "Can performance evidence change a current speed, load, cost, or resource decision?",
+    "not-needed-now",
+  ],
+  [
+    "Guided Progress Review",
+    "Would a short fixture review reveal the incoherent result and useful replacement?",
+    "selected",
+  ],
+  [
+    "Unassisted Goal Testing",
+    "Can an unassisted attempt reveal a material uncertainty that other current evidence cannot answer?",
+    "not-needed-now",
+  ],
+] as const;
+
+const SYNTHETIC_OBLIGATION_FIELDS = [
+  "ID",
+  "Title",
+  "Status",
+  "Summary",
+  "Source authority",
+  "Owner",
+  "Target coordinate",
+  "Future trigger",
+  "Dependencies",
+  "Acceptance exit criteria",
+  "Related requirements and findings",
+  "History/disposition note",
+] as const;
+
 const WORK_FIXTURE_DECISIONS = [
   [
     "direct",
     ["not-needed-now", "not-needed-now", "selected", "not-needed-now"],
     "Testing decision executed",
     "Guided Progress Review",
-    "met",
+    "satisfied",
   ],
   [
     "indirect",
     ["not-needed-now", "selected", "not-needed-now", "not-needed-now"],
     "Testing decision executed",
     "Performance Testing",
-    "met",
+    "satisfied",
   ],
   [
     "none",
     ["selected", "selected", "not-needed-now", "not-needed-now"],
     "Testing decisions executed",
     "Automated Implementation Testing; Performance Testing",
-    "met",
+    "satisfied",
   ],
   [
     "deferred",
     ["not-needed-now", "not-needed-now", "selected", "not-needed-now"],
     "Testing decision executed",
     "Guided Progress Review",
-    "partial",
+    "material gap",
   ],
   [
     "lost-intent",
     ["selected", "not-needed-now", "not-needed-now", "not-needed-now"],
     "Testing decision executed",
     "Automated Implementation Testing",
-    "not-reviewed",
+    "insufficient evidence",
+  ],
+] as const;
+
+const WORK_FIXTURE_QUESTIONS = {
+  direct: [
+    "Can automated proof change the current release-result content decision?",
+    "Can performance evidence change a current speed, load, or resource decision?",
+    "Can review of the captured result states show whether product, state, and next action appear before detail?",
+    "Can a qualified unassisted attempt answer a current uncertainty not covered by P4 review?",
+  ],
+  indirect: [
+    "Can automated logic proof change the current accepted-to-visible effect decision?",
+    "Does the restart run meet the accepted 99 percent within 30 seconds threshold without manual replay?",
+    "Can guided diagnosis change the current indirect-effect decision?",
+    "Can an unassisted attempt reveal uncertainty beyond the measured indirect effect?",
+  ],
+  none: [
+    "Did public output, errors, and exit status stay byte-identical after the extraction?",
+    "Did the accepted public timing boundary remain unchanged after the extraction?",
+    "Can guided review change the current boundary-preservation decision?",
+    "Can an unassisted attempt reveal a changed human path in this none case?",
+  ],
+  deferred: [
+    "Can automated proof run the owed resume path before the endpoint exists?",
+    "Can performance evidence change the current upload-failure result decision?",
+    "Does current failure-path review show the preserved steps and failed part?",
+    "Can an unassisted attempt run the accepted resume goal before the endpoint exists?",
+  ],
+  "lost-intent": [
+    "Do serializer unit tests cover each status enum?",
+    "Can performance evidence change the current serializer-shape decision?",
+    "Can schema inspection alone answer the operator-understanding goal?",
+    "Can an unassisted attempt answer a goal the copied record did not retain?",
+  ],
+} as const;
+
+const REVIEW_FIXTURES = [
+  [
+    "direct",
+    "[HX-DIR-01](./design.md#human-experience-intent)",
+    "satisfied",
+    "Accept only the installed terminal-result claim",
+  ],
+  [
+    "indirect",
+    "[HX-IND-01](./design.md#human-experience-intent)",
+    "satisfied",
+    "Accept only the stated reliability",
+  ],
+  [
+    "none",
+    "Preserved boundary",
+    "satisfied",
+    "Accept only the stated preserved boundary",
+  ],
+  [
+    "deferred",
+    "[HX-DEF-01](./design.md#human-experience-intent)",
+    "material gap",
+    "Keep partial capability status",
+  ],
+  [
+    "lost-intent",
+    "[HX-LOST-01](./design.md#human-experience-intent)",
+    "insufficient evidence",
+    "smallest added testing activity",
   ],
 ] as const;
 
@@ -156,7 +272,7 @@ function promiseId(markdown: string): string | null {
 
 function propagationReview(
   documents: FixtureDocuments,
-  expectedConclusion = "met",
+  expectedConclusion = "satisfied",
 ): string[] {
   const findings: string[] = [];
   const expectedGoal = bodyValue(documents["design.md"], "Human goal or effect");
@@ -202,7 +318,7 @@ function propagationReview(
       "Human Experience Review conclusion",
     ) !== expectedConclusion
   ) {
-    findings.push("review-conclusion-not-met:evidence.md");
+    findings.push("review-conclusion-mismatch:evidence.md");
   }
 
   return findings;
@@ -218,6 +334,33 @@ function tableRow(markdown: string, firstCell: string): string[] | null {
         .slice(1, -1)
         .map((cell) => cell.trim())
     : null;
+}
+
+function tableRowsAfterHeader(
+  markdown: string,
+  headerFirstCell: string,
+): string[][] {
+  const lines = markdown.split(/\r?\n/u);
+  const headerIndex = lines.findIndex((line) =>
+    line.startsWith(`| ${headerFirstCell} |`),
+  );
+  if (headerIndex === -1) {
+    return [];
+  }
+
+  const rows: string[][] = [];
+  for (const line of lines.slice(headerIndex + 2)) {
+    if (!line.startsWith("|")) {
+      break;
+    }
+    rows.push(
+      line
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim()),
+    );
+  }
+  return rows;
 }
 
 function localMarkdownTargets(markdown: string): string[] {
@@ -284,15 +427,26 @@ describe("Human Experience lifecycle propagation fixtures", () => {
     ) => {
       const work = fixture(caseName, "work.md");
       const evidence = fixture(caseName, "evidence.md");
+      const expectedQuestions = WORK_FIXTURE_QUESTIONS[caseName];
 
-      expect(tableRow(work, "Testing type")).toEqual(TESTING_RECORD_FIELDS);
+      const header = tableRow(work, "Testing type");
+      expect(header).toEqual(P4_TESTING_RECORD_FIELDS);
+      expect(header?.slice(0, TESTING_RECORD_FIELDS.length)).toEqual(
+        TESTING_RECORD_FIELDS,
+      );
       for (const [index, testingType] of TESTING_TYPES.entries()) {
         const record = tableRow(work, testingType);
         expect(record, `${caseName}: ${testingType}`).toHaveLength(
-          TESTING_RECORD_FIELDS.length,
+          P4_TESTING_RECORD_FIELDS.length,
         );
-        expect(record?.[1]).toBe(expectedDecisions[index]);
-        expect(record?.slice(2).every((cell) => cell.length > 0)).toBe(true);
+        expect(record?.[1]).toBe(expectedQuestions[index]);
+        expect(record?.[1]).not.toBe(expectedDecisions[index]);
+        expect(record?.slice(2, -1).every((cell) => cell.length > 0)).toBe(
+          true,
+        );
+        expect(record?.[P4_TESTING_RECORD_FIELDS.length - 1]).toBe(
+          expectedDecisions[index],
+        );
       }
       expect(tableRow(work, "Human Experience Review")).toBeNull();
       expect(bodyValue(work, "Human Experience Review")).not.toBeNull();
@@ -302,6 +456,269 @@ describe("Human Experience lifecycle propagation fixtures", () => {
       ).toBe(reviewConclusion);
     },
   );
+
+  it.each(REVIEW_FIXTURES)(
+    "records a complete per-promise Human Experience Review row for %s evidence",
+    (caseName, promise, conclusion, disposition) => {
+      const evidence = fixture(caseName, "evidence.md");
+      const review = tableRow(evidence, promise);
+
+      expect(tableRow(evidence, "Promise")).toEqual(
+        HUMAN_EXPERIENCE_REVIEW_FIELDS,
+      );
+      expect(review, caseName).toHaveLength(
+        HUMAN_EXPERIENCE_REVIEW_FIELDS.length,
+      );
+      expect(review?.[1].length).toBeGreaterThan(0);
+      expect(review?.[2].length).toBeGreaterThan(0);
+      expect(review?.[3]).toBe(`\`${conclusion}\``);
+      expect(review?.[4].length).toBeGreaterThan(0);
+      expect(review?.[5].length).toBeGreaterThan(0);
+      expect(review?.[6]).toContain(disposition);
+      expect(bodyValue(evidence, "Human Experience Review conclusion")).toBe(
+        conclusion,
+      );
+    },
+  );
+
+  it("rejects a technically passing complete-field result with incoherent human paths", () => {
+    const design = fixture("p4-review", "design.md");
+    const result = fixture("p4-review", "result.md");
+    const evidence = fixture("p4-review", "evidence.md");
+    const promises = [...design.matchAll(/^- \[(HX-[A-Z]+-\d+)\]/gmu)].map(
+      (match) => match[1],
+    );
+    const reviews = tableRowsAfterHeader(evidence, "Promise");
+    const humanFacingOutput =
+      result.match(/## Synthetic Command Output\s+```text\n([\s\S]*?)\n```/u)?.[1] ??
+      "";
+
+    expect(validateDesignBody(design, "required")).toEqual([]);
+    expect(evidence).not.toContain("## Human Experience Intent");
+    expect(promises).toEqual([
+      "HX-REL-01",
+      "HX-STATE-01",
+      "HX-REC-01",
+    ]);
+    expect(bodyValue(result, "Technical result")).toBe("passed");
+    expect(bodyValue(evidence, "Technical result")).toBeNull();
+    expect(bodyValue(evidence, "Completion claim")).toBe("blocked");
+    expect(bodyValue(evidence, "Human Experience Review conclusion")).toBe(
+      "material gap",
+    );
+    expect(tableRow(evidence, "Promise")).toEqual(
+      HUMAN_EXPERIENCE_REVIEW_FIELDS,
+    );
+    expect(reviews).toHaveLength(promises.length);
+    expect(reviews.map((review) => review[0])).toEqual(
+      promises.map(
+        (promise) =>
+          `[${promise}](./design.md#human-experience-intent)`,
+      ),
+    );
+
+    for (const promise of promises) {
+      const review = tableRow(
+        evidence,
+        `[${promise}](./design.md#human-experience-intent)`,
+      );
+      expect(review, promise).toHaveLength(HUMAN_EXPERIENCE_REVIEW_FIELDS.length);
+      expect(review?.[3]).toBe("`material gap`");
+      expect(review?.[4].length).toBeGreaterThan(0);
+      expect(review?.[5].length).toBeGreaterThan(0);
+      expect(review?.[6].length).toBeGreaterThan(0);
+    }
+
+    for (const field of [
+      "Relationship",
+      "Current state",
+      "Revision history",
+      "Invalid-input error",
+      "Retry token",
+      "Severity signal",
+    ]) {
+      expect(tableRow(result, field)?.[2], field).toBe("`passed`");
+    }
+    expect(tableRow(result, "Relationship")?.[1]).toBe(
+      "`rel_7f20 -> rec_9c11`",
+    );
+    expect(tableRow(result, "Product")).toBeNull();
+    expect(tableRow(result, "Current state")?.[1]).toBe(
+      tableRow(result, "Revision history")?.[1],
+    );
+    expect(tableRow(result, "Recovery guidance")).toBeNull();
+    expect(humanFacingOutput).not.toContain("next_action:");
+    expect(humanFacingOutput).toContain("relationship: rel_7f20 -> rec_9c11");
+    const statusLines = humanFacingOutput
+      .split(/\r?\n/u)
+      .filter((line) => line.startsWith("status: "));
+    expect(statusLines).toEqual([
+      "status: ACTIVE 2026-09-11T12:00:00Z",
+      "status: ACTIVE 2026-09-11T12:00:00Z",
+    ]);
+    expect(new Set(statusLines).size).toBe(1);
+    expect(humanFacingOutput).not.toMatch(/^(state|history):/mu);
+    expect(humanFacingOutput).toContain("error: E_RESUME_17");
+    expect(humanFacingOutput).toContain("retry_token: retry_4ac2");
+    expect(evidence).toContain("[E-P4-01 synthetic result transcript](./result.md)");
+  });
+
+  it("keeps evidence reuse, specialist escalation, and not-needed-now decisions separate", () => {
+    const result = fixture("p4-review", "result.md");
+    const evidence = fixture("p4-review", "evidence.md");
+
+    const header = tableRow(evidence, "Testing type");
+    expect(header).toEqual(P4_TESTING_RECORD_FIELDS);
+    expect(header?.slice(0, TESTING_RECORD_FIELDS.length)).toEqual(
+      TESTING_RECORD_FIELDS,
+    );
+    for (const [testingType, question, decision] of P4_TESTING_DECISIONS) {
+      const record = tableRow(evidence, testingType);
+      expect(record, testingType).toHaveLength(P4_TESTING_RECORD_FIELDS.length);
+      expect(record?.[1]).toBe(question);
+      expect(record?.[1]).not.toBe(decision);
+      expect(record?.[P4_TESTING_RECORD_FIELDS.length - 1]).toBe(decision);
+    }
+    expect(tableRow(evidence, "Performance Testing")?.[11]).toBe(
+      "not-needed-now",
+    );
+    expect(tableRow(evidence, "Unassisted Goal Testing")?.[11]).toBe(
+      "not-needed-now",
+    );
+    expect(tableRow(evidence, "Unassisted Goal Testing")?.[10]).toBe(
+      "None in this fixture. A later authority makes a new current decision.",
+    );
+    expect(
+      bodyValue(evidence, "not-needed-now obligation"),
+    ).toBe("None. No accepted future performance or unassisted outcome is owed.");
+
+    const reused = tableRow(evidence, "[E-P4-01](./result.md)");
+    expect(reused?.[1]).toContain("technical completion");
+    expect(reused?.[2]).toContain("without a duplicate run or verdict");
+    for (const promise of [
+      "HX-REL-01",
+      "HX-STATE-01",
+      "HX-REC-01",
+    ]) {
+      expect(
+        tableRow(
+          evidence,
+          `[${promise}](./design.md#human-experience-intent)`,
+        )?.[1],
+      ).toBe("[E-P4-01](./result.md) fixture transcript");
+    }
+
+    const specialist = tableRow(evidence, "Accessibility Review");
+    expect(specialist?.[1]).toBe("escalated-separately");
+    expect(specialist?.[2]).toContain("color as the only severity signal");
+    expect(specialist?.[3]).toBe(
+      "[E-P4-01](./result.md) fixture transcript",
+    );
+    expect(tableRow(result, "Severity signal")?.[1]).toBe("`color:red`");
+    expect(result).toContain("severity_signal: color:red");
+    expect(result).not.toContain("severity_label:");
+    expect(TESTING_TYPES).not.toContain("Accessibility Review");
+    expect(tableRow(evidence, "Human Experience Review")).toBeNull();
+  });
+
+  it("accepts valid indirect and none proof and preserves all material finding dispositions", () => {
+    const evidence = fixture("p4-review", "evidence.md");
+    const obligation = fixture("p4-review", "obligation.md");
+    const indirect = tableRow(evidence, "Valid indirect");
+    const none = tableRow(evidence, "Valid none");
+
+    expect(indirect?.[1]).toBe("`indirect`");
+    expect(indirect?.[2]).toContain("99.4 percent");
+    expect(indirect?.[3]).toContain("without manual replay");
+    expect(indirect?.[4]).toBe("`satisfied`");
+    expect(none?.[1]).toBe("`none`");
+    expect(none?.[2]).toContain("public output and error bytes");
+    expect(none?.[3]).toContain("preserved");
+    expect(none?.[4]).toBe("`satisfied`");
+
+    expect(
+      tableRow(
+        evidence,
+        "[HX-REL-01](./design.md#human-experience-intent)",
+      )?.[6],
+    ).toMatch(/fixture disposition.+remediate.+repeat/iu);
+    expect(
+      tableRow(
+        evidence,
+        "[HX-STATE-01](./design.md#human-experience-intent)",
+      )?.[6],
+    ).toMatch(/fixture disposition example.+bounded caveat.+narrows/iu);
+    expect(
+      tableRow(
+        evidence,
+        "[HX-REC-01](./design.md#human-experience-intent)",
+      )?.[6],
+    ).toMatch(/fixture disposition example.+partial status.+O-901/iu);
+
+    for (const field of [
+      "Promise",
+      "Evidence limit",
+      "Risk",
+      "Owner",
+      "Follow-on route",
+    ]) {
+      expect(bodyValue(evidence, field), field).not.toBeNull();
+    }
+    expect(bodyValue(evidence, "Promise")).toBe("HX-STATE-01");
+    expect(bodyValue(evidence, "Owner")).toContain("No owner is assigned");
+    expect(bodyValue(evidence, "Follow-on route")).toContain(
+      "No task, coordinate, or W20 R1 work is approved",
+    );
+
+    for (const field of SYNTHETIC_OBLIGATION_FIELDS) {
+      expect(bodyValue(obligation, field), field).not.toBeNull();
+    }
+    const obligationId = bodyValue(obligation, "ID");
+    const obligationTitle = bodyValue(obligation, "Title");
+    const obligationStatus = bodyValue(obligation, "Status");
+    const obligationHeading = obligation.match(/^# (.+)$/mu)?.[1] ?? null;
+
+    expect(obligationId).toMatch(/^O-\d{3}$/u);
+    expect(obligationHeading).toBe(`${obligationId} ${obligationTitle}`);
+    expect([
+      "Active",
+      "Deferred",
+      "Fulfilled",
+      "Cancelled",
+      "Superseded",
+    ]).toContain(obligationStatus);
+    expect(obligationStatus).toBe("Deferred");
+    expect(bodyValue(obligation, "Source authority")).toContain(
+      "only inside this fixture world",
+    );
+    expect(bodyValue(obligation, "Owner")).toContain(
+      "only inside this fixture world",
+    );
+    expect(bodyValue(obligation, "Target coordinate")).toContain(
+      "Synthetic owner-routed follow-on",
+    );
+    expect(bodyValue(obligation, "Target coordinate")).not.toContain("W20 R1");
+    expect(bodyValue(obligation, "History/disposition note")).toContain(
+      "does not create real owner acceptance, an obligation, or future work",
+    );
+    expect(parseDocumentMetadata(obligation).frontmatter).toBeNull();
+
+    for (const fileName of [
+      "design.md",
+      "result.md",
+      "evidence.md",
+      "obligation.md",
+    ]) {
+      const filePath = path.join(FIXTURE_ROOT, "p4-review", fileName);
+      const markdown = readFileSync(filePath, "utf8");
+      for (const target of localMarkdownTargets(markdown)) {
+        expect(
+          existsSync(path.resolve(path.dirname(filePath), target)),
+          `p4-review/${fileName} -> ${target}`,
+        ).toBe(true);
+      }
+    }
+  });
 
   it.each(TRACE_FIXTURES)(
     "keeps every local %s fixture link and source path resolvable",
@@ -358,7 +775,7 @@ describe("Human Experience lifecycle propagation fixtures", () => {
     const work = fixture("deferred", "work.md");
     const obligation = fixture("deferred", "obligation.md");
 
-    expect(propagationReview(documents, "partial")).toEqual([]);
+    expect(propagationReview(documents, "material gap")).toEqual([]);
     expect(frontmatter(documents["plan.md"]).source).toEqual({
       type: "design",
       path: "design.md",
@@ -387,7 +804,7 @@ describe("Human Experience lifecycle propagation fixtures", () => {
       "Run the failed-upload recovery path in the installed release command.",
     );
     expect(bodyValue(obligation, "Exit criteria")).toBe(
-      "The installed command resumes at the failed part and the Human Experience Review conclusion is met.",
+      "The installed command resumes at the failed part and the Human Experience Review conclusion is satisfied.",
     );
   });
 
@@ -407,7 +824,7 @@ describe("Human Experience lifecycle propagation fixtures", () => {
       "human-goal-lost:work.md",
       "human-goal-lost:evidence.md",
       "evidence-link-missing:work.md",
-      "review-conclusion-not-met:evidence.md",
+      "review-conclusion-mismatch:evidence.md",
     ]);
   });
 

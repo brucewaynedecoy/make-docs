@@ -104,6 +104,12 @@ Human Experience Review is required acceptance work, not a fifth testing type or
 
 An agent can draft intent, inspect structure, compare evidence, and report likely issues and limits. It cannot self-certify joy or lived human experience. A complete section is necessary structure, not proof that the result is good for people.
 
+| Conclusion | Completion effect |
+| --- | --- |
+| `satisfied` | Supports only the exact reviewed promise or claim. It does not broaden completion beyond the accepted evidence. |
+| `material gap` | Blocks complete status for the affected promise or claim. Remediation and repeated proof, or an owner-accepted bounded caveat or narrower claim, can resolve the current completion effect. Partial status may continue only when a valid obligation preserves an accepted owed outcome; the obligation does not resolve the gap. |
+| `insufficient evidence` | Supports no completion claim. Select the smallest added testing activity that can answer the current question under the current testing authority. |
+
 Do not mark a directly affected capability complete while required evidence is missing or an accepted material finding remains unresolved. A bounded caveat names the promise, evidence limit, risk, owner, and follow-on route. A phase can close with partial capability status when an accepted later outcome has a valid [deferred obligation](deferred-obligation-contract.md) with owner, trigger, target, dependencies, and exit criteria. Skipped advisory work and `not-needed-now` do not create obligations. This contract does not impose an automatic ban on each local commit, push, or draft phase close.
 
 ## Adoption and Structural Validation

@@ -24,6 +24,6 @@ Coordinate: W20 R1 P2
 
 Remaining evidence: Run the failed-upload recovery path in the installed release command.
 
-Exit criteria: The installed command resumes at the failed part and the Human Experience Review conclusion is met.
+Exit criteria: The installed command resumes at the failed part and the Human Experience Review conclusion is satisfied.
 
 Backlinks: [Plan](./plan.md), [owning PRD](./prd.md), [phase work](./work.md), and [current evidence](./evidence.md).

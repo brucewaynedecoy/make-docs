@@ -22,7 +22,13 @@ Evidence source: Installed release output for success, partial success, and fail
 
 Observation: The reviewer inspected three captured results. Each result placed the product, state, and next action before the detail view.
 
-Human Experience Review conclusion: `met`
+## Human Experience Review
+
+| Promise | Evidence | Observation | Conclusion | Reviewer | Reviewer limit | Disposition |
+| --- | --- | --- | --- | --- | --- | --- |
+| [HX-DIR-01](./design.md#human-experience-intent) | Installed release output for success, partial success, and failure. | Each captured result placed the product, state, and next action before the detail view. | `satisfied` | Delivery reviewer | No independent operator took part. This is an artifact review, not lived human judgment. | Accept only the installed terminal-result claim covered by these three states. |
+
+Human Experience Review conclusion: `satisfied`
 
 Reviewer limit: No independent operator took part. This is an artifact review, not lived human judgment. P4 owns broader failure-revealing review.
 

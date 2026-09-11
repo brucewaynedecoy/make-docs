@@ -24,11 +24,11 @@ Observable acceptance: Every serializer branch returns a complete object.
 
 ## Current Testing Decisions
 
-| Testing type | Decision informed | Reason now | Product maturity | Scope | Executor | Gate effect | Effort budget | Stop condition | Evidence retained | Rerun trigger |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Automated Implementation Testing | selected | Serializer branch coverage is the only retained claim. | Lifecycle propagation fixture | Status enum serialization | Implementation agent | Passes the technical fixture gate. | Existing unit suite | Stop after all serializer branches pass. | Serializer unit result | The serializer changes. |
-| Performance Testing | not-needed-now | The copied record has no speed, load, or resource claim. | Lifecycle propagation fixture | Serializer shape | Not assigned | Does not block the technical fixture. | None | Stop while no quantitative claim exists. | This decision record | A quantitative claim is added. |
-| Guided Progress Review | not-needed-now | The copied record treats schema completeness as the full result. | Lifecycle propagation fixture | Generated result object | Not assigned | Leaves the human goal unreviewed. | None | Stop after schema inspection. | This decision record | A semantic review is requested. |
-| Unassisted Goal Testing | not-needed-now | The copied record does not retain an operator goal. | Lifecycle propagation fixture | Generated result object | Not assigned | Cannot support a lived-human claim. | None | Stop without simulating an operator. | This decision record | The lost operator goal is restored. |
+| Testing type | Decision informed | Reason now | Product maturity | Scope | Executor | Gate effect | Effort budget | Stop condition | Evidence retained | Rerun trigger | Decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Automated Implementation Testing | Do serializer unit tests cover each status enum? | Serializer branch coverage is the only retained claim. | Lifecycle propagation fixture | Status enum serialization | Implementation agent | Passes the technical fixture gate. | Existing unit suite | Stop after all serializer branches pass. | Serializer unit result | The serializer changes. | selected |
+| Performance Testing | Can performance evidence change the current serializer-shape decision? | The copied record has no speed, load, or resource claim. | Lifecycle propagation fixture | Serializer shape | Not assigned | Does not block the technical fixture. | None | Stop while no quantitative claim exists. | This decision record | A quantitative claim is added. | not-needed-now |
+| Guided Progress Review | Can schema inspection alone answer the operator-understanding goal? | The copied record treats schema completeness as the full result. | Lifecycle propagation fixture | Generated result object | Not assigned | Leaves the human goal unreviewed. | None | Stop after schema inspection. | This decision record | A semantic review is requested. | not-needed-now |
+| Unassisted Goal Testing | Can an unassisted attempt answer a goal the copied record did not retain? | The copied record does not retain an operator goal. | Lifecycle propagation fixture | Generated result object | Not assigned | Cannot support a lived-human claim. | None | Stop without simulating an operator. | This decision record | The lost operator goal is restored. | not-needed-now |
 
 Human Experience Review: The field list is present, so no result review is planned.
