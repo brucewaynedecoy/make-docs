@@ -13,7 +13,7 @@ import { PACKAGE_ROOT } from "../src/utils";
 vi.mock("node:fs", async (importOriginal) => ({ ...await importOriginal<typeof import("node:fs")>() }));
 
 const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
-const names = ["archive-docs", "cleanup-docs", "decompose-codebase", "human-experience", "naive-uat", "preflight", "software-factory"];
+const names = ["archive-docs", "cleanup-docs", "decompose-codebase", "factory", "human-experience", "naive-uat", "preflight"];
 const roots: string[] = [];
 afterEach(() => { vi.restoreAllMocks(); for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
@@ -122,7 +122,7 @@ describe("embedded first-party Skills", () => {
   });
 
   test("keeps promoted Skills explicit-only and preflight independent", () => {
-    for (const name of ["preflight", "software-factory", "human-experience"]) {
+    for (const name of ["preflight", "factory", "human-experience"]) {
       const root = path.join(PACKAGE_ROOT, "../skills", name);
       expect(parse(readFileSync(path.join(root, "agents/openai.yaml"), "utf8")).policy.allow_implicit_invocation).toBe(false);
       const body = readFileSync(path.join(root, "SKILL.md"), "utf8");

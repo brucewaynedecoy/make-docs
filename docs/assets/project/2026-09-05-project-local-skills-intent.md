@@ -66,7 +66,7 @@ This example illustrates clarity. It proposes no Make Docs behavior.
 
 Preflight should produce a clear account of settled choices, unresolved needs, and the work they affect. The form and storage of that account are design questions. Preflight does not itself authorize implementation. A request to implement existing work should not force a separate preflight interview when no owner choice is needed.
 
-### 2. Optional Software Factory
+### 2. Optional Factory
 
 The factory depends on existing Make Docs PRDs and work backlogs. Make Docs provides the product planning layer. The factory uses those documents to carry out the selected work. It does not replace them or offer another method for generating them.
 

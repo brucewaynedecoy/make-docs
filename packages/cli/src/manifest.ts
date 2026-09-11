@@ -93,6 +93,11 @@ export const MAKE_DOCS_STATE_RELATIVE_DIR = TOOL_DIRECTORY_RELATIVE_PATH;
 export const MANIFEST_RELATIVE_PATH = TOOL_DIRECTORY_MANIFEST_RELATIVE_PATH;
 export const CONFLICTS_RELATIVE_DIR = TOOL_DIRECTORY_CONFLICTS_RELATIVE_DIR;
 
+const FIRST_PARTY_SKILL_MANIFEST_ID = "make-docs.first-party";
+const FIRST_PARTY_SKILL_SELECTION_RENAMES = new Map([
+  ["software-factory", "factory"],
+]);
+
 export function getManifestPath(targetDir: string): string {
   return path.join(targetDir, MANIFEST_RELATIVE_PATH);
 }
@@ -140,6 +145,37 @@ export function loadLegacyManifest(targetDir: string): InstallManifest | null {
   return validateAndMigrateManifest(JSON.parse(readTextFile(file)), file);
 }
 
+function migrateFirstPartySelectedSkills(
+  selectedSkills: string[],
+  skillManifest: SkillManifestSelectionSource | undefined,
+  skillSelectionProvenance: SkillSelectionProvenanceEntry[] | undefined,
+): string[] {
+  const usesBuiltInFirstPartyManifest =
+    skillManifest?.manifestId === FIRST_PARTY_SKILL_MANIFEST_ID &&
+    skillManifest.sourcePolicyKind === "first-party" &&
+    skillManifest.source === "built-in";
+  const hasFirstPartySelectionProof = skillSelectionProvenance?.some(
+    (entry) =>
+      entry.manifestId === FIRST_PARTY_SKILL_MANIFEST_ID &&
+      entry.sourcePolicyKind === "first-party" &&
+      entry.provenanceKind === "first-party" &&
+      entry.skillName === "software-factory" &&
+      entry.skillSource === "embedded:software-factory",
+  );
+
+  if (!usesBuiltInFirstPartyManifest && !hasFirstPartySelectionProof) {
+    return selectedSkills;
+  }
+
+  return Array.from(
+    new Set(
+      selectedSkills.map(
+        (name) => FIRST_PARTY_SKILL_SELECTION_RENAMES.get(name) ?? name,
+      ),
+    ),
+  ).sort();
+}
+
 export function migrateSelections(selections: unknown): InstallSelections {
   assertPlainObject(selections, "selections");
   assertNoRemovedAssetFields(selections, "selections");
@@ -148,7 +184,6 @@ export function migrateSelections(selections: unknown): InstallSelections {
   if ("optionalSkills" in legacy) {
     throw new Error("selections.optionalSkills is no longer supported");
   }
-  const selectedSkills = validateSelectedSkills(legacy.selectedSkills);
   const skillHarnesses = legacy.skillHarnesses === undefined ? undefined : validateHarnesses(legacy.skillHarnesses);
   const skillManifest =
     "skillManifest" in legacy && legacy.skillManifest !== undefined
@@ -159,6 +194,11 @@ export function migrateSelections(selections: unknown): InstallSelections {
     legacy.skillSelectionProvenance !== undefined
       ? validateSkillSelectionProvenance(legacy.skillSelectionProvenance)
       : undefined;
+  const selectedSkills = migrateFirstPartySelectedSkills(
+    validateSelectedSkills(legacy.selectedSkills),
+    skillManifest,
+    skillSelectionProvenance,
+  );
   const plugins =
     legacy.plugins === undefined
       ? false

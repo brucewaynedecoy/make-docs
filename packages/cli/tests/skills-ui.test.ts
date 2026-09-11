@@ -157,7 +157,7 @@ describe("skills-only UI", () => {
       "decompose-codebase",
       "cleanup-docs",
       "human-experience",
-      "software-factory",
+      "factory",
       "naive-uat",
       "preflight",
     ]);

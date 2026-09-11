@@ -7,6 +7,7 @@ import {runSkillsCommand} from '../src/skills-command';
 import {readInstallationManifest} from '../src/store/installation-state';
 import {installMakeDocsTarget} from './helpers';
 import {defaultSelections,resolveInstallProfile} from '../src/profile';
+import {writeManifest} from '../src/manifest';
 const ui=vi.hoisted(()=>({accept:false,confirm:vi.fn()}));
 vi.mock('@clack/prompts',async original=>({...await original<typeof import('@clack/prompts')>(),confirm:ui.confirm}));
 let temp:string,root:string,store:string,log:string,summary:string,restoreTty:(()=>void)[];
@@ -21,13 +22,34 @@ describe('public Skill adoption approval gate',()=>{
  it('uses the displayed digest for interactive confirmation',async()=>{tty(true);ui.accept=true;await runSkillsCommand({...command(),yes:false});expect(ui.confirm).toHaveBeenCalledOnce();expect(readInstallationManifest(root)!.selections.selectedSkills).toEqual(['preflight']);expect(log).toContain('"status": "completed"');});
  it('keeps Codex-only Skill selection on later plain sync in a two-router project',async()=>{await installMakeDocsTarget(root);const before=readInstallationManifest(root)!;expect(before.selections.harnesses).toEqual({codex:true,'claude-code':true});await runSkillsCommand({...command(),dryRun:true});const digest=JSON.parse(log).reviewDigest;log='';await runSkillsCommand({...command(),review:digest});const saved=readInstallationManifest(root)!;expect(saved.selections.harnesses).toEqual(before.selections.harnesses);expect(saved.selections.skillHarnesses).toEqual({codex:true,'claude-code':false});expect(fs.existsSync(path.join(root,'.claude/skills/preflight'))).toBe(false);log='';await runSkillsCommand({targetDir:root,dryRun:false,yes:true,remove:false,noCodex:false,noClaudeCode:false});expect(fs.existsSync(path.join(root,'.claude/skills/preflight'))).toBe(false);expect(log).toContain('No make-docs skill changes');});
  it('summarizes ownership-only adoption on stderr while stdout remains complete JSON',async()=>{
-  await installMakeDocsTarget(root);const names=['human-experience','preflight','software-factory'];
+  await installMakeDocsTarget(root);const names=['factory','human-experience','preflight'];
   for(const name of names)fs.cpSync(path.resolve('../../packages/skills',name),path.join(root,'.agents/skills',name),{recursive:true});
   const input={...command(),selectedSkills:names,adoptExisting:names};log='';summary='';await runSkillsCommand({...input,dryRun:true});
   const review=JSON.parse(log);expect(review.status).toBe('ready');expect(review.changes).toEqual([]);expect(review.backups).toEqual([]);expect(review.ownership.filter((row:{effect:string})=>row.effect==='register')).toHaveLength(12);
   expect(summary).toContain('No file contents will change.');expect(summary).toContain('If approved, Make Docs will manage 12 existing files across 3 Skills.');expect(summary).toContain('Ownership entries: 12 to register, 0 to update, 0 to remove, 0 to retain.');expect(summary).toContain('No adoption changes have been applied.');expect(readInstallationManifest(root)!.selections.selectedSkills).not.toContain('preflight');
   log='';summary='';await runSkillsCommand({...input,review:review.reviewDigest});expect(JSON.parse(log).status).toBe('completed');
   log='';summary='';await runSkillsCommand({...input,dryRun:true});const repeat=JSON.parse(log);expect(repeat.status).toBe('unchanged');expect(summary).toContain('Make Docs already manages 12 files and 0 native exposures across 3 Skills.');expect(summary).toContain('No file or ownership changes are needed.');expect(summary).toContain('0 to register, 0 to update, 0 to remove, 12 to retain.');expect(summary).not.toContain('will manage');
+ });
+ it('renames a trusted managed Software Factory installation to Factory',async()=>{
+  await installMakeDocsTarget(root,selections=>{selections.skills=true;selections.selectedSkills=['factory'];selections.harnesses={codex:true,'claude-code':false};selections.skillHarnesses={codex:true,'claude-code':false};});
+  const current=readInstallationManifest(root)!;
+  const currentRoot='.agents/skills/factory',legacyRoot='.agents/skills/software-factory';
+  fs.renameSync(path.join(root,currentRoot),path.join(root,legacyRoot));
+  const legacyPath=(value:string)=>value.replace(currentRoot,legacyRoot);
+  current.selections.selectedSkills=['software-factory'];
+  current.selections.skillManifest={manifestId:'make-docs.first-party',displayName:'Make Docs first-party Skills',sourcePolicyKind:'first-party',source:'built-in'};
+  current.selections.skillSelectionProvenance=[{skillName:'software-factory',displayName:'Software Factory',manifestId:'make-docs.first-party',manifestDisplayName:'Make Docs first-party Skills',sourcePolicyKind:'first-party',purposeIds:[],purposeLabels:[],supportedHarnesses:['codex','claude-code'],skillSource:'embedded:software-factory',provenanceKind:'first-party',provenanceLabel:'Make Docs first-party Skill'}];
+  current.skillFiles=current.skillFiles.map(legacyPath);
+  current.files=Object.fromEntries(Object.entries(current.files).map(([file,entry])=>[legacyPath(file),entry]));
+  writeManifest(root,current);
+  log='';summary='';
+  await runSkillsCommand({targetDir:root,dryRun:false,yes:true,remove:false,noCodex:false,noClaudeCode:false});
+  expect(fs.existsSync(path.join(root,currentRoot,'SKILL.md'))).toBe(true);
+  expect(fs.existsSync(path.join(root,legacyRoot))).toBe(false);
+  const updated=readInstallationManifest(root)!;
+  expect(updated.selections.selectedSkills).toEqual(['factory']);
+  expect(updated.selections.skillSelectionProvenance?.map(entry=>entry.skillName)).toEqual(['factory']);
+  expect(updated.skillFiles.some(file=>file.startsWith(`${legacyRoot}/`))).toBe(false);
  });
  it('states blockers without claiming approval or ownership writes',async()=>{
   fs.mkdirSync(path.join(root,'.agents/skills/preflight'),{recursive:true});fs.writeFileSync(path.join(root,'.agents/skills/preflight/unknown.txt'),'preserve');await runSkillsCommand({...command(),dryRun:true});const review=JSON.parse(log);expect(review.status).toBe('blocked');expect(summary).toContain('Adoption is blocked. No changes have been made.');expect(summary).toContain('Unknown extra file:');expect(summary).not.toContain('will manage');expect(fs.existsSync(store)).toBe(false);

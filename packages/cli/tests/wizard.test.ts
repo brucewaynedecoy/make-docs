@@ -415,7 +415,7 @@ describe("selection wizard", () => {
         description: "Shape or review a clear, usable human interaction. Explicit use only.",
       },
       {
-        name: "software-factory",
+        name: "factory",
         description: "Coordinate approved backlog work, review, and correction. Explicit use only.",
       },
       {

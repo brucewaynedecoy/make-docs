@@ -1,6 +1,6 @@
 # Document Skills
 
-This workspace is the sole authoring source for the seven optional first-party Skills: `archive-docs`, `cleanup-docs`, `decompose-codebase`, `preflight`, `software-factory`, `human-experience`, and `naive-uat` (Unassisted Goal Testing). The CLI build reads each file declared in `packages/cli/skill-registry.json` and embeds its bytes in `dist/`. It creates no separate Skill payload tree under `packages/cli` or `packages/docs`. First-party installs read only those embedded bytes, without network or checkout fallback.
+This workspace is the sole authoring source for the seven optional first-party Skills: `archive-docs`, `cleanup-docs`, `decompose-codebase`, `preflight`, `factory`, `human-experience`, and `naive-uat` (Unassisted Goal Testing). The CLI build reads each file declared in `packages/cli/skill-registry.json` and embeds its bytes in `dist/`. It creates no separate Skill payload tree under `packages/cli` or `packages/docs`. First-party installs read only those embedded bytes, without network or checkout fallback.
 
 The installed path authority is the scope and harness matrix in [PRD 28](../../docs/prd/28-shared-agentics-installation-and-harness-exposure.md#shared-agentics-store). Standard agent directories hold installed Skill files. The global Make Docs Store holds installation state. Never create an active `.make-docs/agentics` Skill root. Earlier proof of that private layout is superseded and is not authoring guidance.
 

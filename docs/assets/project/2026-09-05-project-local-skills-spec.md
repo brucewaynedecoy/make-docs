@@ -15,7 +15,7 @@ Create three project-local skills. Each serves a distinct request:
 | Proposed name | Human purpose | Main result |
 | --- | --- | --- |
 | `preflight` | Settle the choices needed before a phase starts. | Clear decisions and a useful readiness summary. |
-| `software-factory` | Complete approved backlog work through coordinated work and review. | A checked result with direct evidence and clear remaining work. |
+| `factory` | Complete approved backlog work through coordinated work and review. | A checked result with direct evidence and clear remaining work. |
 | `human-experience` | Make an assigned result clear, usable, and pleasant for people. | Better work, or a focused review with evidence. |
 
 The count is settled at three. The names and operating details below are proposals for review. These skills are used only on explicit request. Ordinary direct implementation remains available without the factory.
@@ -30,11 +30,11 @@ Use short requests with normal language. These examples describe future behavior
 | --- | --- |
 | `$preflight Phase 4` | Find Phase 4 in the current backlog. Review it and work through needed choices. Finish with readiness. |
 | `$preflight Phase 4; report only` | Inspect the phase and report open choices without starting a decision interview. |
-| `$software-factory Phase 4; subagents only` | Coordinate Phase 4 implementation and review through subagents, within existing permissions. |
-| `$software-factory Wave 2; use this profile` | Use the selected profile for the authorized wave. Follow its dependencies and stated stop boundary. |
+| `$factory Phase 4; subagents only` | Coordinate Phase 4 implementation and review through subagents, within existing permissions. |
+| `$factory Wave 2; use this profile` | Use the selected profile for the authorized wave. Follow its dependencies and stated stop boundary. |
 | `$human-experience review this CLI` | Review the requested command interface and normal output. Report findings. |
 | `Use $human-experience while writing this guide` | Apply the guidance while doing the requested writing. |
-| `Use $preflight for Phase 4, then $software-factory to implement it with subagents. Apply $human-experience throughout.` | Use all three within the stated scope. Continue into implementation when the settled scope and applicable permissions allow it. |
+| `Use $preflight for Phase 4, then $factory to implement it with subagents. Apply $human-experience throughout.` | Use all three within the stated scope. Continue into implementation when the settled scope and applicable permissions allow it. |
 
 Resolve the target from the request and current project context. Ask only when a missing fact would change the work. For example, two active backlogs with a Phase 4 need a short clarification. Do not ask the owner to fill in a run configuration when their request is already clear.
 
@@ -95,7 +95,7 @@ An answer recorded in a preflight note does not silently rewrite a PRD. When a c
 
 A preflight-only request ends after its stated output. When the owner has also authorized implementation, carry the settled result into that work. Do not add a fresh start confirmation solely because preflight ended. Preserve any specific approval required by the current project or tool.
 
-## Software Factory
+## Factory
 
 ### Three Separate Choices
 
@@ -269,7 +269,7 @@ Keep ordinary behavior in the entry file. Add a reference only when its detail i
 | Skill | Detail to load only when needed |
 | --- | --- |
 | Preflight | Examples for difficult or linked decisions. |
-| Software factory | A selected tool method, profile guidance, or resume procedure. |
+| Factory | A selected tool method, profile guidance, or resume procedure. |
 | Human experience | Examples for the surface under review. |
 
 Do not add empty folders, copied policy manuals, or scripts without a use. Do not make each skill load the other two. When several skills are explicitly requested, carry their applicable guidance into worker briefs within the same assignment.

@@ -21,7 +21,7 @@ const tarball = fs.realpathSync(option('--tar'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'make-docs-skill-proof-'));
 const output = path.resolve(option('--output') ?? path.join(scratch, 'report.json'));
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
-const names = ['archive-docs', 'cleanup-docs', 'decompose-codebase', 'preflight', 'software-factory', 'human-experience', 'naive-uat'];
+const names = ['archive-docs', 'cleanup-docs', 'decompose-codebase', 'preflight', 'factory', 'human-experience', 'naive-uat'];
 const report = {
   schemaVersion: 1, startedAt: new Date().toISOString(), status: 'running',
   sourceRoot, tarball, tarSha256: hash(fs.readFileSync(tarball)), scratch,

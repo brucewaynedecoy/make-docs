@@ -52,7 +52,7 @@ The current npm package ships a read-first MCP stdio surface through `make-docs 
 
 ## Package Contents
 
-All seven optional first-party Skills are embedded in the compiled `dist/` output. Selecting a first-party Skill needs no network fetch or source checkout. A missing or corrupt embedded payload stops safely; it does not fall back to a remote copy. `preflight`, `software-factory`, and `human-experience` activate only on explicit request. `naive-uat` keeps the Unassisted Goal Testing workflow and CLI interface.
+All seven optional first-party Skills are embedded in the compiled `dist/` output. Selecting a first-party Skill needs no network fetch or source checkout. A missing or corrupt embedded payload stops safely; it does not fall back to a remote copy. `preflight`, `factory`, and `human-experience` activate only on explicit request. `naive-uat` keeps the Unassisted Goal Testing workflow and CLI interface.
 
 The published npm tarball contains npm metadata and license files, this README, built CLI output under `dist/`, the bundled `template/`, `skill-registry.json`, and `skill-registry.schema.json`. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not shipped as tarball-root package contents.
 

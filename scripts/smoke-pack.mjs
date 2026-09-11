@@ -161,7 +161,7 @@ const EXPECTED_ALL_SKILLS = [
   "cleanup-docs",
   "decompose-codebase",
   "preflight",
-  "software-factory",
+  "factory",
   "human-experience",
   "naive-uat",
 ];

@@ -69,17 +69,17 @@ describe("skill registry", () => {
       "decompose-codebase",
       "naive-uat",
       "preflight",
-      "software-factory",
+      "factory",
       "human-experience",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
       "cleanup-docs",
       "decompose-codebase",
+      "factory",
       "human-experience",
       "naive-uat",
       "preflight",
-      "software-factory",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
@@ -118,7 +118,7 @@ describe("skill registry", () => {
       registry.skills.flatMap((skill) => skill.purposes),
     );
 
-    // Retired lifecycle Skills stay withdrawn. The explicit Software Factory
+    // Retired lifecycle Skills stay withdrawn. The explicit Factory
     // now occupies workflow-execution without restoring those Skill names.
     expect(registry.purposes.map((purpose) => purpose.id)).toContain(
       "lifecycle-closeout",

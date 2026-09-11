@@ -55,11 +55,11 @@ The first-party catalog has seven entries. The CLI build embeds each complete de
 | `decompose-codebase` | Codebase decomposition and plan creation |
 | `cleanup-docs` | Documentation maintenance |
 | `preflight` | Explicitly requested readiness review |
-| `software-factory` | Explicitly requested implementation and review coordination |
+| `factory` | Explicitly requested implementation and review coordination |
 | `human-experience` | Explicitly requested human experience review |
 | `naive-uat` | Unassisted Goal Testing through the shared CLI workflow |
 
-The former `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` Skills remain retired. Installing preflight, software-factory, or human-experience does not invoke them or add a workflow gate. Each Skill can be installed alone; `naive-uat` delegates policy and state to the shared CLI workflow.
+The former `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` Skills remain retired. Installing preflight, factory, or human-experience does not invoke them or add a workflow gate. Each Skill can be installed alone; `naive-uat` delegates policy and state to the shared CLI workflow.
 
 `all` expands against the effective manifest for the current run, so a local alternate manifest can replace this set without changing the packaged first-party catalog.
 

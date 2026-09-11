@@ -320,11 +320,11 @@
       ]
     },
     {
-      "name": "software-factory",
-      "displayName": "Software Factory",
-      "source": "embedded:software-factory",
+      "name": "factory",
+      "displayName": "Factory",
+      "source": "embedded:factory",
       "entryPoint": "SKILL.md",
-      "installName": "software-factory",
+      "installName": "factory",
       "description": "Coordinate approved backlog work, review, and correction. Explicit use only.",
       "purposes": [
         "workflow-execution"

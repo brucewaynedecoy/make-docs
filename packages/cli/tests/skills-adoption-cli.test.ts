@@ -17,8 +17,8 @@ test("forwards the exact adoption selection and digest without creating the targ
   const target = path.join(parent, "not-created");
   const run = vi.fn(async (_options: unknown) => {});
   __setSkillsCommandRunnerForTests(run);
-  await runCli(["setup", "skills", "--target", target, "--selected-skills", "preflight,software-factory", "--adopt-existing", "preflight,software-factory", "--review", digest, "--yes", "--no-claude-code", "--skill-scope", "global"]);
-  expect(run).toHaveBeenCalledWith({ targetDir: target, dryRun: false, yes: true, remove: false, noCodex: false, noClaudeCode: true, skillScope: "global", selectedSkills: ["preflight", "software-factory"], skillsManifest: undefined, adoptExisting: ["preflight", "software-factory"], review: digest });
+  await runCli(["setup", "skills", "--target", target, "--selected-skills", "preflight,factory", "--adopt-existing", "preflight,factory", "--review", digest, "--yes", "--no-claude-code", "--skill-scope", "global"]);
+  expect(run).toHaveBeenCalledWith({ targetDir: target, dryRun: false, yes: true, remove: false, noCodex: false, noClaudeCode: true, skillScope: "global", selectedSkills: ["factory", "preflight"], skillsManifest: undefined, adoptExisting: ["preflight", "factory"], review: digest });
   expect(existsSync(target)).toBe(false);
 });
 
@@ -31,7 +31,7 @@ test.each([
   ["--adopt-existing"],
   ["--adopt-existing", "all"],
   ["--adopt-existing", "none"],
-  ["--adopt-existing", "preflight,,software-factory"],
+  ["--adopt-existing", "preflight,,factory"],
   ["--adopt-existing", "../preflight"],
   ["--review", digest],
   ["--adopt-existing", "preflight", "--review", "short"],
@@ -47,7 +47,7 @@ test.each([
 test("refuses unknown or explicitly unselected adoption names before dispatch", async () => {
   const run = vi.fn(async (_options: unknown) => {}); __setSkillsCommandRunnerForTests(run);
   await expect(runCli(["setup", "skills", "--adopt-existing", "unknown", "--dry-run"])).rejects.toThrow("Unknown adoption Skill");
-  await expect(runCli(["setup", "skills", "--selected-skills", "preflight", "--adopt-existing", "software-factory", "--dry-run"])).rejects.toThrow("must be included");
+  await expect(runCli(["setup", "skills", "--selected-skills", "preflight", "--adopt-existing", "factory", "--dry-run"])).rejects.toThrow("must be included");
   expect(run).not.toHaveBeenCalled();
 });
 

@@ -42,11 +42,11 @@ The first-party catalog currently exposes these selectable skills:
 | `decompose-codebase` | Codebase decomposition and plan creation |
 | `cleanup-docs` | Documentation maintenance |
 | `preflight` | Readiness review when explicitly requested |
-| `software-factory` | Implementation and review coordination when explicitly requested |
+| `factory` | Implementation and review coordination when explicitly requested |
 | `human-experience` | Human experience review when explicitly requested |
 | `naive-uat` | Unassisted Goal Testing through the shared CLI workflow |
 
-All seven first-party payloads are embedded in the CLI package. Each can be installed alone without a network or the Make Docs source checkout. A missing or corrupt bundle stops safely; it does not trigger a hidden download. Installing preflight, software-factory, or human-experience does not invoke it or activate another Skill.
+All seven first-party payloads are embedded in the CLI package. Each can be installed alone without a network or the Make Docs source checkout. A missing or corrupt bundle stops safely; it does not trigger a hidden download. Installing preflight, factory, or human-experience does not invoke it or activate another Skill.
 
 Skills are installed only when skills are enabled and the skill is in the selected set. The CLI selection UI groups candidates by purpose and shows the candidate skill name, source policy, supported harnesses, and provenance.
 

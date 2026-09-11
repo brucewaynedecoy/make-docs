@@ -1,9 +1,9 @@
 ---
-name: software-factory
-description: Coordinate approved Make Docs backlog work through workers, review, and correction. Use only when the user explicitly requests $software-factory or this software factory skill.
+name: factory
+description: Coordinate approved Make Docs backlog work through workers, review, and correction. Use only when the user explicitly requests $factory or this factory skill.
 ---
 
-# Software Factory
+# Factory
 
 Complete the unit of work the owner requested. Stay responsible for scope, judgment, and integration while workers do bounded work. Make Docs supplies the product requirements and backlog; this skill does not replace that planning layer.
 
