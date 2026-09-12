@@ -32,6 +32,16 @@ There is no active `.make-docs/agentics/` installation layer, in the project or 
 
 The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. Direct canonical native directories are not duplicated or linked to themselves. Additional selected access uses an exact directory link to the real Skill path or the supported full-copy fallback. Windows symlink limits retain the existing managed-copy behavior; a copy is written directly under the selected native Skill root.
 
+### Harness Connection Methods
+
+- R-HARNESS-1 (MUST): each supported harness has a bounded first-party adapter. The adapter declares detection evidence, native configuration paths, supported connection methods, admitted operations, access requirements, planning, apply, verification, drift, removal, and conformance identity.
+- R-HARNESS-2 (MUST): Codex can offer MCP or bounded verified-executable command rules. Claude Code can offer MCP or native permission rules. A method is shown only when it is implemented and has the support evidence required by PRD 20.
+- R-HARNESS-3 (MUST): Pi can offer a first-party extension only after that extension has its own implementation, lifecycle safety, installed-product proof, and real Pi conformance. A third-party MCP extension does not satisfy this contract and does not become a Make Docs dependency.
+- R-HARNESS-4 (MUST): detection suggests installed harnesses but does not prove a connection or limit manual selection. Native configuration and verified receipts determine effective state.
+- R-HARNESS-5 (MUST): command rules name the verified Make Docs executable and the smallest admitted command prefix for each access class. They never grant a shell wrapper, package runner, broad Make Docs command, or machine lifecycle command.
+- R-HARNESS-6 (MUST): adapter planning preserves unknown and user-owned native configuration. Apply changes only exact reviewed entries. Verification reads the live native state and records a separate Store receipt for each machine and project operation.
+- R-HARNESS-7 (MUST): repeat setup reports `current`, `missing`, `drifted`, `unsupported`, or `blocked` for each method. It repairs only reviewed Make Docs-owned drift and never treats elapsed time, a matching name, or a detected file as ownership proof.
+
 ### Manifest Ownership
 
 `selectedSkills` remains the behavior-level selected-skill list.
@@ -86,7 +96,7 @@ The first-party Unassisted Goal Testing Skill is a supported optional payload. I
 
 All seven first-party Skills use the bundled delivery contract owned by PRD 08. Setup installs selected payloads into the shared content root and exposes them through the native harness paths above. The `naive-uat` adapter follows this common delivery rule without changing the shared UAT workflow or policy.
 
-Make Docs has no general plugin, hook, extension, workflow-bundle, Playbook-generated Skill, or harness-adapter installation contract. An agentic integration may enter this store only after a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and install/uninstall authority exist; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
+Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product. The bounded first-party harness adapters in R-HARNESS are part of setup, not a third-party plugin system. Any additional adapter or method needs a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and safe install and removal authority; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
 
 ### No-Default-Skills
 
@@ -98,8 +108,8 @@ Shared agentics are written only when the user explicitly selects Skills through
 - No generated-stub default behavior.
 - No symlink-only behavior without copy-mirror fallback.
 - No silent fallback from native exposure to generic stubs.
-- No plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract in this shared-agentics PRD.
-- No MCP write surface.
+- No general third-party plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract.
+- No harness method that bypasses the operation access contract, explicit write permission, reviewed host change, or parity proof.
 - No broader alternate-source trust redesign; PRD 08 owns the first-party bundled delivery contract.
 - No automatic selected Skill or other agentic installation.
 ## Acceptance Criteria
@@ -117,6 +127,8 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Adoption proof covers read-only review, required digest, stale package/input/selection/ownership refusal, reviewed known-file replacement with backups, and blockers that preserve unsafe or unknown content.
 - Ownership-only adoption creates the required Store record; unavailable Store and interrupted apply cannot claim success or create project-local state.
 - Isolated project/global lifecycle checks cover native symlink and copy exposure, repeat, update from old first-party remote provenance without fetch, edited-file conflict, removal, and shared recovery.
+- Isolated-home tests prove exact Codex and Claude Code native changes, user-entry preservation, verified-executable rules, separate machine and project receipts, drift states, and idempotent repeat setup.
+- Real-harness tests prove each shown connection method. Pi stays absent until its first-party extension passes the same lifecycle and conformance gates.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -127,6 +139,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Native Harness Exposure`, `Harness Connection Methods`, `Optional Agentics Boundary`, `Non-Requirements`, and `Acceptance Criteria`
+- Previous contract: native exposure covered selected Skill files and excluded a current harness-adapter or extension installation contract.
+- Replacement contract: setup has bounded first-party adapters for conformance-proven native methods, while Skills remain separate and no general plugin system is created.
+- Rationale: users need safe Store-backed agent access in harnesses that can use MCP, native rules, or a future first-party extension.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard-Location Correction
 

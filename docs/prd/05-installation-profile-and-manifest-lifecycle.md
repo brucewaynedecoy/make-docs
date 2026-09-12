@@ -20,7 +20,7 @@ Installation records live in the global Store under [PRD 38](38-global-store-and
 
 ## Component and Capability Map
 
-- Install and sync use `setup`; explicit reconfiguration uses `setup reconfigure`; skills maintenance uses `setup skills`; backup uses `setup backup`; and project uninstall uses `setup remove`. Bare `make-docs` is context-aware: it starts guided setup when no install is present and otherwise shows status and help without auto-sync. `setup` and `setup reconfigure` detect pre-v2 configuration and require warning plus backup or cancellation. The three install modes, dependency-aware selection resolution, planner/apply flow, conflict staging, and reviewed audit-snapshot safety model remain active under these spellings, as defined with the command grammar in [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md).
+- Install and sync use the state-aware `setup` flow. Machine-level harness support uses `setup system`. `setup reconfigure` remains a direct route into the same state model. Skills maintenance uses `setup skills`; backup uses `setup backup`; and project uninstall uses `setup remove`. Bare `make-docs` is context-aware: it starts guided setup when no install is present and otherwise shows status and help without auto-sync. `setup` and `setup reconfigure` detect pre-v2 configuration and require warning plus backup or cancellation. The planner/apply flow, conflict staging, and reviewed audit-snapshot safety model remain active under these spellings, as defined with the command grammar in [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md).
 
 - CLI intent routing starts with `runCli`, `inferInstallIntent`, `resolveSelections`, and `describeSelectionSource` in `packages/cli/src/cli.ts`, which load the existing manifest, infer `apply` versus `reconfigure`, and record whether selections came from defaults, saved manifest state, flags, or the interactive wizard. Bare apply against an existing manifest intentionally behaves like sync instead of reopening the wizard, as covered by `packages/cli/tests/cli.test.ts`.
 - First interactive installs and interactive reconfigure runs pass through the wizard in `runCli` in `packages/cli/src/cli.ts`; non-interactive `--yes` runs skip prompts, and `resolveSelections` combines saved state or `defaultSelections` from `packages/cli/src/profile.ts` with CLI overrides. First-run defaults under `--yes` are verified in `packages/cli/tests/cli.test.ts`.
@@ -37,6 +37,12 @@ Installation records live in the global Store under [PRD 38](38-global-store-and
 
 - R-INSTALL-STORE-1 (MUST): every setup, reconfigure, selected-Skill, resource ensure, project-surface, update, backup, remove, and restore path uses the same Store-owned installation, operation, and locking service. A direct writer must not bypass this boundary.
 - R-INSTALL-STORE-2 (MUST): commit a durable operation intent before file mutation and validate actual results before committing final ownership. Store or filesystem failure leaves a visible recoverable operation. Saved hashes or names alone never authorize overwriting new user changes.
+
+- R-INSTALL-SETUP-1 (MUST): fresh project setup does not ask the user to select document types. It selects Designs, Plans, PRD, and Work as one product foundation. Existing partial projects keep their current document-type selection until the user reviews an expansion.
+- R-INSTALL-SETUP-2 (MUST): project setup asks for harnesses, the supported Make Docs methods for each harness, system-resource placement, and project initialization. Harness detection assists selection but does not hide supported choices or prove that support is active.
+- R-INSTALL-SETUP-3 (MUST): missing machine-level harness support can be completed inside project setup through the same operation used by `setup system`. The review separates machine changes from project changes. The machine operation applies and verifies before the project operation starts.
+- R-INSTALL-SETUP-4 (MUST): a project-operation failure does not roll back a valid machine-level setup. The Store records the two outcomes separately. A repeat run reads those records, shows current and incomplete work, and resumes without repeating verified changes.
+- R-INSTALL-SETUP-5 (MUST): machine intent, live harness configuration, Store receipts, and project intent remain separate. The more restrictive valid state controls effective access. Project configuration can inherit, narrow, or disable machine-approved support, but it cannot grant new machine trust.
 
 - Contracts, prompts, references, and templates are resolved from the machine-installed provider by default through stable `make-docs://system/<type>/<posix-relative-path>` identities. Setup does not eagerly copy the full resource snapshot into a project.
 - Interactive setup and `setup reconfigure` offer explicit local projection selection as none, individual resource types, or all, show the resulting file plan, and persist the reviewed choice. Non-interactive operation uses explicit selection input or the saved manifest selection and never silently broadens it.
@@ -102,6 +108,14 @@ R-ASSET-INSTALL-1 (MUST): fresh setup excludes the assets root from the uncondit
 R-ASSET-INSTALL-2 (MUST): layout preparation binds the exact source inventory, destination map, expected bytes, link edits, conflicts, and recovery evidence to one reviewed Store operation under PRD 18. An explicitly approved move may relocate project-owned content without claiming it as managed product content. No destination collision or stale input can silently expand overwrite or removal authority.
 
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Component and Capability Map` and `Selection and Manifest Invariants`
+- Previous contract: fresh setup asked for capability and document-type selections, and machine-level harness support was not a separate reviewed setup operation.
+- Replacement contract: fresh setup uses the four document families, preserves existing partial projects, and reviews machine and project setup as separate operations in one state-aware flow.
+- Rationale: most users select the full document foundation, while harness access needs an explicit machine boundary and a safe inline completion path.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

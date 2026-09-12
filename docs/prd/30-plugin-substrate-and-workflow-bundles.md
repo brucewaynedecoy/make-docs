@@ -8,7 +8,7 @@ This document defines the current Make Docs boundary for optional agentic extens
 
 This authority owns the admission boundary for optional plugins, hooks, extensions, harness adapters, and other agentic integrations. It defines when Make Docs must report an integration as absent, what evidence would be required before a future integration could become current product authority, and how legacy or user-authored extension artifacts remain protected.
 
-It does not create a plugin manifest, plugin store, workflow-bundle catalog, Playbook packaging path, extension API, hook API, or selection UX. Any such coherent capability requires a later owner-approved design and authoritative PRD maintenance.
+It does not create a plugin manifest, plugin store, workflow-bundle catalog, Playbook packaging path, general extension API, or general hook API. PRD 28 owns the bounded first-party harness adapter list and setup selection. Any broader capability requires a later owner-approved design and authoritative PRD maintenance.
 
 ## Component and Capability Map
 
@@ -34,6 +34,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 - R-ADMIT-2 (MUST): production imports, registrations, or public call sites establish a traced consumer. Tests, fixtures, archived designs, historical work, documentation proposals, generated examples, or an unused schema do not establish current product use.
 - R-ADMIT-3 (MUST): absence of a traced consumer means the surface is absent or a removal candidate. It is not preserved as speculative compatibility, a provisional plugin product, or a dormant workflow-bundle promise.
 - R-ADMIT-4 (MUST): unsupported harness APIs are reported as unsupported. Make Docs does not simulate hooks, extensions, native plugins, background daemons, hidden mutations, or hidden retries.
+- R-ADMIT-5 (MUST): the first-party setup adapter list is bounded to named harnesses and methods in PRD 28. Each addition must pass R-ADMIT before setup can show it. This list is not a general plugin registry or third-party extension API.
 
 ### Selection, Configuration, and Manifest Boundary (R-SELECT)
 
@@ -41,6 +42,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 - R-SELECT-2 (MUST): configuration overlays may render labels after canonical resolution but cannot invent an integration, plugin id, hook, extension point, harness contract, selection, or routing rule.
 - R-SELECT-3 (MUST): current manifests track selected Skills and their ownership. They do not reserve or imply a plugin payload namespace or a generic extension selection schema.
 - R-SELECT-4 (MUST): an admitted future integration must use explicit, inspectable selection and must not become a correctness prerequisite for the core operation it exposes.
+- R-SELECT-5 (MUST): machine-level adapter selection and project-level harness intent stay separate. Selection invokes the same typed operation and access contracts as direct CLI or MCP use and cannot create an alternate permission model.
 
 ### Legacy and User-Authored Artifacts (R-LEGACY)
 
@@ -63,7 +65,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 
 - No default or implicit optional-agentics installation.
 - No in-product Playbook or Protocol model.
-- No plugin or workflow-bundle catalog, selection UX, payload store, packaging compiler, or harness-adapter registry.
+- No general plugin or workflow-bundle catalog, payload store, packaging compiler, third-party extension registry, or open-ended harness-adapter registry.
 - No one-plugin-per-workflow or one-workflow-per-plugin model.
 - No untraced compatibility promise for a hook, extension, adapter, marketplace, or native plugin API.
 - No plugin-local deterministic business logic or alternate UAT policy.
@@ -77,10 +79,11 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 - Untraced plugin and Playbook-derived packaging surfaces are absent from current manifests, discovery, selection, support claims, and conformance scenarios.
 - User-authored, modified, ambiguous, and legacy extension artifacts are preserved unless verified ownership and an accepted migration authorize removal.
 - The optional Naive-UAT Skill delegates to typed CLI operations and contains no duplicated policy.
+- Every setup adapter and shown method is named in PRD 28, passes R-ADMIT, preserves user-owned native configuration, and has the exact PRD 20 support tuple.
 
 ## Contracts and Data
 
-The R-BOUND, R-ADMIT, R-SELECT, R-LEGACY, R-WORKFLOW, and R-SUPPORT requirements are the normative contract. This authority intentionally defines no plugin, workflow-bundle, hook, extension, or adapter schema.
+The R-BOUND, R-ADMIT, R-SELECT, R-LEGACY, R-WORKFLOW, and R-SUPPORT requirements are the normative contract. This authority defines no general plugin, workflow-bundle, hook, extension, or adapter schema. PRD 28 owns the bounded first-party adapter contract.
 
 ## Integrations
 
@@ -91,6 +94,14 @@ PRDs 08 and 28 own current Skills selection and exposure; PRDs 25 and 39 own typ
 A clean-room rebuild must keep core operation independent of agentics, admit no integration without R-ADMIT evidence and authority, preserve ambiguous user artifacts, and resist recreating former Playbook, Protocol, plugin, or workflow-bundle behavior from historical names or paths.
 
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Scope`, `Integration Admission`, `Selection, Configuration, and Manifest Boundary`, `Non-Requirements`, and `Acceptance Criteria`
+- Previous contract: all harness adapters and extension selection remained future integrations behind the general admission gate.
+- Replacement contract: PRD 28 can own a bounded first-party setup adapter list, while every method still passes this admission gate and no general plugin system is created.
+- Rationale: native harness permission setup is a required product connection, not a request for an open plugin platform.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — Not assigned
 

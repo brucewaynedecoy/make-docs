@@ -86,6 +86,14 @@ Current support claims cover validated registry-derived canonical CLI paths and 
 
 Playbooks and Protocols have no runtime, registry, compiler, package, or MCP surface. Deterministic workflow assistance is expressed through focused operations and the peer system-resource types rather than a separate workflow product model.
 
+### Operation Access Contract
+
+- R-ACCESS-1 (MUST): every admitted operation declares `access.store`, `access.project`, and `access.hostConfig` as `none`, `read`, or `write`, except that `hostConfig` permits only `none` or `write`. This metadata is part of the operation definition and is not inferred from a command name or transport.
+- R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method.
+- R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
+- R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
+- R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. Project setup cannot use its project approval as host-write authority.
+
 ### Asset and Config Boundaries
 
 MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
@@ -175,6 +183,8 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - `npx`, `pnpm dlx`, and `bunx` / `bun x` package execution paths are treated as first-class validation targets.
 - MCP tools have one shared operation contract with CLI/shared-core behavior and must ship in v2.
 - CLI resource list/read/ensure and their MCP tools use one resolver. Native MCP resource discovery/read where supported expose the same stable URI inventory and bytes as CLI list/read.
+- Operation definitions carry the complete access contract. Tests prove that `store: none` operations do not open the Store and that each adapter exposes only its admitted operation set.
+- Command-rule and MCP setup tests prove separate host approval, exact native-file preservation, verified executable identity, and the absence of broad or unsafe command grants.
 - Pending P4, P6, and P7 registrations carry exact phase lineage and do not claim that handlers exist.
 - Existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain unchanged through P3. P3 adds no legacy behavior or support claim.
 - MCP writes require explicit permission and registry-parity proof.
@@ -191,6 +201,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Development Contract`, `Operation Access Contract`, `Asset and Config Boundaries`, and `Acceptance Criteria`
+- Previous contract: operations declared read or write mutation behavior, and MCP was the main stated agent adapter, but Store, project, and host-config access were not separate metadata.
+- Replacement contract: every operation declares three access dimensions, all harness methods use the same operation core, and adapter setup grants only the smallest proved native access.
+- Rationale: setup needs exact permission facts without forcing MCP on harnesses that use another native method.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — Not assigned
 

@@ -55,6 +55,11 @@ Code anchors:
 - Non-interactive explicit selection, including `--selected-skills all`, remains supported. Deprecated `optionalSkills`, `required` registry metadata, and `--optional-skills` receive no migration or alias. Older alpha footprints must be reinstalled or regenerated from `selectedSkills`.
 - `skillFiles` remains separate managed-output ownership tracking. Shared payloads and native harness exposures are written only for explicitly selected skills; bare setup, default sync, and no-skills selection produce no selected-agentic payloads or exposures.
 
+- R-SKILL-SETUP-1 (MUST): project setup presents Skill selection inside the support section for each selected harness. It shows only Skills that the effective manifest declares for that harness. One shared Skill selection may produce more than one native harness exposure.
+- R-SKILL-SETUP-2 (MUST): `setup skills` remains a focused shortcut to the same selected-Skill planner, ownership rules, review, and Store records. It does not maintain a second selection state.
+- R-SKILL-SETUP-3 (MUST): a Skill can guide an agent but does not grant Store access, host configuration access, or project write access. Setup text and reviews keep Skill installation separate from command rules, MCP servers, and harness extensions.
+- R-SKILL-SETUP-4 (MUST): an extension used as a harness connection method is not a selected Skill. A future Pi extension must be owned by the harness adapter contract and must not appear in setup until implementation and real-harness conformance meet PRD 20.
+
 - Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
 - A trusted built-in first-party selection for the former `software-factory` name migrates to `factory`. The shared planner installs the new managed path and removes the old path only when its recorded ownership and live bytes still match. Alternate Skill manifests do not receive this name migration.
@@ -221,6 +226,14 @@ Implementation must prove:
 A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Unassisted Goal Testing Skill remains an optional routing adapter and must never become a second policy authority. P7 uses its bundled local payload without closing the general selected-Skill delivery question.
 
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Explicit Selected-Skill Model`
+- Previous contract: full setup and `setup skills` offered selected Skills, but Skill selection was not placed inside a broader per-harness support model.
+- Replacement contract: project setup selects Skills within each harness support section, while the focused command uses the same state and extensions remain a separate adapter method.
+- Rationale: Skills are one support surface. They do not grant the permissions needed for Store-backed operations.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

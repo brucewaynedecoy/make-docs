@@ -26,7 +26,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Scope and Boundaries (R-SCOPE)
 
-- R-SCOPE-1 (MUST): this authority owns the global Store location, tool state, SQLite safety, stable project and checkout identity, installation records, migration progress, locks, receipts, recovery metadata, general lifecycle runs, privacy, and platform behavior. PRD 24 owns declarative project settings. PRD 17 owns resource resolution. PRD 39 owns command grammar. The Store must not define document authority, restore retired Playbook/Protocol behavior, or interpret opaque legacy state.
+- R-SCOPE-1 (MUST): this authority owns the global Store location, tool state, SQLite safety, stable project and checkout identity, installation records, migration progress, locks, receipts, harness-integration application evidence, recovery metadata, general lifecycle runs, privacy, and platform behavior. PRD 24 owns declarative project settings. PRD 17 owns resource resolution. PRD 28 owns harness adapter behavior. PRD 39 owns command grammar. The Store must not define document authority, restore retired Playbook/Protocol behavior, or interpret opaque legacy state.
 
 ### The Boundary Principle (R-BND)
 
@@ -36,7 +36,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 ### Store Location and Contents (R-STORE)
 
 - R-STORE-1 (MUST): when Make Docs is installed on a system, the CLI resolves the platform-appropriate user data root through supported operating-system APIs and creates the Make Docs Store there, conventionally represented as `~/.make-docs/`; it contains at least a global configuration file for machine-level settings, a global manifest for tool-level state, and a SQLite database for operational data. Implementations must not assume a POSIX home path on Windows or embed an unvalidated user-supplied path.
-- R-STORE-2 (MUST): the global configuration file is machine-level and tool-level — machine settings such as a self-update preference or the marketplace auto-registration opt-in live there — and it must not be confused with, or override, project `.make-docs/config.yaml`, which remains the project-owned presentation overlay defined by [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
+- R-STORE-2 (MUST): the global configuration file is machine-level and tool-level. Machine settings such as a self-update preference, marketplace auto-registration opt-in, selected harnesses, and the maximum approved connection method per harness live there. It records desired machine intent, not proof that a harness-native file is current. It must not be confused with, or override, project `.make-docs/config.yaml`, which remains the project-owned declarative configuration defined by [24-project-configuration-and-convention-overlay.md](24-project-configuration-and-convention-overlay.md).
 - R-STORE-3 (MUST): the global Store is distinct from machine-installed system resources and any pinned cache; it holds operational state, not shipped template assets or repository documents, and its presence or absence must not weaken repository authority or the deterministic local-router fallback defined by [17-system-asset-materialization-and-local-bootstrap.md](17-system-asset-materialization-and-local-bootstrap.md).
 
 - R-STORE-4 (MUST): every resolved Store root, override, database, lock, journal, temporary-state, and recovery metadata path remains outside the target project and all registered checkouts. Validate canonical paths and existing parent links before access, then revalidate under the lock before mutation. Reject project-contained overrides, symlink aliases, traversal, case collisions, and unsupported permission or filesystem states. Never fall back to a project path.
@@ -87,6 +87,15 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-SKILL-STATE-2 (MUST): adoption dry-run is read-only and creates no Store, checkout identity, pending intent, backup, or local marker. Apply rechecks the reviewed inputs and ownership under the existing locks before committing intent. Required Store failure blocks managed file and ownership changes; optional-capture failure rules do not weaken this requirement.
 - R-SKILL-STATE-3 (MUST): reuse current pending-operation, checkpoint, verification, and recovery behavior for adoption in both scopes. Commit required intent before mutation and verify results before completion. Interruption or result-capture failure stays visible and recoverable. Resume or rollback preserves later user edits, other owners, and unrelated projects; no separate Skill state engine is permitted.
 
+### Harness Integration State (R-HARNESS-STATE)
+
+- R-HARNESS-STATE-1 (MUST): global config records selected machine harnesses and the maximum method that the user approved for each harness. It does not contain applied-file proof, ownership hashes, or recovery state.
+- R-HARNESS-STATE-2 (MUST): Store records retain the exact adapter and method identity, verified executable path and fingerprint where applicable, reviewed native configuration entries, before and after evidence, ownership, applied version, verification result, drift state, and recovery status.
+- R-HARNESS-STATE-3 (MUST): machine setup and project setup use separate operation identifiers and receipts. Machine setup completes and verifies before project setup begins. A later project failure does not roll back a valid machine result.
+- R-HARNESS-STATE-4 (MUST): repeat setup reads global intent, project intent, live harness-native configuration, and Store receipts. It reports current, missing, drifted, unsupported, blocked, and incomplete state. It changes only reviewed Make Docs-owned entries and resumes an incomplete operation without duplicating a verified change.
+- R-HARNESS-STATE-5 (MUST): the effective permission is the most restrictive valid result across machine intent, live native configuration, Store evidence, and project intent. A receipt does not overrule removed or narrowed native permission. Project config cannot widen machine trust.
+- R-HARNESS-STATE-6 (MUST): this capability uses the current Store schema when its records fit existing installation and operation data. W19 R6 must not add a database migration solely for setup state. If implementation proves that safe records cannot fit, it must stop for new authority before changing the schema.
+
 ### Transfer and Recovery (R-XFER)
 
 - R-XFER-1 (MUST): setup first previews legacy operational files and the exact import, preserve, and removal decisions. Supported local receipts, manifest fields, writer records, and old-operation markers are verified as data. Unknown, malformed, symlinked, contradictory, changed, or actively written inputs stop cleanup. Never execute embedded instructions.
@@ -115,6 +124,8 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-TEST-4 (MUST): tests assert project removal preserves Store rows unless separately authorized, explicit Store cleanup affects only the selected project, opaque `playbook_runs` remains unchanged and absent from current listings, and tool uninstall does not delete repository content.
 - R-TEST-5 (MUST): tests cover transactional recovery, bounded busy retry, privacy-safe export, path traversal and symlink rejection, Windows drive/UNC and case-collision handling, macOS case behavior, and Linux permissions without persisting secrets or document bodies.
 - R-TEST-6 (MUST): proof covers fresh setup, legacy transfer, repeat setup, reconfigure, resource ensure, project surface ensure, selected skills, update, backup, removal, restore, crash recovery, competing writers, and packed CLI execution. Assert the Store records every required operational transition and no project-local state directory, manifest, mirror, lock, receipt, or recovery journal is created. No test may hide `.make-docs/state/` changes from its comparison.
+- R-TEST-9 (MUST): isolated-home proof covers machine and project harness intent, separate receipts, exact native configuration, executable identity, current and drifted states, interruption between machine and project operations, repeat setup, and preservation of unknown or user-owned entries.
+- R-TEST-10 (MUST): Store-free operation proof fails if `resource.list` or `resource.read` opens the database, creates a session file, or requires a Store path. Store-backed setup proof uses the existing shared session and checkout-writer rules.
 - R-TEST-7 (MUST): verify shipped agent guidance and the optional capture path with the CLI unavailable and with the CLI present but optional capture failing. Ordinary project work continues with an accurate unavailable notice, no false success, no direct Store write, no local fallback state, and no queued write. Pair this evidence with a CLI-managed operation whose required Store write fails. That operation must stop before further project changes and preserve recovery evidence.
 - R-TEST-8 (MUST): prove ownership-only Skill adoption, stale review rejection for package/source/selection/input/ownership changes, read-only review without Store creation, required Store failure before managed changes, and interrupted adoption through shared recovery. Test both scopes and competing writers. Matching bytes alone must never hide a missing ownership transition or authorize unreviewed content.
 
@@ -142,6 +153,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Scope and Boundaries`, `Store Location and Contents`, `Harness Integration State`, and `Verification and Testability`
+- Previous contract: the Store held installation and Skill state, but it did not distinguish desired harness intent, live native permission, and exact applied adapter receipts.
+- Replacement contract: global intent, project intent, live harness configuration, and Store evidence remain separate; machine and project setup have separate resumable receipts; Store-free reads open no session.
+- Rationale: harness setup needs durable proof and drift recovery without making Store receipts the live permission authority or adding project-local state.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — Not assigned
 

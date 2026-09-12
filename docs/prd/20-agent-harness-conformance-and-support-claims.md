@@ -37,7 +37,7 @@ Support-claim gating:
 - A pass for one scenario does not imply blanket harness support.
 - Skill, CLI, MCP, system-resource, installed-product, unattended, adversarial-review, optional-agentics, or model/provider support claims must cite evidence for the exact scenario, harness, surface, scope, model/provider, and runtime tuple claimed. [14-lifecycle-workflow-and-coverage-passes.md](./14-lifecycle-workflow-and-coverage-passes.md) keeps adversarial-review wording provisional until that exact supported surface has implementation validation or conformance records.
 - Configuration and `harnessCapabilities` records may guide a session, but they are not public support evidence by themselves. A declaration of Skill exposure, CLI availability, MCP availability, or optional agentics never proves that a harness discovers or can use the surface.
-- Plugin, workflow-bundle, Playbook, Protocol, packaging-compiler, and generated package-output support are outside the current Make Docs product boundary and must not appear as provisional or validated current support tuples.
+- General plugin, workflow-bundle, Playbook, Protocol, packaging-compiler, and generated package-output support are outside the current Make Docs product boundary. A bounded first-party harness connection method may appear only when PRD 28 admits it and this PRD records exact real-harness evidence for it.
 
 Validation relationship:
 
@@ -58,8 +58,9 @@ The conformance lab evaluates explicit harness, model/provider, runtime, and ins
 
 ### The Support Tuple (R-TUPLE)
 
-- R-TUPLE-1 (MUST): every support claim binds to the exact six-dimension tuple of `scenario`, `harness`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Scenario version, Make Docs version, distribution identity, selected Skill identity, resource URI, and other applicable provenance narrow the claim further; no public wording may broaden beyond the recorded tuple and provenance exercised.
-- R-TUPLE-2 (MUST): a pass for one model or provider does not cover other models routed through the same harness; a pass for one scenario, surface, scope, Skill, resource, distribution, or runtime does not imply blanket harness support.
+- R-TUPLE-1 (MUST): every support claim binds to the exact seven-dimension tuple of `scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Scenario version, Make Docs version, distribution identity, selected Skill identity, resource URI, executable identity, and other applicable provenance narrow the claim further; no public wording may broaden beyond the recorded tuple and provenance exercised.
+- R-TUPLE-2 (MUST): a pass for one model or provider does not cover other models routed through the same harness; a pass for one scenario, connection method, surface, scope, Skill, resource, distribution, or runtime does not imply blanket harness support.
+- R-TUPLE-3 (MUST): connection methods include exact native forms such as MCP, bounded executable command rules, or a first-party harness extension. A result for one method never proves another method. A method that is not implemented and exercised in the real harness remains absent from user setup choices and public support claims.
 
 ### The Tuple Registry (R-REG)
 
@@ -78,6 +79,7 @@ The conformance lab evaluates explicit harness, model/provider, runtime, and ins
 - R-GOV-2 (MUST): one passing conformance result for an exact tuple is the minimum threshold for nominal support. Stronger recommendation or confidence language requires repeated comparable runs and maintainer review.
 - R-GOV-3 (MUST): Skill, CLI, MCP, system-resource, installed-product, unattended, adversarial-review, optional-agentics, and model/provider claims use this same rule. Capability configuration, exposure declarations, documentation, and implementation tests are inputs or lower-layer evidence, never substitutes for the exact conformance result.
 - R-GOV-4 (MUST): a `PERF-###` profile, performance outcome, characterization result, or waiver is separate evidence under [48 Performance Evidence Governance](48-performance-evidence-governance.md). None can satisfy the PRD 43 evidence bar, derive `conformance-validated`, or promote a support tuple; R-GOV-2's one passing conformance-result minimum remains independently required.
+- R-GOV-5 (MUST): setup can present a harness method as supported only when the exact method has an admitted adapter, installed-product proof, and a `conformance-validated` tuple for the shown claim. Harness detection, generated configuration, or an implementation test alone is not enough. Pi extension support remains absent until these gates pass.
 
 ### Verification and Meta-Verification (R-TEST)
 
@@ -95,6 +97,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `The Support Tuple` and `Support Claim Governance`
+- Previous contract: the six-part support tuple did not distinguish MCP, command-rule, or extension access to the same harness and surface.
+- Replacement contract: `connectionMethod` is a required support dimension, and setup shows only admitted methods with exact real-harness proof.
+- Rationale: one harness can have several permission and transport paths with different behavior and risk.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — Not assigned
 

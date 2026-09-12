@@ -32,7 +32,7 @@ Code anchors:
 
 ### Public command model
 
-- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; `resource` with `resource list`, `resource read`, and `resource ensure`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
+- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; `resource` with `resource list`, `resource read`, and `resource ensure`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
 
 The root parser and help system must present that taxonomy directly, route only registry-admitted operations below `run`, and reject every noncurrent spelling with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
 
@@ -45,10 +45,17 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 
 ### Interactive Selection Contract
 
-- The setup and reconfigure wizard defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It always plans the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It adds `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers only when the resolved effective profile and its dependencies enable the matching document type. It keeps `docs/assets/` and its configured-harness root routers on demand. It creates no shared, Persona, testing, or legacy-family child until content needs that path. Shared inputs use `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archive remains `.make-docs/archive/`. The always-present docs router exposes default audiences, config, and exact selected asset-router filenames before the assets root exists. It offers an explicit optional local body choice of none, individual resource types, or all and shows the resulting file plan before approval.
+- Fresh setup defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It installs Designs, Plans, PRD, and Work without a document-type question. Existing partial projects keep their current document families until the user reviews an expansion. Setup always plans the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It keeps `docs/assets/` and its configured-harness root routers on demand. It creates no shared, Persona, testing, or legacy-family child until content needs that path. Shared inputs use `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archive remains `.make-docs/archive/`. The always-present docs router exposes default audiences, config, and exact selected asset-router filenames before the assets root exists.
 - The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
 - Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
+
+- R-SETUP-CLI-1 (MUST): the interactive project flow shows project state, harness selection, support methods for each harness, any missing machine setup, system-resource placement, and one exact grouped review. It does not ask for document types on a fresh project.
+- R-SETUP-CLI-2 (MUST): each harness method is described by the access it grants and the operations it enables. The CLI does not describe MCP as required for all harnesses. It shows only methods that the harness adapter admits and current conformance evidence permits Make Docs to claim.
+- R-SETUP-CLI-3 (MUST): the review groups effects under `This computer` and `This project`. Machine writes require a separate approval. Apply completes and verifies the machine operation before it starts the project operation.
+- R-SETUP-CLI-4 (MUST): `setup system` opens the machine portion directly. Project setup may open the same flow inline. `setup reconfigure` and `setup skills` use the same state and planning services. Backup and removal remain separate flows.
+- R-SETUP-CLI-5 (MUST): harness detection assists the user but never limits the supported list or counts as installed support. A skipped method remains a valid choice, and the review explains the resulting agent limits without describing Store-free resource reads as blocked.
+- R-SETUP-CLI-6 (MUST): the resource placement step offers the installed provider, all local copies, or selected resource types. It explains that local copies improve portability and direct file access. It does not say that copies grant Store access or harness permission.
 
 ### Conflict Review Contract
 
@@ -56,13 +63,7 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - Review may group paths for navigation, but each file resolves to preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop. Append-merge is not ownership evidence, and no batch action erases file-scoped provenance.
 - Interactive review produces the complete per-path resolution map and exact mutation plan before apply. Non-interactive execution fails on unresolved, incomplete, ambiguous, or contradictory evidence rather than inferring ownership, overwrite, preservation, or removal.
 
-Interactive selection is a first-class capability, not just a prompt wrapper. `runCli` and `inferInstallIntent` in `packages/cli/src/cli.ts` open the wizard only for first install and explicit reconfigure; a bare run against an existing manifest stays on saved selections and does not reopen the wizard, as verified in `packages/cli/tests/cli.test.ts`.
-
-The wizard is a four-step state machine in `WizardStep` and `runSelectionWizardWithRenderer` in `packages/cli/src/wizard.ts`: capabilities, harnesses, options, and review. Capability selection is dependency-aware through `normalizeWizardSelections` and `buildCapabilityChecklistState` in the same module, so `prd` is disabled without `plans` and `work` is disabled without both `plans` and `prd`; the tests pin those lockouts in `packages/cli/tests/wizard.test.ts`.
-
-The options step controls whether skills are installed, skill scope, explicitly selected skills, and the optional local projection of machine-served system-resource types. Skills default to disabled; resource projection defaults to none; reconfigure starts from stored selection state; and every changed selection appears in the review plan before apply.
-
-Review is a mutable checkpoint, not a final dead end. `renderWizardReviewSummary` composes a human-readable summary in `packages/cli/src/wizard.ts`, and `WizardReviewAction` plus `runSelectionWizardWithRenderer` allow the review step to return to capabilities, harnesses, or options before apply; `packages/cli/tests/wizard.test.ts` pins that loop.
+Interactive selection is a first-class capability, not just a prompt wrapper. The next implementation replaces the present capability, harness, options, and review wizard with the state-aware flow in R-SETUP-CLI. Existing wizard code is a migration input, not authority for the replacement screen order. Reconfigure begins from saved intent, and review remains a mutable checkpoint that can return to any applicable setup section before approval.
 
 ### Plan review, confirmation, and apply orchestration
 
@@ -92,7 +93,7 @@ When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` 
 - `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` lists resources sorted by stable URI. The default effective view applies project overrides first, then verified managed snapshots, then the installed-machine provider, and reports origin as `project-override`, `managed-snapshot`, or `installed-machine`.
 - `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` reads exactly one resource. Raw format emits only resource bytes; JSON includes the content plus stable URI, type, origin, provider/package identity, version or immutable ref, digest, local path when applicable, and provenance state.
 - `make-docs resource ensure <make-docs://system/...>` creates or refreshes the selected local projection for exactly one resource through the reviewed managed-file path. It never broadens the saved projection selection.
-- Resource list and read are read-only and deterministic. Resource ensure is a reviewed mutation. Invalid URIs, unknown types, not-found resources, unavailable installed providers, and incomplete, ambiguous, or contradictory local provenance have distinct nonzero diagnostics and machine-readable error kinds; there is no network fallback.
+- Resource list and read are read-only, deterministic, and Store-free. They require no command rule, MCP server, extension, or Store permission. Resource ensure is a reviewed Store-backed mutation. Invalid URIs, unknown types, not-found resources, unavailable installed providers, and incomplete, ambiguous, or contradictory local provenance have distinct nonzero diagnostics and machine-readable error kinds; there is no network fallback.
 - Resource URI and prefix paths use normalized POSIX separators. Local resolution stays beneath the explicit project or installed-provider root, rejects traversal, absolute substitution, Windows drive/UNC ambiguity, platform case collision, and symlink escape, treats bytes as data, and never executes a resource or referenced script.
 - Each resource operation projects to an MCP tool. Native MCP `resources/list` and `resources/read`, where supported, delegate to `resource.list` and `resource.read`. Native MCP resources do not provide `resource.ensure`.
 
@@ -200,6 +201,14 @@ Code and documentation anchors:
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Public command model`, `Interactive Selection Contract`, and `System Resource Discovery`
+- Previous contract: setup used a capability-first wizard, had no machine setup subcommand, and did not state the Store-free resource-read boundary in the setup experience.
+- Replacement contract: `setup` is a state-aware project and harness flow, `setup system` owns machine support, fresh projects use all four document families, and resource placement is distinct from harness permission.
+- Rationale: users need one coherent setup path that can complete required machine support without implying that every Make Docs read needs privileged access.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

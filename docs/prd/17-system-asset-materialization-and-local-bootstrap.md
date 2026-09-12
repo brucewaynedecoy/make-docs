@@ -24,7 +24,7 @@ Projection and compatibility modes:
 Local bootstrap:
 
 - Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
-- The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. An install must materialize only the routers for enabled document types.
+- A fresh install materializes the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` without asking for document-type selection. An existing partial project keeps only its current document routers until the user reviews an expansion.
 - The on-demand `docs/assets/` surface has configured-harness root routers and no managed child routers. `.make-docs/archive/**`, `docs/assets/project/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
 - Every installed checkout must have a Store-owned installation record and declarative project identity under PRD 24. `.make-docs/manifest.json` is legacy transfer input only.
 - Every install must keep local config once v2 config exists.
@@ -53,7 +53,7 @@ Provider and cache provenance:
 
 - `packages/docs/template/` is upstream authoring authority; package preparation builds the installed provider from it, and the provider is the default runtime source.
 - The canonical resolver applies one precedence rule for both CLI and MCP: a trustworthy selected local projection first, then the installed provider, otherwise a typed unavailable or integrity error. Divergent, untrusted, or stale local files do not silently shadow the provider.
-- CLI `resource list`, `resource read`, and `resource ensure` are canonical. Resource ensure creates or refreshes exactly one selected local projection through the reviewed managed-file path. Each resource operation projects to an MCP tool. Native MCP discovery/read expose the same URI inventory and bytes as resource list/read where the SDK supports native resources.
+- CLI `resource list`, `resource read`, and `resource ensure` are canonical. `resource list` and `resource read` resolve the installed provider without opening the Store and require no harness rule, MCP server, extension, or Store permission. Resource ensure creates or refreshes exactly one selected local projection through the reviewed managed-file path and therefore uses the normal Store and project-write boundary. Each resource operation projects to an MCP tool only where that surface is admitted. Native MCP discovery/read expose the same URI inventory and bytes as resource list/read where the SDK supports native resources.
 - A global cache is allowed only as a cache, not as an unpinned source of truth.
 - A cached or projected resource set must be pinned by provider identity, provider version or immutable ref, hash algorithm, and hash set.
 - If cached or projected hashes do not match, the CLI must resolve from the installed provider or require a reviewed refresh path.
@@ -63,6 +63,8 @@ Provider and cache provenance:
 Manifest provenance:
 
 - R-RESOURCE-STATE-1 (MUST): all resource and router provenance is held in the Store-owned installation record. Reads never import a local operational manifest silently. A local resource can shadow the provider only when current Store evidence verifies its selected identity and bytes. Missing or unsafe Store evidence uses the packaged provider or returns a typed unavailable result. It does not create local state.
+- R-RESOURCE-STATE-2 (MUST): `resource.list` and `resource.read` have `store: none` and do not create a Store session. If a local projection cannot be trusted without Store evidence, the resolver skips that projection and reads the installed provider. A missing or invalid installed provider returns its real typed error.
+- R-RESOURCE-STATE-3 (MUST): the setup resource choice states that local copies improve portability and direct file access. It must not describe local copies as Store access, harness permission, or a replacement for machine-level integration.
 
 - The manifest records router ownership separately from resource-body projection selection and provenance. A resource selection must not imply router removal.
 - The manifest records resource provenance before any local projection is treated as trustworthy.
@@ -109,6 +111,14 @@ R-ASSET-BOOT-1 (MUST): short, always-present documentation routing carries the t
 R-ASSET-BOOT-2 (MUST): `project.surface.ensure assets` creates or safely adopts only the assets root and configured-harness root routers. Child directories appear only for actual content. The current typed system-router skeleton is unaffected. Review and remove obsolete empty system directories separately from this required skeleton; handle nonempty legacy resources through PRD 18.
 
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Local bootstrap`, `Provider and cache provenance`, and `Manifest provenance`
+- Previous contract: provider reads remained available when Store evidence was missing, but the contract did not state that list and read must avoid the Store or separate local portability from harness permission.
+- Replacement contract: resource list and read are Store-free operations, while local projection remains an optional project portability choice with no permission effect.
+- Rationale: users and agents need an exact boundary between reading product resources and performing Store-backed project or system work.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — W10 R2
 

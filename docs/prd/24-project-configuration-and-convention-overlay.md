@@ -77,7 +77,13 @@ CLI, MCP, plugin, and skill surfaces consume presentation fields as rendering in
 
 The Playbook-oriented `harnessCapabilities` section and its capability ids are not current configuration authority. Existing values are compatibility inputs that migration preserves or removes only through the reviewed config-preservation path; they never activate behavior.
 
-This PRD does not mint a replacement harness-capability schema. An optional agentics capability may add presentation for evidence-backed support only through its owning PRD and validated loader, after canonical operation, lifecycle stage, harness, provenance, and support status resolve. Unknown capabilities are never guessed, and config never creates a workflow model, resource type, operation, lifecycle transition, package format, or support claim.
+The project harness-integration schema is separate from `harnessCapabilities`. It records desired harness selection and, for each harness, whether the project inherits, narrows, or disables machine-approved connection methods. An optional agentics capability may add presentation for evidence-backed support only through its owning PRD and validated loader, after canonical operation, lifecycle stage, harness, provenance, and support status resolve. Unknown capabilities are never guessed, and config never creates a workflow model, resource type, operation, lifecycle transition, package format, or support claim.
+
+- R-CONFIG-HARNESS-1 (MUST): `.make-docs/config.yaml` may store project-owned harness selection, selected Skills, resource placement, and per-harness connection intent as declarative desired state.
+- R-CONFIG-HARNESS-2 (MUST): project configuration can inherit, narrow, or disable a machine-approved method. It cannot grant a method, Store permission, command rule, extension, or MCP installation that is not valid at machine scope.
+- R-CONFIG-HARNESS-3 (MUST): applied harness configuration, receipts, executable fingerprints, verification results, drift, and recovery data remain in the Store. Live harness-native configuration remains the permission authority.
+- R-CONFIG-HARNESS-4 (MUST): effective access is the intersection of valid machine intent, live native configuration, verified Store receipt, and project intent. The more restrictive valid state wins.
+- R-CONFIG-HARNESS-5 (MUST): setup preserves unknown fields and user-owned harness entries. Malformed, conflicting, or unsafe known entries stop automatic change and receive a reviewable diagnostic.
 
 ### Validation
 
@@ -94,7 +100,8 @@ If a default config template is introduced, it starts in `packages/docs/template
 - No configuration-driven change to setup or reconfiguration command ownership; [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md) owns the public command surface.
 - No requirement to backfill all existing docs with config-rendered prose.
 - No permission for plugins, skills, or MCP surfaces to use configured labels as schema authority.
-- No current `harnessCapabilities` schema and no permission for compatibility records to rename operation ids, resource URIs, route ids, lifecycle states, harness ids, or manifest keys.
+- No activation from legacy `harnessCapabilities` records and no permission for compatibility records to rename operation ids, resource URIs, route ids, lifecycle states, harness ids, or manifest keys.
+- No project configuration that expands machine trust or replaces live harness-native permission authority.
 - No permission for config to define Playbook- or Protocol-specific metadata, operations, packages, or lifecycle authority.
 ## Acceptance Criteria
 
@@ -102,7 +109,8 @@ If a default config template is introduced, it starts in `packages/docs/template
 - Config readers preserve canonical routing and metadata behavior when config is absent, valid, or invalid.
 - Structural rename attempts produce diagnostics rather than alternate schemas.
 - Persona discovery works with no config, no assets directory, and no Store. Validation covers the two defaults, custom extensions, safe overrides, invalid entries, and unknown frontmatter slugs. A no-CLI reader can find the same defaults and config boundary in the always-present docs router.
-- Legacy harness capability records do not activate behavior or become an alternate routing schema; any future evidence-backed presentation requires separate owning authority.
+- Legacy harness capability records do not activate behavior or become an alternate routing schema. The separate project harness-integration fields can only narrow verified machine support.
+- Effective harness access tests cover inheritance, narrowing, disablement, missing machine trust, native-config drift, Store-receipt drift, unknown fields, and preservation of user-owned entries.
 - Resource and lifecycle surfaces may consume reviewed presentation or harness hints without treating config as URI, resolver, operation, state-machine, receipt, or support-claim authority.
 - Package and dogfood validation prove any default config template follows source-first copy rules and local config preservation.
 ## Contracts and Data
@@ -115,6 +123,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Declarative Identity and Settings`, `Harness Capability Records`, `Validation`, `Non-Requirements`, and `Acceptance Criteria`
+- Previous contract: project config could name selected harnesses but did not have a current schema for per-harness connection intent.
+- Replacement contract: a separate harness-integration schema can inherit, narrow, or disable verified machine support without activating legacy `harnessCapabilities` or granting new trust.
+- Rationale: project choices must be shareable while machine permission and applied evidence remain local and verifiable.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
 
 ### 2026-08-08 — W16 R2
 
