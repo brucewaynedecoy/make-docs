@@ -293,19 +293,15 @@ export function buildSkillSelectionState(
     .map((skill) => skill.name);
   const promptOptions = skillChoices.map((skill) => ({
     value: skill.name,
-    label: `${formatSkillPurposeLabels(skill)} / ${skill.name}`,
-    hint: formatSkillChoiceHint(skill),
+    label: toTitleCase(skill.displayName),
+    hint: "",
     disabled: false,
     rowKind: "skill" as const,
     detailLines: [
       skill.description,
       "",
       `Purpose: ${formatSkillPurposeLabels(skill)}`,
-      `Candidate skill: ${skill.name}`,
-      `Source policy: ${skill.sourcePolicyKind}`,
-      `Skill source: ${skill.source}`,
-      `Harness support: ${formatInlineList(skill.supportedHarnesses)}`,
-      `Provenance: ${skill.provenanceLabel} (${skill.provenanceKind})`,
+      `Support: ${formatInlineList(skill.supportedHarnesses)}`,
     ],
   }));
 
@@ -1047,16 +1043,10 @@ function renderSkillSelectionFrame(
     selectedSkillNames,
   );
   const detailLines = renderDetailBox(
-    focusedOption.label,
-    [
-      ...(focusedOption.detailLines.length > 0
-        ? focusedOption.detailLines
-        : [focusedOption.hint || "No additional description available."]),
-      "",
-      `Status: ${
-        selectedSkillNames.has(focusedOption.value) ? "Selected" : "Available"
-      }`,
-    ],
+    focusedOption.value,
+    focusedOption.detailLines.length > 0
+      ? focusedOption.detailLines
+      : [focusedOption.hint || "No additional description available."],
     process.stdout.columns,
   );
   const hintLines = [
@@ -1169,15 +1159,6 @@ function formatSkillPurposeLabels(skill: WizardSkillChoice): string {
   return skill.purposes.length > 0
     ? skill.purposes.map((purpose) => purpose.label).join(", ")
     : "Uncategorized";
-}
-
-function formatSkillChoiceHint(skill: WizardSkillChoice): string {
-  return [
-    skill.description,
-    `Source: ${skill.sourcePolicyKind}`,
-    `Harnesses: ${formatInlineList(skill.supportedHarnesses)}`,
-    `Provenance: ${skill.provenanceLabel}`,
-  ].join(" | ");
 }
 
 function renderCapabilitiesFrame(

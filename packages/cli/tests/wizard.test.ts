@@ -107,10 +107,11 @@ function managedFileConflict(
 function wizardSkillChoice(
   name: string,
   description: string,
+  displayName = name,
 ): WizardSkillChoice {
   return {
     name,
-    displayName: name,
+    displayName,
     description,
     purposes: [
       {
@@ -216,7 +217,11 @@ describe("selection wizard", () => {
         selectedSkills: ["decompose-codebase"],
       },
       [
-        wizardSkillChoice("archive-docs", "Relationship-aware archival."),
+        wizardSkillChoice(
+          "archive-docs",
+          "Relationship-aware archival.",
+          "Archive Docs",
+        ),
         wizardSkillChoice(
           "cleanup-docs",
           "Clean Markdown docs formatting drift.",
@@ -252,15 +257,16 @@ describe("selection wizard", () => {
         rowKind: "skill",
       },
     ]);
-    expect(skillSelection.promptOptions[0]?.hint).toContain(
-      "Source: local",
-    );
-    expect(skillSelection.promptOptions[0]?.label).toBe(
-      "Test purpose / archive-docs",
-    );
-    expect(skillSelection.promptOptions[0]?.detailLines).toContain(
-      "Provenance: Test fixture (local)",
-    );
+    expect(skillSelection.promptOptions[0]).toMatchObject({
+      label: "Archive Docs",
+      hint: "",
+      detailLines: [
+        "Relationship-aware archival.",
+        "",
+        "Purpose: Test purpose",
+        "Support: codex",
+      ],
+    });
   });
 
   test("skips the skill prompt when there are no recommended skills", () => {
