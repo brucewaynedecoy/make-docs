@@ -158,7 +158,7 @@ The conditional section is necessary but not sufficient. Structural validation c
 ### Closeout Notes
 
 - Testing decision(s): Use focused Automated Implementation Testing. Keep Performance Testing, Guided Progress Review, and Unassisted Goal Testing `not-needed-now`. Record Human Experience Review conclusions without creating a fifth testing type or duplicate verdict.
-- Phase / capability status: P2 is `implemented`, including the owner-approved local sync and final parity. The full Human Experience capability remains incomplete. P3 has not started.
+- Phase / capability status: P2 is accepted and `closed` at commit `c09adb9`, including the owner-approved local sync and final parity. P3 and P4 are also closed. The full Human Experience capability remains incomplete until P5.
 
 ## Implementation and Evidence
 

@@ -175,5 +175,5 @@ Human Experience Review is required acceptance work against every applicable exp
 - Risk: `R-033` stays open. P4 adds failure-revealing rule proof. P5 owns installed-product and lived-human proof.
 - PRD reconciliation: PRD 49 and PRD 50 need no normative change. Their current requirements already own this P4 behavior.
 - Independent review: The final P4 review found no defect after repairs. It confirmed that t1 through t34 are complete and that P4 does not claim P5 proof. This agent review does not prove a lived human result.
-- Phase status: The P4 implementation candidate is complete and independently reviewed. It remains unstaged, uncommitted, and not owner-accepted. It is ready for owner review.
+- Phase status: P4 is accepted and `closed` at commit `df0080a`. Its implementation and validation are complete. Independent review found no defect after repairs.
 - Capability status: W20 R0 remains in progress. P5 remains required before any shipped, installed, real-human, publication, release, or capability-complete claim.

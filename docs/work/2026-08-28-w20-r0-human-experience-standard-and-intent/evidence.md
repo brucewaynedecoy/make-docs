@@ -12,22 +12,24 @@ source:
 
 ## Current Summary
 
-The P4 implementation candidate makes each Human Experience Review conclusion affect completion in a clear way. It also adds fixture proof that a technically passing result can still have a material human gap.
+The accepted P4 result makes each Human Experience Review conclusion affect completion in a clear way. It also adds fixture proof that a technically passing result can still have a material human gap.
 
 The final automated checks passed. The focused Human Experience run passed 2 files and 51 tests. The full CLI run passed 83 files and 1,291 tests. The two Human Experience contract copies are byte-identical. Their SHA-256 value is `8deafedb6282a8cc82d1acfd90e28f17818e989661d41a558eb5fdb6fcf4e7ff`.
 
 The final independent P4 review found no defect after the repairs. It confirmed that tasks t1 through t34 are complete. It also confirmed that R-033 stays open and that P4 does not claim P5 proof.
 
+P4 is closed at commit `df0080a`. This acceptance closes the bounded P4 phase only.
+
 This report does not prove an installed product or a lived human result. The failure-revealing result is a synthetic fixture, which means that it was made only for this test. P5 must still prove package delivery, dogfood delivery, an installed-product flow, agent behavior, adoption, and a real human outcome.
 
-## Candidate Identity and Environment
+## Phase Identity and Environment
 
 - Base revision: `564b0354688fb0c5f9682f48c44eba5fa742572d`.
-- Candidate identity: the base revision plus the unstaged P4 diff.
-- Commit state: P4 has no commit identity.
+- Final P4 identity: commit `df0080a`.
+- Commit state: P4 is accepted and closed. The commit is present in the current `make-docs-v2` history.
 - Repository state: local `make-docs-v2` branch in the Make Docs maintainer repository.
 - Environment: macOS with the repository test workspace.
-- Identity limit: the candidate can change until it is committed. This report names the files and checks that support the current result.
+- Identity limit: this report binds the P4 result to `df0080a`. Later status corrections do not change that implementation identity.
 
 ## Phase 4 Review
 
@@ -230,16 +232,16 @@ Decision: `not-needed-now`. There is no `NUAT-###` scenario and no obligation.
 - No `NUAT-###` scenario is active.
 - Specialist Accessibility Review stays separate. The fixture escalation does not create a real W20 specialist finding.
 - `R-033` stays open. P4 proves that the review rules can reject correct form with a poor human path. P5 still owns shipped, installed, agent, and real human proof.
-- The P4 implementation candidate is complete and independently reviewed. It is not owner-accepted, staged, committed, published, or released.
+- P4 is accepted, closed, and committed at `df0080a`. This does not claim publication, release, or P5 installed-product proof.
 
 ## Coverage-Pass Dispositions
 
 | Candidate | Verdict | Reason |
 | --- | --- | --- |
 | Central P4 evidence report | `create` | P4 retains review and acceptance evidence, so the coverage contract requires this report. |
-| W20 backlog index | `update-existing` | It must link this report, correct the P3 commit state, and show the P4 candidate state. |
-| P4 phase record | `update-existing` | It must record task status, decisions, evidence, limits, and the P5 handoff. |
+| W20 backlog index | `update-existing` | It links this report, records the P3 and P4 commit states, and shows P4 as closed. |
+| P4 phase record | `update-existing` | It records task status, decisions, evidence, limits, closeout, and the P5 handoff. |
 | `R-033` | `update-existing` | A bounded P4 note can add the synthetic proof while the risk stays open. |
 | PRD 49 and PRD 50 | `none` | Current authority already owns the P4 rules. The implementation does not change a normative requirement. |
-| History record | `none` | P4 has no commit or owner acceptance. |
+| History record | `none` | No separate P4 history record was required. Commit `df0080a`, this evidence report, and the phase closeout preserve the accepted result. |
 | New capture folders | `none` | The existing synthetic fixtures are enough for the P4 claim. No capture folder is needed. |

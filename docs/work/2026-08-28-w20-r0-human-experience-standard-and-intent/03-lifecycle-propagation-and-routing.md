@@ -171,7 +171,7 @@ The result must let an agent plan complex work without turning the backlog into 
 
 - Testing decision(s): Automated Implementation Testing was selected. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for this phase. The propagation fixtures show how generated work records all four decisions. Phase 4 owns the next conditional Unassisted Goal Testing decision.
 - Human Experience Review: `HX-DIR-01` is `met` within the direct fixture evidence. `HX-IND-01` is `met` within the indirect fixture evidence. These are bounded fixture reviews. They are not lived product proof.
-- Phase / capability status: P3 is `implemented`. The full Human Experience capability remains incomplete. P4 and P5 have not started.
+- Phase / capability status: P3 is accepted and `closed` at commit `da10a5e`. P4 is also closed at commit `df0080a`. The full Human Experience capability remains incomplete until P5.
 
 ### Implementation Evidence
 

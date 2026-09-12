@@ -19,7 +19,7 @@ This backlog is a directory. Use this index first. Then use the phase files in o
 
 ## Interrupt Pause
 
-The W19 recovery interrupt is closed. P1 and P2 remain accepted and closed. P3 is implemented, reviewed, and committed locally at `da10a5e`. No P3 publication or release followed. P4 implementation and validation are complete. Independent review found no defect after repairs. The P4 candidate remains unstaged, uncommitted, and not owner-accepted. W21 stays paused.
+The W19 recovery interrupt is closed. P1 through P4 are accepted and closed. Their commits are `cc113d3` for P1, `c09adb9` for P2, `da10a5e` for P3, and `df0080a` for P4. P4 implementation and validation are complete, and independent review found no defect after repairs. These phase closeouts do not claim P5 proof, publication, or release. W21 stays paused.
 
 ## Purpose
 
@@ -53,15 +53,15 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 
 | Phase | File | Outcome |
 | --- | --- | --- |
-| 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Complete and owner-authorized for closeout: [authority, source/test ownership, and proof map](01-prd-authority-and-requirement-trace.md#read-this-first). The known baseline defaults failure is disclosed; P2 needs separate authority. |
-| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. |
-| 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Implemented and reviewed: the human goal and promises now pass through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. Source, package, installed files, and Store evidence agree. |
-| 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Implementation and validation are complete. Independent review found no defect after repairs. The [central evidence](evidence.md#phase-4-review) is ready for owner review. Guided Progress Review and Unassisted Goal Testing are `not-needed-now` for P4. |
+| 1 | [01-prd-authority-and-requirement-trace.md](01-prd-authority-and-requirement-trace.md) | Accepted and closed at `cc113d3`: [authority, source/test ownership, and proof map](01-prd-authority-and-requirement-trace.md#read-this-first). The bounded P1 result does not claim later delivery proof. |
+| 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed at `c09adb9`: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. |
+| 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Accepted and closed at `da10a5e`: the human goal and promises pass through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. Source, package, installed files, and Store evidence agree. |
+| 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Accepted and closed at `df0080a`: implementation and validation are complete, and independent review found no defect after repairs. The [central evidence](evidence.md#phase-4-review) records the bounded result. Guided Progress Review and Unassisted Goal Testing remain `not-needed-now` for P4. |
 | 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Prove package, dogfood, installed-project, agent, adoption, and real human outcomes before W20 R0 closeout. |
 
 ## Usage Notes
 
-- The owner authorized P1 implementation, then P1 closeout and a local commit on 2026-09-08. This authority ends at P1. P2, publication, and release need separate authority.
+- The owner accepted and closed P1 through P4. Their commits are `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. P5 implementation, publication, and release need separate authority.
 - Complete phases in order. A later phase can inspect future work, but it cannot close before its dependencies close.
 - Use phase-local task IDs. IDs start at `t1` in each phase and continue across that phase's stages.
 - Treat PRD 49 and the listed owner PRDs as product authority. Use the plan only for order, context, and scope provenance.
@@ -86,4 +86,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Review the complete P4 candidate for owner acceptance. After acceptance, obtain separate authority before P5 implementation. Use the [P4 evidence report](evidence.md) as the handoff. P5, staging, commit, publication, and release remain outside the current authority.
+Current next step: Continue P5 preflight against the closed P1 through P4 foundation. Use the [P4 evidence report](evidence.md) as the evidence handoff. P5 implementation, staging, commit, publication, and release remain outside the current authority.

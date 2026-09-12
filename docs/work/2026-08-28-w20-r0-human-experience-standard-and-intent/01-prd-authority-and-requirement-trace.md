@@ -137,7 +137,7 @@ The boundary is important. A Persona identifies the human. Human Experience Inte
 ### Closeout Notes
 
 - Testing decision(s): See the [four P1 decisions](#p1-testing-decisions), [validation evidence](#validation-commands-and-results), and [bounded Human Experience Review](#p1-human-experience-review).
-- Phase / capability status: P1 document work is `implemented`; the shipped Human Experience capability is `not-implemented`. See [closeout and P2 readiness](#coverage-and-closeout).
+- Phase / capability status: P1 is accepted and `closed` at commit `cc113d3`. Its bounded document work is implemented. The shipped Human Experience capability remains incomplete until P5. See [closeout and later-phase status](#coverage-and-closeout).
 
 ## Implementation Notes
 
@@ -400,6 +400,6 @@ The optional guided review is offered with the three-step path above. No user re
 
 Orphan audit: all twelve requirements and all eight original design promises have named later work and evidence owners. R-033 remains open and linked to P4/P5. The unrelated D-031 baseline failure stays visible with its existing maintenance boundary. No accepted future outcome disappears from the backlog and no new unowned obligation remains.
 
-P1 capability status: `implemented` for authority verification, the requirement map, exact source/test ownership, command records, finding routes, and closeout documentation. Human Experience shipped capability status: `not-implemented`; this phase has not delivered the new contract, design section, installed flow, or human outcome proof. The owner requested P1 closeout and commit on 2026-09-08 after the implementation result and defaults-test limit were reported. P1 is accepted for this bounded document closeout. This does not claim independent human testing or resolve R-033.
+P1 capability status: `closed` at commit `cc113d3`. The accepted result implements authority verification, the requirement map, exact source/test ownership, command records, finding routes, and closeout documentation. The phase did not deliver the later contract, installed flow, or human outcome proof. This bounded closeout does not claim independent human testing or resolve R-033.
 
-P2 readiness: ready for its separate implementation authorization on the documented authority and trace. There is no unresolved P1 product choice or unowned requirement. P2 must retain the baseline defaults limitation until its owner repairs it; it cannot claim a fully green defaults suite by citing P1. P2 does not start in this session. The owner has separately authorized staging and a local P1 commit. Publication, release, P2 execution, and broader W19/W21 closeout remain outside this authority.
+Later-phase status: P2, P3, and P4 are also accepted and closed at commits `c09adb9`, `da10a5e`, and `df0080a`. P5 remains open and retains installed-product and real-human proof. Publication, release, and broader W19/W21 closeout remain outside this phase record.
