@@ -50,15 +50,15 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 
 ### Tasks
 
-- [ ] t1: Confirm that all reviewed system-resource and default-asset changes exist first under `packages/docs/template/`.
-- [ ] t2: Confirm that rules, catalog, tool-directory behavior, resource discovery, validation, and manifest expectations include the new resources and changed consumers.
-- [ ] t3: Build the CLI package projection through the supported package path.
-- [ ] t4: Verify that the package contains the reviewed Human Experience contract, reference, templates, prompts, lifecycle edits, routers, and related defaults.
-- [ ] t5: Reseed only affected template-owned dogfood files after upstream review.
-- [ ] t6: Verify required byte or semantic parity between upstream, package projection, and dogfood copies.
-- [ ] t7: Pack and install the CLI into a clean project. Verify the stable contract and reference URIs through supported list and read operations.
-- [ ] t8: Update an existing project with historical designs and modified user-owned router text. Verify safe managed changes and preserved user content.
-- [ ] t9: Verify offline behavior and recovery for unavailable or invalid resource requests.
+- [x] t1: Confirm that all reviewed system-resource and default-asset changes exist first under `packages/docs/template/`.
+- [x] t2: Confirm that rules, catalog, tool-directory behavior, resource discovery, validation, and manifest expectations include the new resources and changed consumers.
+- [x] t3: Build the CLI package projection through the supported package path.
+- [x] t4: Verify that the package contains the reviewed Human Experience contract, reference, templates, prompts, lifecycle edits, routers, and related defaults.
+- [x] t5: Reseed only affected template-owned dogfood files after upstream review.
+- [x] t6: Verify required byte or semantic parity between upstream, package projection, and dogfood copies.
+- [x] t7: Pack and install the CLI into a clean project. Verify the stable contract and reference URIs through supported list and read operations.
+- [x] t8: Update an existing project with historical designs and modified user-owned router text. Verify safe managed changes and preserved user content.
+- [x] t9: Verify offline behavior and recovery for unavailable or invalid resource requests.
 
 ### Acceptance criteria
 
@@ -77,15 +77,26 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 
 ### Tasks
 
-- [ ] t10: Include `npm run validate:defaults` in the one justified expanded integration pass. Record contract, template, catalog, manifest, and link results.
-- [ ] t11: Run focused CLI tests for document validation, resource provider and resolver behavior, operation surfaces, consistency, template links, managed routers, update preservation, required Human Experience propagation, finding dispositions, and exact affected scope.
-- [ ] t12: Include `npm run smoke:pack` in the expanded integration pass. Record clean install, update, package contents, stable resource access, and user-content preservation results.
-- [ ] t13: Run `bash scripts/check-instruction-routers.sh` and record managed-block structure and preservation results.
-- [ ] t14: Run the current path-hygiene and Markdown-link commands confirmed in Phase 1.
-- [ ] t15: Run `git diff --check` and inspect generated state for unsupported manual edits.
-- [ ] t16: Verify direct, indirect, none, missing, invalid, duplicate, unresolved, misleading, and historical validation cases.
-- [ ] t17: Verify that no new resource type, mandatory Skill, experience frontmatter, repository-wide rewrite, or unexpected local projection exists.
-- [ ] t18: Record command versions, relevant environment facts, outcomes, evidence paths, and the current decision for each testing type. Do not rerun unchanged checks without a new failure signal or changed implementation.
+- [x] t10: Include `npm run validate:defaults` in the one justified expanded integration pass. Record contract, template, catalog, manifest, and link results.
+- [x] t11: Run focused CLI tests for document validation, resource provider and resolver behavior, operation surfaces, consistency, template links, managed routers, update preservation, required Human Experience propagation, finding dispositions, and exact affected scope.
+- [x] t12: Include `npm run smoke:pack` in the expanded integration pass. Record clean install, update, package contents, stable resource access, and user-content preservation results.
+- [x] t13: Run `bash scripts/check-instruction-routers.sh` and record managed-block structure and preservation results.
+- [x] t14: Run the current path-hygiene and Markdown-link commands confirmed in Phase 1.
+- [x] t15: Run `git diff --check` and inspect generated state for unsupported manual edits.
+- [x] t16: Verify direct, indirect, none, missing, invalid, duplicate, unresolved, misleading, and historical validation cases.
+- [x] t17: Verify that no new resource type, mandatory Skill, experience frontmatter, repository-wide rewrite, or unexpected local projection exists.
+- [x] t18: Record command versions, relevant environment facts, outcomes, evidence paths, and the current decision for each testing type. Do not rerun unchanged checks without a new failure signal or changed implementation.
+
+### Implementation Evidence
+
+- The package path copied the reviewed template into the CLI and produced `@brucewaynedecoy/make-docs@2.0.0-rc`.
+- P5 changed tests only. It did not change a template-owned source, so no dogfood reseed was necessary.
+- A clean packed install listed and read both stable Human Experience URIs from the installed provider with exact source bytes.
+- The offline test blocked Node network entry points. A missing installed resource returned a repair action.
+- A constructed legacy fixture used an accepted transfer shape and a `0.1.0` package-version marker. The current packed CLI imported it into the Store, updated one managed `AGENTS.md` file, and preserved the exact user prefix, user suffix, and historical design bytes. This does not prove an actual released `0.1.0` package.
+- The focused run passed 12 files and 204 tests. `validate:defaults` passed 2 files and 51 tests. The expanded package smoke passed. The affected local package smoke passed after the final assertion-only repair.
+- The instruction-router check, PRD authority and Markdown-link check, changed-file path check, generated-state inspection, and `git diff --check` passed.
+- The full repository path scan still reports 3,025 older findings outside this change. It reports no changed files. This phase does not change or claim those older findings.
 
 ### Acceptance criteria
 
@@ -114,6 +125,12 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 - [ ] t25: Run deterministic structure checks for each result.
 - [ ] t26: Apply required Human Experience Review for interpretation coherence. Reuse structure and conformance evidence where suitable. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise.
 - [ ] t27: Record each harness, model, provider, runtime, result, finding, and supported claim under current conformance authority.
+
+### Current Blocker
+
+P5 stops before supported-agent execution. Current PRD 20 requires the exact seven-part tuple of scenario, harness, connection method, surface, scope, model or provider, and runtime. The current conformance code still uses the older tuple with `outputKind` and `generatedOutputKind`. It has no `connectionMethod`. PRD 43 also still names the older six-part tuple. The tuple registry has no current entries, and the prior packaging scenarios are retired.
+
+W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not authorized. Its accepted PRD set does not include PRD 43. PRD 43 tuple reconciliation therefore remains an authority gap. W20 R0 P5 does not expand into either change. No Codex or Claude Code conformance result is claimed. Stage 4 depends on Stage 3, so the real-human, adoption, reconciliation, history, and closeout tasks remain open.
 
 ### Acceptance criteria
 
@@ -218,6 +235,6 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 
 ### Closeout Notes
 
-- Testing decision(s): Record all four current testing decisions. Record Human Experience Review conclusions without a fifth testing type or duplicate verdict. Name the qualified executor for selected Unassisted Goal Testing.
-- Phase / capability status: Record the final W20 R0 capability status, remaining obligations, and bounded release claim.
+- Testing decision(s): Automated Implementation Testing is `selected`. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for the current package-delivery decision. Reconsider Guided Progress Review and Unassisted Goal Testing after Stage 3 produces a real result. Human Experience Review is `insufficient evidence` for P5 completion because no real-person review has run.
+- Phase / capability status: P5 is active. Tasks t1 through t18 have evidence. Stage 1 is not accepted because its real-agent reach rule is not met. Later stage acceptance cannot close before it. Stages 3 through 6 remain open. W20 R0 is not closed.
 - Commit and release gate: Prepare evidence only. Wait for explicit owner authority before staging, commit, publication, or release.

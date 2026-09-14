@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
+  cpSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -68,6 +69,18 @@ try {
   throw new Error("Package smoke requires a Node runtime with node:sqlite for mandatory Store state.");
 }
 const EXPECTED_PACKAGE_NAME = "@brucewaynedecoy/make-docs";
+const HUMAN_EXPERIENCE_RESOURCES = [
+  {
+    type: "contract",
+    uri: "make-docs://system/contract/human-experience-contract.md",
+    localPath: ".make-docs/system/contracts/human-experience-contract.md",
+  },
+  {
+    type: "reference",
+    uri: "make-docs://system/reference/human-experience.md",
+    localPath: ".make-docs/system/references/human-experience.md",
+  },
+];
 // Independent acceptance table. Project Codex is direct; global Codex has a
 // separate native exposure. Do not derive these expected paths from runtime code.
 const STANDARD_SKILL_LAYOUTS = {
@@ -457,6 +470,8 @@ function runLocalPackedSmoke() {
     const providerOnlyRouterPaths = assertProviderOnlyDefaultInstall(targetDir, installation);
     assertPackedInstructionTemplate(packageRoot, providerOnlyRouterPaths);
     assertManifestOmitsProjectConfig(installation);
+    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, targetDir, true);
+    assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, installation);
 
     execFileSync(
       "node",
@@ -470,6 +485,7 @@ function runLocalPackedSmoke() {
     assertManifestPackageName(installation, EXPECTED_PACKAGE_NAME);
     assertManifestSkillFiles(installation, 0);
     assertPackedStateStatus(packedMakeDocs, installation, "ready");
+    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, targetDir, false);
     assertMissing(
       path.join(targetDir, ".claude/skills"),
       "Smoke pack setup install should not produce Claude Code skill files.",
@@ -1067,6 +1083,187 @@ function assertPackedRouterGuidanceParity(packageRoot) {
     : "Packed upstream router parity passed. Installed parity requires a later --verify-dogfood run.");
 }
 
+function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, installTargetDir, checkFailure) {
+  const offlineEnv = createPackedOfflineEnv();
+  const listed = JSON.parse(execFileSync(
+    "node",
+    [packedMakeDocs, "resource", "list", "--origin", "installed", "--format", "json", "--target", installTargetDir],
+    { encoding: "utf8", env: offlineEnv },
+  ));
+
+  for (const resource of HUMAN_EXPERIENCE_RESOURCES) {
+    const upstreamBytes = readFileSync(path.join(repoRoot, "packages/docs/template", resource.localPath));
+    const generatedBytes = readFileSync(path.join(cliPackageDir, "template", resource.localPath));
+    const dogfoodBytes = readFileSync(path.join(repoRoot, resource.localPath));
+    const packedBytes = readFileSync(path.join(packageRoot, "template", resource.localPath));
+    if (!generatedBytes.equals(upstreamBytes) || !dogfoodBytes.equals(upstreamBytes) || !packedBytes.equals(upstreamBytes)) {
+      throw new Error(`Human Experience resource projections differ for ${resource.uri}.`);
+    }
+
+    const entry = listed.resources.find((candidate) => candidate.uri === resource.uri);
+    if (!entry?.result?.ok) {
+      throw new Error(`Packed CLI installed-origin list omitted ${resource.uri}.`);
+    }
+    if (entry.result.value.origin !== "installed-machine" || entry.result.value.identity.type !== resource.type) {
+      throw new Error(`Packed CLI list returned the wrong installed provenance for ${resource.uri}.`);
+    }
+
+    const raw = execFileSync(
+      "node",
+      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "raw", "--target", installTargetDir],
+      { env: offlineEnv },
+    );
+    if (!raw.equals(upstreamBytes)) {
+      throw new Error(`Packed CLI installed-origin read changed the bytes for ${resource.uri}.`);
+    }
+    const metadata = JSON.parse(execFileSync(
+      "node",
+      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "json", "--target", installTargetDir],
+      { encoding: "utf8", env: offlineEnv },
+    ));
+    if (metadata.resource.origin !== "installed-machine") {
+      throw new Error(`Packed CLI read returned the wrong installed provenance for ${resource.uri}.`);
+    }
+    const decoded = Buffer.from(metadata.resource.content.data, "base64");
+    if (!decoded.equals(upstreamBytes)) {
+      throw new Error(`Packed CLI JSON read changed the bytes for ${resource.uri}.`);
+    }
+  }
+
+  if (checkFailure) {
+    const missingUri = "make-docs://system/contract/not-a-shipped-resource.md";
+    const missing = runPackedCliExpectingFailure(
+      packedMakeDocs,
+      ["resource", "read", missingUri, "--origin", "installed", "--target", installTargetDir],
+      offlineEnv,
+    );
+    assertOutputContains(
+      missing.stderr,
+      `System resource ${missingUri} is not available from the installed provider inventory.`,
+      "Packed CLI resource read did not explain a missing installed resource.",
+    );
+    const missingError = JSON.parse(missing.stderr);
+    if (
+      missingError.code !== "resource-not-found" ||
+      missingError.recovery !== "Check the cataloged resource URI or restore the installed provider."
+    ) {
+      throw new Error("Packed CLI resource read did not return the supported missing-resource recovery action.");
+    }
+  }
+}
+
+function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, sourceInstallation) {
+  const legacyTargetDir = registerAuxSmokeDir("make-docs-hx-legacy-update-");
+  cpSync(sourceInstallation.targetDir, legacyTargetDir, { recursive: true });
+
+  const currentManifest = readInstallationLedger(sourceInstallation);
+  const legacyManifest = JSON.parse(
+    JSON.stringify(currentManifest).replaceAll(currentManifest.packageVersion, "0.1.0"),
+  );
+  delete legacyManifest.projectId;
+  legacyManifest.updatedAt = "2026-06-18T00:00:00.000Z";
+
+  const legacyManagedBody = [
+    "See `.make-docs/AGENTS.md` for the full make-docs routing.",
+    "",
+    "When asked to create documentation for this project that is not `README.md`, read the same-named instruction file in `docs/` before writing.",
+    "",
+  ].join("\n");
+  const legacyManagedHash = createHash("sha256").update(legacyManagedBody).digest("hex");
+  legacyManifest.files["AGENTS.md"].hash = legacyManagedHash;
+  legacyManifest.files["AGENTS.md"].systemAsset.expectedHashes = [legacyManagedHash];
+  legacyManifest.systemAssetMaterialization.assets["AGENTS.md"].expectedHashes = [legacyManagedHash];
+  legacyManifest.routerOwnership.routers["AGENTS.md"].expectedSourceHash = legacyManagedHash;
+  legacyManifest.routerOwnership.routers["AGENTS.md"].installedHash = legacyManagedHash;
+
+  const userRouterPrefix = Buffer.from("# User-owned smoke prefix\n\n", "utf8");
+  const userRouterSuffix = Buffer.from("# User-owned smoke suffix\n", "utf8");
+  const legacyManagedBlock = Buffer.from(
+    `<!-- make-docs:begin -->\n${legacyManagedBody}<!-- make-docs:end -->\n`,
+    "utf8",
+  );
+  const rootRouterPath = path.join(legacyTargetDir, "AGENTS.md");
+  const legacyRouterBytes = Buffer.concat([userRouterPrefix, legacyManagedBlock, userRouterSuffix]);
+  writeFileSync(rootRouterPath, legacyRouterBytes);
+
+  const legacyManifestPath = path.join(legacyTargetDir, ".make-docs/manifest.json");
+  writeFileSync(legacyManifestPath, `${JSON.stringify(legacyManifest, null, 2)}\n`, "utf8");
+  const configPath = path.join(legacyTargetDir, ".make-docs/config.yaml");
+  writeFileSync(configPath, readFileSync(configPath, "utf8").replace(/^projectId:.*\n/m, ""), "utf8");
+
+  const historicalDesignPath = path.join(
+    legacyTargetDir,
+    "docs/designs/2024-01-15-user-owned-historical-design.md",
+  );
+  const historicalDesignBytes = Buffer.from(
+    "# User-owned historical design\n\nThis file predates the Human Experience standard.\n",
+    "utf8",
+  );
+  writeFileSync(historicalDesignPath, historicalDesignBytes);
+
+  execFileSync(
+    "node",
+    [packedMakeDocs, "setup", "--yes", "--target", legacyTargetDir],
+    { stdio: "inherit", env: packedCliEnv },
+  );
+
+  assertMissing(legacyManifestPath, "Packed CLI update did not transfer the legacy manifest to the Store.");
+  const currentManagedRouter = readFileSync(path.join(packageRoot, "template/AGENTS.md"));
+  const expectedRouterBytes = Buffer.concat([userRouterPrefix, currentManagedRouter, userRouterSuffix]);
+  const updatedRouterBytes = readFileSync(rootRouterPath);
+  if (!updatedRouterBytes.equals(expectedRouterBytes)) {
+    throw new Error("Packed CLI update did not preserve the exact router prefix and suffix around the current managed router.");
+  }
+  if (updatedRouterBytes.equals(legacyRouterBytes)) {
+    throw new Error("Packed CLI update did not change the legacy managed router.");
+  }
+  if (!readFileSync(historicalDesignPath).equals(historicalDesignBytes)) {
+    throw new Error("Packed CLI update changed the user-owned historical design.");
+  }
+
+  const updatedManifest = inspectStore(
+    { targetDir: legacyTargetDir, storeRoot },
+    (db, checkout) => {
+      const row = db.prepare("SELECT manifest_json FROM installation_ledgers WHERE checkout_id = ?")
+        .get(checkout.checkout_id);
+      if (!row) throw new Error("Packed CLI update did not write the transferred installation ledger.");
+      return JSON.parse(row.manifest_json);
+    },
+  );
+  if (updatedManifest.packageVersion !== readPackedPackage(packageRoot).version) {
+    throw new Error("Packed CLI update did not record the current package version.");
+  }
+  if (updatedManifest.files["AGENTS.md"].hash === legacyManagedHash) {
+    throw new Error("Packed CLI update did not record a changed managed router hash.");
+  }
+  assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, legacyTargetDir, false);
+}
+
+function createPackedOfflineEnv() {
+  const guardPath = path.join(npmHome, "make-docs-block-network.cjs");
+  if (!existsSync(guardPath)) {
+    writeFileSync(
+      guardPath,
+      [
+        'const blocked = () => { throw new Error("Network access is blocked by the make-docs package smoke."); };',
+        "globalThis.fetch = blocked;",
+        'const http = require("node:http"); http.request = blocked; http.get = blocked;',
+        'const https = require("node:https"); https.request = blocked; https.get = blocked;',
+        'const net = require("node:net"); net.connect = blocked; net.createConnection = blocked; net.Socket.prototype.connect = blocked;',
+        'const tls = require("node:tls"); tls.connect = blocked; tls.TLSSocket.prototype.connect = blocked;',
+        'const dns = require("node:dns"); dns.lookup = blocked; dns.resolve = blocked; dns.reverse = blocked;',
+        'const dnsPromises = require("node:dns/promises"); dnsPromises.lookup = blocked; dnsPromises.resolve = blocked; dnsPromises.reverse = blocked;',
+        'const dgram = require("node:dgram"); dgram.createSocket = blocked;',
+        'require("node:module").syncBuiltinESMExports();',
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+  }
+  const nodeOptions = [packedCliEnv.NODE_OPTIONS, `--require=${guardPath}`].filter(Boolean).join(" ");
+  return { ...packedCliEnv, NODE_OPTIONS: nodeOptions, npm_config_offline: "true" };
+}
+
 function inspectStore(installation, inspect) {
   const databasePath = path.join(installation.storeRoot, "store.db");
   assertExists(databasePath, "Smoke pack installation has no Store database.");
@@ -1507,11 +1704,11 @@ function writeLegacyContentFixture(fixtureDir) {
 }
 
 /** Runs the packed CLI expecting a nonzero exit; returns captured output. */
-function runPackedCliExpectingFailure(packedMakeDocs, args) {
+function runPackedCliExpectingFailure(packedMakeDocs, args, env = packedCliEnv) {
   try {
     execFileSync("node", [packedMakeDocs, ...args], {
       encoding: "utf8",
-      env: packedCliEnv,
+      env,
     });
   } catch (error) {
     if (error && typeof error.status === "number" && error.status !== 0) {

@@ -11,6 +11,7 @@ import type { ResourceListOperationOutput, ResourceReadOperationOutput } from ".
 import { TEMPLATE_ROOT } from "../src/utils";
 
 const roots: string[] = [];
+const repoRoot = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const resources = [
   ["contract", "contracts", "human-experience-contract.md"],
   ["reference", "references", "human-experience.md"],
@@ -18,6 +19,15 @@ const resources = [
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
 describe("Human Experience resource delivery", () => {
+  it("keeps the upstream, generated, and dogfood resource bytes identical", () => {
+    for (const [, directory, name] of resources) {
+      const local = `.make-docs/system/${directory}/${name}`;
+      const upstream = readFileSync(path.join(repoRoot, "packages/docs/template", local));
+      expect(readFileSync(path.join(TEMPLATE_ROOT, local))).toEqual(upstream);
+      expect(readFileSync(path.join(repoRoot, local))).toEqual(upstream);
+    }
+  });
+
   it("includes both shared resources even when the design capability is not selected", () => {
     const selections = defaultSelections();
     selections.capabilities.designs = false;
@@ -37,14 +47,14 @@ describe("Human Experience resource delivery", () => {
     for (const [type, directory, name] of resources) {
       const uri = `make-docs://system/${type}/${name}`;
       const local = `.make-docs/system/${directory}/${name}`;
-      const bytes = readFileSync(path.join(TEMPLATE_ROOT, local), "utf8");
+      const bytes = readFileSync(path.join(TEMPLATE_ROOT, local));
       expect(listed.resources.find(r => r.uri === uri)?.result.ok).toBe(true);
       const read = (await invokeOperation("resource.read", { uri, targetRoot: root }, context)).value as unknown as ResourceReadOperationOutput;
-      expect(Buffer.from(read.resource.content.data, "base64").toString("utf8")).toBe(bytes);
+      expect(Buffer.from(read.resource.content.data, "base64")).toEqual(bytes);
       expect(read.resource.origin).toBe(selected ? "managed-snapshot" : "installed-machine");
       expect(existsSync(path.join(root, local))).toBe(selected);
       if (selected) {
-        expect(readFileSync(path.join(root, local), "utf8")).toBe(bytes);
+        expect(readFileSync(path.join(root, local))).toEqual(bytes);
         expect(applied.manifest.resourceProjection?.resources[uri]?.uri).toBe(uri);
       }
     }

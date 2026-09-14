@@ -20,7 +20,9 @@ The final independent P4 review found no defect after the repairs. It confirmed 
 
 P4 is closed at commit `df0080a`. This acceptance closes the bounded P4 phase only.
 
-This report does not prove an installed product or a lived human result. The failure-revealing result is a synthetic fixture, which means that it was made only for this test. P5 must still prove package delivery, dogfood delivery, an installed-product flow, agent behavior, adoption, and a real human outcome.
+P5 is active. Tasks t1 through t18 have evidence. The current packed CLI proves clean installation, stable offline resource reads, and update preservation with a constructed legacy fixture. It does not prove an actual released `0.1.0` installation.
+
+P5 is not ready for acceptance. Stage 1 requires proof that real agents can reach the standard. No such result exists. Current PRD 20 requires `connectionMethod` in the support tuple. The conformance code still uses two retired output fields and has no `connectionMethod`. PRD 43 still names the older tuple. This blocks current Codex and Claude Code results. The strict P5 order also blocks later stage acceptance.
 
 ## Phase Identity and Environment
 
@@ -84,6 +86,134 @@ Conclusion: `satisfied` for the P4 evidence-reuse and boundary claim.
 Reviewer: Factory implementation worker and P4 closeout documentation worker.
 
 Review limit: The specialist escalation is fixture proof only. It does not activate or close a real W20 accessibility review.
+
+## Phase 5 Partial Implementation
+
+### Package and Installed-Project Result
+
+Claim: The reviewed Human Experience resources reach a clean packed install and a supported existing-project update without loss of user content.
+
+Check: The packed smoke builds the CLI from `packages/docs/template/`. It compares raw bytes across upstream, generated CLI, dogfood, packed, and installed copies for both stable resources. It runs installed-origin list and read operations with Node network entry points blocked. It also constructs a legacy transfer fixture from the current clean install. The fixture removes project identity, uses a `0.1.0` package-version marker, replaces one managed router with an accepted older body, and adds historical user content.
+
+Observation: The clean install returned installed-machine provenance and exact bytes for `make-docs://system/contract/human-experience-contract.md` and `make-docs://system/reference/human-experience.md`. The legacy update reported 23 current managed files and one `AGENTS.md` update. The current router body, user prefix, user suffix, and historical design bytes matched their expected values after the update. The missing-resource result named the unavailable URI and gave a repair action.
+
+Conclusion: `satisfied` for P5 package, installed-resource, constructed-update, preservation, and offline-recovery task claims.
+
+Reviewer: Factory implementation worker, independent package-proof reviewer, and coordinator verification.
+
+Review limit: This result does not prove an actual released `0.1.0` distribution, current harness conformance, prospective agent adoption, or a lived human outcome. Stage 1 is not accepted until real-agent reach is proved.
+
+### Supported-Agent Conformance Status
+
+Current PRD 20 requires seven tuple parts: scenario, harness, connection method, surface, scope, model or provider, and runtime. Current code in `packages/cli/src/conformance/tuple.ts` still binds the older fields `outputKind` and `generatedOutputKind`. It has no `connectionMethod`. PRD 43 R-ING-2 also still names a six-part tuple. The current tuple registry has zero entries. The former packaging scenarios are retired.
+
+Conclusion: `blocked`. No Codex or Claude Code result was run or recorded. No support claim is made. W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not authorized. Its accepted PRD set does not include PRD 43, so that reconciliation has no current implementation authority. P5 does not expand into either change.
+
+### Human Outcome and Adoption Status
+
+P5 Stage 4 depends on Stage 3. The real-person exercise has not started. Human Experience Review is `insufficient evidence` for P5 completion. The agent cannot certify lived human understanding or pleasure.
+
+The prospective adoption matrix also remains open. No P5 history record or final requirement reconciliation is created while the phase is active.
+
+### P5 Current Testing Decisions
+
+#### Automated Implementation Testing
+
+- Testing type: Automated Implementation Testing.
+- Decision informed: Do the packed resources reach clean and constructed-update projects without content loss or a resource regression?
+- Reason now: P5 changes package smoke and installed-resource tests.
+- Product maturity: Documentation-first package candidate before real-agent conformance.
+- Scope: The two changed test files, the focused 12-file matrix, default validation, package smoke, router check, changed-file path check, PRD and link validation, and diff check.
+- Executor: Agent test runner.
+- Gate effect: `blocking-claim-only` for the package and structural claims.
+- Effort budget: One focused pass and one expanded pass after the material review repairs. The final assertion-only repair uses the affected local smoke. No release-grade test run.
+- Stop condition: Stop after affected checks pass and independent review has no open defect. Rerun only after a related change or failure.
+- Evidence retained: [package smoke](../../../scripts/smoke-pack.mjs), [installed-resource test](../../../packages/cli/tests/human-experience-resources.test.ts), this report, and the P5 phase record.
+- Rerun trigger: A change to package projection, installed resources, update handling, router preservation, or the related tests.
+- Decision: `selected`.
+
+#### Performance Testing
+
+- Testing type: Performance Testing.
+- Decision informed: Can a quantitative performance result change the current P5 package decision?
+- Reason now: P5 has no accepted speed, load, wait, cost, or resource target.
+- Product maturity: Documentation-first package candidate before real-agent conformance.
+- Scope: Current package and resource-delivery behavior.
+- Executor: Not assigned.
+- Gate effect: `not-applicable`.
+- Effort budget: None.
+- Stop condition: Stop while no accepted quantitative outcome exists.
+- Evidence retained: This current decision.
+- Rerun trigger: An accepted quantitative outcome that can change a current decision.
+- Decision: `not-needed-now`.
+
+#### Guided Progress Review
+
+- Testing type: Guided Progress Review.
+- Decision informed: Can guided review change the current package-delivery decision before a real P5 result exists?
+- Reason now: Stage 3 has not produced the actual result that P5 must offer for review.
+- Product maturity: Package proof before real-agent and real-human execution.
+- Scope: Current package-delivery result only.
+- Executor: Not assigned. No review is active.
+- Gate effect: `not-applicable` for the current package decision.
+- Effort budget: None until a meaningful result exists.
+- Stop condition: Stop without an empty review.
+- Evidence retained: This current decision.
+- Rerun trigger: A real P5 result exists. Offer the optional review then.
+- Decision: `not-needed-now`. This current decision creates no obligation.
+
+#### Unassisted Goal Testing
+
+- Testing type: Unassisted Goal Testing.
+- Decision informed: Can an unassisted attempt answer a material current P5 uncertainty now?
+- Reason now: No current runnable P5 human surface exists.
+- Product maturity: Package proof before real-agent and real-human execution.
+- Scope: Current package-delivery result only.
+- Executor: Not assigned. No qualified human run is selected.
+- Gate effect: `not-applicable`.
+- Effort budget: None.
+- Stop condition: Stop while no runnable surface or material human uncertainty exists.
+- Evidence retained: This current decision.
+- Rerun trigger: Reconsider after Stage 3 if a material human uncertainty remains.
+- Decision: `not-needed-now`. No `NUAT-###` scenario or obligation exists.
+
+Human Experience Review remains a separate acceptance lens. It is not a fifth testing type. Its current P5 conclusion is `insufficient evidence`.
+
+### P5 Check Results
+
+Environment: macOS, Node `v24.19.0`, npm `11.17.0`, branch `make-docs-v2`, base HEAD `ec2f27bd9301219a0a3ece2fb86d58e679d1b759`.
+
+| Check | Result | Limit |
+| --- | --- | --- |
+| Focused CLI matrix | Passed: 12 files and 204 tests | Covers resources, propagation, providers, routers, lifecycle, and update behavior. It is automated proof only. |
+| `npm run validate:defaults` | Passed: 2 files and 51 tests | Covers default consistency and template links. |
+| Expanded `npm run smoke:pack -- --verify-dogfood` | Passed | Covers package build, packed contents, clean install, constructed legacy update, offline stable resource access, npm, pnpm, Bun, and dogfood router parity. Registry access needed an approved network rerun. The final assertion-only repair then passed the affected local package smoke. |
+| `npm run test:smoke-harness` | Passed: 13 tests | Covers the package-smoke runner. It is not agent-conformance evidence. |
+| Instruction routers | Passed | Managed router structure passed. |
+| PRD authority and Markdown links | Passed: 39 PRDs, 541 Markdown files, 199 structured files, and 1,050 links | Covers repository PRD authority and links. |
+| Changed-file path hygiene | Passed | Covers the P5 Markdown files only. The full repository scan has 3,025 older findings and no changed files. |
+| `git diff --check` | Passed | No whitespace error was reported. |
+| Independent package review | Passed after three P1 or P2 repairs and one final P2 repair | The review corrected the update baseline, full-router assertion, network block, and recovery assertion. It cannot prove lived human experience. |
+
+Exact command record:
+
+```text
+npm test -w packages/cli -- --run tests/human-experience-resources.test.ts tests/human-experience-propagation.test.ts tests/resource-identity-provider.test.ts tests/resource-provider-integration.test.ts tests/resource-resolver.test.ts tests/tool-directory.test.ts tests/system-assets.test.ts tests/p4-projection-lifecycle.test.ts tests/managed-block.test.ts tests/router-paths.test.ts tests/lifecycle.test.ts tests/p3-operation-surfaces.test.ts
+npm run validate:defaults
+npm run smoke:pack -- --verify-dogfood
+npm run smoke:pack:local
+npm run test:smoke-harness
+bash scripts/check-instruction-routers.sh
+node --import tsx packages/cli/src/index.ts project path-hygiene validate --target . --path docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent/00-index.md --path docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent/05-delivery-conformance-and-delta-closeout.md --path docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent/evidence.md --format json
+node --import tsx packages/cli/src/index.ts run prd authority validate --target-root .
+git diff --check
+```
+
+Durable evidence paths are [scripts/smoke-pack.mjs](../../../scripts/smoke-pack.mjs), [packages/cli/tests/human-experience-resources.test.ts](../../../packages/cli/tests/human-experience-resources.test.ts), this central report, and [the P5 phase record](05-delivery-conformance-and-delta-closeout.md).
+
+### P5 Finding and Disposition
+
+The support-tuple mismatch is a material blocker. The disposition is a partial P5 status with no broad support claim. W19 R6 owns the PRD 20 change, but PRD 43 reconciliation remains an authority gap. No `O-###` obligation is created while P5 remains active and no future outcome has owner acceptance. R-033 stays open because the required real-human proof has not run.
 
 ## Current Testing Decisions
 

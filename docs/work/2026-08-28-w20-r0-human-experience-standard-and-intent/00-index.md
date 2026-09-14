@@ -19,7 +19,7 @@ This backlog is a directory. Use this index first. Then use the phase files in o
 
 ## Interrupt Pause
 
-The W19 recovery interrupt is closed. P1 through P4 are accepted and closed. Their commits are `cc113d3` for P1, `c09adb9` for P2, `da10a5e` for P3, and `df0080a` for P4. P4 implementation and validation are complete, and independent review found no defect after repairs. These phase closeouts do not claim P5 proof, publication, or release. W21 stays paused.
+The W19 recovery interrupt is closed. P1 through P4 are accepted and closed. Their commits are `cc113d3` for P1, `c09adb9` for P2, `da10a5e` for P3, and `df0080a` for P4. P5 is active. Tasks t1 through t18 have evidence. Stage 1 is not accepted because no real-agent result exists. Supported-agent conformance is blocked by an unresolved tuple authority and implementation gap. P5, W20 R0, publication, and release remain open. W21 stays paused.
 
 ## Purpose
 
@@ -57,11 +57,11 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 | 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed at `c09adb9`: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. |
 | 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Accepted and closed at `da10a5e`: the human goal and promises pass through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. Source, package, installed files, and Store evidence agree. |
 | 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Accepted and closed at `df0080a`: implementation and validation are complete, and independent review found no defect after repairs. The [central evidence](evidence.md#phase-4-review) records the bounded result. Guided Progress Review and Unassisted Goal Testing remain `not-needed-now` for P4. |
-| 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Prove package, dogfood, installed-project, agent, adoption, and real human outcomes before W20 R0 closeout. |
+| 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Active. Package, dogfood, clean-install, constructed update, and structural tasks have evidence. Stage 1 is not accepted because real-agent reach is not proved. Agent, adoption, real-human, reconciliation, and closeout work remain open. |
 
 ## Usage Notes
 
-- The owner accepted and closed P1 through P4. Their commits are `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. P5 implementation, publication, and release need separate authority.
+- The owner accepted and closed P1 through P4. Their commits are `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. The owner authorized P5 implementation in the current task. Staging, commit, publication, and release still need separate authority.
 - Complete phases in order. A later phase can inspect future work, but it cannot close before its dependencies close.
 - Use phase-local task IDs. IDs start at `t1` in each phase and continue across that phase's stages.
 - Treat PRD 49 and the listed owner PRDs as product authority. Use the plan only for order, context, and scope provenance.
@@ -86,4 +86,4 @@ This handoff is advisory-default-but-overridable. It is authoritative unless the
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
 
-Current next step: Continue P5 preflight against the closed P1 through P4 foundation. Use the [P4 evidence report](evidence.md) as the evidence handoff. P5 implementation, staging, commit, publication, and release remain outside the current authority.
+Current next step: Resolve authority for the PRD 20 `connectionMethod` implementation and the separate PRD 43 tuple reconciliation. Then resume P5 agent evidence. Use the [central evidence report](evidence.md) as the handoff. P5 implementation is authorized. W19 R6 implementation, PRD 43 changes, staging, commit, publication, and release remain outside the current authority.
