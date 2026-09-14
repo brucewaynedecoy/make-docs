@@ -33,6 +33,7 @@ import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
   resolveStoreRoot,
 } from "./store";
+import { readInstallationStatus } from "./store/installation-state";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -48,12 +49,13 @@ import type {
   PlannedAction,
   ProjectResourceType,
 } from "./types";
-import { PROJECT_RESOURCE_TYPES } from "./types";
+import { CAPABILITIES, PROJECT_RESOURCE_TYPES } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import {
   promptForManagedFileConflictResolutions,
   runSelectionWizard,
 } from "./wizard";
+import { resolveUnifiedSetupState } from "./setup-state";
 
 /**
  * The seven-command top level per PRD 39 R-TOP-1.
@@ -66,7 +68,7 @@ type Command =
   | "mcp"
   | "update"
   | "uninstall";
-type SetupSubcommand = "reconfigure" | "skills" | "backup" | "remove";
+type SetupSubcommand = "system" | "reconfigure" | "skills" | "backup" | "remove";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
 
@@ -199,6 +201,22 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   validateParsedArgs(parsed);
+
+  if (parsed.setupSubcommand === "system") {
+    const { runSystemSetupCommand } = await import("./setup-system");
+    await runSystemSetupCommand({
+      dryRun: parsed.dryRun,
+      yes: parsed.yes,
+      promptForMethods: true,
+      targetRoot: path.resolve(parsed.targetDir ?? process.cwd()),
+      harnesses: {
+        "claude-code": !parsed.noClaudeCode,
+        codex: !parsed.noCodex,
+      },
+    });
+    return;
+  }
+
   const effectiveSkillRegistry = loadEffectiveSkillRegistry({
     packageRoot: PACKAGE_ROOT,
     manifestReference: parsed.skillsManifest,
@@ -310,6 +328,15 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   const interactive = !parsed.yes;
 
+  if (
+    freshInstallTarget &&
+    (parsed.noDesigns || parsed.noPlans || parsed.noPrd || parsed.noWork)
+  ) {
+    throw new Error(
+      "Fresh setup always installs Designs, Plans, PRD, and Work. Remove the document-type flags. You can review a later change with `make-docs setup reconfigure`.",
+    );
+  }
+
   // Pre-v2 detection on `setup` and `setup reconfigure` (R-MIG-2): a
   // fingerprinted pre-v2 install gets the warning-and-choice flow — back up
   // and install the latest version (recommended) or cancel — before any
@@ -352,11 +379,25 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
   }
 
+  const resolvedSelections = resolveSelections({ parsed, existingManifest });
+  const installationStatus = readInstallationStatus(targetDir, resolveStoreRoot());
+  const projectState = freshInstallTarget
+    ? "fresh"
+    : installationStatus.status === "recovery-required"
+      ? "recoverable"
+    : compatibilityClassification.state === "modified-v1"
+      ? "drifted"
+      : compatibilityClassification.state === "partial-install" ||
+          existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+        ? "partial"
+        : "current";
   let selections = applySkillRegistrySelectionMetadata(
-    resolveSelections({
-      parsed,
-      existingManifest,
-    }),
+    resolveUnifiedSetupState({
+      entry: installIntent === "reconfigure" ? "reconfigure" : "setup",
+      projectState,
+      selections: resolvedSelections,
+      allowCapabilityExpansion: installIntent === "reconfigure",
+    }).selections,
     effectiveSkillRegistry,
   );
   let selectionSource = describeSelectionSource({
@@ -364,13 +405,16 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
     installIntent,
   });
-  let skipApplyConfirm = false;
 
   if (interactive) {
+    const { inspectSystemHarnesses } = await import("./setup-system");
+    const harnessSupport = inspectSystemHarnesses();
     if (!existingManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
+        projectState: "fresh",
+        harnessSupport,
         config: makeDocsConfig,
         ...(parsed.skillsManifest
           ? { skillRegistry: effectiveSkillRegistry.registry }
@@ -385,11 +429,18 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         effectiveSkillRegistry,
       );
       selectionSource = "interactive wizard selections";
-      skipApplyConfirm = true;
-    } else if (installIntent === "reconfigure") {
+    } else if (
+      installIntent === "reconfigure" ||
+      projectState === "partial" ||
+      projectState === "drifted" ||
+      projectState === "recoverable"
+    ) {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's reconfigure your make-docs install",
+        projectState,
+        allowCapabilityExpansion: installIntent === "reconfigure",
+        harnessSupport,
         config: makeDocsConfig,
         ...(parsed.skillsManifest
           ? { skillRegistry: effectiveSkillRegistry.registry }
@@ -403,8 +454,9 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         wizardSelections,
         effectiveSkillRegistry,
       );
-      selectionSource = "interactive reconfigure wizard";
-      skipApplyConfirm = true;
+      selectionSource = installIntent === "reconfigure"
+        ? "interactive reconfigure wizard"
+        : "interactive state review";
     }
   }
 
@@ -412,6 +464,34 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
     selections,
   });
+
+  const {
+    applyPreparedSystemSetup,
+    prepareSystemSetupCommand,
+    resumePendingSystemSetupCommand,
+  } = await import("./setup-system");
+  const systemOptions = {
+    dryRun: parsed.dryRun,
+    yes: parsed.yes,
+    promptForMethods: true,
+    harnesses: {
+      "claude-code": selections.harnesses["claude-code"],
+      codex: selections.harnesses.codex,
+    },
+    projectHarnessIntegrations: makeDocsConfig.harnessIntegrations,
+    targetRoot: targetDir,
+    persistIntent: true,
+  };
+  const resumedSystemSetup = await resumePendingSystemSetupCommand(systemOptions);
+  if (resumedSystemSetup) {
+    output.write(
+      resumedSystemSetup.status === "configured"
+        ? "Pending machine setup is now verified. Run `make-docs setup` again for one current computer and project review.\n"
+        : `Setup stopped at machine scope. ${resumedSystemSetup.recoveryAction ?? "Run `make-docs setup system` to review the machine state."}\n`,
+    );
+    return;
+  }
+  const preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
 
   const packageMeta = readPackageMeta();
   let plan = await planInstall({
@@ -452,6 +532,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
   const requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
   const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+  note(preparedSystemSetup.review, "This computer");
   printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
@@ -464,8 +545,19 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
     config: makeDocsConfig,
     selectedResourceTypes: plan.profile.selections.resourceProjection,
+    selectedCapabilities: plan.profile.effectiveCapabilities,
     stops: plan.stops ?? [],
   });
+
+  const blockedSystemPlans = preparedSystemSetup.plans.filter(
+    (systemPlan) => systemPlan.status === "blocked" || systemPlan.status === "unsupported",
+  );
+  if (blockedSystemPlans.length > 0) {
+    output.write(
+      "Setup stopped at machine scope. Review the blocked harness details, then run `make-docs setup system` again.\n",
+    );
+    return;
+  }
 
   if (parsed.dryRun) {
     output.write("\nDry run complete.\n");
@@ -489,7 +581,20 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  if (interactive && !skipApplyConfirm && hasInstallMutation) {
+  let systemApproved = parsed.yes || !preparedSystemSetup.changed;
+  if (interactive && preparedSystemSetup.changed) {
+    const proceed = await confirm({
+      message: "Apply the reviewed This computer changes?",
+      initialValue: false,
+      active: "Yes",
+      inactive: "No",
+      withGuide: true,
+    });
+    systemApproved = !isCancel(proceed) && Boolean(proceed);
+  }
+
+  let projectApproved = parsed.yes || !hasInstallMutation;
+  if (interactive && hasInstallMutation) {
     const proceed = await confirm({
       message: getApplyConfirmationMessage({
         existingManifest,
@@ -500,11 +605,27 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       inactive: "No",
       withGuide: true,
     });
+    projectApproved = !isCancel(proceed) && Boolean(proceed);
+  }
 
-    if (isCancel(proceed) || !proceed) {
-      output.write("Installer cancelled.\n");
-      return;
-    }
+  if (!systemApproved) {
+    output.write("Machine setup was not approved. No system or project files were changed.\n");
+    return;
+  }
+
+  const systemSetup = await applyPreparedSystemSetup(preparedSystemSetup);
+  if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
+    output.write(
+      `Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Run `make-docs setup system` to review the machine state."}\n`,
+    );
+    return;
+  }
+
+  if (!projectApproved) {
+    output.write(
+      "This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n",
+    );
+    return;
   }
 
   const storeRoot = resolveStoreRoot();
@@ -524,19 +645,29 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       throw new Checkpoint9ReceiptProjectionError(checkpoint9);
     }
   }
-  const applied = !freshInstallTarget && hasInstallMutation
-    ? executeInstallPlanMigration({
-        projectRoot: targetDir,
-        storeRoot,
-        compatibility: compatibilityClassification,
-        installPlan: plan,
-        existingManifest,
-      })
-    : applyInstallPlan({
-        targetDir,
-        plan,
-        existingManifest,
-      });
+  let applied: ReturnType<typeof applyInstallPlan>;
+  try {
+    applied = !freshInstallTarget && hasInstallMutation
+      ? executeInstallPlanMigration({
+          projectRoot: targetDir,
+          storeRoot,
+          compatibility: compatibilityClassification,
+          installPlan: plan,
+          existingManifest,
+        })
+      : applyInstallPlan({
+          targetDir,
+          plan,
+          existingManifest,
+        });
+  } catch (error) {
+    if (systemSetup.status === "configured" || systemSetup.status === "unchanged") {
+      output.write(
+        "This computer remains configured. Project scope failed. Run `make-docs setup` to review and resume the project change.\n",
+      );
+    }
+    throw error;
+  }
 
   // Explicit migration signal for pre-identifier installs (PRD 38 R-ID-1):
   // when an existing manifest predates the stable project identifier, this
@@ -941,7 +1072,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 
   if (
     parsed.command === "setup" &&
-    (args[0] === "reconfigure" || args[0] === "skills" || args[0] === "backup" || args[0] === "remove")
+    (args[0] === "system" || args[0] === "reconfigure" || args[0] === "skills" || args[0] === "backup" || args[0] === "remove")
   ) {
     parsed.setupSubcommand = args.shift() as SetupSubcommand;
   }
@@ -1288,6 +1419,24 @@ function validateParsedArgs(parsed: ParsedArgs): void {
     }
   }
 
+  if (parsed.setupSubcommand === "system") {
+    const invalidSystemFlags = [
+      ...(parsed.noDesigns ? ["--no-designs"] : []),
+      ...(parsed.noPlans ? ["--no-plans"] : []),
+      ...(parsed.noPrd ? ["--no-prd"] : []),
+      ...(parsed.noWork ? ["--no-work"] : []),
+      ...(parsed.noSkills ? ["--no-skills"] : []),
+      ...(parsed.skillScope ? ["--skill-scope"] : []),
+      ...(parsed.selectedSkillsValue !== undefined ? ["--selected-skills"] : []),
+      ...(parsed.projectResources !== undefined ? ["--project-resources"] : []),
+    ];
+    if (invalidSystemFlags.length > 0) {
+      throw new Error(
+        `Project selection flags ${invalidSystemFlags.join(", ")} are not valid with \`make-docs setup system\`.`,
+      );
+    }
+  }
+
   const selectionOverrideFlags = getSelectionOverrideFlags(parsed);
   if (
     isLifecycleCommand(parsed) &&
@@ -1347,6 +1496,7 @@ function printPlan(options: {
   compatibilityClassification: CompatibilityClassification | null;
   config: MakeDocsConfig;
   selectedResourceTypes?: ProjectResourceType[];
+  selectedCapabilities: readonly string[];
   stops: string[];
 }): void {
   const {
@@ -1361,6 +1511,7 @@ function printPlan(options: {
     compatibilityClassification,
     config,
     selectedResourceTypes,
+    selectedCapabilities,
     stops,
   } = options;
   const nonNoop = actions.filter((action) => action.type !== "noop");
@@ -1388,7 +1539,10 @@ function printPlan(options: {
           ]
         : []),
       `Selection source: ${selectionSource}`,
+      `Project surface: ${selectedCapabilities.join(", ") || "none"}`,
       `Local resource projection: ${selectedResourceTypes === undefined ? "legacy install (not yet selected)" : selectedResourceTypes.join(", ") || "none"}`,
+      "Resource provider reads need no Store access.",
+      "Local copies reduce CLI dependence. They do not grant harness or Store access.",
       `Safety stops: ${stops.join(", ") || "none"}`,
       `Document kind labels: ${labels.documentKinds}`,
       `Lifecycle labels: ${labels.lifecycle}`,
@@ -1402,7 +1556,7 @@ function printPlan(options: {
       `Skip: ${counts.skip + counts["skip-conflict"]}`,
       `Remove: ${counts["remove-managed"]}`,
     ].join("\n"),
-    "Information",
+    "This project",
   );
 
   if (nonNoop.length === 0) {
@@ -1718,12 +1872,6 @@ const SETUP_SHARED_OPTIONS = `General options:
   --yes                          Skip interactive prompts.
   --help, -h                     Show help for this command.
 
-Content options:
-  --no-designs                   Skip docs/designs scaffolding.
-  --no-plans                     Skip docs/plans scaffolding.
-  --no-prd                       Skip docs/prd scaffolding.
-  --no-work                      Skip docs/work scaffolding.
-
 Harness options:
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
@@ -1738,7 +1886,10 @@ Skill options:
 
 Resource options:
   --project-resources <csv|all|none>
-                                  Copy only the selected system resource types into this project.`;
+                                  Copy only the selected system resource types into this project.
+
+Fresh projects always include Designs, Plans, PRD, and Work. Use setup
+reconfigure to review a later project-surface change.`;
 
 const RECONFIGURE_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
@@ -1768,6 +1919,30 @@ Resource options:
 function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
   if (command === "setup") {
     switch (setupSubcommand) {
+      case "system":
+        output.write(`make-docs setup system
+
+Review and configure machine-level support for Codex and Claude Code.
+Harness detection is a hint. It does not prove support and does not limit choice.
+Each planned method names the operations it enables and the machine files it changes.
+
+Usage:
+  make-docs setup system [options]
+
+Options:
+  --target <path>                Bind Store recovery state to this project path.
+  --dry-run                      Show This computer changes without writing files.
+  --yes                          Approve the reviewed machine changes.
+  --no-codex                     Skip Codex support.
+  --no-claude-code               Skip Claude Code support.
+  --help, -h                     Show help for this command.
+
+Examples:
+  make-docs setup system --dry-run
+  make-docs setup system --yes
+  make-docs setup system --no-claude-code --dry-run
+`);
+        return;
       case "reconfigure":
         output.write(`make-docs setup reconfigure
 
@@ -1907,12 +2082,14 @@ Interactive fresh installs open the selection wizard; syncs review planned chang
 
 Usage:
   make-docs setup [options]
+  make-docs setup system [options]
   make-docs setup reconfigure [options]
   make-docs setup skills [options]
   make-docs setup backup [options]
   make-docs setup remove [options]
 
 Subcommands:
+  system       Configure reviewed machine-level harness support.
   reconfigure  Change saved project selections for an existing install.
   skills       Change, sync, or remove managed skills.
   backup       Create a backup of managed files.
@@ -2050,7 +2227,7 @@ Manage make-docs installs, run registry operations, and serve MCP.
 
 Usage:
   make-docs
-  make-docs setup [reconfigure|skills|backup|remove] [options]
+  make-docs setup [system|reconfigure|skills|backup|remove] [options]
   make-docs project surface ensure <archive|artifacts|assets>
   make-docs project state status [--target-root <path>] [--json]
   make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
@@ -2070,7 +2247,7 @@ Global flags:
   --help, -h      Show help for a command.
 
 Commands:
-  setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.
+  setup        Install or sync this project; subcommands system, reconfigure, skills, backup, remove.
   project      Manage canonical project support surfaces.
   resource     List, read, or ensure stable system resources.
   run          Run deterministic registry operations.
@@ -2082,6 +2259,7 @@ Examples:
   make-docs
   make-docs --version
   make-docs setup --yes
+  make-docs setup system --dry-run
   make-docs setup reconfigure
   make-docs setup skills --dry-run
   make-docs setup remove --backup

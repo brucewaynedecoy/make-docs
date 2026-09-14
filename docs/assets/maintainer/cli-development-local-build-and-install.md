@@ -11,6 +11,7 @@ tags:
 applies-to:
   - cli
 related:
+  - "cli-maintaining-setup-and-harness-access.md"
   - "cli-mcp-operation-parity-and-permissions.md"
   - ../user/cli-lifecycle-managing-installations.md
   - "maintainer-docs-assets-and-runtime-state-boundaries.md"
@@ -25,7 +26,7 @@ related:
 
 This guide is the local development entry point for the `make-docs` CLI. It is intentionally narrow: build the CLI, run the test and router-validation paths that matter during development, and exercise local install flows through built or packed artifacts.
 
-For maintainer-specific dogfood work, use [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md). For packaging and release procedure, use [Packaging, Validation, and Release Reference](release-packaging-validation-and-release-reference.md). For path-boundary questions around `docs/assets/**` versus `.make-docs/**`, use [Docs Assets and Runtime State Boundaries](maintainer-docs-assets-and-runtime-state-boundaries.md).
+For setup adapters, receipts, and support evidence, use [Maintaining Setup and Harness Access](cli-maintaining-setup-and-harness-access.md). For maintainer-specific dogfood work, use [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md). For packaging and release procedure, use [Packaging, Validation, and Release Reference](release-packaging-validation-and-release-reference.md). For path-boundary questions around `docs/assets/**` versus `.make-docs/**`, use [Docs Assets and Runtime State Boundaries](maintainer-docs-assets-and-runtime-state-boundaries.md).
 
 This guide covers the current TypeScript npm package, including the CLI and the read-first MCP stdio server exposed through `make-docs mcp`. MCP work must preserve the same installer, manifest, audit, backup, uninstall, dry-run planning, and operation-domain contracts before maintainers document any broader support surface.
 
@@ -141,6 +142,7 @@ npm exec --yes --package "./$TARBALL" -- make-docs setup --target "$TEST_DIR"
 
 ## Related Resources
 
+- [Maintaining Setup and Harness Access](cli-maintaining-setup-and-harness-access.md)
 - [Docs Assets and Runtime State Boundaries](maintainer-docs-assets-and-runtime-state-boundaries.md)
 - [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md)
 - [CLI/MCP Operation Parity and Permissions](cli-mcp-operation-parity-and-permissions.md)

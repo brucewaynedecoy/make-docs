@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STORE_WRITE_PROJECT_READ_ACCESS } from "../../access";
 import type { OperationDefinition } from "../../registry";
 import type { JsonValue } from "../../types";
 import { buildWorkEvidenceRecord } from "../index";
@@ -38,6 +39,7 @@ export const workEvidenceRecordOperation: OperationDefinition<
   summary:
     "Record one work-execution evidence entry in the global store, keyed to the canonical work-item identity.",
   mutates: "write",
+  access: STORE_WRITE_PROJECT_READ_ACCESS,
   status: "active",
   inputSchema,
   handler(input, context) {

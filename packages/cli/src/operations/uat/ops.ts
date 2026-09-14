@@ -5,6 +5,7 @@ import { parseDocument } from "yaml";
 import { z } from "zod";
 import { loadMakeDocsConfig } from "../../config";
 import { assertManagedPathHasNoSymlinks } from "../../utils";
+import { PROJECT_READ_ACCESS } from "../access";
 import type { OperationDefinition } from "../registry";
 import { OperationError } from "../types";
 import { loadInstalledSystemResourceProvider } from "../resource/provider";
@@ -210,7 +211,7 @@ function validateResult(root: string, persona: Persona, input: z.infer<typeof sc
 }
 
 function operation<T extends { targetRoot?: string; persona?: string }>(id: string, inputSchema: z.ZodType<T>, handler: (root: string, persona: Persona, input: T) => unknown): OperationDefinition<T, unknown> {
-  return { id, summary: "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor.", mutates: "read", status: "active", inputSchema,
+  return { id, summary: "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor.", mutates: "read", access: PROJECT_READ_ACCESS, status: "active", inputSchema,
     handler(input, context) {
       const provider = loadInstalledSystemResourceProvider();
       if (!provider.ok || UAT_WORKFLOW_RESOURCES.some((uri) => !provider.value.resources.some((resource) => resource.identity.uri === uri))) fail("invalid-input", "Restore the governing Unassisted Goal Testing provider resources.");

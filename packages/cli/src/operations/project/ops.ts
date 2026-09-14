@@ -4,6 +4,12 @@ import { registerSkillAdoptionRecovery } from "../../skills-adoption";
 import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "../../store/installation-state";
 import { z } from "zod";
 import {
+  PROJECT_READ_ACCESS,
+  PROJECT_WRITE_ACCESS,
+  STORE_READ_PROJECT_READ_ACCESS,
+  STORE_WRITE_PROJECT_WRITE_ACCESS,
+} from "../access";
+import {
   getManifestFileHash,
   loadManifest,
   MANIFEST_RELATIVE_PATH,
@@ -75,6 +81,7 @@ export const projectOperations: OperationDefinition[] = [{
   id: "project.state.status",
   summary: "Read installation state and the next safe action from the global Store.",
   mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
   status: "active",
   inputSchema: stateStatusInput,
   handler(rawInput, context) {
@@ -86,6 +93,7 @@ export const projectOperations: OperationDefinition[] = [{
   id: "project.state.recover",
   summary: "Resume or roll back one verified pending installation operation.",
   mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
   status: "active",
   inputSchema: stateRecoverInput,
   handler(rawInput, context) {
@@ -97,6 +105,7 @@ export const projectOperations: OperationDefinition[] = [{
   id: "project.surface.ensure",
   summary: "Ensure one selected project support surface and its configured routers.",
   mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
   status: "active",
   inputSchema,
   handler(rawInput, context) {
@@ -302,6 +311,7 @@ export const projectOperations: OperationDefinition[] = [{
   id: "project.path-hygiene.validate",
   summary: "Check local documentation paths.",
   mutates: "read",
+  access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema: pathHygieneInputSchema,
   handler(rawInput, context) {
@@ -320,6 +330,7 @@ export const projectOperations: OperationDefinition[] = [{
   id: "project.path-hygiene.repair",
   summary: "Preview or apply repairs to current-project paths in documentation.",
   mutates: "write",
+  access: PROJECT_WRITE_ACCESS,
   status: "active",
   inputSchema: pathHygieneInputSchema.extend({ apply: z.boolean().optional() }),
   handler(rawInput, context) {

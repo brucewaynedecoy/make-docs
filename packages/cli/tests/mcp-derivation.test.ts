@@ -5,11 +5,12 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   callMakeDocsMcpTool,
   deriveMcpToolName,
+  listDerivedMcpOperationAccessFacts,
   listDerivedMcpOperationTools,
   MAKE_DOCS_MCP_TOOLS,
   verifyDerivedMcpToolParity,
 } from "../src/mcp/tools";
-import { listOperations } from "../src/operations/registry";
+import { listOperationAccessFacts, listOperations } from "../src/operations/registry";
 import { loadSqliteDriver } from "../src/store";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
@@ -192,5 +193,25 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(Object.keys(readTool.inputSchema)).toEqual(
       expect.arrayContaining(["repoRoot", "dryRun", "approvals"]),
     );
+  });
+
+  test("derived descriptors publish exact registry access and MCP readiness", () => {
+    const registryFacts = new Map(
+      listOperationAccessFacts().map((fact) => [fact.operation, fact]),
+    );
+    const mcpFacts = listDerivedMcpOperationAccessFacts();
+    expect(mcpFacts).toHaveLength(registryFacts.size);
+    for (const fact of mcpFacts) {
+      const registry = registryFacts.get(fact.operation)!;
+      expect(fact.access, fact.operation).toEqual(registry.access);
+      expect(fact.mcpReady, fact.operation).toBe(registry.mcpReady);
+      const descriptor = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === fact.name)!;
+      expect(descriptor.access, fact.operation).toEqual(registry.access);
+      expect(descriptor.mcpReady, fact.operation).toBe(registry.mcpReady);
+      expect(descriptor.description, fact.operation).toContain(
+        `Access: Store ${registry.access.store}; project ${registry.access.project}; host configuration ${registry.access.hostConfig}.`,
+      );
+    }
+    expect(registryFacts.get("resource.read")?.mcpReady).toBe(true);
   });
 });

@@ -28,6 +28,7 @@ import {
 } from "./skills-ui";
 import type { InstallManifest, InstallPlan, InstallSelections } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
+import { resolveUnifiedSetupState } from "./setup-state";
 
 export type SkillsCommandOptions = {
   targetDir: string;
@@ -54,7 +55,11 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     manifestReference: options.skillsManifest,
   });
   const initialSelections = applySkillRegistrySelectionMetadata(
-    resolveSkillsSelections(options, existingManifest),
+    resolveUnifiedSetupState({
+      entry: "skills",
+      projectState: existingManifest ? "current" : "fresh",
+      selections: resolveSkillsSelections(options, existingManifest),
+    }).selections,
     effectiveSkillRegistry,
   );
   const packageMeta = readPackageMeta();

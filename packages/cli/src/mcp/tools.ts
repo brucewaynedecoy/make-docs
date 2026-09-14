@@ -9,9 +9,12 @@ import { listOperationDomains } from "../operations/index";
 import {
   getOperation,
   invokeOperation,
+  listOperationAccessFacts,
   listOperations,
   type OperationDefinition,
 } from "../operations/registry";
+import type { OperationAccess } from "../operations/access";
+import { accessAtMost, resolveProjectHarnessAccessProjection } from "../operations/harness-policy";
 import { cloneSelections, defaultSelections } from "../profile";
 import type {
   InstallPlan,
@@ -35,6 +38,10 @@ export interface MakeDocsMcpToolDescriptor {
   title: string;
   description: string;
   inputSchema: Record<string, z.ZodType>;
+  /** Present for tools projected from the operation registry. */
+  operation?: string;
+  access?: OperationAccess;
+  mcpReady?: boolean;
 }
 
 interface DerivedMcpToolDescriptor extends MakeDocsMcpToolDescriptor {
@@ -159,7 +166,10 @@ function deriveToolInputSchema(definition: OperationDefinition): Record<string, 
 }
 
 function deriveToolDescription(definition: OperationDefinition): string {
-  const parts = [definition.summary];
+  const parts = [
+    definition.summary,
+    `Access: Store ${definition.access.store}; project ${definition.access.project}; host configuration ${definition.access.hostConfig}.`,
+  ];
   if (definition.status === "pending") {
     parts.push(
       `Pending: reserved registry identifier whose semantics land with ${definition.pendingLineage}; invocation is refused until then.`,
@@ -180,12 +190,15 @@ function deriveToolDescription(definition: OperationDefinition): string {
 const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations().map(
   (operation) => {
     const definition = getOperation(operation.id);
+    const accessFact = listOperationAccessFacts().find((fact) => fact.operation === operation.id)!;
     return {
       name: deriveMcpToolName(operation.id),
       operation: operation.id,
       title: `Make Docs Operation ${operation.id}`,
       description: deriveToolDescription(definition),
       inputSchema: deriveToolInputSchema(definition),
+      access: { ...accessFact.access },
+      mcpReady: accessFact.mcpReady,
     };
   },
 );
@@ -199,12 +212,40 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   ...DERIVED_MCP_OPERATION_TOOLS,
 ];
 
+/** Project-aware MCP descriptors. This Store-free projection can only narrow exposure. */
+export function listMakeDocsMcpTools(
+  targetRoot = process.cwd(),
+): MakeDocsMcpToolDescriptor[] {
+  const projection = resolveProjectHarnessAccessProjection(targetRoot, "mcp");
+  return MAKE_DOCS_MCP_TOOLS.map((tool) => {
+    if (!tool.operation || !tool.access) return tool;
+    const mcpReady = tool.mcpReady === true &&
+      (tool.access.store === "none" || accessAtMost(tool.access, projection.access));
+    return { ...tool, access: { ...tool.access }, mcpReady };
+  });
+}
+
 /**
  * Conformance seam (R-TEST-1): the derived tool-name/operation pairs, for
  * tests pinning derived-tool/registry parity in both directions.
  */
 export function listDerivedMcpOperationTools(): { name: string; operation: string }[] {
   return DERIVED_MCP_OPERATION_TOOLS.map(({ name, operation }) => ({ name, operation }));
+}
+
+/** Structured MCP exposure facts from the same operation access authority. */
+export function listDerivedMcpOperationAccessFacts(): Array<{
+  name: string;
+  operation: string;
+  access: OperationAccess;
+  mcpReady: boolean;
+}> {
+  return DERIVED_MCP_OPERATION_TOOLS.map(({ name, operation, access, mcpReady }) => ({
+    name,
+    operation,
+    access: { ...access! },
+    mcpReady: mcpReady === true,
+  }));
 }
 
 /**
@@ -269,7 +310,13 @@ export async function callMakeDocsMcpTool(
   if (derived === undefined) {
     throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
-  return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args));
+  const targetRoot = resolveOperationTargetDir(args);
+  const effective = listMakeDocsMcpTools(targetRoot).find((tool) => tool.name === name);
+  return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args), {
+    operation: derived.operation,
+    access: { ...derived.access! },
+    mcpReady: effective?.mcpReady === true,
+  });
 }
 
 /**
@@ -420,12 +467,23 @@ function resolveSelections(
   return defaultSelections();
 }
 
-function mcpPayload(tool: string, result: unknown): Record<string, unknown> {
+function mcpPayload(
+  tool: string,
+  result: unknown,
+  details: Record<string, unknown> = {},
+): Record<string, unknown> {
   return {
     tool,
     source: "mcp",
+    ...details,
     result,
   };
+}
+
+function resolveOperationTargetDir(args: McpToolInput): string {
+  return path.resolve(
+    optionalString(args, "targetRoot") ?? optionalString(args, "targetDir") ?? process.cwd(),
+  );
 }
 
 function resolveTargetDir(args: McpToolInput): string {

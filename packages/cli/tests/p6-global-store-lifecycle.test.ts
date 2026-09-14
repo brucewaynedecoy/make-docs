@@ -1,4 +1,5 @@
 import path from "node:path";
+import os from "node:os";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
@@ -39,6 +40,7 @@ import {
   type LifecycleStatus,
 } from "../src/store";
 import * as installationState from "../src/store/installation-state";
+import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
 const sqliteAvailable = loadSqliteDriver().available;
@@ -199,7 +201,25 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(() => openStoreDatabase(root)).toThrow(StoreMigrationRequiredError);
     const freshProject = createTempDir("make-docs-p6-fresh-project-");
     roots.push(freshProject);
-    const previousStoreRoot = process.env.MAKE_DOCS_HOME;
+    const isolatedHome = createTempDir("make-docs-p6-home-");
+    roots.push(isolatedHome);
+    vi.spyOn(os, "homedir").mockReturnValue(isolatedHome);
+    expect(readPendingHarnessSystemOperation(freshProject, root)).toBeNull();
+    const legacyReadback = rawDatabase(path.join(root, "store.db"));
+    expect(readUserVersion(legacyReadback)).toBe(1);
+    expect(legacyReadback.prepare(
+      "SELECT COUNT(*) AS count FROM sqlite_schema WHERE type='table' AND name='tool_operations'",
+    ).get()).toEqual({ count: 0 });
+    legacyReadback.close();
+    const previousEnvironment = {
+      HOME: process.env.HOME,
+      MAKE_DOCS_HOME: process.env.MAKE_DOCS_HOME,
+      CODEX_HOME: process.env.CODEX_HOME,
+      CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
+    };
+    process.env.HOME = isolatedHome;
+    process.env.CODEX_HOME = path.join(isolatedHome, ".codex");
+    process.env.CLAUDE_CONFIG_DIR = path.join(isolatedHome, ".claude");
     process.env.MAKE_DOCS_HOME = root;
     try {
       await runCli(["setup", "--yes", "--target", freshProject]);
@@ -225,8 +245,10 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         setupMayContinue: true,
       });
     } finally {
-      if (previousStoreRoot === undefined) delete process.env.MAKE_DOCS_HOME;
-      else process.env.MAKE_DOCS_HOME = previousStoreRoot;
+      for (const [name, value] of Object.entries(previousEnvironment)) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
     }
   });
 

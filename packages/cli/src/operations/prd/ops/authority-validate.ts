@@ -1,5 +1,6 @@
 import path from "node:path";
 import { z } from "zod";
+import { PROJECT_READ_ACCESS } from "../../access";
 import type { OperationDefinition } from "../../registry";
 import {
   validatePrdAuthority,
@@ -19,6 +20,7 @@ export const prdAuthorityValidateOperation: OperationDefinition<
   summary:
     "Validate that active PRDs describe product authority rather than editorial change operations.",
   mutates: "read",
+  access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema,
   handler(input, context) {

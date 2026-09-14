@@ -27,6 +27,10 @@ import {
 } from "../../store";
 import { assertManagedPathHasNoSymlinks, createRunId } from "../../utils";
 import type { OperationExecutionContext } from "../context";
+import {
+  STORE_READ_PROJECT_READ_ACCESS,
+  STORE_WRITE_PROJECT_READ_ACCESS,
+} from "../access";
 import type { OperationDefinition } from "../registry";
 import { findRepoRoot } from "../shared";
 import { OperationError, type JsonValue } from "../types";
@@ -180,6 +184,7 @@ export function buildLifecycleOperations(
       id: "lifecycle.start",
       summary: "Start a general lifecycle run in the global Store.",
       mutates: "write",
+      access: STORE_WRITE_PROJECT_READ_ACCESS,
       status: "active",
       inputSchema: startInput,
       handler(input, context) {
@@ -207,6 +212,7 @@ export function buildLifecycleOperations(
       id: "lifecycle.show",
       summary: "Show one current general lifecycle run and its evidence references.",
       mutates: "read",
+      access: STORE_READ_PROJECT_READ_ACCESS,
       status: "active",
       inputSchema: runReadInput,
       handler(input) {
@@ -227,6 +233,7 @@ export function buildLifecycleOperations(
       id: "lifecycle.list",
       summary: "List current general lifecycle runs for one manifest-minted project.",
       mutates: "read",
+      access: STORE_READ_PROJECT_READ_ACCESS,
       status: "active",
       inputSchema: listInput,
       handler(input) {
@@ -243,6 +250,7 @@ export function buildLifecycleOperations(
       id: "lifecycle.checkpoint",
       summary: "Record a lifecycle checkpoint with explicit optimistic concurrency.",
       mutates: "write",
+      access: STORE_WRITE_PROJECT_READ_ACCESS,
       status: "active",
       inputSchema: checkpointInput,
       handler(input, context) {
@@ -275,6 +283,7 @@ export function buildLifecycleOperations(
       id: "lifecycle.attach-evidence",
       summary: "Attach one bounded evidence reference to a lifecycle run.",
       mutates: "write",
+      access: STORE_WRITE_PROJECT_READ_ACCESS,
       status: "active",
       inputSchema: evidenceInput,
       handler(input, context) {
@@ -333,6 +342,7 @@ function statusTransitionDefinition(
     id: operation,
     summary,
     mutates: "write",
+    access: STORE_WRITE_PROJECT_READ_ACCESS,
     status: "active",
     inputSchema: versionedInput,
     handler(input, context) {
@@ -362,6 +372,7 @@ function terminalTransitionDefinition(
     id: operation,
     summary,
     mutates: "write",
+    access: STORE_WRITE_PROJECT_READ_ACCESS,
     status: "active",
     inputSchema: versionedInput,
     handler(input, context) {

@@ -3,6 +3,12 @@ import path from "node:path";
 import { parseDocument } from "yaml";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import { assertManagedPathHasNoSymlinks, readTextFile } from "./utils";
+import {
+  getFirstPartyHarnessAdapter,
+  validateHarnessMethodSelection,
+  type HarnessMethodSelection,
+} from "./harness-access";
+import { NO_ACCESS, type OperationAccess } from "./operations/access";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -60,6 +66,32 @@ export interface HarnessCapabilityRecord {
   caveats: string[];
 }
 
+export type ProjectHarnessIntegrationMode = "inherit" | "narrow" | "disable";
+
+/** Project intent only. This record cannot grant machine or native permission. */
+export interface ProjectHarnessIntegrationRecord {
+  harness: string;
+  mode: ProjectHarnessIntegrationMode;
+  /** Optional narrower method. Forbidden for inherit and disable. */
+  method?: string;
+  /** Optional narrower operation access. Forbidden for inherit and disable. */
+  accessCeiling?: OperationAccess;
+}
+
+export interface MachineHarnessApproval {
+  selected: boolean;
+  maximumMethod: string | null;
+  /** Maximum operation access approved for this harness on this machine. */
+  accessCeiling: OperationAccess;
+}
+
+export interface EffectiveHarnessIntegration {
+  enabled: boolean;
+  method: string | null;
+  access: OperationAccess;
+  source: "machine" | "project-narrow" | "project-disable";
+}
+
 export interface MakeDocsConfig {
   labels: {
     lifecycle: Record<LifecycleLabelKey, string>;
@@ -69,12 +101,19 @@ export interface MakeDocsConfig {
   personas: MakeDocsPersonaConfig[];
   generatedProse: Record<string, string>;
   harnessCapabilities: HarnessCapabilityRecord[];
+  harnessIntegrations: ProjectHarnessIntegrationRecord[];
 }
 
 export interface MakeDocsConfigDiagnostic {
   code:
     | "duplicate-persona-slug"
     | "duplicate-harness-capability-record"
+    | "duplicate-harness-integration-record"
+    | "invalid-harness-integration-mode"
+    | "invalid-harness-identifier"
+    | "invalid-harness-method"
+    | "invalid-harness-access"
+    | "invalid-harness-integration-combination"
     | "invalid-harness-capability-id"
     | "invalid-review-status"
     | "invalid-primitive"
@@ -118,6 +157,7 @@ const TOP_LEVEL_KEYS = new Set([
   "personas",
   "generatedProse",
   "harnessCapabilities",
+  "harnessIntegrations",
 ]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
@@ -128,6 +168,7 @@ const HARNESS_CAPABILITY_RECORD_KEYS = new Set([
   "source",
   "caveats",
 ]);
+const HARNESS_INTEGRATION_RECORD_KEYS = new Set(["harness", "mode", "method", "accessCeiling"]);
 
 const STRUCTURAL_RENAME_KEYS = new Set([
   "contractName",
@@ -208,6 +249,7 @@ export function createDefaultMakeDocsConfig(): MakeDocsConfig {
     },
     generatedProse: {},
     harnessCapabilities: [],
+    harnessIntegrations: [],
     personas: [
       {
         slug: "user",
@@ -332,6 +374,7 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   applyGeneratedProse(parsed.generatedProse, config, configPath, diagnostics);
   applyPersonas(parsed.personas, config, configPath, diagnostics);
   applyHarnessCapabilities(parsed.harnessCapabilities, config, configPath, diagnostics);
+  applyHarnessIntegrations(parsed.harnessIntegrations, config, configPath, diagnostics);
 
   if (diagnostics.length > 0) {
     return invalidConfigResult(configPath, diagnostics);
@@ -564,6 +607,244 @@ function applyPersonas(
     personasBySlug.set(slug, { slug, label, description, primitive: primitive as PersonaPrimitive });
   }
   config.personas = [...personasBySlug.values()];
+}
+
+function applyHarnessIntegrations(
+  value: unknown,
+  config: MakeDocsConfig,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    addInvalidTypeDiagnostic(diagnostics, filePath, "harnessIntegrations", "an array");
+    return;
+  }
+
+  const records: ProjectHarnessIntegrationRecord[] = [];
+  const harnesses = new Set<string>();
+  for (const [index, entry] of value.entries()) {
+    const entryPath = `harnessIntegrations[${index}]`;
+    if (!isPlainObject(entry)) {
+      addInvalidTypeDiagnostic(diagnostics, filePath, entryPath, "an object");
+      continue;
+    }
+    validateKeys({
+      allowedKeys: HARNESS_INTEGRATION_RECORD_KEYS,
+      diagnostics,
+      filePath,
+      keyPath: entryPath,
+      value: entry,
+    });
+
+    const harness = getRequiredString(entry, "harness", entryPath, filePath, diagnostics);
+    const mode = getRequiredString(entry, "mode", entryPath, filePath, diagnostics);
+    const method = getOptionalString(entry, "method", entryPath, filePath, diagnostics);
+    const accessCeiling = getHarnessAccessCeiling(
+      entry.accessCeiling,
+      `${entryPath}.accessCeiling`,
+      filePath,
+      diagnostics,
+    );
+    if (!harness || !mode) {
+      continue;
+    }
+    if (!PERSONA_SLUG_PATTERN.test(harness)) {
+      diagnostics.push({
+        code: "invalid-harness-identifier",
+        filePath,
+        keyPath: `${entryPath}.harness`,
+        message: `Invalid make-docs config at ${filePath} (${entryPath}.harness): use a lowercase harness identifier.`,
+      });
+      continue;
+    }
+    if (harnesses.has(harness)) {
+      diagnostics.push({
+        code: "duplicate-harness-integration-record",
+        filePath,
+        keyPath: `${entryPath}.harness`,
+        message: `Invalid make-docs config at ${filePath} (${entryPath}.harness): duplicate harness integration record '${harness}'.`,
+      });
+      continue;
+    }
+    harnesses.add(harness);
+    if (mode !== "inherit" && mode !== "narrow" && mode !== "disable") {
+      diagnostics.push({
+        code: "invalid-harness-integration-mode",
+        filePath,
+        keyPath: `${entryPath}.mode`,
+        message: `Invalid make-docs config at ${filePath} (${entryPath}.mode): mode must be inherit, narrow, or disable.`,
+      });
+      continue;
+    }
+    if (method !== undefined && !PERSONA_SLUG_PATTERN.test(method)) {
+      diagnostics.push({
+        code: "invalid-harness-method",
+        filePath,
+        keyPath: `${entryPath}.method`,
+        message: `Invalid make-docs config at ${filePath} (${entryPath}.method): use a lowercase connection method identifier.`,
+      });
+      continue;
+    }
+    if (method !== undefined && getFirstPartyHarnessAdapter(harness)) {
+      try {
+        validateHarnessMethodSelection({ harnessId: harness, method: method as HarnessMethodSelection, scope: "project" });
+      } catch (error) {
+        diagnostics.push({
+          code: "invalid-harness-method",
+          filePath,
+          keyPath: `${entryPath}.method`,
+          message: `Invalid make-docs config at ${filePath} (${entryPath}.method): ${error instanceof Error ? error.message : String(error)}`,
+        });
+        continue;
+      }
+    }
+    const hasNarrowing = method !== undefined || accessCeiling !== undefined;
+    if ((mode === "narrow") !== hasNarrowing) {
+      diagnostics.push({
+        code: "invalid-harness-integration-combination",
+        filePath,
+        keyPath: entryPath,
+        message: `Invalid make-docs config at ${filePath} (${entryPath}): narrow requires a method or accessCeiling, while inherit and disable forbid them.`,
+      });
+      continue;
+    }
+    records.push({
+      harness,
+      mode,
+      ...(method ? { method } : {}),
+      ...(accessCeiling ? { accessCeiling } : {}),
+    });
+  }
+  config.harnessIntegrations = records;
+}
+
+/**
+ * Apply the most restrictive project choice to one machine-approved method.
+ * MCP is the broad method within each current first-party adapter. Native rule
+ * methods are narrower only inside their own harness.
+ */
+export function resolveEffectiveHarnessIntegration(
+  project: ProjectHarnessIntegrationRecord | undefined,
+  machine: MachineHarnessApproval,
+  harnessId: string,
+): EffectiveHarnessIntegration {
+  assertHarnessAccessCeiling(machine.accessCeiling, "Machine harness access ceiling");
+  if (project && project.harness !== harnessId) {
+    throw new Error(`Project harness '${project.harness}' does not match '${harnessId}'.`);
+  }
+  if (project?.mode === "narrow" && !project.method && !project.accessCeiling) {
+    throw new Error("Project narrow mode needs a narrower method or accessCeiling.");
+  }
+  if (
+    project &&
+    project.mode !== "narrow" &&
+    (project.method !== undefined || project.accessCeiling !== undefined)
+  ) {
+    throw new Error(`Project ${project.mode} mode cannot declare a method or accessCeiling.`);
+  }
+  if (machine.maximumMethod === null || machine.maximumMethod === "none") {
+    if (machine.selected) {
+      throw new Error(`Selected harness '${harnessId}' must have an approved connection method.`);
+    }
+    return { enabled: false, method: null, access: { ...NO_ACCESS }, source: "machine" };
+  }
+  if (!machine.selected) {
+    return { enabled: false, method: null, access: { ...NO_ACCESS }, source: "machine" };
+  }
+  validateHarnessMethodSelection({ harnessId, method: machine.maximumMethod as HarnessMethodSelection });
+  if (!project || project.mode === "inherit") {
+    return {
+      enabled: true,
+      method: machine.maximumMethod,
+      access: { ...machine.accessCeiling },
+      source: "machine",
+    };
+  }
+  if (project.mode === "disable") {
+    return { enabled: false, method: null, access: { ...NO_ACCESS }, source: "project-disable" };
+  }
+  const projectMethod = project.method ?? machine.maximumMethod;
+  validateHarnessMethodSelection({ harnessId, method: projectMethod as HarnessMethodSelection, scope: "project" });
+  if (machine.maximumMethod !== "mcp" && projectMethod !== machine.maximumMethod) {
+    throw new Error(
+      `Project method '${projectMethod}' is broader than machine-approved method '${machine.maximumMethod}'.`,
+    );
+  }
+  const projectAccess = project.accessCeiling ?? machine.accessCeiling;
+  assertHarnessAccessCeiling(projectAccess, "Project harness access ceiling");
+  if (!accessAtMost(projectAccess, machine.accessCeiling)) {
+    throw new Error("Project accessCeiling is broader than the machine-approved access ceiling.");
+  }
+  return {
+    enabled: true,
+    method: projectMethod,
+    access: { ...projectAccess },
+    source: "project-narrow",
+  };
+}
+
+function getHarnessAccessCeiling(
+  value: unknown,
+  keyPath: string,
+  filePath: string,
+  diagnostics: MakeDocsConfigDiagnostic[],
+): OperationAccess | undefined {
+  if (value === undefined) return undefined;
+  if (!isPlainObject(value)) {
+    diagnostics.push({
+      code: "invalid-harness-access",
+      filePath,
+      keyPath,
+      message: `Invalid make-docs config at ${filePath} (${keyPath}): expected store, project, and hostConfig access.`,
+    });
+    return undefined;
+  }
+  const keys = Object.keys(value).sort();
+  if (
+    keys.join(",") !== "hostConfig,project,store" ||
+    !isAccessLevel(value.store) ||
+    !isAccessLevel(value.project) ||
+    (value.hostConfig !== "none" && value.hostConfig !== "write")
+  ) {
+    diagnostics.push({
+      code: "invalid-harness-access",
+      filePath,
+      keyPath,
+      message: `Invalid make-docs config at ${filePath} (${keyPath}): accessCeiling must declare only store, project, and hostConfig with supported access values.`,
+    });
+    return undefined;
+  }
+  return {
+    store: value.store,
+    project: value.project,
+    hostConfig: value.hostConfig,
+  };
+}
+
+function assertHarnessAccessCeiling(value: OperationAccess, label: string): void {
+  if (
+    !value ||
+    !isAccessLevel(value.store) ||
+    !isAccessLevel(value.project) ||
+    value.hostConfig !== "none"
+  ) {
+    throw new Error(`${label} must be complete and cannot grant host-configuration writes.`);
+  }
+}
+
+function accessAtMost(candidate: OperationAccess, ceiling: OperationAccess): boolean {
+  const rank = { none: 0, read: 1, write: 2 } as const;
+  return rank[candidate.store] <= rank[ceiling.store] &&
+    rank[candidate.project] <= rank[ceiling.project] &&
+    candidate.hostConfig === "none";
+}
+
+function isAccessLevel(value: unknown): value is "none" | "read" | "write" {
+  return value === "none" || value === "read" || value === "write";
 }
 
 function applyHarnessCapabilities(

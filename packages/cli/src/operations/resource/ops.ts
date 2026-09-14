@@ -5,6 +5,10 @@ import { loadManifest } from "../../manifest";
 import { InstallationStateError } from "../../store/installation-state";
 import type { ManifestSystemAssetEntry } from "../../types";
 import type { OperationExecutionContext } from "../context";
+import {
+  PROJECT_READ_ACCESS,
+  STORE_WRITE_PROJECT_WRITE_ACCESS,
+} from "../access";
 import type { OperationDefinition } from "../registry";
 import { OperationError } from "../types";
 import { canonicalSystemResourcePath, parseSystemResourceUri } from "./identity";
@@ -259,6 +263,7 @@ export const resourceListOperation: OperationDefinition<
   id: "resource.list",
   summary: "List the stable system-resource URI inventory with resolution provenance.",
   mutates: "read",
+  access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema: resourceListInput,
   handler: listHandler,
@@ -271,6 +276,7 @@ export const resourceReadOperation: OperationDefinition<
   id: "resource.read",
   summary: "Read one system resource with exact bytes, media type, and provenance.",
   mutates: "read",
+  access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema: resourceReadInput,
   handler: readHandler,
@@ -283,6 +289,7 @@ export const resourceEnsureOperation: OperationDefinition<
   id: "resource.ensure",
   summary: "Materialize one selected managed projection under explicit write permission.",
   mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
   status: "active",
   requiredApprovals: [SYSTEM_RESOURCE_ENSURE_APPROVAL],
   inputSchema: resourceEnsureInput,

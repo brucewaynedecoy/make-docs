@@ -3,6 +3,8 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statS
 import os from "node:os";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
+import { loadMakeDocsConfig } from "../src/config";
+import { loadGlobalConfig, writeGlobalConfig } from "../src/store/global-config";
 import { loadManifest } from "../src/manifest";
 import { renderManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
@@ -15,6 +17,7 @@ import {
 const runSelectionWizardMock = vi.fn();
 const promptForManagedFileConflictResolutionsMock = vi.fn();
 const confirmMock = vi.fn();
+const selectMock = vi.fn();
 const runUninstallCommandMock = vi.fn();
 const runSkillsCommandMock = vi.fn();
 const ALL_SKILL_NAMES = [
@@ -35,6 +38,7 @@ vi.mock("@clack/prompts", async () => {
   return {
     ...actual,
     confirm: confirmMock,
+    select: selectMock,
     isCancel: (value: unknown) => value === "cancelled",
   };
 });
@@ -222,10 +226,20 @@ async function captureCliError(argv: string[]): Promise<Error> {
 }
 
 describe("cli interactive flows", () => {
+  let isolatedSetupHome: string;
+  let previousMakeDocsHome: string | undefined;
+
   beforeEach(() => {
+    isolatedSetupHome = createTempDir("make-docs-cli-home-");
+    previousMakeDocsHome = process.env.MAKE_DOCS_HOME;
+    process.env.MAKE_DOCS_HOME = path.join(isolatedSetupHome, "store");
+    vi.spyOn(os, "homedir").mockReturnValue(isolatedSetupHome);
     runSelectionWizardMock.mockReset();
     promptForManagedFileConflictResolutionsMock.mockReset();
     confirmMock.mockReset();
+    confirmMock.mockResolvedValue(true);
+    selectMock.mockReset();
+    selectMock.mockResolvedValue("none");
     runUninstallCommandMock.mockReset();
     runSkillsCommandMock.mockReset();
     mockSkillFetches();
@@ -235,6 +249,12 @@ describe("cli interactive flows", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    if (previousMakeDocsHome === undefined) {
+      delete process.env.MAKE_DOCS_HOME;
+    } else {
+      process.env.MAKE_DOCS_HOME = previousMakeDocsHome;
+    }
+    cleanupTempDir(isolatedSetupHome);
   });
 
   test("uses the wizard for interactive setup without an existing manifest", async () => {
@@ -252,13 +272,22 @@ describe("cli interactive flows", () => {
           capabilities: expect.objectContaining({ designs: true, plans: true, prd: true, work: true }),
         }),
         introTitle: "Let's configure your make-docs install",
+        projectState: "fresh",
+        harnessSupport: expect.any(Array),
         config: expect.objectContaining({
           labels: expect.any(Object),
           personas: expect.any(Array),
         }),
       });
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
-      expect(confirmMock).not.toHaveBeenCalled();
+      expect(confirmMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+      );
+      expect(confirmMock).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ message: "Install make-docs with this plan?" }),
+      );
       expect(writeSpy).toHaveBeenCalled();
     } finally {
       cleanupTempDir(targetDir);
@@ -287,6 +316,9 @@ describe("cli interactive flows", () => {
           skills: false,
         }),
         introTitle: "Let's reconfigure your make-docs install",
+        projectState: "partial",
+        allowCapabilityExpansion: true,
+        harnessSupport: expect.any(Array),
         config: expect.objectContaining({
           labels: expect.any(Object),
           personas: expect.any(Array),
@@ -297,7 +329,7 @@ describe("cli interactive flows", () => {
     }
   });
 
-  test("syncs saved selections on an interactive setup without opening the wizard", async () => {
+  test("reviews and preserves saved partial selections on interactive setup", async () => {
     const targetDir = createTempDir();
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -306,19 +338,26 @@ describe("cli interactive flows", () => {
         selections.capabilities.work = false;
         selections.skills = false;
       });
+      const saved = loadManifest(targetDir)!.selections;
+      runSelectionWizardMock.mockResolvedValue(saved);
       const { runCli } = await import("../src/cli");
 
       await runCli(["setup", "--target", targetDir]);
 
       const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
-      expect(runSelectionWizardMock).not.toHaveBeenCalled();
-      expect(confirmMock).not.toHaveBeenCalled();
-      expect(output).toContain("Information");
+      expect(runSelectionWizardMock).toHaveBeenCalledWith(expect.objectContaining({
+        projectState: "partial",
+        allowCapabilityExpansion: false,
+      }));
+      expect(confirmMock).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+      );
+      expect(output).toContain("This project");
       expect(output).toContain("Mode: existing install sync");
       expect(output).toContain("Installation record:");
       expect(output).toContain("global Make Docs Store");
       expect(output).toContain("found or verified for");
-      expect(output).toContain("Selection source: saved manifest selections");
+      expect(output).toContain("Selection source: interactive state review");
       expect(output).toContain("Changes planned: 0");
       expect(output).toContain("Results");
       expect(output).toContain("No managed file changes are needed.");
@@ -575,17 +614,24 @@ personas:
     }
   });
 
-  test("preserves non-interactive flag behavior with --yes", async () => {
+  test("rejects document-type flags on a fresh non-interactive setup", async () => {
     const targetDir = createTempDir();
 
     try {
-      const { runCli } = await import("../src/cli");
-
-      await runCli(["setup", "--yes", "--no-work", "--target", targetDir]);
+      const error = await captureCliError([
+        "setup",
+        "--yes",
+        "--no-work",
+        "--target",
+        targetDir,
+      ]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
-      expect(loadManifest(targetDir)?.selections.capabilities.work).toBe(false);
+      expect(error.message).toContain(
+        "Fresh setup always installs Designs, Plans, PRD, and Work",
+      );
+      expect(loadManifest(targetDir)).toBeNull();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -840,6 +886,9 @@ personas:
         "AGENTS.md": "skip",
         ".make-docs/system/contracts/guide-contract.md": "overwrite",
       });
+      const reviewedSelections = defaultSelections();
+      reviewedSelections.capabilities.work = false;
+      runSelectionWizardMock.mockResolvedValue(reviewedSelections);
 
       const output = await captureCliOutput([
         "setup",
@@ -1580,7 +1629,7 @@ personas:
     expect(output).toMatch(/make-docs/i);
     expect(output).toMatch(/\bCommands\b/i);
     expect(output).toMatch(/\bExamples\b/i);
-    expect(output).toContain("make-docs setup [reconfigure|skills|backup|remove] [options]");
+    expect(output).toContain("make-docs setup [system|reconfigure|skills|backup|remove] [options]");
     expect(output).toContain("make-docs project surface ensure <archive|artifacts|assets>");
     expect(output).toContain("make-docs resource <list|read|ensure> [options]");
     expect(output).toContain("make-docs run <domain> <verb> [options]");
@@ -1606,7 +1655,7 @@ personas:
     ]);
 
     expect(output).toContain(
-      "setup        Install or sync this project; subcommands reconfigure, skills, backup, remove.",
+      "setup        Install or sync this project; subcommands system, reconfigure, skills, backup, remove.",
     );
     expect(output).toContain("project      Manage canonical project support surfaces.");
     expect(output).toContain("resource     List, read, or ensure stable system resources.");
@@ -1623,7 +1672,7 @@ personas:
     expect(output).toMatch(/--help/i);
   });
 
-  test.each([["--help"], ["setup", "reconfigure", "--help"], ["setup", "skills", "--help"]])(
+  test.each([["--help"], ["setup", "system", "--help"], ["setup", "reconfigure", "--help"], ["setup", "skills", "--help"]])(
     "does not expose internal system asset materialization modes in %s help",
     async (...argv: string[]) => {
       setTTY(false);
@@ -1660,6 +1709,223 @@ personas:
     expect(output).not.toContain("--reconfigure");
   });
 
+  test("routes setup system without entering project or Skill setup", async () => {
+    setTTY(false);
+
+    const output = await captureCliOutput(["setup", "system", "--dry-run"]);
+
+    expect(output).toContain("No native harness method is selected");
+    expect(runSelectionWizardMock).not.toHaveBeenCalled();
+    expect(runSkillsCommandMock).not.toHaveBeenCalled();
+  });
+
+  test("passes the parsed target to direct setup system", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-system-target-");
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const runSystem = vi.spyOn(setupSystem, "runSystemSetupCommand").mockResolvedValue({
+        status: "skipped-none",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: [],
+        skipped: ["codex", "claude-code"],
+        blocked: [],
+        recoveryAction: null,
+      });
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "system", "--dry-run", "--target", targetDir]);
+
+      expect(runSystem).toHaveBeenCalledWith(expect.objectContaining({
+        targetRoot: path.resolve(targetDir),
+      }));
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("reviews a global-intent-only change and does not write it without approval", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-system-intent-review-");
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    confirmMock.mockResolvedValue(false);
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "system", "--target", targetDir, "--no-claude-code"]);
+
+      const configPath = path.join(isolatedSetupHome, "store", "config.json");
+      expect(confirmMock).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+      );
+      const review = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      expect(review).toContain("Global intent file:");
+      expect(review).toContain("config.json");
+      expect(existsSync(configPath)).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("keeps excluded Claude Code machine intent unchanged", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-system-excluded-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    const global = loadGlobalConfig(storeRoot).config;
+    global.settings.harnesses["claude-code"] = {
+      selected: true,
+      maximumMethod: "permission-rules",
+      accessCeiling: { store: "read", project: "read", hostConfig: "none" },
+    };
+    writeGlobalConfig(storeRoot, global);
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli([
+        "setup",
+        "system",
+        "--yes",
+        "--target",
+        targetDir,
+        "--no-claude-code",
+      ]);
+
+      expect(loadGlobalConfig(storeRoot).config.settings.harnesses["claude-code"])
+        .toEqual(global.settings.harnesses["claude-code"]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("shows the grouped final review before system and project writes", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-grouped-review-");
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockImplementation(async () => {
+        const review = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+        expect(review).toContain("This computer");
+        expect(review).toContain("This project");
+        expect(loadManifest(targetDir)).toBeNull();
+        return {
+          status: "unchanged",
+          scope: "machine",
+          selections: { codex: "none", "claude-code": "none" },
+          configured: [],
+          skipped: ["codex", "claude-code"],
+          blocked: [],
+          recoveryAction: null,
+        };
+      });
+      const install = await import("../src/install");
+      const applyProjectActual = install.applyInstallPlan;
+      const applyProject = vi.spyOn(install, "applyInstallPlan").mockImplementation((input) => {
+        const review = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+        expect(review).toContain("This computer");
+        expect(review).toContain("This project");
+        expect(applySystem).toHaveBeenCalledTimes(1);
+        return applyProjectActual(input);
+      });
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "--yes", "--target", targetDir]);
+
+      expect(applySystem).toHaveBeenCalledTimes(1);
+      expect(applyProject).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("runs normal setup system scope once before project apply", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-system-first-");
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockImplementation(async () => {
+        expect(loadManifest(targetDir)).toBeNull();
+        return {
+          status: "unchanged",
+          scope: "machine",
+          selections: { codex: "none", "claude-code": "none" },
+          configured: [],
+          skipped: ["codex", "claude-code"],
+          blocked: [],
+          recoveryAction: null,
+        };
+      });
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "--yes", "--target", targetDir]);
+
+      expect(applySystem).toHaveBeenCalledTimes(1);
+      expect(loadManifest(targetDir)).not.toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("keeps system success and gives project recovery after one project failure", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-project-failure-");
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      vi.resetModules();
+      const setupSystem = await import("../src/setup-system");
+      const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        status: "configured",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: ["codex"],
+        skipped: ["claude-code"],
+        blocked: [],
+        recoveryAction: null,
+      });
+      const install = await import("../src/install");
+      const applyProject = vi.spyOn(install, "applyInstallPlan").mockImplementation(() => {
+        throw new Error("injected project apply failure");
+      });
+      const { runCli } = await import("../src/cli");
+
+      await expect(runCli(["setup", "--yes", "--target", targetDir]))
+        .rejects.toThrow("injected project apply failure");
+
+      expect(applySystem).toHaveBeenCalledTimes(1);
+      expect(applyProject).toHaveBeenCalledTimes(1);
+      expect(writeSpy.mock.calls.map(([chunk]) => String(chunk)).join(""))
+        .toContain("This computer remains configured. Project scope failed. Run `make-docs setup` to review and resume the project change.");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves project harness disable intent during setup", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-project-harness-intent-");
+    const configPath = path.join(targetDir, ".make-docs/config.yaml");
+    const projectConfig = [
+      "harnessIntegrations:",
+      "  - harness: codex",
+      "    mode: disable",
+      "",
+    ].join("\n");
+    try {
+      mkdirSync(path.dirname(configPath), { recursive: true });
+      writeFileSync(configPath, projectConfig, "utf8");
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "--yes", "--target", targetDir]);
+
+      expect(loadMakeDocsConfig(targetDir).config.harnessIntegrations).toEqual([
+        { harness: "codex", mode: "disable" },
+      ]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("documents setup skills command help with skills-specific options", async () => {
     setTTY(false);
 
@@ -1684,6 +1950,7 @@ personas:
   });
 
   test.each([
+    ["system", ["Usage:", "Options:", "Examples:", "make-docs setup system"]],
     ["reconfigure", ["Usage:", "General options:", "Examples:", "make-docs setup reconfigure"]],
     ["skills", ["Usage:", "Skill options:", "Examples:", "make-docs setup skills"]],
     ["backup", ["Usage:", "Options:", "Examples:", "make-docs setup backup"]],
@@ -1705,6 +1972,9 @@ personas:
 
     expect(output).toContain("make-docs setup");
     expect(output).toContain("Subcommands:");
+    expect(output).toContain(
+      "system       Configure reviewed machine-level harness support.",
+    );
     expect(output).toContain(
       "reconfigure  Change saved project selections for an existing install.",
     );

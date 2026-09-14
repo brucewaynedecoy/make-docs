@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STORE_READ_PROJECT_READ_ACCESS } from "../../access";
 import type { OperationDefinition } from "../../registry";
 import type { JsonValue } from "../../types";
 import { buildWorkEvidenceRead } from "../index";
@@ -24,6 +25,7 @@ export const workEvidenceReadOperation: OperationDefinition<
   summary:
     "Read recorded work-execution evidence from the global store for a phase identity or a whole wave.",
   mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
   status: "active",
   inputSchema,
   handler(input, context) {

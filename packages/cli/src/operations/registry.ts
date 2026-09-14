@@ -1,4 +1,15 @@
 import type { ZodType } from "zod";
+import path from "node:path";
+import type {
+  HarnessCommandRule,
+  HarnessCommandRuleAuthority,
+  HarnessConnectionMethod,
+} from "../harness-access/contract";
+import {
+  assertOperationAccess,
+  cloneOperationAccess,
+  type OperationAccess,
+} from "./access";
 import {
   OperationApprovalRequiredError,
   OperationPendingError,
@@ -13,6 +24,11 @@ import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
+import {
+  accessAtMost,
+  assertHarnessOperationAllowed,
+  resolveProjectHarnessAccessProjection,
+} from "./harness-policy";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -52,6 +68,8 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   id: string;
   summary: string;
   mutates: OperationMutation;
+  /** Exact Store, project, and host-config access needed by this operation. */
+  access: OperationAccess;
   status: OperationStatus;
   /** Lineage owning the not-yet-landed semantics when status is `pending`. */
   pendingLineage?: string;
@@ -68,9 +86,19 @@ export interface OperationDescriptor {
   domain: string;
   summary: string;
   mutates: OperationMutation;
+  access: OperationAccess;
   status: OperationStatus;
   pendingLineage?: string;
   cli: OperationCliProjection;
+}
+
+export interface OperationAccessFact {
+  operation: string;
+  status: OperationStatus;
+  cli: OperationCliProjection;
+  access: OperationAccess;
+  mcpReady: boolean;
+  commandRuleCandidate: boolean;
 }
 
 export interface OperationInvocation<TOutput = JsonValue> {
@@ -236,6 +264,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     if (registry.has(definition.id)) {
       throw new Error(`Duplicate operation identifier in registry: \`${definition.id}\`.`);
     }
+    assertOperationAccess(definition.id, definition.access, definition.mutates);
     if (definition.status === "pending" && !definition.pendingLineage) {
       throw new Error(`Pending operation \`${definition.id}\` must name its owning lineage.`);
     }
@@ -258,10 +287,94 @@ export function listOperations(): OperationDescriptor[] {
     domain: operationDomain(definition.id),
     summary: definition.summary,
     mutates: definition.mutates,
+    access: cloneOperationAccess(definition.access),
     status: definition.status,
     cli: operationCliProjection(definition.id),
     ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
   }));
+}
+
+/** Structured access facts used by MCP, command-rule, setup, and conformance adapters. */
+export function listOperationAccessFacts(): OperationAccessFact[] {
+  return listAdmittedOperations().map((operation) => ({
+    operation: operation.id,
+    status: operation.status,
+    cli: operation.cli,
+    access: cloneOperationAccess(operation.access),
+    mcpReady:
+      operation.status === "active" && operation.access.hostConfig === "none",
+    commandRuleCandidate:
+      operation.status === "active" &&
+      operation.access.hostConfig === "none" &&
+      !operation.id.startsWith("lifecycle.") &&
+      operation.id !== "project.state.recover",
+  }));
+}
+
+/** The smallest canonical executable commands that a native rule adapter may review. */
+export function listCommandRuleCandidates(): OperationAccessFact[] {
+  return listOperationAccessFacts().filter((fact) => fact.commandRuleCandidate);
+}
+
+/** Exact native command-rule inputs, derived from admitted operation facts. */
+export function listHarnessCommandRules(): HarnessCommandRule[] {
+  return listCommandRuleCandidates().map((fact) => Object.freeze({
+    id: `make-docs.${fact.operation}`,
+    // The adapter adds the reviewed executable. These are argv tokens only.
+    commandPrefix: Object.freeze([fact.cli.root, ...fact.cli.path.split(" ")]),
+    operationIds: Object.freeze([fact.operation]),
+    access: Object.freeze({
+      store: fact.access.store,
+      project: fact.access.project,
+      hostConfig: "none" as const,
+    }),
+  }));
+}
+
+/** Project-aware rule facts. Machine installation still uses the full authority list. */
+export function listEffectiveHarnessCommandRules(
+  targetRoot: string,
+  method: HarnessConnectionMethod,
+): HarnessCommandRule[] {
+  const projection = resolveProjectHarnessAccessProjection(targetRoot, method);
+  return listHarnessCommandRules().filter((rule) => accessAtMost(rule.access, projection.access));
+}
+
+/** Reject any command-rule list that is not an exact registry projection. */
+export function validateRegistryHarnessCommandRules(
+  rules: readonly HarnessCommandRule[],
+): readonly HarnessCommandRule[] {
+  const expected = listHarnessCommandRules();
+  const byId = new Map(expected.map((rule) => [rule.id, rule]));
+  if (rules.length !== expected.length) {
+    throw new Error("Harness command rules must contain every exact registry candidate once.");
+  }
+  const seen = new Set<string>();
+  for (const rule of rules) {
+    const canonical = byId.get(rule.id);
+    if (!canonical || seen.has(rule.id)) {
+      throw new Error(`Harness command rule is not a unique registry candidate: ${rule.id}.`);
+    }
+    seen.add(rule.id);
+    if (
+      !sameStrings(rule.commandPrefix, canonical.commandPrefix) ||
+      !sameStrings(rule.operationIds, canonical.operationIds) ||
+      !sameAccess(rule.access, canonical.access)
+    ) {
+      throw new Error(`Harness command rule differs from registry authority: ${rule.id}.`);
+    }
+  }
+  return rules;
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function sameAccess(left: OperationAccess, right: OperationAccess): boolean {
+  return left.store === right.store &&
+    left.project === right.project &&
+    left.hostConfig === right.hostConfig;
 }
 
 export function listAdmittedOperations(): OperationDescriptor[] {
@@ -275,6 +388,7 @@ function describeOperation(id: string): OperationDescriptor {
     domain: operationDomain(definition.id),
     summary: definition.summary,
     mutates: definition.mutates,
+    access: cloneOperationAccess(definition.access),
     status: definition.status,
     cli: operationCliProjection(definition.id),
     ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
@@ -338,7 +452,32 @@ export async function invokeOperation(
   if (!handler) {
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
-  const value = (await handler(parsed.data, context)) as JsonValue;
+  const targetRoot = operationTargetRoot(parsed.data, context.cwd);
+  const run = async () => {
+    if (definition.access.store !== "none" && (context.surface === "cli" || context.surface === "mcp")) {
+      const authority: HarnessCommandRuleAuthority = {
+        list: listHarnessCommandRules,
+        validate: validateRegistryHarnessCommandRules,
+      };
+      assertHarnessOperationAllowed({
+        operation: id,
+        required: definition.access,
+        targetRoot,
+        storeRoot: context.storeRoot,
+        commandRuleAuthority: authority,
+      });
+    }
+    return (await handler(parsed.data, context)) as JsonValue;
+  };
+  const value = definition.access.store === "none"
+    ? await run()
+    : await context.withStoreSession(
+        definition.access.store,
+        id,
+        definition.access,
+        targetRoot,
+        run,
+      );
   return {
     operation: id,
     value,
@@ -348,4 +487,17 @@ export async function invokeOperation(
       source: context.surface,
     },
   };
+}
+
+function operationTargetRoot(input: unknown, fallback: string): string {
+  if (input && typeof input === "object" && !Array.isArray(input)) {
+    const record = input as Record<string, unknown>;
+    const candidate = typeof record.targetRoot === "string"
+      ? record.targetRoot
+      : typeof record.targetDir === "string"
+        ? record.targetDir
+        : undefined;
+    if (candidate) return path.resolve(candidate);
+  }
+  return path.resolve(fallback);
 }

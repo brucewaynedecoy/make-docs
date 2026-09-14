@@ -1,4 +1,11 @@
 import { OperationError } from "./types";
+import type { OperationAccess, StoreAccess } from "./access";
+import { acquireStoreAccess } from "../store/database";
+import {
+  validateInstallationStoreRoot,
+  withInstallationDatabase,
+} from "../store/installation-state";
+import { resolveStoreRoot } from "../store/paths";
 
 /**
  * The surface an operation invocation originates from. The registry
@@ -6,6 +13,14 @@ import { OperationError } from "./types";
  * without any surface loaded (R-TEST-2).
  */
 export type OperationSurface = "cli" | "mcp" | "test";
+
+export type OperationStoreSession = <T>(
+  access: Exclude<StoreAccess, "none">,
+  operation: string,
+  declaredAccess: OperationAccess,
+  targetRoot: string,
+  run: () => T | Promise<T>,
+) => Promise<T>;
 
 /**
  * Injected execution context for operation handlers (R-CORE-1).
@@ -37,6 +52,10 @@ export interface OperationExecutionContext {
    * here rather than defining a surface-specific flag.
    */
   approvals: ReadonlySet<string>;
+  /** Required Store session gate. `store: none` operations never call it. */
+  withStoreSession: OperationStoreSession;
+  /** Store root used by the shared session gate and harness policy. */
+  storeRoot: string;
   /** Clock injection point; returns an ISO-8601 UTC timestamp. */
   now(): string;
 }
@@ -160,15 +179,77 @@ export function createExecutionContext(
     writesAllowed?: boolean;
     dryRun?: boolean;
     approvals?: Iterable<string>;
+    storeRoot?: string;
+    /** Explicit test seam. Production callers use the shared Store session gate. */
+    storeSession?: OperationStoreSession;
+    /** Legacy test seam. It replaces Store admission only when explicitly supplied. */
+    admitStoreAccess?: (
+      access: Exclude<StoreAccess, "none">,
+      operation: string,
+      declaredAccess: OperationAccess,
+    ) => void | Promise<void>;
     now?: () => string;
   } = {},
 ): OperationExecutionContext {
+  const storeRoot = input.storeRoot ?? resolveStoreRoot();
+  const storeSession = input.storeSession ?? (input.admitStoreAccess
+    ? async <T>(
+        access: Exclude<StoreAccess, "none">,
+        operation: string,
+        declaredAccess: OperationAccess,
+        _targetRoot: string,
+        run: () => T | Promise<T>,
+      ): Promise<T> => {
+        await input.admitStoreAccess!(access, operation, declaredAccess);
+        return await run();
+      }
+    : createProductionStoreSession(storeRoot));
   return {
     surface: input.surface ?? "test",
     cwd: input.cwd ?? process.cwd(),
     writesAllowed: input.writesAllowed ?? false,
     dryRun: input.dryRun ?? false,
     approvals: new Set(input.approvals ?? []),
+    withStoreSession: storeSession,
+    storeRoot,
     now: input.now ?? (() => new Date().toISOString()),
+  };
+}
+
+function createProductionStoreSession(explicitStoreRoot?: string): OperationStoreSession {
+  return async <T>(
+    access: Exclude<StoreAccess, "none">,
+    operation: string,
+    _declaredAccess: OperationAccess,
+    targetRoot: string,
+    run: () => T | Promise<T>,
+  ): Promise<T> => {
+    const storeRoot = validateInstallationStoreRoot(
+      targetRoot,
+      explicitStoreRoot ?? resolveStoreRoot(),
+    );
+
+    // Prove the selected Store is safe and usable before the handler runs.
+    // The outer shared session then stays active while nested handler access
+    // reuses the same process lease.
+    withInstallationDatabase(
+      targetRoot,
+      (database) => database.prepare("SELECT 1 AS admitted").get(),
+      { storeRoot, readOnly: access === "read" },
+    );
+    const release = acquireStoreAccess(storeRoot);
+    if (operation === "project.state.recover") {
+      // Recovery must enter through production Store admission, but it cannot
+      // retain its own shared lease while it proves that every prior lease is
+      // dead. Release only this admitted lease. The recovery guard still
+      // blocks new access, and any other live session still blocks recovery.
+      release();
+      return await run();
+    }
+    try {
+      return await run();
+    } finally {
+      release();
+    }
   };
 }

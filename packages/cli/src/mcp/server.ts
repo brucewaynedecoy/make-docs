@@ -7,7 +7,7 @@ import {
 import { serializeOperationError } from "../operations/context";
 import { readPackageMeta } from "../utils";
 import { listNativeMcpResources, readNativeMcpResource } from "./resources";
-import { MAKE_DOCS_MCP_TOOLS, callMakeDocsMcpTool } from "./tools";
+import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "./tools";
 
 export function createMakeDocsMcpServer(): McpServer {
   const packageMeta = readPackageMeta();
@@ -16,7 +16,7 @@ export function createMakeDocsMcpServer(): McpServer {
     version: packageMeta.version,
   });
 
-  for (const tool of MAKE_DOCS_MCP_TOOLS) {
+  for (const tool of listMakeDocsMcpTools().filter((candidate) => candidate.mcpReady !== false)) {
     server.registerTool(
       tool.name,
       {

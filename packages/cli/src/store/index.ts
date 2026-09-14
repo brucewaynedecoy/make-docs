@@ -155,3 +155,13 @@ export {
   type StoreBootstrapOptions,
   type StoreBootstrapReport,
 } from "./bootstrap";
+
+export {
+  completeHarnessSystemOperation,
+  failHarnessSystemOperation,
+  prepareHarnessSystemOperation,
+  readPendingHarnessSystemOperation,
+  type HarnessSystemOperationFailure,
+  type PendingHarnessSystemOperation,
+  type PrepareHarnessSystemOperationInput,
+} from "./harness-system-operations";

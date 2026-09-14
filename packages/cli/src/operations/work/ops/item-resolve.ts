@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROJECT_READ_ACCESS } from "../../access";
 import type { OperationDefinition } from "../../registry";
 import { resolveWorkItemIdentity, type WorkItemIdentityResolution } from "../index";
 
@@ -22,6 +23,7 @@ export const workItemResolveOperation: OperationDefinition<
   summary:
     "Resolve a coordinate or path to the canonical work-item identity (repo root, wave slug, phase path).",
   mutates: "read",
+  access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema,
   handler(input, context) {
