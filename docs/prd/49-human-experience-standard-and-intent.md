@@ -21,7 +21,7 @@ Correctness remains required. A clear human surface must not hide a failure, ris
 
 ## Scope
 
-This capability applies when Make Docs creates or materially updates governed work. It applies to people who use, read, operate, maintain, review, or recover the result.
+This capability applies when Make Docs creates or materially updates governed work. It also applies to material agent communication about task state, decisions, recommendations, errors, limits, and completion. It applies to people who use, read, operate, maintain, review, or recover the result.
 
 The capability includes:
 
@@ -31,6 +31,7 @@ The capability includes:
 - lifecycle rules that carry intent into plans, PRDs, work, review, acceptance, and release claims;
 - proportionate evidence rules;
 - separate human and machine presentation rules;
+- adaptive agent-response guidance;
 - router discovery rules;
 - prospective adoption rules; and
 - upstream resource, package, dogfood, and conformance duties.
@@ -50,7 +51,7 @@ The first release does not define one visual style. It does not make a Skill man
 ## Component and Capability Map
 
 - The Human Experience Contract owns the short standard, impact rules, required section shape, lifecycle duties, and acceptance boundary.
-- The Human Experience Reference explains the principles, impact choices, examples, evidence modes, and common errors.
+- The Human Experience Reference explains the principles, impact choices, examples, evidence modes, adaptive agent-response guidance, and common errors.
 - The design template and design guidance require one conditional Human Experience Intent section.
 - Plan, PRD, work, review, coverage, UAT, and lifecycle authorities carry the accepted intent without copying the full policy.
 - Managed agent routers point to the governing authority.
@@ -102,6 +103,7 @@ Governed work must apply the principles that matter to its human goal:
 - **Goal before model:** Start with what the person wants to do. Do not make the internal model the starting point.
 - **Orientation and continuity:** Show what happened, what the result belongs to, how it relates to prior state, and where the person is now.
 - **Clear state and next action:** Make success, partial success, waiting, failure, and blocked states distinct. Name the next useful action when one exists.
+- **Expectation and action:** Make the likely effect, current state, and next useful action clear enough that a person can act without guessing. Keep uncertainty and limits visible.
 - **Progressive disclosure:** Use a clear human default. Keep exact machine detail available through a discoverable secondary path.
 - **Human language:** Use names that match the task and domain. Explain needed special terms. Do not use internal identifiers as the main label when stable human meaning exists.
 - **Visible meaning and relationships:** Show important ownership, parentage, sequence, membership, aliasing, dependency, and revision relationships in a form a person can understand.
@@ -119,6 +121,7 @@ Governed work must apply the principles that matter to its human goal:
 4. Both surfaces must preserve the same semantic outcome.
 5. Context determines the default. A terminal, graphical interface, rendered document, or interactive review can favor human presentation. A pipe, export, API, or explicit machine flag can favor the machine contract.
 6. Hiding internal detail must not remove auditability.
+7. A material agent reply is a human surface. It must lead with the result, meaning, or current state and then provide exact machine detail when that detail helps the user decide, verify, or continue.
 
 ### R-HX-06 Persona Boundary
 
@@ -155,6 +158,7 @@ Governed work must apply the principles that matter to its human goal:
 8. Human Experience Review applies orientation, continuity, meaning, information amount, next action, recovery, and control as a lens over suitable evidence. It must not require a duplicate activity when existing evidence answers the accepted promise.
 9. An agent can draft intent, find likely issues, compare a result with promises, and prepare evidence.
 10. Any agent execution of an Unassisted Goal Test must satisfy PRD 46's separate qualification and isolation rules. It cannot replace evidence of lived human experience where that evidence is required. An agent cannot self-certify joy or human understanding.
+11. Data, metrics, and automated results inform Human Experience Review. They do not replace an accountable reviewer's first-hand use or inspection of the real human-facing result when that surface exists. The reviewer must keep the core idea in view and record direct observations and limits. One reviewer's reaction does not prove every person's experience.
 
 ### R-HX-09 Completion and Obligations
 
@@ -172,7 +176,7 @@ Governed work must apply the principles that matter to its human goal:
 3. Upstream source must live under `packages/docs/template/.make-docs/`.
 4. Packaging, installation, upgrade, reconfigure, and dogfood must preserve the resource contract and existing ownership rules.
 5. The resource must use the existing stable URI and optional projection model. The first release must not create a new resource type or a mandatory projection.
-6. Managed `AGENTS.md`, `CLAUDE.md`, and equivalent router blocks must point agents to lifecycle and Human Experience authority when governed work is created or materially updated.
+6. Managed `AGENTS.md`, `CLAUDE.md`, and equivalent router blocks must point agents to lifecycle and Human Experience authority when governed work is created or materially updated, or when the agent produces a material task update, decision, recommendation, error or limit report, or completion reply.
 7. Routers must not copy the full standard, impact rules, or evidence model.
 8. The first release must not make a Human Experience Skill mandatory.
 9. An optional Skill must remain subordinate to the contract and reference. It can aid discovery, drafting, review, or evidence preparation. It must not copy the full policy or own product decisions.
@@ -182,7 +186,7 @@ Governed work must apply the principles that matter to its human goal:
 1. Structural validation must check the required section, one allowed impact value, stable field names, section count, and conditional shape.
 2. Structural validation must not claim to prove beauty, elegance, intuition, usefulness, or joy.
 3. Conformance must include generated-artifact checks, installed-resource checks, and agent-behavior scenarios.
-4. Agent-behavior scenarios must show correct impact classification, lifecycle propagation, real-surface evidence selection, and a valid `none` boundary.
+4. Agent-behavior scenarios must show correct impact classification, lifecycle propagation, real-surface evidence selection, a valid `none` boundary, and adaptive material replies that preserve meaning, state, action, uncertainty, and useful proof.
 5. Reviewers must treat a complete section as necessary evidence, not as proof that the result is good for people.
 
 ### R-HX-12 Prospective Adoption
@@ -277,6 +281,7 @@ The implementation must update upstream template authority first. It must then p
 10. A validator rejects a missing or malformed section but does not claim that a valid section proves a joyful experience.
 11. An installed-product flow shows that a person can remain oriented, understand relationships, see state, and find the next useful action without reading the internal model.
 12. A pre-existing design remains valid until substantial work changes its human path.
+13. A material agent reply restores needed context, states the result and exact work state, gives a recommendation or next action when one exists, keeps uncertainty visible, and places supporting machine detail after the human meaning. An accountable reviewer inspects the actual reply and records direct observations and limits.
 
 ## Non-Requirements
 
@@ -310,6 +315,16 @@ The implementation must update upstream template authority first. It must then p
 - Replacement contract: Two audience roles can be filled by either actor type. A role label does not establish human effect or lived human experience, and actual review evidence remains required.
 - Rationale: Keep the human standard intact while Persona authority changes its audience model.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-14 — W20 R1
+
+- Date: 2026-09-14
+- Coordinate: W20 R1
+- Affected requirement or section: scope; component and capability map; `R-HX-04`, `R-HX-05`, `R-HX-08`, `R-HX-10`, `R-HX-11`; and acceptance scenarios.
+- Previous contract: The standard governed generated and updated work, while the root router did not clearly apply it to an agent's own material replies. Evidence rules did not state that data and automated checks support rather than replace direct human review.
+- Replacement contract: Material agent replies are human-facing results. They must set an honest expectation, preserve state and useful proof, and adapt to the user's next need. Data supports the decision, while an accountable reviewer directly inspects or uses the result against its core idea and records observations and limits.
+- Rationale: A technically correct reply can still make the user reconstruct meaning and check the agent's work. Human judgment must guide the response and its review without discarding evidence or treating one person's reaction as universal proof.
+- Source: [Human-Centered Agent Responses design](../designs/2026-09-14-human-centered-agent-responses.md), [W20 R1 plan](../plans/2026-09-14-w20-r1-human-centered-agent-responses/00-overview.md).
 
 ## Source Anchors
 

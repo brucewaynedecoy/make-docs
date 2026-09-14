@@ -10,7 +10,7 @@ This document defines the current product contract for agent-instruction ownersh
 This authority owns agent-instruction ownership, managed blocks, and conflict-safe preservation. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
 ## Component and Capability Map
 
-- Managed routers provide a short discovery route to lifecycle and Human Experience authority. They do not become a second policy source. See [PRD 49](49-human-experience-standard-and-intent.md).
+- Managed routers provide a short discovery route to lifecycle and Human Experience authority for governed work and material agent replies. They do not become a second policy source. See [PRD 49](49-human-experience-standard-and-intent.md).
 
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
@@ -44,6 +44,7 @@ managed block, not the whole shared file:
 ### Human Experience Router Discovery
 
 - A managed `AGENTS.md`, `CLAUDE.md`, or equivalent router block points agents to lifecycle, the Human Experience Contract, and the Human Experience Reference when they create or materially update governed work.
+- The same route applies when an agent reports material task state, presents a decision or recommendation, explains an error or limit, or closes work.
 - The router does not copy the full standard, impact rules, section form, principles, or evidence model.
 - Human Experience discovery does not require a Skill. A Skill can remain an optional aid and cannot become a second authority.
 
@@ -153,6 +154,14 @@ R-ASSET-ROUTER-3 (MUST): root asset routers stay within the existing short-route
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-09-14 — W20 R1
+
+- Affected requirement or section: component and capability map and `Human Experience Router Discovery`.
+- Previous contract: Managed routers exposed Human Experience authority only when an agent created or materially updated governed work.
+- Replacement contract: The same short route also applies to material agent task updates, decisions, recommendations, error or limit reports, and completion replies. The router still does not copy the detailed policy.
+- Rationale: An agent's own reply is a human-facing result. The agent needs a reliable route to the same Human Experience authority without adding a second writing policy to each router.
+- Source: [W20 R1 Human-Centered Agent Responses plan](../plans/2026-09-14-w20-r1-human-centered-agent-responses/00-overview.md)
 
 ## Source Anchors
 
