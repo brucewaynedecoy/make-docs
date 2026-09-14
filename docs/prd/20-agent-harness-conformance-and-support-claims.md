@@ -67,6 +67,7 @@ The conformance lab evaluates explicit harness, model/provider, runtime, and ins
 - R-REG-1 (MUST): [the repo-root tuple registry](../../conformance/tuple-registry.json) is the single queryable index of support tuples and statuses. Support status is data derived from recorded evidence, never a prose assertion; [43-conformance-scenario-model-and-execution-kits.md](43-conformance-scenario-model-and-execution-kits.md) owns the surrounding `conformance/` asset family and scenario organization.
 - R-REG-2 (MUST): every tuple status is one of `provisional` (the surface may exist but recognition and usability are unverified), `implementation-validated` (unit/integration evidence proves internal behavior or structure but no real-harness evidence exists), or `conformance-validated` (a real-harness result meets the full evidence bar).
 - R-REG-3 (MUST): status is derived from recorded verdicts through the recording seam owned by [44-conformance-lab-sessions-and-evidence.md](44-conformance-lab-sessions-and-evidence.md). Only `pass`, or `pass-with-caveats` with every caveat surfaced and every required evidence-bar stage asserted, may derive `conformance-validated`; `inconsistent`, `unsupported`, and `blocked` never advance a tuple. A tuple cannot skip the real-harness evidence bar merely because internal tests pass.
+- R-REG-4 (MUST): production setup and public support rendering load support state only from this registry through the validated conformance loader. A unit-test fixture may supply a temporary registry file through the same loader boundary. An in-memory evidence object, test-only reviewed adapter plan, generated native file, harness detection result, Store receipt, or prose claim cannot make a method selectable.
 
 ### Test Layers (R-LAYER)
 
@@ -80,6 +81,7 @@ The conformance lab evaluates explicit harness, model/provider, runtime, and ins
 - R-GOV-3 (MUST): Skill, CLI, MCP, system-resource, installed-product, unattended, adversarial-review, optional-agentics, and model/provider claims use this same rule. Capability configuration, exposure declarations, documentation, and implementation tests are inputs or lower-layer evidence, never substitutes for the exact conformance result.
 - R-GOV-4 (MUST): a `PERF-###` profile, performance outcome, characterization result, or waiver is separate evidence under [48 Performance Evidence Governance](48-performance-evidence-governance.md). None can satisfy the PRD 43 evidence bar, derive `conformance-validated`, or promote a support tuple; R-GOV-2's one passing conformance-result minimum remains independently required.
 - R-GOV-5 (MUST): setup can present a harness method as supported only when the exact method has an admitted adapter, installed-product proof, and a `conformance-validated` tuple for the shown claim. Harness detection, generated configuration, or an implementation test alone is not enough. Pi extension support remains absent until these gates pass.
+- R-GOV-6 (MUST): the maintainer lab may bootstrap a provisional seven-part tuple when a new admitted method needs its first real run. Bootstrap records no passing verdict and grants no support claim. Promotion occurs only after PRD 44 accepts a real disposable-harness result for the same exact tuple.
 
 ### Verification and Meta-Verification (R-TEST)
 
@@ -138,6 +140,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Supported agents must apply the PRD 50 decision model and fail conformance for under-testing, over-testing, false gates, duplicate human work, and poor human instructions.
 - Rationale: Technical execution support is incomplete when an agent applies testing in a costly, confusing, or unauthorized way.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `The Tuple Registry` and `Support Claim Governance`
+- Previous contract: the seven-part tuple was normative, but production setup had no stated duty to load the central registry and the first-run lab bootstrap was not defined.
+- Replacement contract: the central registry and validated loader are the only production support source, and a lab-only provisional bootstrap can prepare an exact first run without promoting support.
+- Rationale: test-only evidence paths left every W19 R6 method unavailable while tests still passed.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

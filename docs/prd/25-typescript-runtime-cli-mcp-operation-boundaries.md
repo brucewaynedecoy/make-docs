@@ -93,6 +93,8 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
 - R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
 - R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. Project setup cannot use its project approval as host-write authority.
+- R-ACCESS-6 (MUST): every Store-backed harness invocation supplies exact caller and `connectionMethod` identity to the shared operation policy. The policy verifies that identity against the admitted adapter, executable identity, live native configuration, Store receipt, machine intent, and project intent. An executable path, environment variable, or rule match alone grants no access.
+- R-ACCESS-7 (MUST): MCP can carry the managed caller identity in its exact native server environment. A command-rule or permission-rule route must carry equivalent method identity through a harness-proved native launch fact. If the harness cannot supply and prove that fact, the method remains unavailable. The runtime does not weaken identity checks to make a setup option appear usable.
 
 ### Asset and Config Boundaries
 
@@ -185,6 +187,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - CLI resource list/read/ensure and their MCP tools use one resolver. Native MCP resource discovery/read where supported expose the same stable URI inventory and bytes as CLI list/read.
 - Operation definitions carry the complete access contract. Tests prove that `store: none` operations do not open the Store and that each adapter exposes only its admitted operation set.
 - Command-rule and MCP setup tests prove separate host approval, exact native-file preservation, verified executable identity, and the absence of broad or unsafe command grants.
+- Real-harness tests prove that each shown native route reaches the operation policy with the exact caller and method identity. A wrong, absent, copied, or cross-method identity fails without a Store-backed operation.
 - Pending P4, P6, and P7 registrations carry exact phase lineage and do not claim that handlers exist.
 - Existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain unchanged through P3. P3 adds no legacy behavior or support claim.
 - MCP writes require explicit permission and registry-parity proof.
@@ -262,6 +265,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Bundled Skills stay thin, portable, and optional; the three promoted guidance Skills require explicit invocation. setup skills adoption reuses CLI-owned Store operations; ordinary setup receives no adoption flags.
 - Rationale: Preserve workflow authority and Store-only state while making the Skills portable.
 - Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Operation Access Contract`
+- Previous contract: P1 created a caller identity and placed it in MCP configuration, but it did not define an equivalent proved identity path for command and permission rules.
+- Replacement contract: every native route supplies exact caller and method identity, and a route without a harness-proved identity stays unavailable.
+- Rationale: a rule that starts the right executable is not enough to prove which reviewed harness method called it.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

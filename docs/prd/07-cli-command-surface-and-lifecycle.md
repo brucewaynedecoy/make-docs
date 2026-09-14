@@ -56,6 +56,10 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - R-SETUP-CLI-4 (MUST): `setup system` opens the machine portion directly. Project setup may open the same flow inline. `setup reconfigure` and `setup skills` use the same state and planning services. Backup and removal remain separate flows.
 - R-SETUP-CLI-5 (MUST): harness detection assists the user but never limits the supported list or counts as installed support. A skipped method remains a valid choice, and the review explains the resulting agent limits without describing Store-free resource reads as blocked.
 - R-SETUP-CLI-6 (MUST): the resource placement step offers the installed provider, all local copies, or selected resource types. It explains that local copies improve portability and direct file access. It does not say that copies grant Store access or harness permission.
+- R-SETUP-CLI-7 (MUST): after harness selection, the flow presents one method-and-access screen for each selected harness. That screen includes the harness's optional Skills. The project resource step follows all harness screens. The final review then separates computer and project changes.
+- R-SETUP-CLI-8 (MUST): a method is selectable only when production setup loads an eligible exact tuple from the central conformance registry. An unavailable method remains visible only when its reason and one useful next action help the person. The action must change a condition or open the owning setup path. It must not only rerun the same blocked command.
+- R-SETUP-CLI-9 (MUST): apply writes the reviewed project harness selection to `.make-docs/config.yaml` through the config-preserving writer. A repeat reads the saved project choice, live native state, Store receipt, and pending operation. It reports current, drifted, blocked, unsupported, or incomplete state before it asks for a change.
+- R-SETUP-CLI-10 (MUST): non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested. Missing, conflicting, or unsupported method input fails before writes. `--dry-run` uses the same resolution and prints the exact machine and project plan. `--yes` is approval only. It never selects `none` or another method.
 
 ### Conflict Review Contract
 
@@ -268,6 +272,14 @@ Code and documentation anchors:
 - Replacement contract: Installation state is Store-owned. Assets and their configured-harness root routers are on demand; shared inputs use docs/assets/project and audience assets use effective Persona slugs. Always-present documentation exposes defaults without the CLI.
 - Rationale: Keep overview, command, and package consumers aligned with their current asset, config, Persona, and Store owners.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md), [Store ownership](38-global-store-and-project-state.md). Runtime R4 implementation has not started.
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Interactive Selection Contract`
+- Previous contract: P1 described the new screen order but did not require production evidence loading, project intent writing, explicit non-interactive method input, or a useful blocker action.
+- Replacement contract: setup uses central evidence, presents a complete per-harness screen, writes reviewed project intent, keeps approval separate from selection, and reports repeat and blocker state with an actionable next step.
+- Rationale: the installed setup must complete the user goal, not only render component state in tests.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

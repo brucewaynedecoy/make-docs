@@ -7,17 +7,17 @@ source:
   type: "design"
   path: "../../designs/2026-09-12-unified-setup-and-harness-access.md"
 follow_on:
-  route: "prd-generation"
-  next_prompt: "make-docs://system/prompt/plan-to-prd-change.prompt.md"
-  why: "Make the setup and harness-access decisions current product authority before implementation."
-  coordinate_handoff: "Carry W19 R6 into PRD requirement history and the delta backlog."
+  route: "implementation-loop"
+  next_prompt: ".make-docs/system/references/execution-workflow.md"
+  why: "The corrected design, PRDs, and backlog now define the W19 R6 P2 implementation and acceptance work."
+  coordinate_handoff: "Keep P1 as incomplete and carry W19 R6 P2 into corrective implementation and evidence."
 ---
 
 # W19 R6 Unified Setup and Harness Access Plan
 
 ## Purpose
 
-Turn the accepted [Unified Setup and Harness Access design](../../designs/2026-09-12-unified-setup-and-harness-access.md) into current PRD authority and one implementation phase. This plan changes setup, harness integration, access classification, configuration, and proof. It does not authorize implementation.
+Turn the accepted and corrected [Unified Setup and Harness Access design](../../designs/2026-09-12-unified-setup-and-harness-access.md) into current PRD authority and a complete production result. P1 produced useful foundation code but did not complete the production support path or acceptance. P2 corrects that gap inside this same W19 R6 package.
 
 ## Objective
 
@@ -28,7 +28,7 @@ Turn the accepted [Unified Setup and Harness Access design](../../designs/2026-0
 - Keep system and project approval, receipts, and recovery separate.
 - Preserve existing partial installs and user-owned harness configuration.
 - Admit future native adapters without making MCP the common architecture.
-- Finish the implementation through one phase with ordered stages and one final acceptance gate.
+- Finish the implementation through one corrective phase with three ordered stages and one hard acceptance gate.
 
 ## Governing Invariant
 
@@ -39,7 +39,7 @@ Setup must grant no broader access than the person reviewed. A project setting c
 - Coordinate: `W19 R6`
 - Classification: `revision`
 - Evidence: This work corrects the user setup and restricted-agent boundary of W19 R3 Store ownership and W19 R5 managed Skills. W19 R5 is the latest revision in this lineage. No W19 R6 plan or work package exists.
-- Phase count: One implementation phase. Four ordered stages keep contracts, delivery, compatibility, and proof separate inside that phase. No partial stage is a complete release.
+- Phase count: Two phases in the same revision. P1 is an incomplete acceptance attempt and foundation code candidate. P2 has three ordered stages for authority, production delivery, and installed acceptance. No partial stage is a complete release.
 
 ## Maintenance Inputs
 
@@ -50,18 +50,19 @@ Setup must grant no broader access than the person reviewed. A project setting c
 | [First-Party Skills and Managed Adoption](../../designs/2026-09-09-first-party-skills-and-managed-adoption.md) | Skill selection and ownership baseline | Implemented authority |
 | Current `packages/cli/src/wizard.ts`, `cli.ts`, `types.ts`, `config.ts`, `store/`, `operations/registry.ts`, and `mcp/` | Implementation baseline | Current working tree; `wizard.ts` has unrelated local edits and must be reconciled without loss |
 | Current harness rules, MCP configuration formats, and conformance records | External behavior to verify | Must be checked during implementation; no support claim can rely on memory alone |
+| W19 R6 P1 code and evidence | Foundation and gap evidence | Useful implementation input; not accepted feature delivery |
 
 ## Human Experience Propagation
 
 | Promise | Owning PRD | Surface or effect | Work phase | Evidence | Accepted obligation |
 | --- | --- | --- | --- | --- | --- |
-| Explain computer, project, and Store effects before approval. | PRDs 07, 28, 39 | Interactive setup and exact review | Phase 1, stages 2 and 4 | Installed terminal review and transcript assertions | None |
-| Complete missing system setup inside project setup. | PRDs 05, 07, 28, 38 | Setup continuity and recovery | Phase 1, stages 2 and 3 | System/project fault matrix and repeat setup | None |
-| Keep resource reads available without Store access. | PRDs 17, 25, 39 | CLI, MCP, and restricted task | Phase 1, stages 1 and 4 | Store-absent, locked, denied, and no-session tests | None |
-| Remove fresh document-type choice without expanding old partial projects. | PRDs 05 and 07 | Project setup | Phase 1, stages 2 and 3 | Fresh and legacy project inventories | None |
-| Show only admitted and conformance-proved native methods. | PRDs 20, 28, and 30 | Harness selection and support claims | Phase 1, stages 2 and 4 | Real Codex and Claude Code conformance | None |
-| Keep repeat setup safe and show drift. | PRDs 24, 28, and 38 | Machine and project configuration | Phase 1, stages 1, 3, and 4 | Idempotence, drift, and ownership tests | None |
-| Preserve a valid system change after a project failure. | PRDs 05, 28, and 38 | Apply and recovery | Phase 1, stages 2 and 4 | Injected failure and resume proof | None |
+| Explain computer, project, and Store effects before approval. | PRDs 07, 28, 39 | Interactive setup and exact review | P2, stages 2 and 3 | Installed terminal review and transcript assertions | None |
+| Complete missing system setup inside project setup. | PRDs 07, 24, 28, 39 | Setup continuity and recovery | P2, stages 2 and 3 | System/project fault matrix and repeat setup | None |
+| Keep resource reads available without Store access. | PRDs 25 and 39 | CLI, MCP, and restricted task | P2, stages 2 and 3 | Store-absent, locked, denied, and no-session tests | None |
+| Remove fresh document-type choice without expanding old partial projects. | PRDs 07 and 39 | Project setup | P2, stages 2 and 3 | Fresh and legacy project inventories | None |
+| Show only admitted and conformance-proved native methods. | PRDs 20, 28, 43, and 44 | Harness selection and support claims | P2, stages 1 through 3 | Central registry checks and real Codex and Claude Code conformance | None |
+| Keep repeat setup safe and show drift. | PRDs 24, 28, and 39 | Machine and project configuration | P2, stages 2 and 3 | Idempotence, drift, and ownership tests | None |
+| Preserve a valid system change after a project failure. | PRDs 07, 28, and 39 | Apply and recovery | P2, stages 2 and 3 | Injected failure and resume proof | None |
 
 ## Candidate Decision Matrix
 
@@ -79,23 +80,20 @@ Setup must grant no broader access than the person reviewed. A project setting c
 | Global harness defaults, receipts, and drift | `update-existing` | PRD 38 owns global config and operational evidence. |
 | Human Experience standard | `none` | PRD 49 already owns the cross-cutting standard. This package applies it and does not change it. |
 | PRD index | `none` | No PRD is created, removed, renamed, or reclassified. |
-| Risk register | `none` | The current delivery boundary and future admission rule resolve the product choice. Implementation findings still use the live register when needed. |
+| Risk register | `update-existing` | D-033 records the verified gap between W19 R6 authority and its P1 production path. |
 
 ## Existing PRDs To Update
 
 | PRD | Current normative update | Preserved authority |
 | --- | --- | --- |
-| [05 Installation Profile](../../prd/05-installation-profile-and-manifest-lifecycle.md) | Complete fresh shape, preserved partial state, and separate system/project apply. | Conflict, ownership, and Store safety. |
 | [07 CLI Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md) | State-aware screens, exact explanations, and resource placement. | Existing lifecycle commands and review-first behavior. |
-| [08 Skills](../../prd/08-skills-catalog-and-distribution.md) | Skill choice is one harness-support option and remains separately callable. | Explicit opt-in and standard native paths. |
-| [17 System Resources](../../prd/17-system-asset-materialization-and-local-bootstrap.md) | Resource reads need no Store or harness permission. Projection is a portability choice. | Provider authority and managed projection safety. |
-| [20 Harness Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md) | Add native method to the support tuple and require setup choice proof. | Exact evidence and no broad claims. |
-| [24 Project Configuration](../../prd/24-project-configuration-and-convention-overlay.md) | Add project integration settings that only narrow machine trust. | Project ownership and canonical ids. |
-| [25 Runtime Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | Add operation access metadata and make MCP one adapter method. | Shared core, write gates, and parity. |
-| [28 Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | Add the first-party adapter model, native connection choices, receipts, and drift. | Skill ownership and safe lifecycle. |
-| [30 Extensibility](../../prd/30-plugin-substrate-and-workflow-bundles.md) | Admit bounded first-party harness adapters without a general plugin product. | No speculative or implicit integrations. |
-| [38 Global Store](../../prd/38-global-store-and-project-state.md) | Store global harness intent and applied receipts. | Store boundary and shared session gate. |
-| [39 Command Model](../../prd/39-cli-command-model-and-operation-registry.md) | Add `setup system`, state-aware setup, and registry access metadata. | Current top-level command family and operation identifiers. |
+| [20 Harness Conformance](../../prd/20-agent-harness-conformance-and-support-claims.md) | Make the central seven-part tuple registry the only production support authority. | Exact evidence and no broad claims. |
+| [24 Project Configuration](../../prd/24-project-configuration-and-convention-overlay.md) | Require the production setup flow to write reviewed project intent. | Project ownership and canonical ids. |
+| [25 Runtime Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | Require exact caller and method identity for every native route. | Shared core, write gates, and parity. |
+| [28 Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | Define safe Codex and Claude Code rule behavior and production adapter proof. | Skill ownership and safe lifecycle. |
+| [39 Command Model](../../prd/39-cli-command-model-and-operation-registry.md) | Define the exact interactive and non-interactive production setup grammar. | Current top-level command family and operation identifiers. |
+| [43 Conformance Scenarios](../../prd/43-conformance-scenario-model-and-execution-kits.md) | Use the seven-part tuple and add a real lab-only adapter bootstrap path. | Scenario and kit safety. |
+| [44 Conformance Lab](../../prd/44-conformance-lab-sessions-and-evidence.md) | Record `connectionMethod` and disposable-harness proof through the normal result seam. | Session and evidence safety. |
 
 ## Genuinely New Product PRDs
 
@@ -103,21 +101,22 @@ None. PRD 28 already owns harness installation and exposure. A new PRD would spl
 
 ## Requirement History Entries
 
-Each changed PRD gets one `2026-09-12 — W19 R6` entry. The entry records the prior narrow setup, selection, MCP, or configuration boundary and links to the current design and this plan. Current requirements stay in the main body.
+Each corrected PRD gets one `2026-09-14 — W19 R6 P2` entry. The entry records the incomplete P1 contract and the P2 replacement. Current requirements stay in the main body.
 
 ## Phase Map
 
 | File | Purpose |
 | --- | --- |
-| [01-unified-setup-and-harness-access.md](01-unified-setup-and-harness-access.md) | Implement access contracts, unified setup, native adapters, compatibility, and acceptance as one release unit. |
+| [01-unified-setup-and-harness-access.md](01-unified-setup-and-harness-access.md) | Record the P1 foundation implementation and its incomplete acceptance result. |
+| [02-corrective-production-path-and-acceptance.md](02-corrective-production-path-and-acceptance.md) | Reconcile authority, complete the production path, and prove the installed human experience. |
 
 ## Output Contract and Ownership
 
 - Plan: `docs/plans/2026-09-12-w19-r6-unified-setup-and-harness-access/`
-- Updated PRDs: 05, 07, 08, 17, 20, 24, 25, 28, 30, 38, and 39
+- Updated PRDs for P2: 07, 20, 24, 25, 28, 39, 43, and 44, plus D-033 in the risk register
 - Delta backlog: `docs/work/2026-09-12-w19-r6-unified-setup-and-harness-access/`
 - New PRDs: none
-- Implementation files: selected `packages/cli/src/**`, `packages/cli/tests/**`, package docs, harness fixtures, and conformance assets named by Phase 1
+- Implementation files: selected `packages/cli/src/**`, `packages/cli/tests/**`, package docs, harness fixtures, and conformance assets named by P2
 - Existing unrelated edits in `packages/cli/src/wizard.ts`, `packages/cli/tests/wizard.test.ts`, and W20 work files must be preserved and reconciled before implementation edits begin.
 
 Implementation can use disjoint workers for the access/config core, setup UI, native adapters, and verification. The final assembly owner must reconcile shared types and tests. The coordinator writes no files when delegation is available.
@@ -127,7 +126,7 @@ Implementation can use disjoint workers for the access/config core, setup UI, na
 - The implemented shared Store session gate and cause-specific Store errors remain the baseline.
 - Current Codex and Claude Code configuration formats must be verified from official or installed harness sources during implementation.
 - A verified Make Docs executable path and identity must be available before rule generation.
-- Real harness conformance must run before a method appears as supported.
+- Real harness conformance must run in disposable lab homes before a method appears as supported.
 - Pi remains outside the first delivery unless its first-party extension receives separate implementation authority and passes admission.
 
 ## Validation
@@ -144,9 +143,9 @@ Implementation can use disjoint workers for the access/config core, setup UI, na
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. It does not authorize implementation.
+This handoff is advisory-default-but-overridable. The owner has authorized the later P2 implementation scope and real disposable Codex and Claude Code lab runs. This documentation turn does not start that work.
 
 - Route: `prd-generation`
-- Next step: Use the reconciled PRDs in this package as product authority for the linked delta backlog.
+- Next step: Implement P2 from the reconciled PRDs and corrective backlog.
 - Why: Implementation must use current setup, access, resource, Store, and harness requirements instead of this maintenance plan alone.
-- Coordinate Handoff: Carry `W19 R6` into the backlog, phase history, and later commits.
+- Coordinate Handoff: Keep P1 as an incomplete acceptance attempt. Use `W19 R6 P2` for corrective implementation, evidence, and later commits.

@@ -67,6 +67,7 @@ The scenario set must include focused automated proof, justified expansion, unsu
 - R-KIT-2 (MUST): the workspace layout is `<session-root>/kit/`, `<session-root>/workspace/`, and `<session-root>/evidence/`. The workspace is disposable by default, discarded after ingestion, and never written under the repository or repo-local `.make-docs/`.
 - R-KIT-3 (MUST): kit generation derives every emitted command and resource operation from the current registered public surface. It fails before session start when a current definition cannot project to an accepted command or operation sequence. The real session workspace runs setup normally and keeps P5-through-P10 quiescence active. P6 does not require or preserve a successful `package.ship` proof over frozen legacy Playbook package operations. Legacy packaging scenarios are not current kit targets. Generic lab tools remain in scope when they serve a traced current product feature. A future non-Playbook packaging conformance design requires new owner authority.
 - R-KIT-4 (MUST): the target operates the installed product and public interface. Internal modules, private repository shortcuts, fabricated harness behavior, or direct mutation of expected outputs are prohibited evidence paths.
+- R-KIT-5 (MUST): a maintainer-only bootstrap can add a provisional entry for an admitted adapter method that has no prior result. It requires the exact seven-part PRD 20 tuple, an existing scenario and target binding, installed product identity, executable identity, and a disposable session root. It cannot set `implementation-validated` or `conformance-validated`, write a result, or change a public support surface.
 
 ### Maintainer Lab Home (R-HOME)
 
@@ -88,7 +89,7 @@ The scenario set must include focused automated proof, justified expansion, unsu
 ### Ingestion and Existing Recording Seam (R-ING)
 
 - R-ING-1 (MUST): ingestion assembles a `conformance.result.v1` record from the session. Evidence-bar booleans derive solely from validated instrument outputs; a missing or failed output yields `false`, with no narrative rescue. Human or agent input is limited to distinguishable attestations, run metadata, and the narrative reason.
-- R-ING-2 (MUST): a validated record commits under `conformance/results/<harness>/` and binds to its exact six-dimension PRD 20 tuple only through `recordConformanceRunOnRegistryEntry`. Existing refusals for unasserted stages, tuple mismatch, harness mismatch, and simulation-posture mismatch remain authoritative.
+- R-ING-2 (MUST): a validated record commits under `conformance/results/<harness>/` and binds to its exact seven-dimension PRD 20 tuple of `scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, and `runtime` only through `recordConformanceRunOnRegistryEntry`. Existing refusals for unasserted stages, tuple mismatch, harness mismatch, and simulation-posture mismatch remain authoritative.
 
 ### Verification and Meta-Verification (R-TEST)
 
@@ -172,6 +173,14 @@ Current requirements, loaders, tests, and claim surfaces resolve only this repo-
 - Replacement contract: all four legacy packaging scenarios are historical coverage only. Their specs, results, and evidence are preserved. Current kits exclude them. Generic lab tools remain where they serve a traced current feature.
 - Rationale: the owner approved retirement from current coverage without P8 replacement scenarios. Existing P9 and P10 validation scope remains unchanged. Historical results do not establish current support.
 - Source: [W19 R1 P8 approved retirement scope](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/08-traced-playbook-protocol-retirement.md).
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Per-Target Disposable Execution Kits` and `Ingestion and Existing Recording Seam`
+- Previous contract: ingestion still named the retired six-part tuple and the lab had no safe first-run bootstrap for an admitted connection method.
+- Replacement contract: ingestion uses the seven-part tuple with `connectionMethod`, and a lab-only bootstrap can create a provisional exact tuple without promoting support.
+- Rationale: a connection method cannot receive real first-run evidence if it has no exact registry entry, and six-part ingestion cannot prove method-specific setup.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

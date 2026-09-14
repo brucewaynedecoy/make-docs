@@ -41,6 +41,9 @@ The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. D
 - R-HARNESS-5 (MUST): command rules name the verified Make Docs executable and the smallest admitted command prefix for each access class. They never grant a shell wrapper, package runner, broad Make Docs command, or machine lifecycle command.
 - R-HARNESS-6 (MUST): adapter planning preserves unknown and user-owned native configuration. Apply changes only exact reviewed entries. Verification reads the live native state and records a separate Store receipt for each machine and project operation.
 - R-HARNESS-7 (MUST): repeat setup reports `current`, `missing`, `drifted`, `unsupported`, or `blocked` for each method. It repairs only reviewed Make Docs-owned drift and never treats elapsed time, a matching name, or a detected file as ownership proof.
+- R-HARNESS-8 (MUST): Codex command rules use exact verified Make Docs executable prefixes and Codex's native allow-rule form. Real Codex proof must show that the admitted command runs outside the restricted sandbox, that a non-admitted command does not gain that access, and that exact caller and method identity reach the shared operation policy.
+- R-HARNESS-9 (MUST): Claude Code native permission rules and Claude Code sandbox file access are separate controls. A Claude rules method is supported only when disposable real-harness proof shows that the exact admitted command can reach the Store without broad home-directory access. Make Docs never adds a broad `~/.make-docs` or home write allowance. If no safe narrow form is available, setup leaves the method unavailable and names MCP as the safe configured alternative when MCP is proved.
+- R-HARNESS-10 (MUST): adapter support state comes from the validated central seven-part tuple registry. The production adapter path cannot accept a reviewed plan or evidence object that only tests can supply. A lab bootstrap can prepare a provisional tuple, but only a recorded real-harness result can make the method selectable.
 
 ### Manifest Ownership
 
@@ -129,6 +132,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Isolated project/global lifecycle checks cover native symlink and copy exposure, repeat, update from old first-party remote provenance without fetch, edited-file conflict, removal, and shared recovery.
 - Isolated-home tests prove exact Codex and Claude Code native changes, user-entry preservation, verified-executable rules, separate machine and project receipts, drift states, and idempotent repeat setup.
 - Real-harness tests prove each shown connection method. Pi stays absent until its first-party extension passes the same lifecycle and conformance gates.
+- Codex rule tests prove exact-prefix and outside-sandbox behavior. Claude Code rule tests prove both permission and sandbox behavior without broad home access, or the method stays unavailable with one useful action.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -196,6 +200,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Shared installed content paths stay unchanged, while all operational records stay in the global Store. Selected first-party adoption requires a complete digest-bound review, protected replacement, lock-time rechecks, and durable ownership even with matching bytes.
 - Rationale: Allow existing copies to enter management without guessing ownership or losing user content.
 - Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Harness Connection Methods`
+- Previous contract: P1 named Codex and Claude Code rule methods but did not settle exact caller identity or Claude Code's separate sandbox control, and its support input remained test-only.
+- Replacement contract: Codex exact rules and Claude permission-plus-sandbox behavior require real proof, broad home access is prohibited, and production support comes only from the central tuple registry.
+- Rationale: a native file fixture does not prove that a restricted harness can safely use the Store.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

@@ -50,6 +50,10 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-6 (MUST): repeat setup reads desired machine state, project intent, live harness configuration, Store receipts, and pending operations. It does not repeat a verified change. It reports the exact incomplete or drifted part and resumes only through the owning operation.
 - R-SETUP-7 (MUST): resource placement offers installed-provider use, all local resource copies, or selected resource types. The text states that provider reads need no Store permission and that local copies do not grant harness or Store access.
 - R-SETUP-8 (MUST): setup exposes only adapter methods admitted by PRD 28 and claimable under PRD 20. Skipping a method is valid. The result explains which Store-backed agent operations remain unavailable without saying that Store-free resource reads are unavailable.
+- R-SETUP-9 (MUST): `setup` and `setup system` accept `--codex-method <none|mcp|command-rules>` and `--claude-code-method <none|mcp|permission-rules>` as the canonical non-interactive method inputs. A method flag selects its harness. A selected harness with no method fails before writes in non-interactive mode. `--yes` approves an already complete plan. It never supplies a missing choice.
+- R-SETUP-10 (MUST): `--dry-run` resolves the same central support registry, native state, receipts, machine intent, project intent, and pending operations as apply. It prints the exact grouped plan and writes nothing. An unsupported method fails with the missing proof and one useful lab or setup action.
+- R-SETUP-11 (MUST): interactive project setup orders project state, harness selection, one method-and-Skills screen for each selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, and one final result. `setup system` starts at the per-harness method screens and performs no project initialization.
+- R-SETUP-12 (MUST): production setup reads method support only through the validated central conformance registry loader. Repeat setup reports `current`, `drifted`, `blocked`, `unsupported`, or `incomplete` and does not issue a generic rerun instruction unless the rerun follows a named changed condition.
 
 ### Tool Self-Management (R-SELF)
 
@@ -155,6 +159,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 - R-TEST-6 (MUST): focused lifecycle tests assert exact CLI/MCP receipt parity for every successful Store mutation and assert that read-only, failed, conflicted, unavailable, and rolled-back operations emit no success receipt.
 - R-TEST-7 (MUST): integrated and packed CLI tests cover Store bootstrap, legacy transfer, competing writers, interrupted operations, resume, rollback, unsafe Store roots, clone bindings, and repeat setup. CLI and MCP use one service and matching typed results. Assert no local operational manifest, state directory, receipt, or lock is created.
 - R-TEST-8 (MUST): setup tests cover fresh, current, partial, skipped, drifted, failed, and repeated flows; separate machine and project approvals and receipts; exact native configuration preservation; Store-free resource reads; and the rule that a project failure does not roll back verified machine setup.
+- R-TEST-9 (MUST): production-path tests cover both canonical method flags, missing-choice refusal, unsupported-method refusal, machine-only setup, project config writing, dry-run parity, central registry loading, repeat-state rendering, and useful blocker actions. A test-only reviewed plan cannot satisfy this requirement.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -334,6 +339,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Setup skills offers named selected-first-party adoption with a read-only digest review, bound apply, preservation/blockers, and Store-backed ownership/recovery.
 - Rationale: Owners must review the combined file and ownership effect before local content becomes managed.
 - Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Setup Command Contract` and `Verification and Testability`
+- Previous contract: P1 added `setup system` and internal method selection, but `--yes` and `--dry-run` could proceed without explicit method input and production setup did not consume the central registry.
+- Replacement contract: canonical per-harness method flags, one exact screen order, machine-only scope, dry-run parity, central registry loading, project intent writing, repeat state, and actionable blockers are required.
+- Rationale: automation and agents need the same complete choices and results as the interactive flow.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

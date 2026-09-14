@@ -84,6 +84,7 @@ The project harness-integration schema is separate from `harnessCapabilities`. I
 - R-CONFIG-HARNESS-3 (MUST): applied harness configuration, receipts, executable fingerprints, verification results, drift, and recovery data remain in the Store. Live harness-native configuration remains the permission authority.
 - R-CONFIG-HARNESS-4 (MUST): effective access is the intersection of valid machine intent, live native configuration, verified Store receipt, and project intent. The more restrictive valid state wins.
 - R-CONFIG-HARNESS-5 (MUST): setup preserves unknown fields and user-owned harness entries. Malformed, conflicting, or unsafe known entries stop automatic change and receive a reviewable diagnostic.
+- R-CONFIG-HARNESS-6 (MUST): the production project setup flow writes the reviewed harness selection and connection intent through one comment- and unknown-key-preserving `.make-docs/config.yaml` writer. Dry-run shows the exact change. A skipped machine method can write `disable` or preserve the current project choice, as reviewed. Setup never requires a test helper or manual file edit to create valid project intent.
 
 ### Validation
 
@@ -111,6 +112,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - Persona discovery works with no config, no assets directory, and no Store. Validation covers the two defaults, custom extensions, safe overrides, invalid entries, and unknown frontmatter slugs. A no-CLI reader can find the same defaults and config boundary in the always-present docs router.
 - Legacy harness capability records do not activate behavior or become an alternate routing schema. The separate project harness-integration fields can only narrow verified machine support.
 - Effective harness access tests cover inheritance, narrowing, disablement, missing machine trust, native-config drift, Store-receipt drift, unknown fields, and preservation of user-owned entries.
+- Fresh, repeat, dry-run, failed-machine, and failed-project setup tests prove that the production writer records only the reviewed harness intent and never erases comments or unrelated config.
 - Resource and lifecycle surfaces may consume reviewed presentation or harness hints without treating config as URI, resolver, operation, state-machine, receipt, or support-claim authority.
 - Package and dogfood validation prove any default config template follows source-first copy rules and local config preservation.
 ## Contracts and Data
@@ -167,6 +169,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Defaults are fixed user and maintainer mappings. Custom entries extend them; safe display overrides inherit omitted fields. Store-free discovery and the docs router expose the same effective rules.
 - Rationale: Make defaults discoverable with missing config, assets, CLI, or Store while preserving declarative ownership.
 - Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Harness Capability Records`
+- Previous contract: project harness intent had a reader and validation rules, but the setup contract did not require the production flow to write the reviewed value.
+- Replacement contract: project setup writes exact reviewed `harnessIntegrations` state through one preserving writer and proves its repeat and failure behavior.
+- Rationale: a shareable project choice is not a product capability if only tests or manual edits can create it.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

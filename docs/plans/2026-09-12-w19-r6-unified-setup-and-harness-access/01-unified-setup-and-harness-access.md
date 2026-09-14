@@ -12,7 +12,7 @@ source:
 
 ## Purpose
 
-Deliver the full setup and harness-access change as one release unit. Ordered stages prevent a half-configured user path from becoming a supported result.
+Record the first implementation attempt for the setup and harness-access change. The attempt produced useful foundation code. It did not complete the production path or acceptance and is not a release unit.
 
 ## Fixed Decisions
 
@@ -94,7 +94,7 @@ Run package build, pack smoke, MCP conformance, PRD authority validation, and pr
 | Compatibility and recovery | Migration, drift, resume tests | Stages 1 and 2 | Safe existing-state behavior |
 | Assembly and validation | Shared types, full tests, conformance, docs | All stages | Release-ready evidence package |
 
-Workers are not alone in the codebase. They must preserve other changes and adjust to concurrent edits. The current uncommitted `wizard.ts` and `wizard.test.ts` changes require an explicit reconciliation before those files receive implementation edits.
+Workers are not alone in the codebase. They must preserve other changes and adjust to concurrent edits. At the live implementation baseline, `wizard.ts` and `wizard.test.ts` were clean. They did not need reconciliation before implementation started.
 
 ## Acceptance Matrix
 
@@ -126,4 +126,8 @@ Workers are not alone in the codebase. They must preserve other changes and adju
 
 ## Implementation Gate
 
-The lifecycle package is documentation authority only. No implementation, staging, commit, release, installation, or external harness change is authorized by this package.
+The owner authorized this P1 implementation. The code candidate exists. Later product review found that production support loading, method selection, project intent writing, exact rule identity, real harness proof, and installed Human Experience acceptance are incomplete.
+
+P1 is an incomplete acceptance attempt. [Phase 2](02-corrective-production-path-and-acceptance.md) owns the correction.
+
+This plan does not authorize staging, commit, release, publication, installation, or a change to a real harness.

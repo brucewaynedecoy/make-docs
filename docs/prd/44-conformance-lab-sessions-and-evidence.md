@@ -39,10 +39,11 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Result Records and Registry Promotion (R-RESULT)
 
-- R-RESULT-1 (MUST): every compact normalized result records the full support tuple (`scenario`, `harness`, `surface`, `scope`, `modelOrProvider`, `runtime`) plus scenario version, model name, provider or routing layer when known, model version or immutable identifier when available, Make Docs version, runtime distribution, applicable selected-Skill or resource identity, run date, produced files, relevant diffs, exit status, transcript/log pointer, safety and simulation posture, per-stage install/discover/invoke/uninstall assertions and evidence references, normalized verdict, reason, caveats, reviewer status, and `supportClaimUse`.
+- R-RESULT-1 (MUST): every compact normalized result records the full support tuple (`scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, `runtime`) plus scenario version, model name, provider or routing layer when known, model version or immutable identifier when available, Make Docs version, runtime distribution, applicable selected-Skill or resource identity, run date, produced files, relevant diffs, exit status, transcript/log pointer, safety and simulation posture, per-stage install/discover/invoke/uninstall assertions and evidence references, normalized verdict, reason, caveats, reviewer status, and `supportClaimUse`.
 - R-RESULT-2 (MUST): compact reviewed results commit at `conformance/results/<harness>/<YYYY-MM-DD>-<outcome-slug>-<seq>.json`. The result links to raw evidence by pointer and does not embed unredacted transcripts or provider logs; redacted evidence is promoted deliberately, while retained raw evidence follows R-NAME-2.
 - R-RESULT-3 (MUST): a result is admitted to registry derivation only through `recordConformanceRunOnRegistryEntry` after schema validation and exact tuple matching. The seam refuses missing instrument receipts, false or unasserted required stages, tuple or harness mismatch, and simulation-posture mismatch. Narrative claims and operator attestations cannot flip a measured stage.
 - R-RESULT-4 (MUST): [20-agent-harness-conformance-and-support-claims.md](20-agent-harness-conformance-and-support-claims.md) owns the status and public-claim rules. This evidence owner supplies the derivation inputs: `pass`, or `pass-with-caveats` with caveats preserved and the full evidence bar asserted, may advance the exact tuple to `conformance-validated`; `inconsistent`, `unsupported`, and `blocked` do not. Registry status remains a derived projection of recorded results, never a field an operator sets directly.
+- R-RESULT-5 (MUST): a first-run adapter session begins from the provisional tuple created by PRD 43's lab-only bootstrap. The session uses a disposable harness home and project. It records the exact native configuration, caller identity, connection method, Store-access result, cleanup result, and user-content preservation. It never reads or writes the operator's real harness home.
 
 ### Operator Modes: Three, All First-Class (R-MODE)
 
@@ -104,6 +105,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Lab sessions preserve all four PRD 50 executor and gate boundaries and include installed-product evidence of a shorter, more meaningful human test.
 - Rationale: The quality of the testing activity is part of Make Docs product quality.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-14 — W19 R6 P2
+
+- Affected requirement or section: `Result Records and Registry Promotion`
+- Previous contract: result records still used the retired six-part tuple and did not require method identity or a disposable first-run harness home.
+- Replacement contract: each result records `connectionMethod`, starts from a provisional lab tuple, and proves exact native state and cleanup in a disposable harness home.
+- Rationale: MCP and native rules can behave differently in the same harness and must not share one undifferentiated result.
+- Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
 ## Source Anchors
 

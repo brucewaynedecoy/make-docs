@@ -34,6 +34,8 @@ These are separate decisions:
 
 The setup experience must make these facts clear. It must also preserve existing partial installations and existing user trust choices.
 
+The first W19 R6 implementation attempt built useful access, adapter, setup-state, and receipt parts. It did not connect those parts into a complete production path. The normal CLI does not load the central conformance registry, all connection methods remain unavailable, exact method proof can enter only through a test-only input, project setup does not write its selected harness intent, and installed harness acceptance did not occur. W19 R6 therefore needs a lifecycle revisit. P1 is a foundation code candidate and an incomplete acceptance attempt. It is not an accepted feature.
+
 ## Human Experience Intent
 
 Impact: `direct`
@@ -127,6 +129,14 @@ MCP is one adapter method. It is not the product architecture. Rules and extensi
 
 Command rules use the resolved Make Docs executable and the smallest admitted command prefixes. They do not approve a shell wrapper, a package runner, setup-system commands, update, uninstall, backup, or removal. MCP exposes only admitted tools and keeps its existing explicit write gate.
 
+The repo-root `conformance/tuple-registry.json` is the only support-status authority. Every entry uses the seven-part tuple `scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Production setup loads this registry through the validated conformance loader. Tests can supply a temporary registry file through that same public loader boundary. They cannot inject an already-reviewed adapter plan or an alternate evidence model.
+
+A method becomes selectable only when the central registry records the exact eligible result required by the conformance contract. The setup state must distinguish `not configured`, `configured`, `drifted`, `blocked`, and `unsupported`. A blocker must name one useful action. It must not send the person back to the same screen without a new choice or changed condition.
+
+Each native route must carry exact caller and connection-method identity to the shared operation policy. MCP can carry this identity in its managed server environment. A command-rule route must carry the same verified identity through its native rule contract or another harness-proved launch fact. A matching executable path alone is not caller proof.
+
+Codex command rules must use exact executable-prefix rules that Codex runs outside its restricted sandbox. Claude Code permission rules and Claude Code sandbox access are separate controls. Make Docs may offer Claude rules only when a disposable real-harness test proves the exact command and Store path behavior. Make Docs must not add broad home-directory write access. If the required narrow Claude sandbox control cannot be proved, the rules method remains unavailable and setup explains why.
+
 ### Configuration and authority
 
 | Surface | Purpose | Authority limit |
@@ -153,6 +163,8 @@ System setup and project initialization are separate durable operations. Setup a
 
 Setup never retries a user-visible project mutation callback. It can retry only safe admission and contention cases under the existing Store rules.
 
+The production project flow must write the reviewed `harnessIntegrations` value to `.make-docs/config.yaml`. It must preserve comments and unrelated keys. The machine-only flow must complete without a project initialization. Non-interactive setup must accept an explicit method for each selected harness, reject missing or unsupported choices, and never silently replace a missing method with `none`. Dry-run must show the same final plan without writes.
+
 ### System resource placement
 
 Resource placement appears under project initialization after harness choices. It is not part of harness permission setup.
@@ -172,6 +184,8 @@ The shared Store session gate remains the concurrency baseline. This design does
 Old installations keep their selected document set, harnesses, Skills, and resource projections until a reviewed change. Existing global and harness files are inputs to classification. They are not automatic ownership proof.
 
 This package does not perform general CLI command-tree cleanup. It does not move backup or removal. It does not add Pi support without its first-party extension and conformance evidence. It does not allow project config to grant machine permission.
+
+The lab bootstrap is maintainer-only. It can create exact provisional tuple entries and disposable homes needed to test a new adapter method. It cannot mark support as proved. Only a real harness result recorded through the normal registry seam can do that.
 
 ## Alternatives Considered
 
@@ -212,16 +226,17 @@ Rejected. A verified machine configuration can serve other projects. Removing it
 - Exact access metadata reduces accidental Store use and keeps resource reads independent.
 - Separate system and project receipts make failure recovery clear without cross-scope rollback.
 - Deferred command cleanup remains possible because all setup entries use one internal setup model.
+- P1 remains useful implementation input, but P2 must replace its test-only support path with the production registry path and complete installed acceptance before W19 R6 can close.
 
 ## Design Lineage
 
-- Update Mode: `new-doc-related`
+- Update Mode: `updated-existing`
 - Prior Design Docs: [Store-Owned Installation and Migration State](2026-09-09-store-owned-installation-and-migration-state.md), [First-Party Skills and Managed Adoption](2026-09-09-first-party-skills-and-managed-adoption.md), [Shared Agentics Native Harness Exposure Correction](2026-06-27-shared-agentics-native-harness-exposure-correction.md), and [CLI Command Reorganization and Operation Registry](2026-07-01-cli-command-reorganization-and-operation-registry.md)
-- Reason: This design keeps their Store, operation, Skill, and native-path safety rules. It adds the missing user setup and harness permission model.
+- Reason: This design keeps their Store, operation, Skill, and native-path safety rules. It adds the missing user setup and harness permission model. The 2026-09-14 update records the W19 R6 P1 acceptance failure and settles the production registry, exact identity, project-write, non-interactive, and real-harness requirements for P2.
 
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md). Read `make-docs://system/prompt/designs-to-plan-change.prompt.md` with `make-docs resource read`.
-- Why: Existing setup, configuration, operation, resource, Store, and harness PRDs already own this behavior and need surgical updates before implementation.
-- Coordinate Handoff: Carry `W19 R6` as the next revision of the W19 R3 through R5 Store, setup, and managed-agentics line.
+- Next Prompt: Reconcile the existing W19 R6 plan, owning PRDs, and work backlog. Then implement P2 only after that authority is current.
+- Why: The existing package owns this work, but P1 did not complete the production path or acceptance.
+- Coordinate Handoff: Keep `W19 R6`. Treat P1 as an incomplete acceptance attempt and use `W19 R6 P2` for the corrective phase.

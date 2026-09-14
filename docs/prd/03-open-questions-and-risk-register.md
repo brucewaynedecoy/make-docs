@@ -709,6 +709,29 @@ The following record preserves the prior claims, findings, and close conditions.
 
 **Baseline resolution:** The drift-register test now permits appended valid IDs while preserving existing record names, sequence and duplicate checks. The original D-032-only baseline failure is resolved in the green final suite.
 
+### D-033 W19 R6 Setup Support Is Not Connected to the Production Conformance Path
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Keep the P1 code as a foundation candidate. Do not accept or release the W19 R6 feature. Complete the corrective W19 R6 P2 phase through the central registry and installed acceptance. | Implement [W19 R6 P2](../work/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md). Close only when all ten hard close rules pass. |
+
+**Issue:** The normal setup path does not load central conformance evidence. The central tuple registry has no current tuples. The adapter support resolver leaves every method unselectable. Reviewed adapter plans can enter only through a test-only input. Project setup reads `harnessIntegrations` but does not write the reviewed selection. The active runtime tuple code still uses the retired eight-part package tuple, while PRD 20 requires seven parts and PRDs 43 and 44 still state six parts.
+
+**Why it matters:** A person cannot complete the promised Codex or Claude Code Store-access setup. A rerun cannot create the missing proof or trust state. Unit and integration tests can pass while the installed feature stays unavailable. Make Docs is not release-ready on this surface.
+
+**Recommendation:** Use `conformance/tuple-registry.json` as the only support authority. Load it in production setup. Use one seven-part tuple. Add a real lab-only bootstrap path. Carry exact caller and method identity through every native route. Complete project config writing, machine-only setup, explicit non-interactive method inputs, repeat-state guidance, real disposable-harness proof, and installed Human Experience Review.
+
+**To close:** Pass every W19 R6 P2 hard close rule. Evidence must include production-path tests, real Codex and Claude Code results for every shown method, installed setup observations, Store-free resource proof, and a Human Experience conclusion for each promise. A method with missing proof must remain unavailable with one useful action.
+
+Code anchors:
+
+- `conformance/tuple-registry.json`
+- `packages/cli/src/conformance/tuple.ts`
+- `packages/cli/src/harness-access/contract.ts`
+- `packages/cli/src/setup-system.ts`
+- `packages/cli/src/cli.ts`
+- `packages/cli/src/operations/harness-policy.ts`
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
