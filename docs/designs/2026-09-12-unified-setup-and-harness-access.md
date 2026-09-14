@@ -1,7 +1,7 @@
 ---
 title: "Unified Setup and Harness Access"
 kind: "design"
-status: "active"
+status: "superseded"
 coordinate: "W19 R6"
 follow_on:
   route: "change-plan"
@@ -11,6 +11,8 @@ follow_on:
 ---
 
 # Unified Setup and Harness Access
+
+This design records the P1 and P2 direction. The [P3 static adapter design](./2026-09-14-static-harness-adapters-and-conformance-retirement.md) supersedes its conformance rules. P3 keeps the setup, access, config, safety, and recovery goals.
 
 ## Purpose
 

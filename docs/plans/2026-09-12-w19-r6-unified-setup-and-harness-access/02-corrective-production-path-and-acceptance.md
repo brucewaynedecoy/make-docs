@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Corrective Production Path and Acceptance"
 kind: "plan"
-status: "active"
+status: "superseded"
 coordinate: "W19 R6 P2"
 source:
   type: "design"
@@ -9,6 +9,8 @@ source:
 ---
 
 # Phase 2: Corrective Production Path and Acceptance
+
+P3 supersedes this plan. P2 used PRDs 20, 43, and 44 as current product authority. Those PRDs describe the removed Playbooks conformance system. Keep this file as a record of the work and tests that followed that invalid authority. Do not execute it as the current plan.
 
 ## Purpose
 
