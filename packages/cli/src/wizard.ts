@@ -166,6 +166,8 @@ export interface RunSelectionWizardOptions {
   projectState?: SetupProjectState;
   allowCapabilityExpansion?: boolean;
   harnessSupport?: SetupHarnessState[];
+  /** Runs the harness method screens after harness selection and before shared Skills. */
+  afterHarnessSelection?: (selections: InstallSelections) => Promise<boolean>;
 }
 
 export interface CapabilityChecklistOption {
@@ -231,6 +233,7 @@ export interface ReviewStepState {
 
 export interface WizardRenderer {
   beginSession?(title: string): Promise<void> | void;
+  showProjectState?(state: SetupProjectState): Promise<void> | void;
   editCapabilities(state: CapabilityStepState): Promise<Capability[] | null>;
   editHarnesses(state: HarnessStepState): Promise<Harness[] | null>;
   editOptions(state: OptionsStepState): Promise<WizardOptionSelections | null>;
@@ -512,6 +515,7 @@ export async function runSelectionWizardWithRenderer(
   const config = options.config ?? createDefaultMakeDocsConfig();
 
   await renderer.beginSession?.(options.introTitle);
+  await renderer.showProjectState?.(options.projectState ?? "current");
 
   while (true) {
     if (step === "capabilities") {
@@ -575,6 +579,9 @@ export async function runSelectionWizardWithRenderer(
       }
 
       selections = applyHarnessSelections(selections, selectedHarnesses);
+      if (options.afterHarnessSelection && !(await options.afterHarnessSelection(selections))) {
+        return null;
+      }
       step = "options";
       continue;
     }
@@ -589,8 +596,7 @@ export async function runSelectionWizardWithRenderer(
       }
 
       selections = applyWizardOptionSelections(selections, nextOptions);
-      step = "review";
-      continue;
+      return normalizeWizardSelections(selections);
     }
 
     const reviewAction = await renderer.review({
@@ -861,6 +867,9 @@ function createClackWizardRenderer(): WizardRenderer {
   return {
     beginSession(title) {
       intro(title);
+    },
+    showProjectState(state) {
+      note(`Project state: ${state}.`, "Project state");
     },
     async editCapabilities(state) {
       return promptForCapabilities(state.selections, state.config);

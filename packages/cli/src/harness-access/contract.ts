@@ -2,6 +2,12 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  getConformanceTupleEntry,
+  runQualifiesForConformanceValidation,
+  type ConformanceTupleRegistry,
+} from "../conformance/registry";
+import type { ConformanceSupportTuple } from "../conformance/tuple";
 
 export type HarnessId = "codex" | "claude-code";
 export type HarnessScope = "machine" | "project";
@@ -53,6 +59,10 @@ export interface HarnessCallerIdentity {
 export interface VerifyExecutableInput {
   executablePath: string;
   expectedSha256?: string;
+}
+
+export interface VerifyReviewedPackageExecutableInput extends VerifyExecutableInput {
+  packageRoot: string;
 }
 
 export interface HarnessCommandRule {
@@ -107,30 +117,25 @@ export interface HarnessConformanceIdentity {
   surface: "mcp" | "cli-command-rules" | "cli-permission-rules";
 }
 
-export interface HarnessConformanceEvidence extends HarnessConformanceIdentity {
-  schemaVersion: 1;
-  resultId: string;
-  verdict: "pass" | "pass-with-caveats" | "inconsistent" | "unsupported" | "blocked";
-  eligible: boolean;
-  assertions: {
-    install: boolean;
-    discover: boolean;
-    invoke: boolean;
-    uninstall: boolean;
-  };
-  caveats?: readonly string[];
-}
+export type HarnessSupportUnavailableReason =
+  | "adapter-not-admitted"
+  | "method-not-admitted"
+  | "tuple-not-registered"
+  | "runtime-facts-unavailable"
+  | "tuple-not-validated"
+  | "qualifying-result-missing"
+  | "make-docs-version-mismatch"
+  | "executable-digest-mismatch"
+  | "behavior-digest-mismatch"
+  | "harness-version-mismatch";
 
-export interface HarnessConformanceEvidenceRecord {
-  schemaVersion: 1;
-  provenance: {
-    kind: "make-docs-harness-conformance";
-    storage: "committed-conformance-registry";
-    evidenceId: string;
-    recordedAt: string;
-  };
-  evidence: HarnessConformanceEvidence;
-  digest: string;
+export interface HarnessSupportFacts {
+  registry: ConformanceTupleRegistry;
+  tuple: ConformanceSupportTuple;
+  makeDocsVersion: string;
+  executableDigest: string;
+  behaviorDigest: string;
+  harnessVersion: string;
 }
 
 export interface ResolvedHarnessMethodSupport {
@@ -138,6 +143,8 @@ export interface ResolvedHarnessMethodSupport {
   selectable: boolean;
   publicSupportClaim: boolean;
   reason: string;
+  unavailableReason: HarnessSupportUnavailableReason | null;
+  nextAction: string | null;
   caveats: readonly string[];
 }
 
@@ -305,17 +312,51 @@ const SAFE_COMMAND_WORD = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const PACKAGE_NAME = "@brucewaynedecoy/make-docs" as const;
 const PRODUCT_MARKER = "@brucewaynedecoy/make-docs:package-bin" as const;
-const validatedConformanceEvidence = new WeakMap<
-  object,
-  { evidencePath: string; digest: string }
->();
-
+const reviewedPackageExecutableIdentities = new WeakSet<VerifiedExecutableIdentity>();
 export function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
 export function verifyMakeDocsExecutable(
   input: VerifyExecutableInput,
+): VerifiedExecutableIdentity {
+  return verifyExecutableAgainstPackage(input, resolvePackagedExecutableIdentity());
+}
+
+/**
+ * Verify a reviewed packed candidate from a maintainer-only disposable lab.
+ * Production setup continues to use `verifyMakeDocsExecutable`, which binds
+ * the executable to the package that is running the setup process.
+ */
+export function verifyReviewedMakeDocsPackageExecutable(
+  input: VerifyReviewedPackageExecutableInput,
+): VerifiedExecutableIdentity {
+  const identity = verifyExecutableAgainstPackage(
+    input,
+    resolveReviewedPackageExecutableIdentity(input.packageRoot),
+  );
+  reviewedPackageExecutableIdentities.add(identity);
+  return identity;
+}
+
+/** Recheck one identity under the authority that first verified it. */
+export function reverifyMakeDocsExecutableIdentity(
+  executable: VerifiedExecutableIdentity,
+): VerifiedExecutableIdentity {
+  return reviewedPackageExecutableIdentities.has(executable)
+    ? verifyExecutableAgainstPackage(
+        { executablePath: executable.path, expectedSha256: executable.sha256 },
+        resolveReviewedPackageExecutableIdentity(executable.packageRoot),
+      )
+    : verifyMakeDocsExecutable({
+        executablePath: executable.path,
+        expectedSha256: executable.sha256,
+      });
+}
+
+function verifyExecutableAgainstPackage(
+  input: VerifyExecutableInput,
+  packaged: ReturnType<typeof resolvePackagedExecutableIdentity>,
 ): VerifiedExecutableIdentity {
   if (!path.isAbsolute(input.executablePath)) {
     throw new Error("The Make Docs executable path must be absolute.");
@@ -346,7 +387,6 @@ export function verifyMakeDocsExecutable(
     throw new Error("The Make Docs executable fingerprint does not match the reviewed executable.");
   }
 
-  const packaged = resolvePackagedExecutableIdentity();
   const actualPath = realpathSync(input.executablePath);
   if (actualPath !== packaged.path) {
     throw new Error("The executable is not the exact Make Docs package binary for this installation.");
@@ -362,6 +402,51 @@ export function verifyMakeDocsExecutable(
     packageVersion: packaged.packageVersion,
     packageRoot: packaged.packageRoot,
     binRelativePath: packaged.binRelativePath,
+  };
+}
+
+function resolveReviewedPackageExecutableIdentity(packageRoot: string): {
+  path: string;
+  packageVersion: string;
+  packageRoot: string;
+  binRelativePath: string;
+} {
+  if (!path.isAbsolute(packageRoot)) {
+    throw new Error("The reviewed Make Docs package root must be absolute.");
+  }
+  const rootStat = lstatSync(packageRoot);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
+    throw new Error("The reviewed Make Docs package root must be a real directory.");
+  }
+  const resolvedRoot = realpathSync(packageRoot);
+  const manifestPath = path.join(resolvedRoot, "package.json");
+  const manifestStat = lstatSync(manifestPath);
+  if (manifestStat.isSymbolicLink() || !manifestStat.isFile()) {
+    throw new Error("The reviewed Make Docs package manifest must be a real file.");
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+  const bin = manifest.bin;
+  if (
+    manifest.name !== PACKAGE_NAME ||
+    typeof manifest.version !== "string" ||
+    !manifest.version.trim() ||
+    !bin ||
+    typeof bin !== "object" ||
+    typeof (bin as Record<string, unknown>)["make-docs"] !== "string"
+  ) {
+    throw new Error("The reviewed package is not an exact Make Docs package.");
+  }
+  const binRelativePath = (bin as Record<string, string>)["make-docs"];
+  const executablePath = realpathSync(path.resolve(resolvedRoot, binRelativePath));
+  const relative = path.relative(resolvedRoot, executablePath);
+  if (relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error("The reviewed Make Docs package binary escapes its package root.");
+  }
+  return {
+    path: executablePath,
+    packageVersion: manifest.version,
+    packageRoot: resolvedRoot,
+    binRelativePath,
   };
 }
 
@@ -501,103 +586,6 @@ function isAdministrativeCommandRule(rule: HarnessCommandRule): boolean {
   );
 }
 
-export function loadHarnessConformanceEvidence(input: {
-  trustedRoot: string;
-  evidencePath: string;
-}): HarnessConformanceEvidence {
-  if (!path.isAbsolute(input.trustedRoot) || !path.isAbsolute(input.evidencePath)) {
-    throw new Error("Conformance evidence paths must be absolute.");
-  }
-  const rootStat = lstatSync(input.trustedRoot);
-  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
-    throw new Error("The trusted conformance Store root must be a non-symbolic-link directory.");
-  }
-  const lexicalRelative = path.relative(input.trustedRoot, input.evidencePath);
-  if (
-    lexicalRelative === ".." ||
-    lexicalRelative.startsWith(`..${path.sep}`) ||
-    path.isAbsolute(lexicalRelative)
-  ) {
-    throw new Error("Conformance evidence is outside the trusted Store root.");
-  }
-  let current = input.trustedRoot;
-  for (const segment of lexicalRelative.split(path.sep).filter(Boolean)) {
-    current = path.join(current, segment);
-    const part = lstatSync(current);
-    if (part.isSymbolicLink()) {
-      throw new Error("Conformance evidence paths must not use symbolic links.");
-    }
-  }
-  const trustedRoot = realpathSync(input.trustedRoot);
-  const evidencePath = realpathSync(input.evidencePath);
-  const relative = path.relative(trustedRoot, evidencePath);
-  if (relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
-    throw new Error("Conformance evidence is outside the trusted Store root.");
-  }
-  const stat = lstatSync(evidencePath);
-  if (stat.isSymbolicLink() || !stat.isFile()) {
-    throw new Error("Conformance evidence must be a regular non-symbolic-link file.");
-  }
-  let value: unknown;
-  try {
-    value = JSON.parse(readFileSync(evidencePath, "utf8"));
-  } catch {
-    throw new Error("Conformance evidence is not valid JSON.");
-  }
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("Conformance evidence is not a record.");
-  }
-  const record = value as Partial<HarnessConformanceEvidenceRecord>;
-  const provenance = record.provenance;
-  const evidence = record.evidence;
-  if (
-    record.schemaVersion !== 1 ||
-    !provenance ||
-    provenance.kind !== "make-docs-harness-conformance" ||
-    provenance.storage !== "committed-conformance-registry" ||
-    !provenance.evidenceId?.trim() ||
-    !Number.isFinite(Date.parse(provenance.recordedAt ?? "")) ||
-    !evidence ||
-    evidence.schemaVersion !== 1 ||
-    typeof evidence.adapterId !== "string" ||
-    !Number.isSafeInteger(evidence.adapterVersion) ||
-    (evidence.harnessId !== "codex" && evidence.harnessId !== "claude-code") ||
-    !["mcp", "command-rules", "permission-rules"].includes(evidence.connectionMethod) ||
-    !["mcp", "cli-command-rules", "cli-permission-rules"].includes(evidence.surface) ||
-    evidence.resultId !== provenance.evidenceId ||
-    !["pass", "pass-with-caveats", "inconsistent", "unsupported", "blocked"].includes(evidence.verdict) ||
-    typeof evidence.eligible !== "boolean" ||
-    !evidence.assertions ||
-    Object.values(evidence.assertions).length !== 4 ||
-    Object.values(evidence.assertions).some(assertion => typeof assertion !== "boolean") ||
-    (evidence.caveats !== undefined &&
-      (!Array.isArray(evidence.caveats) || evidence.caveats.some(caveat => typeof caveat !== "string"))) ||
-    !record.digest ||
-    !SHA256.test(record.digest)
-  ) {
-    throw new Error("Conformance evidence provenance is incomplete or invalid.");
-  }
-  const expectedDigest = harnessConformanceEvidenceDigest({
-    schemaVersion: 1,
-    provenance: provenance as HarnessConformanceEvidenceRecord["provenance"],
-    evidence,
-  });
-  if (record.digest !== expectedDigest) {
-    throw new Error("Conformance evidence digest does not match its durable record.");
-  }
-  validatedConformanceEvidence.set(evidence, {
-    evidencePath,
-    digest: record.digest,
-  });
-  return Object.freeze(evidence);
-}
-
-export function harnessConformanceEvidenceDigest(
-  record: Omit<HarnessConformanceEvidenceRecord, "digest">,
-): string {
-  return sha256(canonicalJson(record as unknown as NativeEntryValue));
-}
-
 export function canonicalJson(value: NativeEntryValue): string {
   return JSON.stringify(sortJson(value));
 }
@@ -705,7 +693,7 @@ function isExactRecord(value: unknown, keys: readonly string[]): value is Record
 export function resolveHarnessMethodSupport(
   adapter: HarnessAdapter,
   methodId: HarnessConnectionMethod,
-  evidence?: HarnessConformanceEvidence,
+  facts?: HarnessSupportFacts,
 ): ResolvedHarnessMethodSupport {
   const method = adapter.methods.find(candidate => candidate.id === methodId);
   if (!method) {
@@ -714,74 +702,128 @@ export function resolveHarnessMethodSupport(
       selectable: false,
       publicSupportClaim: false,
       reason: `${adapter.displayName} does not implement ${methodId}.`,
+      unavailableReason: "method-not-admitted",
+      nextAction: `Choose one of the methods admitted by ${adapter.displayName}.`,
       caveats: [],
     };
   }
-  if (!evidence) {
+  if (!facts || !facts.tuple || !facts.registry) {
     return {
       state: "not-run",
       selectable: false,
       publicSupportClaim: false,
-      reason: "The adapter exists, but exact real-harness conformance has not been supplied.",
+      reason: "No exact runtime facts were supplied to the packaged registry resolver.",
+      unavailableReason: "runtime-facts-unavailable",
+      nextAction: "Set the exact provider or model and harness version facts, then review setup again.",
       caveats: [],
     };
   }
-
-  const validated = validatedConformanceEvidence.get(evidence);
-  let durableEvidenceCurrent = false;
-  if (validated) {
-    try {
-      const live = JSON.parse(readFileSync(validated.evidencePath, "utf8")) as HarnessConformanceEvidenceRecord;
-      durableEvidenceCurrent =
-        live.digest === validated.digest &&
-        harnessConformanceEvidenceDigest({
-          schemaVersion: live.schemaVersion,
-          provenance: live.provenance,
-          evidence: live.evidence,
-        }) === live.digest;
-    } catch {
-      durableEvidenceCurrent = false;
-    }
-  }
-  if (!validated || !durableEvidenceCurrent) {
-    return {
-      state: "experimental",
-      selectable: false,
-      publicSupportClaim: false,
-      reason: "The supplied result was not loaded from validated durable conformance evidence.",
-      caveats: [],
-    };
-  }
-
   const identity = adapter.conformanceIdentity(methodId);
-  const sameIdentity =
-    evidence.adapterId === identity.adapterId &&
-    evidence.adapterVersion === identity.adapterVersion &&
-    evidence.harnessId === identity.harnessId &&
-    evidence.connectionMethod === identity.connectionMethod &&
-    evidence.surface === identity.surface;
-  const complete = Object.values(evidence.assertions).every(Boolean);
-  const verdictEligible = evidence.verdict === "pass" || evidence.verdict === "pass-with-caveats";
-  const caveats = evidence.caveats ?? [];
-  const validCaveats = evidence.verdict !== "pass-with-caveats" || caveats.length > 0;
-
-  if (!sameIdentity || !evidence.resultId.trim() || !evidence.eligible || !complete || !verdictEligible || !validCaveats) {
+  if (
+    facts.tuple.harness !== identity.harnessId ||
+    facts.tuple.connectionMethod !== identity.connectionMethod ||
+    facts.tuple.surface !== identity.surface
+  ) {
+    return {
+      state: "unsupported",
+      selectable: false,
+      publicSupportClaim: false,
+      reason: "The requested tuple does not match this admitted adapter and method.",
+      unavailableReason: "adapter-not-admitted",
+      nextAction: "Use the adapter, harness, method, and surface recorded by the exact tuple.",
+      caveats: [],
+    };
+  }
+  const entry = getConformanceTupleEntry(facts.registry, facts.tuple);
+  if (!entry) {
+    return {
+      state: "not-run",
+      selectable: false,
+      publicSupportClaim: false,
+      reason: "The packaged registry has no entry for this exact seven-part tuple.",
+      unavailableReason: "tuple-not-registered",
+      nextAction: "Bootstrap only this exact tuple in a disposable lab session, then ingest its measured result.",
+      caveats: [],
+    };
+  }
+  if (entry.status !== "conformance-validated") {
     return {
       state: "experimental",
       selectable: false,
       publicSupportClaim: false,
-      reason: "The supplied result does not prove this exact adapter and method tuple.",
+      reason: `The exact registry tuple is ${entry.status}.`,
+      unavailableReason: "tuple-not-validated",
+      nextAction: "Complete and ingest a qualifying real-harness run for this tuple.",
       caveats: [],
     };
   }
-
+  const qualifying = entry.recordedRuns.filter(runQualifiesForConformanceValidation);
+  if (qualifying.length === 0) {
+    return {
+      state: "experimental",
+      selectable: false,
+      publicSupportClaim: false,
+      reason: "The registry status has no qualifying recorded result.",
+      unavailableReason: "qualifying-result-missing",
+      nextAction: "Repair the registry through the normal ingestion and recording seam.",
+      caveats: [],
+    };
+  }
+  const checks: Array<{
+    reason: HarnessSupportUnavailableReason;
+    matches: (run: (typeof qualifying)[number]) => boolean;
+    detail: string;
+    nextAction: string;
+  }> = [
+    {
+      reason: "make-docs-version-mismatch",
+      matches: run => run.makeDocsVersion === facts.makeDocsVersion,
+      detail: "No qualifying result matches this Make Docs version.",
+      nextAction: "Run conformance for this Make Docs version.",
+    },
+    {
+      reason: "executable-digest-mismatch",
+      matches: run => run.executableDigest === facts.executableDigest,
+      detail: "No qualifying result matches this installed executable digest.",
+      nextAction: "Run conformance with this packed executable.",
+    },
+    {
+      reason: "behavior-digest-mismatch",
+      matches: run => run.behaviorDigest === facts.behaviorDigest,
+      detail: "No qualifying result matches this Make Docs behavior digest.",
+      nextAction: "Run conformance for this behavior build.",
+    },
+    {
+      reason: "harness-version-mismatch",
+      matches: run => run.harnessVersion === facts.harnessVersion,
+      detail: "No qualifying result matches this harness version.",
+      nextAction: "Run conformance with this harness version.",
+    },
+  ];
+  let candidates = qualifying;
+  for (const check of checks) {
+    const next = candidates.filter(check.matches);
+    if (next.length === 0) {
+      return {
+        state: "experimental",
+        selectable: false,
+        publicSupportClaim: false,
+        reason: check.detail,
+        unavailableReason: check.reason,
+        nextAction: check.nextAction,
+        caveats: [],
+      };
+    }
+    candidates = next;
+  }
+  const caveats = [...new Set(candidates.flatMap(run => run.caveats))];
   return {
-    state: "experimental",
-    selectable: false,
-    publicSupportClaim: false,
-    reason:
-      `Durable conformance result ${evidence.resultId} passed local validation, but this build ` +
-      "has no authoritative PRD 20 tuple-registry projection for the exact connection method.",
+    state: "conformance-validated",
+    selectable: true,
+    publicSupportClaim: true,
+    reason: `The packaged registry has qualifying evidence for result ${candidates.at(-1)!.runId}.`,
+    unavailableReason: null,
+    nextAction: null,
     caveats,
   };
 }

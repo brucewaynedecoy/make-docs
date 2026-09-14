@@ -1,6 +1,6 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { parseDocument } from "yaml";
+import { isMap, isScalar, isSeq, parseDocument } from "yaml";
 import { TOOL_DIRECTORY_CONFIG_RELATIVE_PATH } from "./tool-directory";
 import { assertManagedPathHasNoSymlinks, readTextFile } from "./utils";
 import {
@@ -398,6 +398,134 @@ export function loadMakeDocsConfigOrThrow(targetDir: string): LoadedMakeDocsConf
   }
 
   return loaded;
+}
+
+export interface ProjectHarnessIntegrationYamlUpdate {
+  content: string;
+  changed: boolean;
+}
+
+export interface ProjectHarnessIntegrationWritePlan extends ProjectHarnessIntegrationYamlUpdate {
+  configPath: string;
+  beforeContent: string | null;
+  reviewed: ProjectHarnessIntegrationRecord[];
+}
+
+export function planProjectHarnessIntegrationWrite(input: {
+  targetDir: string;
+  reviewed: readonly ProjectHarnessIntegrationRecord[];
+  contentWhenMissing: string;
+}): ProjectHarnessIntegrationWritePlan {
+  const configPath = getMakeDocsConfigPath(input.targetDir);
+  if (existsSync(configPath)) loadMakeDocsConfigOrThrow(input.targetDir);
+  const beforeContent = existsSync(configPath) ? readFileSync(configPath, "utf8") : null;
+  const updated = updateProjectHarnessIntegrationsYaml(
+    beforeContent ?? input.contentWhenMissing,
+    input.reviewed,
+  );
+  return {
+    configPath,
+    beforeContent,
+    content: updated.content,
+    changed: beforeContent === null || updated.content !== beforeContent,
+    reviewed: input.reviewed.map(record => ({
+      ...record,
+      ...(record.accessCeiling ? { accessCeiling: { ...record.accessCeiling } } : {}),
+    })),
+  };
+}
+
+/**
+ * Update only reviewed harness entries in one YAML document. The YAML node
+ * model keeps comments, key order, scalar style, and all unrelated data.
+ */
+export function updateProjectHarnessIntegrationsYaml(
+  raw: string,
+  reviewed: readonly ProjectHarnessIntegrationRecord[],
+): ProjectHarnessIntegrationYamlUpdate {
+  const document = parseDocument(raw);
+  if (document.errors.length > 0) {
+    throw new Error(`Invalid make-docs config YAML: ${document.errors.map(error => error.message).join("; ")}`);
+  }
+  const seen = new Set<string>();
+  for (const record of reviewed) {
+    if (seen.has(record.harness)) throw new Error(`Duplicate reviewed harness entry '${record.harness}'.`);
+    seen.add(record.harness);
+    if (record.mode !== "narrow" && record.mode !== "disable") {
+      throw new Error("Setup can write only explicit narrow or disable harness intent.");
+    }
+    if (record.mode === "narrow" && (!record.method || !record.accessCeiling)) {
+      throw new Error(`Narrow harness entry '${record.harness}' requires a method and access ceiling.`);
+    }
+    if (record.mode === "disable" && (record.method || record.accessCeiling)) {
+      throw new Error(`Disabled harness entry '${record.harness}' cannot include a method or access ceiling.`);
+    }
+  }
+
+  if (document.contents === null) {
+    document.contents = document.createNode({}) as NonNullable<typeof document.contents>;
+  }
+  if (!isMap(document.contents)) throw new Error("The make-docs config root must be a YAML map.");
+  let sequence = getYamlMapValueNode(document.contents, "harnessIntegrations");
+  if (sequence === undefined || sequence === null) {
+    document.set("harnessIntegrations", document.createNode([]));
+    sequence = getYamlMapValueNode(document.contents, "harnessIntegrations");
+  }
+  if (!isSeq(sequence)) throw new Error("harnessIntegrations must be a YAML sequence.");
+
+  for (const record of reviewed) {
+    const matches = sequence.items.filter(item => isMap(item) && item.get("harness") === record.harness);
+    if (matches.length > 1) throw new Error(`Duplicate harness integration record '${record.harness}'.`);
+    let map = matches[0];
+    if (!map || !isMap(map)) {
+      const created = document.createNode({ harness: record.harness, mode: record.mode });
+      if (!isMap(created)) throw new Error("Could not create a harness integration YAML map.");
+      sequence.add(created);
+      map = created;
+    }
+    if (!isMap(map)) throw new Error("The harness integration entry is not a YAML map.");
+    setYamlScalar(map, "harness", record.harness);
+    setYamlScalar(map, "mode", record.mode);
+    if (record.mode === "disable") {
+      map.delete("method");
+      map.delete("accessCeiling");
+      continue;
+    }
+    setYamlScalar(map, "method", record.method!);
+    let access = getYamlMapValueNode(map, "accessCeiling");
+    if (!isMap(access)) {
+      map.set("accessCeiling", document.createNode({}));
+      access = getYamlMapValueNode(map, "accessCeiling");
+    }
+    if (!isMap(access)) throw new Error("Could not create the harness access ceiling YAML map.");
+    setYamlScalar(access, "store", record.accessCeiling!.store);
+    setYamlScalar(access, "project", record.accessCeiling!.project);
+    setYamlScalar(access, "hostConfig", record.accessCeiling!.hostConfig);
+  }
+  const content = document.toString();
+  return { content, changed: content !== raw };
+}
+
+function getYamlMapValueNode(
+  map: { items: Array<{ key: unknown; value: unknown }> },
+  key: string,
+): unknown {
+  return map.items.find(item =>
+    (isScalar(item.key) && item.key.value === key) || item.key === key
+  )?.value;
+}
+
+function setYamlScalar(
+  map: { get(key: unknown, keepScalar?: boolean): unknown; set(key: unknown, value: unknown): unknown },
+  key: string,
+  value: string,
+): void {
+  const node = map.get(key, true);
+  if (isScalar(node)) {
+    node.value = value;
+    return;
+  }
+  map.set(key, value);
 }
 
 export function formatMakeDocsConfigDiagnostics(
@@ -979,30 +1107,9 @@ function validateKeys(options: {
   keyPath: string;
   value: Record<string, unknown>;
 }): void {
-  const { allowedKeys, diagnostics, filePath, keyPath, value } = options;
-  for (const key of Object.keys(value)) {
-    // These old fields may coexist with current Persona and Skill settings.
-    // Ignore their values without validating, rendering, or rewriting them.
-    if ((keyPath === "" && key === "packaging") ||
-        ((keyPath === "labels.lifecycle" || keyPath === "labels.documentKinds") &&
-          (key === "playbook" || key === "protocol"))) continue;
-    if (allowedKeys.has(key)) {
-      continue;
-    }
-
-    const fullKeyPath = joinKeyPath(keyPath, key);
-    if (isStructuralRenameKey(key)) {
-      addStructuralRenameDiagnostic(diagnostics, filePath, fullKeyPath);
-      continue;
-    }
-
-    diagnostics.push({
-      code: "unknown-key",
-      filePath,
-      keyPath: fullKeyPath,
-      message: `Invalid make-docs config at ${filePath} (${fullKeyPath}): unknown key '${key}'.`,
-    });
-  }
+  // Validate known fields in their apply functions. Unknown fields belong to
+  // the project and remain opaque so setup can preserve future or local data.
+  void options;
 }
 
 function getRequiredString(

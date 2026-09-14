@@ -1,124 +1,129 @@
-/** Exact evidence tuple. Legacy values remain readable without the retired compiler. */
+/** Active W19 R6 support tuple. Historical tuple shapes live in historical-contract.ts. */
 import { OperationError } from "../operations/types";
-import type { ConformanceOutputKind, ConformanceScope, ConformanceRecordKind } from "./historical-contract";
+import { z } from "zod";
 
-/**
- * The eight R-TUPLE-1 dimensions in contract order. The first seven are the
- * packaging claim-tuple dimensions (consumed from W18 R8 P4's
- * `PACKAGE_SUPPORT_TUPLE_DIMENSIONS`) with `generatedOutputKind` inserted
- * after `outputKind`; a conformance test pins that relationship so neither
- * lineage can drift from the other silently.
- */
 export const CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS = [
   "scenario",
   "harness",
+  "connectionMethod",
   "surface",
   "scope",
-  "outputKind",
-  "generatedOutputKind",
   "modelOrProvider",
   "runtime",
 ] as const;
+
 export type ConformanceSupportTupleDimension =
   (typeof CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS)[number];
 
-/** A concrete, harness-recognizable surface: never the `auto` request. */
-export type ConformanceTupleSurface = "native" | "agents-standard";
+export const CONFORMANCE_SCENARIO_FAMILIES = [
+  "setup-access/mcp-store-operations",
+  "setup-access/bounded-rule-store-operations",
+  "setup-access/permission-rule-store-operations",
+  "setup-access/direct-resource-read",
+] as const;
+export type ConformanceScenarioFamily = (typeof CONFORMANCE_SCENARIO_FAMILIES)[number];
 
-/**
- * The exact tuple a conformance support claim binds to (R-TUPLE-1). The
- * evidence-owned dimensions — `scenario`, `modelOrProvider`, `runtime` — are
- * `null` until a recorded run binds them (they are run metadata per PRD 20's
- * lab contract, R-KEEP-1); the packaging dimensions are always bound.
- */
+export type ConformanceTupleHarness = "codex" | "claude-code";
+export type ConformanceTupleConnectionMethod =
+  | "mcp"
+  | "command-rules"
+  | "permission-rules"
+  | "direct-cli";
+export type ConformanceTupleSurface =
+  | "mcp"
+  | "cli-command-rules"
+  | "cli-permission-rules"
+  | "cli-resource";
+export type ConformanceTupleScope = "machine" | "project";
+
+/** Every active support claim is exact. Empty values, wildcards, and null are invalid. */
 export interface ConformanceSupportTuple {
-  scenario: string | null;
-  harness: string;
+  scenario: ConformanceScenarioFamily;
+  harness: ConformanceTupleHarness;
+  connectionMethod: ConformanceTupleConnectionMethod;
   surface: ConformanceTupleSurface;
-  scope: ConformanceScope;
-  outputKind: ConformanceOutputKind;
-  generatedOutputKind: ConformanceRecordKind;
-  modelOrProvider: string | null;
-  runtime: string | null;
+  scope: ConformanceTupleScope;
+  modelOrProvider: string;
+  runtime: string;
 }
 
-/**
- * Extends a packaging support-claim tuple (W18 R8 P4, R-PROV-3) into the
- * eight-field conformance tuple by binding the generated-output kind. The
- * claim tuple is consumed as-is — its evidence-owned dimensions ride along
- * unchanged — so the two lineages share one set of dimension values. An
- * unresolved `auto` surface is refused: it is a claim broader than any
- * evidence could be (R-TUPLE-1).
- */
-export function bindConformanceSupportTuple(input: {
-  claim: Omit<ConformanceSupportTuple, "generatedOutputKind" | "surface"> & { surface: ConformanceTupleSurface | "auto" };
-  generatedOutputKind: ConformanceRecordKind;
-}): ConformanceSupportTuple {
-  if (input.claim.surface === "auto") {
+export const conformanceSupportTupleSchema = z.object({
+  scenario: z.enum(CONFORMANCE_SCENARIO_FAMILIES),
+  harness: z.enum(["codex", "claude-code"]),
+  connectionMethod: z.enum(["mcp", "command-rules", "permission-rules", "direct-cli"]),
+  surface: z.enum(["mcp", "cli-command-rules", "cli-permission-rules", "cli-resource"]),
+  scope: z.enum(["machine", "project"]),
+  modelOrProvider: z.string().trim().min(1).refine(value => value !== "*", "wildcards are not active claims"),
+  runtime: z.string().trim().min(1).refine(value => value !== "*", "wildcards are not active claims"),
+}).strict();
+
+export function validateConformanceSupportTuple(document: unknown): ConformanceSupportTuple {
+  const parsed = conformanceSupportTupleSchema.safeParse(document);
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map(issue => `${issue.path.join(".") || "(tuple)"}: ${issue.message}`)
+      .join("; ");
+    throw new OperationError(`Active conformance tuple is invalid: ${issues}`);
+  }
+  assertConformanceTupleCombination(parsed.data);
+  return parsed.data;
+}
+
+/** Validate cross-field combinations which a plain object schema cannot explain well. */
+export function assertConformanceTupleCombination(tuple: ConformanceSupportTuple): void {
+  const expectedScenario: Record<ConformanceTupleConnectionMethod, ConformanceScenarioFamily> = {
+    mcp: "setup-access/mcp-store-operations",
+    "command-rules": "setup-access/bounded-rule-store-operations",
+    "permission-rules": "setup-access/permission-rule-store-operations",
+    "direct-cli": "setup-access/direct-resource-read",
+  };
+  const expectedSurface: Record<ConformanceTupleConnectionMethod, ConformanceTupleSurface> = {
+    mcp: "mcp",
+    "command-rules": "cli-command-rules",
+    "permission-rules": "cli-permission-rules",
+    "direct-cli": "cli-resource",
+  };
+  if (tuple.scenario !== expectedScenario[tuple.connectionMethod]) {
     throw new OperationError(
-      "A conformance support tuple requires a resolved surface: `auto` is a resolution request, " +
-        "not a surface a harness recognizes, so binding it would make the claim broader than its evidence (R-TUPLE-1).",
+      `Connection method \`${tuple.connectionMethod}\` requires scenario \`${expectedScenario[tuple.connectionMethod]}\`.`,
     );
   }
-  return {
-    scenario: input.claim.scenario,
-    harness: input.claim.harness,
-    surface: input.claim.surface,
-    scope: input.claim.scope,
-    outputKind: input.claim.outputKind,
-    generatedOutputKind: input.generatedOutputKind,
-    modelOrProvider: input.claim.modelOrProvider,
-    runtime: input.claim.runtime,
-  };
+  if (tuple.surface !== expectedSurface[tuple.connectionMethod]) {
+    throw new OperationError(
+      `Connection method \`${tuple.connectionMethod}\` requires surface \`${expectedSurface[tuple.connectionMethod]}\`.`,
+    );
+  }
+  if (tuple.connectionMethod === "command-rules" && tuple.harness !== "codex") {
+    throw new OperationError("Command rules are a Codex-only support tuple.");
+  }
+  if (tuple.connectionMethod === "permission-rules" && tuple.harness !== "claude-code") {
+    throw new OperationError("Permission rules are a Claude Code-only support tuple.");
+  }
 }
 
-/**
- * Binds the lab-owned run metadata — scenario id, model or provider, and
- * runtime — onto a tuple (t2). This is the ONLY seam that binds the
- * evidence-owned dimensions: they are run metadata per PRD 20's result
- * contract (R-KEEP-1), so nothing in the packaging or registry code may
- * invent them, and a recorded conformance run is the only source.
- */
-export function bindRunMetadataOntoConformanceTuple(
-  tuple: ConformanceSupportTuple,
-  runMetadata: { scenario: string; modelOrProvider: string; runtime: string },
-): ConformanceSupportTuple {
-  return {
-    ...tuple,
-    scenario: runMetadata.scenario,
-    modelOrProvider: runMetadata.modelOrProvider,
-    runtime: runMetadata.runtime,
-  };
+/** Active tuples are always bound because version 2 does not admit null or wildcard values. */
+export function isConformanceTupleBound(tuple: ConformanceSupportTuple): boolean {
+  return CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS.every((dimension) => {
+    const value = tuple[dimension];
+    return typeof value === "string" && value.trim().length > 0 && value !== "*";
+  });
 }
 
-/** Dimensions of the tuple no recorded run has bound yet. */
 export function listUnboundConformanceTupleDimensions(
   tuple: ConformanceSupportTuple,
 ): ConformanceSupportTupleDimension[] {
-  const unbound: ConformanceSupportTupleDimension[] = [];
-  if (tuple.scenario === null) {
-    unbound.push("scenario");
-  }
-  if (tuple.modelOrProvider === null) {
-    unbound.push("modelOrProvider");
-  }
-  if (tuple.runtime === null) {
-    unbound.push("runtime");
-  }
-  return unbound;
+  return CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS.filter((dimension) => {
+    const value = tuple[dimension];
+    return typeof value !== "string" || value.trim().length === 0 || value === "*";
+  });
 }
 
-export function isConformanceTupleBound(tuple: ConformanceSupportTuple): boolean {
-  return listUnboundConformanceTupleDimensions(tuple).length === 0;
-}
-
-/**
- * Canonical tuple identity: the eight dimension values in contract order
- * joined with `/`, unbound dimensions spelled `~`. Deterministic, so the
- * registry can enforce one entry per exact tuple.
- */
+/** Canonical active tuple identity in the fixed seven-field order. */
 export function conformanceTupleKey(tuple: ConformanceSupportTuple): string {
-  return CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS.map(
-    (dimension) => tuple[dimension] ?? "~",
-  ).join("/");
+  const missing = listUnboundConformanceTupleDimensions(tuple);
+  if (missing.length > 0) {
+    throw new OperationError(`Active conformance tuple has empty or wildcard fields: ${missing.join(", ")}.`);
+  }
+  assertConformanceTupleCombination(tuple);
+  return CONFORMANCE_SUPPORT_TUPLE_DIMENSIONS.map((dimension) => tuple[dimension]).join("/");
 }

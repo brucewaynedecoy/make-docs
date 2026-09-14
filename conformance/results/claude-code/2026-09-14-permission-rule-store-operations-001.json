@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "conformance.result.v2",
+  "resultId": "2026-09-14-claude-code-permission-rules-001",
+  "scenarioVersion": "2.0.0",
+  "tuple": {
+    "scenario": "setup-access/permission-rule-store-operations",
+    "harness": "claude-code",
+    "connectionMethod": "permission-rules",
+    "surface": "cli-permission-rules",
+    "scope": "machine",
+    "modelOrProvider": "anthropic:claude-sonnet-5",
+    "runtime": "node-v24.19.0-darwin-arm64"
+  },
+  "runDate": "2026-09-14",
+  "makeDocsVersion": "2.0.0-rc",
+  "executablePath": "/tmp/make-docs-conformance-lab/2026-09-14-claude-permission-record/product/node_modules/@brucewaynedecoy/make-docs/dist/index.js",
+  "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "registryDigest": "a76ddb2c10b973e6efa66b7824b8e672947754d5051948a2310e0944d719cde8",
+  "distributionType": "packed-npm",
+  "harnessVersion": "claude-code-2.1.258",
+  "nativeConfigDigest": "0b8c298b4553ea7e696a1cd62411cba1578be9584a82a0c9aaf35a987850062e",
+  "producedFiles": [
+    ".claude/settings.json"
+  ],
+  "relevantDiffs": [
+    "sha256:5130bcff5af1f910db3c75c35c53558480e012cdba795d185bb10927ff727270 permission-rule transcript",
+    "sha256:6576de7f3a59ea8a71e0030653b9486f32f3495f827935004ef693bdbc859d17 Store sentinel denial transcript",
+    "sha256:063409aac8fd2da08e92e62c35b3e55505ace84bd8b8fabaa414d08c6181f91d cleanup evidence"
+  ],
+  "exitStatus": 1,
+  "transcriptLogPointer": "discarded-with-session",
+  "verdict": "unsupported",
+  "reason": "Claude Code 2.1.258 matched the exact generated permission rule and ran its allowlisted command. It blocked a non-allowlisted command. The allowlisted command had no trustworthy launch identity, so Make Docs denied Store access. Claude Code also denied direct Read access to a harmless Store sentinel. This is the A35 permitted unavailable result.",
+  "caveats": [
+    "Claude Code ran the exact allowlisted command and blocked the non-allowlisted command. It did not supply a trustworthy launch identity or grant narrow Store file access. Make Docs therefore denied Store reads and writes under the A35 exception."
+  ],
+  "reviewerStatus": "reviewed",
+  "supportClaimUse": "none",
+  "caveatsSurfaced": true,
+  "evidenceBar": {
+    "install": false,
+    "discover": true,
+    "invoke": false,
+    "uninstall": true
+  },
+  "simulated": false,
+  "simulationMechanicsRef": null,
+  "transcriptFormat": "json",
+  "evidenceReferences": [
+    "sha256:5130bcff5af1f910db3c75c35c53558480e012cdba795d185bb10927ff727270 permission-rule transcript",
+    "sha256:6576de7f3a59ea8a71e0030653b9486f32f3495f827935004ef693bdbc859d17 Store sentinel denial transcript",
+    "sha256:063409aac8fd2da08e92e62c35b3e55505ace84bd8b8fabaa414d08c6181f91d cleanup evidence"
+  ]
+}

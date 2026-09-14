@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, readFileSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -36,6 +37,18 @@ syncDir(
   path.join(repoRoot, "packages", "cli", "template"),
 );
 
+const rootRegistry = path.join(repoRoot, "conformance", "tuple-registry.json");
+const packagedRegistry = path.join(repoRoot, "packages", "cli", "conformance", "tuple-registry.json");
+validateJsonFile(rootRegistry, "root conformance tuple registry");
+mkdirSync(path.dirname(packagedRegistry), { recursive: true });
+cpSync(rootRegistry, packagedRegistry);
+const rootRegistryDigest = sha256(readFileSync(rootRegistry));
+const packagedRegistryDigest = sha256(readFileSync(packagedRegistry));
+if (rootRegistryDigest !== packagedRegistryDigest) {
+  throw new Error("Packaged conformance tuple registry does not match the root source.");
+}
+console.error(`Copied conformance registry with digest ${rootRegistryDigest}`);
+
 validateJsonFile(
   path.join(repoRoot, "packages", "cli", "skill-registry.json"),
   "CLI skill registry",
@@ -54,4 +67,8 @@ function validateJsonFile(filePath, label) {
     console.error(error);
     process.exit(1);
   }
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }

@@ -11,6 +11,8 @@
  * Usage (from the repo root):
  *   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install [--target codex] [--session-root <dir>] [--force] [--disambiguator <slug>]
  *   npm run conformance:kit -- --first-pass-suite [--target codex] [--sessions-root <dir>] [--force] [--disambiguator <slug>]
+ *   npm run conformance:kit -- --scenario setup-access/mcp-store-operations --harness codex --connection-method mcp --model-or-provider <value> --runtime <value> --harness-version <value> --packed-product <file.tgz> --session-root <disposable-dir>
+ *   npm run conformance:kit -- --cleanup-session <disposable-session/manifest.json>
  *
  * Regenerating the same scenario+target on the same day reuses the same
  * deterministic session id, so the default root collides (R-KIT-2). To iterate
@@ -23,6 +25,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  bootstrapSetupAccessLabSession,
+  cleanupSetupAccessLabSession,
   REQUIRED_FIRST_PASS_TARGET,
   defaultConformanceSessionRoot,
   generateConformanceKit,
@@ -30,6 +34,9 @@ import {
   loadPackagingConformanceScenarioSpec,
   mintConformanceLabSessionId,
   splitConformanceScenarioId,
+  type ConformanceScenarioFamily,
+  type ConformanceTupleConnectionMethod,
+  type ConformanceTupleHarness,
 } from "../src/conformance";
 
 interface CliArguments {
@@ -41,6 +48,13 @@ interface CliArguments {
   repoRoot: string;
   force: boolean;
   disambiguator: string | null;
+  harness: string | null;
+  connectionMethod: string | null;
+  modelOrProvider: string | null;
+  runtime: string | null;
+  harnessVersion: string | null;
+  packedProduct: string | null;
+  cleanupSession: string | null;
 }
 
 /**
@@ -61,6 +75,13 @@ function parseArguments(argv: string[]): CliArguments {
     repoRoot: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".."),
     force: false,
     disambiguator: null,
+    harness: null,
+    connectionMethod: null,
+    modelOrProvider: null,
+    runtime: null,
+    harnessVersion: null,
+    packedProduct: null,
+    cleanupSession: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!;
@@ -97,18 +118,73 @@ function parseArguments(argv: string[]): CliArguments {
       case "--disambiguator":
         parsed.disambiguator = next();
         break;
+      case "--harness":
+        parsed.harness = next();
+        break;
+      case "--connection-method":
+        parsed.connectionMethod = next();
+        break;
+      case "--model-or-provider":
+        parsed.modelOrProvider = next();
+        break;
+      case "--runtime":
+        parsed.runtime = next();
+        break;
+      case "--harness-version":
+        parsed.harnessVersion = next();
+        break;
+      case "--packed-product":
+        parsed.packedProduct = path.resolve(INVOCATION_CWD, next());
+        break;
+      case "--cleanup-session":
+        parsed.cleanupSession = path.resolve(INVOCATION_CWD, next());
+        break;
       default:
         throw new Error(`Unknown argument: ${argument}`);
     }
   }
+  if (parsed.cleanupSession) {
+    if (parsed.firstPassSuite || parsed.scenario !== null || argv.length !== 2) {
+      throw new Error("Pass `--cleanup-session <manifest>` by itself.");
+    }
+    return parsed;
+  }
   if (parsed.firstPassSuite === (parsed.scenario !== null)) {
     throw new Error("Pass exactly one of --scenario <domain/outcome> or --first-pass-suite.");
+  }
+  if (parsed.scenario?.startsWith("setup-access/")) {
+    const missing = [
+      ["--harness", parsed.harness],
+      ["--connection-method", parsed.connectionMethod],
+      ["--model-or-provider", parsed.modelOrProvider],
+      ["--runtime", parsed.runtime],
+      ["--harness-version", parsed.harnessVersion],
+      ["--packed-product", parsed.packedProduct],
+      ["--session-root", parsed.sessionRoot],
+    ].filter(([, value]) => !value).map(([flag]) => flag);
+    if (missing.length > 0) {
+      throw new Error(`Setup-access bootstrap requires ${missing.join(", ")}.`);
+    }
+    if (parsed.force || parsed.disambiguator || parsed.sessionsRoot) {
+      throw new Error("Setup-access bootstrap accepts one new empty session root. It does not accept --force, --disambiguator, or --sessions-root.");
+    }
   }
   return parsed;
 }
 
 async function main(): Promise<void> {
   const args = parseArguments(process.argv.slice(2));
+  if (args.cleanupSession) {
+    const cleaned = cleanupSetupAccessLabSession({
+      manifestPath: args.cleanupSession,
+      repoRoot: args.repoRoot,
+    });
+    process.stdout.write("Cleaned setup-access lab session:\n");
+    process.stdout.write(`- cleanup evidence: ${cleaned.cleanupPath}\n`);
+    process.stdout.write(`- native entry removed: ${String(cleaned.nativeEntryRemoved)}\n`);
+    process.stdout.write(`- user content preserved: ${String(cleaned.userContentPreserved)}\n`);
+    return;
+  }
   const sessionDate = new Date().toISOString().slice(0, 10);
   if (args.firstPassSuite) {
     const sessionsRoot =
@@ -128,6 +204,25 @@ async function main(): Promise<void> {
     return;
   }
   const scenarioId = args.scenario!;
+  if (scenarioId.startsWith("setup-access/")) {
+    const lab = await bootstrapSetupAccessLabSession({
+      scenario: scenarioId as ConformanceScenarioFamily,
+      harness: args.harness as ConformanceTupleHarness,
+      connectionMethod: args.connectionMethod as ConformanceTupleConnectionMethod,
+      modelOrProvider: args.modelOrProvider!,
+      runtime: args.runtime!,
+      harnessVersion: args.harnessVersion!,
+      packedProduct: args.packedProduct!,
+      sessionRoot: args.sessionRoot!,
+      repoRoot: args.repoRoot,
+    });
+    process.stdout.write(`Bootstrapped setup-access lab session:\n`);
+    process.stdout.write(`- session root: ${lab.manifest.session.root}\n`);
+    process.stdout.write(`- manifest: ${lab.manifestPath}\n`);
+    process.stdout.write(`- measurements: ${lab.measurementsPath}\n`);
+    process.stdout.write("- support status: unchanged; no result was written\n");
+    return;
+  }
   const { outcome } = splitConformanceScenarioId(scenarioId);
   const sessionId = mintConformanceLabSessionId({
     date: sessionDate,

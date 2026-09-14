@@ -63,7 +63,7 @@ Use `make-docs setup reconfigure` when you want to review an expansion to the fu
 
 Harness detection is a useful hint. It is not proof that a harness can use Make Docs. Setup can show a harness as detected, configured, drifted, blocked, or unsupported.
 
-The current build supports no Store-backed harness connection method. Exact real-harness conformance evidence is still missing. Codex and Claude Code methods stay unavailable or experimental until that evidence exists. You can always select `none`.
+The registry contains passing real-harness evidence for Claude Code MCP. It also contains passing evidence for Store-free resource reads from Claude Code. Normal setup cannot select Claude Code MCP yet because it does not have an accepted way to get the exact local harness version, model, and runtime facts. Codex methods and Claude Code permission rules also stay unavailable because their exact real-harness proof did not pass. You can always select `none`.
 
 Choosing `none` makes no native harness change. You can still use project routers, optional Skills, and Store-free resource commands.
 
@@ -131,6 +131,8 @@ The repeat keeps the valid computer state. It resumes the incomplete project sco
 
 ## Current Support Limit
 
-No Codex or Claude Code connection method has the exact real-harness evidence that Make Docs requires for a support claim. This limit blocks the method label. It does not block project setup, Skills, or Store-free resource reads.
+Claude Code MCP has the exact real-harness evidence that Make Docs requires for a support claim. Normal setup still keeps it unavailable because setup cannot yet get the exact local harness version, model, and runtime facts. Make Docs does not use a wildcard or an assumed value to pass this check.
+
+Codex MCP, Codex command rules, and Codex Store-free resource reads need an authenticated disposable Codex session before their proof can finish. Claude Code permission rules remain unavailable because the narrow Store access check did not pass. These limits do not block project setup, Skills, or Store-free resource reads.
 
 Use [Maintaining Setup and Harness Access](../maintainer/cli-maintaining-setup-and-harness-access.md) for the evidence and release gates that can change this limit.

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "conformance.result.v2",
+  "resultId": "2026-09-14-claude-code-mcp-001",
+  "scenarioVersion": "2.0.0",
+  "tuple": {
+    "scenario": "setup-access/mcp-store-operations",
+    "harness": "claude-code",
+    "connectionMethod": "mcp",
+    "surface": "mcp",
+    "scope": "machine",
+    "modelOrProvider": "anthropic:claude-sonnet-5",
+    "runtime": "node-v24.19.0-darwin-arm64"
+  },
+  "runDate": "2026-09-14",
+  "makeDocsVersion": "2.0.0-rc",
+  "executablePath": "/tmp/make-docs-conformance-lab/2026-09-14-claude-mcp-accepted/product/node_modules/@brucewaynedecoy/make-docs/dist/index.js",
+  "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "registryDigest": "ebdb02cb3a17fe5f064d8cc02a0cef62819c500a463e41620baabdced54ff1f8",
+  "distributionType": "packed-npm",
+  "harnessVersion": "claude-code-2.1.258",
+  "nativeConfigDigest": "d1151cefc5cda565c5d3007e8f506e2c893687ae9e3e33f50b6683a0d190b4e8",
+  "producedFiles": [
+    ".claude.json"
+  ],
+  "relevantDiffs": [
+    "sha256:8ac7593eb570157ec466c23b6dcb2e0d18958b121e1d48fcc235205a771d1620 Claude Code MCP transcript",
+    "sha256:4d736482d43a3ff1b0f6cd7c00f8a7b959fa84b92c0a15108854277689ba1d13 native receipt",
+    "sha256:1eceb9f6831353ad832e0b323b0bf1d542f94bd6233c1881461c40992401cffd cleanup evidence"
+  ],
+  "exitStatus": 0,
+  "transcriptLogPointer": "discarded-with-session",
+  "verdict": "pass",
+  "reason": "The Claude Code 2.1.258 transcript shows the exact claude-sonnet-5 model, the native Make Docs MCP tool surface, a rejected write without allowWrite, a successful lifecycle Store write with allowWrite, and a successful Store read. Cleanup evidence confirms exact native removal and user-content preservation.",
+  "caveats": [],
+  "reviewerStatus": "reviewed",
+  "supportClaimUse": "nominal-tuple",
+  "caveatsSurfaced": false,
+  "evidenceBar": {
+    "install": true,
+    "discover": true,
+    "invoke": true,
+    "uninstall": true
+  },
+  "simulated": false,
+  "simulationMechanicsRef": null,
+  "transcriptFormat": "json",
+  "evidenceReferences": [
+    "sha256:8ac7593eb570157ec466c23b6dcb2e0d18958b121e1d48fcc235205a771d1620 Claude Code MCP transcript",
+    "sha256:4d736482d43a3ff1b0f6cd7c00f8a7b959fa84b92c0a15108854277689ba1d13 native receipt",
+    "sha256:1eceb9f6831353ad832e0b323b0bf1d542f94bd6233c1881461c40992401cffd cleanup evidence"
+  ]
+}

@@ -20,9 +20,9 @@ import {
   canonicalJson,
   encodeHarnessCallerIdentity,
   fingerprintEntry,
+  reverifyMakeDocsExecutableIdentity,
   sha256,
   validateHarnessCommandRules,
-  verifyMakeDocsExecutable,
   type HarnessAccessPlan,
   type HarnessAccessReceipt,
   type HarnessAdapter,
@@ -1726,10 +1726,7 @@ function validateExecutableIdentity(executable: VerifiedExecutableIdentity): voi
   if (bytes.byteLength !== executable.size || sha256(bytes) !== executable.sha256) {
     throw new Error("The verified Make Docs executable changed after verification.");
   }
-  const verified = verifyMakeDocsExecutable({
-    executablePath: executable.path,
-    expectedSha256: executable.sha256,
-  });
+  const verified = reverifyMakeDocsExecutableIdentity(executable);
   if (
     verified.productMarker !== executable.productMarker ||
     verified.packageName !== executable.packageName ||

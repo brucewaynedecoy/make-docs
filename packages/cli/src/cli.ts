@@ -13,8 +13,11 @@ import {
 import {
   getConfigRenderingLabels,
   loadMakeDocsConfigOrThrow,
+  planProjectHarnessIntegrationWrite,
   type MakeDocsConfig,
+  type ProjectHarnessIntegrationRecord,
 } from "./config";
+import type { HarnessMethodSelection } from "./harness-access";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -95,6 +98,9 @@ interface ParsedArgs {
   noWork: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
+  codexMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "command-rules">;
+  claudeCodeMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "permission-rules">;
+  json: boolean;
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
@@ -204,16 +210,26 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   if (parsed.setupSubcommand === "system") {
     const { runSystemSetupCommand } = await import("./setup-system");
-    await runSystemSetupCommand({
+    const result = await runSystemSetupCommand({
       dryRun: parsed.dryRun,
       yes: parsed.yes,
-      promptForMethods: true,
+      promptForMethods: !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY),
       targetRoot: path.resolve(parsed.targetDir ?? process.cwd()),
-      harnesses: {
-        "claude-code": !parsed.noClaudeCode,
-        codex: !parsed.noCodex,
+      methods: {
+        ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
+        ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
       },
+      harnesses: {
+        "claude-code": parsed.claudeCodeMethod !== undefined || !parsed.noClaudeCode,
+        codex: parsed.codexMethod !== undefined || !parsed.noCodex,
+      },
+      ...(!parsed.json && output.isTTY ? { onReview: (review: string) => note(review, "This computer") } : {}),
     });
+    if (parsed.json || !output.isTTY) {
+      output.write(`${JSON.stringify(result)}\n`);
+    } else {
+      output.write(renderSystemSetupResult(result));
+    }
     return;
   }
 
@@ -326,7 +342,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  const interactive = !parsed.yes;
+  const jsonOutput = parsed.json || !output.isTTY;
+  const interactive = !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY);
 
   if (
     freshInstallTarget &&
@@ -375,10 +392,6 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  if (interactive && (!input.isTTY || !output.isTTY)) {
-    throw new Error("Interactive prompts require a TTY. Use --yes for non-interactive runs.");
-  }
-
   const resolvedSelections = resolveSelections({ parsed, existingManifest });
   const installationStatus = readInstallationStatus(targetDir, resolveStoreRoot());
   const projectState = freshInstallTarget
@@ -405,16 +418,37 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
     installIntent,
   });
+  let interactiveMethodSelections: Partial<Record<"codex" | "claude-code", HarnessMethodSelection>> = {};
 
   if (interactive) {
-    const { inspectSystemHarnesses } = await import("./setup-system");
+    const { inspectSystemHarnesses, promptForSystemSetupMethods } = await import("./setup-system");
     const harnessSupport = inspectSystemHarnesses();
+    const afterHarnessSelection = async (wizardSelections: InstallSelections): Promise<boolean> => {
+      interactiveMethodSelections = await promptForSystemSetupMethods({
+        dryRun: false,
+        yes: false,
+        promptForMethods: true,
+        methods: {
+          ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
+          ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
+        },
+        harnesses: {
+          codex: wizardSelections.harnesses.codex,
+          "claude-code": wizardSelections.harnesses["claude-code"],
+        },
+        projectHarnessIntegrations: makeDocsConfig.harnessIntegrations,
+        targetRoot: targetDir,
+        persistIntent: false,
+      });
+      return true;
+    };
     if (!existingManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
         projectState: "fresh",
         harnessSupport,
+        afterHarnessSelection,
         config: makeDocsConfig,
         ...(parsed.skillsManifest
           ? { skillRegistry: effectiveSkillRegistry.registry }
@@ -441,6 +475,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         projectState,
         allowCapabilityExpansion: installIntent === "reconfigure",
         harnessSupport,
+        afterHarnessSelection,
         config: makeDocsConfig,
         ...(parsed.skillsManifest
           ? { skillRegistry: effectiveSkillRegistry.registry }
@@ -473,7 +508,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const systemOptions = {
     dryRun: parsed.dryRun,
     yes: parsed.yes,
-    promptForMethods: true,
+    promptForMethods: interactive && Object.keys(interactiveMethodSelections).length === 0,
+    methods: {
+      ...interactiveMethodSelections,
+      ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
+      ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
+    },
     harnesses: {
       "claude-code": selections.harnesses["claude-code"],
       codex: selections.harnesses.codex,
@@ -484,11 +524,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   };
   const resumedSystemSetup = await resumePendingSystemSetupCommand(systemOptions);
   if (resumedSystemSetup) {
-    output.write(
-      resumedSystemSetup.status === "configured"
-        ? "Pending machine setup is now verified. Run `make-docs setup` again for one current computer and project review.\n"
-        : `Setup stopped at machine scope. ${resumedSystemSetup.recoveryAction ?? "Run `make-docs setup system` to review the machine state."}\n`,
-    );
+    if (jsonOutput) {
+      writeCanonicalSetupResult({ status: resumedSystemSetup.status === "configured" ? "machine-recovered" : "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, system: resumedSystemSetup, projectChanged: false, projectActions: [], failedCondition: resumedSystemSetup.blocked[0]?.reason ?? null, nextAction: resumedSystemSetup.recoveryAction });
+    } else output.write(
+        resumedSystemSetup.status === "configured"
+          ? "Pending machine setup is now verified. Run `make-docs setup` again for one current computer and project review.\n"
+          : `Setup stopped at machine scope. ${resumedSystemSetup.recoveryAction ?? "Review the pending machine state."}\n`,
+      );
     return;
   }
   const preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
@@ -529,11 +571,32 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     throw new Error("At least one capability must remain enabled.");
   }
 
-  const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
+  const reviewedHarnessIntegrations = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
+    .filter(harness => selections.harnesses[harness])
+    .map((harness): ProjectHarnessIntegrationRecord => {
+      const method = preparedSystemSetup.selections[harness];
+      if (method === "none") return { harness, mode: "disable" };
+      const accessCeiling = preparedSystemSetup.intent.config.settings.harnesses[harness]?.accessCeiling;
+      if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
+      return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
+    });
+  const plannedConfigValue = plan.actions.find(action =>
+    action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
+  )?.content ?? "{}\n";
+  const plannedConfigContent = typeof plannedConfigValue === "string"
+    ? plannedConfigValue
+    : Buffer.from(plannedConfigValue).toString("utf8");
+  let projectHarnessConfig = planProjectHarnessIntegrationWrite({
+    targetDir,
+    reviewed: reviewedHarnessIntegrations,
+    contentWhenMissing: plannedConfigContent,
+  });
+
+  const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
   const requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
   const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
-  note(preparedSystemSetup.review, "This computer");
-  printPlan({
+  if (!jsonOutput) note(preparedSystemSetup.review, "This computer");
+  if (!jsonOutput) printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
     existingManifest,
@@ -548,19 +611,23 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     selectedCapabilities: plan.profile.effectiveCapabilities,
     stops: plan.stops ?? [],
   });
+  if (!jsonOutput && projectHarnessConfig.changed) {
+    output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
+  }
 
   const blockedSystemPlans = preparedSystemSetup.plans.filter(
     (systemPlan) => systemPlan.status === "blocked" || systemPlan.status === "unsupported",
   );
   if (blockedSystemPlans.length > 0) {
-    output.write(
-      "Setup stopped at machine scope. Review the blocked harness details, then run `make-docs setup system` again.\n",
-    );
+    const failedCondition = blockedSystemPlans.map(item => `${item.harness}: ${item.detail}`).join("; ");
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition, nextAction: blockedSystemPlans[0]?.detail ?? null });
+    else output.write(`Setup stopped at machine scope. ${failedCondition}\n`);
     return;
   }
 
   if (parsed.dryRun) {
-    output.write("\nDry run complete.\n");
+    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed ? "Run setup with the same choices and --yes to apply this plan." : null });
+    else output.write("\nDry run complete.\n");
     return;
   }
 
@@ -609,22 +676,21 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (!systemApproved) {
-    output.write("Machine setup was not approved. No system or project files were changed.\n");
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
+    else output.write("Machine setup was not approved. No system or project files were changed.\n");
     return;
   }
 
   const systemSetup = await applyPreparedSystemSetup(preparedSystemSetup);
   if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    output.write(
-      `Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Run `make-docs setup system` to review the machine state."}\n`,
-    );
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
+    else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
     return;
   }
 
   if (!projectApproved) {
-    output.write(
-      "This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n",
-    );
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
+    else output.write("This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n");
     return;
   }
 
@@ -632,6 +698,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   if (legacyState.sources.length) {
     const imported = importLegacyInstallationState(targetDir, storeRoot);
     existingManifest = loadManifest(targetDir);
+    projectHarnessConfig = planProjectHarnessIntegrationWrite({
+      targetDir,
+      reviewed: reviewedHarnessIntegrations,
+      contentWhenMissing: plannedConfigContent,
+    });
     if (imported.recoveryRequired) {
       throw new Error("Legacy state was transferred. A pending operation requires review. Run `make-docs project state status` before a new mutation.");
     }
@@ -654,11 +725,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
           compatibility: compatibilityClassification,
           installPlan: plan,
           existingManifest,
+          projectHarnessConfig,
         })
       : applyInstallPlan({
           targetDir,
           plan,
           existingManifest,
+          projectHarnessConfig,
         });
   } catch (error) {
     if (systemSetup.status === "configured" || systemSetup.status === "unchanged") {
@@ -680,7 +753,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  if (hasInstallMutation) {
+  if (hasInstallMutation && !jsonOutput) {
     writeApplyCompletionSummary({
       existingManifest,
       installIntent,
@@ -689,11 +762,15 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     });
   }
 
-  if (applied.conflictFiles.length > 0) {
+  if (applied.conflictFiles.length > 0 && !jsonOutput) {
     output.write("Conflicts were staged for manual review:\n");
     for (const conflictFile of applied.conflictFiles) {
       output.write(`- ${conflictFile}\n`);
     }
+  }
+
+  if (jsonOutput) {
+    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
   }
 
 
@@ -873,6 +950,12 @@ function resolveSelections(options: {
   if (parsed.noClaudeCode) {
     selections.harnesses["claude-code"] = false;
   }
+  if (parsed.codexMethod !== undefined) {
+    selections.harnesses.codex = true;
+  }
+  if (parsed.claudeCodeMethod !== undefined) {
+    selections.harnesses["claude-code"] = true;
+  }
   if (parsed.noSkills) {
     selections.skills = false;
     selections.selectedSkills = [];
@@ -942,6 +1025,8 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noWork ||
       parsed.noCodex ||
       parsed.noClaudeCode ||
+      parsed.codexMethod !== undefined ||
+      parsed.claudeCodeMethod !== undefined ||
       parsed.noSkills ||
       parsed.skillsManifest ||
       parsed.skillScope ||
@@ -1017,6 +1102,12 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.noClaudeCode) {
     flags.push("--no-claude-code");
   }
+  if (parsed.codexMethod !== undefined) {
+    flags.push("--codex-method");
+  }
+  if (parsed.claudeCodeMethod !== undefined) {
+    flags.push("--claude-code-method");
+  }
   if (parsed.noSkills) {
     flags.push("--no-skills");
   }
@@ -1049,6 +1140,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     noWork: false,
     noCodex: false,
     noClaudeCode: false,
+    json: false,
     noSkills: false,
     runArgs: [],
   };
@@ -1137,6 +1229,9 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--yes":
         parsed.yes = true;
         break;
+      case "--json":
+        parsed.json = true;
+        break;
       case "--help":
       case "-h":
         parsed.help = true;
@@ -1167,6 +1262,22 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-claude":
         parsed.noClaudeCode = true;
         break;
+      case "--codex-method": {
+        const value = args.shift();
+        if (value !== "none" && value !== "mcp" && value !== "command-rules") {
+          throw new Error("`--codex-method` must be none, mcp, or command-rules.");
+        }
+        parsed.codexMethod = value;
+        break;
+      }
+      case "--claude-code-method": {
+        const value = args.shift();
+        if (value !== "none" && value !== "mcp" && value !== "permission-rules") {
+          throw new Error("`--claude-code-method` must be none, mcp, or permission-rules.");
+        }
+        parsed.claudeCodeMethod = value;
+        break;
+      }
       case "--no-skills":
         parsed.noSkills = true;
         break;
@@ -1366,7 +1477,75 @@ function describeParsedCommand(parsed: ParsedArgs): string {
     : `\`make-docs ${parsed.command}\``;
 }
 
+function renderSystemSetupResult(result: import("./setup-system").SystemSetupResult): string {
+  const lines = [
+    `Machine setup: ${result.status}.`,
+    `Codex method: ${result.selections.codex}.`,
+    `Claude Code method: ${result.selections["claude-code"]}.`,
+  ];
+  for (const blocked of result.blocked) {
+    lines.push(`${blocked.harness}: ${blocked.reason}`);
+    lines.push(`Next: ${blocked.nextAction}`);
+  }
+  if (result.recoveryAction && result.blocked.length === 0) lines.push(`Next: ${result.recoveryAction}`);
+  return `${lines.join("\n")}\n`;
+}
+
+function writeCanonicalSetupResult(input: {
+  status: "planned" | "complete" | "blocked" | "machine-recovered";
+  dryRun: boolean;
+  targetRoot: string;
+  prepared?: import("./setup-system").PreparedSystemSetup;
+  system?: import("./setup-system").SystemSetupResult;
+  projectChanged: boolean;
+  projectActions: readonly PlannedAction[];
+  failedCondition: string | null;
+  nextAction: string | null;
+}): void {
+  const selections = input.system?.selections ?? input.prepared?.selections ?? { codex: "none", "claude-code": "none" };
+  const plans = input.prepared?.plans ?? [];
+  output.write(`${JSON.stringify({
+    schemaVersion: 2,
+    operation: "setup",
+    status: input.status,
+    dryRun: input.dryRun,
+    targetRoot: input.targetRoot,
+    machine: {
+      selections,
+      states: plans.map(plan => ({
+        harness: plan.harness,
+        method: plan.method,
+        state: plan.status,
+        attemptedWork: [...plan.operations],
+        mutationState: plan.changed ? (input.dryRun ? "planned" : "applied") : "none",
+        detail: plan.detail,
+      })),
+      configured: input.system?.configured ?? [],
+    },
+    project: {
+      changed: input.projectChanged,
+      mutationState: input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none",
+      actions: input.projectActions.map(action => ({ path: action.relativePath, action: action.type })),
+    },
+    failedCondition: input.failedCondition,
+    nextAction: input.nextAction,
+  })}\n`);
+}
+
 function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.codexMethod !== undefined && parsed.noCodex) {
+    throw new Error("`--codex-method` cannot be combined with `--no-codex`.");
+  }
+  if (parsed.claudeCodeMethod !== undefined && parsed.noClaudeCode) {
+    throw new Error("`--claude-code-method` cannot be combined with `--no-claude-code`.");
+  }
+  if ((parsed.codexMethod !== undefined || parsed.claudeCodeMethod !== undefined) &&
+      (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
+    throw new Error("Harness method flags are valid only with setup, setup reconfigure, or setup system.");
+  }
+  if (parsed.json && (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
+    throw new Error("`--json` is valid only with setup, setup reconfigure, or setup system.");
+  }
   // Bare invocation is context-aware status/guided-setup only (R-BARE-1);
   // install and sync options belong to `setup`.
   if (parsed.command === undefined) {
@@ -1869,10 +2048,13 @@ function writeApplyCompletionSummary(options: {
 const SETUP_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
-  --yes                          Skip interactive prompts.
+  --yes                          Approve a fully specified non-interactive plan.
+  --json                         Emit only the canonical setup result JSON.
   --help, -h                     Show help for this command.
 
 Harness options:
+  --codex-method <none|mcp|command-rules>
+  --claude-code-method <none|mcp|permission-rules>
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
   Deprecated aliases: --no-agents, --no-claude
@@ -1894,7 +2076,8 @@ reconfigure to review a later project-surface change.`;
 const RECONFIGURE_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
-  --yes                          Skip interactive prompts.
+  --yes                          Approve a fully specified non-interactive plan.
+  --json                         Emit only the canonical setup result JSON.
   --help, -h                     Show help for this command.
 
 Content options:
@@ -1904,6 +2087,8 @@ Content options:
   --no-work                      Skip docs/work scaffolding.
 
 Harness options:
+  --codex-method <none|mcp|command-rules>
+  --claude-code-method <none|mcp|permission-rules>
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
   Deprecated aliases: --no-agents, --no-claude
@@ -1933,14 +2118,16 @@ Options:
   --target <path>                Bind Store recovery state to this project path.
   --dry-run                      Show This computer changes without writing files.
   --yes                          Approve the reviewed machine changes.
+  --json                         Emit only the canonical setup result JSON.
+  --codex-method <none|mcp|command-rules>
+  --claude-code-method <none|mcp|permission-rules>
   --no-codex                     Skip Codex support.
   --no-claude-code               Skip Claude Code support.
   --help, -h                     Show help for this command.
 
 Examples:
-  make-docs setup system --dry-run
-  make-docs setup system --yes
-  make-docs setup system --no-claude-code --dry-run
+  make-docs setup system --codex-method mcp --claude-code-method none --dry-run
+  make-docs setup system --codex-method command-rules --no-claude-code --yes
 `);
         return;
       case "reconfigure":

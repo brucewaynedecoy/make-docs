@@ -5,7 +5,7 @@
  * Ingestion closes the loop from a driven lab session to the tuple registry.
  * It is where "the agent drives, the instruments measure" becomes
  * ENFORCEABLE: each asserted bar-stage boolean on the assembled
- * `conformance.result.v1` record derives SOLELY from that stage's instrument
+ * `conformance.result.v2` record derives SOLELY from that stage's instrument
  * outputs, validated against the session manifest's expected-evidence table.
  * A missing or failed instrument output yields `false` for that stage — there
  * is no narrative rescue. Everything the driving agent or human contributes —
@@ -89,6 +89,19 @@ export const CONFORMANCE_INGESTION_PROVENANCE_SCHEMA_VERSION =
  * true (PRD 44 R-EXEC-2).
  */
 export interface ConformanceOperatorAttestations {
+  connectionMethod: "mcp" | "command-rules" | "permission-rules" | "direct-cli";
+  surface: "mcp" | "cli-command-rules" | "cli-permission-rules" | "cli-resource";
+  scope: "machine" | "project";
+  modelOrProvider: string;
+  runtime: string;
+  executablePath: string;
+  executableDigest: string;
+  behaviorDigest: string;
+  registryDigest: string;
+  distributionType: "packed-npm" | "workspace-build";
+  harnessVersion: string;
+  nativeConfigDigest: string;
+  evidenceReferences: string[];
   /** Run metadata: the model the harness routed to (or `unknown` if none reached). */
   modelName: string;
   providerOrRoutingLayer: string;
@@ -526,7 +539,7 @@ export interface IngestConformanceLabSessionInput {
 }
 
 /**
- * Assembles a `conformance.result.v1` record from a driven lab session, with
+ * Assembles a `conformance.result.v2` record from a driven lab session, with
  * every asserted bar-stage boolean derived SOLELY from instrument outputs and
  * every operator contribution recorded as an attestation (R-ING-1, R-EXEC-1..2).
  * Preconditions unmet at the operator's report resolve to an honest `blocked`
@@ -608,12 +621,26 @@ export function ingestConformanceLabSession(
     const record = validatePackagingConformanceResultRecord(
       blockedPackagingResultRecord({
         spec,
-        harness,
+        tuple: {
+          scenario: spec.scenarioId as import("./tuple").ConformanceSupportTuple["scenario"],
+          harness: harness as import("./tuple").ConformanceSupportTuple["harness"],
+          connectionMethod: operator.connectionMethod,
+          surface: operator.surface,
+          scope: operator.scope,
+          modelOrProvider: operator.modelOrProvider,
+          runtime: operator.runtime,
+        },
         unmet,
         runDate,
         makeDocsVersion: manifest.generationInputs.cliVersion,
-        runtimeDistribution: operator.runtimeDistribution,
-        runtimeVersion: operator.runtimeVersion,
+        executablePath: operator.executablePath,
+        executableDigest: operator.executableDigest,
+        behaviorDigest: operator.behaviorDigest,
+        registryDigest: operator.registryDigest,
+        distributionType: operator.distributionType,
+        harnessVersion: operator.harnessVersion,
+        nativeConfigDigest: operator.nativeConfigDigest,
+        evidenceReferences: operator.evidenceReferences,
         transcriptLogPointer,
       }),
     );
@@ -634,9 +661,9 @@ export function ingestConformanceLabSession(
         caveat: null,
       })),
       attested: {
-        modelName: record.modelName,
-        providerOrRoutingLayer: record.providerOrRoutingLayer,
-        modelVersion: record.modelVersion,
+        modelName: operator.modelName,
+        providerOrRoutingLayer: operator.providerOrRoutingLayer,
+        modelVersion: operator.modelVersion,
         runtimeDistribution: operator.runtimeDistribution,
         runtimeVersion: operator.runtimeVersion,
         attestedPreconditionIds: [...operator.attestedPreconditionIds],
@@ -741,16 +768,25 @@ export function ingestConformanceLabSession(
   const record = validatePackagingConformanceResultRecord({
     schemaVersion: CONFORMANCE_RESULT_SCHEMA_VERSION,
     resultId: `${runDate}-${outcome}-${String(input.sequence ?? 1).padStart(3, "0")}`,
-    scenarioId: spec.scenarioId,
     scenarioVersion: spec.scenarioVersion,
+    tuple: {
+      scenario: spec.scenarioId as import("./tuple").ConformanceSupportTuple["scenario"],
+      harness: harness as import("./tuple").ConformanceSupportTuple["harness"],
+      connectionMethod: operator.connectionMethod,
+      surface: operator.surface,
+      scope: operator.scope,
+      modelOrProvider: operator.modelOrProvider,
+      runtime: operator.runtime,
+    },
     runDate,
     makeDocsVersion: manifest.generationInputs.cliVersion,
-    harness,
-    modelName: operator.modelName,
-    providerOrRoutingLayer: operator.providerOrRoutingLayer,
-    modelVersion: operator.modelVersion,
-    runtimeDistribution: operator.runtimeDistribution,
-    runtimeVersion: operator.runtimeVersion,
+    executablePath: operator.executablePath,
+    executableDigest: operator.executableDigest,
+    behaviorDigest: operator.behaviorDigest,
+    registryDigest: operator.registryDigest,
+    distributionType: operator.distributionType,
+    harnessVersion: operator.harnessVersion,
+    nativeConfigDigest: operator.nativeConfigDigest,
     producedFiles,
     relevantDiffs,
     exitStatus,
@@ -765,6 +801,7 @@ export function ingestConformanceLabSession(
     simulated,
     simulationMechanicsRef: simulated ? binding.harnessExecution.simulationMechanics : null,
     transcriptFormat,
+    evidenceReferences: operator.evidenceReferences,
   });
 
   const assembly: ConformanceIngestionAssembly = {

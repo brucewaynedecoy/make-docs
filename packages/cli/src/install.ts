@@ -1,11 +1,12 @@
 import { isDeepStrictEqual } from "node:util";
 import { removeInstallationPath, pruneInstallationParents, prepareInstallationRemoval } from "./installation-files";
-import { existsSync, mkdirSync, symlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { getInstallationProjectId, readInstallationStatus, preparePlannedFileChange, recordPlannedFileChange, sealInstallationOperation, withInstallationOperation } from "./store/installation-state";
 import {
   CONFLICTS_RELATIVE_DIR,
   createManifest,
+  getManifestFileHash,
   loadManifest,
   MANIFEST_RELATIVE_PATH,
   RETIRED_PLAYBOOK_CONTRACT_PATH,
@@ -45,6 +46,8 @@ import {
   assertLifecyclePlanSnapshotCurrent,
   createLifecycleMutationReceipt,
 } from "./lifecycle-plan";
+import type { ProjectHarnessIntegrationWritePlan } from "./config";
+import { parseDocument } from "yaml";
 
 export async function planInstall(options: {
   targetDir: string;
@@ -132,6 +135,7 @@ export function applyInstallPlan(options: {
   targetDir: string;
   plan: InstallPlan;
   existingManifest: InstallManifest | null;
+  projectHarnessConfig?: ProjectHarnessIntegrationWritePlan;
 }): ApplyResult {
   if ((options.plan.stops?.length ?? 0) > 0) {
     throw new Error(
@@ -166,8 +170,10 @@ function applyInstallPlanInternal(options: {
   plan: InstallPlan;
   existingManifest: InstallManifest | null;
   trackSkillFilesInManifestFiles: boolean;
+  projectHarnessConfig?: ProjectHarnessIntegrationWritePlan;
 }): ApplyResult {
-  const { targetDir, plan, existingManifest } = options;
+  const { targetDir, existingManifest } = options;
+  const plan = options.plan;
   if (plan.desiredSkillFiles.length > 0) assertStandardSkillLayout(existingManifest, targetDir, plan.profile.selections);
   if (plan.actions.some((action) => action.type === "remove-managed" &&
       action.relativePath === RETIRED_PLAYBOOK_CONTRACT_PATH)) {
@@ -185,8 +191,17 @@ function applyInstallPlanInternal(options: {
   if (plan.classificationSnapshot) {
     assertLifecyclePlanSnapshotCurrent(targetDir, plan.classificationSnapshot);
   }
+  if (options.projectHarnessConfig) {
+    const reviewedConfig = existsSync(options.projectHarnessConfig.configPath)
+      ? readFileSync(options.projectHarnessConfig.configPath, "utf8")
+      : null;
+    if (reviewedConfig !== options.projectHarnessConfig.beforeContent) {
+      throw new Error("Project config changed after review. Create and review a fresh setup plan.");
+    }
+  }
   if (
     !plan.forceManifestWrite &&
+    !options.projectHarnessConfig?.changed &&
     existingManifest &&
     existingManifest.projectId &&
     plan.actions.every((action) => action.type === "noop") &&
@@ -208,6 +223,16 @@ function applyInstallPlanInternal(options: {
     };
   }
   return withInstallationOperation(targetDir, options.trackSkillFilesInManifestFiles ? plan.operation ?? "setup" : "setup.skills", () => {
+    const projectId = getInstallationProjectId(targetDir);
+    if (options.projectHarnessConfig) {
+      const currentConfig = existsSync(options.projectHarnessConfig.configPath)
+        ? readFileSync(options.projectHarnessConfig.configPath, "utf8")
+        : null;
+      const expectedConfig = addDeclarativeProjectId(options.projectHarnessConfig.beforeContent ?? "", projectId);
+      if (currentConfig !== expectedConfig) {
+        throw new Error("Project config changed after review. Create and review a fresh setup plan.");
+      }
+    }
     const currentManifest = loadManifest(targetDir);
     if (!isDeepStrictEqual(currentManifest, existingManifest)) {
       throw new Error("Installation state changed after plan review. Create and review a fresh plan before writing.");
@@ -234,7 +259,6 @@ function applyInstallPlanInternal(options: {
 
     // The Store reserves identity before file writes. Configuration carries
     // only this declarative identifier; the installation ledger stays in Store.
-    const projectId = getInstallationProjectId(targetDir);
     const routerOwnership = plan.routerOwnership ?? existingManifest?.routerOwnership;
     const resourceProjection = plan.resourceProjection ?? existingManifest?.resourceProjection;
     if (!routerOwnership || !resourceProjection) {
@@ -263,13 +287,20 @@ function applyInstallPlanInternal(options: {
     // Native skill exposure fallback needs runtime evidence, so that path stays
     // unsealed until it finishes and a crash offers rollback rather than guessing.
     const hasExposureMutation = plan.actions.some(action => action.skillExposure && ["create", "update", "generate", "remove-managed"].includes(action.type));
+    const projectConfigChanges = prepareProjectHarnessConfigChange(
+      targetDir,
+      options.projectHarnessConfig,
+      projectId,
+    );
     if (!hasExposureMutation) {
-      const changes = plan.actions.flatMap(action => prepareInstallAction(targetDir, plan, action, conflictFiles));
+      const changes = [
+        ...plan.actions.flatMap(action => prepareInstallAction(targetDir, plan, action, conflictFiles)),
+        ...projectConfigChanges,
+      ];
       sealInstallationOperation(targetDir);
       for (const change of changes) change();
     } else {
       for (const action of plan.actions) {
-        if (action.relativePath === ".make-docs/config.yaml" && existsSync(relativePathToTarget(targetDir, action.relativePath))) continue;
         applyAction({ targetDir, plan, action, nextFiles, conflictFiles,
           stageExposure(entry) {
             nextFiles[action.relativePath] = entry;
@@ -278,6 +309,7 @@ function applyInstallPlanInternal(options: {
           },
         });
       }
+      for (const change of projectConfigChanges) change();
     }
     for (const action of plan.actions) {
       if (action.type === "remove-managed") pruneRemovedManagedPathParents(targetDir, action.relativePath, relativePathToTarget(targetDir, action.relativePath));
@@ -307,9 +339,37 @@ function applyInstallPlanInternal(options: {
   }, { projectId: existingManifest?.projectId });
 }
 
+function prepareProjectHarnessConfigChange(
+  targetDir: string,
+  projectHarnessConfig: ProjectHarnessIntegrationWritePlan | undefined,
+  projectId: string,
+): Array<() => void> {
+  if (!projectHarnessConfig?.changed) return [];
+  const content = addDeclarativeProjectId(projectHarnessConfig.content, projectId);
+  return [preparePlannedFileChange(
+    targetDir,
+    ".make-docs/config.yaml",
+    { kind: "file", content },
+    () => writeContentFile(projectHarnessConfig.configPath, content),
+  )];
+}
+
+function addDeclarativeProjectId(content: string, projectId: string): string {
+  const document = parseDocument(content, { uniqueKeys: true });
+  if (document.errors.length > 0) {
+    throw new Error("The reviewed project config content is invalid.");
+  }
+  const current = document.get("projectId");
+  if (current !== undefined) {
+    if (current !== projectId) throw new Error("The reviewed project config has a conflicting project identity.");
+    return content;
+  }
+  document.set("projectId", projectId);
+  return document.toString();
+}
+
 function prepareInstallAction(targetDir: string, plan: InstallPlan, action: PlannedAction, conflictFiles: string[]): Array<() => void> {
   const absolute = relativePathToTarget(targetDir, action.relativePath);
-  if (action.relativePath === ".make-docs/config.yaml" && existsSync(absolute)) return [];
   if (["create", "update", "generate", "update-conflict", "strip-managed-block"].includes(action.type)) {
     if (action.content === undefined) throw new Error(`Missing content for ${action.relativePath}.`);
     return [preparePlannedFileChange(targetDir, action.relativePath, { kind: "file", content: action.content }, () => writeContentFile(absolute, action.content!))];

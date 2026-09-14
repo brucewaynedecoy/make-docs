@@ -16,6 +16,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml, parseDocument as parseYamlDocument } from "yaml";
 import {
   COMMAND_TIMEOUT_MS,
   createPackageRunnerEnv,
@@ -108,6 +109,10 @@ const PACKAGE_RUNNER_SMOKES = [
       "make-docs",
       "setup",
       "--yes",
+      "--codex-method",
+      "none",
+      "--claude-code-method",
+      "none",
       "--target",
       targetDir,
     ],
@@ -116,7 +121,11 @@ const PACKAGE_RUNNER_SMOKES = [
   {
     name: "pnpm dlx",
     command: "pnpm",
-    args: (tarballPath, targetDir) => ["dlx", tarballPath, "setup", "--yes", "--target", targetDir],
+    args: (tarballPath, targetDir) => [
+      "dlx", tarballPath, "setup", "--yes",
+      "--codex-method", "none", "--claude-code-method", "none",
+      "--target", targetDir,
+    ],
     envKind: "pnpm",
   },
   {
@@ -129,6 +138,10 @@ const PACKAGE_RUNNER_SMOKES = [
       "make-docs",
       "setup",
       "--yes",
+      "--codex-method",
+      "none",
+      "--claude-code-method",
+      "none",
       "--target",
       targetDir,
     ],
@@ -429,7 +442,7 @@ function runLocalPackedSmoke() {
 
     execFileSync(
       "node",
-      [packedMakeDocs, "setup", "--yes", "--target", targetDir],
+      [packedMakeDocs, "setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
     readInstallationLedger(installation);
@@ -475,7 +488,7 @@ function runLocalPackedSmoke() {
 
     execFileSync(
       "node",
-      [packedMakeDocs, "setup", "--yes", "--target", targetDir],
+      [packedMakeDocs, "setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetDir],
       { stdio: "inherit", env: packedCliEnv },
     );
     assertMissing(
@@ -598,7 +611,9 @@ function runLocalPackedSmoke() {
   const customConfigPath = path.join(targetDir, ".make-docs/config.yaml");
   mkdirSync(path.dirname(customFilePath), { recursive: true });
   writeFileSync(customFilePath, "preserve this unmanaged smoke fixture\n", "utf8");
-  writeFileSync(customConfigPath, `${readFileSync(customConfigPath, "utf8")}\nlabels:\n  documentKinds:\n    design: Idea\n`, "utf8");
+  const customConfig = parseYamlDocument(readFileSync(customConfigPath, "utf8"));
+  customConfig.setIn(["labels", "documentKinds", "design"], "Idea");
+  writeFileSync(customConfigPath, customConfig.toString(), "utf8");
   const customReaderAssetPaths = [
     "docs/assets/artifacts/custom-source/preserve.md",
     "docs/assets/archive/history/custom-history.md",
@@ -1189,7 +1204,9 @@ function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, so
   const legacyManifestPath = path.join(legacyTargetDir, ".make-docs/manifest.json");
   writeFileSync(legacyManifestPath, `${JSON.stringify(legacyManifest, null, 2)}\n`, "utf8");
   const configPath = path.join(legacyTargetDir, ".make-docs/config.yaml");
-  writeFileSync(configPath, readFileSync(configPath, "utf8").replace(/^projectId:.*\n/m, ""), "utf8");
+  const config = parseYamlDocument(readFileSync(configPath, "utf8"));
+  config.delete("projectId");
+  writeFileSync(configPath, config.toString(), "utf8");
 
   const historicalDesignPath = path.join(
     legacyTargetDir,
@@ -1203,7 +1220,7 @@ function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, so
 
   execFileSync(
     "node",
-    [packedMakeDocs, "setup", "--yes", "--target", legacyTargetDir],
+    [packedMakeDocs, "setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", legacyTargetDir],
     { stdio: "inherit", env: packedCliEnv },
   );
 
@@ -1286,8 +1303,10 @@ function readInstallationLedger(installation) {
       .get(checkout.checkout_id);
     if (!row) throw new Error("Smoke pack Store has no applied installation ledger.");
     const manifest = JSON.parse(row.manifest_json);
-    const config = readFileSync(path.join(installation.targetDir, ".make-docs/config.yaml"), "utf8");
-    const declaredId = /^projectId:\s*["']?([\w-]+)["']?\s*$/m.exec(config)?.[1];
+    const config = parseYaml(
+      readFileSync(path.join(installation.targetDir, ".make-docs/config.yaml"), "utf8"),
+    );
+    const declaredId = typeof config?.projectId === "string" ? config.projectId : undefined;
     if (!declaredId || declaredId !== checkout.project_id || declaredId !== manifest.projectId) {
       throw new Error("Smoke pack config, checkout binding, and Store ledger identities differ.");
     }
@@ -1372,9 +1391,31 @@ function assertNoProjectOperationState(targetDir, label) {
 
 function assertPackedStateStatus(packedMakeDocs, installation, expectedStatus) {
   const before = snapshotTree(installation.targetDir);
-  const output = execFileSync("node", [packedMakeDocs, "project", "state", "status", "--target-root", installation.targetDir, "--json"], {
-    encoding: "utf8", env: { ...packedCliEnv, MAKE_DOCS_HOME: installation.storeRoot },
-  });
+  let output;
+  try {
+    output = execFileSync("node", [packedMakeDocs, "project", "state", "status", "--target-root", installation.targetDir, "--json"], {
+      encoding: "utf8", env: { ...packedCliEnv, MAKE_DOCS_HOME: installation.storeRoot },
+    });
+  } catch (error) {
+    const config = parseYaml(
+      readFileSync(path.join(installation.targetDir, ".make-docs/config.yaml"), "utf8"),
+    );
+    const integrations = Array.isArray(config?.harnessIntegrations) ? config.harnessIntegrations : [];
+    const explicitlyDisabled = integrations.length > 0 && integrations.every(entry => entry?.mode === "disable");
+    const stderr = String(error?.stderr ?? "");
+    if (!explicitlyDisabled || !stderr.includes('"code":"harness-operation-access-denied"')) throw error;
+    const storedStatus = inspectStore(installation, (db, checkout) => (
+      db.prepare("SELECT 1 FROM installation_ledgers WHERE checkout_id = ?").get(checkout.checkout_id)
+        ? "ready"
+        : "unregistered"
+    ));
+    if (storedStatus !== expectedStatus) {
+      throw new Error(`Packed Store state expected ${expectedStatus}, received ${storedStatus}.`);
+    }
+    if (snapshotTree(installation.targetDir) !== before) throw new Error("Denied packed state status changed project files.");
+    assertNoProjectOperationState(installation.targetDir, "denied project state status");
+    return;
+  }
   const status = JSON.parse(output);
   if (status.status !== expectedStatus || status.storeAvailable !== true) {
     throw new Error(`Packed state status expected ${expectedStatus}: ${output}`);
@@ -1472,16 +1513,27 @@ function assertPackedReaderFacingTemplate(packageRoot) {
  * harness recognizes any generated output.
  */
 function assertNoConformanceAssetsInTarball(packageRoot) {
+  const packagedRegistry = path.join(packageRoot, "conformance", "tuple-registry.json");
+  if (!existsSync(packagedRegistry)) {
+    throw new Error("Packed tarball does not contain the required conformance tuple registry.");
+  }
+  const sourceRegistry = path.join(repoRoot, "conformance", "tuple-registry.json");
+  if (createHash("sha256").update(readFileSync(packagedRegistry)).digest("hex") !==
+      createHash("sha256").update(readFileSync(sourceRegistry)).digest("hex")) {
+    throw new Error("Packed conformance registry digest differs from the root source.");
+  }
+  const registry = JSON.parse(readFileSync(packagedRegistry, "utf8"));
+  if (registry.schemaVersion !== 2) throw new Error("Packed conformance registry must use active schema version 2.");
   const contentMarkers = [
     "make-docs.conformance.tuple-registry",
     "conformance.scenario.v1",
     "conformance.result.v1",
+    "conformance.result.v2",
   ];
   // Mirrors CONFORMANCE_ASSET_PATH_MARKERS / isConformanceAssetPath in
   // packages/cli/src/conformance/meta-verification.ts.
   const pathMarkers = [
     "docs/assets/conformance",
-    "conformance/tuple-registry.json",
     "conformance/scenarios/",
     "conformance/fixtures/",
     "conformance/results/",
@@ -1497,16 +1549,11 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
       }
       const relative = path.relative(packageRoot, absolute).split(path.sep).join("/");
       if (
-        relative.startsWith("conformance/") ||
+        (relative.startsWith("conformance/") && relative !== "conformance/tuple-registry.json") ||
         pathMarkers.some((marker) => relative.includes(marker))
       ) {
         throw new Error(
           `Packed tarball ships conformance asset path ${relative} (R-TEST-3, R-KEEP-1).`,
-        );
-      }
-      if (path.basename(relative) === "tuple-registry.json") {
-        throw new Error(
-          `Packed tarball ships conformance asset file ${relative} (R-TEST-3, R-KEEP-1).`,
         );
       }
       if (relative.startsWith("template/")) {

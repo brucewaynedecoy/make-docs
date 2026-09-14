@@ -1,6 +1,6 @@
 {
   "record": "make-docs.conformance.tuple-registry",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "statuses": {
     "provisional": "No conformance evidence yet; the output may be generated but its recognition and usability are unverified.",
     "implementation-validated": "Internal unit and integration tests prove the generated files and structure, but no real-harness evidence exists.",
@@ -29,5 +29,353 @@
     "realHarnessProbesNeverAdvance": "real-harness-probe evidence refs record observations outside the lab protocol; they never advance a status in either direction",
     "faithfulSimulation": "R-BAR-1 admits a faithfully simulated harness: every recorded run states `simulated`, a simulated run may advance a tuple only when its scenario spec declares reviewed faithful-simulation mechanics (D8), and its result record names the mechanics used"
   },
-  "tuples": []
+  "tuples": [
+    {
+      "id": "lab-claude-code-mcp-4ed896ce3e",
+      "tuple": {
+        "scenario": "setup-access/mcp-store-operations",
+        "harness": "claude-code",
+        "connectionMethod": "mcp",
+        "surface": "mcp",
+        "scope": "machine",
+        "modelOrProvider": "anthropic:claude-sonnet-5",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "conformance-validated",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-claude-code-mcp-001",
+          "tuple": {
+            "scenario": "setup-access/mcp-store-operations",
+            "harness": "claude-code",
+            "connectionMethod": "mcp",
+            "surface": "mcp",
+            "scope": "machine",
+            "modelOrProvider": "anthropic:claude-sonnet-5",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "claude-code-2.1.258",
+          "nativeConfigDigest": "d1151cefc5cda565c5d3007e8f506e2c893687ae9e3e33f50b6683a0d190b4e8",
+          "verdict": "pass",
+          "caveats": [],
+          "caveatsSurfaced": false,
+          "evidenceBar": {
+            "install": true,
+            "discover": true,
+            "invoke": true,
+            "uninstall": true
+          },
+          "recordRef": "conformance/results/claude-code/2026-09-14-mcp-store-operations-001.json",
+          "evidenceReferences": [
+            "sha256:8ac7593eb570157ec466c23b6dcb2e0d18958b121e1d48fcc235205a771d1620 Claude Code MCP transcript",
+            "sha256:4d736482d43a3ff1b0f6cd7c00f8a7b959fa84b92c0a15108854277689ba1d13 native receipt",
+            "sha256:1eceb9f6831353ad832e0b323b0bf1d542f94bd6233c1881461c40992401cffd cleanup evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/mcp-store-operations"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    },
+    {
+      "id": "lab-claude-code-direct-cli-226a343027",
+      "tuple": {
+        "scenario": "setup-access/direct-resource-read",
+        "harness": "claude-code",
+        "connectionMethod": "direct-cli",
+        "surface": "cli-resource",
+        "scope": "machine",
+        "modelOrProvider": "anthropic:claude-sonnet-5",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "conformance-validated",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-claude-code-direct-cli-001",
+          "tuple": {
+            "scenario": "setup-access/direct-resource-read",
+            "harness": "claude-code",
+            "connectionMethod": "direct-cli",
+            "surface": "cli-resource",
+            "scope": "machine",
+            "modelOrProvider": "anthropic:claude-sonnet-5",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "claude-code-2.1.258",
+          "nativeConfigDigest": "866ec3b5ea49b78a031bf2b7236956a47d28f1e62450b67ce5415a0cd3f5ea58",
+          "verdict": "pass",
+          "caveats": [],
+          "caveatsSurfaced": false,
+          "evidenceBar": {
+            "install": true,
+            "discover": true,
+            "invoke": true,
+            "uninstall": true
+          },
+          "recordRef": "conformance/results/claude-code/2026-09-14-direct-resource-read-001.json",
+          "evidenceReferences": [
+            "sha256:bfa894c1a9b8d54762f970175cbc7714208a7b43fb90c0345be9c28eaf7efa9d Claude Code direct resource transcript",
+            "sha256:2b3c1ef675261af34820bc098573d1383321b855a14abaadd97226d2036d91db cleanup evidence",
+            "sha256:e3b8707f02034ed788c4786356afed676b1870c3f79993c9d73f1d4efc5d3c1a Store-free absence evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/direct-resource-read"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    },
+    {
+      "id": "lab-claude-code-permission-rules-4308a1a1cd",
+      "tuple": {
+        "scenario": "setup-access/permission-rule-store-operations",
+        "harness": "claude-code",
+        "connectionMethod": "permission-rules",
+        "surface": "cli-permission-rules",
+        "scope": "machine",
+        "modelOrProvider": "anthropic:claude-sonnet-5",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-claude-code-permission-rules-001",
+          "tuple": {
+            "scenario": "setup-access/permission-rule-store-operations",
+            "harness": "claude-code",
+            "connectionMethod": "permission-rules",
+            "surface": "cli-permission-rules",
+            "scope": "machine",
+            "modelOrProvider": "anthropic:claude-sonnet-5",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "claude-code-2.1.258",
+          "nativeConfigDigest": "0b8c298b4553ea7e696a1cd62411cba1578be9584a82a0c9aaf35a987850062e",
+          "verdict": "unsupported",
+          "caveats": [
+            "Claude Code ran the exact allowlisted command and blocked the non-allowlisted command. It did not supply a trustworthy launch identity or grant narrow Store file access. Make Docs therefore denied Store reads and writes under the A35 exception."
+          ],
+          "caveatsSurfaced": true,
+          "evidenceBar": {
+            "install": false,
+            "discover": true,
+            "invoke": false,
+            "uninstall": true
+          },
+          "recordRef": "conformance/results/claude-code/2026-09-14-permission-rule-store-operations-001.json",
+          "evidenceReferences": [
+            "sha256:5130bcff5af1f910db3c75c35c53558480e012cdba795d185bb10927ff727270 permission-rule transcript",
+            "sha256:6576de7f3a59ea8a71e0030653b9486f32f3495f827935004ef693bdbc859d17 Store sentinel denial transcript",
+            "sha256:063409aac8fd2da08e92e62c35b3e55505ace84bd8b8fabaa414d08c6181f91d cleanup evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/permission-rule-store-operations"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    },
+    {
+      "id": "lab-codex-mcp-229d099539",
+      "tuple": {
+        "scenario": "setup-access/mcp-store-operations",
+        "harness": "codex",
+        "connectionMethod": "mcp",
+        "surface": "mcp",
+        "scope": "machine",
+        "modelOrProvider": "openai:gpt-5.6-terra",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-codex-mcp-001",
+          "tuple": {
+            "scenario": "setup-access/mcp-store-operations",
+            "harness": "codex",
+            "connectionMethod": "mcp",
+            "surface": "mcp",
+            "scope": "machine",
+            "modelOrProvider": "openai:gpt-5.6-terra",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "codex-cli-0.154.0",
+          "nativeConfigDigest": "bb4f45412d701c29f335aee0e1a501106c51467f84e71bba9b617423568ea346",
+          "verdict": "blocked",
+          "caveats": [
+            "The disposable Codex home was not logged in. The real Codex MCP run did not start."
+          ],
+          "caveatsSurfaced": true,
+          "evidenceBar": {
+            "install": false,
+            "discover": false,
+            "invoke": false,
+            "uninstall": false
+          },
+          "recordRef": "conformance/results/codex/2026-09-14-mcp-store-operations-001.json",
+          "evidenceReferences": [
+            "sha256:d7e605baa02a197a472509b83955b4df07491515af4cc350992a8e99eb2b2b79 disposable Codex login precondition",
+            "sha256:03b0443723a09a8fe0952920a5d3bad459a21ed5ed5037a5a62178c29f83a2d7 native cleanup evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/mcp-store-operations"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    },
+    {
+      "id": "lab-codex-command-rules-14e1ca0131",
+      "tuple": {
+        "scenario": "setup-access/bounded-rule-store-operations",
+        "harness": "codex",
+        "connectionMethod": "command-rules",
+        "surface": "cli-command-rules",
+        "scope": "machine",
+        "modelOrProvider": "openai:gpt-5.6-terra",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-codex-command-rules-001",
+          "tuple": {
+            "scenario": "setup-access/bounded-rule-store-operations",
+            "harness": "codex",
+            "connectionMethod": "command-rules",
+            "surface": "cli-command-rules",
+            "scope": "machine",
+            "modelOrProvider": "openai:gpt-5.6-terra",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "codex-cli-0.154.0",
+          "nativeConfigDigest": "4b7caf3ec5ed674af3c1a9a6d602868e790a8d8682c153992ec64edc56c49715",
+          "verdict": "blocked",
+          "caveats": [
+            "The disposable Codex home was not logged in. The real command-rule run did not start, so no trustworthy native launch fact was measured."
+          ],
+          "caveatsSurfaced": true,
+          "evidenceBar": {
+            "install": false,
+            "discover": false,
+            "invoke": false,
+            "uninstall": false
+          },
+          "recordRef": "conformance/results/codex/2026-09-14-bounded-rule-store-operations-001.json",
+          "evidenceReferences": [
+            "sha256:fafceccf8e11873b99d491b76fdaa26c56cf9446676f5486f8b4ad58a49f5eef disposable Codex login precondition",
+            "sha256:3a0cb6c6751c77121d3bd9156c4f7879521c114a8676a9f2b2b0ebd067be3ce2 native cleanup evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/bounded-rule-store-operations"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    },
+    {
+      "id": "lab-codex-direct-cli-f76cbb449c",
+      "tuple": {
+        "scenario": "setup-access/direct-resource-read",
+        "harness": "codex",
+        "connectionMethod": "direct-cli",
+        "surface": "cli-resource",
+        "scope": "machine",
+        "modelOrProvider": "openai:gpt-5.6-terra",
+        "runtime": "node-v24.19.0-darwin-arm64"
+      },
+      "status": "provisional",
+      "evidence": [],
+      "recordedRuns": [
+        {
+          "runId": "2026-09-14-codex-direct-cli-001",
+          "tuple": {
+            "scenario": "setup-access/direct-resource-read",
+            "harness": "codex",
+            "connectionMethod": "direct-cli",
+            "surface": "cli-resource",
+            "scope": "machine",
+            "modelOrProvider": "openai:gpt-5.6-terra",
+            "runtime": "node-v24.19.0-darwin-arm64"
+          },
+          "runDate": "2026-09-14",
+          "makeDocsVersion": "2.0.0-rc",
+          "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+          "distributionType": "packed-npm",
+          "harnessVersion": "codex-cli-0.154.0",
+          "nativeConfigDigest": "866ec3b5ea49b78a031bf2b7236956a47d28f1e62450b67ce5415a0cd3f5ea58",
+          "verdict": "blocked",
+          "caveats": [
+            "The disposable Codex home was not logged in. The real direct resource-read run did not start."
+          ],
+          "caveatsSurfaced": true,
+          "evidenceBar": {
+            "install": false,
+            "discover": false,
+            "invoke": false,
+            "uninstall": false
+          },
+          "recordRef": "conformance/results/codex/2026-09-14-direct-resource-read-001.json",
+          "evidenceReferences": [
+            "sha256:61d2fb81153fb5c8f872e8b78ac30655ddaf902d4df7e586fb53901399895235 disposable Codex login precondition",
+            "sha256:2b3c1ef675261af34820bc098573d1383321b855a14abaadd97226d2036d91db user-content cleanup evidence"
+          ],
+          "simulated": false
+        }
+      ],
+      "plannedScenarios": [
+        "setup-access/direct-resource-read"
+      ],
+      "notes": [
+        "Created only for a disposable first-run setup-access lab session."
+      ]
+    }
+  ]
 }

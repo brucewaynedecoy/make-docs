@@ -1,4 +1,3 @@
-import os from "node:os";
 import {
   HARNESS_CALLER_IDENTITY_ENV,
   parseHarnessCallerIdentity,
@@ -106,87 +105,43 @@ export function resolveHarnessOperationPolicy(input: {
     };
   }
 
-  const storeRoot = validateInstallationStoreRoot(input.targetRoot, input.storeRoot);
-  const global = loadGlobalConfig(storeRoot).config;
-  if (rawIdentity) {
-    let identity: HarnessCallerIdentity;
-    try {
-      identity = parseHarnessCallerIdentity(rawIdentity);
-    } catch (error) {
-      throw denied(`The harness caller identity is invalid: ${message(error)}`);
-    }
-    const project = records.find((record) => record.harness === identity.harnessId);
-    const access = verifyIntegration({
-      targetRoot: input.targetRoot,
-      storeRoot,
-      project,
-      machine: machineApproval(global.settings.harnesses[identity.harnessId]),
-      identity,
-      commandRuleAuthority: input.commandRuleAuthority,
-    });
+  if (!rawIdentity) {
     return {
       configured: true,
-      verified: true,
-      access,
-      harnesses: [identity.harnessId],
-      methods: [identity.connectionMethod],
-      reason: "The exact harness caller, Store receipt, package binary, and native entry are current.",
+      verified: false,
+      access: { ...NO_ACCESS },
+      harnesses: records.map(record => record.harness),
+      methods: [],
+      reason:
+        "The Store-backed call has no harness-proved native launch identity. " +
+        "An executable path, native rule, or project setting alone cannot grant Store access.",
     };
   }
 
-  let access = { ...FULL_OPERATION_ACCESS };
-  const methods: HarnessConnectionMethod[] = [];
-  for (const project of records) {
-    if (!safeFirstPartyRecord(project)) {
-      return {
-        configured: true,
-        verified: false,
-        access: { ...NO_ACCESS },
-        harnesses: records.map((record) => record.harness),
-        methods,
-        reason: `Project harness '${project.harness}' has no verified runtime adapter.`,
-      };
-    }
-    const machine = machineApproval(global.settings.harnesses[project.harness]);
-    const effective = resolveEffectiveHarnessIntegration(project, machine, project.harness);
-    if (!effective.enabled || !effective.method) {
-      access = { ...NO_ACCESS };
-      continue;
-    }
-    const method = effective.method as HarnessConnectionMethod;
-    methods.push(method);
-    const executable = currentReceiptExecutable(
-      input.targetRoot,
-      storeRoot,
-      project.harness as HarnessId,
-      method,
-    );
-    access = intersectAccess(access, verifyIntegration({
-      targetRoot: input.targetRoot,
-      storeRoot,
-      project,
-      machine,
-      identity: {
-        schemaVersion: 1,
-        kind: "make-docs-harness-caller",
-        adapterId: requireFirstPartyHarnessAdapter(project.harness).id,
-        adapterVersion: requireFirstPartyHarnessAdapter(project.harness).version,
-        harnessId: project.harness as HarnessId,
-        connectionMethod: method,
-        scope: "machine",
-        root: os.homedir(),
-        executable,
-      },
-      commandRuleAuthority: input.commandRuleAuthority,
-    }));
+  const storeRoot = validateInstallationStoreRoot(input.targetRoot, input.storeRoot);
+  const global = loadGlobalConfig(storeRoot).config;
+  let identity: HarnessCallerIdentity;
+  try {
+    identity = parseHarnessCallerIdentity(rawIdentity);
+  } catch (error) {
+    throw denied(`The harness caller identity is invalid: ${message(error)}`);
   }
+  const project = records.find((record) => record.harness === identity.harnessId);
+  const access = verifyIntegration({
+    targetRoot: input.targetRoot,
+    storeRoot,
+    project,
+    machine: machineApproval(global.settings.harnesses[identity.harnessId]),
+    identity,
+    commandRuleAuthority: input.commandRuleAuthority,
+  });
   return {
     configured: true,
     verified: true,
     access,
-    harnesses: records.map((record) => record.harness),
-    methods,
-    reason: "Unknown caller access is the verified intersection of all project harness limits.",
+    harnesses: [identity.harnessId],
+    methods: [identity.connectionMethod],
+    reason: "The exact harness caller, method, Store receipt, package binary, and native entry are current.",
   };
 }
 
@@ -292,23 +247,6 @@ function verifyIntegration(input: {
     );
   }
   return { ...effective.access };
-}
-
-function currentReceiptExecutable(
-  targetRoot: string,
-  storeRoot: string,
-  harnessId: HarnessId,
-  method: HarnessConnectionMethod,
-): VerifiedExecutableIdentity {
-  const receipt = readCurrentHarnessIntegrationReceipt(
-    targetRoot,
-    storeRoot,
-    "machine",
-    harnessId,
-    method,
-  );
-  if (!receipt) throw denied(`No current Store receipt proves ${harnessId} ${method}.`);
-  return receipt.executable;
 }
 
 function safeFirstPartyRecord(record: ProjectHarnessIntegrationRecord): boolean {

@@ -120,7 +120,7 @@ describe("W19 R6 unified setup", () => {
       {
         harness: "codex",
         method: "mcp",
-        status: "change-required",
+        status: "incomplete",
         operations: ["work.item.resolve"],
         machineFiles: [".codex/config.toml"],
         changed: true,
@@ -184,7 +184,7 @@ describe("W19 R6 unified setup", () => {
     }
   });
 
-  test("a blocked adapter state remains blocked with its recovery action", async () => {
+  test("an unproved production method remains blocked with one next action", async () => {
     const machineRoot = createTempDir("make-docs-system-blocked-");
     const storeContainer = createTempDir("make-docs-system-blocked-store-");
     try {
@@ -192,32 +192,16 @@ describe("W19 R6 unified setup", () => {
         dryRun: false,
         yes: true,
         harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "command-rules" },
         machineRoot,
         targetRoot: machineRoot,
         storeRoot: path.join(storeContainer, "store"),
-        planners: [{
-          harness: "codex",
-          async plan() {
-            return {
-              harness: "codex",
-              method: "command-rules",
-              status: "blocked",
-              operations: [],
-              machineFiles: [".codex/rules/make-docs.rules"],
-              changed: false,
-              detail: "The native file is not readable.",
-              async apply() {},
-              async verify() { return false; },
-            };
-          },
-        }],
       });
       expect(result.status).toBe("blocked");
       expect(result.blocked[0]).toMatchObject({
         harness: "codex",
-        reason: "The native file is not readable.",
       });
-      expect(result.recoveryAction).toContain("make-docs setup system");
+      expect(result.blocked[0]?.nextAction).toBeTruthy();
     } finally {
       cleanupTempDir(machineRoot);
       cleanupTempDir(storeContainer);
@@ -236,21 +220,9 @@ describe("W19 R6 unified setup", () => {
         machineRoot,
         targetRoot: machineRoot,
         storeRoot: path.join(storeContainer, "store"),
-        conformanceEvidence: [{
-          schemaVersion: 1,
-          adapterId: "make-docs.codex",
-          adapterVersion: 1,
-          harnessId: "codex",
-          connectionMethod: "command-rules",
-          surface: "cli-command-rules",
-          resultId: "fabricated-result",
-          verdict: "pass",
-          eligible: true,
-          assertions: { install: true, discover: true, invoke: true, uninstall: true },
-        }],
       });
       expect(result.status).toBe("blocked");
-      expect(result.blocked[0]?.reason).toContain("validated durable conformance evidence");
+      expect(result.blocked[0]?.reason).toContain("exact runtime facts");
       expect(result.configured).toEqual([]);
     } finally {
       cleanupTempDir(machineRoot);
@@ -258,7 +230,7 @@ describe("W19 R6 unified setup", () => {
     }
   });
 
-  test("repeat setup keeps an existing global method intent when no new method is supplied", async () => {
+  test("non-interactive repeat setup still requires an explicit method", async () => {
     const machineRoot = createTempDir("make-docs-system-intent-");
     const storeContainer = createTempDir("make-docs-system-intent-store-");
     const storeRoot = path.join(storeContainer, "store");
@@ -271,33 +243,14 @@ describe("W19 R6 unified setup", () => {
       };
       writeGlobalConfig(storeRoot, global);
 
-      const result = await runSystemSetupCommand({
+      await expect(runSystemSetupCommand({
         dryRun: false,
         yes: true,
         harnesses: { codex: true, "claude-code": false },
         machineRoot,
         targetRoot: machineRoot,
         storeRoot,
-        planners: [{
-          harness: "codex",
-          async plan() {
-            return {
-              harness: "codex",
-              method: "command-rules",
-              status: "configured",
-              operations: [],
-              machineFiles: [],
-              changed: false,
-              detail: "The saved method is current.",
-              async apply() {},
-              async verify() { return true; },
-            };
-          },
-        }],
-      });
-
-      expect(result.selections.codex).toBe("command-rules");
-      expect(result.status).toBe("unchanged");
+      })).rejects.toThrow("has no explicit method");
       expect(loadGlobalConfig(storeRoot).config.settings.harnesses.codex).toEqual(
         global.settings.harnesses.codex,
       );
@@ -350,7 +303,7 @@ describe("W19 R6 unified setup", () => {
     );
   });
 
-  test("repeat setup safely resumes an interruption after native apply", async () => {
+  test("a reviewed adapter plan object cannot enable a production method", async () => {
     const machineRoot = createTempDir("make-docs-system-machine-");
     const storeContainer = createTempDir("make-docs-system-store-");
     const storeRoot = path.join(storeContainer, "store");
@@ -370,45 +323,25 @@ describe("W19 R6 unified setup", () => {
         commandRules,
         commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY,
       });
-      let pendingSeenAfterNativeWrite = false;
+      let mutationHookRan = false;
       const interrupted = await runSystemSetupCommand({
         dryRun: false,
         yes: true,
         harnesses: { codex: true, "claude-code": false },
         methods: { codex: "command-rules" },
-        reviewedAdapterPlansForTests: [reviewedPlan],
+        ...({ reviewedAdapterPlansForTests: [reviewedPlan] } as Record<string, unknown>),
         afterNativeApplyForTests() {
-          pendingSeenAfterNativeWrite = readPendingHarnessSystemOperation(machineRoot, storeRoot) !== null;
-          throw new Error("injected interruption after native apply");
+          mutationHookRan = true;
         },
         machineRoot,
         targetRoot: machineRoot,
         storeRoot,
       });
-      expect(interrupted.status).toBe("recovery");
-      expect(pendingSeenAfterNativeWrite).toBe(true);
-      expect(readFileSync(path.join(machineRoot, ".codex/rules/make-docs.rules"), "utf8")).toContain("make-docs");
-      expect(readCurrentHarnessIntegrationReceipt(machineRoot, storeRoot, "machine", "codex", "command-rules")).toBeNull();
-
-      const pending = readPendingHarnessSystemOperation(machineRoot, storeRoot);
-      expect(pending).toMatchObject({
-        adapterId: "make-docs.codex",
-        harnessId: "codex",
-        connectionMethod: "command-rules",
-        targetRoot: realpathSync(machineRoot),
-      });
-      const resumed = await runSystemSetupCommand({
-        dryRun: false,
-        yes: true,
-        harnesses: { codex: true, "claude-code": false },
-        machineRoot,
-        targetRoot: machineRoot,
-        storeRoot,
-      });
-      expect(resumed.status).toBe("configured");
-      expect(resumed.configured).toEqual(["codex"]);
-      expect(readCurrentHarnessIntegrationReceipt(machineRoot, storeRoot, "machine", "codex", "command-rules"))
-        .toMatchObject({ operationId: pending?.operationId, result: "verified", recoveryStatus: "complete" });
+      expect(interrupted.status).toBe("blocked");
+      expect(mutationHookRan).toBe(false);
+      expect(() => readFileSync(path.join(machineRoot, ".codex/rules/make-docs.rules"), "utf8")).toThrow();
+      expect(() => readCurrentHarnessIntegrationReceipt(machineRoot, storeRoot, "machine", "codex", "command-rules"))
+        .toThrow("Store is absent");
       expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).toBeNull();
     } finally {
       cleanupTempDir(machineRoot);
@@ -416,7 +349,7 @@ describe("W19 R6 unified setup", () => {
     }
   });
 
-  test("repairs only exact receipt-owned drift and resumes the exact update", async () => {
+  test("a drift repair plan object cannot bypass the support registry", async () => {
     const machineRoot = createTempDir("make-docs-system-repair-");
     const storeContainer = createTempDir("make-docs-system-repair-store-");
     const storeRoot = path.join(storeContainer, "store");
@@ -479,37 +412,16 @@ describe("W19 R6 unified setup", () => {
         yes: true,
         harnesses: { codex: true, "claude-code": false },
         methods: { codex: "command-rules" },
-        reviewedAdapterPlansForTests: [repairPlan],
+        ...({ reviewedAdapterPlansForTests: [repairPlan] } as Record<string, unknown>),
         afterNativeApplyForTests() {
-          throw new Error("injected interruption after drift repair write");
+          throw new Error("must not run");
         },
         machineRoot,
         targetRoot: machineRoot,
         storeRoot,
       });
-      expect(interrupted.status).toBe("recovery");
-      const pending = readPendingHarnessSystemOperation(machineRoot, storeRoot);
-      expect(pending).toMatchObject({
-        plan: {
-          state: "drifted",
-          changes: [{
-            beforeEntryValue: ownedPriorValue,
-            afterEntryValue: desiredValue,
-          }],
-        },
-        ownershipReceipt,
-      });
-
-      const resumed = await runSystemSetupCommand({
-        dryRun: false,
-        yes: true,
-        harnesses: { codex: true, "claude-code": false },
-        machineRoot,
-        targetRoot: machineRoot,
-        storeRoot,
-      });
-      expect(resumed.status).toBe("configured");
-      expect(readFileSync(nativePath, "utf8")).toBe(desiredValue);
+      expect(interrupted.status).toBe("blocked");
+      expect(readFileSync(nativePath, "utf8")).toBe(ownedPriorValue);
       expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).toBeNull();
       expect(readCurrentHarnessIntegrationReceipt(
         machineRoot,
@@ -517,7 +429,7 @@ describe("W19 R6 unified setup", () => {
         "machine",
         "codex",
         "command-rules",
-      )).toMatchObject({ operationId: pending?.operationId });
+      )).toMatchObject({ operationId: ownershipReceipt.operationId });
     } finally {
       cleanupTempDir(machineRoot);
       cleanupTempDir(storeContainer);
@@ -560,7 +472,7 @@ describe("W19 R6 unified setup", () => {
         yes: true,
         harnesses: { codex: true, "claude-code": false },
         methods: { codex: "mcp" },
-        reviewedAdapterPlansForTests: [userOwnedPlan],
+        ...({ reviewedAdapterPlansForTests: [userOwnedPlan] } as Record<string, unknown>),
         machineRoot,
         targetRoot: machineRoot,
         storeRoot,

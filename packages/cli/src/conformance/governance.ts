@@ -160,11 +160,11 @@ export interface ConformanceSupportClaim {
 }
 
 function claimSubject(tuple: ConformanceSupportTuple): { subject: string; noun: string } {
-  const noun = tuple.outputKind === "plugin" ? "plugin" : "skills bundle";
+  const noun = "harness access method";
   return {
     subject:
-      `the generated ${noun} output for \`${tuple.harness}\` ` +
-      `(surface \`${tuple.surface}\`, scope \`${tuple.scope}\`, generated kind \`${tuple.generatedOutputKind}\`)`,
+      `the \`${tuple.connectionMethod}\` ${noun} for \`${tuple.harness}\` ` +
+      `(surface \`${tuple.surface}\`, scope \`${tuple.scope}\`)`,
     noun,
   };
 }
@@ -216,9 +216,9 @@ export function renderConformanceSupportClaim(
   const latest = derivation.reviewedQualifyingRuns.at(-1)!;
   const parts = [
     `Conformance-validated for exactly this tuple (\`${tupleKey}\`): scenario ` +
-      `\`${latest.scenario}\` met the install-discover-invoke-uninstall bar on ` +
-      `\`${entry.tuple.harness}\` (${latest.runDate}, model/provider \`${latest.modelOrProvider}\`, ` +
-      `runtime \`${latest.runtime}\`${latest.simulated ? ", faithfully simulated harness" : ""}).`,
+      `\`${latest.tuple.scenario}\` met the install-discover-invoke-uninstall bar on ` +
+      `\`${entry.tuple.harness}\` (${latest.runDate}, model/provider \`${latest.tuple.modelOrProvider}\`, ` +
+      `runtime \`${latest.tuple.runtime}\`${latest.simulated ? ", faithfully simulated harness" : ""}).`,
   ];
   if (derivation.strength === "stronger") {
     parts.push(
@@ -474,6 +474,12 @@ export function conformanceResultRecordRelativePath(input: {
     throw new OperationError(
       `Result record sequence must be a positive integer, got ${String(input.sequence)}.`,
     );
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.runDate)) {
+    throw new OperationError(`Result record run date must use YYYY-MM-DD, got \`${input.runDate}\`.`);
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(input.harness)) {
+    throw new OperationError(`Result record harness is not a safe path segment: \`${input.harness}\`.`);
   }
   const { outcome } = splitConformanceScenarioId(input.scenarioId);
   const sequence = String(input.sequence).padStart(3, "0");

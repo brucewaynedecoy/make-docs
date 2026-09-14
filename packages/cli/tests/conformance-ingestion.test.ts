@@ -1,433 +1,201 @@
-/**
- * W18 R13 P3 Stage 1 coverage (PRD 43 R-ING-1..2; PRD 44 R-EXEC-1..3): the
- * fail-closed ingestion step that assembles a `conformance.result.v1` record
- * from a driven lab session, deriving every asserted bar-stage boolean SOLELY
- * from instrument outputs and recording every operator contribution as an
- * attestation.
- *
- * Test layer: unit (R-LAYER-1) — pure-function tests over hand-authored
- * synthetic sessions, no CLI and no harness. These prove the machinery's
- * honesty rules only; internal tests passing is never evidence that a harness
- * recognizes or can use the output (R-LAYER-2, PRD 36 R-TEST-5). The discover
- * honesty test in particular proves the OPPOSITE: even a session whose files
- * are all in place cannot claim harness recognition without a harness-listing
- * instrument.
- */
-
+import { afterEach, describe, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
-  CONFORMANCE_INGESTION_PROVENANCE_SCHEMA_VERSION,
-  CONFORMANCE_SESSION_MANIFEST_SCHEMA_VERSION,
-  bindIngestedResultToRegistryEntry,
-  deriveConformanceTupleStatus,
-  ingestConformanceLabSession,
-  loadConformanceTupleRegistry,
-  loadPackagingConformanceScenarioSpec,
-  recordConformanceRunOnRegistryEntry,
+  CONFORMANCE_TUPLE_STATUS_MEANINGS,
+  CONFORMANCE_VERDICT_DERIVATION_RULES,
+  addProvisionalConformanceTuple,
+  getConformanceTupleEntry,
+  ingestSetupAccessLabSession,
   validatePackagingConformanceResultRecord,
-  writeConformanceResultRecord,
-  type ConformanceOperatorAttestations,
-  type PackagingConformanceScenarioSpec,
+  type ConformanceSupportTuple,
+  type ConformanceTupleRegistry,
+  type SetupAccessLabManifest,
+  type SetupAccessLabMeasurements,
 } from "../src/conformance";
 
-const REPO_ROOT = path.resolve(__dirname, "..", "..", "..");
-const PLUGIN_SPEC_PATH = path.join(
-  REPO_ROOT,
-  "conformance",
-  "scenarios",
-  "packaging",
-  "plugin-marketplace-install.json",
-);
-
-const PLUGIN_SPEC: PackagingConformanceScenarioSpec = loadPackagingConformanceScenarioSpec(PLUGIN_SPEC_PATH);
-const SESSION_ID = "2026-07-06-codex-plugin-marketplace-install";
-const PACKAGE_ID = "conformance-plugin-probe";
-
-/** The operator attestations for a fully runnable session (both attestations given). */
-function runnableOperator(
-  overrides: Partial<ConformanceOperatorAttestations> = {},
-): ConformanceOperatorAttestations {
-  return {
-    modelName: "gpt-5-codex",
-    providerOrRoutingLayer: "openai-plus",
-    modelVersion: "2026-06",
-    runtimeDistribution: "node",
-    runtimeVersion: "22.5.0",
-    attestedPreconditionIds: ["network-available", "model-routing-available"],
-    narrativeReason: "Operator drove the session; see the per-stage narrative for details.",
-    transcriptLogPointer: "discarded-with-session",
-    transcriptFormat: "non-tty",
-    ...overrides,
-  };
-}
-
-/** Builds a shaped session manifest for the plugin spec. */
-function buildManifest(): unknown {
-  return {
-    schemaVersion: CONFORMANCE_SESSION_MANIFEST_SCHEMA_VERSION,
-    sessionId: SESSION_ID,
-    scenarioId: PLUGIN_SPEC.scenarioId,
-    scenarioVersion: PLUGIN_SPEC.scenarioVersion,
-    title: PLUGIN_SPEC.title,
-    harness: "codex",
-    registryTupleIds: PLUGIN_SPEC.packagingExtension.targets.codex!.registryTupleIds,
-    generationInputs: {
-      cliVersion: "test-0.0.0",
-      descriptorContractDigest: "sha256:test",
-      descriptorVerificationStatus: "verified",
-      targetParameters: {},
-    },
-    layout: { kit: "kit", workspace: "workspace", evidence: "evidence" },
-    transcriptPolicy: "json-or-non-tty",
-    evidenceHomes: { default: "discarded-with-session", retained: "<store-root>/conformance-lab/sessions/x/" },
-    executionRules: [],
-    preconditions: {
-      probes: PLUGIN_SPEC.packagingExtension.preconditions
-        .filter((precondition) => precondition.probe === "command-succeeds")
-        .map((precondition) => ({ id: precondition.id, description: precondition.description, command: "codex", args: ["--version"] })),
-      attestations: PLUGIN_SPEC.packagingExtension.preconditions
-        .filter((precondition) => precondition.probe === "operator-attestation")
-        .map((precondition) => ({ id: precondition.id, description: precondition.description })),
-    },
-    sessionSteps: [
-      {
-        sequence: 1,
-        kind: "command",
-        barStage: "install",
-        performedBy: "instrument",
-        instrument: "node kit/instruments/install.mjs",
-        command: `cd "$WORKSPACE" && make-docs run package ship --harness codex --output-kind plugin --surface native --scope project --package-id ${PACKAGE_ID} --json agent/conformance-skill-probe`,
-        action: null,
-        notes: null,
-      },
-    ],
-    expectedEvidence: {
-      install: { instrument: "node kit/instruments/install.mjs", outputs: ["evidence/install/commands.json", "evidence/install/placement-inventory.json"], rule: "install" },
-      discover: { instrument: "node kit/instruments/discover.mjs", outputs: ["evidence/discover/captures.json"], rule: "discover" },
-      invoke: { instrument: "node kit/instruments/invoke.mjs", outputs: ["evidence/invoke/probe-assertion.json"], rule: "invoke" },
-      uninstall: { instrument: "node kit/instruments/uninstall.mjs", outputs: ["evidence/uninstall/before-inventory.json", "evidence/uninstall/removal-commands.json", "evidence/uninstall/diff.json"], rule: "uninstall" },
-    },
-    discoveryKit: null,
-  };
-}
-
-interface EvidenceOptions {
-  install?: boolean;
-  invoke?: boolean;
-  uninstall?: boolean;
-  /** "none" | "placement-only" | "recognition-ok" | "recognition-empty". */
-  discover?: "none" | "placement-only" | "recognition-ok" | "recognition-empty";
-  /** Override the uninstall diff's removed list (default: the packaging outputs). */
-  uninstallRemoved?: string[];
-}
-
-function writeJson(sessionRoot: string, relative: string, value: unknown): void {
-  const absolute = path.join(sessionRoot, relative);
-  mkdirSync(path.dirname(absolute), { recursive: true });
-  writeFileSync(absolute, `${JSON.stringify(value, null, 2)}\n`);
-}
-
-/** Writes a synthetic session (manifest + selected evidence) into a temp root. */
-function writeSyntheticSession(sessionRoot: string, evidence: EvidenceOptions): void {
-  writeJson(sessionRoot, "kit/manifest.json", buildManifest());
-
-  if (evidence.install !== false) {
-    writeJson(sessionRoot, "evidence/install/commands.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "install",
-      commands: [{ command: "make-docs run package ship ...", exitCode: 0 }],
-    });
-    writeJson(sessionRoot, "evidence/install/placement-inventory.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "install",
-      roots: [".codex/plugins", ".agents/plugins", ".agents/skills"],
-      entries: [
-        { path: ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", kind: "file", bytes: 42, sha256: "sha256:aa" },
-        { path: ".agents/plugins/marketplace.json", kind: "file", bytes: 10, sha256: "sha256:bb" },
-      ],
-    });
-  }
-
-  const discoverMode = evidence.discover ?? "placement-only";
-  if (discoverMode !== "none") {
-    const captures: unknown[] = [
-      { id: "plugin-install-root-listing", kind: "directory-listing", status: "verified", entryCount: 2, listing: "evidence/discover/plugin-install-root-listing.json" },
-      { id: "marketplace-manifest-read", kind: "manifest-read", status: "verified", path: ".agents/plugins/marketplace.json", exists: true, sha256: "sha256:bb", content: "evidence/discover/marketplace-manifest-read.content" },
-    ];
-    if (discoverMode === "recognition-ok" || discoverMode === "recognition-empty") {
-      captures.push({ id: "plugins-list", kind: "command-output", status: "verified", exitCode: 0, stdout: "evidence/discover/plugins-list.stdout.txt" });
-      const stdoutPath = path.join(sessionRoot, "evidence/discover/plugins-list.stdout.txt");
-      mkdirSync(path.dirname(stdoutPath), { recursive: true });
-      writeFileSync(
-        stdoutPath,
-        discoverMode === "recognition-ok" ? `installed plugins:\n- ${PACKAGE_ID}\n` : "installed plugins:\n(none)\n",
-      );
-    }
-    writeJson(sessionRoot, "evidence/discover/captures.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "discover",
-      captures,
-    });
-  }
-
-  if (evidence.invoke !== false) {
-    writeJson(sessionRoot, "evidence/invoke/probe-assertion.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "invoke",
-      transcriptFile: "evidence/invoke/probe-transcript.txt",
-      exists: true,
-      sha256: "sha256:cc",
-      markers: [{ marker: "MAKE-DOCS-CONFORMANCE-SKILL-PROBE-OK", found: true }],
-    });
-  }
-
-  if (evidence.uninstall !== false) {
-    writeJson(sessionRoot, "evidence/uninstall/before-inventory.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "uninstall",
-      phase: "before",
-      // The make-docs setup-managed file set the instrument captures from the
-      // workspace manifest before removal (register item D-026): scaffolding
-      // removed by `setup remove` is managed, not user-authored.
-      managedFiles: ["AGENTS.md", "CLAUDE.md", "docs/AGENTS.md", "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md"],
-      entries: [{ path: ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", kind: "file", sha256: "sha256:aa" }],
-    });
-    writeJson(sessionRoot, "evidence/uninstall/removal-commands.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "uninstall",
-      commands: [{ command: "make-docs setup remove --backup --yes", exitCode: 0 }],
-    });
-    writeJson(sessionRoot, "evidence/uninstall/diff.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "uninstall",
-      phase: "remove",
-      removed: evidence.uninstallRemoved ?? [".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json", ".agents/plugins/marketplace.json"],
-      added: [".make-docs/backup/2026-07-06/manifest.json"],
-      modified: [],
-      unchangedCount: 3,
-      emptyManagedDirs: [],
-    });
-  }
-}
-
-let tmpRoot: string;
-
-beforeEach(() => {
-  tmpRoot = mkdtempSync(path.join(os.tmpdir(), "md-ingest-"));
-});
+const HASH = "b".repeat(64);
+const roots: string[] = [];
 
 afterEach(() => {
-  rmSync(tmpRoot, { recursive: true, force: true });
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-function ingest(evidence: EvidenceOptions, operator = runnableOperator(), runDate = "2026-07-06") {
-  const sessionRoot = path.join(tmpRoot, "session");
-  writeSyntheticSession(sessionRoot, evidence);
-  return ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator, runDate, sequence: 1 });
+function baseRegistry(): ConformanceTupleRegistry {
+  return {
+    record: "make-docs.conformance.tuple-registry",
+    schemaVersion: 2,
+    statuses: { ...CONFORMANCE_TUPLE_STATUS_MEANINGS },
+    verdictDerivation: structuredClone(CONFORMANCE_VERDICT_DERIVATION_RULES),
+    tuples: [],
+  };
 }
 
-describe("blocked honesty (R-EXEC-3)", () => {
-  test("an unattested operator-attestation precondition blocks the session", () => {
-    const result = ingest({}, runnableOperator({ attestedPreconditionIds: ["network-available"] }));
-    expect(result.record.verdict).toBe("blocked");
-    expect(result.record.supportClaimUse).toBe("none");
-    expect(result.record.evidenceBar).toEqual({ install: false, discover: false, invoke: false, uninstall: false });
-    expect(result.assembly.blocked).toBe(true);
-    expect(result.assembly.unmetPreconditions.map((entry) => entry.id)).toEqual(["model-routing-available"]);
-    expect(() => validatePackagingConformanceResultRecord(result.record)).not.toThrow();
+function createSession(input: {
+  tuple?: ConformanceSupportTuple;
+  measurements?: Partial<SetupAccessLabMeasurements["measured"]>;
+  caveats?: string[];
+} = {}): { root: string; tuple: ConformanceSupportTuple } {
+  const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-setup-access-ingest-"));
+  roots.push(root);
+  const tuple: ConformanceSupportTuple = input.tuple ?? {
+    scenario: "setup-access/mcp-store-operations",
+    harness: "codex",
+    connectionMethod: "mcp",
+    surface: "mcp",
+    scope: "machine",
+    modelOrProvider: "openai/gpt-5",
+    runtime: "node@22-darwin-arm64",
+  };
+  const provisional = addProvisionalConformanceTuple(baseRegistry(), {
+    id: "lab-exact-tuple",
+    tuple,
+    plannedScenario: tuple.scenario,
   });
+  const provisionalPath = path.join(root, "tuple-registry.provisional.json");
+  writeFileSync(provisionalPath, JSON.stringify(provisional));
+  const manifest: SetupAccessLabManifest = {
+    schemaVersion: "make-docs.setup-access-lab.v2",
+    runDate: "2026-09-14",
+    harnessVersion: "codex-cli 1.2.3",
+    tuple,
+    package: {
+      sourceTarball: "/tmp/make-docs-conformance-lab/input.tgz",
+      copiedTarball: "/tmp/make-docs-conformance-lab/copied.tgz",
+      tarballDigest: HASH,
+      packageRoot: "/tmp/make-docs-conformance-lab/product",
+      executablePath: "/tmp/make-docs-conformance-lab/product/dist/index.js",
+      executableDigest: HASH,
+      behaviorDigest: HASH,
+      makeDocsVersion: "2.0.0-rc",
+      distributionType: "packed-npm",
+    },
+    registry: {
+      source: "/repo/conformance/tuple-registry.json",
+      sourceDigest: HASH,
+      provisional: provisionalPath,
+      provisionalDigest: HASH,
+      status: "provisional",
+    },
+    session: {
+      root,
+      home: path.join(root, "home"),
+      project: path.join(root, "project"),
+      store: path.join(root, "store"),
+      evidence: path.join(root, "evidence"),
+    },
+    native: {
+      applied: tuple.connectionMethod !== "direct-cli",
+      verified: true,
+      files: tuple.connectionMethod === "direct-cli" ? [] : [".codex/config.toml"],
+      nativeConfigDigest: HASH,
+      receipt: null,
+      userContentSeed: {
+        path: path.join(root, "home", "user-content-seed.txt"),
+        evidence: path.join(root, "evidence", "user-content-seed.json"),
+        digest: HASH,
+      },
+    },
+    promotion: {
+      supportStatusChanged: false,
+      resultWritten: false,
+      nextAction: "Measure the disposable real-harness session.",
+    },
+  };
+  mkdirSync(path.join(root, "evidence"), { recursive: true });
+  writeFileSync(path.join(root, "manifest.json"), JSON.stringify(manifest));
+  const measurements: SetupAccessLabMeasurements = {
+    schemaVersion: "make-docs.setup-access-measurements.v2",
+    tuple,
+    measured: {
+      nativeFiles: true,
+      callerOrLaunchIdentity: true,
+      methodIdentity: true,
+      storeRead: true,
+      storeWrite: true,
+      rejectedAccess: true,
+      storeFreeResourceRead: true,
+      storeSessionOpenedForResourceRead: false,
+      cleanup: true,
+      userContentPreserved: true,
+      ...input.measurements,
+    },
+    evidenceReferences: ["evidence/harness-transcript.json"],
+    caveats: input.caveats ?? [],
+    transcriptLogPointer: "discarded-with-session",
+    transcriptFormat: "json",
+  };
+  writeFileSync(path.join(root, "evidence", "measurements.json"), JSON.stringify(measurements));
+  return { root, tuple };
+}
 
-  test("an operator-reported unmet probeable precondition blocks the session", () => {
-    const result = ingest({}, runnableOperator({ unmetProbeablePreconditionIds: ["harness-cli-available"] }));
-    expect(result.record.verdict).toBe("blocked");
-    expect(result.assembly.unmetPreconditions.map((entry) => entry.id)).toContain("harness-cli-available");
-  });
-});
-
-describe("fail-closed measurement (R-ING-1)", () => {
-  test("a missing instrument output yields false for that stage — no narrative rescue", () => {
-    const result = ingest({ install: false });
-    expect(result.record.evidenceBar.install).toBe(false);
-    const installMeasurement = result.assembly.measured.find((entry) => entry.stage === "install")!;
-    expect(installMeasurement.outputsPresent).toBe(false);
-    expect(installMeasurement.value).toBe(false);
-    // The operator's confident narrative cannot flip a missing measurement.
-    expect(result.record.verdict).toBe("unsupported");
-  });
-
-  test("a session with no instrument outputs yields an all-false bar the seam does not advance", () => {
-    const result = ingest({ install: false, discover: "none", invoke: false, uninstall: false });
-    expect(result.record.evidenceBar).toEqual({ install: false, discover: false, invoke: false, uninstall: false });
-    expect(result.record.verdict).toBe("unsupported");
-
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT, registryPath: path.join(REPO_ROOT, "conformance/history/w19-r1-p8-tuple-registry.json") });
-    const entry = registry.tuples.find((candidate) => candidate.id === "codex-plugin-native-project")!;
-    expect(() => bindIngestedResultToRegistryEntry({ entry, spec: PLUGIN_SPEC, result })).toThrow("Retired conformance scenarios");
-  });
-});
-
-describe("the discover honesty rule (register item R-021)", () => {
-  test("placement surfaces alone never confirm discover — files written is not harness recognition", () => {
-    // install, invoke, uninstall all pass; discover has only placement
-    // captures (directory listing + manifest read of files WE wrote).
-    const result = ingest({ discover: "placement-only" });
-    expect(result.record.evidenceBar.install).toBe(true);
-    expect(result.record.evidenceBar.invoke).toBe(true);
-    expect(result.record.evidenceBar.uninstall).toBe(true);
-    // The crux: everything is "in place", yet discover stays FALSE.
-    expect(result.record.evidenceBar.discover).toBe(false);
-    expect(result.record.verdict).toBe("unsupported");
-    const discoverCaveat = result.record.caveats.find((caveat) => caveat.includes("discover"));
-    expect(discoverCaveat).toBeDefined();
-    expect(discoverCaveat).toMatch(/R-021/);
-    expect(discoverCaveat).toMatch(/narrative context, never evidence/);
-  });
-
-  test("a verified harness-listing command that shows the package confirms discover", () => {
-    const result = ingest({ discover: "recognition-ok" });
-    expect(result.record.evidenceBar.discover).toBe(true);
-    expect(result.record.evidenceBar).toEqual({ install: true, discover: true, invoke: true, uninstall: true });
-    expect(result.record.verdict).toBe("pass");
-    expect(result.record.supportClaimUse).toBe("nominal-tuple");
-  });
-
-  test("a harness-listing command whose output omits the package does not confirm discover", () => {
-    const result = ingest({ discover: "recognition-empty" });
-    expect(result.record.evidenceBar.discover).toBe(false);
-    expect(result.record.verdict).toBe("unsupported");
-    expect(result.record.caveats.some((caveat) => caveat.includes("plugins-list"))).toBe(true);
-  });
-});
-
-describe("attestations are structurally distinguishable from measurements (R-EXEC-2)", () => {
-  test("measured booleans and attested metadata live in separate provenance branches", () => {
-    const result = ingest({ discover: "recognition-ok" });
-    expect(result.assembly.schemaVersion).toBe(CONFORMANCE_INGESTION_PROVENANCE_SCHEMA_VERSION);
-    expect(result.assembly.measured.map((entry) => entry.stage)).toEqual(["install", "discover", "invoke", "uninstall"]);
-    expect(result.assembly.attested.modelName).toBe("gpt-5-codex");
-    // Every measured stage names the instrument outputs it read.
-    for (const measurement of result.assembly.measured) {
-      expect(measurement.outputsPresent).toBe(true);
-    }
-  });
-
-  test("changing operator narrative and metadata never changes a measured boolean", () => {
-    const base = ingest({ discover: "placement-only" });
-    const embellished = ingest(
-      { discover: "placement-only" },
-      runnableOperator({
-        modelName: "different-model",
-        narrativeReason: "Everything worked perfectly and Codex definitely recognized the plugin.",
-      }),
-    );
-    expect(embellished.record.evidenceBar).toEqual(base.record.evidenceBar);
-    expect(embellished.record.evidenceBar.discover).toBe(false);
-  });
-});
-
-describe("committing the record (t4, R-TEST-1 receipts)", () => {
-  test("writes the record to conformance/results/<harness>/ and round-trips byte-equal", () => {
-    const result = ingest({ discover: "recognition-ok" });
-    expect(result.recordRef).toBe(
-      "conformance/results/codex/2026-07-06-plugin-marketplace-install-001.json",
-    );
-    const repoRoot = path.join(tmpRoot, "repo");
-    mkdirSync(repoRoot, { recursive: true });
-    const written = writeConformanceResultRecord({ result, repoRoot, writeProvenance: true });
-    const reread = JSON.parse(readFileSync(written, "utf8")) as unknown;
-    const revalidated = validatePackagingConformanceResultRecord(reread);
-    expect(revalidated).toEqual(result.record);
-    // Provenance sidecar exists and names its schema.
-    const provenance = JSON.parse(
-      readFileSync(written.replace(/\.json$/, ".provenance.json"), "utf8"),
-    ) as { schemaVersion: string };
-    expect(provenance.schemaVersion).toBe(CONFORMANCE_INGESTION_PROVENANCE_SCHEMA_VERSION);
-  });
-});
-
-describe("manifest / definition cross-checks", () => {
-  test("a manifest whose scenarioVersion drifts from the definition fails closed", () => {
-    const sessionRoot = path.join(tmpRoot, "drift");
-    writeSyntheticSession(sessionRoot, {});
-    const manifestPath = path.join(sessionRoot, "kit", "manifest.json");
-    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as { scenarioVersion: string };
-    manifest.scenarioVersion = "9.9.9";
-    writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-    expect(() =>
-      ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-06", sequence: 1 }),
-    ).toThrow(/scenarioVersion/);
-  });
-});
-
-describe("uninstall managed-file recognition (register item D-026)", () => {
-  test("make-docs-managed scaffolding removed by `setup remove` does not fail uninstall", () => {
-    // AGENTS.md / CLAUDE.md / the lifecycle playbook are make-docs setup-managed
-    // (in the captured managedFiles set), not user-authored — removing them is
-    // correct, so uninstall confirms and the run passes.
-    const result = ingest({
-      discover: "recognition-ok",
-      uninstallRemoved: [
-        ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md",
-      ],
+describe("setup-access version 2 ingestion", () => {
+  test("records the exact tuple and complete product and harness provenance", () => {
+    const session = createSession();
+    const ingested = ingestSetupAccessLabSession({
+      sessionRoot: session.root,
+      reviewerStatus: "reviewed",
+      reason: "The disposable Codex MCP run met every measured condition.",
     });
-    expect(result.record.evidenceBar.uninstall).toBe(true);
-    expect(result.record.evidenceBar).toEqual({ install: true, discover: true, invoke: true, uninstall: true });
-    expect(result.record.verdict).toBe("pass");
-  });
-
-  test("a genuine user-authored file removal still fails uninstall", () => {
-    const result = ingest({
-      discover: "recognition-ok",
-      uninstallRemoved: [
-        ".codex/plugins/conformance-plugin-probe/.codex-plugin/plugin.json",
-        "src/my-notes.md",
-      ],
+    expect(() => validatePackagingConformanceResultRecord(ingested.record)).not.toThrow();
+    expect(ingested.record.tuple).toEqual(session.tuple);
+    expect(ingested.record).toMatchObject({
+      schemaVersion: "conformance.result.v2",
+      makeDocsVersion: "2.0.0-rc",
+      executableDigest: HASH,
+      behaviorDigest: HASH,
+      registryDigest: HASH,
+      distributionType: "packed-npm",
+      harnessVersion: "codex-cli 1.2.3",
+      nativeConfigDigest: HASH,
+      reviewerStatus: "reviewed",
+      supportClaimUse: "nominal-tuple",
+      verdict: "pass",
     });
-    expect(result.record.evidenceBar.uninstall).toBe(false);
-    expect(result.record.verdict).toBe("unsupported");
-    expect(result.assembly.measured.find((entry) => entry.stage === "uninstall")!.detail).toMatch(
-      /user-authored file\(s\) removed: src\/my-notes\.md/,
-    );
+    expect(getConformanceTupleEntry(ingested.promotedRegistry, session.tuple)?.status)
+      .toBe("conformance-validated");
   });
-});
 
-describe("preflight CLI-identity guard (register item D-027)", () => {
-  function writeSessionWithPreflight(ok: boolean): string {
-    const sessionRoot = path.join(tmpRoot, "session");
-    writeSyntheticSession(sessionRoot, { discover: "recognition-ok" });
-    writeJson(sessionRoot, "evidence/preflight/preflight.json", {
-      schemaVersion: "conformance.instrument-output.v1",
-      stage: "preflight",
-      expectedVersion: "2.0.0-rc",
-      actualVersion: ok ? "2.0.0-rc" : "1.0.0-rc.1",
-      exitCode: 0,
-      ok,
+  test("keeps incomplete measurements blocked and provisional", () => {
+    const session = createSession({ measurements: { storeWrite: null } });
+    const ingested = ingestSetupAccessLabSession({ sessionRoot: session.root });
+    expect(ingested.record.verdict).toBe("blocked");
+    expect(ingested.record.evidenceBar).toEqual({
+      install: false,
+      discover: false,
+      invoke: false,
+      uninstall: false,
     });
-    return sessionRoot;
-  }
-
-  test("a preflight CLI mismatch refuses ingestion outright", () => {
-    const sessionRoot = writeSessionWithPreflight(false);
-    expect(() =>
-      ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-07", sequence: 1 }),
-    ).toThrow(/make-docs CLI mismatch|D-027/);
+    expect(getConformanceTupleEntry(ingested.promotedRegistry, session.tuple)?.status)
+      .toBe("provisional");
   });
 
-  test("a passing preflight does not block ingestion", () => {
-    const sessionRoot = writeSessionWithPreflight(true);
-    const result = ingestConformanceLabSession({ sessionRoot, spec: PLUGIN_SPEC, operator: runnableOperator(), runDate: "2026-07-07", sequence: 1 });
-    expect(result.record.verdict).toBe("pass");
+  test("requires Store-free direct reads to avoid a Store session", () => {
+    const tuple: ConformanceSupportTuple = {
+      scenario: "setup-access/direct-resource-read",
+      harness: "claude-code",
+      connectionMethod: "direct-cli",
+      surface: "cli-resource",
+      scope: "machine",
+      modelOrProvider: "anthropic/claude",
+      runtime: "node@22-darwin-arm64",
+    };
+    const failed = createSession({
+      tuple,
+      measurements: { storeSessionOpenedForResourceRead: true },
+    });
+    expect(ingestSetupAccessLabSession({ sessionRoot: failed.root }).record.verdict).toBe("unsupported");
+    const passed = createSession({ tuple });
+    expect(ingestSetupAccessLabSession({ sessionRoot: passed.root }).record.verdict).toBe("pass");
   });
 
-  test("absent preflight evidence (older kits) does not block ingestion", () => {
-    // No preflight.json written — backward compatible.
-    const result = ingest({ discover: "recognition-ok" });
-    expect(result.record.verdict).toBe("pass");
+  test("rejects evidence for a different exact tuple", () => {
+    const session = createSession();
+    const measurementsPath = path.join(session.root, "evidence", "measurements.json");
+    const measurements = JSON.parse(readFileSync(measurementsPath, "utf8"));
+    measurements.tuple.modelOrProvider = "different-provider";
+    writeFileSync(measurementsPath, JSON.stringify(measurements));
+    expect(() => ingestSetupAccessLabSession({ sessionRoot: session.root })).toThrow(/does not match/i);
   });
 });

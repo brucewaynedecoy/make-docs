@@ -156,7 +156,7 @@ personas:
     expect(formatMakeDocsConfigDiagnostics(loaded)).toContain("<root>");
   });
 
-  test("rejects unknown top-level and display-label keys", () => {
+  test("ignores unknown top-level and display-label keys while validating known fields", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -170,18 +170,12 @@ labels:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(false);
-    expect(loaded.diagnostics.map((diagnostic) => diagnostic.keyPath)).toEqual([
-      "appearance",
-      "labels.lifecycle.idea",
-    ]);
-    expect(loaded.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
-      "unknown-key",
-      "unknown-key",
-    ]);
+    expect(loaded.valid).toBe(true);
+    expect(loaded.diagnostics).toEqual([]);
+    expect(loaded.config.labels.lifecycle.design).toBe("design");
   });
 
-  test("rejects structural rename attempts", () => {
+  test("keeps canonical behavior when an unknown field looks like a structural rename", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -195,19 +189,13 @@ labels:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(false);
-    expect(loaded.diagnostics).toContainEqual(
-      expect.objectContaining({
-        code: "structural-rename-attempt",
-        keyPath: "paths",
-      }),
-    );
-    expect(() => loadMakeDocsConfigOrThrow(targetDir)).toThrow(
-      /structural paths, metadata fields, kind values/,
-    );
+    expect(loaded.valid).toBe(true);
+    expect(loaded.diagnostics).toEqual([]);
+    expect(loaded.config.labels.coordinates.wave).toBe("Batch");
+    expect(() => loadMakeDocsConfigOrThrow(targetDir)).not.toThrow();
   });
 
-  test("rejects canonical route prompt skill contract and harness rename attempts", () => {
+  test("does not interpret unknown route prompt skill contract or harness fields", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -226,17 +214,9 @@ harnessNames:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(false);
-    expect(loaded.diagnostics.map((diagnostic) => diagnostic.keyPath)).toEqual([
-      "routeIds",
-      "promptPaths",
-      "skillNames",
-      "contractNames",
-      "harnessNames",
-    ]);
-    expect(loaded.diagnostics.every(
-      (diagnostic) => diagnostic.code === "structural-rename-attempt",
-    )).toBe(true);
+    expect(loaded.valid).toBe(true);
+    expect(loaded.diagnostics).toEqual([]);
+    expect(loaded.config).toEqual(createDefaultMakeDocsConfig());
   });
 
   test("rejects invalid persona primitive values", () => {

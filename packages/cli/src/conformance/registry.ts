@@ -15,14 +15,9 @@
  *   `unsupported`, `blocked` — is the lab's (PRD 20) and is consumed here
  *   unchanged; a scenario that cannot run for a missing precondition reports
  *   `blocked` rather than inventing evidence.
- * - The registry data file is maintainer-only in-repo project content under
- *   the repo-root `conformance/` directory (relocated from
- *   `docs/assets/conformance/` per PRD 43), deliberately NOT authored
- *   upstream in `packages/docs/template/` — a stated exception to the
- *   upstream-first rule, because conformance is maintainer evidence
- *   infrastructure, not shipped product. It must stay out of the shipped
- *   template, the packaged copy, and npm tarballs (enforced outward by the
- *   Phase 3 R-TEST-3 exclusion check).
+ * - The repo-root registry is the only authoring source. The controlled
+ *   package build copies only this file into the npm package. Scenario
+ *   sources, result records, transcripts, and maintainer tools never ship.
  *
  * Implementer decisions recorded here (D8 freedoms):
  * - Registry file format: a single versioned JSON document. JSON keeps the
@@ -52,14 +47,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import {
-  isRetiredConformanceScenario,
-  CONFORMANCE_RECORD_KINDS,
-  CONFORMANCE_OUTPUT_KINDS,
-  CONFORMANCE_SCOPES,
-} from "./historical-contract";
 import { OperationError } from "../operations/types";
+import { PACKAGE_ROOT } from "../utils";
 import {
+  assertConformanceTupleCombination,
+  conformanceSupportTupleSchema,
   conformanceTupleKey,
   isConformanceTupleBound,
   type ConformanceSupportTuple,
@@ -149,9 +141,14 @@ export const CONFORMANCE_VERDICT_DERIVATION_RULES = {
  */
 export interface ConformanceRecordedRun {
   runId: string;
-  /** Lab scenario id; run metadata that binds the tuple's `scenario` dimension. */
-  scenario: string;
+  tuple: ConformanceSupportTuple;
   runDate: string;
+  makeDocsVersion: string;
+  executableDigest: string;
+  behaviorDigest: string;
+  distributionType: "packed-npm" | "workspace-build";
+  harnessVersion: string;
+  nativeConfigDigest: string;
   verdict: ConformanceRunVerdict;
   caveats: string[];
   /** `pass-with-caveats` advances a tuple only when its caveats are surfaced (R-REG-3). */
@@ -160,8 +157,7 @@ export interface ConformanceRecordedRun {
   evidenceBar: Record<ConformanceEvidenceBarStage, boolean>;
   /** Repo-relative path of the compact normalized result record. */
   recordRef: string;
-  modelOrProvider: string;
-  runtime: string;
+  evidenceReferences: string[];
   /**
    * True when the run executed against a faithfully simulated harness rather
    * than the real one (R-BAR-1 admits both; W18 R9 P2 t3). A simulated run
@@ -215,7 +211,7 @@ export const CONFORMANCE_TUPLE_REGISTRY_RECORD = "make-docs.conformance.tuple-re
 
 export interface ConformanceTupleRegistry {
   record: typeof CONFORMANCE_TUPLE_REGISTRY_RECORD;
-  schemaVersion: 1;
+  schemaVersion: 2;
   statuses: Record<ConformanceTupleStatus, string>;
   verdictDerivation: typeof CONFORMANCE_VERDICT_DERIVATION_RULES;
   tuples: ConformanceTupleRegistryEntry[];
@@ -223,6 +219,31 @@ export interface ConformanceTupleRegistry {
 
 /** Repo-relative registry home (PRD 20 R-REG-1; PRD 43 R-HOME-1). */
 export const CONFORMANCE_TUPLE_REGISTRY_PATH = "conformance/tuple-registry.json";
+
+/** Installed setup always resolves this package-relative copy, never the working directory. */
+export const PACKAGED_CONFORMANCE_TUPLE_REGISTRY_PATH = path.join(
+  PACKAGE_ROOT,
+  CONFORMANCE_TUPLE_REGISTRY_PATH,
+);
+
+const WORKSPACE_CONFORMANCE_TUPLE_REGISTRY_PATH = path.resolve(
+  PACKAGE_ROOT,
+  "..",
+  "..",
+  CONFORMANCE_TUPLE_REGISTRY_PATH,
+);
+
+function defaultConformanceTupleRegistryPath(): string {
+  if (existsSync(PACKAGED_CONFORMANCE_TUPLE_REGISTRY_PATH)) {
+    return PACKAGED_CONFORMANCE_TUPLE_REGISTRY_PATH;
+  }
+  const isWorkspaceCliPackage =
+    path.basename(PACKAGE_ROOT) === "cli" && path.basename(path.dirname(PACKAGE_ROOT)) === "packages";
+  if (isWorkspaceCliPackage && existsSync(WORKSPACE_CONFORMANCE_TUPLE_REGISTRY_PATH)) {
+    return WORKSPACE_CONFORMANCE_TUPLE_REGISTRY_PATH;
+  }
+  return PACKAGED_CONFORMANCE_TUPLE_REGISTRY_PATH;
+}
 
 /** A run meets the D4 bar only when every stage was asserted (R-BAR-1). */
 export function runMeetsEvidenceBar(run: ConformanceRecordedRun): boolean {
@@ -237,7 +258,7 @@ export function runMeetsEvidenceBar(run: ConformanceRecordedRun): boolean {
  * absence of evidence, not evidence.
  */
 export function runQualifiesForConformanceValidation(run: ConformanceRecordedRun): boolean {
-  if (isRetiredConformanceScenario(run.scenario) || !runMeetsEvidenceBar(run)) {
+  if (!runMeetsEvidenceBar(run)) {
     return false;
   }
   if (run.verdict === "pass") {
@@ -269,25 +290,20 @@ export function deriveConformanceTupleStatus(
   return "provisional";
 }
 
-const CONFORMANCE_TUPLE_SURFACES = ["native", "agents-standard"] as const;
+const SHA256 = /^[a-f0-9]{64}$/;
 
-const tupleSchema = z.object({
-  scenario: z.string().min(1).nullable(),
-  harness: z.string().min(1),
-  // Never `auto`: a registry tuple is exact, and `auto` would be a claim
-  // broader than its evidence (R-TUPLE-1).
-  surface: z.enum(CONFORMANCE_TUPLE_SURFACES),
-  scope: z.enum(CONFORMANCE_SCOPES),
-  outputKind: z.enum(CONFORMANCE_OUTPUT_KINDS),
-  generatedOutputKind: z.enum(CONFORMANCE_RECORD_KINDS),
-  modelOrProvider: z.string().min(1).nullable(),
-  runtime: z.string().min(1).nullable(),
-});
+const tupleSchema = conformanceSupportTupleSchema;
 
 const recordedRunSchema = z.object({
   runId: z.string().min(1),
-  scenario: z.string().min(1),
-  runDate: z.string().min(1),
+  tuple: tupleSchema,
+  runDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  makeDocsVersion: z.string().min(1),
+  executableDigest: z.string().regex(SHA256),
+  behaviorDigest: z.string().regex(SHA256),
+  distributionType: z.enum(["packed-npm", "workspace-build"]),
+  harnessVersion: z.string().min(1),
+  nativeConfigDigest: z.string().regex(SHA256),
   verdict: z.enum(CONFORMANCE_RUN_VERDICTS),
   caveats: z.array(z.string().min(1)),
   caveatsSurfaced: z.boolean(),
@@ -298,10 +314,9 @@ const recordedRunSchema = z.object({
     uninstall: z.boolean(),
   }),
   recordRef: z.string().min(1),
-  modelOrProvider: z.string().min(1),
-  runtime: z.string().min(1),
+  evidenceReferences: z.array(z.string().min(1)).min(1),
   simulated: z.boolean(),
-});
+}).strict();
 
 const evidenceRefSchema = z.object({
   kind: z.enum(CONFORMANCE_EVIDENCE_REF_KINDS),
@@ -326,15 +341,15 @@ const registryEntrySchema = z.object({
       ),
   ),
   notes: z.array(z.string().min(1)),
-});
+}).strict();
 
 const registrySchema = z.object({
   record: z.literal(CONFORMANCE_TUPLE_REGISTRY_RECORD),
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   statuses: z.record(z.string(), z.string()),
   verdictDerivation: z.unknown(),
   tuples: z.array(registryEntrySchema),
-});
+}).strict();
 
 function stableJson(value: unknown): string {
   return JSON.stringify(value);
@@ -379,6 +394,7 @@ export function validateConformanceTupleRegistry(document: unknown): Conformance
       throw new OperationError(`Duplicate ${label}.`);
     }
     seenIds.add(entry.id);
+    assertConformanceTupleCombination(entry.tuple);
     const key = conformanceTupleKey(entry.tuple);
     if (seenTupleKeys.has(key)) {
       throw new OperationError(
@@ -393,21 +409,15 @@ export function validateConformanceTupleRegistry(document: unknown): Conformance
           "statuses are derived from recorded evidence and cannot be asserted (R-REG-2, R-REG-3).",
       );
     }
-    if (entry.status === "conformance-validated" && !isConformanceTupleBound(entry.tuple)) {
+    if (!isConformanceTupleBound(entry.tuple)) {
       throw new OperationError(
-        `${label} is conformance-validated with unbound tuple dimensions; the evidence-owned ` +
-          "dimensions bind from the qualifying run's metadata (R-TUPLE-1).",
+        `${label} has an empty or wildcard tuple field; active version 2 claims are exact.`,
       );
     }
     for (const run of entry.recordedRuns) {
-      if (
-        runQualifiesForConformanceValidation(run) &&
-        entry.tuple.scenario !== null &&
-        entry.tuple.scenario !== run.scenario
-      ) {
+      if (conformanceTupleKey(entry.tuple) !== conformanceTupleKey(run.tuple)) {
         throw new OperationError(
-          `${label} binds scenario \`${entry.tuple.scenario}\` but its qualifying run recorded ` +
-            `\`${run.scenario}\`; a claim may not be broader than the evidence for its exact tuple (R-TUPLE-1).`,
+          `${label} has run \`${run.runId}\` for a different tuple; evidence never crosses an exact tuple.`,
         );
       }
     }
@@ -429,20 +439,20 @@ export function validateConformanceTupleRegistry(document: unknown): Conformance
 }
 
 /**
- * Loads and validates the tuple registry from the maintainer repo. Fails
- * closed — a missing or invalid registry is an error, never an empty
- * registry, so no consumer can mistake absence for zero claims.
+ * Loads and validates the packaged registry by default. Maintainer and test
+ * callers can name an explicit file through the same validated loader.
  */
 export function loadConformanceTupleRegistry(
   input: { repoRoot?: string; registryPath?: string } = {},
 ): ConformanceTupleRegistry {
   const registryPath =
     input.registryPath ??
-    path.join(input.repoRoot ?? path.resolve("."), CONFORMANCE_TUPLE_REGISTRY_PATH);
+    (input.repoRoot
+      ? path.join(input.repoRoot, CONFORMANCE_TUPLE_REGISTRY_PATH)
+      : defaultConformanceTupleRegistryPath());
   if (!existsSync(registryPath)) {
     throw new OperationError(
-      `Conformance tuple registry not found at \`${registryPath}\`; the registry is maintainer-only ` +
-        `in-repo content at ${CONFORMANCE_TUPLE_REGISTRY_PATH} (R-REG-1).`,
+      `Conformance tuple registry not found at \`${registryPath}\`. Reinstall this Make Docs package or supply an explicit registry path for a disposable test.`,
     );
   }
   let document: unknown;
@@ -458,21 +468,19 @@ export function loadConformanceTupleRegistry(
 
 /** Exact-match filter over the queryable dimensions plus status. */
 export interface ConformanceTupleQuery {
-  scenario?: string | null;
-  harness?: string;
+  scenario?: ConformanceSupportTuple["scenario"];
+  harness?: ConformanceSupportTuple["harness"];
+  connectionMethod?: ConformanceSupportTuple["connectionMethod"];
   surface?: ConformanceTupleSurface;
   scope?: ConformanceSupportTuple["scope"];
-  outputKind?: ConformanceSupportTuple["outputKind"];
-  generatedOutputKind?: ConformanceSupportTuple["generatedOutputKind"];
-  modelOrProvider?: string | null;
-  runtime?: string | null;
+  modelOrProvider?: string;
+  runtime?: string;
   status?: ConformanceTupleStatus;
 }
 
 /**
- * Queries registry entries by exact dimension/status match (R-REG-1's
- * queryability, code-side). Omitted fields match anything; `null` matches
- * only unbound dimensions.
+ * Queries registry entries by exact dimension/status match. Omitted fields
+ * match anything. Active version 2 tuples do not admit null or wildcards.
  */
 export function queryConformanceTuples(
   registry: ConformanceTupleRegistry,
@@ -485,10 +493,9 @@ export function queryConformanceTuples(
     const dimensions = [
       "scenario",
       "harness",
+      "connectionMethod",
       "surface",
       "scope",
-      "outputKind",
-      "generatedOutputKind",
       "modelOrProvider",
       "runtime",
     ] as const;
@@ -505,4 +512,35 @@ export function getConformanceTupleEntry(
 ): ConformanceTupleRegistryEntry | null {
   const key = conformanceTupleKey(tuple);
   return registry.tuples.find((entry) => conformanceTupleKey(entry.tuple) === key) ?? null;
+}
+
+/**
+ * Add one exact provisional tuple to an isolated registry document.
+ * This helper does not write a file and cannot promote support status.
+ */
+export function addProvisionalConformanceTuple(
+  registry: ConformanceTupleRegistry,
+  input: { id: string; tuple: ConformanceSupportTuple; plannedScenario?: string },
+): ConformanceTupleRegistry {
+  validateConformanceTupleRegistry(registry);
+  const tuple = conformanceSupportTupleSchema.parse(input.tuple);
+  assertConformanceTupleCombination(tuple);
+  if (getConformanceTupleEntry(registry, tuple)) {
+    throw new OperationError("The exact tuple is already present in this registry.");
+  }
+  return validateConformanceTupleRegistry({
+    ...registry,
+    tuples: [
+      ...registry.tuples,
+      {
+        id: input.id,
+        tuple,
+        status: "provisional",
+        evidence: [],
+        recordedRuns: [],
+        plannedScenarios: input.plannedScenario ? [input.plannedScenario] : [],
+        notes: ["Created only for a disposable first-run setup-access lab session."],
+      },
+    ],
+  });
 }

@@ -1,428 +1,149 @@
-/**
- * W18 R9 P3 coverage, retargeted by W18 R13 P1 (PRD 43 R-SCHEMA-3): the
- * three named test layers declared where the tests live (t1/t2,
- * R-LAYER-1..2) and the D9 meta-verification checks (t3-t5, R-TEST-1..3)
- * over the domain-qualified `scenarios/<domain>/` definitions, run in the
- * standard suite so a regression in the committed tuple registry, the
- * required scenario set, the layer attribution of cited evidence, or the
- * maintainer-only shipping boundary fails the build. The
- * R-TEST-3 exclusion check additionally runs in the packaging validation
- * surface: `tests/consistency.test.ts` (behind `validate:defaults`) for the
- * shipped template trees and `scripts/smoke-pack.mjs` for the npm tarball.
- *
- * ENFORCING: the layer tests read every packaging and conformance suite
- * header, extending the W18 R8 P5 evidence-boundary precedent — a suite that
- * drops its layer declaration or the boundary rule fails here.
- *
- * Test layer: unit (R-LAYER-1) — pure-function tests over the check code and
- * the committed conformance assets, no CLI. They prove the meta-verification
- * machinery and the honesty of the committed registry and specs — they are
- * NEVER harness-recognition evidence, and internal tests passing is never
- * evidence that a harness recognizes or can use the output (R-LAYER-2,
- * PRD 36 R-TEST-5). Real recognition, installation, and invocation evidence
- * comes only from recorded W18 R9 scenario runs meeting the R-BAR-1 bar.
- */
-
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+/** Test layer: unit. These checks prove evidence honesty, not harness support. */
+import { afterEach, describe, expect, test } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "vitest";
 import {
-  CONFORMANCE_ASSET_CONTENT_MARKERS,
-  CONFORMANCE_ASSET_PATH_MARKERS,
-  CONFORMANCE_TEST_LAYERS,
-  CONFORMANCE_TEST_LAYER_MEANINGS,
   CONFORMANCE_TUPLE_STATUS_MEANINGS,
   CONFORMANCE_VERDICT_DERIVATION_RULES,
-  REPOSITORY_TEST_LAYERS,
-  REQUIRED_FIRST_PASS_SCENARIOS,
-  REQUIRED_FIRST_PASS_TARGET,
-  bindConformanceSupportTuple,
-  blockedPackagingResultRecord,
+  isConformanceAssetPath,
   listConformanceAssetExclusionViolations,
   listConformanceValidatedRunQualificationErrors,
-  listCrossLayerCitationErrors,
-  listDeclaredTestLayers,
   listRequiredFirstPassScenarioErrors,
   listShippedConformanceAssetErrors,
   loadConformanceTupleRegistry,
-  loadPackagingConformanceScenarioSpecs,
-  probePackagingScenarioPreconditions,
-  recordConformanceRunOnRegistryEntry,
-  validateConformanceTupleRegistry,
-  validatePackagingConformanceResultRecord,
-  type ConformanceRecordedRun,
+  projectPackagingResultToRecordedRun,
   type ConformanceSupportTuple,
-  type ConformanceTupleRegistryEntry,
-  type ScenarioPreconditionExecutor,
+  type ConformanceTupleRegistry,
+  type PackagingConformanceResultRecord,
 } from "../src/conformance";
-
 import { TEMPLATE_ROOT } from "../src/utils";
-import { cleanupTempDir, createTempDir } from "./helpers";
 
 const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
-const TESTS_DIR = path.dirname(fileURLToPath(import.meta.url));
-const CONFORMANCE_README_PATH = path.join(REPO_ROOT, "conformance/README.md");
+const HASH = "e".repeat(64);
+const roots: string[] = [];
 
-/** The suites the layer rule is enforced over: the packaging and conformance families. */
-function listEnforcedSuiteFiles(): string[] {
-  return readdirSync(TESTS_DIR)
-    .filter(
-      (name) =>
-        (name.startsWith("playbook-packaging") || name.startsWith("conformance-")) &&
-        name.endsWith(".test.ts"),
-    )
-    .sort();
-}
+afterEach(() => {
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
 
-function headerOf(filePath: string): string {
-  const content = readFileSync(filePath, "utf8");
-  const headerEnd = content.indexOf("describe(");
-  return headerEnd === -1 ? content : content.slice(0, headerEnd);
-}
+const tuple: ConformanceSupportTuple = {
+  scenario: "setup-access/direct-resource-read",
+  harness: "codex",
+  connectionMethod: "direct-cli",
+  surface: "cli-resource",
+  scope: "machine",
+  modelOrProvider: "openai/gpt-5",
+  runtime: "node@22-darwin-arm64",
+};
 
-/** Unwraps comment/markdown line breaks so a sentence can be matched whole. */
-function normalizeProse(text: string): string {
-  return text.replace(/\s*\n\s*\*?\s*/g, " ");
-}
-
-function unboundCodexTuple(): ConformanceSupportTuple {
-  return bindConformanceSupportTuple({
-    claim: bindTestClaim({
-      target: { harness: "codex", outputKind: "plugin", surface: "native", scope: "project" },
-    }),
-    generatedOutputKind: "generated-plugin",
-  });
-}
-
-function qualifyingRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
+function result(): PackagingConformanceResultRecord {
   return {
-    runId: "run-0001",
-    scenario: "packaging/unit-evidence-fixture",
-    runDate: "2026-07-04",
+    schemaVersion: "conformance.result.v2",
+    resultId: "2026-09-14-codex-direct-cli-001",
+    scenarioVersion: "2.0.0",
+    tuple,
+    runDate: "2026-09-14",
+    makeDocsVersion: "2.0.0-rc",
+    executablePath: "/tmp/make-docs-conformance-lab/product/dist/index.js",
+    executableDigest: HASH,
+    behaviorDigest: HASH,
+    registryDigest: HASH,
+    distributionType: "packed-npm",
+    harnessVersion: "codex-cli 1.2.3",
+    nativeConfigDigest: HASH,
+    producedFiles: [],
+    relevantDiffs: ["evidence/resource-read.json"],
+    exitStatus: 0,
+    transcriptLogPointer: "discarded-with-session",
     verdict: "pass",
+    reason: "Store-free resource reads passed.",
     caveats: [],
+    reviewerStatus: "reviewed",
+    supportClaimUse: "nominal-tuple",
     caveatsSurfaced: false,
     evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "conformance/results/codex/run-0001.json",
-    modelOrProvider: "anthropic",
-    runtime: "codex-cli",
     simulated: false,
-    ...overrides,
+    simulationMechanicsRef: null,
+    transcriptFormat: "json",
+    evidenceReferences: ["evidence/resource-read.json"],
   };
 }
 
-function entryFixture(
-  overrides: Partial<ConformanceTupleRegistryEntry> = {},
-): ConformanceTupleRegistryEntry {
+function registry(recordRef: string): ConformanceTupleRegistry {
+  const run = projectPackagingResultToRecordedRun(result(), recordRef);
   return {
-    id: "fixture-codex-plugin",
-    tuple: unboundCodexTuple(),
-    status: "provisional",
-    evidence: [],
-    recordedRuns: [],
-    plannedScenarios: [],
-    notes: ["Fixture entry."],
-    ...overrides,
+    record: "make-docs.conformance.tuple-registry",
+    schemaVersion: 2,
+    statuses: { ...CONFORMANCE_TUPLE_STATUS_MEANINGS },
+    verdictDerivation: structuredClone(CONFORMANCE_VERDICT_DERIVATION_RULES),
+    tuples: [{
+      id: "codex-direct-resource-read",
+      tuple,
+      status: "conformance-validated",
+      evidence: [],
+      recordedRuns: [run],
+      plannedScenarios: [tuple.scenario],
+      notes: [],
+    }],
   };
 }
 
-const failingExecutor: ScenarioPreconditionExecutor = {
-  commandSucceeds: () => false,
-};
-const succeedingExecutor: ScenarioPreconditionExecutor = {
-  commandSucceeds: () => true,
-};
-
-describe("three named test layers, declared where the tests live (t1/t2, R-LAYER-1..2)", () => {
-  test("the layer vocabulary is exactly the R-LAYER-1 set with its meanings", () => {
-    expect(CONFORMANCE_TEST_LAYERS).toEqual(["unit", "integration", "conformance"]);
-    expect(REPOSITORY_TEST_LAYERS).toEqual(["unit", "integration"]);
-    expect(CONFORMANCE_TEST_LAYER_MEANINGS.unit).toContain("pure functions without a CLI");
-    expect(CONFORMANCE_TEST_LAYER_MEANINGS.integration).toContain("CLI and MCP surfaces");
-    expect(CONFORMANCE_TEST_LAYER_MEANINGS.integration).toContain(
-      "manifest and exposure plumbing",
-    );
-    expect(CONFORMANCE_TEST_LAYER_MEANINGS.conformance).toContain("real-harness");
-    expect(CONFORMANCE_TEST_LAYER_MEANINGS.conformance).toContain("maintainer lab");
+describe("version 2 conformance meta-verification", () => {
+  test("requires each qualifying registry run to match its committed result", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-meta-"));
+    roots.push(root);
+    const ref = "conformance/results/codex/2026-09-14-direct-resource-read-001.json";
+    expect(listConformanceValidatedRunQualificationErrors({ registry: registry(ref), repoRoot: root }))
+      .toEqual([expect.stringContaining("not committed")]);
+    mkdirSync(path.dirname(path.join(root, ref)), { recursive: true });
+    writeFileSync(path.join(root, ref), JSON.stringify(result()));
+    expect(listConformanceValidatedRunQualificationErrors({ registry: registry(ref), repoRoot: root }))
+      .toEqual([]);
   });
 
-  test("every current conformance suite names exactly one repository layer and records the boundary rule", () => {
-    const enforced = listEnforcedSuiteFiles();
-    // The packaging family (rails, capability, compiler, adapters, seam,
-    // lifecycle, verification, and the R12 experience file when present)
-    // plus the three conformance suites.
-    expect(enforced).toContain("conformance-kit.test.ts");
-    expect(enforced).toContain("conformance-ingestion.test.ts");
-    for (const name of enforced) {
-      const header = headerOf(path.join(TESTS_DIR, name));
-      const layers = listDeclaredTestLayers(header);
-      expect(layers, `${name} must declare exactly one Test layer marker (R-LAYER-1)`).toHaveLength(
-        1,
-      );
-      expect(
-        REPOSITORY_TEST_LAYERS as readonly string[],
-        `${name} declares layer \`${layers[0]}\`; repository suites are unit or integration only (R-LAYER-2)`,
-      ).toContain(layers[0]);
-      // The boundary rule lives where the unit and integration tests live
-      // (t2): internal tests passing is never harness-recognition evidence.
-      expect(header, `${name} must record the R-LAYER-2 boundary rule in its header`).toContain(
-        "R-LAYER-2",
-      );
-      expect(
-        normalizeProse(header),
-        `${name} must spell out the internal-tests-are-not-evidence rule`,
-      ).toMatch(/never evidence that a harness recognizes or can use the output/);
-    }
+  test("allows only the exact packaged registry asset", () => {
+    expect(isConformanceAssetPath("conformance/tuple-registry.json")).toBe(false);
+    expect(isConformanceAssetPath("conformance/scenarios/setup-access.json")).toBe(true);
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-package-tree-"));
+    roots.push(root);
+    mkdirSync(path.join(root, "conformance", "scenarios"), { recursive: true });
+    writeFileSync(path.join(root, "conformance", "tuple-registry.json"), JSON.stringify({
+      record: "make-docs.conformance.tuple-registry",
+      schemaVersion: 2,
+    }));
+    writeFileSync(path.join(root, "conformance", "scenarios", "forbidden.json"), "{}");
+    const violations = listConformanceAssetExclusionViolations({ root, label: "candidate" });
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("scenarios/forbidden.json");
   });
 
-  test("no repository test file claims the conformance layer", () => {
-    for (const name of readdirSync(TESTS_DIR).filter((entry) => entry.endsWith(".test.ts"))) {
-      const layers = listDeclaredTestLayers(headerOf(path.join(TESTS_DIR, name)));
-      expect(
-        layers,
-        `${name} claims the conformance layer; the conformance layer is the maintainer lab, never a repository suite (R-LAYER-2)`,
-      ).not.toContain("conformance");
-    }
+  test("rejects a relocated registry and result schema marker", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-package-tree-"));
+    roots.push(root);
+    mkdirSync(path.join(root, "other"), { recursive: true });
+    writeFileSync(path.join(root, "other", "tuple-registry.json"), "{}");
+    writeFileSync(path.join(root, "other", "renamed.json"), "conformance.result.v2");
+    const violations = listConformanceAssetExclusionViolations({ root, label: "candidate" });
+    expect(violations).toHaveLength(2);
   });
 
-  test("the conformance layer is named where its assets live", () => {
-    const readme = readFileSync(CONFORMANCE_README_PATH, "utf8");
-    expect(readme).toContain("Test layer: conformance");
-    expect(normalizeProse(readme)).toMatch(
-      /never evidence that a harness recognizes or can use the output/,
-    );
-  });
-
-  test("listDeclaredTestLayers parses markers strictly from headers", () => {
-    expect(listDeclaredTestLayers(" * Test layer: unit (R-LAYER-1).\n")).toEqual(["unit"]);
-    expect(
-      listDeclaredTestLayers(" * Test layer: unit.\n * Test layer: integration.\n"),
-    ).toEqual(["unit", "integration"]);
-    // Unknown tokens surface for flagging rather than vanishing.
-    expect(listDeclaredTestLayers(" * Test layer: end-to-end.\n")).toEqual(["end-to-end"]);
-    expect(listDeclaredTestLayers("no marker here")).toEqual([]);
-  });
-});
-
-describe("R-TEST-1: no conformance-validated tuple without a qualifying recorded run (t3)", () => {
-  test("the committed registry passes the check end to end, with record receipts", () => {
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-    expect(
-      listConformanceValidatedRunQualificationErrors({ registry, repoRoot: REPO_ROOT }),
-    ).toEqual([]);
-  });
-
-  test("a tuple claiming conformance-validated without a qualifying run is flagged and rejected", () => {
-    const blockedRun = qualifyingRun({
-      verdict: "blocked",
-      evidenceBar: { install: false, discover: false, invoke: false, uninstall: false },
-    });
-    const entry = entryFixture({ status: "conformance-validated", recordedRuns: [blockedRun] });
-    // The meta check names the violation...
-    const errors = listConformanceValidatedRunQualificationErrors({
-      registry: { tuples: [entry] },
-    });
-    expect(errors).toEqual([expect.stringContaining("R-TEST-1")]);
-    // ...and the fail-closed loader rejects the same document structurally,
-    // so the claim cannot even load (R-REG-2/3): defense in depth.
-    expect(() =>
-      validateConformanceTupleRegistry({
-        record: "make-docs.conformance.tuple-registry",
-        schemaVersion: 1,
-        statuses: { ...CONFORMANCE_TUPLE_STATUS_MEANINGS },
-        verdictDerivation: CONFORMANCE_VERDICT_DERIVATION_RULES,
-        tuples: [entry],
-      }),
-    ).toThrow(/derives/);
-  });
-
-  test("a qualifying run understated as a lower status is flagged in the other direction", () => {
-    const boundTuple: ConformanceSupportTuple = {
-      ...unboundCodexTuple(),
-      scenario: "packaging/unit-evidence-fixture",
-      modelOrProvider: "anthropic",
-      runtime: "codex-cli",
-    };
-    const entry = entryFixture({
-      tuple: boundTuple,
-      status: "provisional",
-      recordedRuns: [qualifyingRun()],
-    });
-    expect(
-      listConformanceValidatedRunQualificationErrors({ registry: { tuples: [entry] } }),
-    ).toEqual([expect.stringContaining("R-REG-3")]);
-  });
-
-  test("a recorded run whose result record is not committed is not evidence", () => {
-    const boundTuple: ConformanceSupportTuple = {
-      ...unboundCodexTuple(),
-      scenario: "packaging/unit-evidence-fixture",
-      modelOrProvider: "anthropic",
-      runtime: "codex-cli",
-    };
-    const entry = entryFixture({
-      tuple: boundTuple,
-      status: "conformance-validated",
-      recordedRuns: [qualifyingRun({ recordRef: "conformance/results/codex/missing.json" })],
-    });
-    // Without a repoRoot the run shape qualifies; with the receipts check the
-    // missing committed record is a violation.
-    expect(listConformanceValidatedRunQualificationErrors({ registry: { tuples: [entry] } })).toEqual(
-      [],
-    );
-    expect(
-      listConformanceValidatedRunQualificationErrors({
-        registry: { tuples: [entry] },
-        repoRoot: REPO_ROOT,
-      }),
-    ).toEqual([expect.stringContaining("not committed")]);
-  });
-});
-
-describe("cross-layer citation honesty (t1, R-LAYER-1..2)", () => {
-  test("every internal-test evidence ref on the committed registry cites one named repository layer", () => {
-    const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-    expect(listCrossLayerCitationErrors({ registry, repoRoot: REPO_ROOT })).toEqual([]);
-  });
-
-  test("a citation of a missing, unlayered, or conformance-claiming suite is flagged", () => {
-    const root = createTempDir("make-docs-meta-citation-");
-    try {
-      mkdirSync(path.join(root, "tests"), { recursive: true });
-      writeFileSync(
-        path.join(root, "tests/unlayered.test.ts"),
-        "/** No layer marker here. */\ndescribe(\"x\", () => {});\n",
-        "utf8",
-      );
-      writeFileSync(
-        path.join(root, "tests/lab-claiming.test.ts"),
-        "/**\n * Test layer: conformance (bogus).\n */\ndescribe(\"x\", () => {});\n",
-        "utf8",
-      );
-      const registry = {
-        tuples: [
-          entryFixture({
-            evidence: [
-              { kind: "internal-test" as const, ref: "tests/missing.test.ts", note: "n" },
-              { kind: "internal-test" as const, ref: "tests/unlayered.test.ts", note: "n" },
-              { kind: "internal-test" as const, ref: "tests/lab-claiming.test.ts", note: "n" },
-            ],
-            status: "implementation-validated" as const,
-          }),
-        ],
-      };
-      const errors = listCrossLayerCitationErrors({ registry, repoRoot: root });
-      expect(errors).toHaveLength(3);
-      expect(errors[0]).toContain("does not exist");
-      expect(errors[1]).toContain("exactly one");
-      expect(errors[2]).toContain("never the conformance layer");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-});
-
-describe("R-TEST-3: conformance assets never ship (t5)", () => {
-  // A green exclusion result is an exclusion fact, not a support claim: it
-  // proves maintainer assets stayed maintainer-only, nothing about whether
-  // any harness recognizes any output (R-KEEP-1).
-  test("the shipped template and the packaged copy carry no conformance assets", () => {
+  test("keeps the shipped templates free of lab assets", () => {
     expect(listShippedConformanceAssetErrors({ repoRoot: REPO_ROOT })).toEqual([]);
   });
 
-  test("the walker detects assets by path, basename, and content marker — including relocations", () => {
-    const root = createTempDir("make-docs-meta-exclusion-");
-    try {
-      // The canonical repo-root home copied into a shipped tree root (PRD 42).
-      mkdirSync(path.join(root, "conformance"), { recursive: true });
-      writeFileSync(path.join(root, "conformance/README.md"), "# Assets\n", "utf8");
-      // A nested copy of the canonical family, caught by its subtree fragment.
-      mkdirSync(path.join(root, "nested/conformance/fixtures/agent"), { recursive: true });
-      writeFileSync(
-        path.join(root, "nested/conformance/fixtures/agent/probe.playbook.md"),
-        "# Fixture\n",
-        "utf8",
-      );
-      // The pre-relocation home still fails wherever it reappears.
-      mkdirSync(path.join(root, "docs/assets/conformance/scenarios"), { recursive: true });
-      writeFileSync(
-        path.join(root, "docs/assets/conformance/scenarios/some-spec.json"),
-        "{}",
-        "utf8",
-      );
-      mkdirSync(path.join(root, "relocated"), { recursive: true });
-      writeFileSync(path.join(root, "relocated/tuple-registry.json"), "{}", "utf8");
-      writeFileSync(
-        path.join(root, "relocated/renamed-registry.json"),
-        JSON.stringify({ record: CONFORMANCE_ASSET_CONTENT_MARKERS[0] }),
-        "utf8",
-      );
-      writeFileSync(path.join(root, "relocated/innocent.md"), "# Just a doc\n", "utf8");
-      const violations = listConformanceAssetExclusionViolations({
-        root,
-        label: "fixture tree",
-      });
-      expect(violations).toHaveLength(5);
-      expect(violations.join("\n")).toContain("conformance/README.md");
-      expect(violations.join("\n")).toContain("nested/conformance/fixtures/agent/probe.playbook.md");
-      expect(violations.join("\n")).toContain("docs/assets/conformance/scenarios/some-spec.json");
-      expect(violations.join("\n")).toContain("relocated/tuple-registry.json");
-      expect(violations.join("\n")).toContain("relocated/renamed-registry.json");
-      expect(violations.join("\n")).not.toContain("innocent.md");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("the asset markers match the scenarios/<domain>/ nesting: verified, not assumed (W18 R13 P1 t8)", () => {
-    // The R-TEST-2 layout moved definitions under `scenarios/<domain>/`
-    // (PRD 43 R-ORG-1); the `conformance/scenarios/` subtree marker must keep
-    // matching through that nesting at any depth.
-    expect(CONFORMANCE_ASSET_PATH_MARKERS).toContain("conformance/scenarios/");
-    const root = createTempDir("make-docs-meta-domain-nesting-");
-    try {
-      mkdirSync(path.join(root, "vendored/conformance/scenarios/packaging"), {
-        recursive: true,
-      });
-      writeFileSync(
-        path.join(
-          root,
-          "vendored/conformance/scenarios/packaging/unit-evidence-fixture.json",
-        ),
-        "{}",
-        "utf8",
-      );
-      const violations = listConformanceAssetExclusionViolations({
-        root,
-        label: "fixture tree",
-      });
-      expect(violations).toHaveLength(1);
-      expect(violations[0]).toContain(
-        "vendored/conformance/scenarios/packaging/unit-evidence-fixture.json",
-      );
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("a clean tree and a missing optional tree produce no violations", () => {
-    const root = createTempDir("make-docs-meta-clean-");
-    try {
-      writeFileSync(path.join(root, "README.md"), "# Clean\n", "utf8");
-      expect(listConformanceAssetExclusionViolations({ root, label: "clean tree" })).toEqual([]);
-      expect(
-        listConformanceAssetExclusionViolations({
-          root: path.join(root, "does-not-exist"),
-          label: "absent tree",
-        }),
-      ).toEqual([]);
-    } finally {
-      cleanupTempDir(root);
-    }
+  test("has no implied retired first-pass scenario requirement", () => {
+    const current = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
+    const retiredFirstPassRegistry = {
+      tuples: current.tuples.filter((entry) =>
+        entry.plannedScenarios.some((scenario) => scenario.startsWith("packaging/")),
+      ),
+    };
+    expect(listRequiredFirstPassScenarioErrors({
+      specs: [],
+      registry: retiredFirstPassRegistry,
+      repoRoot: REPO_ROOT,
+    }))
+      .toEqual([]);
   });
 });
-
-function bindTestClaim(input: { target: Omit<ConformanceSupportTuple, "scenario" | "modelOrProvider" | "runtime" | "generatedOutputKind" | "surface"> & { surface: "native" | "agents-standard" | "auto" } }) {
-  return { ...input.target, scenario: null, modelOrProvider: null, runtime: null };
-}

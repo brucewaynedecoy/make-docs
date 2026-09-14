@@ -9,9 +9,9 @@ import path from "node:path";
 import { describe, test, expect } from "vitest";
 import { TEMPLATE_ROOT } from "../src/utils";
 import { loadPackagingConformanceScenarioSpecs, loadPackagingConformanceScenarioSpec,
-  loadConformanceTupleRegistry, RETIRED_CONFORMANCE_SCENARIOS, runQualifiesForConformanceValidation,
+  loadConformanceTupleRegistry, RETIRED_CONFORMANCE_SCENARIOS, validateConformanceSupportTuple,
   generateConformanceKit, generateFirstPassConformanceKitSuite, listLabTargetErrors,
-  type ConformanceRecordedRun } from "../src/conformance";
+} from "../src/conformance";
 const ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const SOURCE_HASHES = {
   "conformance/scenarios/packaging/dependency-check-both-directions.json": "08b82c7510e689513ba7878be960dc9a72c5a9b739a68ab38793c852fa13593b",
@@ -31,11 +31,20 @@ describe("P8 retired coverage and retained lab tools", () => {
   });
   test("current coverage and support mappings exclude the old cases", () => {
     expect(loadPackagingConformanceScenarioSpecs({ repoRoot: ROOT })).toEqual([]);
-    expect(loadConformanceTupleRegistry({ repoRoot: ROOT }).tuples).toEqual([]);
+    const currentTuples = loadConformanceTupleRegistry({ repoRoot: ROOT }).tuples;
+    expect(currentTuples.length).toBeGreaterThan(0);
     for (const id of RETIRED_CONFORMANCE_SCENARIOS) {
+      expect(currentTuples.every((entry) => !entry.plannedScenarios.includes(id))).toBe(true);
       expect(loadPackagingConformanceScenarioSpec(path.join(ROOT, "conformance/scenarios", id + ".json")).scenarioId).toBe(id);
-      const run = { scenario: id, verdict: "pass", evidenceBar: { install: true, discover: true, invoke: true, uninstall: true } } as ConformanceRecordedRun;
-      expect(runQualifiesForConformanceValidation(run)).toBe(false);
+      expect(() => validateConformanceSupportTuple({
+        scenario: id,
+        harness: "codex",
+        connectionMethod: "mcp",
+        surface: "mcp",
+        scope: "machine",
+        modelOrProvider: "openai/gpt-5",
+        runtime: "node@22-darwin-arm64",
+      })).toThrow(/invalid/i);
     }
   });
   test("retired kit and first-pass generation fail before creating a session", async () => {

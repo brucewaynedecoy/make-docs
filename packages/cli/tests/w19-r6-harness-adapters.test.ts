@@ -21,17 +21,14 @@ import {
   HARNESS_CALLER_IDENTITY_ENV,
   PI_HARNESS_SUPPORT,
   getFirstPartyHarnessAdapter,
-  harnessConformanceEvidenceDigest,
-  loadHarnessConformanceEvidence,
   listBoundedHarnessCommandRules,
   encodeHarnessCallerIdentity,
   parseHarnessCallerIdentity,
   resolveHarnessMethodSupport,
   verifyMakeDocsExecutable,
+  verifyReviewedMakeDocsPackageExecutable,
   type HarnessCommandRule,
   type HarnessCommandRuleAuthority,
-  type HarnessConformanceEvidence,
-  type HarnessConformanceEvidenceRecord,
   type VerifiedExecutableIdentity,
 } from "../src/harness-access/index.js";
 import { __setHarnessNativeMutationHookForTests } from "../src/harness-access/native.js";
@@ -39,6 +36,12 @@ import {
   listHarnessCommandRules,
   validateRegistryHarnessCommandRules,
 } from "../src/operations/registry.js";
+import {
+  CONFORMANCE_TUPLE_STATUS_MEANINGS,
+  CONFORMANCE_VERDICT_DERIVATION_RULES,
+  validateConformanceTupleRegistry,
+  type ConformanceSupportTuple,
+} from "../src/conformance/index.js";
 
 const roots: string[] = [];
 
@@ -97,58 +100,95 @@ describe("W19 R6 bounded first-party harness adapter registry", () => {
       selectable: false,
       publicSupportClaim: false,
     });
-    const identity = CODEX_HARNESS_ADAPTER.conformanceIdentity("mcp");
     const inMemoryProof = {
       schemaVersion: 1,
-      ...identity,
       resultId: "codex-mcp-real-1",
       verdict: "pass",
       eligible: true,
       assertions: { install: true, discover: true, invoke: true, uninstall: true },
-    } satisfies HarnessConformanceEvidence;
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", inMemoryProof)).toMatchObject({
-      state: "experimental",
-      selectable: false,
-      publicSupportClaim: false,
-    });
-
-    const { root } = fixture();
-    const recordWithoutDigest: Omit<HarnessConformanceEvidenceRecord, "digest"> = {
-      schemaVersion: 1,
-      provenance: {
-        kind: "make-docs-harness-conformance",
-        storage: "committed-conformance-registry",
-        evidenceId: inMemoryProof.resultId,
-        recordedAt: "2026-09-12T18:00:00.000Z",
-      },
-      evidence: inMemoryProof,
     };
-    const evidencePath = path.join(root, "conformance.json");
-    writeFileSync(evidencePath, JSON.stringify({
-      ...recordWithoutDigest,
-      digest: harnessConformanceEvidenceDigest(recordWithoutDigest),
-    }));
-    const loadedEvidence = loadHarnessConformanceEvidence({ trustedRoot: root, evidencePath });
-    const exactProof = resolveHarnessMethodSupport(
-      CODEX_HARNESS_ADAPTER,
-      "mcp",
-      loadedEvidence,
-    );
-    expect(exactProof).toMatchObject({
-      state: "experimental",
+    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", inMemoryProof as never)).toMatchObject({
+      state: "not-run",
       selectable: false,
       publicSupportClaim: false,
+      unavailableReason: "runtime-facts-unavailable",
     });
+  });
 
-    writeFileSync(evidencePath, JSON.stringify({ ...recordWithoutDigest, digest: "0".repeat(64) }));
-    expect(() => loadHarnessConformanceEvidence({ trustedRoot: root, evidencePath })).toThrow(
-      "digest does not match",
-    );
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", loadedEvidence)).toMatchObject({
-      state: "experimental",
-      selectable: false,
-      publicSupportClaim: false,
+  it("selects only an exact validated tuple with matching product and harness facts", () => {
+    const tuple: ConformanceSupportTuple = {
+      scenario: "setup-access/mcp-store-operations",
+      harness: "codex",
+      connectionMethod: "mcp",
+      surface: "mcp",
+      scope: "machine",
+      modelOrProvider: "openai/gpt-test",
+      runtime: "darwin-arm64/node-24",
+    };
+    const registry = validateConformanceTupleRegistry({
+      record: "make-docs.conformance.tuple-registry",
+      schemaVersion: 2,
+      statuses: CONFORMANCE_TUPLE_STATUS_MEANINGS,
+      verdictDerivation: CONFORMANCE_VERDICT_DERIVATION_RULES,
+      tuples: [{
+        id: "codex-mcp-exact",
+        tuple,
+        status: "conformance-validated",
+        evidence: [],
+        recordedRuns: [{
+          runId: "codex-mcp-real-2",
+          tuple,
+          runDate: "2026-09-14",
+          makeDocsVersion: "2.0.0-rc",
+          executableDigest: "1".repeat(64),
+          behaviorDigest: "2".repeat(64),
+          distributionType: "packed-npm",
+          harnessVersion: "codex-cli 1.0.0",
+          nativeConfigDigest: "3".repeat(64),
+          verdict: "pass-with-caveats",
+          caveats: ["The proof applies only to this exact runtime."],
+          caveatsSurfaced: true,
+          evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
+          recordRef: "conformance/results/setup-access/codex/2026-09-14/codex-mcp-real-2.json",
+          evidenceReferences: ["evidence/codex-mcp-real-2.json"],
+          simulated: false,
+        }],
+        plannedScenarios: ["setup-access/mcp-store-operations"],
+        notes: [],
+      }],
     });
+    const facts = {
+      registry,
+      tuple,
+      makeDocsVersion: "2.0.0-rc",
+      executableDigest: "1".repeat(64),
+      behaviorDigest: "2".repeat(64),
+      harnessVersion: "codex-cli 1.0.0",
+    };
+
+    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", facts)).toMatchObject({
+      state: "conformance-validated",
+      selectable: true,
+      publicSupportClaim: true,
+      unavailableReason: null,
+      nextAction: null,
+      caveats: ["The proof applies only to this exact runtime."],
+    });
+    for (const [field, value, reason] of [
+      ["makeDocsVersion", "2.0.1", "make-docs-version-mismatch"],
+      ["executableDigest", "4".repeat(64), "executable-digest-mismatch"],
+      ["behaviorDigest", "5".repeat(64), "behavior-digest-mismatch"],
+      ["harnessVersion", "codex-cli 1.0.1", "harness-version-mismatch"],
+    ] as const) {
+      expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", {
+        ...facts,
+        [field]: value,
+      })).toMatchObject({ selectable: false, unavailableReason: reason });
+    }
+    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", {
+      ...facts,
+      tuple: { ...tuple, modelOrProvider: "openai/another-model" },
+    })).toMatchObject({ selectable: false, unavailableReason: "tuple-not-registered" });
   });
 
   it("uses detection only as a native-file suggestion", () => {
@@ -187,6 +227,32 @@ describe("verified executable and bounded command rules", () => {
         expectedSha256: createHash("sha256").update("#!/bin/sh\nexit 0\n").digest("hex"),
       }),
     ).toThrow("not the exact Make Docs package binary");
+  });
+
+  it("verifies an exact reviewed package binary for a disposable maintainer lab", () => {
+    const { root, executable } = fixture();
+    const packageRoot = path.join(root, "reviewed-package");
+    const executablePath = path.join(packageRoot, "dist", "index.js");
+    mkdirSync(path.dirname(executablePath), { recursive: true });
+    writeFileSync(executablePath, readFileSync(executable.path), { mode: 0o755 });
+    writeFileSync(
+      path.join(packageRoot, "package.json"),
+      JSON.stringify({
+        name: "@brucewaynedecoy/make-docs",
+        version: "2.0.0-lab",
+        bin: { "make-docs": "dist/index.js" },
+      }),
+    );
+    const reviewed = verifyReviewedMakeDocsPackageExecutable({
+      packageRoot,
+      executablePath,
+      expectedSha256: executable.sha256,
+    });
+    expect(reviewed).toMatchObject({
+      path: realpathSync(executablePath),
+      packageRoot: realpathSync(packageRoot),
+      packageVersion: "2.0.0-lab",
+    });
   });
 
   it("rejects broad and lifecycle command grants", () => {

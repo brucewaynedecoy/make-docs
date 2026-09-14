@@ -222,7 +222,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     process.env.CLAUDE_CONFIG_DIR = path.join(isolatedHome, ".claude");
     process.env.MAKE_DOCS_HOME = root;
     try {
-      await runCli(["setup", "--yes", "--target", freshProject]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", freshProject]);
       const freshOpen = openStoreDatabase(root);
       expect(freshOpen.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
       freshOpen.db.close();
@@ -232,7 +232,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       seedVersionOne(noOpDb);
       noOpDb.close();
       process.env.MAKE_DOCS_HOME = noOpStore;
-      await runCli(["setup", "--yes", "--target", freshProject]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", freshProject]);
       const noOpOpen = openStoreDatabase(noOpStore);
       expect(noOpOpen.schemaVersion).toBe(CURRENT_STORE_SCHEMA_VERSION);
       noOpOpen.db.close();

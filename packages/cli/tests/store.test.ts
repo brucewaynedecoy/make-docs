@@ -205,10 +205,10 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       }
 
       process.env.MAKE_DOCS_HOME = freshStore;
-      await runCli(["setup", "--yes", "--target", targetWithoutStore]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetWithoutStore]);
 
       process.env.MAKE_DOCS_HOME = populatedStore;
-      await runCli(["setup", "--yes", "--target", targetWithStore]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetWithStore]);
 
       for (const root of [targetWithoutStore, targetWithStore]) {
         expect(collectFiles(root).some(p => p.startsWith('.make-docs/state/'))).toBe(false);
@@ -244,7 +244,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
     const storeRoot = path.join(createTempDir("make-docs-store-"), "store");
     try {
       process.env.MAKE_DOCS_HOME = storeRoot;
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetDir]);
 
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       if (sqliteAvailable) {
@@ -544,7 +544,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
     const targetDir = createTempDir("make-docs-target-");
     try {
       process.env.MAKE_DOCS_HOME = storeRoot;
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetDir]);
       expect(loadManifest(targetDir)).not.toBeNull();
 
       // Corrupt the store, then read the repository and re-run the installer.
@@ -559,7 +559,7 @@ describe.skipIf(!sqliteAvailable)("store recovery (R-DB-4)", () => {
       );
 
       expect(() => loadManifest(targetDir)).toThrow();
-      await expect(runCli(["setup", "--yes", "--target", targetDir])).rejects.toThrow();
+      await expect(runCli(["setup", "--yes", "--codex-method", "none", "--claude-code-method", "none", "--target", targetDir])).rejects.toThrow();
       expect(() => loadManifest(targetDir)).toThrow();
       expect(readFileSync(path.join(targetDir, ".make-docs", "config.yaml"), "utf8"))
         .toBe(manifestBefore);

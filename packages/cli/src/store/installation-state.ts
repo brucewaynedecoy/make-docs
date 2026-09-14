@@ -481,7 +481,7 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
                 c.state === 'corrupt' ? 'corrupt' : c.state === 'newer-unknown' ? 'schema-newer' : 'schema-unknown',
                 c.databasePath,
                 'prepare Store',
-                new Error(c.reason),
+                new Error("reason" in c ? String(c.reason) : `Store state is ${c.state}.`),
             );
             fail('store-unavailable', formatStoreIssue(issue), issue);
         }

@@ -31,19 +31,29 @@ import {
 } from "../src/conformance";
 
 function baseResultRecord(): PackagingConformanceResultRecord {
+  const hash = "a".repeat(64);
   return {
-    schemaVersion: "conformance.result.v1",
+    schemaVersion: "conformance.result.v2",
     resultId: "2026-07-06-fixture-blocked",
-    scenarioId: "packaging/fixture-outcome",
     scenarioVersion: "1.0.0",
+    tuple: {
+      scenario: "setup-access/direct-resource-read",
+      harness: "codex",
+      connectionMethod: "direct-cli",
+      surface: "cli-resource",
+      scope: "machine",
+      modelOrProvider: "openai/gpt-5",
+      runtime: "node@22-darwin-arm64",
+    },
     runDate: "2026-07-06",
     makeDocsVersion: "test",
-    harness: "codex",
-    modelName: "unknown",
-    providerOrRoutingLayer: "unknown",
-    modelVersion: "unknown",
-    runtimeDistribution: "node",
-    runtimeVersion: "18",
+    executablePath: "/tmp/make-docs-conformance-lab/product/make-docs",
+    executableDigest: hash,
+    behaviorDigest: hash,
+    registryDigest: hash,
+    distributionType: "packed-npm",
+    harnessVersion: "codex-cli 1.2.3",
+    nativeConfigDigest: hash,
     producedFiles: [],
     relevantDiffs: [],
     exitStatus: null,
@@ -58,6 +68,7 @@ function baseResultRecord(): PackagingConformanceResultRecord {
     simulated: false,
     simulationMechanicsRef: null,
     transcriptFormat: "non-tty",
+    evidenceReferences: ["resource-read.json"],
   };
 }
 

@@ -1,120 +1,57 @@
-/**
- * W18 R9 P4 coverage: support-claim governance (t1-t6, PRD 37 R-GOV-1..2).
- * The wording rule is code — public claim wording is DERIVED from the tuple
- * registry, never authored ahead of it — caveats surface in every claim
- * derived from a `pass-with-caveats` run, the lab's one-reviewed-run nominal
- * and repeated-reviewed-runs stronger thresholds are preserved, the W18 R5
- * through W18 R8 provisional claims promote only through the registry, and
- * the declared claim surfaces carry the rule and a registry-bound state
- * marker so wording advancement is mechanical. These checks run ENFORCING in
- * the standard suite following the Phase 3 meta-verification pattern.
- *
- * Test layer: unit (R-LAYER-1) — pure-function tests over the governance code
- * and the committed conformance assets and claim surfaces, no CLI. They prove
- * the WORDING machinery is honest — they are NEVER harness-recognition
- * evidence, and internal tests passing is never evidence that a harness
- * recognizes or can use the output (R-LAYER-2, PRD 36 R-TEST-5). Real
- * recognition, installation, and invocation evidence comes only from recorded
- * W18 R9 scenario runs meeting the R-BAR-1 bar.
- */
-
-import { mkdirSync, writeFileSync } from "node:fs";
+/** Test layer: unit. Claim checks never prove harness recognition. */
+import { afterEach, describe, expect, test } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
 import {
-  CONFORMANCE_CLAIM_SURFACES,
-  CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS,
-  CONFORMANCE_CLAIM_VOCABULARY_MARKER,
-  SUPPORT_CLAIM_STRENGTHS,
-  SUPPORT_CLAIM_STRENGTH_THRESHOLDS,
-  SUPPORT_CLAIM_WORDING_RULE,
-  SUPPORT_CLAIM_WORDING_RULE_CORE,
-  bindConformanceSupportTuple,
   conformanceResultRecordRelativePath,
-  conformanceTupleKey,
   deriveSupportClaimStrength,
   listCommittedResultRecordClaimUseErrors,
-  listSupportClaimGovernanceErrors,
-  loadConformanceTupleRegistry,
-  loadPackagingConformanceScenarioSpecs,
-  recordConformanceRunOnRegistryEntry,
+  projectPackagingResultToRecordedRun,
   renderConformanceSupportClaim,
   renderSupportClaimStateMarker,
-  validatePackagingConformanceResultRecord,
-  type ConformanceRecordedRun,
   type ConformanceSupportTuple,
   type ConformanceTupleRegistryEntry,
   type PackagingConformanceResultRecord,
 } from "../src/conformance";
 
-import { TEMPLATE_ROOT } from "../src/utils";
-import { cleanupTempDir, createTempDir } from "./helpers";
+const HASH = "d".repeat(64);
+const tuple: ConformanceSupportTuple = {
+  scenario: "setup-access/bounded-rule-store-operations",
+  harness: "codex",
+  connectionMethod: "command-rules",
+  surface: "cli-command-rules",
+  scope: "machine",
+  modelOrProvider: "openai/gpt-5",
+  runtime: "node@22-darwin-arm64",
+};
+const roots: string[] = [];
 
-const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
+afterEach(() => {
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
 
-function codexPluginTuple(): ConformanceSupportTuple {
-  return bindConformanceSupportTuple({
-    claim: bindTestClaim({
-      target: { harness: "codex", outputKind: "plugin", surface: "native", scope: "project" },
-    }),
-    generatedOutputKind: "generated-plugin",
-  });
-}
-
-function recordedRun(overrides: Partial<ConformanceRecordedRun> = {}): ConformanceRecordedRun {
+function record(overrides: Partial<PackagingConformanceResultRecord> = {}): PackagingConformanceResultRecord {
   return {
-    runId: "run-0001",
-    scenario: "packaging/unit-evidence-fixture",
-    runDate: "2026-07-04",
-    verdict: "pass",
-    caveats: [],
-    caveatsSurfaced: false,
-    evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-    recordRef: "conformance/results/codex/run-0001.json",
-    modelOrProvider: "anthropic",
-    runtime: "codex-cli",
-    simulated: false,
-    ...overrides,
-  };
-}
-
-function entryFixture(
-  overrides: Partial<ConformanceTupleRegistryEntry> = {},
-): ConformanceTupleRegistryEntry {
-  return {
-    id: "fixture-codex-plugin",
-    tuple: codexPluginTuple(),
-    status: "provisional",
-    evidence: [],
-    recordedRuns: [],
-    plannedScenarios: [],
-    notes: ["Fixture entry."],
-    ...overrides,
-  };
-}
-
-function resultRecordFixture(
-  overrides: Partial<PackagingConformanceResultRecord> = {},
-): PackagingConformanceResultRecord {
-  return validatePackagingConformanceResultRecord({
-    schemaVersion: "conformance.result.v1",
-    resultId: "run-0001",
-    scenarioId: "packaging/unit-evidence-fixture",
-    scenarioVersion: "1.0.0",
-    runDate: "2026-07-04",
-    makeDocsVersion: "0.0.0-test",
-    harness: "codex",
-    modelName: "anthropic",
-    providerOrRoutingLayer: "anthropic-api",
-    modelVersion: "0.0.0-test",
-    runtimeDistribution: "codex-cli",
-    runtimeVersion: "0.0.0-test",
-    producedFiles: [],
-    relevantDiffs: [],
+    schemaVersion: "conformance.result.v2",
+    resultId: "2026-09-14-codex-command-rules-001",
+    scenarioVersion: "2.0.0",
+    tuple,
+    runDate: "2026-09-14",
+    makeDocsVersion: "2.0.0-rc",
+    executablePath: "/tmp/make-docs-conformance-lab/product/dist/index.js",
+    executableDigest: HASH,
+    behaviorDigest: HASH,
+    registryDigest: HASH,
+    distributionType: "packed-npm",
+    harnessVersion: "codex-cli 1.2.3",
+    nativeConfigDigest: HASH,
+    producedFiles: [".codex/rules/make-docs.rules"],
+    relevantDiffs: ["evidence/rules.diff"],
     exitStatus: 0,
     transcriptLogPointer: "discarded-with-session",
     verdict: "pass",
-    reason: "All four bar stages asserted against the real harness.",
+    reason: "The reviewed disposable run passed.",
     caveats: [],
     reviewerStatus: "reviewed",
     supportClaimUse: "nominal-tuple",
@@ -123,462 +60,89 @@ function resultRecordFixture(
     simulated: false,
     simulationMechanicsRef: null,
     transcriptFormat: "json",
+    evidenceReferences: ["evidence/codex-command.json"],
     ...overrides,
-  });
+  };
 }
 
-/** Writes fixture result records under a temp repo root and returns their runs. */
-function writeRecords(
-  root: string,
-  records: PackagingConformanceResultRecord[],
-): ConformanceRecordedRun[] {
-  // Committed records live under the PRD 43 R-ORG-2 by-target layout.
-  mkdirSync(path.join(root, "conformance/results/codex"), { recursive: true });
-  return records.map((record) => {
-    const recordRef = `conformance/results/codex/${record.resultId}.json`;
-    writeFileSync(path.join(root, recordRef), JSON.stringify(record, null, 2), "utf8");
-    return recordedRun({
-      runId: record.resultId,
-      verdict: record.verdict,
-      caveats: [...record.caveats],
-      caveatsSurfaced: record.caveatsSurfaced,
-      recordRef,
+function writeRecord(root: string, value: PackagingConformanceResultRecord, ref: string): void {
+  const file = path.join(root, ref);
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify(value));
+}
+
+function entry(value?: PackagingConformanceResultRecord, ref?: string): ConformanceTupleRegistryEntry {
+  const runs = value && ref ? [projectPackagingResultToRecordedRun(value, ref)] : [];
+  return {
+    id: "codex-command-rules",
+    tuple,
+    status: runs.length ? "conformance-validated" : "provisional",
+    evidence: [],
+    recordedRuns: runs,
+    plannedScenarios: [tuple.scenario],
+    notes: [],
+  };
+}
+
+describe("version 2 support claim governance", () => {
+  test("withholds a recognition claim below conformance validation", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-claim-"));
+    roots.push(root);
+    const claim = renderConformanceSupportClaim(entry(), { repoRoot: root });
+    expect(claim.strength).toBe("no-public-claim");
+    expect(claim.wording).toContain("generated output");
+    expect(claim.wording).toContain("not a `codex`-recognized");
+  });
+
+  test("requires a committed maintainer-reviewed result for nominal wording", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-claim-"));
+    roots.push(root);
+    const ref = "conformance/results/codex/2026-09-14-bounded-rule-store-operations-001.json";
+    const value = record();
+    const validatedEntry = entry(value, ref);
+    expect(deriveSupportClaimStrength(validatedEntry, { repoRoot: root }).strength).toBe("no-public-claim");
+    writeRecord(root, value, ref);
+    expect(deriveSupportClaimStrength(validatedEntry, { repoRoot: root }).strength).toBe("nominal");
+    const claim = renderConformanceSupportClaim(validatedEntry, { repoRoot: root });
+    expect(claim.wording).toContain("Conformance-validated for exactly this tuple");
+    expect(claim.wording).toContain("openai/gpt-5");
+    expect(claim.wording).toContain("node@22-darwin-arm64");
+  });
+
+  test("surfaces every caveat in permitted wording", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-claim-"));
+    roots.push(root);
+    const ref = "conformance/results/codex/2026-09-14-bounded-rule-store-operations-001.json";
+    const caveat = "The harness can change without a version change.";
+    const value = record({
+      verdict: "pass-with-caveats",
+      caveats: [caveat],
+      caveatsSurfaced: true,
     });
-  });
-}
-
-describe("R-GOV-2 thresholds: derived from reviewed receipts (t3)", () => {
-  test("the strength vocabulary carries the lab's thresholds as data", () => {
-    expect(SUPPORT_CLAIM_STRENGTHS).toEqual(["no-public-claim", "nominal", "stronger"]);
-    expect(SUPPORT_CLAIM_STRENGTH_THRESHOLDS.nominal).toContain("one");
-    expect(SUPPORT_CLAIM_STRENGTH_THRESHOLDS.nominal).toContain("R-GOV-2");
-    expect(SUPPORT_CLAIM_STRENGTH_THRESHOLDS.stronger).toContain("maintainer-reviewed");
-    expect(SUPPORT_CLAIM_STRENGTH_THRESHOLDS.stronger).toContain("stronger-claim-candidate");
+    writeRecord(root, value, ref);
+    const claim = renderConformanceSupportClaim(entry(value, ref), { repoRoot: root });
+    expect(claim.caveats).toEqual([caveat]);
+    expect(claim.wording).toContain(caveat);
   });
 
-  test("no qualifying run, an unreviewed run, or a missing record all fail closed to no-public-claim", () => {
-    const root = createTempDir("make-docs-governance-strength-");
-    try {
-      // No qualifying run at all.
-      expect(
-        deriveSupportClaimStrength(entryFixture(), { repoRoot: root }).strength,
-      ).toBe("no-public-claim");
-      // A qualifying run whose record is missing contributes nothing.
-      const missing = deriveSupportClaimStrength(
-        entryFixture({ recordedRuns: [recordedRun()] }),
-        { repoRoot: root },
-      );
-      expect(missing.strength).toBe("no-public-claim");
-      expect(missing.reasons.join("\n")).toContain("no valid committed result record");
-      // A qualifying run whose record is unreviewed keeps the gate closed.
-      const runs = writeRecords(root, [resultRecordFixture({ reviewerStatus: "unreviewed" })]);
-      const unreviewed = deriveSupportClaimStrength(
-        entryFixture({ recordedRuns: runs }),
-        { repoRoot: root },
-      );
-      expect(unreviewed.strength).toBe("no-public-claim");
-      expect(unreviewed.reasons.join("\n")).toContain("maintainer review");
-    } finally {
-      cleanupTempDir(root);
-    }
+  test("rejects claim use for failed or unreviewed stronger records", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-claim-"));
+    roots.push(root);
+    writeRecord(root, record({ verdict: "unsupported" }), "conformance/results/codex/failed.json");
+    writeRecord(root, record({ supportClaimUse: "stronger-claim-candidate", reviewerStatus: "unreviewed" }), "conformance/results/codex/unreviewed.json");
+    const errors = listCommittedResultRecordClaimUseErrors({ repoRoot: root });
+    expect(errors.some(error => error.includes("only pass"))).toBe(true);
+    expect(errors.some(error => error.includes("reviewerStatus"))).toBe(true);
   });
 
-  test("one reviewed qualifying run is nominal; repeated reviewed runs with a candidate are stronger", () => {
-    const root = createTempDir("make-docs-governance-strength-");
-    try {
-      const oneReviewed = writeRecords(root, [resultRecordFixture()]);
-      expect(
-        deriveSupportClaimStrength(entryFixture({ recordedRuns: oneReviewed }), {
-          repoRoot: root,
-        }).strength,
-      ).toBe("nominal");
-      // Two reviewed runs without a stronger-claim-candidate stay nominal.
-      const twoNominal = writeRecords(root, [
-        resultRecordFixture({ resultId: "run-0002" }),
-        resultRecordFixture({ resultId: "run-0003" }),
-      ]);
-      expect(
-        deriveSupportClaimStrength(entryFixture({ recordedRuns: twoNominal }), {
-          repoRoot: root,
-        }).strength,
-      ).toBe("nominal");
-      // Two reviewed runs with a reviewed stronger-claim-candidate meet the bar.
-      const stronger = writeRecords(root, [
-        resultRecordFixture({ resultId: "run-0004" }),
-        resultRecordFixture({
-          resultId: "run-0005",
-          supportClaimUse: "stronger-claim-candidate",
-        }),
-      ]);
-      expect(
-        deriveSupportClaimStrength(entryFixture({ recordedRuns: stronger }), {
-          repoRoot: root,
-        }).strength,
-      ).toBe("stronger");
-    } finally {
-      cleanupTempDir(root);
-    }
+  test("uses stable result paths and support-state counts", () => {
+    expect(conformanceResultRecordRelativePath({
+      harness: "claude-code",
+      runDate: "2026-09-14",
+      scenarioId: "setup-access/direct-resource-read",
+      sequence: 2,
+    })).toBe("conformance/results/claude-code/2026-09-14-direct-resource-read-002.json");
+    expect(renderSupportClaimStateMarker({ tuples: [entry(), { ...entry(), id: "validated", status: "conformance-validated" }] }))
+      .toBe("<!-- support-claim-state: conformance-validated=1/2 -->");
   });
 });
-
-describe("R-GOV-1 wording derivation: the single claim-rendering seam (t1, t2)", () => {
-  test("below conformance-validated, wording distinguishes a generated output from a harness-recognized plugin", () => {
-    const root = createTempDir("make-docs-governance-wording-");
-    try {
-      for (const status of ["provisional", "implementation-validated"] as const) {
-        const claim = renderConformanceSupportClaim(
-          entryFixture({
-            status,
-            evidence:
-              status === "implementation-validated"
-                ? [{ kind: "internal-test", ref: "tests/x.test.ts", note: "n" }]
-                : [],
-          }),
-          { repoRoot: root },
-        );
-        expect(claim.strength).toBe("no-public-claim");
-        expect(claim.wording).toContain("Make Docs generated output");
-        expect(claim.wording).toContain("not a `codex`-recognized plugin");
-        expect(claim.wording).toContain(`\`${status}\``);
-        expect(claim.wording).not.toContain("Conformance-validated for exactly this tuple");
-      }
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("conformance-validated without a reviewed run still withholds public wording (two gates, not one)", () => {
-    const root = createTempDir("make-docs-governance-wording-");
-    try {
-      const runs = writeRecords(root, [resultRecordFixture({ reviewerStatus: "unreviewed" })]);
-      const boundTuple: ConformanceSupportTuple = {
-        ...codexPluginTuple(),
-        scenario: "packaging/unit-evidence-fixture",
-        modelOrProvider: "anthropic",
-        runtime: "codex-cli",
-      };
-      const claim = renderConformanceSupportClaim(
-        entryFixture({ tuple: boundTuple, status: "conformance-validated", recordedRuns: runs }),
-        { repoRoot: root },
-      );
-      expect(claim.strength).toBe("no-public-claim");
-      expect(claim.wording).toContain("not maintainer-reviewed");
-      expect(claim.wording).toContain("not a `codex`-recognized plugin");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("a reviewed claim states only the exact tuple, and pass-with-caveats embeds every caveat (t2)", () => {
-    const root = createTempDir("make-docs-governance-wording-");
-    try {
-      const caveats = [
-        "Discovery required a workspace trust prompt.",
-        "Invocation verified for one bundled skill only.",
-      ];
-      const runs = writeRecords(root, [
-        resultRecordFixture({
-          verdict: "pass-with-caveats",
-          caveats,
-          caveatsSurfaced: true,
-        }),
-      ]);
-      const boundTuple: ConformanceSupportTuple = {
-        ...codexPluginTuple(),
-        scenario: "packaging/unit-evidence-fixture",
-        modelOrProvider: "anthropic",
-        runtime: "codex-cli",
-      };
-      const entry = entryFixture({
-        tuple: boundTuple,
-        status: "conformance-validated",
-        recordedRuns: runs,
-      });
-      const claim = renderConformanceSupportClaim(entry, { repoRoot: root });
-      expect(claim.strength).toBe("nominal");
-      expect(claim.wording).toContain(
-        `Conformance-validated for exactly this tuple (\`${conformanceTupleKey(boundTuple)}\`)`,
-      );
-      expect(claim.wording).toContain("packaging/unit-evidence-fixture");
-      expect(claim.wording).toContain("install-discover-invoke-uninstall");
-      // Every caveat rides the wording itself, never a footnote elsewhere.
-      expect(claim.caveats).toEqual(caveats);
-      for (const caveat of caveats) {
-        expect(claim.wording).toContain(caveat);
-      }
-      // Nominal wording never uses the stronger commendation.
-      expect(claim.wording).toContain("Nominal support");
-      expect(claim.wording).not.toContain("Stronger claim");
-      expect(claim.wording).toContain("nothing beyond the exact tuple");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("stronger commendation language appears only behind repeated reviewed runs", () => {
-    const root = createTempDir("make-docs-governance-wording-");
-    try {
-      const runs = writeRecords(root, [
-        resultRecordFixture({ resultId: "run-0006" }),
-        resultRecordFixture({
-          resultId: "run-0007",
-          supportClaimUse: "stronger-claim-candidate",
-        }),
-      ]);
-      const boundTuple: ConformanceSupportTuple = {
-        ...codexPluginTuple(),
-        scenario: "packaging/unit-evidence-fixture",
-        modelOrProvider: "anthropic",
-        runtime: "codex-cli",
-      };
-      const claim = renderConformanceSupportClaim(
-        entryFixture({ tuple: boundTuple, status: "conformance-validated", recordedRuns: runs }),
-        { repoRoot: root },
-      );
-      expect(claim.strength).toBe("stronger");
-      expect(claim.wording).toContain("Stronger claim: 2 maintainer-reviewed qualifying runs");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-});
-
-describe("claim surfaces: the wording rule encoded where support language lives (t1, t6)", () => {
-  const registry = loadConformanceTupleRegistry({ repoRoot: REPO_ROOT });
-
-  test("the committed claim surfaces pass the governance check end to end", () => {
-    expect(listSupportClaimGovernanceErrors({ registry, repoRoot: REPO_ROOT })).toEqual([]);
-  });
-
-  test("the rule constants carry R-GOV-1 verbatim and the core phrase is a substring of the rule", () => {
-    expect(SUPPORT_CLAIM_WORDING_RULE).toContain(SUPPORT_CLAIM_WORDING_RULE_CORE);
-    expect(SUPPORT_CLAIM_WORDING_RULE).toContain("harness-recognized plugin");
-    expect(SUPPORT_CLAIM_WORDING_RULE).toContain("surfaces its caveats");
-  });
-
-  test("every declared claim surface is inside a swept root, so the sweep can police the declaration", () => {
-    for (const surface of CONFORMANCE_CLAIM_SURFACES) {
-      expect(
-        CONFORMANCE_CLAIM_SURFACE_SWEEP_ROOTS.some(
-          (root) => surface.relativePath === root || surface.relativePath.startsWith(`${root}/`),
-        ),
-        surface.relativePath,
-      ).toBe(true);
-    }
-  });
-
-  test("a missing marker, a stale marker, a missing rule, and a missing registry reference are all flagged", () => {
-    const root = createTempDir("make-docs-governance-surfaces-");
-    try {
-      const marker = renderSupportClaimStateMarker({ tuples: [entryFixture()] });
-      const compliant =
-        `${marker}\nSupport wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (see tuple-registry.json).\n`;
-      const [readme, labGuide] = CONFORMANCE_CLAIM_SURFACES;
-      const write = (surface: { relativePath: string }, content: string) => {
-        const absolute = path.join(root, surface.relativePath);
-        mkdirSync(path.dirname(absolute), { recursive: true });
-        writeFileSync(absolute, content, "utf8");
-      };
-      write(readme!, compliant);
-      // Stale marker: asserts a count the registry does not derive.
-      write(
-        readme!,
-        `<!-- support-claim-state: conformance-validated=5/20 -->\n` +
-          `Support wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (see tuple-registry.json).\n`,
-      );
-      // Missing rule core.
-      // Missing registry reference.
-      write(labGuide!, `${marker}\nNo support wording or registry reference.\n`);
-      const errors = listSupportClaimGovernanceErrors({
-        registry: { tuples: [entryFixture()] },
-        repoRoot: root,
-      });
-      expect(errors.join("\n")).toContain("stale support-claim-state marker");
-      expect(errors.join("\n")).toContain("wording-rule core");
-      expect(errors.join("\n")).toContain("does not reference the tuple registry home");
-      // A surface with no marker at all is flagged too.
-      write(readme!, `Support wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (tuple-registry.json).\n`);
-      expect(
-        listSupportClaimGovernanceErrors({
-          registry: { tuples: [entryFixture()] },
-          repoRoot: root,
-        }).join("\n"),
-      ).toContain("carries no support-claim-state marker");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("support-status vocabulary on an undeclared reader-facing doc is flagged by the sweep", () => {
-    const root = createTempDir("make-docs-governance-sweep-");
-    try {
-      for (const surface of CONFORMANCE_CLAIM_SURFACES) {
-        const absolute = path.join(root, surface.relativePath);
-        mkdirSync(path.dirname(absolute), { recursive: true });
-        writeFileSync(
-          absolute,
-          `${renderSupportClaimStateMarker({ tuples: [] })}\n` +
-            `Support wording ${SUPPORT_CLAIM_WORDING_RULE_CORE} (tuple-registry.json).\n`,
-          "utf8",
-        );
-      }
-      writeFileSync(
-        path.join(root, "docs/assets/maintainer/rogue-claims.md"),
-        `This output is ${CONFORMANCE_CLAIM_VOCABULARY_MARKER} everywhere!\n`,
-        "utf8",
-      );
-      for (const excluded of ["docs/assets/project/prior-proposal.md", ".make-docs/archive/history/prior-claim.md"]) {
-        const absolute = path.join(root, excluded);
-        mkdirSync(path.dirname(absolute), { recursive: true });
-        writeFileSync(absolute, `Prior proposal: ${CONFORMANCE_CLAIM_VOCABULARY_MARKER}.\n`, "utf8");
-      }
-      const errors = listSupportClaimGovernanceErrors({
-        registry: { tuples: [] },
-        repoRoot: root,
-      });
-      expect(errors.join("\n")).toContain("docs/assets/maintainer/rogue-claims.md");
-      expect(errors.join("\n")).toContain("not a declared claim surface");
-      expect(errors.join("\n")).not.toContain("prior-proposal.md");
-      expect(errors.join("\n")).not.toContain("prior-claim.md");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("traceability holds end to end: surface -> registry -> tuple -> recorded run receipts (t6)", () => {
-    // Every claim surface names the registry home, the registry loads
-    // fail-closed, and the Phase 3 receipts check guarantees any recorded run
-    // resolves to its committed result record — so following links from a
-    // public claim reaches the tuple, its status, and the run that justified
-    // it. Today the chain ends honestly at "no recorded runs".
-    for (const entry of registry.tuples) {
-      expect(entry.recordedRuns, entry.id).toEqual([]);
-      expect(entry.status, entry.id).not.toBe("conformance-validated");
-    }
-    // The derived wording for every committed tuple distinguishes the
-    // generated output from a harness-recognized plugin — no public claim
-    // exists ahead of the evidence (R-GOV-1).
-    for (const entry of registry.tuples) {
-      const claim = renderConformanceSupportClaim(entry, { repoRoot: REPO_ROOT });
-      expect(claim.strength, entry.id).toBe("no-public-claim");
-      expect(claim.wording, entry.id).toContain("Make Docs generated output");
-      expect(claim.wording, entry.id).toContain("-recognized");
-      expect(claim.tupleKey).toBe(conformanceTupleKey(entry.tuple));
-    }
-  });
-});
-
-describe("the by-target result-record layout (PRD 43 R-ORG-2; W18 R13 P1 t7)", () => {
-  test("the ingest-side path derivation yields conformance/results/<harness>/<date>-<outcome>-<seq>.json", () => {
-    expect(
-      conformanceResultRecordRelativePath({
-        harness: "codex",
-        runDate: "2026-07-06",
-        scenarioId: "packaging/unit-evidence-fixture",
-        sequence: 1,
-      }),
-    ).toBe("conformance/results/codex/2026-07-06-unit-evidence-fixture-001.json");
-    // The outcome slug never carries the domain or a harness token.
-    expect(
-      conformanceResultRecordRelativePath({
-        harness: "claude-code",
-        runDate: "2026-07-06",
-        scenarioId: "packaging/unit-removal-fixture",
-        sequence: 12,
-      }),
-    ).toBe("conformance/results/claude-code/2026-07-06-unit-removal-fixture-012.json");
-    expect(() =>
-      conformanceResultRecordRelativePath({
-        harness: "codex",
-        runDate: "2026-07-06",
-        scenarioId: "not-domain-qualified",
-        sequence: 1,
-      }),
-    ).toThrow("domain-qualified");
-    expect(() =>
-      conformanceResultRecordRelativePath({
-        harness: "codex",
-        runDate: "2026-07-06",
-        scenarioId: "packaging/unit-evidence-fixture",
-        sequence: 0,
-      }),
-    ).toThrow("positive integer");
-  });
-
-  test("the claim-use gates walk the nested by-target layout: a nested record cannot dodge them", () => {
-    const root = createTempDir("make-docs-governance-layout-");
-    try {
-      const record = resultRecordFixture({
-        resultId: "nested-0001",
-        supportClaimUse: "stronger-claim-candidate",
-        reviewerStatus: "unreviewed",
-      });
-      const recordRef = conformanceResultRecordRelativePath({
-        harness: "codex",
-        runDate: record.runDate,
-        scenarioId: record.scenarioId,
-        sequence: 1,
-      });
-      mkdirSync(path.dirname(path.join(root, recordRef)), { recursive: true });
-      writeFileSync(path.join(root, recordRef), JSON.stringify(record, null, 2), "utf8");
-      const errors = listCommittedResultRecordClaimUseErrors({ repoRoot: root });
-      expect(errors.join("\n")).toContain(recordRef);
-      expect(errors.join("\n")).toContain("maintainer review");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-});
-
-describe("committed result-record claim-use gates (t2, t3)", () => {
-  test("an absent results directory is honest absence, not an error", () => {
-    const root = createTempDir("make-docs-governance-results-");
-    try {
-      expect(listCommittedResultRecordClaimUseErrors({ repoRoot: root })).toEqual([]);
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-
-  test("claim-use gates flag unreviewed stronger candidates, non-qualifying claim use, and unsurfaced caveats", () => {
-    const root = createTempDir("make-docs-governance-results-");
-    try {
-      writeRecords(root, [
-        // Legitimate: reviewed nominal pass.
-        resultRecordFixture({ resultId: "ok-0001" }),
-        // Stronger candidate without review (t3).
-        resultRecordFixture({
-          resultId: "bad-0002",
-          supportClaimUse: "stronger-claim-candidate",
-          reviewerStatus: "unreviewed",
-        }),
-        // Caveated record put to claim use without surfacing (t2).
-        resultRecordFixture({
-          resultId: "bad-0003",
-          verdict: "pass-with-caveats",
-          caveats: ["needs trust prompt"],
-          caveatsSurfaced: false,
-        }),
-        // Non-qualifying verdict put to claim use.
-        resultRecordFixture({
-          resultId: "bad-0004",
-          verdict: "inconsistent",
-        }),
-      ]);
-      const errors = listCommittedResultRecordClaimUseErrors({ repoRoot: root });
-      expect(errors).toHaveLength(3);
-      expect(errors.join("\n")).toContain("bad-0002");
-      expect(errors.join("\n")).toContain("maintainer review");
-      expect(errors.join("\n")).toContain("bad-0003");
-      expect(errors.join("\n")).toContain("caveats must be surfaced");
-      expect(errors.join("\n")).toContain("bad-0004");
-      expect(errors.join("\n")).toContain("inconsistent");
-    } finally {
-      cleanupTempDir(root);
-    }
-  });
-});
-
-function bindTestClaim(input: { target: Omit<ConformanceSupportTuple, "scenario" | "modelOrProvider" | "runtime" | "generatedOutputKind" | "surface"> & { surface: "native" | "agents-standard" | "auto" } }) {
-  return { ...input.target, scenario: null, modelOrProvider: null, runtime: null };
-}

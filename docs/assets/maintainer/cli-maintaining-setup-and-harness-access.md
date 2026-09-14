@@ -32,14 +32,15 @@ This guide covers the safe maintenance path for unified setup and native harness
 
 Adapter code is not support proof. A detected harness is not support proof. A native file at an expected path is not ownership proof.
 
-The current Codex and Claude Code methods are implemented, but they are not selectable. The required exact real-harness evidence does not exist. Pi is unsupported.
+The current Codex and Claude Code methods are implemented. The version 2 registry has exact real-harness proof for Claude Code MCP and Claude Code direct resource reads. Claude Code permission rules stay unavailable under A35. The Codex methods stay unavailable until a logged-in disposable Codex session passes exact proof. Pi is unsupported.
+
+Normal setup does not yet have an accepted source for the exact harness version, model or provider, and runtime facts. It can keep even a proved tuple unavailable. Do not add a wildcard. Treat this as an open production-selection gap.
 
 ## Code and State Map
 
 | Area | Current owner |
 | --- | --- |
-| Shared setup state and scope order | `packages/cli/src/setup-state.ts` |
-| System plan, review, apply, verify, and resume | `packages/cli/src/setup-system.ts` |
+| Shared setup service and system plan, review, apply, verify, and resume | `packages/cli/src/setup-system.ts` |
 | Interactive setup flow | `packages/cli/src/wizard.ts` and `packages/cli/src/cli.ts` |
 | Adapter contract and support decision | `packages/cli/src/harness-access/` |
 | Operation access and command-rule authority | `packages/cli/src/operations/` |
@@ -54,18 +55,17 @@ The Store is the only operation and recovery state owner. Do not add a local rec
 
 Each adapter method has an exact identity. The identity includes the adapter, adapter version, harness, connection method, and surface.
 
-`resolveHarnessMethodSupport()` must fail closed. It can consider only evidence loaded from a durable conformance record. The record needs:
+`resolveHarnessMethodSupport()` must fail closed. It can use only the validated packaged registry. Tests can provide a temporary registry file through the same loader.
 
-- schema version 1
-- committed conformance-registry provenance
-- a stable evidence ID and record time
-- a digest that still matches the record
-- the exact adapter and method identity
-- a non-empty result ID
-- an eligible `pass` or `pass-with-caveats` result
-- complete install, discover, invoke, and uninstall assertions
+- an admitted adapter and method
+- the exact seven-part tuple
+- a `conformance-validated` registry status
+- a qualifying recorded result
+- matching Make Docs version, executable digest, and behavior digest
+- matching harness version, model or provider, and runtime
+- surfaced caveats
 
-Local validation alone must not make a method selectable. PRD 20 also needs an authoritative tuple-registry result for the exact connection method. The current registry has no such record. Keep `publicSupportClaim: false` and keep the method unavailable or experimental.
+Each failed check returns one typed reason and one useful next action. Local validation alone must not make a method selectable. Keep `publicSupportClaim: false` for each provisional tuple. Only an exact `conformance-validated` entry can make its method selectable.
 
 ## Verified Caller and Command Rules
 
@@ -79,17 +79,22 @@ Project-facing review can show the effective project-limited operations. The mac
 
 ## Review and Apply Order
 
-Normal setup must build one exact final review before it writes either scope.
+Normal setup must build one exact final review before it writes either scope. Skills are one project-wide selection. Each selected harness method screen can edit that shared selection.
 
-1. Build the computer plan and the project plan.
-2. Render **This computer** and **This project** in one review.
-3. Ask for computer approval and project approval as separate decisions.
-4. Apply and verify the computer operation.
-5. Apply the project operation once.
+1. Show project state.
+2. Select harnesses.
+3. Show one method-and-Skills screen for each selected harness.
+4. Select resource placement.
+5. Render **This computer** and **This project** in one review.
+6. Apply and verify the computer operation.
+7. Apply and verify the project operation once.
+8. Return one final result.
 
 The review must include changes to `~/.make-docs/config.json`. Do not write global intent before the person approves the computer group. An excluded harness means skip. It must preserve the prior machine intent.
 
-Direct `make-docs setup system` uses only the computer part of this model. It must honor the parsed target root.
+Direct `make-docs setup system` starts at the harness method screens. It must not create project files, register a project, or change project Skills.
+
+Non-interactive setup uses `--codex-method <none|mcp|command-rules>` and `--claude-code-method <none|mcp|permission-rules>`. A method flag selects its harness. A matching `--no-*` flag is an error. `--yes` approves the resolved plan. It does not select a method. Dry-run resolves the same plan and suppresses only writes. `--json` and non-TTY output return the canonical version 2 setup result without progress text.
 
 ## Pending Journal and Drift Repair
 
@@ -111,16 +116,18 @@ Unknown, user-owned, malformed, changed, remote, or symbolic-link state must blo
 
 ## Adding Exact Conformance Evidence
 
-Use the current conformance lab. Do not use an automated fixture as real-harness proof.
+Use the setup-access mode in the current conformance lab. Do not use an automated fixture as real-harness proof.
 
-1. Run one official or installed harness for one exact adapter and connection method.
-2. Record the install, discovery, invocation, and uninstall evidence.
-3. Ingest the result through the conformance result contract.
-4. Commit the durable result under the conformance registry through the normal review path.
-5. Add the exact connection method to the PRD 20 tuple-registry authority.
-6. Load the durable evidence through the adapter evidence loader.
-7. Run meta-verification and the full support checks.
-8. Confirm that setup shows support only for the proved tuple.
+1. Pack the current candidate.
+2. Bootstrap one exact tuple with `npm run conformance:kit` and a disposable session root.
+3. Run the official harness only in that disposable home.
+4. Record the native files, identity, method, Store access, denied access, cleanup, and preserved content.
+5. Preview the version 2 result with `npm run conformance:ingest`.
+6. Have a maintainer review the result.
+7. Use reviewed ingestion to write the result and derive the registry status.
+8. Rebuild the package and confirm that its behavior digest stays stable.
+9. Confirm that normal installed setup shows support only for the exact proved tuple.
+10. Run `npm run conformance:kit -- --cleanup-session <session.json>` and confirm that the managed entry is absent and seeded user content is unchanged.
 
 Repeat this work for every harness and method. Evidence for Codex MCP does not prove Codex rules. Evidence for Codex does not prove Claude Code. A caveat must stay on the exact tuple that produced it.
 
@@ -147,6 +154,8 @@ Human Experience Review is separate from automated tests. Record the promise, ev
 
 ## Current Release Gate
 
-The code candidate has passed its independent code review and automated candidate checks. The phase remains open.
+The P2 production path and automated checks pass. The phase remains open.
 
-Do not mark a method supported until exact real-harness evidence and the PRD 20 tuple entry exist. Do not mark the phase complete until restricted-task proof, installed terminal review, Human Experience Review, and final closeout checks are complete.
+Claude Code MCP and direct resource reads have exact current proof. Claude Code permission rules remain safely unavailable under A35. Codex MCP, command rules, and direct resource reads are blocked because the disposable Codex home is not logged in. Normal setup also needs an accepted exact-fact discovery or input path before it can select a proved tuple.
+
+Do not mark P2 complete until the exact-fact input gap, Codex proof, installed terminal review, Human Experience Review, and final closeout checks are complete.

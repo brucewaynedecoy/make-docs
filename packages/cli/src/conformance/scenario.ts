@@ -14,10 +14,10 @@ import { isRetiredConformanceScenario } from "./historical-contract";
  * internal tests stay capped at `implementation-validated` by the Phase 1
  * derivation this module reuses rather than reimplements.
  *
- * Ownership boundaries (R-SCOPE-1, R-KEEP-1): the lab's scenario protocol
- * from PRD 20 is consumed unchanged. `schemaVersion` stays
- * `conformance.scenario.v1` / `conformance.result.v1`, the lab's required
- * spec and result fields keep their exact names and meanings (see
+ * Ownership boundaries (R-SCOPE-1, R-KEEP-1): retired packaging definitions
+ * still use `conformance.scenario.v1`. Active result records use
+ * `conformance.result.v2` and carry the exact seven-part tuple plus product
+ * and harness provenance (see
  * `docs/assets/maintainer/conformance-lab-scenario-and-result-contracts.md`),
  * scenarios stay model-agnostic with model, provider, and runtime captured as
  * run metadata, the five verdicts are reused from `registry.ts`, and a
@@ -44,10 +44,9 @@ import { isRetiredConformanceScenario } from "./historical-contract";
  * - Spec format: one JSON document per definition under
  *   `conformance/scenarios/<domain>/<outcome>.json` (the lab permits YAML or
  *   JSON; JSON matches the tuple registry's no-parser-dependency choice, and
- *   the path-equals-scenarioId rule keeps definitions addressable without
- *   opening them). The first and only current domain is `packaging`;
- *   `playbook-runs` is the named future domain, created only when its first
- *   definition lands (R-ORG-1).
+ *   the path-equals-scenarioId rule keeps historical definitions addressable
+ *   without opening them). The packaging domain is retired. Current
+ *   setup-access families use the maintainer support-lab contract.
  * - Faithful-simulation mechanics (t3): a target binding's `harnessExecution`
  *   declares `real-harness` or `faithful-simulation`; the simulation mode
  *   MUST document its reviewed mechanics in the binding, every result record
@@ -99,7 +98,11 @@ import {
   type ConformanceRecordedRun,
   type ConformanceTupleRegistryEntry,
 } from "./registry";
-import { bindRunMetadataOntoConformanceTuple } from "./tuple";
+import {
+  conformanceSupportTupleSchema,
+  conformanceTupleKey,
+  type ConformanceSupportTuple,
+} from "./tuple";
 
 /** The lab's safety modes (PRD 20, R-KEEP-1): consumed, never redefined. */
 export const CONFORMANCE_SCENARIO_SAFETY_MODES = [
@@ -127,7 +130,7 @@ export const CONFORMANCE_SUPPORT_CLAIM_USES = [
 
 /** The lab's schema identifiers, consumed unchanged (R-KEEP-1). */
 export const CONFORMANCE_SCENARIO_SCHEMA_VERSION = "conformance.scenario.v1";
-export const CONFORMANCE_RESULT_SCHEMA_VERSION = "conformance.result.v1";
+export const CONFORMANCE_RESULT_SCHEMA_VERSION = "conformance.result.v2";
 
 /**
  * Repo-relative home of the packaging scenario definitions. Definitions are
@@ -757,19 +760,19 @@ export function probePackagingScenarioPreconditions(
 
 const resultRecordSchema = z
   .object({
-    // The lab result contract (PRD 20), field names preserved verbatim.
     schemaVersion: z.literal(CONFORMANCE_RESULT_SCHEMA_VERSION),
     resultId: z.string().min(1),
-    scenarioId: scenarioIdSchema,
     scenarioVersion: z.string().min(1),
-    runDate: z.string().min(1),
+    tuple: conformanceSupportTupleSchema,
+    runDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     makeDocsVersion: z.string().min(1),
-    harness: z.string().min(1),
-    modelName: z.string().min(1),
-    providerOrRoutingLayer: z.string().min(1),
-    modelVersion: z.string().min(1),
-    runtimeDistribution: z.string().min(1),
-    runtimeVersion: z.string().min(1),
+    executablePath: z.string().min(1),
+    executableDigest: z.string().regex(/^[a-f0-9]{64}$/),
+    behaviorDigest: z.string().regex(/^[a-f0-9]{64}$/),
+    registryDigest: z.string().regex(/^[a-f0-9]{64}$/),
+    distributionType: z.enum(["packed-npm", "workspace-build"]),
+    harnessVersion: z.string().min(1),
+    nativeConfigDigest: z.string().regex(/^[a-f0-9]{64}$/),
     producedFiles: z.array(z.string().min(1)),
     relevantDiffs: z.array(z.string().min(1)),
     exitStatus: z.number().int().nullable(),
@@ -790,7 +793,9 @@ const resultRecordSchema = z
     simulated: z.boolean(),
     simulationMechanicsRef: z.string().min(1).nullable(),
     transcriptFormat: z.enum(["json", "non-tty"]),
+    evidenceReferences: z.array(z.string().min(1)).min(1),
   })
+  .strict()
   .superRefine((record, context) => {
     // Evidence-home honesty (PRD 44 R-NAME-2, register item D-024): the
     // transcript pointer states `discarded-with-session` or points into the
@@ -864,17 +869,26 @@ export function validatePackagingConformanceResultRecord(
  */
 export function blockedPackagingResultRecord(input: {
   spec: PackagingConformanceScenarioSpec;
-  harness: string;
+  tuple: ConformanceSupportTuple;
   unmet: ScenarioPreconditionProbeOutcome[];
   runDate: string;
   makeDocsVersion: string;
-  runtimeDistribution: string;
-  runtimeVersion: string;
+  executablePath: string;
+  executableDigest: string;
+  behaviorDigest: string;
+  registryDigest: string;
+  distributionType: "packed-npm" | "workspace-build";
+  harnessVersion: string;
+  nativeConfigDigest: string;
+  evidenceReferences: string[];
   transcriptLogPointer?: string;
 }): PackagingConformanceResultRecord {
   // Fails closed when the harness is uncovered: even a blocked record may
   // not imply a target binding that does not exist (R-SCHEMA-2).
-  getScenarioTargetBinding(input.spec, input.harness);
+  getScenarioTargetBinding(input.spec, input.tuple.harness);
+  if (input.tuple.scenario !== input.spec.scenarioId) {
+    throw new OperationError("The blocked result tuple scenario does not match the scenario definition.");
+  }
   if (input.unmet.length === 0) {
     throw new OperationError(
       "A blocked result record requires at least one unmet precondition; a runnable scenario must run instead.",
@@ -887,16 +901,17 @@ export function blockedPackagingResultRecord(input: {
   return {
     schemaVersion: CONFORMANCE_RESULT_SCHEMA_VERSION,
     resultId: `${input.runDate}-${outcome}-blocked`,
-    scenarioId: input.spec.scenarioId,
     scenarioVersion: input.spec.scenarioVersion,
+    tuple: input.tuple,
     runDate: input.runDate,
     makeDocsVersion: input.makeDocsVersion,
-    harness: input.harness,
-    modelName: "unknown",
-    providerOrRoutingLayer: "unknown",
-    modelVersion: "unknown",
-    runtimeDistribution: input.runtimeDistribution,
-    runtimeVersion: input.runtimeVersion,
+    executablePath: input.executablePath,
+    executableDigest: input.executableDigest,
+    behaviorDigest: input.behaviorDigest,
+    registryDigest: input.registryDigest,
+    distributionType: input.distributionType,
+    harnessVersion: input.harnessVersion,
+    nativeConfigDigest: input.nativeConfigDigest,
     producedFiles: [],
     relevantDiffs: [],
     exitStatus: null,
@@ -912,6 +927,7 @@ export function blockedPackagingResultRecord(input: {
     simulated: false,
     simulationMechanicsRef: null,
     transcriptFormat: "non-tty",
+    evidenceReferences: input.evidenceReferences,
   };
 }
 
@@ -927,17 +943,57 @@ export function projectPackagingResultToRecordedRun(
 ): ConformanceRecordedRun {
   return {
     runId: record.resultId,
-    scenario: record.scenarioId,
+    tuple: record.tuple,
     runDate: record.runDate,
+    makeDocsVersion: record.makeDocsVersion,
+    executableDigest: record.executableDigest,
+    behaviorDigest: record.behaviorDigest,
+    distributionType: record.distributionType,
+    harnessVersion: record.harnessVersion,
+    nativeConfigDigest: record.nativeConfigDigest,
     verdict: record.verdict,
     caveats: [...record.caveats],
     caveatsSurfaced: record.caveatsSurfaced,
     evidenceBar: { ...record.evidenceBar },
     recordRef,
-    modelOrProvider:
-      record.modelName !== "unknown" ? record.modelName : record.providerOrRoutingLayer,
-    runtime: record.runtimeDistribution,
+    evidenceReferences: [...record.evidenceReferences],
     simulated: record.simulated,
+  };
+}
+
+/**
+ * Record one validated version 2 result on its exact active tuple.
+ * This is the common promotion seam for setup-access ingestion. It does not
+ * write the registry. The maintainer must review and persist the returned
+ * registry entry in a separate step.
+ */
+export function recordValidatedConformanceResultOnRegistryEntry(input: {
+  entry: ConformanceTupleRegistryEntry;
+  record: PackagingConformanceResultRecord;
+  recordRef: string;
+}): ConformanceTupleRegistryEntry {
+  const record = validatePackagingConformanceResultRecord(input.record);
+  const label = `conformance tuple registry entry \`${input.entry.id}\``;
+  if (conformanceTupleKey(input.entry.tuple) !== conformanceTupleKey(record.tuple)) {
+    throw new OperationError(
+      `Tuple mismatch: ${label} does not match result \`${record.resultId}\`; evidence never crosses exact tuples.`,
+    );
+  }
+  if (!input.recordRef.trim()) {
+    throw new OperationError("A version 2 result needs a non-empty committed record reference.");
+  }
+  const run = projectPackagingResultToRecordedRun(record, input.recordRef);
+  if (input.entry.recordedRuns.some(candidate => candidate.runId === run.runId)) {
+    throw new OperationError(`Result \`${run.runId}\` is already recorded on ${label}.`);
+  }
+  const recordedRuns = [...input.entry.recordedRuns, run];
+  return {
+    ...input.entry,
+    recordedRuns,
+    status: deriveConformanceTupleStatus({
+      evidence: input.entry.evidence,
+      recordedRuns,
+    }),
   };
 }
 
@@ -980,22 +1036,21 @@ export function recordConformanceRunOnRegistryEntry(input: {
   }
   const { entry, spec, record, recordRef } = input;
   const label = `conformance tuple registry entry \`${entry.id}\``;
-  if (record.scenarioId !== spec.scenarioId) {
+  if (record.tuple.scenario !== spec.scenarioId) {
     throw new OperationError(
-      `Result record \`${record.resultId}\` belongs to scenario \`${record.scenarioId}\`, not \`${spec.scenarioId}\`.`,
+      `Result record \`${record.resultId}\` belongs to scenario \`${record.tuple.scenario}\`, not \`${spec.scenarioId}\`.`,
     );
   }
-  const binding = getScenarioTargetBinding(spec, record.harness);
+  const binding = getScenarioTargetBinding(spec, record.tuple.harness);
   if (!binding.registryTupleIds.includes(entry.id)) {
     throw new OperationError(
-      `Scenario \`${spec.scenarioId}\` does not target ${label} on harness \`${record.harness}\`; ` +
+      `Scenario \`${spec.scenarioId}\` does not target ${label} on harness \`${record.tuple.harness}\`; ` +
         "a run may land only on a tuple its scenario's target binding declares (R-TUPLE-1).",
     );
   }
-  if (entry.tuple.harness !== record.harness) {
+  if (conformanceTupleKey(entry.tuple) !== conformanceTupleKey(record.tuple)) {
     throw new OperationError(
-      `Harness mismatch: ${label} is \`${entry.tuple.harness}\` but the record ran ` +
-        `\`${record.harness}\`; evidence never crosses harnesses (R-TUPLE-1).`,
+      `Tuple mismatch: ${label} does not match result \`${record.resultId}\`; evidence never crosses exact tuples.`,
     );
   }
   const unasserted = listUnassertedEvidenceBarStages(spec);
@@ -1012,32 +1067,15 @@ export function recordConformanceRunOnRegistryEntry(input: {
   if (record.simulated !== specSimulates) {
     throw new OperationError(
       `Result record \`${record.resultId}\` records simulated=${String(record.simulated)} but scenario ` +
-        `\`${spec.scenarioId}\` declares ${binding.harnessExecution.mode} for target \`${record.harness}\`; ` +
+        `\`${spec.scenarioId}\` declares ${binding.harnessExecution.mode} for target \`${record.tuple.harness}\`; ` +
         "simulation is a reviewed spec-level choice, never a per-run improvisation (D8, t3).",
     );
   }
-  const run = projectPackagingResultToRecordedRun(record, recordRef);
-  const qualifies = runQualifiesForConformanceValidation(run);
-  if (qualifies && entry.tuple.scenario !== null && entry.tuple.scenario !== run.scenario) {
-    throw new OperationError(
-      `${label} is already bound to scenario \`${entry.tuple.scenario}\`; a qualifying run for ` +
-        `\`${run.scenario}\` belongs on its own tuple (R-TUPLE-1).`,
-    );
-  }
-  const recordedRuns = [...entry.recordedRuns, run];
-  const tuple = qualifies
-    ? bindRunMetadataOntoConformanceTuple(entry.tuple, {
-        scenario: run.scenario,
-        modelOrProvider: run.modelOrProvider,
-        runtime: run.runtime,
-      })
-    : entry.tuple;
-  return {
-    ...entry,
-    tuple,
-    recordedRuns,
-    status: deriveConformanceTupleStatus({ evidence: entry.evidence, recordedRuns }),
-  };
+  return recordValidatedConformanceResultOnRegistryEntry({
+    entry,
+    record,
+    recordRef,
+  });
 }
 
 /* --------------------------------------------------------------------------
@@ -1082,11 +1120,6 @@ export function listConformanceScenarioRegistryLinkageErrors(
         errors.push(
           `entry \`${entry.id}\` plans scenario \`${scenarioId}\` but that definition's ` +
             `\`${entry.tuple.harness}\` target binding does not target the entry`,
-        );
-      }
-      if (entry.tuple.scenario !== null && entry.recordedRuns.length === 0) {
-        errors.push(
-          `entry \`${entry.id}\` has a bound scenario dimension without a recorded run; planned scenarios never bind the dimension (R-TUPLE-1)`,
         );
       }
     }

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "conformance.result.v2",
+  "resultId": "2026-09-14-codex-direct-cli-001",
+  "scenarioVersion": "2.0.0",
+  "tuple": {
+    "scenario": "setup-access/direct-resource-read",
+    "harness": "codex",
+    "connectionMethod": "direct-cli",
+    "surface": "cli-resource",
+    "scope": "machine",
+    "modelOrProvider": "openai:gpt-5.6-terra",
+    "runtime": "node-v24.19.0-darwin-arm64"
+  },
+  "runDate": "2026-09-14",
+  "makeDocsVersion": "2.0.0-rc",
+  "executablePath": "/tmp/make-docs-conformance-lab/2026-09-14-codex-direct-blocked/product/node_modules/@brucewaynedecoy/make-docs/dist/index.js",
+  "executableDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "behaviorDigest": "8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6",
+  "registryDigest": "41ab35aee08f624a5155560e8d7f8ec6546999977979d0ed5c85915bf61a765e",
+  "distributionType": "packed-npm",
+  "harnessVersion": "codex-cli-0.154.0",
+  "nativeConfigDigest": "866ec3b5ea49b78a031bf2b7236956a47d28f1e62450b67ce5415a0cd3f5ea58",
+  "producedFiles": [],
+  "relevantDiffs": [
+    "sha256:61d2fb81153fb5c8f872e8b78ac30655ddaf902d4df7e586fb53901399895235 disposable Codex login precondition",
+    "sha256:2b3c1ef675261af34820bc098573d1383321b855a14abaadd97226d2036d91db user-content cleanup evidence"
+  ],
+  "exitStatus": null,
+  "transcriptLogPointer": "discarded-with-session",
+  "verdict": "blocked",
+  "reason": "Codex CLI 0.154.0 reported Not logged in for the disposable Codex home. The real direct resource-read run could not start. No support claim is permitted. The user-content sentinel remained unchanged.",
+  "caveats": [
+    "The disposable Codex home was not logged in. The real direct resource-read run did not start."
+  ],
+  "reviewerStatus": "reviewed",
+  "supportClaimUse": "none",
+  "caveatsSurfaced": true,
+  "evidenceBar": {
+    "install": false,
+    "discover": false,
+    "invoke": false,
+    "uninstall": false
+  },
+  "simulated": false,
+  "simulationMechanicsRef": null,
+  "transcriptFormat": "non-tty",
+  "evidenceReferences": [
+    "sha256:61d2fb81153fb5c8f872e8b78ac30655ddaf902d4df7e586fb53901399895235 disposable Codex login precondition",
+    "sha256:2b3c1ef675261af34820bc098573d1383321b855a14abaadd97226d2036d91db user-content cleanup evidence"
+  ]
+}

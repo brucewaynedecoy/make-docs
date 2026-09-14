@@ -1,99 +1,120 @@
 # Conformance Assets
 
-> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+This directory holds the current Make Docs support registry and the maintainer lab history.
 
+The active registry uses version 2. It has six exact entries. Two entries have qualifying support evidence. Setup must keep every other native method unavailable.
 
-Maintainer-only evidence infrastructure for the W18 R9 conformance lineage ([PRD 20](../docs/prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance), [PRD 43](../docs/prd/43-conformance-scenario-model-and-execution-kits.md#canonical-conformance-asset-home), and [PRD 44](../docs/prd/44-conformance-lab-sessions-and-evidence.md)), extending the maintainer lab into the Playbook packaging domain. This directory holds the tuple registry (`tuple-registry.json`), the harness-agnostic scenario definitions organized by domain (`scenarios/<domain>/`), their fixture Playbooks (`fixtures/`), and — once real lab sessions exist — the compact normalized result records organized by execution target (`results/<harness>/`).
+The four old packaging scenarios are retired. Their sources and fixtures remain as history. The exact version 1 registry remains at `conformance/history/w19-r1-p8-tuple-registry.json`. Old package results cannot prove current setup or harness access.
 
-**Scope: conformance is not harness-specific.** A natural first read of this directory is that conformance means "agent-harness conformance." It does not. The unit of evidence here is the eight-dimension support tuple, and harness is exactly one of those dimensions alongside model or provider, runtime, scenario, surface, scope, and the two output kinds; the founding lab lineage (PRD 20) is the agent harness *model* conformance lab, and the W18 R9 wave is *Playbook* and Package Conformance. Future evidence families expected here include model- and provider-behavior scenarios, runtime-matrix scenarios, playbook-run conformance, and evidence for pipeline-produced agentics (register item Q-022) — none of which is harness-first. Consequently this directory is deliberately NOT subdivided by harness and does not live under any harness-named parent. The organizing rule is **definitions by domain, evidence by target** (PRD 43 R-ORG-1..2): a scenario domain groups outcome definitions by product area (`scenarios/packaging/` today; `scenarios/playbook-runs/` when its first definition lands), and neither a domain nor a scenario ever encodes an execution target — a definition id is a domain-qualified outcome name (`packaging/plugin-marketplace-install`) with no harness token in id or filename. The harness belongs in the tuple, in a definition's per-target `targets` bindings, and in the `results/<harness>/` evidence layout — never in scenario identity. No speculative subdirectories are pre-created; the pre-W18 conformance audit (register item D-019) established that mandated-but-unused structure is drift waiting to happen, so structure here follows content.
+## Active Support Registry
 
-**Location (PRD 43, register item D-022):** this family lives at the repo-root `conformance/` directory — a maintainer-infrastructure peer of `packages/` and `scripts/` — deliberately OUTSIDE `docs/assets/` and OUTSIDE `packages/`, and it never ships. It sits outside `docs/assets/` because the assets router admits exactly the four reader-facing document families (library, playbooks, artifacts, archive) and bars state-like content, while this directory is machine-validated data (the registry), executable protocol (the scenario specs), and compilation inputs (the fixtures) rather than reader documentation; it sits outside `packages/` because nothing here is shipped product. The anti-drift goal of R-REG-1 is carried by the enforcement code — the fail-closed loaders, the R-TEST-3 markers, and the meta-verification checks — not by directory proximity to the docs tree. The family relocated here from `docs/assets/conformance/` on 2026-07-06, before any result record existed.
+`conformance/tuple-registry.json` is the only authoring source for current support status. The controlled package build copies only this file to `conformance/tuple-registry.json` in the npm package. Installed setup loads that packaged copy from the package location. It does not use the working directory.
 
-**Boundary (R-KEEP-1, R-TEST-3):** everything under `conformance/` is maintainer-only in-repo project content, edited in place, and deliberately NOT authored upstream in `packages/docs/template/`. This is a stated exception to the upstream-first dogfooding rule, because conformance is maintainer evidence infrastructure, not shipped product. These assets must stay out of the shipped template, the packaged `packages/cli/template/` copy, npm tarballs, and any future package; the R-TEST-3 exclusion check (`listShippedConformanceAssetErrors` in the standard suite and `validate:defaults`, plus the tarball sweep in `scripts/smoke-pack.mjs`) enforces this outward — and a green exclusion run is an exclusion fact, never a support claim (R-KEEP-1). Raw transcripts and evidence scratch live in the disposable lab-session workspace and are discarded with it by default (register item D-024; PRD 44 R-NAME-2); deliberately redacted-and-promoted evidence lands in the committed result records under `results/<harness>/`, and raw evidence retained beyond a session goes to the machine-level store's lab area — never to repo-local `.make-docs/`.
+The package must not contain scenario files, result files, transcripts, fixtures, or maintainer tools. The template must not contain any conformance asset.
 
-**Test layer: conformance (R-LAYER-1, R-LAYER-2).** This directory is where the conformance test layer lives: its scenario specs, tuple registry, and result records cover the real-harness user outcome per tuple through the maintainer lab. The other two named layers — unit (the operation core, parser, and validator as pure functions without a CLI) and integration (the CLI and MCP surfaces over the core, including the manifest and exposure plumbing) — are automated repository tests under `packages/cli/tests/`, and each suite there names its layer in its file header via a `Test layer:` marker enforced by `packages/cli/tests/conformance-meta-verification.test.ts`. The layers are never substitutable, and internal (unit or integration) tests passing is never evidence that a harness recognizes or can use the output (R-LAYER-2; PRD 36 R-TEST-5): only recorded runs from this layer meeting the R-BAR-1 install-discover-invoke-uninstall bar advance a tuple.
+The package build validates the copied registry. It also checks that its SHA-256 digest matches the repo-root source.
 
-## The Tuple Registry (`tuple-registry.json`)
+## Version 2 Tuple
 
-The single queryable home of support status for generated Playbook distributables (R-REG-1): the set of support tuples and their statuses lives in this data file, not in prose, so support status cannot drift from documentation. The schema, canonical status meanings, and verdict-derivation rules are owned by `packages/cli/src/conformance/` (`tuple.ts`, `registry.ts`); the loader fails closed when this file drifts from the code's canonical rules, when any status disagrees with the status derived from its recorded evidence, or when any tuple is duplicated.
+Each active tuple has these seven fields:
 
-### Format (implementer choice per D8)
+- `scenario`
+- `harness`
+- `connectionMethod`
+- `surface`
+- `scope`
+- `modelOrProvider`
+- `runtime`
 
-One versioned JSON document. JSON keeps the registry queryable by any tool without a parser dependency; a single file keeps tuple identity enforceable in one place.
+Every value must be non-empty. Active tuples do not permit `null`, `*`, `any`, `auto`, or other wildcard values.
 
-- `record`: `make-docs.conformance.tuple-registry`; `schemaVersion`: `1`.
-- `statuses`: the three R-REG-2 status meanings, embedded verbatim so the file is self-describing (validated byte-for-byte against the code's constants).
-- `verdictDerivation`: the R-REG-3 rules as data (same drift check).
-- `tuples[]`: one entry per exact support tuple:
-  - `id`: unique human-oriented slug.
-  - `tuple`: the eight R-TUPLE-1 dimensions — `scenario`, `harness`, `surface` (`native`/`agents-standard`, never `auto`), `scope`, `outputKind`, `generatedOutputKind`, `modelOrProvider`, `runtime`. The evidence-owned dimensions (`scenario`, `modelOrProvider`, `runtime`) are lab run metadata per PRD 20 and stay `null` until a recorded run binds them.
-  - `status`: exactly one of `provisional`, `implementation-validated`, `conformance-validated`.
-  - `evidence[]`: non-run evidence links. `internal-test` refs (repository test files) are the only support for `implementation-validated`; `real-harness-probe` refs record out-of-protocol real-harness observations (positive or negative) and never move a status.
-  - `recordedRuns[]`: compact projections of lab result records — scenario, run date, verdict, caveats plus whether they are surfaced, the four D4 evidence-bar stage results (`install`, `discover`, `invoke`, `uninstall`), a `recordRef` to the committed result record, the model/provider and runtime run metadata, and the run's `simulated` posture.
-  - `plannedScenarios[]` (W18 R9 P2 t9): ids of authored scenario specs under `scenarios/` that target this tuple. Forward-looking linkage only — a planned scenario is not evidence, never affects status derivation, and never binds the tuple's `scenario` dimension; only a recorded run does. An explicitly empty list is itself a statement: no authored scenario targets the tuple, so absence is reported rather than implied as covered (R-SCEN-2).
-  - `notes[]`: honesty annotations (e.g. what the current evidence does not prove).
+The current scenario families are:
 
-### Status derivation (R-REG-2, R-REG-3, R-BAR-2)
+- `setup-access/mcp-store-operations`
+- `setup-access/bounded-rule-store-operations`
+- `setup-access/permission-rule-store-operations`
+- `setup-access/direct-resource-read`
 
-Statuses are derived, never asserted:
+`direct-cli` is valid only for `setup-access/direct-resource-read`. It proves Store-free resource access. It is not a Store-access setup method.
 
-- `conformance-validated` — only from a recorded run with verdict `pass`, or `pass-with-caveats` whose caveats are surfaced, that met all four evidence-bar stages. Verdicts of `inconsistent`, `unsupported`, and `blocked` never advance a tuple; a scenario that cannot run reports `blocked` rather than inventing evidence.
-- `implementation-validated` — only from `internal-test` evidence refs proving the generated files and structure. Internal tests are never harness-recognition evidence (R-LAYER-2, PRD 36 R-TEST-5).
-- `provisional` — everything else.
+## Registry Shape
 
-## Scenario Definitions (`scenarios/<domain>/`)
+The registry is one JSON document.
 
-The first-pass scenario definitions implement the install-discover-invoke-uninstall evidence bar as the scenario shape for packaging conformance (R-BAR-1). Definitions are harness-agnostic (PRD 43 R-SCHEMA-1; register item D-025): everything that names an execution target lives in a per-target `targets` map, never in the definition's identity or its target-independent body. The contract is owned by `packages/cli/src/conformance/scenario.ts`; the definitions are its data.
+- `record` is `make-docs.conformance.tuple-registry`.
+- `schemaVersion` is `2`.
+- `statuses` carries the three fixed status meanings.
+- `verdictDerivation` carries the fixed status rules.
+- `tuples` has one entry for each exact tuple.
 
-### Format (implementer choice per D8)
+Each tuple entry has an id, the full tuple, its derived status, evidence references, recorded results, planned scenarios, and notes.
 
-One JSON document per definition at `scenarios/<domain>/<outcome>.json`, where the domain-qualified `scenarioId` (`<domain>/<outcome>`) equals the path tail — the lab permits YAML or JSON, and JSON matches the tuple registry's no-parser-dependency choice; the loader rejects a file whose path does not match its `scenarioId`, and a definition file outside a domain subdirectory fails loading. The lab's `conformance.scenario.v1` fields (PRD 20; see [the developer guide](../docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md)) are consumed unchanged with their exact names; everything packaging-specific is additive under the `packagingExtension` key:
+Each recorded result repeats the full tuple. It also records these facts:
 
-- `domain`: the scenario domain; must equal the `scenarioId`'s domain prefix (R-ORG-1).
-- `evidenceBar`: per-stage assertions for all four D4 stages. A definition that declares no assertion for any stage is not bar-eligible, and the recording seam refuses a run claiming a stage its scenario does not assert — a scenario missing any assertion structurally cannot advance a tuple (R-BAR-1).
-- `preconditions`: the definition-level, target-independent precondition TEMPLATE — which preconditions exist and which are attestation-only. `probe: "command-succeeds"` marks a probeable precondition whose concrete probe command lives on each target binding; `probe: "operator-attestation"` marks network and model routing, which cannot be probed without spending them. Every precondition embeds the `onUnmet: "blocked"` rule — a scenario that cannot run resolves to an honest `blocked` result record with `supportClaimUse: "none"`, never invented evidence (R-KEEP-1).
-- `transcriptPolicy: "json-or-non-tty"` and per-step transcript tags: any command transcript consumed as evidence pins `--json` or runs non-TTY, so the render layer never enters evidence (PRD 39 R-SEQ-2; register item R-026). Scenario scripts use the `plan`/`preview`/`write`/`ship` grammar; the schema rejects the retired `--write` flag.
-- `workspacePolicy: "disposable-fixture-workspace"`: nothing destructive ever runs against a maintainer working tree (R-KEEP-1).
-- `targets`: the per-target bindings, keyed by harness id (R-SCHEMA-1..2). Each binding carries the `registryTupleIds` whose tuples that target's runs may land on, its `harnessExecution` mode (`real-harness` or `faithful-simulation`; all four first-pass Codex bindings declare `real-harness` — no faithful simulation of Codex exists, so simulation never silently substitutes for the real harness, and a future simulation must document its reviewed mechanics in the binding with every result record stating whether the run was simulated), the concrete `preconditionProbes` for every probeable template precondition, and optional target-specific `parameters`. A harness with **no** entry in `targets` is an uncovered target — a reported gap (kit generation for it fails closed naming the gap; the registry's scenario-absence notes report it), never implied coverage. This structural rule replaces the retired `futureHarnesses` list: Claude Code and Pi are currently uncovered targets on all four definitions.
-- `discoveryKit` (on a target binding; the plugin definition's Codex binding carries it): the renamed and generalized characterization preamble (PRD 43 R-DISC-1) — the recorded plan for resolving the R-021 negative recognition probe. Before any bar assertion, the session records ground truth for what the real harness version accepts as a marketplace source and plugin layout using a hand-minimal plugin independent of Make Docs, then diffs the generated shapes against that ground truth, so a failure distinguishes wrong generated shapes from a harness capability gap. Discovery findings feed descriptor corrections, never evidence-bar relaxations.
+- Make Docs version
+- executable digest
+- behavior digest
+- distribution type
+- harness version
+- native-config digest
+- run date
+- result reference
+- evidence references
 
-### The four required first-pass scenarios (R-SCEN-1 as revised by PRD 43 R-SCHEMA-3; Codex targets first)
+The loader rejects duplicate tuples. It also rejects a status that does not match the recorded evidence.
 
-| Definition | Proves |
-| --- | --- |
-| `packaging/skills-bundle-discovery-invocation` | A generated skills bundle appears as a skill in the target harness and can be invoked. |
-| `packaging/plugin-marketplace-install` | A generated plugin appears through a marketplace, installs, exposes its bundled skills, and is usable in a new thread. |
-| `packaging/dependency-check-both-directions` | Generated dependency checks surface missing tools and pass when dependencies are present, bound to the v2 probe-based checks — including a fixture whose `source` prose does not begin with the binary name (PRD 34 R-DEP-3, R-FIX-1). |
-| `packaging/uninstall-backup-cleanliness` | Uninstall and backup remove managed generated outputs without orphaning empty managed directories or deleting user-authored files; owns the PRD 36 R-PROV-2 cleanliness scenario. |
+## Status Rules
 
-All four bind exactly one target today — Codex — and all four are runnable-or-honestly-blocked on it: their precondition probes (`probePackagingScenarioPreconditions`, resolved against the Codex binding's probe commands) resolve `blocked` when the Codex CLI is unavailable or unauthenticated, and the network/model-routing preconditions require explicit operator attestation, so an unattended probe is `blocked` by default. Every committed command step is executable as written against the current CLI (register item D-023): ship steps carry their `--support-evidence-ref`, non-TTY `setup backup`/`setup remove` steps carry `--yes`, and the workspace setup establishes the packaging precondition attestations the ship steps consume — with the structural executable-by-construction guarantee owned by kit generation (PRD 43 R-KIT-3).
+Statuses are derived. A maintainer must not edit a status by hand.
 
-## Fixture Playbooks (`fixtures/`)
+- `provisional` means there is no qualifying proof.
+- `implementation-validated` means only internal file and structure tests passed.
+- `conformance-validated` means a qualifying real-harness result passed install, discover, invoke, and uninstall.
 
-Scenario source Playbooks are v2-form documents (PRD 34) under `fixtures/<persona>/`, packaged only into disposable fixture workspaces. `conformance-skill-probe` emits a deterministic invocation marker so the invoke assertion greps evidence; `conformance-dependency-probe` carries the dependency fixture set for both directions, including the deliberately absent probe target and the `rg` entry whose provenance prose begins with "ripgrep".
+`blocked`, `unsupported`, and `inconsistent` results never promote a tuple. A `pass-with-caveats` result promotes only when the result surfaces its caveats.
 
-## Result Records (`results/<harness>/`)
+One internal test cannot prove harness support. One native file cannot prove harness recognition. One detected harness cannot prove support.
 
-Compact normalized result records are the committed evidence class (R-KEEP-1): one JSON document per recorded run, the lab's `conformance.result.v1` fields verbatim plus the packaging extension (per-stage `evidenceBar` booleans, `caveatsSurfaced`, `simulated` with `simulationMechanicsRef`, and `transcriptFormat` pinning `json` or `non-tty`). Evidence organizes by execution target (PRD 43 R-ORG-2): a committed record lives at `results/<harness>/<YYYY-MM-DD>-<outcome-slug>-<seq>.json` (the ingest step derives the path via `conformanceResultRecordRelativePath` in `packages/cli/src/conformance/governance.ts`), with the model-or-provider and runtime dimensions inside each record — deeper directory nesting is deferred until volume demands it, and the tuple registry remains the single queryable index across all targets; this layout is storage, not a second query surface. Raw transcripts and evidence scratch live in the disposable lab-session workspace, discarded with it by default; a record's `transcriptLogPointer` points into the machine-level store's lab area or states `discarded-with-session` (register item D-024). No result record exists yet — no lab session has run — so this directory and its first `<harness>/` subdirectory appear with the first recorded run; no speculative directories are pre-created. Bar outcomes bind to the registry through `recordConformanceRunOnRegistryEntry` in `packages/cli/src/conformance/scenario.ts`: a qualifying `pass` (or `pass-with-caveats` with surfaced caveats) meeting all four stages advances the tuple and binds its evidence-owned dimensions from run metadata; every other verdict is recorded as honest history and advances nothing.
+## Setup-Access Lab
 
-## Operator Modes (`operator-modes.md`)
+The maintainer-only setup-access mode creates one disposable first-run session. It accepts an exact scenario, harness, method, model or provider, runtime, harness version, packed product, and new session root.
 
-[operator-modes.md](operator-modes.md) is the executable protocol for driving a lab session end to end. A session is generated as a per-target **kit** (`npm run conformance:kit`), driven through its deterministic **instruments**, and closed with the fail-closed **ingest** step (`npm run conformance:ingest`) that assembles the `conformance.result.v1` record — the same three things regardless of who drives. It documents the three first-class modes — human-only (the manual fallback: a human generates the kit and runs its prompts and instruments by hand), human plus assisting agent (the agent generates the kit, prepares the workspace, and ingests while the human drives the harness), and agent-multiplexed (an orchestrating agent drives the harness through a terminal-multiplexer tool it consumes from its environment, never one Make Docs builds) — each restating R-EXEC-1: the agent drives, the instruments measure, and a driver's claims are never evidence. It also states the discover honesty rule in operator terms: a listing of files Make Docs wrote proves placement, never harness recognition, so `discover` confirms only from a harness-listing instrument (register item R-021). Kit generation and ingestion are maintainer lab tooling (PRD 43 R-HOME-1): npm scripts that register no operation and add nothing to the shipped CLI or MCP surface; the revisit seam is on register item Q-022.
+Bootstrap creates only a provisional tuple in the session. It installs the packed product in the session. It uses the production native planner, writer, verifier, project operation, and receipt path. It does not write a result. It does not change support status.
 
-## Support-Claim Governance (R-GOV-1, R-GOV-2)
+The bootstrap rejects the real home, the repository, repository parents and children, and any non-empty target. The session root must be under a directory named `make-docs-conformance-lab`.
 
-<!-- support-claim-state: conformance-validated=0/0 -->
+After the harness session, ingestion validates the measured result. The write mode requires a reviewed result. It then writes the result and updates the repo-root registry through the normal recording seam. Preview mode writes neither file.
 
-Governance binds public support WORDING to this registry, so no claim runs ahead of its tuple's evidence. The rule (R-GOV-1): a public claim states only what a `conformance-validated` tuple proves; until a tuple is conformance-validated, wording distinguishes a Make Docs generated output from a harness-recognized plugin, and a `pass-with-caveats` result surfaces its caveats in any claim derived from it. The rule and its enforcement are code — `packages/cli/src/conformance/governance.ts`, enforcing in the standard suite via `packages/cli/tests/conformance-governance.test.ts`:
+See [operator-modes.md](operator-modes.md) for commands and evidence steps.
 
-- **Derived wording.** `renderConformanceSupportClaim` is the single seam turning a registry entry into permitted public wording; prose may restate, never exceed it. Claims embed every caveat carried by the reviewed qualifying runs.
-- **The lab thresholds, preserved (R-GOV-2).** Public wording requires maintainer review on top of status: `deriveSupportClaimStrength` reads each qualifying run's committed result record (`recordRef`, the R-TEST-1 receipts discipline) and fails closed to `no-public-claim` without a reviewed record. One reviewed qualifying run is `nominal` support — the lab's one-run minimum — and repeated reviewed runs with a reviewed `stronger-claim-candidate` record are the `stronger` threshold; stronger commendation language renders only behind it.
-- **Declared claim surfaces.** Every reader-facing doc that carries support language is declared in `CONFORMANCE_CLAIM_SURFACES` (this README, the user packaging guide, the developer packaging guide, and the developer conformance-lab guide). Each carries the rule's core phrase, a reference to this registry, and a `support-claim-state` marker asserting the current conformance-validated count — when a tuple advances, every marker goes stale and the governance check fails until each surface's wording is reviewed and re-marked, making claim-wording advancement mechanical: wording advances only when the exact tuple advances (never ahead of it, never silently behind it). A vocabulary sweep flags support-status language on undeclared reader-facing surfaces.
-- **The W18 R5 through W18 R8 promotion path.** The provisional support claims those lineages carry — PRD 36's generated plugin, skills-bundle, and adapter support claims — promote only through this registry: `capSupportStatusForConformanceRegistry` holds any `validated` claim at `provisional` unless the exact tuple is `conformance-validated`, and `listPackagingSupportRegistryAgreementErrors` proves every first-party descriptor placement claim has exactly one registry tuple and every tuple anchors back to a placement, so no parallel or prose-only support surface exists (R-REG-1). This cap is maintainer-side by design: the registry never ships, so the repository suite enforces it over the committed registry and the first-party descriptors.
-- **Traceability (surface → tuple → run).** Following links from a public claim reaches this registry, the exact tuple and its status, and the recorded run that justified it via `recordRef` — receipt-checked so a claim can never outlive its evidence.
+## Version 2 Results
 
-A green governance run proves the wording machinery is honest, never that any harness recognizes any output (R-KEEP-1, R-LAYER-2).
+Current setup-access result records use `conformance.result.v2`. Each result contains the complete seven-part tuple and the exact product and harness facts.
 
-### Current state (W18 R9 machinery complete; scenario model revised by W18 R13)
+The normal ingestion seam derives the result from measured fields. Missing measurements produce `blocked`. Failed measurements produce `unsupported`. A passing result can promote only after maintainer review.
 
-The registry is seeded with the twenty W18 R8 first-party adapter tuples (codex, claude-code, pi across their descriptor placements) at their honest statuses. No real-harness evidence exists yet, so **no tuple is `conformance-validated`**; five tuples with write-path file-and-structure tests are `implementation-validated`, and the rest are `provisional`. The one real-harness observation on record is negative: the 2026-07-03 Codex v0.142.4 recognition probe (register item R-021), carried on `codex-plugin-native-project` as a `real-harness-probe` ref that advances nothing. The four required first-pass outcomes are authored as harness-agnostic `scenarios/packaging/` definitions with Codex target bindings (W18 R13; PRD 43) and linked through `plannedScenarios` on the tuples those bindings target; the linkage is forward-looking only, every tuple's `scenario` dimension stays `null`, and the Pi tuples state their scenario absence explicitly (R-SCEN-2). No lab session has run: the definitions are runnable where the preconditions hold and honestly `blocked` where they do not. The W18 R9 honesty rails are enforcing checks (R-TEST-1..3) and public wording is bound to this registry through the governance machinery above — the machinery is complete, and the remaining input is operational: maintainer-operated first-pass lab sessions against a real Codex install, recorded through `recordConformanceRunOnRegistryEntry`.
+Version 1 package evidence is readable only through the historical loader. It cannot enter the active version 2 registry.
+
+## Support-Claim Governance
+
+<!-- support-claim-state: conformance-validated=2/6 -->
+
+A public claim states only what a `conformance-validated` tuple proves. Until a tuple has that status and a reviewed qualifying record, setup must describe the method as unavailable. Any public claim must keep all recorded caveats and exact tuple limits.
+
+The current registry supports two exact Claude Code tuples. Claude Code MCP passed Store read, Store write, denied-access, and cleanup proof. Claude Code direct CLI passed Store-free resource proof. Claude Code permission rules remain unavailable under the A35 exception because narrow sandbox Store access did not pass. The three Codex tuples remain unavailable because the disposable Codex home was not logged in.
+
+Normal setup does not yet have an accepted source for the exact harness version, model or provider, and runtime facts. It must not use a wildcard. It can therefore keep a proved tuple unavailable until that production identity gap is resolved.
+
+## Evidence Storage
+
+Raw transcripts and scratch evidence stay in the disposable lab session. They do not live in repo-local `.make-docs/`.
+
+Reviewed compact result records can be added under `conformance/results/<harness>/`. The registry remains the only queryable support-status source.
+
+The three test layers stay separate:
+
+- Unit tests validate pure contracts and functions.
+- Integration tests validate CLI, MCP, Store, setup, and native-file behavior.
+- Conformance sessions validate the real harness outcome for one exact tuple.
+
+A passing lower layer cannot replace a missing conformance result.

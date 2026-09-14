@@ -7,13 +7,14 @@
  * parity rule is preserved vacuously; the revisit seam is on register item
  * Q-022.
  *
- * Ingestion assembles a `conformance.result.v1` record from a driven session:
+ * Setup-access ingestion assembles `conformance.result.v2`. The retired
+ * packaging path remains readable for history.
  * every asserted bar-stage boolean derives SOLELY from that stage's instrument
  * outputs, and every operator contribution is recorded as an attestation. By
  * default this previews the assembled record and its measured-vs-attested
  * provenance; `--write` commits the record under `conformance/results/
- * <harness>/`. Binding the record to the tuple registry is a separate reviewed
- * step through `recordConformanceRunOnRegistryEntry` — never automated here.
+ * <harness>/`. Setup-access `--write` also records the exact tuple after a
+ * maintainer review and a source-registry digest check.
  *
  * Usage (from the repo root):
  *   npm run conformance:ingest -- --session-root <dir> --attestations <file.json> \
@@ -29,11 +30,14 @@
  *   }
  */
 
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   ingestConformanceLabSession,
+  ingestSetupAccessLabSession,
+  CONFORMANCE_TUPLE_REGISTRY_PATH,
   loadPackagingConformanceScenarioSpec,
   writeConformanceResultRecord,
   type ConformanceOperatorAttestations,
@@ -99,14 +103,61 @@ function parseArguments(argv: string[]): CliArguments {
         throw new Error(`Unknown argument: ${argument}`);
     }
   }
-  if (!parsed.sessionRoot || !parsed.attestations) {
-    throw new Error("Both --session-root <dir> and --attestations <file.json> are required.");
+  if (!parsed.sessionRoot) {
+    throw new Error("--session-root <dir> is required.");
   }
   return parsed;
 }
 
 function main(): void {
   const args = parseArguments(process.argv.slice(2));
+  const setupAccessManifestPath = path.join(args.sessionRoot!, "manifest.json");
+  if (existsSync(setupAccessManifestPath)) {
+    const attestation = args.attestations
+      ? JSON.parse(readFileSync(args.attestations, "utf8")) as {
+          reviewerStatus?: "unreviewed" | "reviewed" | "needs-follow-up" | "rejected";
+          reason?: string;
+        }
+      : {};
+    const result = ingestSetupAccessLabSession({
+      sessionRoot: args.sessionRoot!,
+      sequence: args.sequence,
+      reviewerStatus: attestation.reviewerStatus,
+      reason: attestation.reason,
+    });
+    process.stdout.write(`Ingested setup-access session:\n`);
+    process.stdout.write(`- tuple: ${Object.values(result.record.tuple).join(" / ")}\n`);
+    process.stdout.write(`- verdict: ${result.record.verdict}\n`);
+    process.stdout.write(`- result: ${result.recordRef}\n`);
+    process.stdout.write(`- derived status: ${result.promotedRegistry.tuples.find(entry => entry.tuple.scenario === result.record.tuple.scenario && entry.tuple.harness === result.record.tuple.harness && entry.tuple.connectionMethod === result.record.tuple.connectionMethod)?.status ?? "unknown"}\n`);
+    if (args.write) {
+      if (attestation.reviewerStatus !== "reviewed") {
+        throw new Error("Setup-access --write requires an attestation file with reviewerStatus `reviewed`.");
+      }
+      const manifest = JSON.parse(readFileSync(setupAccessManifestPath, "utf8")) as {
+        registry: { source: string; sourceDigest: string };
+      };
+      const expectedRegistrySource = path.join(args.repoRoot, CONFORMANCE_TUPLE_REGISTRY_PATH);
+      if (path.resolve(manifest.registry.source) !== path.resolve(expectedRegistrySource)) {
+        throw new Error("The setup-access session does not point to this repository's root registry.");
+      }
+      const currentDigest = createHash("sha256").update(readFileSync(manifest.registry.source)).digest("hex");
+      if (currentDigest !== manifest.registry.sourceDigest) {
+        throw new Error("The source registry changed after bootstrap. Start a new session against the current registry.");
+      }
+      const resultPath = path.join(args.repoRoot, result.recordRef);
+      mkdirSync(path.dirname(resultPath), { recursive: true });
+      writeFileSync(resultPath, `${JSON.stringify(result.record, null, 2)}\n`);
+      writeFileSync(manifest.registry.source, `${JSON.stringify(result.promotedRegistry, null, 2)}\n`);
+      process.stdout.write(`Wrote reviewed result and promoted the exact source tuple.\n`);
+    } else {
+      process.stdout.write("Preview only. No result or registry change was written.\n");
+    }
+    return;
+  }
+  if (!args.attestations) {
+    throw new Error("Packaging ingestion requires --attestations <file.json>.");
+  }
   const manifest = JSON.parse(
     readFileSync(path.join(args.sessionRoot!, "kit", "manifest.json"), "utf8"),
   ) as { scenarioId: string };

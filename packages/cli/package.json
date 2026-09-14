@@ -18,6 +18,7 @@
   "files": [
     "dist",
     "template",
+    "conformance/tuple-registry.json",
     "skill-registry.json",
     "skill-registry.schema.json",
     "README.md"

@@ -35,15 +35,9 @@
  *   kit-generation dry-run projecting every required definition to an
  *   accepted command sequence) lands with the Phase 2 kit generator and the
  *   Phase 4 bar.
- * - R-TEST-3 detects assets three ways — the asset directory path (the
- *   canonical repo-root `conformance/` home per PRD 43, its distinctive
- *   subtrees at any depth, AND the pre-relocation `docs/assets/conformance`
- *   home so a copy reappearing there still fails), the registry data file's
- *   basename, and the unambiguous schema identifiers as content markers — so
- *   a renamed or relocated copy of a conformance asset still fails the
- *   check. Check CODE shipping (this module inside `dist/`) is deliberately
- *   allowed: the PRD ships lab and check code as ordinary CLI source; only
- *   the ASSETS are maintainer-only.
+ * - R-TEST-3 permits the one package-relative version 2 tuple registry. It
+ *   rejects scenario definitions, results, transcripts, fixtures, and any
+ *   second or relocated registry copy. Check code inside `dist/` is allowed.
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -162,7 +156,7 @@ export function listRequiredFirstPassScenarioErrors(input: {
   for (const missing of listMissingRequiredFirstPassScenarioIds(input.specs)) {
     errors.push(
       `required first-pass scenario \`${missing}\` (${REQUIRED_FIRST_PASS_SCENARIOS[missing]}) ` +
-        "has no authored definition under conformance/scenarios/<domain>/ (R-TEST-2, R-SCHEMA-3)",
+      "has no authored definition under conformance/scenarios/<domain>/ (R-TEST-2, R-SCHEMA-3)",
     );
   }
   for (const linkageError of listConformanceScenarioRegistryLinkageErrors(
@@ -270,16 +264,14 @@ export function listCrossLayerCitationErrors(input: {
 }
 
 /* --------------------------------------------------------------------------
- * R-TEST-3 (t5): conformance assets never ship.
+ * R-TEST-3 (t5): only the exact validated version 2 registry can ship.
  * ------------------------------------------------------------------------ */
 
 /**
  * The canonical maintainer-only asset home: the repo-root `conformance/`
  * directory (R-KEEP-1; relocated from `docs/assets/conformance/` per PRD 43).
- * In a scanned shipped tree, any file under a root-level `conformance/`
- * directory is a conformance asset. Compiled check CODE under
- * `dist/conformance/` deliberately does not match — only the ASSETS are
- * maintainer-only.
+ * The exact package path `conformance/tuple-registry.json` is the one allowed
+ * exception. Compiled check code under `dist/` is also allowed.
  */
 export const CONFORMANCE_ASSET_ROOT_DIR = "conformance";
 
@@ -291,14 +283,16 @@ export const CONFORMANCE_ASSET_ROOT_DIR = "conformance";
  */
 export const CONFORMANCE_ASSET_PATH_MARKERS = [
   "docs/assets/conformance",
-  "conformance/tuple-registry.json",
   "conformance/scenarios/",
   "conformance/fixtures/",
   "conformance/results/",
 ] as const;
 
+export const PACKAGED_CONFORMANCE_REGISTRY_RELATIVE_PATH = "conformance/tuple-registry.json";
+
 /** True when a tree-relative path (posix separators) is a conformance asset path. */
 export function isConformanceAssetPath(relative: string): boolean {
+  if (relative === PACKAGED_CONFORMANCE_REGISTRY_RELATIVE_PATH) return false;
   return (
     relative.startsWith(`${CONFORMANCE_ASSET_ROOT_DIR}/`) ||
     CONFORMANCE_ASSET_PATH_MARKERS.some((marker) => relative.includes(marker))
@@ -340,9 +334,9 @@ function walkFiles(root: string): string[] {
 
 /**
  * Scans one tree for conformance-asset content by path, basename, and content
- * marker (R-TEST-3). Returns one violation string per finding; empty means
- * the tree ships no conformance assets. A green result is an exclusion fact,
- * not a support claim (R-KEEP-1).
+ * marker (R-TEST-3). Returns one violation string per finding. Empty means
+ * the tree has only the one allowed registry copy and no lab assets. A green
+ * result is a package-content fact, not a support claim (R-KEEP-1).
  */
 export function listConformanceAssetExclusionViolations(input: {
   root: string;
@@ -357,16 +351,20 @@ export function listConformanceAssetExclusionViolations(input: {
     if (isConformanceAssetPath(relative)) {
       violations.push(
         `${input.label} contains conformance asset path \`${relative}\`; ` +
-          `the repo-root \`${CONFORMANCE_ASSET_ROOT_DIR}/**\` family is maintainer-only and never ships (R-TEST-3, R-KEEP-1)`,
+          `only \`${PACKAGED_CONFORMANCE_REGISTRY_RELATIVE_PATH}\` may ship from the repo-root conformance family (R-TEST-3, R-KEEP-1)`,
       );
       continue;
     }
-    if ((CONFORMANCE_ASSET_FILE_MARKERS as readonly string[]).includes(path.basename(relative))) {
+    if (
+      relative !== PACKAGED_CONFORMANCE_REGISTRY_RELATIVE_PATH &&
+      (CONFORMANCE_ASSET_FILE_MARKERS as readonly string[]).includes(path.basename(relative))
+    ) {
       violations.push(
         `${input.label} contains conformance asset file \`${relative}\` (R-TEST-3, R-KEEP-1)`,
       );
       continue;
     }
+    if (relative === PACKAGED_CONFORMANCE_REGISTRY_RELATIVE_PATH) continue;
     let content: string;
     try {
       content = readFileSync(absolute, "utf8");

@@ -62,19 +62,19 @@ describe('W19 R4 canonical guide resource names', () => {
       expect(plan.actions.findIndex(action => action.relativePath === `.make-docs/system/${currentName}`)).toBeLessThan(plan.actions.findIndex(action => action.relativePath === `.make-docs/system/${oldName}`));
       expect(plan.actions.find(action => action.relativePath === `.make-docs/system/${oldName}`)?.type).toBe('remove-managed');
     }
-    await runCli(['setup', '--yes', '--target', root]);
+    await runCli(['setup', '--yes', '--codex-method', 'none', '--claude-code-method', 'none', '--target', root]);
     for (const [oldName, currentName] of names) {
       expect(existsSync(file(oldName))).toBe(false);
       expect(existsSync(file(currentName))).toBe(true);
       expect(JSON.stringify(loadManifest(root))).not.toContain(path.basename(oldName));
     }
-    await runCli(['setup', '--yes', '--target', root]);
+    await runCli(['setup', '--yes', '--codex-method', 'none', '--claude-code-method', 'none', '--target', root]);
     expect(existsSync(path.join(root, '.make-docs/state'))).toBe(false);
   });
   it.each(names)('preserves edited retired resource %s and reports the conflict', async (oldName) => {
     await legacyFixture();
     writeFileSync(file(oldName), '# User changes must survive\n');
-    await expect(runCli(['setup', '--yes', '--target', root])).rejects.toThrow(/conflict|review|overwrite|unresolved ownership or safety stops/i);
+    await expect(runCli(['setup', '--yes', '--codex-method', 'none', '--claude-code-method', 'none', '--target', root])).rejects.toThrow(/conflict|review|overwrite|unresolved ownership or safety stops/i);
     expect(readFileSync(file(oldName), 'utf8')).toBe('# User changes must survive\n');
     expect(loadManifest(root)?.files[`.make-docs/system/${oldName}`]).toBeDefined();
   });

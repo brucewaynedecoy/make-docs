@@ -26,6 +26,7 @@ const ALL_SKILL_NAMES = [
   "decompose-codebase",
   "naive-uat",
 ];
+const NONE_METHODS = ["--codex-method", "none", "--claude-code-method", "none"] as const;
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
@@ -52,6 +53,19 @@ function setTTY(value: boolean) {
     configurable: true,
     value,
   });
+}
+
+function withRequiredSetupMethods(argv: string[]): string[] {
+  if (argv[0] !== "setup" || ["skills", "backup", "remove", "reconfigure"].includes(argv[1] ?? "")) return argv;
+  if (!argv.includes("--yes") && !argv.includes("--dry-run") && !argv.includes("--json") && process.stdin.isTTY) return argv;
+  const result = [...argv];
+  if (!result.includes("--codex-method") && !result.includes("--no-codex") && !result.includes("--no-agents")) {
+    result.push("--codex-method", "none");
+  }
+  if (!result.includes("--claude-code-method") && !result.includes("--no-claude-code") && !result.includes("--no-claude")) {
+    result.push("--claude-code-method", "none");
+  }
+  return result;
 }
 
 async function installManifest(
@@ -202,7 +216,7 @@ async function captureCliOutput(argv: string[]): Promise<string> {
   try {
     const { runCli } = await import("../src/cli");
 
-    await runCli(argv);
+    await runCli(withRequiredSetupMethods(argv));
     return writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
   } finally {
     writeSpy.mockRestore();
@@ -213,7 +227,7 @@ async function captureCliError(argv: string[]): Promise<Error> {
   const { runCli } = await import("../src/cli");
 
   try {
-    await runCli(argv);
+    await runCli(withRequiredSetupMethods(argv));
   } catch (error) {
     if (error instanceof Error) {
       return error;
@@ -274,6 +288,7 @@ describe("cli interactive flows", () => {
         introTitle: "Let's configure your make-docs install",
         projectState: "fresh",
         harnessSupport: expect.any(Array),
+        afterHarnessSelection: expect.any(Function),
         config: expect.objectContaining({
           labels: expect.any(Object),
           personas: expect.any(Array),
@@ -319,6 +334,7 @@ describe("cli interactive flows", () => {
         projectState: "partial",
         allowCapabilityExpansion: true,
         harnessSupport: expect.any(Array),
+        afterHarnessSelection: expect.any(Function),
         config: expect.objectContaining({
           labels: expect.any(Object),
           personas: expect.any(Array),
@@ -445,7 +461,7 @@ personas:
       setTTY(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
@@ -471,8 +487,7 @@ personas:
       mkdirSync(path.join(targetDir, ".make-docs"), { recursive: true });
       writeFileSync(
         path.join(targetDir, ".make-docs/config.yaml"),
-        `paths:
-  designs: docs/ideas
+        `harnessIntegrations: {}
 `,
         "utf8",
       );
@@ -482,8 +497,7 @@ personas:
 
       expect(error.message).toContain("Invalid make-docs config");
       expect(error.message).toContain(".make-docs/config.yaml");
-      expect(error.message).toContain("paths");
-      expect(error.message).toContain("structural paths");
+      expect(error.message).toContain("harnessIntegrations");
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -521,8 +535,11 @@ personas:
 
       const output = await captureCliOutput(["setup", "--yes", "--target", targetDir]);
 
-      expect(output).toContain("Mode: first install");
-      expect(output).not.toContain("Compatibility state:");
+      expect(JSON.parse(output)).toMatchObject({
+        schemaVersion: 2,
+        operation: "setup",
+        status: "complete",
+      });
       expect(readFileSync(path.join(targetDir, "README.md"), "utf8")).toBe(
         "# Existing project\n",
       );
@@ -603,7 +620,7 @@ personas:
       setTTY(false);
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
 
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
@@ -675,6 +692,7 @@ personas:
       await runCli([
         "setup",
         "--yes",
+        ...NONE_METHODS,
         "--skill-manifest",
         firstSource.manifestPath,
         "--selected-skills",
@@ -750,7 +768,7 @@ personas:
       const configPath = path.join(targetDir, ".make-docs/config.yaml");
       writeFileSync(configPath, readFileSync(configPath, "utf8").replace(/^projectId:.*\n/m, ""));
       const { runCli } = await import("../src/cli");
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
       expect(loadManifest(targetDir)?.projectId).toMatch(/^[0-9a-f-]{36}$/);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/state"))).toBe(false);
@@ -889,11 +907,10 @@ personas:
       const reviewedSelections = defaultSelections();
       reviewedSelections.capabilities.work = false;
       runSelectionWizardMock.mockResolvedValue(reviewedSelections);
+      confirmMock.mockResolvedValue(false);
 
       const output = await captureCliOutput([
         "setup",
-        "--dry-run",
-        "--no-work",
         "--target",
         targetDir,
       ]);
@@ -936,6 +953,8 @@ personas:
         "setup",
         "--yes",
         "--no-codex",
+        "--claude-code-method",
+        "none",
         "--skill-scope",
         "global",
         "--selected-skills",
@@ -974,7 +993,14 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", flag, "--target", targetDir]);
+      await runCli([
+        "setup",
+        "--yes",
+        flag,
+        ...(flag === "--no-codex" ? ["--claude-code-method", "none"] : ["--codex-method", "none"]),
+        "--target",
+        targetDir,
+      ]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -988,7 +1014,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--no-skills", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--no-skills", "--target", targetDir]);
 
       const manifest = loadManifest(targetDir);
       expect(manifest?.selections.skills).toBe(false);
@@ -1006,7 +1032,7 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--selected-skills", "none", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--selected-skills", "none", "--target", targetDir]);
 
       let manifest = loadManifest(targetDir);
       expect(manifest?.selections.selectedSkills).toEqual([]);
@@ -1017,6 +1043,7 @@ personas:
         "--selected-skills",
         "all",
         "--yes",
+        ...NONE_METHODS,
         "--target",
         allTargetDir,
       ]);
@@ -1054,6 +1081,7 @@ personas:
       await runCli([
         "setup",
         "--yes",
+        ...NONE_METHODS,
         "--skill-manifest",
         manifestPath,
         "--selected-skills",
@@ -1163,7 +1191,7 @@ personas:
       try {
         const { runCli } = await import("../src/cli");
 
-        await runCli(["setup", "--yes", "--skill-scope", skillScope, "--target", targetDir]);
+        await runCli(["setup", "--yes", ...NONE_METHODS, "--skill-scope", skillScope, "--target", targetDir]);
 
         const manifest = loadManifest(targetDir);
         expect(manifest?.selections.skills).toBe(true);
@@ -1334,7 +1362,14 @@ personas:
     try {
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", flag, "--target", targetDir]);
+      await runCli([
+        "setup",
+        "--yes",
+        flag,
+        ...(flag === "--no-agents" ? ["--claude-code-method", "none"] : ["--codex-method", "none"]),
+        "--target",
+        targetDir,
+      ]);
 
       expect(loadManifest(targetDir)?.selections.harnesses).toEqual(expectedHarnesses);
     } finally {
@@ -1622,7 +1657,7 @@ personas:
   });
 
   test("prints structured top-level help with exactly the seven public commands", async () => {
-    setTTY(false);
+    setTTY(true);
 
     const output = await captureCliOutput(["--help"]);
 
@@ -1694,7 +1729,7 @@ personas:
     expect(output).toContain("Requires a verified installation record in the global Make Docs Store");
     expect(output).toContain("Interactive runs open the selection wizard");
     expect(output).toContain("Non-interactive runs with --yes must include at least one selection flag");
-    expect(output).toContain("--yes                          Skip interactive prompts.");
+    expect(output).toContain("--yes                          Approve a fully specified non-interactive plan.");
     expect(output).toContain("make-docs setup reconfigure --yes --no-work");
     expect(output).toContain("Use `make-docs setup skills` to change skill selections.");
     expect(output).not.toContain("--selected-skills <csv|all|none>");
@@ -1714,7 +1749,11 @@ personas:
 
     const output = await captureCliOutput(["setup", "system", "--dry-run"]);
 
-    expect(output).toContain("No native harness method is selected");
+    expect(JSON.parse(output)).toMatchObject({
+      schemaVersion: 2,
+      scope: "machine",
+      selections: { codex: "none", "claude-code": "none" },
+    });
     expect(runSelectionWizardMock).not.toHaveBeenCalled();
     expect(runSkillsCommandMock).not.toHaveBeenCalled();
   });
@@ -1725,12 +1764,17 @@ personas:
     try {
       const setupSystem = await import("../src/setup-system");
       const runSystem = vi.spyOn(setupSystem, "runSystemSetupCommand").mockResolvedValue({
+        schemaVersion: 2,
         status: "skipped-none",
         scope: "machine",
         selections: { codex: "none", "claude-code": "none" },
         configured: [],
         skipped: ["codex", "claude-code"],
         blocked: [],
+        attemptedWork: [],
+        mutationState: "none",
+        failedCondition: null,
+        nextAction: null,
         recoveryAction: null,
       });
       const { runCli } = await import("../src/cli");
@@ -1786,6 +1830,8 @@ personas:
         "setup",
         "system",
         "--yes",
+        "--codex-method",
+        "none",
         "--target",
         targetDir,
         "--no-claude-code",
@@ -1799,7 +1845,7 @@ personas:
   });
 
   test("shows the grouped final review before system and project writes", async () => {
-    setTTY(false);
+    setTTY(true);
     const targetDir = createTempDir("make-docs-grouped-review-");
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     try {
@@ -1810,12 +1856,17 @@ personas:
         expect(review).toContain("This project");
         expect(loadManifest(targetDir)).toBeNull();
         return {
+          schemaVersion: 2,
           status: "unchanged",
           scope: "machine",
           selections: { codex: "none", "claude-code": "none" },
           configured: [],
           skipped: ["codex", "claude-code"],
           blocked: [],
+          attemptedWork: [],
+          mutationState: "verified",
+          failedCondition: null,
+          nextAction: null,
           recoveryAction: null,
         };
       });
@@ -1830,7 +1881,7 @@ personas:
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
 
       expect(applySystem).toHaveBeenCalledTimes(1);
       expect(applyProject).toHaveBeenCalledTimes(1);
@@ -1847,18 +1898,23 @@ personas:
       const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockImplementation(async () => {
         expect(loadManifest(targetDir)).toBeNull();
         return {
+          schemaVersion: 2,
           status: "unchanged",
           scope: "machine",
           selections: { codex: "none", "claude-code": "none" },
           configured: [],
           skipped: ["codex", "claude-code"],
           blocked: [],
+          attemptedWork: [],
+          mutationState: "verified",
+          failedCondition: null,
+          nextAction: null,
           recoveryAction: null,
         };
       });
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
 
       expect(applySystem).toHaveBeenCalledTimes(1);
       expect(loadManifest(targetDir)).not.toBeNull();
@@ -1875,12 +1931,17 @@ personas:
       vi.resetModules();
       const setupSystem = await import("../src/setup-system");
       const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        schemaVersion: 2,
         status: "configured",
         scope: "machine",
         selections: { codex: "none", "claude-code": "none" },
         configured: ["codex"],
         skipped: ["claude-code"],
         blocked: [],
+        attemptedWork: [],
+        mutationState: "verified",
+        failedCondition: null,
+        nextAction: null,
         recoveryAction: null,
       });
       const install = await import("../src/install");
@@ -1889,7 +1950,7 @@ personas:
       });
       const { runCli } = await import("../src/cli");
 
-      await expect(runCli(["setup", "--yes", "--target", targetDir]))
+      await expect(runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]))
         .rejects.toThrow("injected project apply failure");
 
       expect(applySystem).toHaveBeenCalledTimes(1);
@@ -1916,10 +1977,11 @@ personas:
       writeFileSync(configPath, projectConfig, "utf8");
       const { runCli } = await import("../src/cli");
 
-      await runCli(["setup", "--yes", "--target", targetDir]);
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
 
       expect(loadMakeDocsConfig(targetDir).config.harnessIntegrations).toEqual([
         { harness: "codex", mode: "disable" },
+        { harness: "claude-code", mode: "disable" },
       ]);
     } finally {
       cleanupTempDir(targetDir);

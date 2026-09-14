@@ -1,61 +1,138 @@
-# Operator Modes — How a Lab Session Gets Driven
+# Operator Modes for Setup-Access Conformance
 
-> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+This protocol is for maintainers. It does not add a shipped CLI command or MCP tool.
 
+The rule is simple: the harness performs the work, and measured evidence records the result. A driver statement is useful context. It is not proof.
 
-This is executable protocol content, not a guide. It documents how a maintainer runs a conformance **lab session** end to end, in any of three first-class modes. Every mode produces evidence through the *same* three things — a generated **kit**, its deterministic **instruments**, and the fail-closed **ingestion** step — so the driving mode never changes what counts as evidence. Read [README.md](README.md) first for the tuple registry, the scenario definitions, and the evidence rules; read the [developer conformance-lab guide](../docs/assets/library/developer/conformance-lab-scenario-and-result-contracts.md) for the contracts these commands exercise.
+## Before You Start
 
-The contracts here are PRD 44 R-EXEC-1..3 and R-MODE-1..2, and PRD 43 R-ING-1..2. The vocabulary is lab-session vocabulary throughout (PRD 44 R-NAME-1): a *session* has a *session workspace*, *session evidence*, and a *session manifest*; "run" survives only as the registry's `recordedRuns` noun and the `run` CLI command, never for a lab operation.
+Build and pack the candidate. Use only the resulting npm tarball.
 
-## The one rule every mode restates
+Use a new session root under a directory named `make-docs-conformance-lab`. The root must be outside the repository and outside the real home. It must be absent or empty.
 
-**The agent drives, the instruments measure. Self-assessment is never self-attestation.**
+Record exact values for the harness version, model or provider, and runtime. Do not use a wildcard or an unknown value.
 
-An asserted bar stage is confirmed only by its instrument's output, validated at ingestion against the session manifest's expected-evidence table. Whatever the driver — human or agent — *says* happened ("the skill appeared", "Codex listed the plugin") is narrative context. It is recorded, it is useful, and it is **never evidence** (R-EXEC-1). A bar stage with no instrument output is unasserted, full stop; a missing or failed instrument output ingests to `false` with no narrative rescue.
+## Bootstrap One Exact Session
 
-Two honesty corollaries hold in every mode:
+Run this form from the repository root:
 
-- **Blocked is a valid result** (R-EXEC-3). If a precondition is unmet, the session stops and ingests to an honest `blocked` record — `supportClaimUse: none`, every bar stage `false`. Blocked is the honest absence of evidence, never invented evidence.
-- **Failures are evidence; assertions never relax.** A stage that honestly fails is exactly the data a session exists to capture. No divergence between a generated shape and harness ground truth is ever a reason to lower the bar — it is a descriptor or compiler defect to file (that is what the discovery kit is for).
+```bash
+npm run conformance:kit -- \
+  --scenario setup-access/mcp-store-operations \
+  --harness codex \
+  --connection-method mcp \
+  --model-or-provider openai/example-model \
+  --runtime darwin-arm64/node-24 \
+  --harness-version "codex-cli example" \
+  --packed-product /absolute/path/to/make-docs.tgz \
+  --session-root /tmp/make-docs-conformance-lab/codex-mcp
+```
 
-### The discover honesty rule (why "installed" is not "recognized")
+Choose the matching scenario and method:
 
-The one place this rule bites hardest is the `discover` stage. `install`, `invoke`, and `uninstall` each assert something directly measurable: Make Docs wrote files (install), the harness produced a deterministic marker in its own transcript (invoke), Make Docs removed its files cleanly (uninstall). `discover` asserts something different — that the **harness's own listing surface recognizes the installed package**. A directory listing or manifest read of a path Make Docs itself wrote only re-observes placement; a non-empty `.codex/plugins/` listing proves *we wrote files*, never that the harness *found* them. So ingestion confirms `discover` only from a genuine harness-listing capture (a `command-output` capture — the harness running its own listing command). A target whose descriptor declares no such verified listing surface — Codex today, where the workspace-plugins view is an interactive UI observation that stays narrative context — cannot reach an instrument-confirmed `discover`; the stage ingests to `false` with a caveat naming exactly why, and the tuple's status honestly does not advance on the strength of placement alone (register item R-021). This is deliberate: the whole point of the redesign is that "files were written" never masquerades as "the harness recognized them." See the tuple registry and its status-derivation rules in [README.md](README.md).
+| Scenario | Harness | Method |
+| --- | --- | --- |
+| `setup-access/mcp-store-operations` | Codex or Claude Code | `mcp` |
+| `setup-access/bounded-rule-store-operations` | Codex | `command-rules` |
+| `setup-access/permission-rule-store-operations` | Claude Code | `permission-rules` |
+| `setup-access/direct-resource-read` | Codex or Claude Code | `direct-cli` |
 
-## The shared path (all three modes)
+Bootstrap installs the packed product only in the session. It creates one disposable home, project, Store, and evidence directory. It writes the reviewed native entry with the production adapter path. It writes project intent through the production project operation.
 
-Every mode walks the same four steps. Only *who performs each step* changes.
+Bootstrap creates a provisional registry copy only in the session. It does not write a result. It does not change the repo-root registry.
 
-1. **Generate the kit.** From the repo root:
-   ```
-   npm run conformance:kit -- --scenario packaging/plugin-marketplace-install --target codex
-   ```
-   This projects the harness-agnostic definition for the chosen target and writes a disposable lab session **outside the repository** — the fixed layout is `<session-root>/kit/` (the session manifest, the rendered prompts, and the deterministic instruments), `<session-root>/workspace/` (the materialized fixture project the target operates in), and `<session-root>/evidence/` (where instrument outputs land). Generation is executable-by-construction: a definition that cannot project onto the real command surface fails here, before any session starts. Start from `<session-root>/kit/prompts/session-prompt.md`; a binding carrying a discovery kit also writes `discovery-prompt.md`, which precedes bar assertion. Regenerating the same scenario+target on the same day reuses the same deterministic session id, so the disposable root collides and generation fails closed (R-KIT-2) rather than overwrite a session that may hold un-ingested evidence; when you are iterating during discovery, add `--force` to replace the superseded session in place (it deletes then regenerates — never reuses stale evidence), or `--disambiguator <slug>` to mint a fresh session beside it (register item D-028).
-2. **Establish ground truth first (when a discovery kit is present).** The plugin definition's Codex binding carries a discovery kit: before any bar assertion, record what *this exact harness version* accepts as a marketplace source and plugin layout, using a hand-minimal plugin built from the harness's own docs, independent of Make Docs — then diff the generated shapes against that ground truth. This ordering is what lets a later `discover` failure distinguish "our generated shapes are wrong" (a defect to file) from "the harness cannot do this" (a capability gap). Findings feed descriptor corrections, never bar relaxations.
-3. **Drive the session and run the instruments.** First run the **preflight** — `node kit/instruments/preflight.mjs` (the rendered `session-steps.sh` runs it automatically as its first line): it refuses loudly if the `make-docs` on your PATH is not the build the kit was generated from, the stale-global-install trap. Fix it (`just install-cli` from the repo root to rebuild and reinstall the CLI, then confirm `make-docs --version`) before proceeding — running a different `make-docs` produces meaningless results (register item D-027). Then work through the session prompt's steps. Command steps carrying a bar stage are run *through the instruments* (`node kit/instruments/install.mjs`, `discover.mjs`, `invoke.mjs`, `uninstall.mjs before && … remove`) so exit codes, listings, the invoke marker scan, and the byte-level uninstall diff land under `evidence/`. Harness actions (registering the marketplace source, invoking the bundled skill in a new thread) are performed against the real harness; save the harness transcript verbatim where the prompt says so, then run the invoke instrument to scan it.
-4. **Ingest.** Assemble the compact result record from the session:
-   ```
-   npm run conformance:ingest -- --session-root <dir> --attestations attestations.json
-   ```
-   Ingestion derives each asserted bar-stage boolean *solely* from instrument outputs, records the operator's run metadata and attestations *as attestations* (structurally separate from the measurements), and previews the `conformance.result.v1` record and its measured-vs-attested provenance. (If the preflight recorded a CLI mismatch, ingestion refuses outright rather than producing a misleading `unsupported` record — D-027.) Re-run with `--write` to commit the record under `results/<harness>/`. Binding the record to its tuple is a separate reviewed step through `recordConformanceRunOnRegistryEntry` — never automated. The `attestations.json` file is a JSON object: model name, provider or routing layer, model version, runtime, the `attestedPreconditionIds` the operator attests (network, model routing), the honest narrative `reason`, the transcript pointer (a store lab-area path or `discarded-with-session`), and the transcript format.
+Bootstrap also seeds one user-owned native value. Cleanup must remove only the managed Make Docs entry. It must preserve this value.
 
-## Mode 1 — Human-only (the manual fallback)
+## Measure the Session
 
-One maintainer with a real harness install performs every step by hand: generate the kit, read the generated session prompt (`kit/prompts/session-prompt.md`, plus `kit/prompts/discovery-prompt.md` for the first-run characterization), run each instrument, drive the harness actions, and author the attestations file for ingestion. No agent is involved. The generated kit — not a hand-maintained runbook — is the source of the Codex-specific commands, expected results, and honesty checkpoints; that is the whole point of executable-by-construction generation, and it is why the earlier hand-written walkthrough for the superseded codex-* spec was removed as previous-attempt waste rather than kept. The three defects that walkthrough surfaced (the ship step's missing `--support-evidence-ref`, the non-TTY `setup remove` missing `--yes`, and the unestablished preconditions) are preserved verbatim in register item D-023 — and all three are now supplied by kit generation, so they cannot recur.
+Drive the stated harness from the disposable home. Do not use the real harness home.
 
-Human-only is the ground truth other modes are measured against: if a step cannot be done by hand, no agent should automate it. It is also the right mode for the discovery kit's open-ended harness exploration, which only a human with the real install can perform.
+Fill `evidence/measurements.json` from exact evidence. Keep `null` for a condition that was not measured.
 
-## Mode 2 — Human plus assisting agent
+For MCP and rule methods, measure:
 
-The work splits along the evidence boundary. The **agent** does the deterministic, non-harness work: it generates the kit, prepares the session workspace, runs the instruments over the evidence the human produces, and performs ingestion. The **human** does what only a human at the real harness can: drives the target harness's own flows (registering the marketplace source, installing from the listing, invoking the skill in a new thread) and narrates what the harness actually did. The agent's prompt-driven job is explicitly *not* to certify any stage — it renders the session, runs the measurements, and assembles the record; the human's observations are narrative the record carries, never a measurement the agent invents. This is the mode the session prompt is written for: it instructs the driving party to perform its own discovery and assessment and states plainly that its claims are not evidence.
+- native files
+- caller or harness launch identity
+- connection-method identity
+- Store read
+- Store write
+- rejected access outside the allowed set
+- cleanup
+- user-content preservation
 
-## Mode 3 — Agent-multiplexed
+For `direct-cli`, measure:
 
-An orchestrating agent drives the whole session end to end by using a **terminal-multiplexer tool** — a `tmux`-style capability it consumes from its environment, **never something Make Docs builds or ships**. The agent launches the target harness in a multiplexer pane (using the descriptor's launch command), delivers the session prompt, monitors the harness's responses, saves transcripts, and runs the instruments — all without a human in the loop. Everything the agent observes through the multiplexer is narrative context; only the instrument outputs it captures are evidence (R-EXEC-1 is not relaxed because the driver is now an agent). Blocked honesty and the discover rule apply unchanged: an agent that cannot get the harness to a working state ingests an honest `blocked`, and an agent narrating "the plugin is listed" without a harness-listing instrument still ingests `discover: false`. The multiplexer is an environment capability the agent orchestrates; the kit, instruments, and ingestion path are identical to the other two modes.
+- direct method identity
+- Store-free resource read
+- proof that no Store session opened
+- cleanup
+- user-content preservation
 
-## What is the same across all three modes
+Add at least one exact evidence reference. Add every caveat. Add the transcript pointer and format.
 
-- The **kit** and its **instruments** are generated once per (definition, target); the mode never changes them.
-- **Ingestion** is byte-identical across modes: same manifest, same expected-evidence table, same fail-closed derivation.
-- The **result record** is the same `conformance.result.v1` shape, written to the same `results/<harness>/` home, bound through the same one seam.
-- The **honesty rules** — blocked is valid, failures are evidence, assertions never relax, and the discover placement-vs-recognition rule — hold identically. The mode is a matter of *who drives*, never of *what counts*.
+A rule file, executable path, or environment value does not prove a harness launch. The real harness must supply a trustworthy launch fact. If it cannot, record the condition as failed or unmeasured.
+
+Claude Code permission approval and sandbox file access are separate measurements. Do not infer one from the other.
+
+## Preview Ingestion
+
+Use preview first:
+
+```bash
+npm run conformance:ingest -- \
+  --session-root /tmp/make-docs-conformance-lab/codex-mcp \
+  --attestations /absolute/path/to/review.json
+```
+
+For setup-access, the review file can contain:
+
+```json
+{
+  "reviewerStatus": "reviewed",
+  "reason": "The evidence matches the measured session."
+}
+```
+
+Preview validates the version 2 result and derives the registry status. It writes nothing.
+
+Missing measurements produce a `blocked` result. Complete failed measurements produce an `unsupported` result. Only a complete passing result can qualify for support.
+
+## Reviewed Write
+
+The `--write` option changes the repo-root result and registry. Use it only after the maintainer reviews the preview.
+
+```bash
+npm run conformance:ingest -- \
+  --session-root /tmp/make-docs-conformance-lab/codex-mcp \
+  --attestations /absolute/path/to/review.json \
+  --write
+```
+
+The review file must state `reviewerStatus: reviewed`. The source registry digest must still match the digest from bootstrap. Otherwise ingestion stops.
+
+After a reviewed write, rebuild the package. Confirm that the behavior digest did not change. Confirm that the packaged registry digest changed to the new repo-root registry digest.
+
+Remove the managed native entry after the measured run:
+
+```bash
+npm run conformance:kit -- \
+  --cleanup-session /tmp/make-docs-conformance-lab/codex-mcp/session.json
+```
+
+Cleanup uses the same production adapter removal path. It writes `evidence/cleanup.json`. The record must show that the managed entry is absent and the seeded user content is unchanged.
+
+Final installed acceptance must use the normal setup support loader. The provisional bootstrap path cannot satisfy final setup acceptance.
+
+## Driver Modes
+
+The evidence rules stay the same in each mode.
+
+- Human-only: a maintainer drives the harness and records the measurements.
+- Human with an assisting agent: the agent prepares and measures. The human drives the real harness and reviews the result.
+- Agent-driven: an agent drives the harness through available terminal controls. The measured files remain the evidence.
+
+If authentication, model routing, sandbox access, or another condition prevents the run, record an honest blocked result. Do not copy credentials from the real home into the session.
+
+## Retired Packaging Path
+
+The old packaging kit and its version 1 result path remain historical. The former first-pass suite returns a retirement error. Historical package evidence cannot enter the active version 2 setup-access registry.

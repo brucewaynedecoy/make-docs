@@ -33,29 +33,41 @@ related:
 
 # Conformance Lab Scenario and Result Contracts
 
-> Current scope after W19 R1 P8: the four packaging scenarios are retired. No current scenario set replaces them. The current tuple registry has zero entries. Old sources and fixture files stay at their original paths for history. The exact old registry is in `conformance/history/w19-r1-p8-tuple-registry.json`. Old results cannot prove current Skill, lifecycle, or harness support. Compiler-specific commands and mappings below are historical records. Shared session tools, instruments, record readers, and support-claim checks remain. New kit generation requires an explicit lab target; no first-party packaging descriptor is enabled. The former first-pass suite returns a retirement error.
+> Current scope after W19 R6 P2: setup-access uses the active version 2 registry and result contract. The registry has zero entries. The old packaging scenario and version 1 result sections below are historical. Old evidence cannot prove current setup or harness access.
 
 
 ## Overview
 
-The conformance lab is maintainer-only evidence infrastructure. It helps maintainers test make-docs behavior across agent harnesses and harness-selected models before making support claims. It does not replace package validation, and it is not installed into consumer projects by default.
+The conformance lab is maintainer-only evidence infrastructure. It tests Make Docs behavior in exact harness and runtime conditions before a support claim.
 
-Use this guide when defining reviewed scenario specs, compact result records, raw artifact storage, and redacted evidence promotion. Keep the lab outside shipped templates and packages unless a later accepted design explicitly promotes a reviewed subset.
+The repo-root `conformance/tuple-registry.json` file is the only active support-status source. The controlled package build copies only this registry into the package. It does not copy lab scenarios, results, fixtures, transcripts, or maintainer tools.
 
-Since W18 R9 Phase 1 ([PRD 20](../../prd/20-agent-harness-conformance-and-support-claims.md#support-claim-governance)), the lab extends into the Playbook packaging domain: support claims for generated distributables bind to an eight-dimension tuple, and every tuple's status lives in one queryable registry data file. Since W18 R9 Phase 2, the install-discover-invoke-uninstall evidence bar is implemented as the packaging scenario shape, and the four required first-pass scenario definitions are committed — runnable where their preconditions hold and honestly `blocked` where they do not. Since W18 R13 Phase 1 ([PRD 43](../../prd/43-conformance-scenario-model-and-execution-kits.md)), the scenario model is **definitions by domain, evidence by target**: definitions are harness-agnostic, organize under `conformance/scenarios/<domain>/` with domain-qualified ids (`packaging/plugin-marketplace-install`, never `codex-*`), and bind execution targets through a per-target `targets` map — Codex bound first — while committed evidence organizes under `conformance/results/<harness>/`. Since W18 R13 Phase 2, the executable projection of a definition is a generated per-target execution kit in a disposable lab session — executable by construction, driven by the target agent, measured by deterministic instruments — with raw evidence homed in the session workspace or the machine-level store's lab area, never repo-local `.make-docs/`; see The Execution Kit and Lab Sessions below. Since W18 R9 Phase 3, coverage is organized into three named test layers — declared where the tests live and machine-enforced — and the D9 meta-verification checks police the registry, the required scenario set, the layer attribution of cited evidence, and the maintainer-only shipping boundary from the standard repository suite. The lab core in this guide — verdicts, safety modes, evidence classes, storage boundaries, and the result contract — is consumed by that extension unchanged (R-SCOPE-1, R-KEEP-1). See Packaging Conformance Tuple and Registry, Packaging Conformance Scenarios and the Evidence Bar, and Test Layers and Meta-Verification below.
+## Active Version 2 Setup-Access Contract
+
+An active tuple has exactly seven non-empty fields: `scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Active tuples do not use wildcard or `null` values.
+
+The current scenario families are MCP Store operations, bounded Codex rule Store operations, Claude Code permission-rule Store operations, and direct Store-free resource reads. `direct-cli` is valid only for direct resource reads. It is not a setup choice for Store access.
+
+Each version 2 result repeats the complete tuple. It also records the Make Docs version, executable digest, behavior digest, distribution type, harness version, native-config digest, run date, result reference, and evidence references.
+
+Bootstrap requires a packed product and a new disposable session root. It creates one provisional tuple only in that session. It uses production adapter and project-operation code. It cannot change support status or write a result.
+
+The normal ingestion seam validates the measurements and derives the status. A result with missing evidence is `blocked`. A failed complete result is `unsupported`. A qualifying pass must have maintainer review before the write path can update the root registry.
+
+Read [`conformance/operator-modes.md`](../../../conformance/operator-modes.md) for the current commands and measurements.
 
 ## Project Orientation
 
 | Surface | Purpose | Source-control rule |
 | --- | --- | --- |
-| Scenario definitions | Define the behavior to exercise, the safety mode, and the expected evidence. | May be committed only when compact and reviewed. Packaging scenario definitions are harness-agnostic and live at `conformance/scenarios/<domain>/<outcome>.json`. |
-| Result records | Capture the exact scenario/harness/model/provider/runtime tuple and reviewed verdict. | May be committed only when compact and reviewed. Packaging result records land under `conformance/results/<harness>/`, created with the first recorded run. |
-| Scenario fixture Playbooks | Provide the v2-form source Playbooks packaging scenarios compile, packaged only into disposable fixture workspaces. | Committed under `conformance/fixtures/<persona>/`. |
-| Tuple registry | Carry every packaging support tuple and its evidence-derived status. | Committed queryable data file at `conformance/tuple-registry.json`. |
-| Raw artifacts | Hold transcripts, provider logs, temporary workspaces, raw diffs, and lab-session scratch data. | Live in the disposable lab-session workspace, discarded with it by default; raw evidence retained beyond a session goes to the machine-level store's lab area, never repo-local `.make-docs/` (register item D-024). |
-| Redacted evidence bundles | Preserve the minimum evidence needed for disputed or stronger support claims. | Opt-in only after review and redaction. |
+| Active tuple registry | Carry exact current support tuples and their derived status. | The root file is authoritative. Only its validated copy ships. |
+| Setup-access results | Carry reviewed version 2 result records. | Add under `conformance/results/<harness>/` only after review. |
+| Lab sessions | Hold packed products, disposable homes, projects, Stores, measurements, and transcripts. | Keep outside the repository and real home. |
+| Historical package lab | Preserve the retired version 1 package protocol and sources. | Historical only. It cannot promote current support. |
 
-Do not add lab assets to `packages/docs/template/`, copied `packages/cli/template/`, package allowlists, Rust package surfaces, or provider-backed system asset delivery as part of routine lab work.
+## Historical Version 1 Package Lab
+
+The remaining scenario, package tuple, kit, and version 1 result sections describe the retired W18 package lab. They remain for audit. Do not use them for current setup-access claims.
 
 ## Scenario Specs
 
@@ -435,7 +447,7 @@ Every check in `meta-verification.ts` returns human-readable error strings; empt
 
 - **R-TEST-1** — `listConformanceValidatedRunQualificationErrors`: no tuple may read `conformance-validated` without a recorded run meeting the D4 install-discover-invoke-uninstall bar, and drift is flagged in both directions — a qualifying run understated as a lower status is equally dishonest (R-REG-3). With a `repoRoot`, the check demands receipts: every recorded run's `recordRef` must resolve to a committed result record that validates against the lab result contract and projects back byte-equal to the run stored on the registry entry, so a registry run can never drift from, or outlive, the evidence it summarizes.
 - **R-TEST-2** — `listRequiredFirstPassScenarioErrors`: "runnable" is structural plus honest-blocked (ids and paths retargeted by PRD 43 R-SCHEMA-3). Every required first-pass scenario must be authored as a domain-qualified definition under `conformance/scenarios/<domain>/`, bar-eligible with all four stages asserted, bidirectionally linked to the registry tuples its target bindings declare, backed by fixture Playbooks that exist on disk, bound to the required first-pass target (Codex), and must carry a probeable `harness-cli` precondition with a concrete probe command on that target binding, so an unavailable harness resolves to `blocked` instead of silently passing. The dynamic leg is exercised in the meta suite through the Phase 2 seams: a failing probe executor resolves the scenarios not-runnable and yields a valid `blocked` record that advances nothing, while a succeeding executor still leaves the network and model-routing operator attestations unmet — so even a machine with a working harness CLI stays honestly `blocked` until an operator attests at run time. The D-023 executable-by-construction proof — a kit-generation dry-run projecting every required definition to a command sequence the current CLI accepts — is owned by the W18 R13 Phase 2 kit generator and Phase 4 executability check, not by this check.
-- **R-TEST-3** — `listConformanceAssetExclusionViolations`: conformance assets never ship. Detection is relocation-proof by design, three ways — the asset path (a root-level `conformance/` directory in the scanned tree, the family's distinctive subtree fragments at any depth, and the pre-relocation `docs/assets/conformance` home, which still fails wherever it reappears), the `tuple-registry.json` basename, and the unambiguous schema identifiers (`CONFORMANCE_ASSET_CONTENT_MARKERS`) as content markers — so a renamed or moved copy of an asset still fails. The W18 R13 Phase 1 reorganization verified — not assumed — that the detectors survive the `scenarios/<domain>/` nesting, with a regression test pinning that the family's subtree fragments match through the nested layout. Check CODE shipping is deliberately allowed: the PRD ships lab and check code as ordinary CLI source inside `dist/` (which is also why compiled `dist/conformance/` code does not trip the path detection); only the ASSETS are maintainer-only.
+- **R-TEST-3** — `listConformanceAssetExclusionViolations`: only the exact package path `conformance/tuple-registry.json` can ship. Scenario files, fixtures, results, transcripts, and maintainer tools remain excluded. A moved or renamed registry copy also fails. Compiled conformance code in `dist/` remains allowed.
 
 ### Where the Exclusion Check Runs
 
@@ -443,21 +455,21 @@ The R-TEST-3 boundary is enforced on three surfaces, and all three state the sam
 
 | Surface | Mechanism |
 | --- | --- |
-| Standard suite | `conformance-meta-verification.test.ts` runs `listShippedConformanceAssetErrors` over `CONFORMANCE_EXCLUSION_CHECKED_ROOTS` — `packages/docs/template/` (required) and the build-generated `packages/cli/template/` copy (checked when present). |
-| Package validation | A dedicated describe in `packages/cli/tests/consistency.test.ts` runs the same repo-side check behind `validate:defaults`. |
-| npm tarball | `assertNoConformanceAssetsInTarball` in `scripts/smoke-pack.mjs` sweeps the real unpacked tarball with the same three detectors (dist/ code allowed, assets excluded). |
+| Standard suite | `conformance-meta-verification.test.ts` permits only the exact packaged registry and rejects every other asset. |
+| Package validation | `packages/cli/tests/consistency.test.ts` runs the same check behind `validate:defaults`. |
+| npm tarball | `scripts/smoke-pack.mjs` checks the registry digest and rejects every other conformance asset. |
 
 ## Support-Claim Governance
 
 <!-- support-claim-state: conformance-validated=0/0 -->
 
-Since W18 R9 Phase 4 ([the phase backlog](../../work/2026-07-01-w18-r9-playbook-and-package-conformance/04-support-claim-governance.md)), the claim gate this guide states in Verdicts and Support Claims is encoded in `packages/cli/src/conformance/governance.ts` (PRD 20 R-GOV-1..2) and enforced in the standard suite through `packages/cli/tests/conformance-governance.test.ts`. The rule: a public claim states only what a `conformance-validated` tuple proves; until then wording distinguishes a Make Docs generated output from a harness-recognized plugin, and a `pass-with-caveats` result surfaces its caveats in any claim derived from it.
+The claim gate is encoded in `packages/cli/src/conformance/governance.ts` and enforced by `packages/cli/tests/conformance-governance.test.ts`. A public claim states only what a `conformance-validated` tuple proves. Until then, setup states that the harness access method is unavailable. A `pass-with-caveats` result keeps every caveat in the derived claim.
 
 - **Wording is derived, not authored.** `renderConformanceSupportClaim` is the single seam that turns a registry entry into permitted public wording: below `conformance-validated` it renders the distinguishing wording with the honest status; at `conformance-validated` it states only the exact tuple, the scenario, the bar, and the run metadata, embedding every caveat carried by the reviewed qualifying runs. Hand-authored prose may restate, never exceed, what the derivation permits.
 - **Two gates, not one.** Registry status derivation (R-REG-3) needs a qualifying run; public wording additionally needs maintainer review, preserving this guide's claim-gate table. `deriveSupportClaimStrength` reads each qualifying run's committed result record via its `recordRef` — the same receipts discipline as R-TEST-1 — and fails closed to `no-public-claim` on a missing, invalid, or unreviewed record. One reviewed qualifying run is `nominal` (the lab's minimum, R-GOV-2); repeated reviewed runs with a reviewed `stronger-claim-candidate` record are `stronger`, and stronger commendation language renders only behind that threshold.
 - **Wording advancement is mechanical.** The declared claim surfaces (`CONFORMANCE_CLAIM_SURFACES`: this guide, the packaging guides, and the conformance README) each carry the rule's core phrase, a reference to the registry home, and a `support-claim-state` marker asserting the registry's current conformance-validated count. When a tuple advances, every marker goes stale and `listSupportClaimGovernanceErrors` fails the build until each surface's wording is reviewed and re-marked — claim wording advances only when the exact tuple advances, and it cannot silently fail to advance either. A vocabulary sweep flags support-status language appearing on an undeclared reader-facing surface.
-- **The packaging lineage promotes only through the registry.** `derivePackageSupportStatusCeilingFromRegistry` and `capSupportStatusForConformanceRegistry` hold every PRD 36 generated-output and adapter-support claim at `provisional` unless the exact registry tuple is `conformance-validated`; `listPackagingSupportRegistryAgreementErrors` proves the wiring — every first-party descriptor placement claim has exactly one registry tuple and every registry tuple anchors back to a placement, so no parallel or prose-only support surface exists (R-REG-1). This third cap composes with the W18 R8 verification and tuple-binding caps and is maintainer-side by design: the registry is maintainer-only content, so the cap is enforced by the repository suite, not by shipping the registry.
-- **Traceability is end to end.** Following links from a public claim reaches the tuple (each claim surface names the registry home), the tuple's status (the fail-closed loader), and the recorded run that justified it (the run's `recordRef`, receipt-checked by R-TEST-1). Today the chain ends honestly at "no recorded runs": zero tuples are conformance-validated, so every derived claim reads `no-public-claim` and distinguishes the generated output from a harness-recognized one.
+- **Production setup uses the packaged registry.** No test object, adapter plan, or working-directory file can enable a method.
+- **Traceability is end to end.** A public claim reaches the exact tuple, its status, the qualifying recorded result, and its evidence references. Today the chain ends at no recorded results. The registry has zero tuples, so no Store-access method has a public support claim.
 
 A green governance run proves the wording machinery is honest — never that any harness recognizes any output (R-KEEP-1, R-LAYER-2).
 

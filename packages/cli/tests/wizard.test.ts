@@ -489,28 +489,38 @@ describe("selection wizard", () => {
     });
   });
 
-  test("supports editing options from the review step before applying", async () => {
+  test("runs method screens after harness selection and before shared Skill options", async () => {
+    const order: string[] = [];
     const renderer = new MockWizardRenderer(
       [["designs", "plans", "prd", "work"]],
       [["claude-code", "codex"]],
       [
         {
           skills: true,
-          skillScope: "project",
-          selectedSkills: [],
-        },
-        {
-          skills: true,
           skillScope: "global",
           selectedSkills: ["decompose-codebase"],
         },
       ],
-      ["edit-options", "apply"],
+      [],
     );
+    const originalHarness = renderer.editHarnesses.bind(renderer);
+    renderer.editHarnesses = async (state) => {
+      order.push("harnesses");
+      return originalHarness(state);
+    };
+    const originalOptions = renderer.editOptions.bind(renderer);
+    renderer.editOptions = async (state) => {
+      order.push("shared-skills-and-resources");
+      return originalOptions(state);
+    };
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
       introTitle: "Configure make-docs",
+      afterHarnessSelection: async () => {
+        order.push("methods");
+        return true;
+      },
     });
 
     expect(result).toMatchObject({
@@ -519,7 +529,8 @@ describe("selection wizard", () => {
       selectedSkills: ["decompose-codebase"],
     });
     expect(renderer.introTitles).toEqual(["Configure make-docs"]);
-    expect(renderer.seenOptionStates).toHaveLength(2);
+    expect(renderer.seenOptionStates).toHaveLength(1);
+    expect(order).toEqual(["harnesses", "methods", "shared-skills-and-resources"]);
   });
 
   test("cancels when the renderer stops at the capability step", async () => {

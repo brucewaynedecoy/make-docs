@@ -61,6 +61,7 @@ import {
 } from "./utils";
 import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 import { resolveInstallProfile } from "./profile";
+import { planProjectHarnessIntegrationWrite } from "./config";
 
 import {
   withInstallationOperation,
@@ -368,6 +369,7 @@ interface FixedMigrationProductPlan {
   preservedActions: PlannedAction[];
   appliedActions: PlannedAction[];
   conflictFiles: string[];
+  projectHarnessConfig?: import("./config").ProjectHarnessIntegrationWritePlan;
 }
 
 interface QuiescenceRecord {
@@ -1149,14 +1151,33 @@ type InstallPlanMigrationInput = {
   compatibility: CompatibilityClassification;
   installPlan: InstallPlan;
   existingManifest: InstallManifest | null;
+  projectHarnessConfig?: import("./config").ProjectHarnessIntegrationWritePlan;
   backupId?: string;
 };
 export function executeInstallPlanMigration(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
+  if (input.projectHarnessConfig) {
+    const currentConfig = existsSync(input.projectHarnessConfig.configPath)
+      ? readFileSync(input.projectHarnessConfig.configPath, "utf8")
+      : null;
+    if (currentConfig !== input.projectHarnessConfig.beforeContent) {
+      throw new MigrationSafetyError("snapshot-drift", "Project config changed after migration review.");
+    }
+  }
   return withInstallationOperation(input.projectRoot, "setup.migration", () => {
     if (stableJson(loadManifest(input.projectRoot)) !== stableJson(input.existingManifest)) {
       throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
     }
-    return executeInstallPlanMigrationOwned(input);
+    const projectHarnessConfig = input.projectHarnessConfig
+      ? planProjectHarnessIntegrationWrite({
+          targetDir: input.projectRoot,
+          reviewed: input.projectHarnessConfig.reviewed,
+          contentWhenMissing: input.projectHarnessConfig.content,
+        })
+      : undefined;
+    return executeInstallPlanMigrationOwned({
+      ...input,
+      ...(projectHarnessConfig ? { projectHarnessConfig } : {}),
+    });
   }, {
     storeRoot: input.storeRoot,
     projectId: input.existingManifest?.projectId,
@@ -1179,6 +1200,7 @@ function executeInstallPlanMigrationOwned(input: InstallPlanMigrationInput): Ins
       input.storeRoot,
       input.installPlan,
       input.existingManifest,
+      input.projectHarnessConfig,
     );
     const snapshot = createReviewedMigrationSnapshot({
       lock,
@@ -1406,6 +1428,7 @@ function createFixedMigrationProductPlan(
   storeRoot: string,
   installPlan: InstallPlan,
   existingManifest: InstallManifest | null,
+  projectHarnessConfig?: import("./config").ProjectHarnessIntegrationWritePlan,
 ): FixedMigrationProductPlan {
   const routerActions: PlannedAction[] = [];
   const promptIdentityActions: PlannedAction[] = [];
@@ -1444,6 +1467,7 @@ function createFixedMigrationProductPlan(
     preservedActions,
     appliedActions: [],
     conflictFiles: [],
+    ...(projectHarnessConfig ? { projectHarnessConfig } : {}),
   };
 }
 
@@ -1463,6 +1487,9 @@ function applyFixedInstallStage(
     targetDir: product.projectRoot,
     plan: stagePlan,
     existingManifest: product.currentManifest,
+    ...(checkpoint === 7 && product.projectHarnessConfig
+      ? { projectHarnessConfig: product.projectHarnessConfig }
+      : {}),
   });
   product.currentManifest = result.manifest;
   product.appliedActions.push(...result.appliedActions);
