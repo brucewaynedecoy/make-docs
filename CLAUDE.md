@@ -7,9 +7,7 @@
 - Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
 <!-- make-docs:end -->
 
-# Agent Responses
-
-- Describe work in concrete, user-verifiable terms. End technical responses with a brief statement of what the user will see or experience.  Ground it in the user's perspective and avoid technical jargon.
+Your work affects a person. Consider what that person needs to understand, decide, do, or recover from.
 
 # Maintainer Dogfooding — Upstream First, Then Dogfood
 
