@@ -7,8 +7,6 @@
 - Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
 <!-- make-docs:end -->
 
-Your work affects a person. Consider what that person needs to understand, decide, do, or recover from.
-
 # Maintainer Dogfooding — Upstream First, Then Dogfood
 
 This repository is the Make Docs **maintainer repo** and, at the same time, a **dogfood instance** of Make Docs. Do not author Make Docs system resources or default assets in this repo's own installed instance. Author them **upstream** in the shipped template source of truth at `packages/docs/template/` (which mirrors `.make-docs/` and `docs/`), then **dogfood** them **downstream** into this repo's installed instance at `./.make-docs/` and `./docs/`.
