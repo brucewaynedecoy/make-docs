@@ -58,6 +58,37 @@ describe("Human Experience resource delivery", () => {
     expect(content.get("work-phase.md")).toContain("without writing a formal report or using a special phrase");
   });
 
+  it("keeps adaptive material-reply guidance in the reference", () => {
+    const contract = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/contracts/human-experience-contract.md"),
+      "utf8",
+    );
+    const reference = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/references/human-experience.md"),
+      "utf8",
+    );
+
+    expect(reference).toContain(
+      "When users don't know what to *expect*, they are less likely to *act*.",
+    );
+    expect(reference).toContain("## Shape Material Agent Replies");
+    expect(reference).toContain(
+      "A material reply reports task state, presents a decision or recommendation, explains an error or limit, or closes work.",
+    );
+    expect(reference).toContain("Routine short acknowledgements can stay light.");
+    expect(reference).toContain("Do not force one layout, tone, length, or level of technical detail.");
+    expect(reference).toContain(
+      "An accountable reviewer must inspect or use the result, keep its core idea in view, and record direct observations and limits.",
+    );
+    expect(reference).toContain(
+      "Use data, automated checks, and agent analysis to find problems and support a conclusion.",
+    );
+    expect(contract).not.toContain("## Shape Material Agent Replies");
+    expect(contract).not.toContain(
+      "When users don't know what to *expect*, they are less likely to *act*.",
+    );
+  });
+
   it("includes both shared resources even when the design capability is not selected", () => {
     const selections = defaultSelections();
     selections.capabilities.designs = false;

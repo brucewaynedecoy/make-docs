@@ -8,6 +8,27 @@ Start with a concrete task. “An operator can identify a failed import and safe
 
 Ask what changes for the people who use, read, operate, maintain, review, recover, or rely on the result. A Persona supplies the audience; the local intent supplies the goal. A clear role such as “on-call operator” is enough when no configured Persona fits.
 
+## Use Clear Expectations to Support Action
+
+> “When users don't know what to *expect*, they are less likely to *act*.”
+
+Set an honest expectation about the result, current state, material limit, or next useful action. Do not turn an uncertain result into a promise. State the uncertainty and explain how it affects the person's choice.
+
+## Shape Material Agent Replies
+
+A material reply reports task state, presents a decision or recommendation, explains an error or limit, or closes work. Treat that reply as a human-facing result.
+
+First identify what the user needs next. They may need orientation, a decision, an action, or exact supporting detail. Then shape the whole reply around that need:
+
+- Lead with the result, meaning, or current state.
+- Restore the minimum needed context when time, task length, or interruption may have broken continuity.
+- Distinguish complete, partial, waiting, blocked, failed, and unverified work.
+- Give a recommendation or next useful action when one exists. Say when no action is needed.
+- Put technical proof after the human account. Keep exact paths, identifiers, commands, and evidence available when they help the user verify or continue the work.
+- Keep material limits and uncertainty visible.
+
+Do not force one layout, tone, length, or level of technical detail. Routine short acknowledgements can stay light. Do not add a separate experience summary or claim how the user feels.
+
 ## Examples and Counterexamples
 
 These examples are interpretation aids, not extra policy or finished evidence.
@@ -77,6 +98,14 @@ A statement that a private helper has no effect is a claim to review. If the spl
 ## Missing Product Choice
 
 Suppose a request says “simplify account recovery,” but current authority does not say who may restore access or which proof is needed. The author can identify the affected people and current failure. It cannot invent the recovery permission rule. Stop with that one product choice, its proposed result, and the effects of the real alternatives. Do not fill the intent with invented promises.
+
+## Keep Human Judgment in the Lead
+
+> “Data-driven design has its part, but it [shouldn't] lead the process. What matters *most* is being *personally involved*, testing everything *yourself*...And a huge part of that is paying attention to *how the product feels to you*, while always keeping its *core idea* in mind.”
+
+Use data, automated checks, and agent analysis to find problems and support a conclusion. Do not let them replace direct review of the real result. An accountable reviewer must inspect or use the result, keep its core idea in view, and record direct observations and limits.
+
+One reviewer's response is evidence from that reviewer. It is not proof of every person's experience.
 
 ## Review the Actual Result
 

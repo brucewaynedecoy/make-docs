@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Agent Response Guidance and Routing"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W20 R1 P1"
 source:
   type: "prd"
@@ -18,7 +18,7 @@ Add one clear Human Experience route for material agent replies. Make the reply 
 
 Update the Human Experience Reference and managed root routers upstream. Dogfood the reviewed change into this maintainer repo. Prove safe preservation and parity. Then review representative replies against the accepted promises.
 
-Implementation is not authorized by the creation of this backlog.
+The owner authorized implementation on 2026-09-15. The owner approved the prepared Human Experience Review on 2026-09-15 and requested no correction. W20 R1 P1 is complete. Staging and commit remain separate and are not authorized.
 
 ## Human Experience Outcome
 
@@ -58,12 +58,12 @@ Human Experience Review is separate. It applies as the acceptance lens over the 
 
 ### Tasks
 
-- [ ] t1: Recheck branch, HEAD, dirty state, and the exact W20 R1 implementation allowlist. Stop if user work overlaps a target hunk.
-- [ ] t2: Read the current PRD 49 and PRD 15 requirements, the Human Experience Contract, the Human Experience Reference, and the upstream-first dogfood contract.
-- [ ] t3: Update `packages/docs/template/.make-docs/system/references/human-experience.md` with the owner-provided North Star, the direct-review principle, and adaptive agent-response guidance.
-- [ ] t4: State that data and automated checks support Human Experience judgment. Require first-hand review while keeping one reviewer's limits clear.
-- [ ] t5: Update `packages/docs/template/AGENTS.md` and `packages/docs/template/CLAUDE.md` with one short route for governed work and material agent replies.
-- [ ] t6: Keep the Human Experience Contract, response layout, lifecycle stages, schemas, and Skill requirements unchanged.
+- [x] t1: Recheck branch, HEAD, dirty state, and the exact W20 R1 implementation allowlist. Stop if user work overlaps a target hunk.
+- [x] t2: Read the current PRD 49 and PRD 15 requirements, the Human Experience Contract, the Human Experience Reference, and the upstream-first dogfood contract.
+- [x] t3: Update `packages/docs/template/.make-docs/system/references/human-experience.md` with the owner-provided North Star, the direct-review principle, and adaptive agent-response guidance.
+- [x] t4: State that data and automated checks support Human Experience judgment. Require first-hand review while keeping one reviewer's limits clear.
+- [x] t5: Update `packages/docs/template/AGENTS.md` and `packages/docs/template/CLAUDE.md` with one short route for governed work and material agent replies.
+- [x] t6: Keep the Human Experience Contract, response layout, lifecycle stages, schemas, and Skill requirements unchanged.
 
 ### Acceptance criteria
 
@@ -80,17 +80,17 @@ Human Experience Review is separate. It applies as the acceptance lens over the 
 
 ### Closeout Notes
 
-- Stage status: Planned.
-- Evidence: Not started.
+- Stage status: Complete.
+- Evidence: The upstream reference contains the two owner principles and adaptive material-reply guidance. The root router templates contain one short discovery route. The Human Experience Contract has no diff.
 
 ## Stage 2 - Dogfood And Preservation
 
 ### Tasks
 
-- [ ] t7: Use the existing projection and dogfood route to update `.make-docs/system/references/human-experience.md`, `AGENTS.md`, and `CLAUDE.md`.
-- [ ] t8: Remove the unmanaged root `Agent Responses` section only after the managed block supplies the replacement route.
-- [ ] t9: Add or update focused checks in `packages/cli/tests/human-experience-resources.test.ts` and `packages/cli/tests/human-experience-propagation.test.ts`.
-- [ ] t10: Prove resource parity, router parity, and preservation of all unrelated content outside managed blocks.
+- [x] t7: Use the existing projection and dogfood route to update `.make-docs/system/references/human-experience.md`, `AGENTS.md`, and `CLAUDE.md`.
+- [x] t8: Remove the unmanaged root `Agent Responses` section only after the managed block supplies the replacement route.
+- [x] t9: Add or update focused checks in `packages/cli/tests/human-experience-resources.test.ts` and `packages/cli/tests/human-experience-propagation.test.ts`.
+- [x] t10: Prove resource parity, router parity, and preservation of all unrelated content outside managed blocks.
 
 ### Acceptance criteria
 
@@ -104,20 +104,20 @@ Human Experience Review is separate. It applies as the acceptance lens over the 
 
 ### Closeout Notes
 
-- Stage status: Planned.
-- Evidence: Not started.
+- Stage status: Complete.
+- Evidence: Upstream and dogfood reference bytes match. Each dogfood root router changes by one line inside its managed block. The former unmanaged `Agent Responses` section was already absent, so no unmanaged text was removed.
 
 ## Stage 3 - Response Evidence And Review
 
 ### Tasks
 
-- [ ] t11: Run focused resource, router, preservation, parity, and response-scenario checks.
-- [ ] t12: Prepare representative replies for long completion, partial completion, blocked or failed work, a proposal, an expert technical explanation, and a no-action status.
-- [ ] t13: Have an accountable reviewer inspect or use the actual replies while keeping the core idea in view. Record who reviewed, direct observations, conclusions, and limits.
-- [ ] t14: Apply Human Experience Review to every accepted promise. Record `satisfied`, `material gap`, or `insufficient evidence`.
-- [ ] t15: Fix accepted in-scope defects and rerun affected checks. Stop for any new product decision.
-- [ ] t16: Update the central `evidence.md` report with results and claim limits.
-- [ ] t17: Inspect only the allowlisted W20 R1 files and hunks. Present the exact thin-commit set without staging or committing.
+- [x] t11: Run focused resource, router, preservation, parity, and response-scenario checks.
+- [x] t12: Prepare representative replies for long completion, partial completion, blocked or failed work, a proposal, an expert technical explanation, and a no-action status.
+- [x] t13: Have an accountable reviewer inspect or use the actual replies while keeping the core idea in view. Record who reviewed, direct observations, conclusions, and limits.
+- [x] t14: Apply Human Experience Review to every accepted promise. Record `satisfied`, `material gap`, or `insufficient evidence`.
+- [x] t15: Fix accepted in-scope defects and rerun affected checks. Stop for any new product decision. The owner identified no defect, so no correction or affected check rerun was required.
+- [x] t16: Update the central `evidence.md` report with results and claim limits.
+- [x] t17: Inspect only the allowlisted W20 R1 files and hunks. Present the exact thin-commit set without staging or committing.
 
 ### Acceptance criteria
 
@@ -134,6 +134,6 @@ Human Experience Review is separate. It applies as the acceptance lens over the 
 ### Closeout Notes
 
 - Four testing decisions: Automated selected; Performance `not-needed-now`; Guided selected; Unassisted `not-needed-now`.
-- Human Experience Review: Pending implementation and first-hand review.
-- Evidence report: Create during implementation.
-- Phase / capability status: Planned. Implementation has not started.
+- Human Experience Review: Owner approved all nine prepared `satisfied` conclusions on 2026-09-15. The owner said the reply examples and conclusions match the intended result. The owner requested no correction.
+- Evidence report: [evidence.md](evidence.md).
+- Phase / capability status: W20 R1 P1 is complete. No correction remains. Staging and commit remain separate and are not authorized.

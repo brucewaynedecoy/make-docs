@@ -1,13 +1,13 @@
 ---
 title: "W20 R1 Human-Centered Agent Responses Work Backlog"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W20 R1"
 follow_on:
-  route: "implementation-loop"
+  route: "commit-phase-gate"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "The accepted W20 R1 authority is ready for one bounded implementation phase after explicit implementation authority."
-  coordinate_handoff: "Carry W20 R1 P1 into implementation evidence and any later commit."
+  why: "W20 R1 P1 is complete. A thin commit is next when the owner grants commit authority."
+  coordinate_handoff: "Use W20 R1 P1 for the commit message and phase-gate record."
 source:
   type: "prd"
   path: "docs/prd/49-human-experience-standard-and-intent.md"
@@ -48,7 +48,7 @@ Authority inputs:
 
 | Coordinate | Phase | Status | File |
 | --- | --- | --- | --- |
-| W20 R1 P1 | Agent Response Guidance and Routing | Draft; implementation not authorized | [01-agent-response-guidance-and-routing.md](01-agent-response-guidance-and-routing.md) |
+| W20 R1 P1 | Agent Response Guidance and Routing | Complete; owner approved; commit not authorized | [01-agent-response-guidance-and-routing.md](01-agent-response-guidance-and-routing.md) |
 
 ## Usage Notes
 
@@ -62,11 +62,11 @@ Authority inputs:
 - Apply Human Experience Review to each promise. Do not add it as a fifth testing type.
 - W20 R0 P5 stays separate. Do not use W20 R1 to close or redefine it.
 - Implementation, staging, commit, publication, and release each need the authority required by the execution workflow.
-- No implementation, staging, or commit has started for this package.
+- Implementation, focused automated checks, and owner Human Experience Review are complete. The owner approved all nine prepared conclusions and requested no correction. No W20 R1 file is staged or committed.
 
 ## Intended Follow-On
 
-- **Route:** `implementation-loop`
+- **Route:** `commit-phase-gate`
 - **Next Prompt:** [Execution Workflow](../../../.make-docs/system/references/execution-workflow.md)
-- **Why:** The PRDs and backlog define one bounded implementation and review phase.
-- **Coordinate Handoff:** Use W20 R1 P1 for implementation history and evidence.
+- **Why:** W20 R1 P1 is complete. A thin commit is the next lifecycle action when the owner grants commit authority.
+- **Coordinate Handoff:** Use W20 R1 P1 for the commit message and phase-gate record.

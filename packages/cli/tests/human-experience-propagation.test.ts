@@ -18,10 +18,12 @@ import { TEMPLATE_ROOT } from "../src/utils";
 const FIXTURE_ROOT = fileURLToPath(
   new URL("./fixtures/human-experience-propagation/", import.meta.url),
 );
+const REPO_ROOT = path.resolve(TEMPLATE_ROOT, "..", "..", "..");
 const CONTRACT_URI =
   "make-docs://system/contract/human-experience-contract.md";
 const REFERENCE_URI =
   "make-docs://system/reference/human-experience.md";
+const ROOT_ROUTERS = ["AGENTS.md", "CLAUDE.md"] as const;
 
 const REFERENCE_POINTER_SURFACES = [
   ".make-docs/system/references/lifecycle.md",
@@ -896,6 +898,37 @@ describe("Human Experience lifecycle propagation fixtures", () => {
 });
 
 describe("Human Experience authority discovery and router preservation", () => {
+  it.each(ROOT_ROUTERS)(
+    "%s routes material replies through one upstream-managed body",
+    (relativePath) => {
+      const upstream = readFileSync(path.join(TEMPLATE_ROOT, relativePath), "utf8");
+      const dogfood = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+      const upstreamBlock = parseManagedBlock(upstream);
+      const dogfoodBlock = parseManagedBlock(dogfood);
+
+      expect(upstreamBlock.state).toBe("valid");
+      expect(dogfoodBlock.state).toBe("valid");
+      expect(dogfoodBlock.body).toBe(upstreamBlock.body);
+      expect(upstreamBlock.body).toContain(
+        ".make-docs/system/references/lifecycle.md",
+      );
+      expect(upstreamBlock.body).toContain(
+        ".make-docs/system/contracts/human-experience-contract.md",
+      );
+      expect(upstreamBlock.body).toContain(
+        ".make-docs/system/references/human-experience.md",
+      );
+      expect(upstreamBlock.body).toContain(
+        "material task updates, decisions, recommendations, error or limit reports, and completion replies",
+      );
+      expect(upstreamBlock.body?.match(/For governed work and material task updates/gu)).toHaveLength(1);
+      expect(upstreamBlock.body).not.toContain("Lead with the result");
+      expect(upstreamBlock.body).not.toContain(
+        "Routine short acknowledgements can stay light",
+      );
+    },
+  );
+
   it.each(REFERENCE_POINTER_SURFACES)(
     "%s points to the local canonical contract and reference",
     (relativePath) => {
