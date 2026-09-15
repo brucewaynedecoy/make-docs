@@ -20,6 +20,12 @@ This phase protects Make Docs from the original failure mode. Valid JSON, comple
 
 Human Experience Review is required acceptance work against every applicable experience promise. It reuses suitable evidence from the four testing types and specialist review. It is not a fifth testing type and does not require a duplicate run or verdict. If evidence is insufficient, PRD 50 selects the smallest additional testing activity that can answer the current question.
 
+## 2026-09-15 Review Workflow Correction
+
+The owner found that the accepted wording could make the owner think that they must author the structured review. By owner direction, W20 R0 revisits this wording during active P5. This correction does not reopen P4 or change its synthetic findings.
+
+For future real-result reviews, the agent prepares and presents the per-promise observations, conclusions, limits, and next actions. The owner can correct the proposal, add feedback, acknowledge it, or accept it. The agent records the owner's concise response, applies each correction, and records the approved structured review. The owner does not need to write a report, learn verdict terms, or use a magic phrase. Agent preparation alone cannot approve lived human experience.
+
 ## Source PRD Docs
 
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)

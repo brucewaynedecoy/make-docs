@@ -46,7 +46,7 @@ The first release does not define one visual style. It does not make a Skill man
 - **Human surface:** The normal form that a person perceives or uses.
 - **Machine surface:** A form made for exact automation, data exchange, audit, or program use.
 - **Experience promise:** A clear statement of what the affected human must be able to understand, do, or trust.
-- **Human Experience Review:** A review lens that checks evidence and the built result against accepted experience promises. It is not a fifth core testing type and does not require duplicate evidence.
+- **Human Experience Review:** An agent-prepared and owner-approved review lens that checks evidence and the built result against accepted experience promises. It is not a fifth core testing type and does not require duplicate evidence.
 
 ## Component and Capability Map
 
@@ -142,7 +142,7 @@ Governed work must apply the principles that matter to its human goal:
 4. Work must trace tasks and acceptance criteria to the governing promise or preserved boundary.
 5. Acceptance text such as `UX is good` is invalid. Acceptance must name an observable result or evidence.
 6. Implementation and review must inspect the real human surface when direct impact exists and that surface is available.
-7. Coverage must explicitly apply Human Experience Review to every applicable experience promise. The review must record whether suitable evidence satisfies the promise, reveals a material gap, or remains insufficient. It must reuse suitable evidence when possible. When evidence is insufficient, [PRD 50](50-proportionate-testing-and-human-centered-validation.md) selects the smallest additional testing activity that can answer the question. Human Experience Review is required acceptance work, not a fifth testing type, and it must not create a duplicate test only to produce a separate test verdict.
+7. Coverage must explicitly apply Human Experience Review to every applicable experience promise. The agent must prepare and present a concise per-promise review from the accepted promises, the real result, and suitable evidence. The prepared review must propose observations, conclusions, limits, and next actions. The review must record the owner's concise response against each promise and then record the approved structured result. Owner corrections must replace the affected proposed conclusions. The owner must not need to restate every promise, author a formal report, learn conclusion terms, or use a special response phrase. When evidence is insufficient or the owner identifies a gap, [PRD 50](50-proportionate-testing-and-human-centered-validation.md) selects the smallest additional testing activity that can answer the question. Human Experience Review is required acceptance work, not a fifth testing type, and it must not create a duplicate test only to produce a separate test verdict.
 8. Release and completion claims must stay within the accepted evidence.
 9. Retrospective findings can revise current authority through the normal change process.
 
@@ -156,9 +156,9 @@ Governed work must apply the principles that matter to its human goal:
 6. `none` impact requires proof of the claimed boundary. Suitable proof can include interface compatibility, unchanged public output, invariant behavior, unchanged operating steps, or a focused regression test.
 7. The first release must include at least one realistic installed-product flow that proves an actual human-facing improvement.
 8. Human Experience Review applies orientation, continuity, meaning, information amount, next action, recovery, and control as a lens over suitable evidence. It must not require a duplicate activity when existing evidence answers the accepted promise.
-9. An agent can draft intent, find likely issues, compare a result with promises, and prepare evidence.
+9. An agent can draft intent, find likely issues, compare a result with promises, prepare evidence, and assemble the proposed Human Experience Review. It must present that review for owner response before it records an approved result.
 10. Any agent execution of an Unassisted Goal Test must satisfy PRD 46's separate qualification and isolation rules. It cannot replace evidence of lived human experience where that evidence is required. An agent cannot self-certify joy or human understanding.
-11. Data, metrics, and automated results inform Human Experience Review. They do not replace an accountable reviewer's first-hand use or inspection of the real human-facing result when that surface exists. The reviewer must keep the core idea in view and record direct observations and limits. One reviewer's reaction does not prove every person's experience.
+11. Data, metrics, and automated results inform Human Experience Review. They do not replace the owner's first-hand use or inspection of the real human-facing result when that surface exists. The owner can correct the prepared review, add feedback, acknowledge it, or accept it. The agent then records the approved observations, conclusions, limits, and next actions. Owner acknowledgment or acceptance confirms the prepared review. The agent must not silently self-approve lived human experience. One owner's reaction does not prove every person's experience.
 
 ### R-HX-09 Completion and Obligations
 
@@ -188,6 +188,7 @@ Governed work must apply the principles that matter to its human goal:
 3. Conformance must include generated-artifact checks, installed-resource checks, and agent-behavior scenarios.
 4. Agent-behavior scenarios must show correct impact classification, lifecycle propagation, real-surface evidence selection, a valid `none` boundary, and adaptive material replies that preserve meaning, state, action, uncertainty, and useful proof.
 5. Reviewers must treat a complete section as necessary evidence, not as proof that the result is good for people.
+6. Conformance must prove that the agent prepares and presents the review, records the owner's concise response, applies owner corrections, and does not treat its proposal as owner approval.
 
 ### R-HX-12 Prospective Adoption
 
@@ -275,13 +276,14 @@ The implementation must update upstream template authority first. It must then p
 4. A plan maps each accepted promise to an owning PRD, work phase, surface, and evidence source or selected testing type.
 5. A reconciled PRD makes the observable human outcome normative in the capability owner without copying the full contract.
 6. A backlog task names a testable human result. It does not use `UX is good` as acceptance.
-7. A coverage review applies Human Experience Review as a lens over suitable evidence and does not create a fifth testing type or duplicate run.
+7. A coverage review applies Human Experience Review as a lens over suitable evidence. The agent prepares the review, the owner responds concisely, and the agent records the approved result. The review does not create a fifth testing type or duplicate run.
 8. A human-facing result presents useful meaning first and keeps exact machine detail available through a discoverable secondary path.
 9. A managed agent router points to the governing Human Experience authority and does not copy the full policy.
 10. A validator rejects a missing or malformed section but does not claim that a valid section proves a joyful experience.
 11. An installed-product flow shows that a person can remain oriented, understand relationships, see state, and find the next useful action without reading the internal model.
 12. A pre-existing design remains valid until substantial work changes its human path.
-13. A material agent reply restores needed context, states the result and exact work state, gives a recommendation or next action when one exists, keeps uncertainty visible, and places supporting machine detail after the human meaning. An accountable reviewer inspects the actual reply and records direct observations and limits.
+13. A material agent reply restores needed context, states the result and exact work state, gives a recommendation or next action when one exists, keeps uncertainty visible, and places supporting machine detail after the human meaning. The owner inspects the actual reply. The agent prepares the observation and limits, records the owner's concise response, and then records the approved review.
+14. An agent presents a concise per-promise Human Experience Review with proposed observations, conclusions, limits, and next actions. The owner corrects it, adds feedback, acknowledges it, or accepts it without writing a formal report or using a special phrase. The agent applies corrections and records the approved structured review.
 
 ## Non-Requirements
 
@@ -325,6 +327,16 @@ The implementation must update upstream template authority first. It must then p
 - Replacement contract: Material agent replies are human-facing results. They must set an honest expectation, preserve state and useful proof, and adapt to the user's next need. Data supports the decision, while an accountable reviewer directly inspects or uses the result against its core idea and records observations and limits.
 - Rationale: A technically correct reply can still make the user reconstruct meaning and check the agent's work. Human judgment must guide the response and its review without discarding evidence or treating one person's reaction as universal proof.
 - Source: [Human-Centered Agent Responses design](../designs/2026-09-14-human-centered-agent-responses.md), [W20 R1 plan](../plans/2026-09-14-w20-r1-human-centered-agent-responses/00-overview.md).
+
+### 2026-09-15 — W20 R0
+
+- Date: 2026-09-15
+- Coordinate: W20 R0
+- Affected requirement or section: Human Experience Review term; `R-HX-07`; `R-HX-08`; `R-HX-11`; acceptance scenarios; contract, reference, lifecycle, coverage, template, and active work guidance.
+- Previous contract: The review had to record structured per-promise evidence, observations, conclusions, reviewers, and limits. The wording could make the owner think that they had to author the report or use a special response format.
+- Replacement contract: The agent prepares and presents the concise per-promise review. The owner corrects it, adds feedback, acknowledges it, or accepts it. The agent applies each correction and records the approved structured review. Agent preparation never counts as owner approval.
+- Rationale: Preserve the lived-human accountability gate without making the owner repeat the agent's work or learn process vocabulary.
+- Source: Owner product finding during [W20 R0 Phase 5](../work/2026-08-28-w20-r0-human-experience-standard-and-intent/05-delivery-conformance-and-delta-closeout.md).
 
 ## Source Anchors
 

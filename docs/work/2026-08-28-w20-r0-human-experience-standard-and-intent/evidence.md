@@ -24,6 +24,26 @@ P5 is active. Tasks t1 through t18 have evidence. The current packed CLI proves 
 
 P5 is not ready for acceptance. Stage 1 requires proof that real agents can reach the standard. No such result exists. Current PRD 20 requires `connectionMethod` in the support tuple. The conformance code still uses two retired output fields and has no `connectionMethod`. PRD 43 still names the older tuple. This blocks current Codex and Claude Code results. The strict P5 order also blocks later stage acceptance.
 
+## 2026-09-15 Human Experience Review Workflow Finding
+
+Finding source: The owner reported that the current wording can make the owner think that they must author a formal review report or use a special response format before a phase can close.
+
+Disposition: `update-existing`. The Human Experience authority, workflow reference, lifecycle table, coverage contract, work template, PRD 49, P4 plan, and active W20 R0 work now define the normal path as agent-prepared and owner-approved.
+
+Normal path: The agent assembles a concise review from the accepted promises, the real human-facing result, and existing suitable evidence. It presents proposed observations, conclusions, limits, and next actions for each promise. The owner can correct the proposal, add feedback, acknowledge it, or accept it. The agent records the owner's concise response, applies each correction, and records the approved structured review.
+
+Accountability boundary: Agent preparation alone does not approve lived human experience. Owner acknowledgment or acceptance confirms the prepared review. An owner correction replaces the affected proposed conclusion. The agent asks for more input only when evidence is insufficient or the owner identifies a gap.
+
+Owner effort boundary: The owner does not need to restate each promise, learn verdict terms, write a formal report, or use a magic phrase.
+
+Lifecycle handling: This is an owner-directed, bounded revisit of accepted review wording during active P5. P1 through P4 stay accepted and closed. P5 stays active. The correction does not change the P4 synthetic conclusions and does not claim a P5 real-person result.
+
+Validation expectation: Focused checks must prove upstream, generated, and dogfood parity for the changed resources. They must also prove that the authority requires agent preparation, records the owner's response, applies owner corrections, and rejects silent agent self-approval.
+
+Validation result: The focused Human Experience, propagation, consistency, and template-link run passed 4 files and 103 tests. All eight changed system resources match across upstream, generated, and dogfood copies. Path hygiene passed for the six changed W20 Markdown files. The bounded `git diff --check` passed.
+
+Review limit: These checks prove the rule and file delivery. They do not supply the still-missing P5 real-person review or owner approval of a prepared P5 experience review.
+
 ## Phase Identity and Environment
 
 - Base revision: `564b0354688fb0c5f9682f48c44eba5fa742572d`.

@@ -16,6 +16,16 @@ const resources = [
   ["contract", "contracts", "human-experience-contract.md"],
   ["reference", "references", "human-experience.md"],
 ] as const;
+const reviewWorkflowResources = [
+  ["contracts", "human-experience-contract.md"],
+  ["references", "human-experience.md"],
+  ["references", "lifecycle.md"],
+  ["references", "execution-workflow.md"],
+  ["references", "design-workflow.md"],
+  ["contracts", "coverage-pass-contract.md"],
+  ["contracts", "output-contract.md"],
+  ["templates", "work-phase.md"],
+] as const;
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
 describe("Human Experience resource delivery", () => {
@@ -26,6 +36,26 @@ describe("Human Experience resource delivery", () => {
       expect(readFileSync(path.join(TEMPLATE_ROOT, local))).toEqual(upstream);
       expect(readFileSync(path.join(repoRoot, local))).toEqual(upstream);
     }
+  });
+
+  it("requires an agent-prepared and owner-approved Human Experience Review", () => {
+    const content = new Map<string, string>();
+    for (const [directory, name] of reviewWorkflowResources) {
+      const local = `.make-docs/system/${directory}/${name}`;
+      const upstream = readFileSync(path.join(repoRoot, "packages/docs/template", local), "utf8");
+      expect(readFileSync(path.join(TEMPLATE_ROOT, local), "utf8")).toBe(upstream);
+      expect(readFileSync(path.join(repoRoot, local), "utf8")).toBe(upstream);
+      content.set(name, upstream);
+    }
+
+    expect(content.get("human-experience-contract.md")).toContain("The normal path is agent-prepared and owner-approved.");
+    expect(content.get("human-experience.md")).toContain("Record the owner's concise response against each promise.");
+    expect(content.get("lifecycle.md")).toContain("An owner correction replaces the affected proposed conclusion.");
+    expect(content.get("execution-workflow.md")).toContain("Record the owner's concise response against each promise");
+    expect(content.get("design-workflow.md")).toContain("The agent prepares and presents the review.");
+    expect(content.get("coverage-pass-contract.md")).toContain("It does not treat agent preparation as owner approval.");
+    expect(content.get("output-contract.md")).toContain("distinguishes the approved result from the agent's proposal");
+    expect(content.get("work-phase.md")).toContain("without writing a formal report or using a special phrase");
   });
 
   it("includes both shared resources even when the design capability is not selected", () => {

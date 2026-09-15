@@ -47,6 +47,10 @@ Apply Human Experience Review as required acceptance work for every applicable e
 
 The review asks whether suitable evidence and the built result satisfy the local experience promises and support the stated human goal or effect. It records whether each applicable promise is satisfied, has a material gap, or lacks enough evidence.
 
+The normal path is agent-prepared and owner-approved. The agent assembles a concise review from the accepted promises, the real human-facing result, and existing suitable evidence. It presents proposed per-promise observations, conclusions, limits, and next actions. The owner can correct the proposal, add feedback, acknowledge it, or accept it. The agent then applies each correction and records the approved structured review.
+
+The owner does not have to restate every promise, author a formal report, learn verdict terms, or use a magic phrase. The agent asks for more input only when the evidence is insufficient or the owner identifies a gap. The agent must not silently approve its own proposal or claim lived human experience.
+
 For applicable direct paths, inspect:
 
 - orientation: can the person tell where they are and what subject is in view;
@@ -116,6 +120,9 @@ Useful evidence examples:
 - The review reuses suitable evidence without becoming a fifth testing type or duplicate test verdict.
 - Existing testing and specialist authorities retain their scope.
 - Direct-impact review inspects the real human surface.
+- The agent prepares and presents the per-promise review. The owner gives a concise response, and the agent records the approved result.
+- An owner correction replaces the affected proposed conclusion. Agent preparation alone is not approval.
+- The owner does not need to write a formal review report or use a special response format.
 - Guided Progress Review remains optional and non-blocking.
 - Unassisted Goal Testing remains conditional, qualified, and advisory by default.
 - Indirect impact has technical proof tied to a material human effect.

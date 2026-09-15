@@ -49,6 +49,12 @@ Human Experience Review is mandatory acceptance work against each applicable pro
 
 After both backlogs are ready, implement W20 first. Then implement W21 against the Human Experience capability delivered by W20.
 
+## 2026-09-15 Review Workflow Correction
+
+The owner found that the accepted review wording could make the owner think that they must author a formal review report or use a special response format. By owner direction, W20 R0 revisits this review wording while P5 is active. This is a bounded lifecycle revisit. P1 through P4 stay accepted and closed. P5 stays active.
+
+The corrected normal path is agent-prepared and owner-approved. The agent presents the prepared review and records the owner's concise response against each promise. The owner can correct it, add feedback, acknowledge it, or accept it. The agent applies each correction and records the approved structured review. The owner does not need to restate the promises, learn verdict terms, write a report, or use a magic phrase. Agent preparation alone is not owner approval.
+
 ## Phase Map
 
 | Phase | File | Outcome |
@@ -71,7 +77,7 @@ After both backlogs are ready, implement W20 first. Then implement W21 against t
 - Start Performance Testing as `not-needed-now`. Reconsider it only if implementation reveals a current performance decision.
 - Offer one optional Guided Progress Review after a meaningful result exists. It is advisory and never blocks completion.
 - Do not pre-activate Unassisted Goal Testing. Select at most one bounded scenario when a material current uncertainty remains. Its result is advisory unless explicit authority gives it a gate effect.
-- Apply Human Experience Review to every applicable promise. Record `satisfied`, `material gap`, or `insufficient evidence`. Do not create a duplicate run or verdict.
+- Apply Human Experience Review to every applicable promise. The agent prepares and presents the review. Record the owner's concise response against each promise, apply each correction, and then record the approved `satisfied`, `material gap`, or `insufficient evidence` result. Do not require a formal owner report, a special phrase, a duplicate run, or a duplicate verdict.
 - No `NUAT-###` or `O-###` item is active at backlog creation. Create one only when its current contract applies.
 - Give every material finding a disposition. Create a durable obligation only when the owner accepts a future outcome that is still owed.
 - Stop for a product choice when the human path cannot be inferred from accepted authority.

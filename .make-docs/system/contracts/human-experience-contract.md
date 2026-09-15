@@ -93,16 +93,17 @@ Carry accepted intent through the current [lifecycle](../references/lifecycle.md
 - PRD reconciliation makes observable human outcomes normative in the capability owner.
 - Work traces tasks and acceptance criteria to each promise or preserved boundary. “UX is good” is not an acceptance criterion.
 - Implementation and review inspect the real human surface for direct impact when it is available.
-- Coverage applies Human Experience Review to every applicable promise. Record `satisfied`, `material gap`, or `insufficient evidence` from suitable evidence.
+- Coverage applies Human Experience Review to every applicable promise. The agent prepares a concise review from the accepted promises, the real result, and suitable evidence. It proposes an observation, conclusion, limit, and next action for each promise.
+- Acceptance presents the prepared review and records the owner's concise response against each promise. The owner can correct the proposal, add feedback, acknowledge it, or accept it. An owner correction replaces the affected proposed conclusion.
 - Release and completion claims stay within accepted evidence. Retrospective findings use the normal authority change process.
 
 ## Evidence and Completion
 
 Match evidence to the impact, risk, and promise. Direct work needs structural and functional proof plus review of the real surface when it exists. Indirect work needs technical or operational evidence tied to the human effect, with human review when that effect is perceivable or matters to a decision. None needs proof of the preserved boundary.
 
-Human Experience Review is required acceptance work, not a fifth testing type or a duplicate test verdict. Reuse suitable evidence. When proof is insufficient, select the smallest added activity that can answer the current question under the current testing authority and [coverage contract](coverage-pass-contract.md). Direct impact alone does not activate every testing type. Follow the [Unassisted Goal Testing contract](naive-uat-contract.md) for its conditional selection, qualified human executor, public path, and anti-coaching rules. Private coaching does not prove discoverability.
+Human Experience Review is required acceptance work, not a fifth testing type or a duplicate test verdict. The normal path is agent-prepared and owner-approved. Reuse suitable evidence. The owner does not need to restate every promise, write a formal report, learn the conclusion terms, or use a special response phrase. After the owner responds, the agent records the approved structured review. Request more input only when the evidence is insufficient or the owner identifies a gap. When proof is insufficient, select the smallest added activity that can answer the current question under the current testing authority and [coverage contract](coverage-pass-contract.md). Direct impact alone does not activate every testing type. Follow the [Unassisted Goal Testing contract](naive-uat-contract.md) for its conditional selection, qualified human executor, public path, and anti-coaching rules. Private coaching does not prove discoverability.
 
-An agent can draft intent, inspect structure, compare evidence, and report likely issues and limits. It cannot self-certify joy or lived human experience. A complete section is necessary structure, not proof that the result is good for people.
+An agent can draft intent, inspect structure, compare evidence, and prepare the review. A prepared review remains a proposal until the owner acknowledges it, accepts it, or corrects it. The agent cannot silently approve its own proposal or self-certify joy or lived human experience. A complete section is necessary structure, not proof that the result is good for people.
 
 | Conclusion | Completion effect |
 | --- | --- |

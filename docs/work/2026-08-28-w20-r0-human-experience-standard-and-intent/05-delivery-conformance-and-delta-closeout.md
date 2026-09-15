@@ -123,7 +123,7 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 - [ ] t23: Test one misleading agent-facing or headless case where a real human effect still exists.
 - [ ] t24: Test one missing-product-choice case where the agent stops instead of exposing the internal model as the default human path.
 - [ ] t25: Run deterministic structure checks for each result.
-- [ ] t26: Apply required Human Experience Review for interpretation coherence. Reuse structure and conformance evidence where suitable. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise.
+- [ ] t26: Prepare required Human Experience Review for interpretation coherence. Reuse structure and conformance evidence where suitable. Present the proposed per-promise observations, conclusions, limits, and next actions to the owner. Record the owner's concise response, apply each correction, and then record the approved `satisfied`, `material gap`, or `insufficient evidence` result.
 - [ ] t27: Record each harness, model, provider, runtime, result, finding, and supported claim under current conformance authority.
 
 ### Current Blocker
@@ -140,6 +140,7 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - None is not used to hide a material human effect.
 - Agents stop for a real product choice when authority is missing.
 - Human Experience Review, not deterministic checks alone, judges interpretation coherence.
+- The agent-prepared review stays proposed until the owner responds. Agent preparation alone is not owner approval.
 
 ### Dependencies
 
@@ -155,7 +156,7 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - [ ] t30: Use an installed Make Docs project and a supported agent to carry the fixture change through design, plan, PRD, work, implementation, review, and acceptance.
 - [ ] t31: Ensure the fixture produces a real runnable or inspectable human surface. Do not accept documents alone as the outcome.
 - [ ] t32: Capture the visible default result and optional detail path without requiring the reviewer to understand opaque IDs, revision internals, or storage structures.
-- [ ] t33: Apply required Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terminology. Record a conclusion for every applicable promise.
+- [ ] t33: Apply required Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terminology. Present the prepared review and record the owner's concise response against each promise. The owner can correct it, add feedback, acknowledge it, or accept it without writing a formal report or using a special phrase. Apply each correction and then record the approved structured review.
 - [ ] t34: Offer one optional Guided Progress Review. Separately carry the Phase 4 Unassisted Goal Testing decision and run its one bounded `NUAT-###` scenario with a qualified person only if selected.
 - [ ] t35: Compare the result with the recorded prior failure or risk and state the observable change. Do not infer improvement from document completion.
 - [ ] t36: Give each material finding a disposition. Remediate and repeat only affected proof, accept a bounded caveat or narrower claim, or record partial status. Create an `O-###` record only when an accepted future outcome remains owed.
@@ -167,6 +168,8 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - A person can understand the important subject, relationship, state, result, or next action without reconstructing the internal data model.
 - Internal detail remains available when useful but is not forced into the normal path.
 - Required Human Experience Review conclusions remain explicit against each applicable promise.
+- The agent prepares and presents the review. The owner gives a concise response, and the agent records the approved result.
+- Each owner correction replaces the affected proposed conclusion. The agent does not silently self-approve lived human experience.
 - Guided Progress Review is optional and cannot block completion.
 - Unassisted Goal Testing is advisory unless explicit authority gives it a gate effect.
 - The builder agent is not the only judge.

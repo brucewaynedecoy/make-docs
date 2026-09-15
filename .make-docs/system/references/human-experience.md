@@ -84,6 +84,10 @@ Use each accepted promise as a question about evidence. Can the reader identify 
 
 Use human names before internal IDs, but keep material facts visible. For example, a project name plus “3 rows failed; review the failed rows before retry” helps a decision. A short “success” message that hides those failures breaks meaning even if a JSON record remains exact elsewhere.
 
-Reuse a suitable screenshot, document, command transcript, fixture, or functional result. Record the promise, evidence, observation, conclusion, reviewer, and limit. If evidence is insufficient, use current testing authority to select the smallest useful next activity. Do not create a second run just to call it Human Experience Review.
+Reuse a suitable screenshot, document, command transcript, fixture, or functional result. The agent prepares a concise review from the accepted promises, the real result, and this evidence. For each promise, it proposes the observation, conclusion, limit, and next action. It then presents the prepared review to the owner.
 
-An agent review can show that structure, wording, and evidence agree. It cannot prove a person's lived ease, confidence, or joy. Keep that limit visible in completion claims.
+Record the owner's concise response against each promise. The owner can correct a proposed conclusion, add feedback, acknowledge the prepared review, or accept it. The agent then records the approved structured review. The owner does not need to restate each promise, write a report, learn verdict words, or use a magic phrase. Any correction replaces the affected proposal.
+
+If evidence is insufficient, use current testing authority to select the smallest useful next activity. Ask for more input only when the evidence is insufficient or the owner identifies a gap. Do not create a second run just to call it Human Experience Review.
+
+An agent review can show that structure, wording, and evidence agree. It cannot silently approve lived human experience or prove a person's lived ease, confidence, or joy. Owner acknowledgment or acceptance confirms the prepared review. Keep that limit visible in completion claims.
