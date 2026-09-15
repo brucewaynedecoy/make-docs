@@ -101,6 +101,9 @@ Backup-and-reinstall safety:
 
 Rollback:
 
+- R-MIG-RECOVERY-1 (MUST): recovery derives its permitted action from the saved plan, step rows, before and after ledgers, lock state, and current file evidence. Resume is permitted only when the complete saved plan and every remaining step can be verified. An incomplete plan never offers or attempts resume.
+- R-MIG-RECOVERY-2 (MUST): an incomplete pending operation with zero step rows, equal before and after ledgers, and no active lock has no project effect to restore. Its rollback dry-run reports no project or ledger change. Apply changes only that operation to `rolled-back` with a final time in one Store transaction. The record is not deleted, and a different checkout or operation is not changed.
+- R-MIG-RECOVERY-3 (MUST): changed, unknown, conflicting, missing, or active-writer evidence blocks recovery mutation. Human and machine output state the blocker and do not name a destructive command as safe. Completed, failed, and rolled-back operations do not block a new setup operation.
 - R-MIG-STORE-2 (MUST): rollback restores verified content copies and the affected checkout's installation record through the same Store-owned operation. The Store owns restoration order and progress. Recheck expected bytes before each restore and stop on later user changes. Never restore the whole Store to repair one project.
 - Rollback automation must consume the Store's verified backup index and path metadata, use the held Store checkout lock, and emit a typed restoration receipt. Partial failure preserves the journal and remaining backup, reports restored and unrestored paths, and stops rather than declaring success.
 - `update`, project removal, and machine uninstall use the same fail-closed classification and reviewed-snapshot boundary. They remove only verified clean managed assets or managed blocks, preserve project-owned, modified, mixed, unknown, archive, project-documentation, and opaque legacy state, and prune directories only when the approved snapshot proves them empty and safe.
@@ -168,6 +171,14 @@ R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, co
 
 ## Requirement History
 
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Ordered Migration` rollback rules
+- Previous contract: Resume and rollback used one saved operation and verified evidence, but the contract did not define how plan completeness controls the offered action or how to close a proved zero-effect incomplete operation.
+- Replacement contract: An incomplete plan cannot resume. A zero-step, equal-ledger, unlocked operation can finish through an explicit no-effect rollback. Ambiguous or changed evidence offers no destructive action.
+- Rationale: The installed CLI recommended resume for a pending operation that the recovery command correctly refused because its plan was incomplete.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
+
 ### 2026-08-08 — W10 R3
 
 - Affected requirement or section: `Document identity and current authority`
@@ -200,6 +211,9 @@ R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, co
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
+
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
 - `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`

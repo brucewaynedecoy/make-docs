@@ -117,6 +117,13 @@ R-ASSET-PACK-1 (MUST): the package acceptance matrix proves two retained default
 
 R-ASSET-PACK-2 (MUST): prove exact destination and link mapping for legacy system, archive, artifact, Library, and Playbook cohorts; collisions, changed inputs, interruption, recovery, and repeated verification; and CLI/manual equivalence. Reuse the R3 Store failure and no-local-state boundary. A drafting pass records known baseline test failures without changing runtime code or treating them as a pass.
 
+## Installed Legacy-Project Candidate Proof
+
+- R-LEGACY-CANDIDATE-1 (MUST): setup, Skills, Store, migration, backup, or recovery changes require one tarball candidate to be built after focused and full CLI tests pass. Record the tarball identity and digest. Install and test that exact tarball in isolated homes with the repository unavailable. A source checkout or a different global install is not candidate proof.
+- R-LEGACY-CANDIDATE-2 (MUST): the fixed candidate matrix includes a pre-v2 project with Skills disabled, old managed instruction blocks, an incomplete zero-step pending operation with equal ledgers and no active lock, a complete partial operation, verified backup and rollback, repeat setup, and full-setup versus `setup skills` interaction parity. Use separate Store roots and disposable project copies.
+- R-LEGACY-CANDIDATE-3 (MUST): the candidate gate records before and after project and Store inventories. It proves user-owned files remain unchanged, backup copies and their Store index are verified before destructive writes, recovery advice is executable, and failure detail survives process restart. It must not use the affected real project as the first candidate test.
+- R-LEGACY-CANDIDATE-4 (MUST): no release recommendation or real-project recovery can use the candidate until the fixed matrix passes and the owner reviews the Human Experience evidence. A later real-project action needs separate approval and a fresh read-only state check.
+
 ## Bundled First-Party Skill Proof
 
 R-SKILL-PACK-1 (MUST): the CLI build embeds all seven first-party Skills and every required registry-declared support file directly from `packages/skills/<name>/` in compiled output, under [PRD 08](08-skills-catalog-and-distribution.md). Packaging consumes compiled output without a separate replicated Skill tree under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors. Package construction rejects missing or unsafe source entries; missing or corrupt embedded bundles fail without fallback. Packed first-party resolution uses those bytes without a network fetch, sibling checkout, or fallback to an old remote source.
@@ -128,6 +135,14 @@ R-SKILL-PACK-3 (MUST): package proof covers old-source managed upgrades without 
 R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, including the real installed CLI proof owned by [PRD 09](09-dogfood-and-maintainer-operations.md). The same package must contain the selected `naive-uat` adapter from its canonical Skill source and preserve the stable shared-workflow boundary in [PRD 46](46-naive-end-user-acceptance-testing.md).
 
 ## Requirement History
+
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Installed Legacy-Project Candidate Proof`
+- Previous contract: Package proof covered representative legacy migration, Skills, backup, rollback, and recovery, but it did not define one fixed installed-candidate matrix for the exact duplicate-interview and incomplete-plan failures.
+- Replacement contract: One identified tarball must pass the pre-v2, managed-block, recovery-state, backup, repeat, and interview-parity matrix in isolated homes before real-project use or release recommendation.
+- Rationale: The current package and global install matched, yet the installed path still presented a different interview and stranded a project behind invalid recovery advice.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 
@@ -172,6 +187,8 @@ R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, 
 
 ## Source Anchors
 
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
 - `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - [Accepted Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)

@@ -59,6 +59,7 @@ Code anchors:
 - R-SKILL-SETUP-2 (MUST): `setup skills` remains a focused shortcut to the same selected-Skill planner, ownership rules, review, and Store records. It does not maintain a second selection state.
 - R-SKILL-SETUP-3 (MUST): a Skill can guide an agent but does not grant Store access, host configuration access, or project write access. Setup text and reviews keep Skill installation separate from command rules, MCP servers, and harness extensions.
 - R-SKILL-SETUP-4 (MUST): an extension used as a harness connection method is not a selected Skill. A future Pi extension must be owned by the harness adapter contract and must not appear in setup until implementation and real-harness conformance meet PRD 20.
+- R-SKILL-SETUP-5 (MUST): full setup and `setup skills` use one source-owned Skills interaction model and renderer. For the same effective manifest, saved selection, scope, harness support, and trust data, both paths show the same list order, active row, detail panel, selected summary, instructions, labels, navigation keys, empty state, cancellation result, and saved selection. The focused command may limit its final plan to Skill changes. It must not keep a second prompt grammar or selection implementation.
 
 - Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
@@ -220,12 +221,22 @@ Implementation must prove:
 - clean managed upgrades from old first-party remote provenance use bundled bytes; edited files remain protected conflicts
 - the three promoted guidance Skills retain explicit invocation and standalone portable references
 - every Unassisted Goal Testing shim delegates to a typed CLI operation and contains no duplicated policy or business logic
+- full setup and `setup skills` produce the same interaction frames and key results for fresh, existing, empty, all-selected, partial, cancel, and changed-selection cases
+- an extracted CLI package produces the same Skills interaction as the source test path and can apply a valid reviewed Skill change from full setup
 
 ## Rebuild Notes
 
 A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Unassisted Goal Testing Skill remains an optional routing adapter and must never become a second policy authority. P7 uses its bundled local payload without closing the general selected-Skill delivery question.
 
 ## Requirement History
+
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Explicit Selected-Skill Model` and `Validation Boundary`
+- Previous contract: Full setup and `setup skills` shared selected-Skill state and planning services, but each path could keep different prompt text and interaction behavior.
+- Replacement contract: Both entry points use one exact Skills interaction model and renderer. Source and extracted-package tests compare frames, keys, cancellation, and saved results from the same state.
+- Rationale: The installed CLI exposed a materially different focused Skills interview and full setup could reject a Skill change after collecting it.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 
 ### 2026-09-12 — W19 R6
 
@@ -294,6 +305,8 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 
 ## Source Anchors
 
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 

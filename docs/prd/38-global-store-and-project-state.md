@@ -78,6 +78,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-LIFE-3 (MUST): `update`, `setup`, and `setup reconfigure` classify Store schema state before mutation. Supported migrations run transactionally after review and backup when destructive; newer-unknown, corrupt, or ambiguous state fails closed without rewriting the database.
 - R-LIFE-4 (MUST): repository backup and reviewed content copies may remain under `.make-docs/backup/**` or their approved export destination. Legacy root `.backup/**` remains protected. The Store holds live backup indexes, restoration order, operation state, and recovery authority. A local backup description may explain saved bytes but cannot authorize or drive automatic recovery without verified Store records. Store backup does not absorb project document bodies. Tool uninstall, project removal, and content backup retain separate reviewed scopes.
 - R-LIFE-5 (MUST): all migration steps write durable progress and receipts to the Store. Each operation records a unique id, stable project and checkout binding, frozen plan identity, step, before/after evidence, outcome, and recovery state. Commit intent before a project write and confirm the result after it. Repeat execution uses the saved operation and verifies actual bytes. A crash, receipt failure, or mismatch leaves a visible pending or failed operation; it must not report success, replay destructive work blindly, or fall back to local state.
+- R-LIFE-6 (MUST): each installation operation can retain a stable failure code, a short safe failure summary, the stage that failed, and the last safe next action. A schema migration preserves old rows and treats absent fields as unknown. These fields must not contain secrets, document bodies, raw terminal output, or private file content. When the Store remains safe to write, the operation records this detail before it releases its context. A failure while recording the first fault does not erase prior recovery evidence or create a success claim.
 
 ### Skill Adoption State (R-SKILL-STATE)
 
@@ -105,6 +106,7 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-XFER-5 (MUST): CLI status and recovery expose pending steps, committed results, Store location, checkout binding, and safe next actions through PRD 39. History breadcrumbs can link to that result but never become migration authority.
 
 - R-XFER-6 (MUST): the corrected CLI is the minimum supported writer after transfer. Setup names that boundary and blocks known active old writers through scoped evidence. Probe the actual prior package to document its guard or limit; do not claim that an immutable old binary obeys new Store rules. Use a declarative format guard only when that parser proves rejection before writes. No local marker, dual writes, automatic CLI replacement, broad process scan, or second-version bridge is required or permitted by this scope.
+- R-XFER-7 (MUST): the Store service derives recovery actions from `plan_complete`, saved steps, before and after ledgers, checkout binding, lock state, and current file evidence. Resume is valid only for a complete verified plan. An incomplete zero-step operation with equal ledgers and no active lock can finish as a no-effect rollback that changes only its status and final time. Unknown or conflicting evidence blocks mutation and keeps the pending record visible.
 
 ### Privacy (R-PRIV)
 
@@ -128,6 +130,7 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-TEST-10 (MUST): Store-free operation proof fails if `resource.list` or `resource.read` opens the database, creates a session file, or requires a Store path. Store-backed setup proof uses the existing shared session and checkout-writer rules.
 - R-TEST-7 (MUST): verify shipped agent guidance and the optional capture path with the CLI unavailable and with the CLI present but optional capture failing. Ordinary project work continues with an accurate unavailable notice, no false success, no direct Store write, no local fallback state, and no queued write. Pair this evidence with a CLI-managed operation whose required Store write fails. That operation must stop before further project changes and preserve recovery evidence.
 - R-TEST-8 (MUST): prove ownership-only Skill adoption, stale review rejection for package/source/selection/input/ownership changes, read-only review without Store creation, required Store failure before managed changes, and interrupted adoption through shared recovery. Test both scopes and competing writers. Matching bytes alone must never hide a missing ownership transition or authorize unreviewed content.
+- R-TEST-11 (MUST): prove plan-aware action selection for incomplete zero-step and complete partial operations. Prove failure detail survives process restart and matches human, JSON, and MCP results. Prove the no-effect rollback leaves project files and the installation ledger byte-identical, changes no other operation, and does not delete the historical row.
 
 This PRD fixes Store-only operational state, external Store paths, separate project and checkout identity, crash-safe recovery, the current lifecycle model, opaque legacy data, and local document authority. Physical SQL tables remain implementation choices within those requirements.
 
@@ -153,6 +156,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Backup, Uninstall, and Upgrade`, `Transfer and Recovery`, and `Verification and Testability`
+- Previous contract: Installation operations kept progress and recovery evidence, but the row lacked durable safe failure detail and the contract did not define plan-complete action selection or a zero-effect rollback.
+- Replacement contract: Operations retain safe failure facts. Recovery offers resume only for a complete verified plan. A proved zero-step, equal-ledger, unlocked operation can close through a no-effect rollback that preserves the row and all unrelated state.
+- Rationale: The installed CLI left an incomplete pending operation, recommended an unusable resume command, and retained too little detail to explain the first fault.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 
 ### 2026-09-12 — W19 R6
 
@@ -222,6 +233,8 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 ## Source Anchors
 
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
 - [W19 R2 performance evidence plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
 - [48 Performance Evidence Governance](48-performance-evidence-governance.md)

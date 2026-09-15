@@ -47,7 +47,7 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 
 - Fresh setup defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It installs Designs, Plans, PRD, and Work without a document-type question. Existing partial projects keep their current document families until the user reviews an expansion. Setup always plans the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It keeps `docs/assets/` and its configured-harness root routers on demand. It creates no shared, Persona, testing, or legacy-family child until content needs that path. Shared inputs use `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archive remains `.make-docs/archive/`. The always-present docs router exposes default audiences, config, and exact selected asset-router filenames before the assets root exists.
 - The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
-- Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain.
+- Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain. Both entry points use one source-owned interaction model and renderer. The same effective manifest, saved selection, scope, harness support, and trust data must produce the same list, detail panel, selected summary, instructions, words, keys, cancellation result, and saved selection.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
 
 - R-SETUP-CLI-1 (MUST): the interactive project flow shows project state, harness selection, support methods for each harness, any missing machine setup, system-resource placement, and one exact grouped review. It does not ask for document types on a fresh project.
@@ -60,6 +60,8 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - R-SETUP-CLI-8 (MUST): a method is selectable only when production setup loads an eligible exact tuple from the central conformance registry. An unavailable method remains visible only when its reason and one useful next action help the person. The action must change a condition or open the owning setup path. It must not only rerun the same blocked command.
 - R-SETUP-CLI-9 (MUST): apply writes the reviewed project harness selection to `.make-docs/config.yaml` through the config-preserving writer. A repeat reads the saved project choice, live native state, Store receipt, and pending operation. It reports current, drifted, blocked, unsupported, or incomplete state before it asks for a change.
 - R-SETUP-CLI-10 (MUST): non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested. Missing, conflicting, or unsupported method input fails before writes. `--dry-run` uses the same resolution and prints the exact machine and project plan. `--yes` is approval only. It never selects `none` or another method.
+- R-SETUP-CLI-11 (MUST): `setup`, `setup reconfigure`, and `setup skills` inspect pending Store work for the target checkout before the first editable question. A pending operation stops the new setup flow and reports its operation type, saved-plan state, last safe stage, and one permitted next action. The stopped flow writes no project file, Store row, backup, or native configuration.
+- R-SETUP-CLI-12 (MUST): full setup can apply a reviewed Skill change. It must not collect a valid selected-Skill change and reject that change only after the interview. The focused command can limit its final plan to Skill changes without using a second interview contract.
 
 ### Conflict Review Contract
 
@@ -91,6 +93,8 @@ When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` 
 `make-docs setup remove` is deliberately two-checkpoint and destructive for the current project. `runUninstallCommand` in `packages/cli/src/uninstall.ts` shows a warning, requests warning approval, loads one audit report, renders the `UninstallReviewPlan`, requests final approval, optionally performs backup from the already-prepared audit, and only then removes files and prunes directories. `packages/cli/tests/uninstall.test.ts` verifies warning-stage and final-stage cancellation semantics. Top-level `make-docs uninstall` is a separate machine-footprint self-management command owned by PRD 39.
 
 `setup`, `setup reconfigure`, `update`, `setup remove`, and top-level `uninstall` classify before mutation and fail closed on missing, malformed, incomplete, ambiguous, contradictory, newer-unknown, or corrupt authority. Destructive plans acquire the project or machine lifecycle lock, record required backup and rollback metadata in the global Store before the first write, remove only verified clean managed assets or blocks, preserve project-owned, modified, mixed, unknown, archive, project-documentation, and opaque legacy state, and prune only proven-empty safe directories. Project removal does not implicitly delete Store rows; Store cleanup is a separate reviewed action.
+
+Project setup admission is plan-aware. It offers resume only for a complete verified plan that can resume. It offers rollback for an incomplete plan only when rollback is proved safe. A proved zero-step, equal-ledger, unlocked operation can finish as a no-effect rollback. An ambiguous operation gives no destructive command as safe. These rules apply before the wizard and use the same Store service as `project state status` and `project state recover`.
 
 ### System Resource Discovery
 
@@ -206,6 +210,14 @@ Code and documentation anchors:
 
 ## Requirement History
 
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Interactive Selection Contract` and `Lifecycle commands`
+- Previous contract: Full and focused Skills setup shared selection and planning ideas, but the contract did not require one exact interaction renderer or an early pending-operation stop before editable questions.
+- Replacement contract: Both paths use one Skills interaction contract. All project setup entries inspect pending checkout state before questions. Recovery advice is derived from saved plan evidence and a proved zero-effect operation can close through explicit rollback.
+- Rationale: The installed CLI showed different Skills interviews and recommended resume for an incomplete plan that recovery rejects.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
+
 ### 2026-09-12 — W19 R6
 
 - Affected requirement or section: `Public command model`, `Interactive Selection Contract`, and `System Resource Discovery`
@@ -283,6 +295,8 @@ Code and documentation anchors:
 
 ## Source Anchors
 
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
 - `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
 - `packages/cli/src/cli.ts`

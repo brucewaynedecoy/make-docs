@@ -54,6 +54,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-10 (MUST): `--dry-run` resolves the same central support registry, native state, receipts, machine intent, project intent, and pending operations as apply. It prints the exact grouped plan and writes nothing. An unsupported method fails with the missing proof and one useful lab or setup action.
 - R-SETUP-11 (MUST): interactive project setup orders project state, harness selection, one method-and-Skills screen for each selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, and one final result. `setup system` starts at the per-harness method screens and performs no project initialization.
 - R-SETUP-12 (MUST): production setup reads method support only through the validated central conformance registry loader. Repeat setup reports `current`, `drifted`, `blocked`, `unsupported`, or `incomplete` and does not issue a generic rerun instruction unless the rerun follows a named changed condition.
+- R-SETUP-13 (MUST): `setup`, `setup reconfigure`, and `setup skills` read pending installation state for the target checkout before the first editable question. A pending operation stops the new setup flow. Human output names the operation, saved-plan state, last safe stage, and one permitted next action. Non-interactive, JSON, and MCP results carry the same facts. The stopped flow writes nothing.
 
 ### Tool Self-Management (R-SELF)
 
@@ -121,6 +122,8 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-STATE-3 (MUST): existing setup preview/apply owns the one-time transfer of local operational files. It shows Store records to import and exact files to remove. The status and recovery commands do not add an implicit migration or expand ownership.
 - R-STATE-4 (MUST): human output names the current result, what changed, what remains, and the safe next action. JSON is a versioned typed result with the same facts. Typed failure distinguishes unavailable or unsafe Store, identity conflict, active writer, unsupported legacy input, changed content, and pending recovery. CLI and MCP derive from the same registered operation and input schema.
 - R-STATE-5 (MUST): these two installation-state operations extend the historical P3 inventory. Existing identifiers and general lifecycle receipt meanings remain stable. New operation admission does not reactivate retired commands.
+- R-STATE-6 (MUST): status, setup admission, and recovery use one action-selection function. A complete verified plan can offer resume and rollback. An incomplete plan cannot offer resume. A proved incomplete zero-step operation with equal ledgers and no active lock offers no-effect rollback. Ambiguous evidence names no destructive action as safe.
+- R-STATE-7 (MUST): operation status output includes the stable failure code, safe summary, failed stage, and last safe next action when those facts exist. Older rows with no detail report `unknown`; they do not invent a cause. Human output leads with the problem and action. The versioned typed result preserves the same facts for CLI JSON and MCP.
 
 ### Persona and Layout Commands (R-LAYOUT)
 
@@ -160,6 +163,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 - R-TEST-7 (MUST): integrated and packed CLI tests cover Store bootstrap, legacy transfer, competing writers, interrupted operations, resume, rollback, unsafe Store roots, clone bindings, and repeat setup. CLI and MCP use one service and matching typed results. Assert no local operational manifest, state directory, receipt, or lock is created.
 - R-TEST-8 (MUST): setup tests cover fresh, current, partial, skipped, drifted, failed, and repeated flows; separate machine and project approvals and receipts; exact native configuration preservation; Store-free resource reads; and the rule that a project failure does not roll back verified machine setup.
 - R-TEST-9 (MUST): production-path tests cover both canonical method flags, missing-choice refusal, unsupported-method refusal, machine-only setup, project config writing, dry-run parity, central registry loading, repeat-state rendering, and useful blocker actions. A test-only reviewed plan cannot satisfy this requirement.
+- R-TEST-10 (MUST): interactive tests compare full setup and `setup skills` frames and key results from the same state. Admission tests prove each setup entry stops before editable questions for pending work. Recovery tests prove incomplete zero-step and complete partial action selection, persisted failure detail after restart, and human/JSON/MCP parity through one extracted package.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -244,6 +248,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Setup Command Contract`, `Installation State Commands`, and `Verification and Testability`
+- Previous contract: Repeat setup reported pending work and recovery had resume and rollback modes, but setup could ask all questions before it found the pending operation and the error path could recommend resume without checking plan completeness.
+- Replacement contract: All setup entries stop before questions when recovery owns the checkout. One shared action rule offers only proved actions. Safe failure detail appears in human, JSON, and MCP results, and package tests cover both recovery shapes and Skills interview parity.
+- Rationale: The installed CLI collected a full interview and then gave a resume command that its own recovery service rejected.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 
 ### 2026-09-12 — W19 R6
 
@@ -350,6 +362,8 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 ## Source Anchors
 
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 - [../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md](../designs/2026-07-01-cli-command-reorganization-and-operation-registry.md)
