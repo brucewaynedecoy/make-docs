@@ -13,35 +13,40 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CLAUDE_CODE_HARNESS_ADAPTER,
   CODEX_HARNESS_ADAPTER,
   FIRST_PARTY_HARNESS_ADAPTERS,
+  HARNESS_CALLER_IDENTITY_ARG,
   HARNESS_CALLER_IDENTITY_ENV,
+  HARNESS_CALLER_REFERENCE_ARG,
   PI_HARNESS_SUPPORT,
   getFirstPartyHarnessAdapter,
   listBoundedHarnessCommandRules,
   encodeHarnessCallerIdentity,
+  encodeHarnessCallerIdentityArgument,
+  encodeHarnessCallerReference,
+  fingerprintEntry,
   parseHarnessCallerIdentity,
+  parseHarnessCallerIdentityArgument,
+  parseHarnessCallerReference,
   resolveHarnessMethodSupport,
   verifyMakeDocsExecutable,
-  verifyReviewedMakeDocsPackageExecutable,
   type HarnessCommandRule,
   type HarnessCommandRuleAuthority,
+  type HarnessAccessReceipt,
   type VerifiedExecutableIdentity,
 } from "../src/harness-access/index.js";
+import { resolveCliLaunchArgv, runCli } from "../src/cli.js";
 import { __setHarnessNativeMutationHookForTests } from "../src/harness-access/native.js";
 import {
   listHarnessCommandRules,
   validateRegistryHarnessCommandRules,
 } from "../src/operations/registry.js";
-import {
-  CONFORMANCE_TUPLE_STATUS_MEANINGS,
-  CONFORMANCE_VERDICT_DERIVATION_RULES,
-  validateConformanceTupleRegistry,
-  type ConformanceSupportTuple,
-} from "../src/conformance/index.js";
+import { resolveHarnessOperationPolicy } from "../src/operations/harness-policy.js";
+import { createExecutionContext, resolveCliOperationRoute } from "../src/operations/context.js";
+import { runSystemSetupCommand } from "../src/setup-system.js";
 
 const roots: string[] = [];
 
@@ -71,7 +76,42 @@ const REGISTRY_RULES: readonly HarnessCommandRule[] = listBoundedHarnessCommandR
   COMMAND_RULE_AUTHORITY,
 );
 
-describe("W19 R6 bounded first-party harness adapter registry", () => {
+function makeCallerIdentityRaw(
+  root: string,
+  executable: VerifiedExecutableIdentity,
+  method: "mcp" | "command-rules" = "command-rules",
+): string {
+  return encodeHarnessCallerIdentity({
+    schemaVersion: 1,
+    kind: "make-docs-harness-caller",
+    adapterId: CODEX_HARNESS_ADAPTER.id,
+    adapterVersion: CODEX_HARNESS_ADAPTER.version,
+    harnessId: "codex",
+    connectionMethod: method,
+    scope: "machine",
+    root: realpathSync(root),
+    executable,
+  });
+}
+
+function makeClaudeCallerIdentity(
+  root: string,
+  executable: VerifiedExecutableIdentity,
+) {
+  return {
+    schemaVersion: 1,
+    kind: "make-docs-harness-caller",
+    adapterId: CLAUDE_CODE_HARNESS_ADAPTER.id,
+    adapterVersion: CLAUDE_CODE_HARNESS_ADAPTER.version,
+    harnessId: "claude-code",
+    connectionMethod: "permission-rules",
+    scope: "machine",
+    root: realpathSync(root),
+    executable,
+  } as const;
+}
+
+describe("W19 R6 static first-party harness adapters", () => {
   it("contains Codex and Claude Code while Pi stays explicitly unsupported", () => {
     expect(FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => adapter.harnessId)).toEqual([
       "codex",
@@ -91,115 +131,268 @@ describe("W19 R6 bounded first-party harness adapter registry", () => {
       "mcp",
       "permission-rules",
     ]);
+    expect(CODEX_HARNESS_ADAPTER.executableNames).toEqual(["codex"]);
+    expect(CLAUDE_CODE_HARNESS_ADAPTER.executableNames).toEqual(["claude"]);
+    expect(CODEX_HARNESS_ADAPTER.methods).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "mcp",
+        availability: "available",
+        ownedEntries: ["mcp_servers.make_docs"],
+        allowedStoreOperations: "active-operation-registry",
+      }),
+      expect.objectContaining({
+        id: "command-rules",
+        availability: "available",
+        ownedEntries: ["make-docs.command-rules"],
+        allowedStoreOperations: "bounded-command-rule-registry",
+      }),
+    ]));
+    expect(CLAUDE_CODE_HARNESS_ADAPTER.methods).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "mcp",
+        availability: "available",
+        ownedEntries: ["mcpServers.make-docs"],
+      }),
+      expect.objectContaining({
+        id: "permission-rules",
+        availability: "blocked",
+        ownedEntries: ["permissions.allow.make-docs"],
+        blocker: expect.stringContaining("does not select or preserve"),
+      }),
+    ]));
   });
 
-  it("does not turn implementation tests or detection into a support claim", () => {
-    const implementationOnly = resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp");
-    expect(implementationOnly).toMatchObject({
-      state: "not-run",
-      selectable: false,
-      publicSupportClaim: false,
-    });
-    const inMemoryProof = {
-      schemaVersion: 1,
-      resultId: "codex-mcp-real-1",
-      verdict: "pass",
-      eligible: true,
-      assertions: { install: true, discover: true, invoke: true, uninstall: true },
-    };
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", inMemoryProof as never)).toMatchObject({
-      state: "not-run",
-      selectable: false,
-      publicSupportClaim: false,
-      unavailableReason: "runtime-facts-unavailable",
-    });
-  });
-
-  it("selects only an exact validated tuple with matching product and harness facts", () => {
-    const tuple: ConformanceSupportTuple = {
-      scenario: "setup-access/mcp-store-operations",
-      harness: "codex",
-      connectionMethod: "mcp",
-      surface: "mcp",
-      scope: "machine",
-      modelOrProvider: "openai/gpt-test",
-      runtime: "darwin-arm64/node-24",
-    };
-    const registry = validateConformanceTupleRegistry({
-      record: "make-docs.conformance.tuple-registry",
-      schemaVersion: 2,
-      statuses: CONFORMANCE_TUPLE_STATUS_MEANINGS,
-      verdictDerivation: CONFORMANCE_VERDICT_DERIVATION_RULES,
-      tuples: [{
-        id: "codex-mcp-exact",
-        tuple,
-        status: "conformance-validated",
-        evidence: [],
-        recordedRuns: [{
-          runId: "codex-mcp-real-2",
-          tuple,
-          runDate: "2026-09-14",
-          makeDocsVersion: "2.0.0-rc",
-          executableDigest: "1".repeat(64),
-          behaviorDigest: "2".repeat(64),
-          distributionType: "packed-npm",
-          harnessVersion: "codex-cli 1.0.0",
-          nativeConfigDigest: "3".repeat(64),
-          verdict: "pass-with-caveats",
-          caveats: ["The proof applies only to this exact runtime."],
-          caveatsSurfaced: true,
-          evidenceBar: { install: true, discover: true, invoke: true, uninstall: true },
-          recordRef: "conformance/results/setup-access/codex/2026-09-14/codex-mcp-real-2.json",
-          evidenceReferences: ["evidence/codex-mcp-real-2.json"],
-          simulated: false,
-        }],
-        plannedScenarios: ["setup-access/mcp-store-operations"],
-        notes: [],
-      }],
-    });
-    const facts = {
-      registry,
-      tuple,
-      makeDocsVersion: "2.0.0-rc",
-      executableDigest: "1".repeat(64),
-      behaviorDigest: "2".repeat(64),
-      harnessVersion: "codex-cli 1.0.0",
-    };
-
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", facts)).toMatchObject({
-      state: "conformance-validated",
+  it("selects methods only from the static adapter declarations", () => {
+    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp")).toMatchObject({
+      state: "available",
       selectable: true,
-      publicSupportClaim: true,
-      unavailableReason: null,
-      nextAction: null,
-      caveats: ["The proof applies only to this exact runtime."],
     });
-    for (const [field, value, reason] of [
-      ["makeDocsVersion", "2.0.1", "make-docs-version-mismatch"],
-      ["executableDigest", "4".repeat(64), "executable-digest-mismatch"],
-      ["behaviorDigest", "5".repeat(64), "behavior-digest-mismatch"],
-      ["harnessVersion", "codex-cli 1.0.1", "harness-version-mismatch"],
-    ] as const) {
-      expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", {
-        ...facts,
-        [field]: value,
-      })).toMatchObject({ selectable: false, unavailableReason: reason });
-    }
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp", {
-      ...facts,
-      tuple: { ...tuple, modelOrProvider: "openai/another-model" },
-    })).toMatchObject({ selectable: false, unavailableReason: "tuple-not-registered" });
+    expect(resolveHarnessMethodSupport(CLAUDE_CODE_HARNESS_ADAPTER, "mcp")).toMatchObject({
+      state: "available",
+      selectable: true,
+    });
+    expect(resolveHarnessMethodSupport(CLAUDE_CODE_HARNESS_ADAPTER, "permission-rules")).toMatchObject({
+      state: "blocked",
+      selectable: false,
+      reason: expect.stringContaining("does not select or preserve"),
+      nextAction: expect.stringContaining("Claude Code MCP"),
+    });
   });
 
   it("uses detection only as a native-file suggestion", () => {
     const { root } = fixture();
-    expect(CODEX_HARNESS_ADAPTER.detect({ root, scope: "machine" }).state).toBe("not-detected");
+    expect(CODEX_HARNESS_ADAPTER.detect({ root, scope: "machine", path: "" }).state).toBe("not-detected");
     mkdirSync(path.join(root, ".codex"));
-    expect(CODEX_HARNESS_ADAPTER.detect({ root, scope: "machine" })).toMatchObject({
+    expect(CODEX_HARNESS_ADAPTER.detect({ root, scope: "machine", path: "" })).toMatchObject({
       state: "detected",
       evidence: [".codex"],
     });
-    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp").selectable).toBe(false);
+    expect(resolveHarnessMethodSupport(CODEX_HARNESS_ADAPTER, "mcp").selectable).toBe(true);
+  });
+
+  it("distinguishes the trusted direct CLI route from identity-required agent routes", () => {
+    const { root, executable } = fixture();
+    const storeRoot = path.join(root, "store");
+    const identity = makeCallerIdentityRaw(root, executable);
+    expect(resolveCliOperationRoute(undefined)).toBe("direct-cli");
+    expect(resolveCliOperationRoute(identity)).toBe("native-rule");
+    expect(() => resolveCliOperationRoute("receipt-bound-native-identity"))
+      .toThrow("harness caller identity is invalid");
+    expect(resolveHarnessOperationPolicy({
+      route: "direct-cli",
+      targetRoot: root,
+      storeRoot,
+      callerIdentityRaw: "",
+    })).toMatchObject({
+      verified: true,
+      access: { store: "write", project: "write", hostConfig: "none" },
+    });
+    for (const route of ["mcp", "native-rule"] as const) {
+      expect(resolveHarnessOperationPolicy({
+        route,
+        targetRoot: root,
+        storeRoot,
+        callerIdentityRaw: "",
+      })).toMatchObject({
+        verified: false,
+        access: { store: "none", project: "none", hostConfig: "none" },
+        reason: expect.stringContaining("no harness-proved native launch identity"),
+      });
+    }
+  });
+
+  it("accepts one leading CLI caller identity and rejects unsafe placements", () => {
+    const { root, executable } = fixture();
+    const identity = makeCallerIdentityRaw(root, executable);
+    const identityArgument = encodeHarnessCallerIdentityArgument(parseHarnessCallerIdentity(identity));
+    expect(resolveCliLaunchArgv([
+      HARNESS_CALLER_IDENTITY_ARG,
+      identityArgument,
+      "project",
+      "state",
+      "status",
+    ], undefined)).toEqual({
+      argv: ["project", "state", "status"],
+      launch: { route: "native-rule", callerIdentityRaw: identity },
+    });
+    expect(resolveCliLaunchArgv([
+      HARNESS_CALLER_IDENTITY_ARG,
+      identityArgument,
+      "resource",
+      "list",
+    ], identity).launch.route).toBe("native-rule");
+    expect(() => resolveCliLaunchArgv(["project", HARNESS_CALLER_IDENTITY_ARG, identityArgument], undefined))
+      .toThrow("must come before the public command");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_IDENTITY_ARG,
+      identityArgument,
+      HARNESS_CALLER_IDENTITY_ARG,
+      identityArgument,
+      "project",
+    ], undefined)).toThrow("can be given only once");
+    expect(() => resolveCliLaunchArgv([HARNESS_CALLER_IDENTITY_ARG], undefined))
+      .toThrow("requires one caller identity");
+    expect(() => resolveCliLaunchArgv([HARNESS_CALLER_IDENTITY_ARG, identityArgument], undefined))
+      .toThrow("must be followed by a public command");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_IDENTITY_ARG,
+      "not-base64url!",
+      "project",
+    ], undefined)).toThrow("harness caller identity is invalid");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_IDENTITY_ARG,
+      identityArgument,
+      "project",
+    ], makeCallerIdentityRaw(root, { ...executable, sha256: "0".repeat(64) })))
+      .toThrow("command and environment harness caller identities do not match");
+  });
+
+  it("accepts one leading Claude caller reference and rejects conflicts and unsafe placements", () => {
+    const { root, executable } = fixture();
+    const reference = encodeHarnessCallerReference(makeClaudeCallerIdentity(root, executable));
+    const parsed = parseHarnessCallerReference(reference);
+    expect(parsed).toMatchObject({
+      raw: reference,
+      harnessId: "claude-code",
+      connectionMethod: "permission-rules",
+      adapterVersion: 1,
+      root: realpathSync(root),
+      identitySha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+    });
+    expect(resolveCliOperationRoute(undefined, parsed)).toBe("native-rule");
+    expect(createExecutionContext({ callerReference: parsed }).callerReference).toEqual(parsed);
+    expect(resolveCliLaunchArgv([
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+      "project",
+      "state",
+      "status",
+    ], undefined)).toEqual({
+      argv: ["project", "state", "status"],
+      launch: { route: "native-rule", callerReference: parsed },
+    });
+    expect(() => resolveCliLaunchArgv([
+      "project",
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+    ], undefined)).toThrow("must come before the public command");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+      "project",
+    ], undefined)).toThrow("can be given only once");
+    expect(() => resolveCliLaunchArgv([HARNESS_CALLER_REFERENCE_ARG], undefined))
+      .toThrow("requires one caller reference");
+    expect(() => resolveCliLaunchArgv([HARNESS_CALLER_REFERENCE_ARG, reference], undefined))
+      .toThrow("must be followed by a public command");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_REFERENCE_ARG,
+      `${reference.slice(0, -1)}g`,
+      "project",
+    ], undefined)).toThrow("caller reference is invalid");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+      HARNESS_CALLER_IDENTITY_ARG,
+      encodeHarnessCallerIdentityArgument(makeClaudeCallerIdentity(root, executable)),
+      "project",
+    ], undefined)).toThrow("identity and reference cannot be used together");
+    expect(() => resolveCliLaunchArgv([
+      HARNESS_CALLER_REFERENCE_ARG,
+      reference,
+      "project",
+    ], encodeHarnessCallerIdentity(makeClaudeCallerIdentity(root, executable))))
+      .toThrow("reference and environment identity cannot be used together");
+    const relativeRoot = Buffer.from("relative/root", "utf8").toString("base64url");
+    expect(() => parseHarnessCallerReference(
+      `claude-code.permission-rules.v1.${relativeRoot}.${"0".repeat(64)}`,
+    )).toThrow("absolute normalized path");
+    const missingRoot = Buffer.from(path.join(root, "missing"), "utf8").toString("base64url");
+    expect(() => parseHarnessCallerReference(
+      `claude-code.permission-rules.v1.${missingRoot}.${"0".repeat(64)}`,
+    )).toThrow("does not exist");
+    expect(() => encodeHarnessCallerReference({
+      ...makeClaudeCallerIdentity(root, executable),
+      harnessId: "codex",
+      connectionMethod: "command-rules",
+    })).toThrow("Claude Code permission-rules v1");
+  });
+
+  it("keeps the internal caller option out of public help", async () => {
+    const writes: string[] = [];
+    const write = vi.spyOn(process.stdout, "write").mockImplementation((value: any) => {
+      writes.push(String(value));
+      return true;
+    });
+    try {
+      await runCli(["--help"]);
+    } finally {
+      write.mockRestore();
+    }
+    expect(writes.join("\n")).not.toContain(HARNESS_CALLER_IDENTITY_ARG);
+    expect(writes.join("\n")).not.toContain(HARNESS_CALLER_REFERENCE_ARG);
+  });
+
+  it("verifies exact MCP and native-rule routes after product setup", async () => {
+    for (const method of ["mcp", "command-rules"] as const) {
+      const { root, executable } = fixture();
+      const storeContainer = mkdtempSync(path.join(os.tmpdir(), "make-docs-harness-store-"));
+      roots.push(storeContainer);
+      const storeRoot = path.join(storeContainer, "store");
+      const setup = await runSystemSetupCommand({
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: method },
+        executable,
+        machineRoot: root,
+        targetRoot: root,
+        storeRoot,
+      });
+      expect(setup.status).toBe("configured");
+      const callerIdentityRaw = makeCallerIdentityRaw(root, executable, method);
+      const route = method === "mcp" ? "mcp" : "native-rule";
+      expect(resolveHarnessOperationPolicy({
+        route,
+        targetRoot: root,
+        storeRoot,
+        callerIdentityRaw,
+        commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      })).toMatchObject({
+        verified: true,
+        harnesses: ["codex"],
+        methods: [method],
+      });
+      expect(() => resolveHarnessOperationPolicy({
+        route: route === "mcp" ? "native-rule" : "mcp",
+        targetRoot: root,
+        storeRoot,
+        callerIdentityRaw,
+        commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      })).toThrow(route === "mcp" ? "native-rule route" : "MCP route");
+    }
   });
 });
 
@@ -227,32 +420,6 @@ describe("verified executable and bounded command rules", () => {
         expectedSha256: createHash("sha256").update("#!/bin/sh\nexit 0\n").digest("hex"),
       }),
     ).toThrow("not the exact Make Docs package binary");
-  });
-
-  it("verifies an exact reviewed package binary for a disposable maintainer lab", () => {
-    const { root, executable } = fixture();
-    const packageRoot = path.join(root, "reviewed-package");
-    const executablePath = path.join(packageRoot, "dist", "index.js");
-    mkdirSync(path.dirname(executablePath), { recursive: true });
-    writeFileSync(executablePath, readFileSync(executable.path), { mode: 0o755 });
-    writeFileSync(
-      path.join(packageRoot, "package.json"),
-      JSON.stringify({
-        name: "@brucewaynedecoy/make-docs",
-        version: "2.0.0-lab",
-        bin: { "make-docs": "dist/index.js" },
-      }),
-    );
-    const reviewed = verifyReviewedMakeDocsPackageExecutable({
-      packageRoot,
-      executablePath,
-      expectedSha256: executable.sha256,
-    });
-    expect(reviewed).toMatchObject({
-      path: realpathSync(executablePath),
-      packageRoot: realpathSync(packageRoot),
-      packageVersion: "2.0.0-lab",
-    });
   });
 
   it("rejects broad and lifecycle command grants", () => {
@@ -426,6 +593,13 @@ describe("Codex native access lifecycle", () => {
       receipt: applied.receipt,
     });
     expect(repeat).toMatchObject({ state: "current", changes: [{ action: "none" }] });
+    expect(CODEX_HARNESS_ADAPTER.repair({
+      method: "mcp",
+      scope: "machine",
+      root,
+      executable,
+      receipt: applied.receipt,
+    })).toEqual(repeat);
     const repeated = CODEX_HARNESS_ADAPTER.apply({
       plan: repeat,
       approved: true,
@@ -599,10 +773,93 @@ describe("Codex native access lifecycle", () => {
       commandRules: REGISTRY_RULES,
     });
     const rules = String(plan.changes[0].afterEntryValue ?? "");
-    expect(rules).toContain(`pattern = ["${executable.path}", "resource", "list"]`);
+    expect(rules).toContain(
+      `pattern = ["${executable.path}", "${HARNESS_CALLER_IDENTITY_ARG}", `,
+    );
+    expect(rules).toContain(`, "resource", "list"]`);
+    expect(rules).not.toContain("/usr/bin/env");
+    expect(rules).not.toContain(`${HARNESS_CALLER_IDENTITY_ENV}=`);
     expect(rules).not.toContain(" setup ");
     expect(rules).not.toContain(" update ");
     expect(rules).not.toContain(" uninstall ");
+
+    const stateRule = rules.split("\n").find(line => line.includes(', "project", "state", "status"]'));
+    expect(stateRule).toBeDefined();
+    const patternText = stateRule!.match(/pattern = (\[.*\]), decision/)?.[1];
+    expect(patternText).toBeDefined();
+    const pattern = JSON.parse(patternText!) as string[];
+    expect(pattern.slice(0, 2)).toEqual([executable.path, HARNESS_CALLER_IDENTITY_ARG]);
+    expect(pattern[2]).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(parseHarnessCallerIdentityArgument(pattern[2])).toMatchObject({
+      schemaVersion: 1,
+      adapterVersion: 1,
+      connectionMethod: "command-rules",
+      executable,
+    });
+  });
+
+  it("marks the old environment-based managed Codex rule as drifted", () => {
+    const { root, executable } = fixture();
+    const initialPlan = CODEX_HARNESS_ADAPTER.plan({
+      method: "command-rules",
+      scope: "machine",
+      root,
+      executable,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+    });
+    const applied = CODEX_HARNESS_ADAPTER.apply({
+      plan: initialPlan,
+      approved: true,
+      operationId: "system.codex.rules.old-carrier",
+      appliedVersion: "2.0.0-rc",
+    });
+    const rulePath = path.join(root, ".codex", "rules", "make-docs.rules");
+    const currentRules = readFileSync(rulePath, "utf8");
+    const firstPattern = currentRules.match(/pattern = (\[.*\]), decision/)?.[1];
+    expect(firstPattern).toBeDefined();
+    const currentPrefix = (JSON.parse(firstPattern!) as string[]).slice(0, 3);
+    const callerIdentityRaw = encodeHarnessCallerIdentity(
+      parseHarnessCallerIdentityArgument(currentPrefix[2]),
+    );
+    const oldPrefix = [
+      "/usr/bin/env",
+      `${HARNESS_CALLER_IDENTITY_ENV}=${callerIdentityRaw}`,
+      executable.path,
+    ];
+    const currentPrefixText = currentPrefix.map(word => JSON.stringify(word)).join(", ");
+    const oldPrefixText = oldPrefix.map(word => JSON.stringify(word)).join(", ");
+    const oldRules = currentRules.replaceAll(currentPrefixText, oldPrefixText);
+    writeFileSync(rulePath, oldRules);
+    const oldReceipt = {
+      ...applied.receipt,
+      entries: applied.receipt.entries.map(entry => ({
+        ...entry,
+        value: oldRules,
+        entryFingerprint: fingerprintEntry(oldRules),
+      })),
+    };
+
+    const replacement = CODEX_HARNESS_ADAPTER.plan({
+      method: "command-rules",
+      scope: "machine",
+      root,
+      executable,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+      receipt: oldReceipt,
+    });
+    expect(replacement).toMatchObject({
+      state: "drifted",
+      changes: [{ action: "update", ownership: "make-docs-owned" }],
+    });
+    expect(() => CODEX_HARNESS_ADAPTER.apply({
+      plan: replacement,
+      approved: false,
+      operationId: "system.codex.rules.replace-old-carrier",
+      appliedVersion: "2.0.0-rc",
+    })).toThrow("explicit approval");
+    expect(readFileSync(rulePath, "utf8")).toBe(oldRules);
   });
 });
 
@@ -672,15 +929,33 @@ describe("Claude Code native access lifecycle", () => {
       operationId: "system.claude.rules.1",
       appliedVersion: "2.0.0-rc",
     });
-    expect(JSON.parse(readFileSync(settingsPath, "utf8"))).toMatchObject({
+    const configured = JSON.parse(readFileSync(settingsPath, "utf8"));
+    expect(configured).toMatchObject({
       theme: "dark",
       permissions: {
         allow: expect.arrayContaining([
           "Bash(git status:*)",
-          `Bash(${executable.path} resource list:*)`,
-          `Bash(${executable.path} resource read:*)`,
         ]),
       },
+    });
+    const allowed = configured.permissions.allow as string[];
+    expect(allowed.some(value => value.includes(
+      `${executable.path} ${HARNESS_CALLER_REFERENCE_ARG} claude-code.permission-rules.v1.`
+    ) && value.includes(" resource list:*") && value.startsWith("Bash("))).toBe(true);
+    expect(allowed.some(value => value.includes(
+      `${executable.path} ${HARNESS_CALLER_REFERENCE_ARG} claude-code.permission-rules.v1.`
+    ) && value.includes(" resource read:*") && value.startsWith("Bash("))).toBe(true);
+    const makeDocsRules = allowed.filter(value => value.includes(HARNESS_CALLER_REFERENCE_ARG));
+    expect(makeDocsRules).toHaveLength(REGISTRY_RULES.length);
+    expect(makeDocsRules.join("\n")).not.toContain(HARNESS_CALLER_IDENTITY_ENV);
+    expect(makeDocsRules.join("\n")).not.toContain("/usr/bin/env");
+    expect(makeDocsRules.join("\n")).not.toContain("{\"");
+    expect(makeDocsRules.join("\n")).not.toMatch(/\b(setup|update|uninstall)\b/);
+    const callerReference = makeDocsRules[0].split(" ")[2];
+    expect(parseHarnessCallerReference(callerReference)).toMatchObject({
+      harnessId: "claude-code",
+      connectionMethod: "permission-rules",
+      root: realpathSync(root),
     });
 
     const removal = CLAUDE_CODE_HARNESS_ADAPTER.planRemoval({
@@ -695,6 +970,98 @@ describe("Claude Code native access lifecycle", () => {
       theme: "dark",
       permissions: { allow: ["Bash(git status:*)"] },
     });
+  });
+
+  it("replaces only receipt-owned legacy Claude rules and keeps user permission order", () => {
+    const { root, executable } = fixture();
+    const settingsPath = path.join(root, ".claude", "settings.json");
+    const initialPlan = CLAUDE_CODE_HARNESS_ADAPTER.plan({
+      method: "permission-rules",
+      scope: "machine",
+      root,
+      executable,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+    });
+    const initial = CLAUDE_CODE_HARNESS_ADAPTER.apply({
+      plan: initialPlan,
+      approved: true,
+      operationId: "system.claude.rules.reference-seed",
+      appliedVersion: "2.0.0-rc",
+    });
+    const rawIdentity = encodeHarnessCallerIdentity(makeClaudeCallerIdentity(root, executable));
+    const legacyRules = [...REGISTRY_RULES]
+      .sort((left, right) => left.id.localeCompare(right.id))
+      .map(rule => `Bash(/usr/bin/env ${HARNESS_CALLER_IDENTITY_ENV}=${rawIdentity} ${executable.path} ${rule.commandPrefix.join(" ")}:*)`)
+      .sort();
+    const userRules = ["Bash(git status:*)", "Read(./docs/**)"];
+    const legacyContent = `${JSON.stringify({
+      theme: "dark",
+      permissions: { allow: [userRules[0], ...legacyRules, userRules[1]] },
+    }, null, 2)}\n`;
+    writeFileSync(settingsPath, legacyContent);
+    const legacyReceipt: HarnessAccessReceipt = {
+      ...initial.receipt,
+      operationId: "system.claude.rules.legacy",
+      entries: [{
+        ...initial.receipt.entries[0],
+        value: legacyRules,
+        entryFingerprint: fingerprintEntry(legacyRules),
+        fileFingerprint: createHash("sha256").update(legacyContent).digest("hex"),
+      }],
+    };
+
+    const upgrade = CLAUDE_CODE_HARNESS_ADAPTER.plan({
+      method: "permission-rules",
+      scope: "machine",
+      root,
+      executable,
+      receipt: legacyReceipt,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+    });
+    expect(upgrade).toMatchObject({ state: "drifted", changes: [{ action: "update" }] });
+    expect(() => CLAUDE_CODE_HARNESS_ADAPTER.apply({
+      plan: upgrade,
+      approved: false,
+      operationId: "system.claude.rules.upgrade",
+      appliedVersion: "2.0.0-rc",
+    })).toThrow("explicit approval");
+    const upgraded = CLAUDE_CODE_HARNESS_ADAPTER.apply({
+      plan: upgrade,
+      approved: true,
+      operationId: "system.claude.rules.upgrade",
+      appliedVersion: "2.0.0-rc",
+    });
+    const allowed = JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow as string[];
+    expect(allowed.filter(value => userRules.includes(value))).toEqual(userRules);
+    expect(allowed.join("\n")).not.toContain("/usr/bin/env");
+    expect(allowed.filter(value => value.includes(HARNESS_CALLER_REFERENCE_ARG)))
+      .toHaveLength(REGISTRY_RULES.length);
+    const repeat = CLAUDE_CODE_HARNESS_ADAPTER.plan({
+      method: "permission-rules",
+      scope: "machine",
+      root,
+      executable,
+      receipt: upgraded.receipt,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+    });
+    expect(repeat).toMatchObject({ state: "current", changes: [{ action: "none" }] });
+
+    const extraLegacy = `${legacyRules[0]} extra`;
+    writeFileSync(settingsPath, `${JSON.stringify({ permissions: { allow: [...legacyRules, extraLegacy] } }, null, 2)}\n`);
+    const incompleteOwnership = CLAUDE_CODE_HARNESS_ADAPTER.plan({
+      method: "permission-rules",
+      scope: "machine",
+      root,
+      executable,
+      receipt: legacyReceipt,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: REGISTRY_RULES,
+    });
+    expect(incompleteOwnership).toMatchObject({ state: "blocked", changes: [{ action: "none" }] });
+    expect(incompleteOwnership.changes[0].blockedReason).toContain("no exact ownership receipt");
   });
 
   it("blocks malformed JSON, symbolic-link native files, and user-owned matching entries", () => {

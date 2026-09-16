@@ -16,9 +16,13 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { assertManagedPathHasNoSymlinks } from "../utils";
 import {
+  HARNESS_CALLER_IDENTITY_ARG,
   HARNESS_CALLER_IDENTITY_ENV,
+  HARNESS_CALLER_REFERENCE_ARG,
   canonicalJson,
   encodeHarnessCallerIdentity,
+  encodeHarnessCallerIdentityArgument,
+  encodeHarnessCallerReference,
   fingerprintEntry,
   reverifyMakeDocsExecutableIdentity,
   sha256,
@@ -52,6 +56,7 @@ export interface HarnessAdapterDefinition {
   version: number;
   harnessId: HarnessId;
   displayName: string;
+  executableNames: readonly string[];
   projectRouterFiles: readonly string[];
   skillRoots: readonly string[];
   methods: readonly HarnessMethodDefinition[];
@@ -100,7 +105,7 @@ const CODEX_MCP_END = "# make-docs:end harness-access codex mcp";
 export function createHarnessAdapter(definition: HarnessAdapterDefinition): HarnessAdapter {
   const adapter: HarnessAdapter = {
     ...definition,
-    detect: input => detectHarness(definition, input.scope, input.root),
+    detect: input => detectHarness(definition, input.scope, input.root, input.path),
     plan: input => planHarnessAccess(adapter, input),
     apply: input =>
       applyHarnessAccessPlan(
@@ -113,19 +118,8 @@ export function createHarnessAdapter(definition: HarnessAdapterDefinition): Harn
       ),
     applyRemoval: input => applyHarnessRemovalPlan(adapter, input.plan, input.approved),
     verify: input => verifyHarnessAccess(adapter, input),
+    repair: input => planHarnessAccess(adapter, input),
     planRemoval: input => planHarnessAccessRemoval(adapter, input),
-    conformanceIdentity: method => ({
-      adapterId: definition.id,
-      adapterVersion: definition.version,
-      harnessId: definition.harnessId,
-      connectionMethod: method,
-      surface:
-        method === "mcp"
-          ? "mcp"
-          : method === "command-rules"
-            ? "cli-command-rules"
-            : "cli-permission-rules",
-    }),
   };
   return Object.freeze(adapter);
 }
@@ -134,10 +128,14 @@ function detectHarness(
   adapter: HarnessAdapterDefinition,
   scope: HarnessScope,
   root: string,
+  executablePath?: string,
 ): HarnessDetectionResult {
   try {
     assertSafeRoot(root);
     const evidence = new Set<string>();
+    for (const executableName of adapter.executableNames) {
+      if (findExecutableOnPath(executableName, executablePath)) evidence.add(`executable:${executableName}`);
+    }
     for (const method of adapter.methods.filter(candidate => candidate.scopes.includes(scope))) {
       const relativePath = method.nativeFile(scope);
       assertNativePath(root, relativePath);
@@ -165,6 +163,27 @@ function detectHarness(
   }
 }
 
+function findExecutableOnPath(executableName: string, executablePath = process.env.PATH ?? ""): string | null {
+  const pathEntries = executablePath.split(path.delimiter).filter(Boolean);
+  const names = process.platform === "win32"
+    ? [executableName, `${executableName}.exe`, `${executableName}.cmd`]
+    : [executableName];
+  for (const entry of pathEntries) {
+    for (const name of names) {
+      const candidate = path.join(entry, name);
+      try {
+        const stat = lstatSync(candidate);
+        if (stat.isFile() && (process.platform === "win32" || (stat.mode & 0o111) !== 0)) {
+          return candidate;
+        }
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") continue;
+      }
+    }
+  }
+  return null;
+}
+
 function planHarnessAccess(adapter: HarnessAdapter, input: HarnessPlanInput): HarnessAccessPlan {
   const method = requireMethod(adapter, input.method, input.scope);
   validateExecutableIdentity(input.executable);
@@ -184,7 +203,9 @@ function planHarnessAccess(adapter: HarnessAdapter, input: HarnessPlanInput): Ha
 
   let change: HarnessNativeChange;
   let state: HarnessAccessPlan["state"];
-  try {
+  if (method.nativeFormat === "claude-permission-json") {
+    ({ change, state } = planClaudePermissionChange(desired, beforeContent, receiptEntry));
+  } else try {
     const inspected = inspectEntry(method.nativeFormat, beforeContent, desired.value);
     const beforeEntryFingerprint = inspected.exists && inspected.value !== null
       ? fingerprintEntry(inspected.value)
@@ -305,7 +326,12 @@ function applyHarnessAccessPlan(
       throw new Error(`The reviewed plan has no target native entry for ${change.path}.`);
     }
     const method = requireMethod(adapter, plan.connectionMethod, plan.scope);
-    const afterContent = applyEntry(method.nativeFormat, liveContent, change.afterEntryValue);
+      const afterContent = applyEntry(
+        method.nativeFormat,
+        liveContent,
+        change.afterEntryValue,
+        change.beforeEntryValue,
+      );
     if (fingerprintFile(afterContent) !== change.afterFileFingerprint) {
       throw new Error(`The live native file cannot reproduce the reviewed change: ${change.path}.`);
     }
@@ -608,12 +634,16 @@ function desiredEntry(
         throw new Error("Codex command rules need an executable path with no whitespace.");
       }
       const rules = validateHarnessCommandRules(commandRules, commandRuleAuthority);
+      const launchPrefix = codexRuleLaunchPrefix(
+        encodeHarnessCallerIdentityArgument(callerIdentity),
+        executable.path,
+      );
       const lines = [
         "# Managed by Make Docs. Review through make-docs setup.",
         ...[...rules]
           .sort((left, right) => left.id.localeCompare(right.id))
           .map(rule =>
-            `prefix_rule(pattern = [${[executable.path, ...rule.commandPrefix]
+            `prefix_rule(pattern = [${[...launchPrefix, ...rule.commandPrefix]
               .map(word => JSON.stringify(word))
               .join(", ")}], decision = "allow")`,
           ),
@@ -626,13 +656,45 @@ function desiredEntry(
         throw new Error("Claude Code permission rules need an executable path with no whitespace.");
       }
       const rules = validateHarnessCommandRules(commandRules, commandRuleAuthority);
+      const launchPrefix = claudePermissionRuleLaunchPrefix(
+        encodeHarnessCallerReference(callerIdentity),
+        executable.path,
+      );
       const values = [...rules]
         .sort((left, right) => left.id.localeCompare(right.id))
-        .map(rule => `Bash(${[executable.path, ...rule.commandPrefix].join(" ")}:*)`)
+        .map(rule => `Bash(${[...launchPrefix, ...rule.commandPrefix].join(" ")}:*)`)
         .sort();
       return { path: nativePath, entryId: "permissions.allow.make-docs", value: values };
     }
   }
+}
+
+function codexRuleLaunchPrefix(
+  encodedCallerIdentity: string,
+  executablePath: string,
+): readonly string[] {
+  if (process.platform === "win32") {
+    throw new Error("Native rule launch identity is not implemented on Windows.");
+  }
+  return Object.freeze([
+    executablePath,
+    HARNESS_CALLER_IDENTITY_ARG,
+    encodedCallerIdentity,
+  ]);
+}
+
+function claudePermissionRuleLaunchPrefix(
+  callerReference: string,
+  executablePath: string,
+): readonly string[] {
+  if (process.platform === "win32") {
+    throw new Error("Native rule launch identity is not implemented on Windows.");
+  }
+  return Object.freeze([
+    executablePath,
+    HARNESS_CALLER_REFERENCE_ARG,
+    callerReference,
+  ]);
 }
 
 function makeHarnessCallerIdentity(
@@ -652,6 +714,180 @@ function makeHarnessCallerIdentity(
     root: realpathSync(root),
     executable: { ...executable },
   };
+}
+
+function planClaudePermissionChange(
+  desired: DesiredEntry,
+  content: string | null,
+  receiptEntry: HarnessReceiptEntry | undefined,
+): { change: HarnessNativeChange; state: HarnessAccessPlan["state"] } {
+  try {
+    const desiredInspected = inspectEntry("claude-permission-json", content, desired.value);
+    const desiredFingerprint = fingerprintEntry(desired.value);
+    const receiptValues = receiptEntry
+      ? requireClaudePermissionRuleArray(receiptEntry.value, "receipt")
+      : [];
+    if (receiptValues.some(value => !isMakeDocsClaudePermissionRule(value))) {
+      throw new Error("The receipt contains a permission rule that Make Docs cannot prove it owns.");
+    }
+    const receiptSet = new Set(receiptValues);
+    const unowned = listMakeDocsClaudePermissionRules(content)
+      .filter(value => !receiptSet.has(value));
+    if (unowned.length > 0) {
+      return {
+        change: blockedChange(
+          desired,
+          content,
+          desiredInspected.value === null ? null : fingerprintEntry(desiredInspected.value),
+          "A Make Docs-shaped Claude permission rule has no exact ownership receipt.",
+        ),
+        state: "blocked",
+      };
+    }
+
+    const desiredIsComplete = desiredInspected.exists &&
+      desiredInspected.value !== null &&
+      fingerprintEntry(desiredInspected.value) === desiredFingerprint;
+    if (desiredIsComplete) {
+      if (!receiptEntry) {
+        return {
+          change: blockedChange(
+            desired,
+            content,
+            desiredFingerprint,
+            "The matching native entry has no exact Make Docs ownership receipt.",
+          ),
+          state: "blocked",
+        };
+      }
+      if (receiptEntry.entryFingerprint !== desiredFingerprint) {
+        return {
+          change: blockedChange(
+            desired,
+            content,
+            desiredFingerprint,
+            "The Claude permission rules do not match the exact rules in the ownership receipt.",
+          ),
+          state: "drifted",
+        };
+      }
+      return {
+        change: {
+          path: desired.path,
+          entryId: desired.entryId,
+          action: "none",
+          ownership: "make-docs-owned",
+          beforeFileFingerprint: fingerprintFile(content),
+          afterFileFingerprint: fingerprintFile(content),
+          beforeEntryValue: desiredInspected.value,
+          beforeEntryFingerprint: desiredFingerprint,
+          afterEntryFingerprint: desiredFingerprint,
+          afterEntryValue: desired.value,
+        },
+        state: "current",
+      };
+    }
+
+    if (receiptEntry) {
+      const ownedInspected = inspectEntry("claude-permission-json", content, receiptEntry.value);
+      const ownedFingerprint = ownedInspected.value === null
+        ? null
+        : fingerprintEntry(ownedInspected.value);
+      if (!ownedInspected.exists || ownedFingerprint !== receiptEntry.entryFingerprint) {
+        return {
+          change: blockedChange(
+            desired,
+            content,
+            ownedFingerprint,
+            "The receipt-owned Claude permission rules are missing, changed, or incomplete.",
+          ),
+          state: "drifted",
+        };
+      }
+      const afterContent = applyEntry(
+        "claude-permission-json",
+        content,
+        desired.value,
+        receiptEntry.value,
+      );
+      return {
+        change: {
+          path: desired.path,
+          entryId: desired.entryId,
+          action: "update",
+          ownership: "make-docs-owned",
+          beforeFileFingerprint: fingerprintFile(content),
+          afterFileFingerprint: fingerprintFile(afterContent),
+          beforeEntryValue: ownedInspected.value,
+          beforeEntryFingerprint: ownedFingerprint,
+          afterEntryFingerprint: desiredFingerprint,
+          afterEntryValue: desired.value,
+        },
+        state: "drifted",
+      };
+    }
+
+    if (desiredInspected.exists) {
+      return {
+        change: blockedChange(
+          desired,
+          content,
+          desiredInspected.value === null ? null : fingerprintEntry(desiredInspected.value),
+          "The partial Make Docs Claude permission entry has no exact ownership receipt.",
+        ),
+        state: "blocked",
+      };
+    }
+    const afterContent = applyEntry("claude-permission-json", content, desired.value);
+    return {
+      change: {
+        path: desired.path,
+        entryId: desired.entryId,
+        action: content === null ? "create" : "update",
+        ownership: "missing",
+        beforeFileFingerprint: fingerprintFile(content),
+        afterFileFingerprint: fingerprintFile(afterContent),
+        beforeEntryValue: null,
+        beforeEntryFingerprint: null,
+        afterEntryFingerprint: desiredFingerprint,
+        afterEntryValue: desired.value,
+      },
+      state: "missing",
+    };
+  } catch (error) {
+    return {
+      change: blockedChange(desired, content, null, toMessage(error)),
+      state: "blocked",
+    };
+  }
+}
+
+function requireClaudePermissionRuleArray(
+  value: NativeEntryValue,
+  source: "receipt" | "reviewed",
+): string[] {
+  if (!Array.isArray(value) || value.some(entry => typeof entry !== "string")) {
+    throw new Error(`The ${source} Claude permission entry is malformed.`);
+  }
+  return value as string[];
+}
+
+function listMakeDocsClaudePermissionRules(content: string | null): string[] {
+  if (content === null) return [];
+  const root = parseJsonObject(content);
+  if (root.permissions === undefined) return [];
+  if (!isRecord(root.permissions)) throw new Error("The native permissions value is not an object.");
+  const allow = root.permissions.allow;
+  if (allow === undefined) return [];
+  if (!Array.isArray(allow) || allow.some(value => typeof value !== "string")) {
+    throw new Error("The native permissions.allow value is not a string array.");
+  }
+  return (allow as string[]).filter(isMakeDocsClaudePermissionRule);
+}
+
+function isMakeDocsClaudePermissionRule(value: string): boolean {
+  return value.startsWith(`Bash(/usr/bin/env ${HARNESS_CALLER_IDENTITY_ENV}=`) ||
+    value.includes(` ${HARNESS_CALLER_REFERENCE_ARG} `);
 }
 
 function inspectEntry(
@@ -703,6 +939,7 @@ function applyEntry(
   format: HarnessNativeFormat,
   content: string | null,
   value: NativeEntryValue,
+  priorOwnedValue?: NativeEntryValue | null,
 ): string {
   switch (format) {
     case "codex-mcp-toml": {
@@ -723,9 +960,7 @@ function applyEntry(
       return `${JSON.stringify(root, null, 2)}\n`;
     }
     case "claude-permission-json": {
-      if (!Array.isArray(value) || value.some(entry => typeof entry !== "string")) {
-        throw new Error("The Claude Code permission entry is malformed.");
-      }
+      const desired = requireClaudePermissionRuleArray(value, "reviewed");
       const root = content === null ? {} : parseJsonObject(content);
       const permissions = root.permissions === undefined ? {} : root.permissions;
       if (!isRecord(permissions)) throw new Error("The native permissions value is not an object.");
@@ -733,7 +968,11 @@ function applyEntry(
       if (!Array.isArray(allow) || allow.some(entry => typeof entry !== "string")) {
         throw new Error("The native permissions.allow value is not a string array.");
       }
-      const merged = [...new Set([...(allow as string[]), ...(value as string[])])];
+      const remove = priorOwnedValue === undefined || priorOwnedValue === null
+        ? new Set<string>()
+        : new Set(requireClaudePermissionRuleArray(priorOwnedValue, "receipt"));
+      const preserved = (allow as string[]).filter(entry => !remove.has(entry));
+      const merged = [...new Set([...preserved, ...desired])];
       root.permissions = { ...permissions, allow: merged };
       return `${JSON.stringify(root, null, 2)}\n`;
     }

@@ -15,7 +15,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 - Core deterministic behavior: the TypeScript operation registry, CLI, and MCP surfaces owned by PRDs [25](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [39](39-cli-command-model-and-operation-registry.md).
 - Current selected agentics: explicit Skills and their native harness exposure, owned by PRDs [08](08-skills-catalog-and-distribution.md) and [28](28-shared-agentics-installation-and-harness-exposure.md).
 - Optional integration admission: the evidence and authority gate defined in this document.
-- Support claims: exact evidence-bound tuples owned by PRDs [20](20-agent-harness-conformance-and-support-claims.md), [43](43-conformance-scenario-model-and-execution-kits.md), and [44](44-conformance-lab-sessions-and-evidence.md).
+- Current harness support: source-owned static adapter declarations and direct installed-product proof owned by PRDs [28](28-shared-agentics-installation-and-harness-exposure.md), [10](10-packaging-validation-and-release-reference.md), [16](16-package-runtime-and-deployment-boundaries.md), and [50](50-proportionate-testing-and-human-centered-validation.md).
 - Legacy and project-owned extension artifacts: preservation and ownership classification shared with PRD [18](18-compatibility-classification-and-migration-safety.md).
 
 ## Requirements
@@ -58,7 +58,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 
 ### Support Claims (R-SUPPORT)
 
-- R-SUPPORT-1 (MUST): support wording is limited to current, admitted surfaces with reviewed evidence for the exact tuple defined by PRD 20.
+- R-SUPPORT-1 (MUST): support wording is limited to current admitted adapters and methods with direct installed-product and release evidence under PRDs 10, 16, 28, and 50. No provider, model, runtime, scenario, tuple, registry, or result record broadens the declared static surface.
 - R-SUPPORT-2 (MUST): capability declarations, configuration, documentation, unit tests, and generated files do not establish harness support. Missing, stale, non-comparable, or absent evidence cannot be described as provisional plugin or workflow-bundle support.
 
 ## Non-Requirements
@@ -69,17 +69,17 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 - No one-plugin-per-workflow or one-workflow-per-plugin model.
 - No untraced compatibility promise for a hook, extension, adapter, marketplace, or native plugin API.
 - No plugin-local deterministic business logic or alternate UAT policy.
-- No support claim without exact reviewed conformance evidence.
+- No support claim without direct reviewed installed-product evidence.
 
 ## Acceptance Criteria
 
 - Core routers, resources, CLI, and MCP remain complete with no optional agentics installed.
 - Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output.
 - Every current optional integration has a traced non-Playbook purpose, an owning PRD, explicit selection, lifecycle authority, real harness capability evidence, and an honest support state.
-- Untraced plugin and Playbook-derived packaging surfaces are absent from current manifests, discovery, selection, support claims, and conformance scenarios.
+- Untraced plugin and Playbook-derived packaging surfaces are absent from current manifests, discovery, selection, support claims, and installed-product checks.
 - User-authored, modified, ambiguous, and legacy extension artifacts are preserved unless verified ownership and an accepted migration authorize removal.
 - The optional Naive-UAT Skill delegates to typed CLI operations and contains no duplicated policy.
-- Every setup adapter and shown method is named in PRD 28, passes R-ADMIT, preserves user-owned native configuration, and has the exact PRD 20 support tuple.
+- Every setup adapter and shown method is named in PRD 28, passes R-ADMIT, preserves user-owned native configuration, and passes the direct package, release, and installed-product checks owned by PRDs 10, 16, and 50.
 
 ## Contracts and Data
 
@@ -87,13 +87,21 @@ The R-BOUND, R-ADMIT, R-SELECT, R-LEGACY, R-WORKFLOW, and R-SUPPORT requirements
 
 ## Integrations
 
-PRDs 08 and 28 own current Skills selection and exposure; PRDs 25 and 39 own typed operations and public projections; PRDs 20, 43, and 44 own support evidence; PRD 18 owns migration classification and safety; and PRD 46 owns Naive-UAT policy and anti-coaching semantics.
+PRDs 08 and 28 own current Skills selection and static harness exposure; PRDs 25 and 39 own typed operations and public projections; PRDs 10, 16, 28, and 50 own direct package, release, adapter, and installed-product proof; PRD 18 owns migration classification and safety; and PRD 46 owns Unassisted Goal Testing policy and anti-coaching semantics.
 
 ## Rebuild Notes
 
 A clean-room rebuild must keep core operation independent of agentics, admit no integration without R-ADMIT evidence and authority, preserve ambiguous user artifacts, and resist recreating former Playbook, Protocol, plugin, or workflow-bundle behavior from historical names or paths.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: integration admission, harness support, and installed-product evidence.
+- Previous contract: Dynamic conformance records could broaden support claims for plugins, bundles, or harness methods.
+- Replacement contract: Support is limited to named admitted static adapters and methods with direct installed-product and release evidence. No dynamic fact creates a new integration or support claim.
+- Rationale: The current product has no general plugin or workflow-bundle system and must not retain one through its evidence model.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-12 — W19 R6
 
@@ -137,7 +145,6 @@ A clean-room rebuild must keep core operation independent of agentics, admit no 
 - [../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md](../plans/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md)
 - [../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md](../work/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-index.md)
 - [../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md](../work/2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-index.md)
-- [20 Agent Harness Model Conformance Lab](20-agent-harness-conformance-and-support-claims.md)
 - [21 Tool Directory System Custom Resource Tiers](21-project-tool-directory-and-resource-tiers.md)
 - [24 Configuration Convention Overlay](24-project-configuration-and-convention-overlay.md)
 - [25 CLI Separation and MCP Boundary](25-typescript-runtime-cli-mcp-operation-boundaries.md)

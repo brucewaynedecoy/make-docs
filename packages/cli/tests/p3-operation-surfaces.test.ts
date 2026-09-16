@@ -27,6 +27,7 @@ import {
   listAdmittedOperations,
   operationCliCommand,
 } from "../src/operations/registry";
+import { HarnessOperationAccessDeniedError } from "../src/operations/harness-policy";
 import { runCliEntry } from "../src/run/entry";
 import {
   __setResourceOperationRuntimeForTests,
@@ -441,13 +442,12 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
         allowWrite: true,
       }),
     ).rejects.toBeInstanceOf(OperationApprovalRequiredError);
-    const mcpEnsured = await callMakeDocsMcpTool("make_docs_resource_ensure", {
+    await expect(callMakeDocsMcpTool("make_docs_resource_ensure", {
       ...secondInput,
       allowWrite: true,
       approvals: [SYSTEM_RESOURCE_ENSURE_APPROVAL],
-    });
-    expect(mcpEnsured.result).toMatchObject({ action: "created" });
-    expect(existsSync(path.join(project, projectionPath(secondEntry)))).toBe(true);
+    })).rejects.toBeInstanceOf(HarnessOperationAccessDeniedError);
+    expect(existsSync(path.join(project, projectionPath(secondEntry)))).toBe(false);
 
     const missing = invokeOperation(
       "resource.read",

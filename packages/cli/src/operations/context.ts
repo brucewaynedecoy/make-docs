@@ -6,6 +6,11 @@ import {
   withInstallationDatabase,
 } from "../store/installation-state";
 import { resolveStoreRoot } from "../store/paths";
+import {
+  HARNESS_CALLER_IDENTITY_ENV,
+  parseHarnessCallerIdentity,
+  type HarnessCallerReference,
+} from "../harness-access/contract";
 
 /**
  * The surface an operation invocation originates from. The registry
@@ -13,6 +18,40 @@ import { resolveStoreRoot } from "../store/paths";
  * without any surface loaded (R-TEST-2).
  */
 export type OperationSurface = "cli" | "mcp" | "test";
+export type OperationRoute = "direct-cli" | "mcp" | "native-rule" | "test";
+
+export interface CliOperationLaunch {
+  route: Extract<OperationRoute, "direct-cli" | "native-rule">;
+  callerIdentityRaw?: string;
+  callerReference?: HarnessCallerReference;
+}
+
+/** Resolve and validate the caller identity once at the CLI boundary. */
+export function resolveCliOperationLaunch(
+  callerIdentityRaw = process.env[HARNESS_CALLER_IDENTITY_ENV],
+  callerReference?: HarnessCallerReference,
+): CliOperationLaunch {
+  if (callerIdentityRaw && callerReference) {
+    throw new OperationError("The Make Docs harness caller identity and reference cannot be used together.");
+  }
+  if (callerReference) return Object.freeze({ route: "native-rule", callerReference });
+  if (!callerIdentityRaw) return Object.freeze({ route: "direct-cli" });
+  try {
+    parseHarnessCallerIdentity(callerIdentityRaw);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new OperationError(`The Make Docs harness caller identity is invalid: ${detail}`);
+  }
+  return Object.freeze({ route: "native-rule", callerIdentityRaw });
+}
+
+/** Resolve the explicit CLI route from the product-owned native launch carrier. */
+export function resolveCliOperationRoute(
+  callerIdentityRaw = process.env[HARNESS_CALLER_IDENTITY_ENV],
+  callerReference?: HarnessCallerReference,
+): Extract<OperationRoute, "direct-cli" | "native-rule"> {
+  return resolveCliOperationLaunch(callerIdentityRaw, callerReference).route;
+}
 
 export type OperationStoreSession = <T>(
   access: Exclude<StoreAccess, "none">,
@@ -33,6 +72,11 @@ export type OperationStoreSession = <T>(
  */
 export interface OperationExecutionContext {
   surface: OperationSurface;
+  route: OperationRoute;
+  /** Exact harness identity captured by the calling surface. */
+  callerIdentityRaw?: string;
+  /** Parsed compact caller reference captured at the CLI boundary. */
+  callerReference?: HarnessCallerReference;
   /** Working directory operations resolve relative paths against. */
   cwd: string;
   /**
@@ -175,6 +219,9 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
 export function createExecutionContext(
   input: {
     surface?: OperationSurface;
+    route?: OperationRoute;
+    callerIdentityRaw?: string;
+    callerReference?: HarnessCallerReference;
     cwd?: string;
     writesAllowed?: boolean;
     dryRun?: boolean;
@@ -206,6 +253,9 @@ export function createExecutionContext(
     : createProductionStoreSession(storeRoot));
   return {
     surface: input.surface ?? "test",
+    route: input.route ?? "test",
+    ...(input.callerIdentityRaw ? { callerIdentityRaw: input.callerIdentityRaw } : {}),
+    ...(input.callerReference ? { callerReference: input.callerReference } : {}),
     cwd: input.cwd ?? process.cwd(),
     writesAllowed: input.writesAllowed ?? false,
     dryRun: input.dryRun ?? false,

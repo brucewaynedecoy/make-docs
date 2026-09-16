@@ -3,7 +3,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { getDesiredAssets } from "../src/catalog";
-import { listShippedConformanceAssetErrors } from "../src/conformance";
 import { createProjectSurfaceRouterAssets, createThinRouterAssets } from "../src/project-projection";
 import { getRouterTemplateSourcePath } from "../src/router-paths";
 import { parseManagedBlock } from "../src/managed-block";
@@ -784,8 +783,8 @@ describe("risk register routing contract", () => {
       "R-018 The Playbook Contract, Validator, and Template Copies Could Drift Out of Parity",
       "R-019 Run-State Relocation Depends on an Unlanded Global Store",
       "R-020 W18 R3 Adversarial-Review Surface Exposure Predates the New Playbook, CLI, and State Architecture",
-      "R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Conformance Evidence",
-      "R-022 First-Pass Conformance Scenarios Depend on Real Harness Availability",
+      "R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Direct Proof",
+      "R-022 Installed-Harness Proof Depends on Real Harness Availability",
       "R-023 The Global Store Could Drift Into a Second Source of Truth or Lose Evidence in the Checkpoint Migration",
       "R-024 The Command-Surface Hard Cutover Can Strand Consumers or Leave a Half-Migrated Surface",
       "R-025 Cross-Artifact Coordinate Handoffs Can Drift From Their Assigned Waves and PRDs",
@@ -1032,17 +1031,6 @@ describe("optional skill package consistency", () => {
     }
   });
 });
-
-describe("conformance assets stay maintainer-only (W18 R9 P3, R-TEST-3, R-KEEP-1)", () => {
-  test("the shipped template and the packaged copy carry no conformance assets", () => {
-    // Packaging validation surface wiring: this exclusion check runs behind
-    // `validate:defaults` (and again in the standard suite and the
-    // smoke-pack tarball sweep). A green run proves the maintainer-only
-    // boundary held; it is never a support claim for any harness (R-KEEP-1).
-    expect(listShippedConformanceAssetErrors({ repoRoot: REPO_ROOT })).toEqual([]);
-  });
-});
-
 
 describe("Store-owned installation guidance", () => {
   test("shipped routers reject local operational state and preserve project knowledge", () => {

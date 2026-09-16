@@ -4,6 +4,7 @@ import { classifyCompatibilityState } from "../compatibility";
 import { getConfigRenderingLabels, loadMakeDocsConfigOrThrow } from "../config";
 import { findReviewableManagedFileConflicts, planInstall } from "../install";
 import { loadManifest } from "../manifest";
+import { HARNESS_CALLER_IDENTITY_ENV } from "../harness-access/contract";
 import { createExecutionContext } from "../operations/context";
 import { listOperationDomains } from "../operations/index";
 import {
@@ -216,7 +217,8 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
 export function listMakeDocsMcpTools(
   targetRoot = process.cwd(),
 ): MakeDocsMcpToolDescriptor[] {
-  const projection = resolveProjectHarnessAccessProjection(targetRoot, "mcp");
+  const callerIdentityRaw = process.env[HARNESS_CALLER_IDENTITY_ENV];
+  const projection = resolveProjectHarnessAccessProjection(targetRoot, "mcp", callerIdentityRaw);
   return MAKE_DOCS_MCP_TOOLS.map((tool) => {
     if (!tool.operation || !tool.access) return tool;
     const mcpReady = tool.mcpReady === true &&
@@ -334,6 +336,8 @@ async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promi
     input,
     createExecutionContext({
       surface: "mcp",
+      route: "mcp",
+      callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
       writesAllowed: allowWrite === true,
       dryRun: dryRun === true,
       approvals: Array.isArray(approvals) ? approvals.map(String) : [],

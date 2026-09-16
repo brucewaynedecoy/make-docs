@@ -1,10 +1,13 @@
 import {
-  HARNESS_CALLER_IDENTITY_ENV,
+  encodeHarnessCallerIdentity,
   parseHarnessCallerIdentity,
+  parseHarnessCallerReference,
   requireFirstPartyHarnessAdapter,
+  sha256,
   validateHarnessMethodSelection,
   verifyMakeDocsExecutable,
   type HarnessCallerIdentity,
+  type HarnessCallerReference,
   type HarnessCommandRuleAuthority,
   type HarnessConnectionMethod,
   type HarnessId,
@@ -20,6 +23,7 @@ import { loadGlobalConfig } from "../store/global-config";
 import { readCurrentHarnessIntegrationReceipt } from "../store/harness-integration-receipts";
 import { validateInstallationStoreRoot } from "../store/installation-state";
 import { NO_ACCESS, type OperationAccess } from "./access";
+import type { OperationRoute } from "./context";
 import { OperationError } from "./types";
 
 const FULL_OPERATION_ACCESS: OperationAccess = Object.freeze({
@@ -57,8 +61,23 @@ export class HarnessOperationAccessDeniedError extends OperationError {
 export function resolveProjectHarnessAccessProjection(
   targetRoot: string,
   method: HarnessConnectionMethod,
+  callerIdentityRaw?: string,
+  callerReference?: HarnessCallerReference,
+  runtimeExecutablePath?: string,
 ): ProjectHarnessAccessProjection {
   const records = loadMakeDocsConfigOrThrow(targetRoot).config.harnessIntegrations;
+  let identity: HarnessCallerIdentity | undefined;
+  if (callerIdentityRaw || callerReference) {
+    try {
+      identity = resolveCallerIdentity({
+        callerIdentityRaw,
+        callerReference,
+        runtimeExecutablePath,
+      });
+    } catch (error) {
+      return deniedProjection(`The harness tool-list identity is invalid: ${message(error)}`);
+    }
+  }
   if (records.length === 0) {
     return {
       configured: false,
@@ -66,21 +85,44 @@ export function resolveProjectHarnessAccessProjection(
       reason: "The project has no harness access override.",
     };
   }
-  let access = { ...FULL_OPERATION_ACCESS };
-  for (const record of records) {
-    if (!safeFirstPartyRecord(record)) {
-      return deniedProjection(`Project harness '${record.harness}' has no runtime adapter.`);
-    }
-    if (record.mode === "disable" || (record.method && record.method !== method)) {
-      access = { ...NO_ACCESS };
-      continue;
-    }
-    if (record.accessCeiling) access = intersectAccess(access, record.accessCeiling);
+
+  if (!identity) {
+    return deniedProjection("The harness tool list has no native launch identity.");
+  }
+
+  let adapter: ReturnType<typeof requireFirstPartyHarnessAdapter>;
+  try {
+    adapter = requireFirstPartyHarnessAdapter(identity.harnessId);
+  } catch (error) {
+    return deniedProjection(`The harness tool-list identity is not supported: ${message(error)}`);
+  }
+  if (
+    identity.adapterId !== adapter.id ||
+    identity.adapterVersion !== adapter.version ||
+    identity.connectionMethod !== method ||
+    identity.scope !== "machine"
+  ) {
+    return deniedProjection("The harness tool-list identity does not match the active adapter method.");
+  }
+
+  const record = records.find(candidate => candidate.harness === identity.harnessId);
+  if (!record) {
+    return {
+      configured: true,
+      access: { ...FULL_OPERATION_ACCESS },
+      reason: `Project harness '${identity.harnessId}' has no access override.`,
+    };
+  }
+  if (!safeFirstPartyRecord(record)) {
+    return deniedProjection(`Project harness '${record.harness}' has no runtime adapter.`);
+  }
+  if (record.mode === "disable" || (record.method && record.method !== method)) {
+    return deniedProjection(`Project harness '${record.harness}' does not admit method '${method}'.`);
   }
   return {
     configured: true,
-    access,
-    reason: "Access is the intersection of every applicable project harness limit.",
+    access: record.accessCeiling ? { ...record.accessCeiling } : { ...FULL_OPERATION_ACCESS },
+    reason: `Access uses the active '${record.harness}' project harness limit.`,
   };
 }
 
@@ -88,32 +130,36 @@ export function resolveProjectHarnessAccessProjection(
 export function resolveHarnessOperationPolicy(input: {
   targetRoot: string;
   storeRoot: string;
+  route: Exclude<OperationRoute, "test">;
   callerIdentityRaw?: string;
+  callerReference?: HarnessCallerReference;
+  /** Test seam. Production uses the exact executable in process.argv[1]. */
+  runtimeExecutablePath?: string;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
 }): HarnessOperationPolicyResult {
   const loadedProject = loadMakeDocsConfigOrThrow(input.targetRoot);
   const records = loadedProject.config.harnessIntegrations;
-  const rawIdentity = input.callerIdentityRaw ?? process.env[HARNESS_CALLER_IDENTITY_ENV];
-  if (!rawIdentity && records.length === 0) {
+  const hasCaller = Boolean(input.callerIdentityRaw || input.callerReference);
+  if (input.route === "direct-cli") {
     return {
-      configured: false,
-      verified: false,
+      configured: records.length > 0,
+      verified: true,
       access: { ...FULL_OPERATION_ACCESS },
       harnesses: [],
       methods: [],
-      reason: "No harness caller or project harness limit applies to this direct CLI call.",
+      reason: "The operation came from the explicit trusted direct CLI route.",
     };
   }
 
-  if (!rawIdentity) {
+  if (!hasCaller) {
     return {
-      configured: true,
+      configured: records.length > 0,
       verified: false,
       access: { ...NO_ACCESS },
       harnesses: records.map(record => record.harness),
       methods: [],
       reason:
-        "The Store-backed call has no harness-proved native launch identity. " +
+        `The ${input.route} Store-backed call has no harness-proved native launch identity. ` +
         "An executable path, native rule, or project setting alone cannot grant Store access.",
     };
   }
@@ -122,9 +168,15 @@ export function resolveHarnessOperationPolicy(input: {
   const global = loadGlobalConfig(storeRoot).config;
   let identity: HarnessCallerIdentity;
   try {
-    identity = parseHarnessCallerIdentity(rawIdentity);
+    identity = resolveCallerIdentity(input);
   } catch (error) {
     throw denied(`The harness caller identity is invalid: ${message(error)}`);
+  }
+  if (input.route === "mcp" && identity.connectionMethod !== "mcp") {
+    throw denied("The MCP route needs an exact MCP caller identity.");
+  }
+  if (input.route === "native-rule" && identity.connectionMethod === "mcp") {
+    throw denied("The native-rule route needs an exact command-rule or permission-rule caller identity.");
   }
   const project = records.find((record) => record.harness === identity.harnessId);
   const access = verifyIntegration({
@@ -150,7 +202,10 @@ export function assertHarnessOperationAllowed(input: {
   required: OperationAccess;
   targetRoot: string;
   storeRoot: string;
+  route: Exclude<OperationRoute, "test">;
   callerIdentityRaw?: string;
+  callerReference?: HarnessCallerReference;
+  runtimeExecutablePath?: string;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
 }): HarnessOperationPolicyResult {
   const policy = resolveHarnessOperationPolicy(input);
@@ -161,6 +216,89 @@ export function assertHarnessOperationAllowed(input: {
     );
   }
   return policy;
+}
+
+/** Check a native Store-free call without opening or verifying the Store. */
+export function assertStoreFreeHarnessOperationAllowed(input: {
+  operation: string;
+  required: OperationAccess;
+  targetRoot: string;
+  route: Extract<OperationRoute, "mcp" | "native-rule">;
+  callerIdentityRaw?: string;
+  callerReference?: HarnessCallerReference;
+  runtimeExecutablePath?: string;
+}): ProjectHarnessAccessProjection {
+  let identity: HarnessCallerIdentity;
+  try {
+    identity = resolveCallerIdentity(input);
+  } catch (error) {
+    throw denied(`The harness caller identity is invalid: ${message(error)}`);
+  }
+  if (input.route === "mcp" && identity.connectionMethod !== "mcp") {
+    throw denied("The MCP route needs an exact MCP caller identity.");
+  }
+  if (input.route === "native-rule" && identity.connectionMethod === "mcp") {
+    throw denied("The native-rule route needs an exact command-rule or permission-rule caller identity.");
+  }
+  const projection = resolveProjectHarnessAccessProjection(
+    input.targetRoot,
+    identity.connectionMethod,
+    input.callerIdentityRaw,
+    input.callerReference,
+    input.runtimeExecutablePath,
+  );
+  if (!accessAtMost(input.required, projection.access)) {
+    throw denied(
+      `Harness access for this project does not allow operation '${input.operation}'. ` +
+        `It needs ${formatAccess(input.required)}, but effective access is ${formatAccess(projection.access)}.`,
+    );
+  }
+  return projection;
+}
+
+function resolveCallerIdentity(input: {
+  callerIdentityRaw?: string;
+  callerReference?: HarnessCallerReference;
+  runtimeExecutablePath?: string;
+}): HarnessCallerIdentity {
+  if (input.callerIdentityRaw && input.callerReference) {
+    throw new Error("The harness caller identity and reference cannot be used together.");
+  }
+  if (input.callerIdentityRaw) return parseHarnessCallerIdentity(input.callerIdentityRaw);
+  if (!input.callerReference) throw new Error("The harness caller identity is missing.");
+
+  const parsed = parseHarnessCallerReference(input.callerReference.raw);
+  if (
+    parsed.harnessId !== input.callerReference.harnessId ||
+    parsed.connectionMethod !== input.callerReference.connectionMethod ||
+    parsed.adapterVersion !== input.callerReference.adapterVersion ||
+    parsed.root !== input.callerReference.root ||
+    parsed.identitySha256 !== input.callerReference.identitySha256
+  ) {
+    throw new Error("The parsed harness caller reference changed after CLI validation.");
+  }
+  const adapter = requireFirstPartyHarnessAdapter(parsed.harnessId);
+  if (adapter.version !== parsed.adapterVersion) {
+    throw new Error("The harness caller reference does not match the active adapter version.");
+  }
+  const executablePath = input.runtimeExecutablePath ?? process.argv[1];
+  if (!executablePath) throw new Error("The running Make Docs executable path is unavailable.");
+  const executable = verifyMakeDocsExecutable({ executablePath });
+  const identity: HarnessCallerIdentity = {
+    schemaVersion: 1,
+    kind: "make-docs-harness-caller",
+    adapterId: adapter.id,
+    adapterVersion: adapter.version,
+    harnessId: parsed.harnessId,
+    connectionMethod: parsed.connectionMethod,
+    scope: "machine",
+    root: parsed.root,
+    executable,
+  };
+  if (sha256(encodeHarnessCallerIdentity(identity)) !== parsed.identitySha256) {
+    throw new Error("The harness caller reference digest does not match the running Make Docs identity.");
+  }
+  return identity;
 }
 
 export function accessAtMost(required: OperationAccess, ceiling: OperationAccess): boolean {

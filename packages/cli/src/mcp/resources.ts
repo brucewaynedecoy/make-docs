@@ -1,5 +1,6 @@
 import path from "node:path";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
+import { HARNESS_CALLER_IDENTITY_ENV } from "../harness-access/contract";
 import { createExecutionContext } from "../operations/context";
 import { invokeOperation } from "../operations/registry";
 import { ResourceOperationError } from "../operations/resource";
@@ -43,7 +44,12 @@ export async function listNativeMcpResources(targetRoot = process.cwd()) {
   const invocation = await invokeOperation(
     "resource.list",
     { targetRoot: path.resolve(targetRoot) },
-    createExecutionContext({ surface: "mcp", cwd: targetRoot }),
+    createExecutionContext({
+      surface: "mcp",
+      route: "mcp",
+      callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
+      cwd: targetRoot,
+    }),
   ).catch(throwNativeResourceError);
   const value = invocation.value as unknown as ResourceListValue;
   return {
@@ -73,7 +79,12 @@ export async function readNativeMcpResource(uri: string, targetRoot = process.cw
   const invocation = await invokeOperation(
     "resource.read",
     { uri, targetRoot: path.resolve(targetRoot) },
-    createExecutionContext({ surface: "mcp", cwd: targetRoot }),
+    createExecutionContext({
+      surface: "mcp",
+      route: "mcp",
+      callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
+      cwd: targetRoot,
+    }),
   ).catch(throwNativeResourceError);
   const value = invocation.value as unknown as ResourceReadValue;
   const { content, ...metadata } = value.resource;

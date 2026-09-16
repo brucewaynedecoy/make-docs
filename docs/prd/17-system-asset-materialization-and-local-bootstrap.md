@@ -42,7 +42,7 @@ System asset boundary:
 - Instruction routers are installed bootstrap assets rather than a fifth content-resource type. Deterministic runtime helpers are package code, not content resources.
 - Mutable project artifacts are not provider-resolved system assets. This includes designs, plans, PRDs, work backlogs, authored guides, history records, local custom overlays, and local config.
 - Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
-- Conformance-lab scenario specs, result records, raw transcripts, provider logs, and temporary run artifacts are not provider-resolved system assets. [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md), PRD 43, and PRD 44 keep them maintainer-only unless those owning PRDs are authoritatively updated to promote a reviewed subset.
+- Dynamic support registries, lab scenarios, result records, raw transcripts, provider logs, bootstrap assets, and temporary lab artifacts are not provider-resolved system assets and do not ship. [PRDs 10](./10-packaging-validation-and-release-reference.md) and [16](./16-package-runtime-and-deployment-boundaries.md) own this package boundary.
 - `.make-docs/` holds project-owned identity/config, bootstrap routers, optional resource bodies, and approved content copies. The Store owns manifests, conflict decisions, cache metadata, provider/projection metadata, audit state, and migration/recovery records. Cache payloads remain under the existing provider/content contract and are separate from the operational Store. Operational records never move into `docs/assets/` or another project directory.
 - [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) extends this boundary by defining the always-local `.make-docs/system/**` router skeleton, optional resource bodies, and project-owned overlays while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
 - Playbooks and Protocols are not system-resource types, projection families, provider content kinds, or runtime authorities.
@@ -111,6 +111,14 @@ R-ASSET-BOOT-1 (MUST): short, always-present documentation routing carries the t
 R-ASSET-BOOT-2 (MUST): `project.surface.ensure assets` creates or safely adopts only the assets root and configured-harness root routers. Child directories appear only for actual content. The current typed system-router skeleton is unaffected. Review and remove obsolete empty system directories separately from this required skeleton; handle nonempty legacy resources through PRD 18.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: system asset and provider boundary.
+- Previous contract: Dynamic support registries, lab scenarios, results, transcripts, provider logs, and bootstrap files could be treated as system resources or shipped assets.
+- Replacement contract: These lab and conformance records are not provider-resolved system assets and do not ship.
+- Rationale: Store-free system resources must stay distinct from harness permission and support evidence.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-12 — W19 R6
 

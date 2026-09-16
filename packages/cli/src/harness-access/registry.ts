@@ -11,20 +11,29 @@ function method(
   id: HarnessConnectionMethod,
   nativeFormat: HarnessMethodDefinition["nativeFormat"],
   nativeFile: (scope: HarnessScope) => string,
-  requiresCommandRules = false,
+  options: {
+    ownedEntry: string;
+    requiresCommandRules?: boolean;
+    availability?: HarnessMethodDefinition["availability"];
+    blocker?: string | null;
+    nextAction?: string;
+  },
 ): HarnessMethodDefinition {
   return Object.freeze({
     id,
     scopes: Object.freeze(["machine", "project"] as const),
     nativeFormat,
     requiresExecutable: true,
-    requiresCommandRules,
+    requiresCommandRules: options.requiresCommandRules ?? false,
     nativeFile,
-    admittedOperations: "operation-registry-derived",
-    accessRequirements: "operation-registry-derived",
+    ownedEntries: Object.freeze([options.ownedEntry]),
+    allowedStoreOperations: options.requiresCommandRules
+      ? "bounded-command-rule-registry"
+      : "active-operation-registry",
     implementationState: "implemented",
-    publicSupportClaim: false,
-    conformanceState: "not-run",
+    availability: options.availability ?? "available",
+    blocker: options.blocker ?? null,
+    nextAction: options.nextAction ?? "Review this method, then apply the grouped setup plan",
   });
 }
 
@@ -33,15 +42,18 @@ export const CODEX_HARNESS_ADAPTER = createHarnessAdapter({
   version: 1,
   harnessId: "codex",
   displayName: "Codex",
+  executableNames: Object.freeze(["codex"]),
   projectRouterFiles: Object.freeze(["AGENTS.md"]),
   skillRoots: Object.freeze([".agents/skills", ".codex/skills"]),
   methods: Object.freeze([
-    method("mcp", "codex-mcp-toml", () => ".codex/config.toml"),
+    method("mcp", "codex-mcp-toml", () => ".codex/config.toml", {
+      ownedEntry: "mcp_servers.make_docs",
+    }),
     method(
       "command-rules",
       "codex-command-rules",
       () => ".codex/rules/make-docs.rules",
-      true,
+      { ownedEntry: "make-docs.command-rules", requiresCommandRules: true },
     ),
   ]),
 });
@@ -51,6 +63,7 @@ export const CLAUDE_CODE_HARNESS_ADAPTER = createHarnessAdapter({
   version: 1,
   harnessId: "claude-code",
   displayName: "Claude Code",
+  executableNames: Object.freeze(["claude"]),
   projectRouterFiles: Object.freeze(["CLAUDE.md"]),
   skillRoots: Object.freeze([".claude/skills"]),
   methods: Object.freeze([
@@ -58,12 +71,21 @@ export const CLAUDE_CODE_HARNESS_ADAPTER = createHarnessAdapter({
       "mcp",
       "claude-mcp-json",
       scope => (scope === "machine" ? ".claude.json" : ".mcp.json"),
+      { ownedEntry: "mcpServers.make-docs" },
     ),
     method(
       "permission-rules",
       "claude-permission-json",
       () => ".claude/settings.json",
-      true,
+      {
+        ownedEntry: "permissions.allow.make-docs",
+        requiresCommandRules: true,
+        availability: "blocked",
+        blocker:
+          "Claude Code does not select or preserve the exact receipt-bound Make Docs command for permission-rule matching.",
+        nextAction:
+          "Use Claude Code MCP setup while Make Docs evaluates a shorter safe command carrier",
+      },
     ),
   ]),
 });
@@ -78,7 +100,7 @@ export const PI_HARNESS_SUPPORT = Object.freeze({
   state: "unsupported" as const,
   publicSupportClaim: false as const,
   reason:
-    "No first-party Make Docs Pi extension has passed lifecycle, installed-product, and real Pi conformance.",
+    "Make Docs does not ship a first-party Pi adapter.",
 });
 
 export function getFirstPartyHarnessAdapter(harnessId: string): HarnessAdapter | undefined {

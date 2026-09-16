@@ -1,7 +1,7 @@
 ---
 title: "W19 R6 Unified Setup and Harness Access Plan"
 kind: "plan"
-status: "active"
+status: "complete"
 coordinate: "W19 R6"
 source:
   type: "design"
@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "P3 must correct product authority before it changes the P2 implementation or runs installed acceptance."
-  coordinate_handoff: "Keep P1 incomplete, keep P2 as superseded evidence, and use W19 R6 P3 for the next authorized work."
+  why: "P3 and W19 R6 are complete. Keep P1 and P2 as superseded history and use the P3 evidence for the accepted static-adapter result."
+  coordinate_handoff: "Carry later work as a new accepted coordinate. Do not reopen P1 or P2."
 ---
 
 # W19 R6 Unified Setup and Harness Access Plan
@@ -42,7 +42,7 @@ Setup must grant no broader access than the person reviewed. A project setting c
 - Coordinate: `W19 R6`
 - Classification: `revision`
 - Evidence: This work corrects the user setup and restricted-agent boundary of W19 R3 Store ownership and W19 R5 managed Skills. P2 exposed retained Playbooks conformance authority that does not match the current product.
-- Phase count: Three phases in the same revision. P1 is incomplete. P2 is superseded. P3 has three ordered stages for authority reset, product correction, and installed acceptance. No partial stage is a complete release.
+- Phase count: Three phases in the same revision. P1 is superseded and incomplete. P2 is superseded. P3 has three ordered stages for authority reset, product correction, and installed acceptance. No partial stage is a complete release.
 
 ## Maintenance Inputs
 
@@ -57,6 +57,8 @@ Setup must grant no broader access than the person reviewed. A project setting c
 | W19 R6 P1 and P2 code and evidence | Foundation and gap evidence | Useful implementation input; not accepted feature delivery |
 
 ## Human Experience Propagation
+
+The accepted P3 design replaces this early seven-row planning trace with the six P3 promises. The P3 promise set is the current closeout set. The rows below remain planning lineage and do not create a second review.
 
 | Promise | Owning PRD | Surface or effect | Work phase | Evidence | Accepted obligation |
 | --- | --- | --- | --- | --- | --- |
@@ -77,11 +79,11 @@ Setup must grant no broader access than the person reviewed. A project setting c
 | Skills inside harness setup and the focused shortcut | `update-existing` | PRD 08 owns Skill selection and lifecycle. |
 | Resource placement and Store-free reads | `update-existing` | PRD 17 owns system resources. PRD 25 owns shared operation surfaces. |
 | Static method support | `update-existing` | PRD 28 owns built-in harness adapters. |
-| Project harness integration settings | `update-existing` | PRD 24 owns project config. The new field does not reuse `harnessCapabilities`. |
+| Project harness integration settings | `link-only` | PRD 24 already owns project config and the separate `harnessIntegrations` field. P3 preserves that contract. |
 | Per-operation access metadata and surface derivation | `update-existing` | PRDs 25 and 39 own the operation core and registry. |
 | Native MCP, rule, permission, and extension adapters | `update-existing` | PRD 28 owns installed harness exposure. |
 | Adapter admission and future Pi boundary | `update-existing` | PRD 30 owns source review. Dynamic conformance is removed. Pi is not claimed. |
-| Global harness defaults, receipts, and drift | `update-existing` | PRD 38 owns global config and operational evidence. |
+| Global harness defaults, receipts, and drift | `link-only` | PRD 38 already owns global config and operational evidence. P3 preserves that contract. |
 | Human Experience standard | `none` | PRD 49 already owns the cross-cutting standard. This package applies it and does not change it. |
 | Harness conformance claims | `remove-from-active` | Retire PRD 20 after valid safety rules move to PRDs 25 and 28. |
 | Conformance scenarios and lab sessions | `remove-from-active` | Retire PRDs 43 and 44. Direct product tests replace their setup role. |
@@ -98,7 +100,7 @@ Setup must grant no broader access than the person reviewed. A project setting c
 | [25 Runtime Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | Own caller identity, narrow Store access, and Store-free reads. | Shared core, write gates, and parity. |
 | [28 Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | Replace conformance admission with static Codex and Claude Code adapters. | Skill ownership, native entries, and safe lifecycle. |
 | [39 Command Model](../../prd/39-cli-command-model-and-operation-registry.md) | Keep the exact interactive and non-interactive setup grammar. | Current commands and operation ids. |
-| PRDs 10, 16, 30, 36, 38, 48, and 50 | Remove old conformance links and keep each document's current package, adapter, receipt, performance, or evidence scope. | Existing non-Playbook requirements. |
+| PRDs 08, 10, 14, 16, 17, 30, 34, 35, 36, 46, 48, and 50 | Remove old conformance links and keep each document's current Skill, package, lifecycle, resource, Playbook boundary, testing, performance, or evidence scope. | Existing non-Playbook requirements and no-capability boundaries. |
 | PRDs 20, 43, and 44 | Remove from the active PRD set. | Git history preserves prior meaning. |
 
 ## Genuinely New Product PRDs
@@ -120,11 +122,11 @@ Each changed current PRD gets one `2026-09-14 — W19 R6 P3` entry. It records t
 ## Output Contract and Ownership
 
 - Plan: `docs/plans/2026-09-12-w19-r6-unified-setup-and-harness-access/`
-- P3 PRD changes: update 00, 07, 10, 16, 24, 25, 28, 30, 36, 38, 39, 48, and 50 as needed; retire 20, 43, and 44; update D-033
+- P3 PRD changes: update 00, 07, 08, 10, 14, 16, 17, 25, 28, 30, 34, 35, 36, 39, 46, 48, and 50; retire 20, 43, and 44; update D-033
 - Delta backlog: `docs/work/2026-09-12-w19-r6-unified-setup-and-harness-access/`
 - New PRDs: none
 - Implementation files: selected `packages/cli/src/**`, `packages/cli/tests/**`, package docs, harness fixtures, and traced conformance-only paths named by P3
-- Existing unrelated edits in `packages/cli/src/wizard.ts`, `packages/cli/tests/wizard.test.ts`, and W20 work files must be preserved and reconciled before implementation edits begin.
+- Existing unrelated edits in `packages/cli/src/wizard.ts`, `packages/cli/tests/wizard.test.ts`, and W20 work files were preserved during implementation. Review and closeout must continue to preserve them.
 
 Implementation must classify the existing P2 diff by changed block before it edits or removes code.
 
@@ -145,14 +147,14 @@ Implementation must classify the existing P2 diff by changed block before it edi
 - Prove separate system and project receipts and recovery.
 - Prove no system write occurs without explicit system approval.
 - Run the full CLI suite, Store verification suite, packed CLI smoke tests, MCP checks, and real Codex and Claude Code operations.
-- Apply Human Experience Review to each promise. Record the evidence, observation, conclusion, reviewer, and limit.
+- Apply the agent-owned Human Experience Review to each promise. Record the evidence, observation, conclusion, reviewer, and limit. Do not require an owner response unless accepted authority explicitly defines a human acceptance gate.
 - Run `make-docs run prd authority validate --target-root .` after PRD reconciliation.
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. This documentation turn creates the P3 authority package. It does not authorize P3 implementation or real-harness work.
+This handoff is advisory-default-but-overridable. P3 and W19 R6 are complete. P1 and P2 remain superseded history.
 
-- Route: `prd-generation`
-- Next step: Review and authorize P3. Then execute its authority-reset stage first.
-- Why: Code cleanup must use corrected current PRDs, not the retired conformance contract.
-- Coordinate Handoff: Keep P1 incomplete and P2 superseded. Use `W19 R6 P3` for the next implementation, evidence, and later commits.
+- Route: `implementation-loop`
+- Next step: Use a new accepted coordinate for later setup or harness-access changes.
+- Why: All ten P3 hard close rules pass. The agent-owned review records `satisfied` for all six promises. No explicit human acceptance gate applies.
+- Coordinate Handoff: Keep P1 and P2 as superseded evidence. Keep `W19 R6 P3` as the completed correction and closeout record.

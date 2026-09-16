@@ -8,7 +8,11 @@ import {
   requiredValue,
   type OperationOptions,
 } from "../operations/cli-options";
-import { createExecutionContext } from "../operations/context";
+import {
+  createExecutionContext,
+  resolveCliOperationLaunch,
+  type CliOperationLaunch,
+} from "../operations/context";
 import {
   hasOperation,
   getOperation,
@@ -431,12 +435,9 @@ function printRunHelp(): void {
 }
 
 /**
- * The adapted form of one `make-docs run` argv: the spelled id, the registry
- * identifier it dispatches, the parsed options, and the adapter's invocation
- * (typed input plus context overlay). Exposed for the W18 R13 conformance kit
- * generator's executable-by-construction check (PRD 43 R-KIT-3): projecting a
- * scenario command through the REAL resolver and adapters — never a parallel
- * parser — proves the current CLI accepts it, without executing anything.
+ * The adapted form of one `make-docs run` argv.
+ * Operation routing and safety tests use this value to check the real parser,
+ * registry identifier, typed input, and context overlay without running the operation.
  */
 export interface AdaptedRunCliInvocation {
   /** The resolved CLI path id; may be a declared spelling key. */
@@ -488,7 +489,11 @@ export interface RunCommandSeams {
   isTty?: boolean;
 }
 
-export async function runRunCommand(argv: string[], seams: RunCommandSeams = {}): Promise<void> {
+export async function runRunCommand(
+  argv: string[],
+  seams: RunCommandSeams = {},
+  launch: CliOperationLaunch = resolveCliOperationLaunch(),
+): Promise<void> {
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     printRunHelp();
     return;
@@ -500,6 +505,9 @@ export async function runRunCommand(argv: string[], seams: RunCommandSeams = {})
     input,
     createExecutionContext({
       surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
       writesAllowed: true,
       // A declared spelling may supply the dry-run overlay.
       dryRun: spellingDryRun ?? context?.dryRun ?? false,

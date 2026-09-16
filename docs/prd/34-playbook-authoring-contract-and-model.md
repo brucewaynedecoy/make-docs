@@ -53,7 +53,7 @@ General system workflows use first-class contracts, prompts, references, templat
 ### Public and Internal Surface (R-SURFACE)
 
 - R-SURFACE-1 (MUST): outside the frozen P3 compatibility set, no `playbook.*` or `protocol.*` authoring, catalog, validation, or discovery operation appears in the current operation registry, CLI, or MCP surface.
-- R-SURFACE-2 (MUST): current support claims and conformance scenarios contain no Playbook/Protocol authoring tuple. Historical conformance records may remain only as provenance.
+- R-SURFACE-2 (MUST): no source-owned static harness adapter declares Playbook/Protocol authoring, and direct installed-product proof cannot claim that behavior. Historical conformance records may remain only as provenance.
 
 ## Non-Requirements
 
@@ -84,6 +84,14 @@ PRD 18 owns migration classification and safe disposition; PRD 22 owns project d
 A clean-room rebuild must not infer a Playbook/Protocol product from historical filenames, schemas, operations, or source anchors. It must preserve ambiguous user content, use capability-specific system workflows, and keep prior contracts visible only as non-normative history.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: current Playbook and Protocol authoring surface.
+- Previous contract: Historical conformance records could be read as present support evidence for Playbook or Protocol authoring.
+- Replacement contract: No static harness adapter declares that authoring surface, and direct installed-product proof cannot claim it. Historical records remain provenance only.
+- Rationale: Retiring dynamic conformance must not restore removed Playbook or Protocol behavior through support language.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-08 — Not assigned
 

@@ -51,13 +51,13 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
 
 - R-SETUP-CLI-1 (MUST): the interactive project flow shows project state, harness selection, support methods for each harness, any missing machine setup, system-resource placement, and one exact grouped review. It does not ask for document types on a fresh project.
-- R-SETUP-CLI-2 (MUST): each harness method is described by the access it grants and the operations it enables. The CLI does not describe MCP as required for all harnesses. It shows only methods that the harness adapter admits and current conformance evidence permits Make Docs to claim.
+- R-SETUP-CLI-2 (MUST): each harness method is described by the access it grants and the operations it enables. The CLI does not describe MCP as required for all harnesses. It shows only methods that the source-owned static harness adapter declares and that direct product and release checks prove.
 - R-SETUP-CLI-3 (MUST): the review groups effects under `This computer` and `This project`. Machine writes require a separate approval. Apply completes and verifies the machine operation before it starts the project operation.
 - R-SETUP-CLI-4 (MUST): `setup system` opens the machine portion directly. Project setup may open the same flow inline. `setup reconfigure` and `setup skills` use the same state and planning services. Backup and removal remain separate flows.
 - R-SETUP-CLI-5 (MUST): harness detection assists the user but never limits the supported list or counts as installed support. A skipped method remains a valid choice, and the review explains the resulting agent limits without describing Store-free resource reads as blocked.
 - R-SETUP-CLI-6 (MUST): the resource placement step offers the installed provider, all local copies, or selected resource types. It explains that local copies improve portability and direct file access. It does not say that copies grant Store access or harness permission.
 - R-SETUP-CLI-7 (MUST): after harness selection, the flow presents one method-and-access screen for each selected harness. That screen includes the harness's optional Skills. The project resource step follows all harness screens. The final review then separates computer and project changes.
-- R-SETUP-CLI-8 (MUST): a method is selectable only when production setup loads an eligible exact tuple from the central conformance registry. An unavailable method remains visible only when its reason and one useful next action help the person. The action must change a condition or open the owning setup path. It must not only rerun the same blocked command.
+- R-SETUP-CLI-8 (MUST): a method is selectable only when the source-owned static adapter declares it and the method is implemented. Setup does not use a provider, model, runtime, scenario, tuple, result record, or support registry as an eligibility gate. An unavailable method remains visible only when its reason and one useful next action help the person. The action must change a condition or open the owning setup path. It must not only rerun the same blocked command.
 - R-SETUP-CLI-9 (MUST): apply writes the reviewed project harness selection to `.make-docs/config.yaml` through the config-preserving writer. A repeat reads the saved project choice, live native state, Store receipt, and pending operation. It reports current, drifted, blocked, unsupported, or incomplete state before it asks for a change.
 - R-SETUP-CLI-10 (MUST): non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested. Missing, conflicting, or unsupported method input fails before writes. `--dry-run` uses the same resolution and prints the exact machine and project plan. `--yes` is approval only. It never selects `none` or another method.
 - R-SETUP-CLI-11 (MUST): `setup`, `setup reconfigure`, and `setup skills` inspect pending Store work for the target checkout before the first editable question. A pending operation stops the new setup flow and reports its operation type, saved-plan state, last safe stage, and one permitted next action. The stopped flow writes no project file, Store row, backup, or native configuration.
@@ -128,7 +128,7 @@ Code anchors:
 
 - Any provider-backed or hybrid pinned-cache path must be explicit, explain provider outage recovery locally, and route on-demand writes through the same review and managed-file conflict safety as ordinary install; [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md) owns the mode and provenance details.
 - Ordinary setup/reconfigure may recommend `backup-and-reinstall`, but it must not perform that destructive disposition implicitly. Migration flows surface `sync`, `migrate`, `migrate-with-review`, `backup-and-reinstall`, or `manual-review-required` before apply under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
-- Shipped harness behavior remains Codex and Claude Code; OpenCode, Goose, Pi, and future IDEs are lab adapter targets until supported by the evidence contract in [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md).
+- Shipped harness behavior remains Codex and Claude Code. [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md) owns their static adapters. [PRD 30](./30-plugin-substrate-and-workflow-bundles.md) owns admission of any future harness integration. [PRDs 10](./10-packaging-validation-and-release-reference.md), [16](./16-package-runtime-and-deployment-boundaries.md), and [50](./50-proportionate-testing-and-human-centered-validation.md) own direct package, release, and installed-product proof.
 - MCP tools delegate to the same TypeScript operation-domain contracts as CLI surfaces rather than defining a second behavior model; [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) owns that runtime boundary.
 - First-party helper behavior moves into tested modular TypeScript CLI/shared-core operations before standalone scripts are removed or reduced to thin wrappers, and CLI commands plus MCP tools share those operation semantics.
 - `setup skills` and every full-install skill-selection surface use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation under [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md).
@@ -209,6 +209,14 @@ Code and documentation anchors:
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: `Interactive Selection Contract` and harness method support.
+- Previous contract: Setup used dynamic provider, model, runtime, scenario, tuple, registry, and result facts to decide whether a harness method was selectable.
+- Replacement contract: Setup shows only methods declared by source-owned static adapters and proved by direct installed-product and release checks. Blocked methods name one useful next action.
+- Rationale: The dynamic gate made safe installed methods unavailable and could not be satisfied by normal setup.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-15 — W19 R7
 

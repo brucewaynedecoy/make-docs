@@ -34,16 +34,16 @@ The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. D
 
 ### Harness Connection Methods
 
-- R-HARNESS-1 (MUST): each supported harness has a bounded first-party adapter. The adapter declares detection evidence, native configuration paths, supported connection methods, admitted operations, access requirements, planning, apply, verification, drift, removal, and conformance identity.
-- R-HARNESS-2 (MUST): Codex can offer MCP or bounded verified-executable command rules. Claude Code can offer MCP or native permission rules. A method is shown only when it is implemented and has the support evidence required by PRD 20.
-- R-HARNESS-3 (MUST): Pi can offer a first-party extension only after that extension has its own implementation, lifecycle safety, installed-product proof, and real Pi conformance. A third-party MCP extension does not satisfy this contract and does not become a Make Docs dependency.
+- R-HARNESS-1 (MUST): each supported harness has a bounded first-party static adapter. The adapter declares a stable id and name, detection evidence, native configuration paths and methods, owned native entries, allowed Store operations, planning, apply, verification, repair, removal, blocker reasons, and useful next actions.
+- R-HARNESS-2 (MUST): Codex can offer MCP or bounded verified-executable command rules. Claude Code can offer MCP or native permission rules. A method is shown only when the source-owned adapter declares it, the method is implemented, and direct product and release checks prove the installed behavior.
+- R-HARNESS-3 (MUST): Pi can offer a first-party extension only after that extension has its own implementation, lifecycle safety, direct installed-product proof, and accepted adapter admission. A third-party MCP extension does not satisfy this contract and does not become a Make Docs dependency.
 - R-HARNESS-4 (MUST): detection suggests installed harnesses but does not prove a connection or limit manual selection. Native configuration and verified receipts determine effective state.
 - R-HARNESS-5 (MUST): command rules name the verified Make Docs executable and the smallest admitted command prefix for each access class. They never grant a shell wrapper, package runner, broad Make Docs command, or machine lifecycle command.
 - R-HARNESS-6 (MUST): adapter planning preserves unknown and user-owned native configuration. Apply changes only exact reviewed entries. Verification reads the live native state and records a separate Store receipt for each machine and project operation.
 - R-HARNESS-7 (MUST): repeat setup reports `current`, `missing`, `drifted`, `unsupported`, or `blocked` for each method. It repairs only reviewed Make Docs-owned drift and never treats elapsed time, a matching name, or a detected file as ownership proof.
 - R-HARNESS-8 (MUST): Codex command rules use exact verified Make Docs executable prefixes and Codex's native allow-rule form. Real Codex proof must show that the admitted command runs outside the restricted sandbox, that a non-admitted command does not gain that access, and that exact caller and method identity reach the shared operation policy.
 - R-HARNESS-9 (MUST): Claude Code native permission rules and Claude Code sandbox file access are separate controls. A Claude rules method is supported only when disposable real-harness proof shows that the exact admitted command can reach the Store without broad home-directory access. Make Docs never adds a broad `~/.make-docs` or home write allowance. If no safe narrow form is available, setup leaves the method unavailable and names MCP as the safe configured alternative when MCP is proved.
-- R-HARNESS-10 (MUST): adapter support state comes from the validated central seven-part tuple registry. The production adapter path cannot accept a reviewed plan or evidence object that only tests can supply. A lab bootstrap can prepare a provisional tuple, but only a recorded real-harness result can make the method selectable.
+- R-HARNESS-10 (MUST): source-owned static adapter declarations are the only production method inventory. Provider, model, runtime, scenario, tuple, result-record, registry, and lab-bootstrap data do not control method selection. Tests cannot inject a second method inventory or make an undeclared method selectable.
 
 ### Manifest Ownership
 
@@ -131,7 +131,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Ownership-only adoption creates the required Store record; unavailable Store and interrupted apply cannot claim success or create project-local state.
 - Isolated project/global lifecycle checks cover native symlink and copy exposure, repeat, update from old first-party remote provenance without fetch, edited-file conflict, removal, and shared recovery.
 - Isolated-home tests prove exact Codex and Claude Code native changes, user-entry preservation, verified-executable rules, separate machine and project receipts, drift states, and idempotent repeat setup.
-- Real-harness tests prove each shown connection method. Pi stays absent until its first-party extension passes the same lifecycle and conformance gates.
+- Direct installed-harness tests prove each shown connection method. Pi stays absent until its first-party extension passes the same lifecycle, adapter-admission, package, and testing gates.
 - Codex rule tests prove exact-prefix and outside-sandbox behavior. Claude Code rule tests prove both permission and sandbox behavior without broad home access, or the method stays unavailable with one useful action.
 ## Contracts and Data
 
@@ -143,6 +143,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: `Harness Adapter Contract`, method inventory, and native access lifecycle.
+- Previous contract: Provider, model, runtime, scenario, tuple, registry, and promoted-result data controlled harness method eligibility.
+- Replacement contract: Bounded source-owned static adapters declare Codex and Claude Code methods, native entries, allowed operations, lifecycle behavior, blockers, and next actions. Tests cannot inject a second method inventory.
+- Rationale: Known harness support is a reviewed product contract, not a runtime discovery problem.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-12 — W19 R6
 

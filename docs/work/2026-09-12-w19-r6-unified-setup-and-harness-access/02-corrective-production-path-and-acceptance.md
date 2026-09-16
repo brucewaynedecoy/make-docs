@@ -4,13 +4,13 @@ kind: "work"
 status: "superseded"
 coordinate: "W19 R6 P2"
 source:
-  type: "prd"
-  path: "../../prd/20-agent-harness-conformance-and-support-claims.md"
+  type: "design"
+  path: "../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md"
 ---
 
 # Phase 2: Corrective Production Path and Acceptance
 
-P3 supersedes this backlog. Completed boxes record work that occurred under the P2 authority. They do not prove current product acceptance. Do not resume the open P2 tasks.
+P3 supersedes this backlog. Completed boxes record work that occurred under the former P2 authority. They do not prove current product acceptance. Do not resume the open P2 tasks. Use the current P3 design, plan, work record, and active PRDs for all new decisions.
 
 ## Purpose
 
@@ -44,14 +44,14 @@ Human Experience Review is a separate required acceptance lens.
 ## Source PRD Docs
 
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
-- [20 Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [10 Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
+- [16 Package Runtime and Deployment Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [24 Project Configuration and Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [28 Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [39 CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
-- [43 Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
-- [44 Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
-- [D-033 W19 R6 Setup Support Is Not Connected to the Production Conformance Path](../../prd/03-open-questions-and-risk-register.md#d-033-w19-r6-setup-support-is-not-connected-to-the-production-conformance-path)
+- [50 Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
+- [D-033 W19 R6 Setup Uses Retired Dynamic Conformance Authority](../../prd/03-open-questions-and-risk-register.md#d-033-w19-r6-setup-uses-retired-dynamic-conformance-authority)
 
 ## Source Obligations, Scenarios, And Findings
 

@@ -2,13 +2,6 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  getConformanceTupleEntry,
-  runQualifiesForConformanceValidation,
-  type ConformanceTupleRegistry,
-} from "../conformance/registry";
-import type { ConformanceSupportTuple } from "../conformance/tuple";
-
 export type HarnessId = "codex" | "claude-code";
 export type HarnessScope = "machine" | "project";
 export type HarnessConnectionMethod = "mcp" | "command-rules" | "permission-rules";
@@ -39,6 +32,8 @@ export interface VerifiedExecutableIdentity {
 }
 
 export const HARNESS_CALLER_IDENTITY_ENV = "MAKE_DOCS_HARNESS_CALLER_IDENTITY" as const;
+export const HARNESS_CALLER_IDENTITY_ARG = "--make-docs-harness-caller" as const;
+export const HARNESS_CALLER_REFERENCE_ARG = "--make-docs-harness-caller-ref" as const;
 
 /**
  * Launch identity emitted by a first-party MCP native entry. This value is an
@@ -56,13 +51,22 @@ export interface HarnessCallerIdentity {
   executable: VerifiedExecutableIdentity;
 }
 
+/**
+ * Compact Claude Code permission-rule carrier. This reference is not authority.
+ * Store-backed calls must rebuild and verify the full caller identity and receipt.
+ */
+export interface HarnessCallerReference {
+  raw: string;
+  harnessId: "claude-code";
+  connectionMethod: "permission-rules";
+  adapterVersion: 1;
+  root: string;
+  identitySha256: string;
+}
+
 export interface VerifyExecutableInput {
   executablePath: string;
   expectedSha256?: string;
-}
-
-export interface VerifyReviewedPackageExecutableInput extends VerifyExecutableInput {
-  packageRoot: string;
 }
 
 export interface HarnessCommandRule {
@@ -93,11 +97,12 @@ export interface HarnessMethodDefinition {
   requiresExecutable: true;
   requiresCommandRules: boolean;
   nativeFile(scope: HarnessScope): string;
-  admittedOperations: "operation-registry-derived";
-  accessRequirements: "operation-registry-derived";
+  ownedEntries: readonly string[];
+  allowedStoreOperations: "active-operation-registry" | "bounded-command-rule-registry";
   implementationState: "implemented";
-  publicSupportClaim: false;
-  conformanceState: "not-run";
+  availability: "available" | "blocked";
+  blocker: string | null;
+  nextAction: string;
 }
 
 export interface HarnessDetectionResult {
@@ -109,43 +114,11 @@ export interface HarnessDetectionResult {
   reason?: string;
 }
 
-export interface HarnessConformanceIdentity {
-  adapterId: string;
-  adapterVersion: number;
-  harnessId: HarnessId;
-  connectionMethod: HarnessConnectionMethod;
-  surface: "mcp" | "cli-command-rules" | "cli-permission-rules";
-}
-
-export type HarnessSupportUnavailableReason =
-  | "adapter-not-admitted"
-  | "method-not-admitted"
-  | "tuple-not-registered"
-  | "runtime-facts-unavailable"
-  | "tuple-not-validated"
-  | "qualifying-result-missing"
-  | "make-docs-version-mismatch"
-  | "executable-digest-mismatch"
-  | "behavior-digest-mismatch"
-  | "harness-version-mismatch";
-
-export interface HarnessSupportFacts {
-  registry: ConformanceTupleRegistry;
-  tuple: ConformanceSupportTuple;
-  makeDocsVersion: string;
-  executableDigest: string;
-  behaviorDigest: string;
-  harnessVersion: string;
-}
-
 export interface ResolvedHarnessMethodSupport {
-  state: "not-run" | "experimental" | "conformance-validated" | "unsupported";
+  state: "available" | "blocked" | "unsupported";
   selectable: boolean;
-  publicSupportClaim: boolean;
   reason: string;
-  unavailableReason: HarnessSupportUnavailableReason | null;
-  nextAction: string | null;
-  caveats: readonly string[];
+  nextAction: string;
 }
 
 export type NativeEntryValue =
@@ -263,10 +236,11 @@ export interface HarnessAdapter {
   version: number;
   harnessId: HarnessId;
   displayName: string;
+  executableNames: readonly string[];
   projectRouterFiles: readonly string[];
   skillRoots: readonly string[];
   methods: readonly HarnessMethodDefinition[];
-  detect(input: { scope: HarnessScope; root: string }): HarnessDetectionResult;
+  detect(input: { scope: HarnessScope; root: string; path?: string }): HarnessDetectionResult;
   plan(input: HarnessPlanInput): HarnessAccessPlan;
   apply(input: {
     plan: HarnessAccessPlan;
@@ -280,8 +254,8 @@ export interface HarnessAdapter {
     approved: boolean;
   }): HarnessRemovalResult;
   verify(input: HarnessVerifyInput): HarnessVerificationResult;
+  repair(input: HarnessPlanInput): HarnessAccessPlan;
   planRemoval(input: HarnessRemoveInput): HarnessAccessPlan;
-  conformanceIdentity(method: HarnessConnectionMethod): HarnessConformanceIdentity;
 }
 
 const FORBIDDEN_EXECUTABLE_NAMES = new Set([
@@ -312,7 +286,6 @@ const SAFE_COMMAND_WORD = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const PACKAGE_NAME = "@brucewaynedecoy/make-docs" as const;
 const PRODUCT_MARKER = "@brucewaynedecoy/make-docs:package-bin" as const;
-const reviewedPackageExecutableIdentities = new WeakSet<VerifiedExecutableIdentity>();
 export function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -323,35 +296,14 @@ export function verifyMakeDocsExecutable(
   return verifyExecutableAgainstPackage(input, resolvePackagedExecutableIdentity());
 }
 
-/**
- * Verify a reviewed packed candidate from a maintainer-only disposable lab.
- * Production setup continues to use `verifyMakeDocsExecutable`, which binds
- * the executable to the package that is running the setup process.
- */
-export function verifyReviewedMakeDocsPackageExecutable(
-  input: VerifyReviewedPackageExecutableInput,
-): VerifiedExecutableIdentity {
-  const identity = verifyExecutableAgainstPackage(
-    input,
-    resolveReviewedPackageExecutableIdentity(input.packageRoot),
-  );
-  reviewedPackageExecutableIdentities.add(identity);
-  return identity;
-}
-
-/** Recheck one identity under the authority that first verified it. */
+/** Recheck one identity against the package that owns this running process. */
 export function reverifyMakeDocsExecutableIdentity(
   executable: VerifiedExecutableIdentity,
 ): VerifiedExecutableIdentity {
-  return reviewedPackageExecutableIdentities.has(executable)
-    ? verifyExecutableAgainstPackage(
-        { executablePath: executable.path, expectedSha256: executable.sha256 },
-        resolveReviewedPackageExecutableIdentity(executable.packageRoot),
-      )
-    : verifyMakeDocsExecutable({
-        executablePath: executable.path,
-        expectedSha256: executable.sha256,
-      });
+  return verifyMakeDocsExecutable({
+    executablePath: executable.path,
+    expectedSha256: executable.sha256,
+  });
 }
 
 function verifyExecutableAgainstPackage(
@@ -402,51 +354,6 @@ function verifyExecutableAgainstPackage(
     packageVersion: packaged.packageVersion,
     packageRoot: packaged.packageRoot,
     binRelativePath: packaged.binRelativePath,
-  };
-}
-
-function resolveReviewedPackageExecutableIdentity(packageRoot: string): {
-  path: string;
-  packageVersion: string;
-  packageRoot: string;
-  binRelativePath: string;
-} {
-  if (!path.isAbsolute(packageRoot)) {
-    throw new Error("The reviewed Make Docs package root must be absolute.");
-  }
-  const rootStat = lstatSync(packageRoot);
-  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
-    throw new Error("The reviewed Make Docs package root must be a real directory.");
-  }
-  const resolvedRoot = realpathSync(packageRoot);
-  const manifestPath = path.join(resolvedRoot, "package.json");
-  const manifestStat = lstatSync(manifestPath);
-  if (manifestStat.isSymbolicLink() || !manifestStat.isFile()) {
-    throw new Error("The reviewed Make Docs package manifest must be a real file.");
-  }
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
-  const bin = manifest.bin;
-  if (
-    manifest.name !== PACKAGE_NAME ||
-    typeof manifest.version !== "string" ||
-    !manifest.version.trim() ||
-    !bin ||
-    typeof bin !== "object" ||
-    typeof (bin as Record<string, unknown>)["make-docs"] !== "string"
-  ) {
-    throw new Error("The reviewed package is not an exact Make Docs package.");
-  }
-  const binRelativePath = (bin as Record<string, string>)["make-docs"];
-  const executablePath = realpathSync(path.resolve(resolvedRoot, binRelativePath));
-  const relative = path.relative(resolvedRoot, executablePath);
-  if (relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
-    throw new Error("The reviewed Make Docs package binary escapes its package root.");
-  }
-  return {
-    path: executablePath,
-    packageVersion: manifest.version,
-    packageRoot: resolvedRoot,
-    binRelativePath,
   };
 }
 
@@ -599,6 +506,80 @@ export function encodeHarnessCallerIdentity(identity: HarnessCallerIdentity): st
   return canonicalJson(identity as unknown as NativeEntryValue);
 }
 
+/** Encode one caller identity as a shell-safe, plain command argument. */
+export function encodeHarnessCallerIdentityArgument(identity: HarnessCallerIdentity): string {
+  return Buffer.from(encodeHarnessCallerIdentity(identity), "utf8").toString("base64url");
+}
+
+/** Encode the compact, non-secret carrier used only by Claude Code permission rules. */
+export function encodeHarnessCallerReference(identity: HarnessCallerIdentity): string {
+  assertHarnessCallerIdentityShape(identity);
+  if (
+    identity.harnessId !== "claude-code" ||
+    identity.connectionMethod !== "permission-rules" ||
+    identity.adapterVersion !== 1
+  ) {
+    throw new Error("A caller reference needs the Claude Code permission-rules v1 identity.");
+  }
+  const root = canonicalMachineRoot(identity.root);
+  if (root !== identity.root) {
+    throw new Error("The caller reference machine root must be canonical.");
+  }
+  const encodedRoot = Buffer.from(root, "utf8").toString("base64url");
+  const digest = sha256(encodeHarnessCallerIdentity(identity));
+  return `claude-code.permission-rules.v1.${encodedRoot}.${digest}`;
+}
+
+/** Parse and validate the compact Claude Code permission-rule carrier. */
+export function parseHarnessCallerReference(raw: string): HarnessCallerReference {
+  const match = /^claude-code\.permission-rules\.v1\.([A-Za-z0-9_-]+)\.([0-9a-f]{64})$/.exec(raw);
+  if (!match) {
+    throw new Error("The harness caller reference has an invalid format.");
+  }
+  const encodedRoot = match[1];
+  const decodedBytes = Buffer.from(encodedRoot, "base64url");
+  const root = decodedBytes.toString("utf8");
+  if (!root || Buffer.from(root, "utf8").toString("base64url") !== encodedRoot) {
+    throw new Error("The harness caller reference root is not canonical base64url.");
+  }
+  if (canonicalMachineRoot(root) !== root) {
+    throw new Error("The harness caller reference root is not a canonical absolute path.");
+  }
+  return Object.freeze({
+    raw,
+    harnessId: "claude-code",
+    connectionMethod: "permission-rules",
+    adapterVersion: 1,
+    root,
+    identitySha256: match[2],
+  });
+}
+
+function canonicalMachineRoot(root: string): string {
+  if (!path.isAbsolute(root) || root.includes("\0") || path.normalize(root) !== root) {
+    throw new Error("The harness caller reference root must be an absolute normalized path.");
+  }
+  let canonical: string;
+  try {
+    canonical = realpathSync(root);
+  } catch {
+    throw new Error("The harness caller reference root does not exist.");
+  }
+  return canonical;
+}
+
+/** Decode one shell-safe caller identity argument before normal CLI dispatch. */
+export function parseHarnessCallerIdentityArgument(raw: string): HarnessCallerIdentity {
+  if (!raw || !/^[A-Za-z0-9_-]+$/.test(raw)) {
+    throw new Error("The harness caller identity argument is not valid base64url.");
+  }
+  const decoded = Buffer.from(raw, "base64url").toString("utf8");
+  if (Buffer.from(decoded, "utf8").toString("base64url") !== raw) {
+    throw new Error("The harness caller identity argument is not canonical base64url.");
+  }
+  return parseHarnessCallerIdentity(decoded);
+}
+
 /** Parse the marker shape only. The caller must still verify its receipt and package identity. */
 export function parseHarnessCallerIdentity(raw: string): HarnessCallerIdentity {
   let parsed: unknown;
@@ -693,138 +674,29 @@ function isExactRecord(value: unknown, keys: readonly string[]): value is Record
 export function resolveHarnessMethodSupport(
   adapter: HarnessAdapter,
   methodId: HarnessConnectionMethod,
-  facts?: HarnessSupportFacts,
 ): ResolvedHarnessMethodSupport {
   const method = adapter.methods.find(candidate => candidate.id === methodId);
   if (!method) {
     return {
       state: "unsupported",
       selectable: false,
-      publicSupportClaim: false,
       reason: `${adapter.displayName} does not implement ${methodId}.`,
-      unavailableReason: "method-not-admitted",
       nextAction: `Choose one of the methods admitted by ${adapter.displayName}.`,
-      caveats: [],
     };
   }
-  if (!facts || !facts.tuple || !facts.registry) {
+  if (method.availability === "blocked") {
     return {
-      state: "not-run",
+      state: "blocked",
       selectable: false,
-      publicSupportClaim: false,
-      reason: "No exact runtime facts were supplied to the packaged registry resolver.",
-      unavailableReason: "runtime-facts-unavailable",
-      nextAction: "Set the exact provider or model and harness version facts, then review setup again.",
-      caveats: [],
+      reason: method.blocker ?? `${adapter.displayName} ${methodId} is blocked.`,
+      nextAction: method.nextAction,
     };
   }
-  const identity = adapter.conformanceIdentity(methodId);
-  if (
-    facts.tuple.harness !== identity.harnessId ||
-    facts.tuple.connectionMethod !== identity.connectionMethod ||
-    facts.tuple.surface !== identity.surface
-  ) {
-    return {
-      state: "unsupported",
-      selectable: false,
-      publicSupportClaim: false,
-      reason: "The requested tuple does not match this admitted adapter and method.",
-      unavailableReason: "adapter-not-admitted",
-      nextAction: "Use the adapter, harness, method, and surface recorded by the exact tuple.",
-      caveats: [],
-    };
-  }
-  const entry = getConformanceTupleEntry(facts.registry, facts.tuple);
-  if (!entry) {
-    return {
-      state: "not-run",
-      selectable: false,
-      publicSupportClaim: false,
-      reason: "The packaged registry has no entry for this exact seven-part tuple.",
-      unavailableReason: "tuple-not-registered",
-      nextAction: "Bootstrap only this exact tuple in a disposable lab session, then ingest its measured result.",
-      caveats: [],
-    };
-  }
-  if (entry.status !== "conformance-validated") {
-    return {
-      state: "experimental",
-      selectable: false,
-      publicSupportClaim: false,
-      reason: `The exact registry tuple is ${entry.status}.`,
-      unavailableReason: "tuple-not-validated",
-      nextAction: "Complete and ingest a qualifying real-harness run for this tuple.",
-      caveats: [],
-    };
-  }
-  const qualifying = entry.recordedRuns.filter(runQualifiesForConformanceValidation);
-  if (qualifying.length === 0) {
-    return {
-      state: "experimental",
-      selectable: false,
-      publicSupportClaim: false,
-      reason: "The registry status has no qualifying recorded result.",
-      unavailableReason: "qualifying-result-missing",
-      nextAction: "Repair the registry through the normal ingestion and recording seam.",
-      caveats: [],
-    };
-  }
-  const checks: Array<{
-    reason: HarnessSupportUnavailableReason;
-    matches: (run: (typeof qualifying)[number]) => boolean;
-    detail: string;
-    nextAction: string;
-  }> = [
-    {
-      reason: "make-docs-version-mismatch",
-      matches: run => run.makeDocsVersion === facts.makeDocsVersion,
-      detail: "No qualifying result matches this Make Docs version.",
-      nextAction: "Run conformance for this Make Docs version.",
-    },
-    {
-      reason: "executable-digest-mismatch",
-      matches: run => run.executableDigest === facts.executableDigest,
-      detail: "No qualifying result matches this installed executable digest.",
-      nextAction: "Run conformance with this packed executable.",
-    },
-    {
-      reason: "behavior-digest-mismatch",
-      matches: run => run.behaviorDigest === facts.behaviorDigest,
-      detail: "No qualifying result matches this Make Docs behavior digest.",
-      nextAction: "Run conformance for this behavior build.",
-    },
-    {
-      reason: "harness-version-mismatch",
-      matches: run => run.harnessVersion === facts.harnessVersion,
-      detail: "No qualifying result matches this harness version.",
-      nextAction: "Run conformance with this harness version.",
-    },
-  ];
-  let candidates = qualifying;
-  for (const check of checks) {
-    const next = candidates.filter(check.matches);
-    if (next.length === 0) {
-      return {
-        state: "experimental",
-        selectable: false,
-        publicSupportClaim: false,
-        reason: check.detail,
-        unavailableReason: check.reason,
-        nextAction: check.nextAction,
-        caveats: [],
-      };
-    }
-    candidates = next;
-  }
-  const caveats = [...new Set(candidates.flatMap(run => run.caveats))];
   return {
-    state: "conformance-validated",
+    state: "available",
     selectable: true,
-    publicSupportClaim: true,
-    reason: `The packaged registry has qualifying evidence for result ${candidates.at(-1)!.runId}.`,
-    unavailableReason: null,
-    nextAction: null,
-    caveats,
+    reason: `${adapter.displayName} ${methodId} is a product-owned setup method.`,
+    nextAction: method.nextAction,
   };
 }
 

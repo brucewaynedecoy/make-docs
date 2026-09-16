@@ -1,6 +1,7 @@
 import type { ZodType } from "zod";
 import path from "node:path";
 import type {
+  HarnessCallerReference,
   HarnessCommandRule,
   HarnessCommandRuleAuthority,
   HarnessConnectionMethod,
@@ -27,6 +28,7 @@ import { workOperations } from "./work/ops";
 import {
   accessAtMost,
   assertHarnessOperationAllowed,
+  assertStoreFreeHarnessOperationAllowed,
   resolveProjectHarnessAccessProjection,
 } from "./harness-policy";
 
@@ -335,8 +337,15 @@ export function listHarnessCommandRules(): HarnessCommandRule[] {
 export function listEffectiveHarnessCommandRules(
   targetRoot: string,
   method: HarnessConnectionMethod,
+  callerIdentityRaw?: string,
+  callerReference?: HarnessCallerReference,
 ): HarnessCommandRule[] {
-  const projection = resolveProjectHarnessAccessProjection(targetRoot, method);
+  const projection = resolveProjectHarnessAccessProjection(
+    targetRoot,
+    method,
+    callerIdentityRaw,
+    callerReference,
+  );
   return listHarnessCommandRules().filter((rule) => accessAtMost(rule.access, projection.access));
 }
 
@@ -454,18 +463,40 @@ export async function invokeOperation(
   }
   const targetRoot = operationTargetRoot(parsed.data, context.cwd);
   const run = async () => {
-    if (definition.access.store !== "none" && (context.surface === "cli" || context.surface === "mcp")) {
-      const authority: HarnessCommandRuleAuthority = {
-        list: listHarnessCommandRules,
-        validate: validateRegistryHarnessCommandRules,
-      };
-      assertHarnessOperationAllowed({
-        operation: id,
-        required: definition.access,
-        targetRoot,
-        storeRoot: context.storeRoot,
-        commandRuleAuthority: authority,
-      });
+    if (context.surface === "cli" || context.surface === "mcp") {
+      if (definition.access.store === "none") {
+        if (
+          (context.route === "mcp" || context.route === "native-rule") &&
+          (context.callerIdentityRaw || context.callerReference)
+        ) {
+          assertStoreFreeHarnessOperationAllowed({
+            operation: id,
+            required: definition.access,
+            targetRoot,
+            route: context.route,
+            callerIdentityRaw: context.callerIdentityRaw,
+            callerReference: context.callerReference,
+          });
+        }
+      } else {
+        if (context.route === "test") {
+          throw new OperationError("A production Store operation needs an explicit route.");
+        }
+        const authority: HarnessCommandRuleAuthority = {
+          list: listHarnessCommandRules,
+          validate: validateRegistryHarnessCommandRules,
+        };
+        assertHarnessOperationAllowed({
+          operation: id,
+          required: definition.access,
+          targetRoot,
+          storeRoot: context.storeRoot,
+          route: context.route,
+          callerIdentityRaw: context.callerIdentityRaw,
+          callerReference: context.callerReference,
+          commandRuleAuthority: authority,
+        });
+      }
     }
     return (await handler(parsed.data, context)) as JsonValue;
   };

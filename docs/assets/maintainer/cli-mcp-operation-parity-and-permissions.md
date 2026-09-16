@@ -16,7 +16,7 @@ related:
   - "cli-development-local-build-and-install.md"
   - "../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md"
   - "release-packaging-validation-and-release-reference.md"
-  - "conformance-lab-scenario-and-result-contracts.md"
+  - "../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md"
   - "../../prd/18-compatibility-classification-and-migration-safety.md"
   - "../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
   - "../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -59,7 +59,7 @@ Since W18 R12 Phase 3, the CLI `run` surface additionally carries two presentati
 - **The render layer** (`packages/cli/src/run/render.ts`): on a TTY the `run` dispatcher renders per-operation human text; `--json` and a non-TTY stdout emit the full operation result byte-identical to before, so scripts and agents observe no change without passing any flag. MCP output derives from the operation result exactly as before — the render layer is CLI-only (R-RENDER-3) and lives in the surface presentation responsibility R-CORE-1 assigns. `packages/cli/tests/run-cli-experience.test.ts` pins the byte-identity of both machine channels, and the MCP derivation parity tests pass unchanged.
 - **Declared CLI spellings** (`RUN_CLI_SPELLINGS` in `packages/cli/src/run/cli.ts`): an intent-named CLI path mapped to an existing registry identifier plus a fixed execution-context overlay — `run package preview` is `package.write` under the dry-run context. A spelling mints no registry identifier and derives no MCP tool; `listRunCliSpellings` is the conformance seam pinning each spelling to its registry identifier. The complement rule stays the W18 R11 parity rule: anything that composes or mutates behavior must be a real registered operation — `package.ship` is the model, registered with a `write` classification and derived to MCP as `make_docs_package_ship` — and a spelling must never be more than declared presentation routing. Never add an MCP tool, registry identifier, or write gate for a spelling, and never let text rendering alter what the machine channels emit.
 
-Two deliberate off-registry surfaces exist, both maintainer lab tooling: the conformance kit generator (`packages/cli/src/conformance/kit.ts`, invoked through the maintainer-only `npm run conformance:kit` script) since W18 R13 Phase 2, and the conformance ingestion step (`packages/cli/src/conformance/ingestion.ts`, invoked through `npm run conformance:ingest`) since W18 R13 Phase 3. Each registers no operation and derives no CLI or MCP surface per [PRD 43](../../prd/43-conformance-scenario-model-and-execution-kits.md) R-HOME-1 — shipping either would advertise a maintainer-lab capability whose required assets are structurally excluded from every install. The parity rule is preserved vacuously, asserted in the standard suite by `listConformanceLabShippedSurfaceViolations`, which fails if any registry identifier or `run` CLI adapter names a conformance-lab surface; the revisit seam for both generators is recorded on register item [Q-022](../../prd/03-open-questions-and-risk-register.md).
+The former conformance kit generator and ingestion step are retired under W19 R6 P3. They register no operation and derive no CLI or MCP surface. Do not use their off-registry status as current product authority. [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) owns operation admission. [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters.
 
 The legacy `closeout`, `work`, and `lifecycle` inspection cluster — wave-status, work-phase-state, phase-plan, phase-gate, scope-guard, checkpoint, and the closeout probe/validate/history operations — is pruned by the [migrated-operations inventory disposition](../project/migrated-operations-inventory.md) and, as of W18 R11 P4, has no command surface: the legacy `operations` dispatcher is deleted and the eight pruned MCP tools are removed, with a dependency-direction guard keeping the dispatcher deleted. The internal domain functions remain in place as the recovery source for the Playbook rebuild (their retirement is the inventory's tracked follow-up), and no pruned name may ever be added to the registry — pinned by `registry-contract.test.ts` and the MCP tool-list absence test.
 
@@ -175,9 +175,9 @@ Required fixture families:
 | Dry-run output | MCP plans use the same action labels, selection-source wording, and no-write guarantees as CLI dry-run or lifecycle review. |
 | Write permissions | Write attempts fail before mutation unless the later permission model authorizes the exact operation and target. |
 | Runtime identity | TypeScript package invocations expose package/runtime version clearly enough for support triage. |
-| Conformance evidence | Support claims cite reviewed scenario/harness/model/provider/runtime evidence when the claim involves agents or harnesses. |
+| Installed-product proof | Public method wording cites direct installed-product checks for each method declared by a source-owned static harness adapter. |
 
-Package smoke tests prove package behavior; they do not prove MCP support by themselves. Conformance records prove only the exact tuple they record.
+Package smoke tests prove package behavior. They do not prove MCP support by themselves. Direct installed-product checks must exercise each declared static adapter method.
 
 ## Change Checklist
 
@@ -189,7 +189,7 @@ Before implementing an MCP tool or CLI operation:
 4. Route every surface through `invokeOperation` with an execution context; never add per-surface write gating.
 5. Keep writes blocked until the permission model exists.
 6. Update package validation only when shipped package files change.
-7. Add conformance scenarios before changing public support language.
+7. Run direct installed-product checks for each declared static method before changing public support language.
 8. Keep docs explicit about which MCP surfaces are shipped and which remain planned.
 
 ## Related Resources
@@ -197,7 +197,7 @@ Before implementing an MCP tool or CLI operation:
 - [Building and Installing the CLI Locally](cli-development-local-build-and-install.md)
 - [Run Playbook Runner Architecture](../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md)
 - [Packaging, Validation, and Release Reference](release-packaging-validation-and-release-reference.md)
-- [Conformance Lab Scenario and Result Contracts](conformance-lab-scenario-and-result-contracts.md)
+- [Static Harness Adapters and Conformance Retirement](../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md)
 - [25 Revise CLI Separation and MCP Boundary](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [18 Revise Compatibility Audit and Migration Disposition](../../prd/18-compatibility-classification-and-migration-safety.md)
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency)

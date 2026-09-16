@@ -1,6 +1,10 @@
 import path from "node:path";
 import { Buffer } from "node:buffer";
-import { createExecutionContext } from "../operations/context";
+import {
+  createExecutionContext,
+  resolveCliOperationLaunch,
+  type CliOperationLaunch,
+} from "../operations/context";
 import { invokeOperation } from "../operations/registry";
 import type {
   ResourceListOperationOutput,
@@ -143,7 +147,10 @@ function assertOptions(
   }
 }
 
-export async function runResourceCommand(argv: string[]): Promise<void> {
+export async function runResourceCommand(
+  argv: string[],
+  launch: CliOperationLaunch = resolveCliOperationLaunch(),
+): Promise<void> {
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
@@ -181,6 +188,9 @@ export async function runResourceCommand(argv: string[]): Promise<void> {
     },
     createExecutionContext({
       surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
       cwd: options.targetRoot,
       writesAllowed: options.allowWrite,
       dryRun: options.dryRun,
@@ -207,13 +217,16 @@ export async function runResourceCommand(argv: string[]): Promise<void> {
   printJson(invocation.value);
 }
 
-export async function runProjectCommand(argv: string[]): Promise<void> {
+export async function runProjectCommand(
+  argv: string[],
+  launch: CliOperationLaunch = resolveCliOperationLaunch(),
+): Promise<void> {
   if (argv[0] === "layout" || argv[0] === "persona") {
-    await runProjectLayoutCommand(argv);
+    await runProjectLayoutCommand(argv, launch);
     return;
   }
   if (argv[0] === "state") {
-    await runProjectStateCommand(argv.slice(1));
+    await runProjectStateCommand(argv.slice(1), launch);
     return;
   }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
@@ -269,7 +282,15 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
   const invocation = await invokeOperation(
     "project.surface.ensure",
     { surface, ...(targetRoot ? {targetRoot} : {}) },
-    createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: true, dryRun }),
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: true,
+      dryRun,
+    }),
   );
   const value = invocation.value as unknown as ProjectSurfaceEnsureOutput;
   if (json) {printJson(value); return;}
@@ -298,7 +319,10 @@ export async function runProjectCommand(argv: string[]): Promise<void> {
   );
 }
 
-async function runProjectLayoutCommand(argv: string[]): Promise<void> {
+async function runProjectLayoutCommand(
+  argv: string[],
+  launch: CliOperationLaunch,
+): Promise<void> {
   const [noun, verb, ...args] = argv;
   if (!verb || verb === '--help' || verb === '-h') {
     process.stdout.write((noun === 'persona' ? [
@@ -343,7 +367,14 @@ async function runProjectLayoutCommand(argv: string[]): Promise<void> {
     ...(noun === 'layout' && ['preview', 'prepare'].includes(verb) ? {mappings} : {}),
     ...(verb === 'prepare' ? {review, mode} : {}),
     ...(operationId ? {operationId} : {}),
-  }, createExecutionContext({surface: 'cli', cwd: targetRoot, writesAllowed: noun === 'layout' && verb !== 'preview'}));
+  }, createExecutionContext({
+    surface: 'cli',
+    route: launch.route,
+    callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference,
+    cwd: targetRoot,
+    writesAllowed: noun === 'layout' && verb !== 'preview',
+  }));
   const result = invocation.value as Record<string, any>;
   if (result.status === 'blocked') process.exitCode = 1;
   if (json) {printJson(result); return;}
@@ -368,7 +399,10 @@ async function runProjectLayoutCommand(argv: string[]): Promise<void> {
   ].join('\n'));
 }
 
-async function runProjectStateCommand(argv: string[]): Promise<void> {
+async function runProjectStateCommand(
+  argv: string[],
+  launch: CliOperationLaunch,
+): Promise<void> {
   const [verb, ...args] = argv;
   if (!verb || verb === "--help" || verb === "-h" || ((verb === "status" || verb === "recover") && args.some(arg => arg === "--help" || arg === "-h"))) {
     process.stdout.write([
@@ -415,7 +449,15 @@ async function runProjectStateCommand(argv: string[]): Promise<void> {
   const invocation = await invokeOperation(`project.state.${verb}`, {
     ...(targetRoot ? { targetRoot } : {}),
     ...(verb === "recover" ? { operationId, mode } : {}),
-  }, createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: verb === "recover", dryRun }));
+  }, createExecutionContext({
+    surface: "cli",
+    route: launch.route,
+    callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference,
+    cwd: targetRoot,
+    writesAllowed: verb === "recover",
+    dryRun,
+  }));
   if (json) { printJson(invocation.value); return; }
   const value = invocation.value as Record<string, unknown>;
   const labels: Record<string, string> = {

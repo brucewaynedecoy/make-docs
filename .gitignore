@@ -90,4 +90,3 @@ python_modules/
 # make-docs
 .make-docs/runs/
 .make-docs/state/
-/packages/cli/conformance/

@@ -18,7 +18,6 @@
   "files": [
     "dist",
     "template",
-    "conformance/tuple-registry.json",
     "skill-registry.json",
     "skill-registry.schema.json",
     "README.md"
@@ -33,9 +32,7 @@
     "build": "tsup",
     "dev": "npm run build && node dist/index.js",
     "test": "vitest run",
-    "validate:defaults": "vitest run tests/consistency.test.ts tests/template-links.test.ts",
-    "conformance:kit": "tsx scripts/conformance-kit.ts",
-    "conformance:ingest": "tsx scripts/conformance-ingest.ts",
+    "validate:defaults": "vitest run tests/consistency.test.ts tests/template-links.test.ts tests/package-safety.test.ts",
     "prepack": "node ../../scripts/copy-template-to-cli.mjs && npm run build"
   },
   "devDependencies": {

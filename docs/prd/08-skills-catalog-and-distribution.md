@@ -58,13 +58,13 @@ Code anchors:
 - R-SKILL-SETUP-1 (MUST): project setup presents Skill selection inside the support section for each selected harness. It shows only Skills that the effective manifest declares for that harness. One shared Skill selection may produce more than one native harness exposure.
 - R-SKILL-SETUP-2 (MUST): `setup skills` remains a focused shortcut to the same selected-Skill planner, ownership rules, review, and Store records. It does not maintain a second selection state.
 - R-SKILL-SETUP-3 (MUST): a Skill can guide an agent but does not grant Store access, host configuration access, or project write access. Setup text and reviews keep Skill installation separate from command rules, MCP servers, and harness extensions.
-- R-SKILL-SETUP-4 (MUST): an extension used as a harness connection method is not a selected Skill. A future Pi extension must be owned by the harness adapter contract and must not appear in setup until implementation and real-harness conformance meet PRD 20.
+- R-SKILL-SETUP-4 (MUST): an extension used as a harness connection method is not a selected Skill. A future Pi extension must be owned by the static harness adapter contract in PRD 28 and must not appear in setup until implementation, adapter admission, package proof, and direct installed-product checks pass.
 - R-SKILL-SETUP-5 (MUST): full setup and `setup skills` use one source-owned Skills interaction model and renderer. For the same effective manifest, saved selection, scope, harness support, and trust data, both paths show the same list order, active row, detail panel, selected summary, instructions, labels, navigation keys, empty state, cancellation result, and saved selection. The focused command may limit its final plan to Skill changes. It must not keep a second prompt grammar or selection implementation.
 
 - Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
 - A trusted built-in first-party selection for the former `software-factory` name migrates to `factory`. The shared planner installs the new managed path and removes the old path only when its recorded ownership and live bytes still match. Alternate Skill manifests do not receive this name migration.
-- Lab adapters for future harnesses or model routes do not add current skills install targets or change the `selectedSkills` contract; [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md) owns adapter evidence.
+- Proposed future harness adapters or model routes do not add current Skill install targets or change the `selectedSkills` contract. [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md) owns static adapter declarations, and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection.
 - Selected skills may install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md).
 - The built-in registry is the default skills manifest, purpose ids are stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain executable and ownership state.
 - The executable selected-skill set comes from `selectedSkills`, while ownership records connect that selection to canonical shared payloads, symlink exposures, managed copy mirrors, legacy generated stubs, source-manifest provenance, exposure mode, scope, and migrated duplicate-payload status under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
@@ -229,6 +229,14 @@ Implementation must prove:
 A rebuild must preserve explicit selected-Skill semantics, manifest provenance and trust, safe ownership and removal, no default Skill installation, and the rule that deterministic Make Docs behavior belongs behind typed CLI/shared-core operations. The first-party Unassisted Goal Testing Skill remains an optional routing adapter and must never become a second policy authority. P7 uses its bundled local payload without closing the general selected-Skill delivery question.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: `Setup and lifecycle integration` and harness-extension boundaries.
+- Previous contract: Proposed harness extensions could be confused with selected Skills or become setup targets before full product proof.
+- Replacement contract: A harness connection method is not a selected Skill. A future extension needs static-adapter authority, implementation, lifecycle safety, package proof, and direct installed-product proof before setup can show it.
+- Rationale: Skill selection must not become a second harness-support registry or imply unsupported integrations.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-15 — W19 R7
 

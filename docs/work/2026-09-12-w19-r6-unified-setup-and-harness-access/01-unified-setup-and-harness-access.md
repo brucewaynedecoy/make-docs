@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Unified Setup and Harness Access"
 kind: "work"
-status: "active"
+status: "superseded"
 coordinate: "W19 R6 P1"
 source:
   type: "prd"
@@ -16,7 +16,7 @@ Record the first W19 R6 implementation attempt. This phase produced useful found
 
 ## Overview
 
-Stage 1 established access, adapter, config-reader, and receipt parts. Stages 2 and 3 built candidate setup and adapter parts. Stage 4 proved several components and found that real setup and acceptance were still open. The later gap review found deeper production-path defects. [Phase 2](02-corrective-production-path-and-acceptance.md) now owns correction and acceptance.
+Stage 1 established access, adapter, config-reader, and receipt parts. Stages 2 and 3 built candidate setup and adapter parts. Stage 4 proved several components and found that real setup and acceptance were still open. The later gap review found deeper production-path defects. [Phase 3](03-static-harness-adapters-and-conformance-retirement.md) supersedes this phase and owns the current correction and acceptance.
 
 ## P1 Reassessment
 
@@ -29,7 +29,7 @@ Stage 1 established access, adapter, config-reader, and receipt parts. Stages 2 
 - Rule routes do not yet prove exact caller and method identity. Claude Code rules do not yet prove the separate sandbox boundary.
 - Real harness and installed Human Experience acceptance did not occur.
 
-Checked tasks below show P1 implementation activity. They do not prove feature acceptance. Any checked task that depends on the missing production path must be reworked or re-proved in P2.
+Checked tasks below show P1 implementation activity. They do not prove feature acceptance. Phase 3 supersedes this phase and supplies the current proof.
 
 ## Human Experience Outcome
 
@@ -58,7 +58,7 @@ Human Experience Review remains required for every listed promise.
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [08 Skills Catalog and Distribution](../../prd/08-skills-catalog-and-distribution.md)
 - [17 System Asset Materialization and Local Bootstrap](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
-- [20 Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- Former PRD 20 Agent Harness Conformance and Support Claims was the historical P1 authority. W19 R6 P3 retired it.
 - [24 Project Configuration and Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md)
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [28 Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
@@ -187,4 +187,4 @@ Human Experience Review remains required for every listed promise.
 - Four testing decisions: Automated Implementation Testing selected; Performance Testing `not-needed-now`; Guided Progress Review selected; Unassisted Goal Testing `not-needed-now`.
 - Human Experience Review: Not accepted. The installed terminal review and promise conclusions did not occur.
 - Evidence report: See [W19 R6 evidence](evidence.md) for the useful P1 checks and the production gaps they did not cover.
-- Phase / capability status: P1 is an incomplete acceptance attempt and foundation code candidate. Tasks t29, t30, t32, t33, and t35 remain open here and are superseded by the complete P2 close gate. Acceptance cases A9, A10, A11, A13, A15, A17, A19, A20, A21, and A22 require P2 proof before W19 R6 can close.
+- Phase / capability status: P1 is a superseded, incomplete acceptance attempt and foundation code record. Phase 3 supersedes its open tasks and acceptance cases. Phase 3 implementation and installed acceptance are complete. W19 R6 remains open for the owner Human Experience Review.

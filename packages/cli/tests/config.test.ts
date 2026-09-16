@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
@@ -8,6 +8,7 @@ import {
   getMakeDocsConfigPath,
   loadMakeDocsConfig,
   loadMakeDocsConfigOrThrow,
+  planProjectHarnessIntegrationWrite,
 } from "../src/config";
 
 const tempDirs: string[] = [];
@@ -156,7 +157,7 @@ personas:
     expect(formatMakeDocsConfigDiagnostics(loaded)).toContain("<root>");
   });
 
-  test("ignores unknown top-level and display-label keys while validating known fields", () => {
+  test("rejects unknown top-level and display-label keys", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -170,12 +171,14 @@ labels:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(true);
-    expect(loaded.diagnostics).toEqual([]);
-    expect(loaded.config.labels.lifecycle.design).toBe("design");
+    expect(loaded.valid).toBe(false);
+    expect(loaded.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "unknown-key", keyPath: "appearance" }),
+      expect.objectContaining({ code: "unknown-key", keyPath: "labels.lifecycle.idea" }),
+    ]));
   });
 
-  test("keeps canonical behavior when an unknown field looks like a structural rename", () => {
+  test("rejects an unknown field that looks like a structural rename", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -189,13 +192,15 @@ labels:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(true);
-    expect(loaded.diagnostics).toEqual([]);
-    expect(loaded.config.labels.coordinates.wave).toBe("Batch");
-    expect(() => loadMakeDocsConfigOrThrow(targetDir)).not.toThrow();
+    expect(loaded.valid).toBe(false);
+    expect(loaded.diagnostics).toContainEqual(expect.objectContaining({
+      code: "structural-rename-attempt",
+      keyPath: "paths",
+    }));
+    expect(() => loadMakeDocsConfigOrThrow(targetDir)).toThrow("structural paths");
   });
 
-  test("does not interpret unknown route prompt skill contract or harness fields", () => {
+  test("rejects unknown route, prompt, skill, contract, and harness fields", () => {
     const targetDir = createTempDir();
     writeConfig(
       targetDir,
@@ -214,9 +219,39 @@ harnessNames:
 
     const loaded = loadMakeDocsConfig(targetDir);
 
-    expect(loaded.valid).toBe(true);
-    expect(loaded.diagnostics).toEqual([]);
-    expect(loaded.config).toEqual(createDefaultMakeDocsConfig());
+    expect(loaded.valid).toBe(false);
+    expect(loaded.diagnostics.length).toBe(5);
+    expect(loaded.diagnostics.map(item => item.code)).toEqual(
+      expect.arrayContaining(["structural-rename-attempt"]),
+    );
+  });
+
+  test("the setup writer preserves unknown YAML while changing only reviewed harness intent", () => {
+    const targetDir = createTempDir();
+    const before = `# project comment
+appearance:
+  theme: docs
+projectId: sample
+`;
+    writeConfig(targetDir, before);
+
+    const plan = planProjectHarnessIntegrationWrite({
+      targetDir,
+      contentWhenMissing: "projectId: sample\n",
+      reviewed: [{
+        harness: "codex",
+        mode: "narrow",
+        method: "mcp",
+        accessCeiling: { store: "read", project: "read", hostConfig: "none" },
+      }],
+    });
+
+    expect(plan.changed).toBe(true);
+    expect(plan.content).toContain("# project comment");
+    expect(plan.content).toContain("appearance:");
+    expect(plan.content).toContain("theme: docs");
+    expect(plan.content).toContain("harnessIntegrations:");
+    expect(readFileSync(plan.configPath, "utf8")).toBe(before);
   });
 
   test("rejects invalid persona primitive values", () => {

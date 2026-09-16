@@ -2,13 +2,15 @@
 
 ## Current Result
 
-P2 is superseded. Its production code and automated checks followed obsolete Playbooks conformance authority. They do not define the current acceptance target.
+P2 is superseded. Its obsolete Playbooks conformance authority does not define the current acceptance target.
 
-The P2 results still give useful evidence about setup, config preservation, Store-free reads, MCP caller identity, native writes, and cleanup. P3 must classify each changed block as `keep`, `rework`, or `remove`.
+P3 implementation is authorized. The authority reset and production implementation are complete. Static Codex and Claude Code adapters replace the invalid tuple gate.
 
-The exact runtime fact gap is no longer a requested product gap. It came from the invalid tuple gate. P3 replaces that gate with static Codex and Claude Code adapters.
+Installed package smoke and the automated setup matrix pass. Live Codex MCP, Codex command-rule, and Claude Code MCP read and write calls pass.
 
-W19 R6 remains incomplete. P3 implementation and Human Experience Review have not started. D-033 stays open.
+The user authorized the live Claude checks. Claude permission rules failed their live command check and stay blocked under the accepted A35 exception. The agent-owned Human Experience Review records `satisfied` for all six promises.
+
+All ten P3 hard close rules pass. P3, W19 R6, and D-033 are closed.
 
 ## P3 Authority Correction
 
@@ -18,25 +20,24 @@ W19 R6 remains incomplete. P3 implementation and Human Experience Review have no
 - P2 made those PRDs production setup authority.
 - The tuple, registry, scenario, provider, model, runtime, and harness-result assertions came from that authority.
 - Those assertions were valid tests of P2. They were not valid requirements for the current product.
-- P3 must remove the invalid authority before it changes production code or acceptance tests.
+- P3 removed the invalid authority before it completed production code and acceptance-test changes.
 - The [P3 design](../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md), [plan](../../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md), and [work phase](03-static-harness-adapters-and-conformance-retirement.md) define the correction.
 
 ## Production Implementation
 
-This section records P2 implementation evidence. It is not the current product contract.
+P3 production implementation is complete.
 
 | Area | Current evidence | Result |
 | --- | --- | --- |
-| Support authority | `conformance/tuple-registry.json` is the sole version 2 source. The package build copies and validates only this file. | Passed. |
-| Exact identity | Active tuples contain `scenario`, `harness`, `connectionMethod`, `surface`, `scope`, `modelOrProvider`, and `runtime`. Empty and wildcard values are rejected. | Passed. |
-| Support decision | Setup requires an admitted method, exact tuple, qualifying result, exact product behavior, exact harness facts, and surfaced caveats. | Passed. |
-| Test-only paths | In-memory support injection and `reviewedAdapterPlansForTests` are removed. Tests use the validated registry loader. | Passed. |
+| Support authority | Product-owned static adapters declare the Codex and Claude Code methods. Production setup has no dynamic support registry or tuple gate. | Passed. |
+| Method set | Codex declares MCP and narrow command rules. Claude Code declares MCP. Claude Code permission rules stay blocked. | Passed. |
 | Unified setup | Interactive, machine-only, dry-run, non-interactive, JSON, and MCP-safe projections use one setup service. | Passed. |
 | Project intent | The YAML document writer changes only reviewed `harnessIntegrations` values. It preserves comments, order, quoting, unknown keys, and unrelated values. | Passed. |
-| Native safety | MCP keeps caller identity. Rule routes need a harness-proved launch fact. Store-free reads do not open a Store session. | Passed in automated checks. Exact Codex harness proof is open. |
-| Lab path | Maintainer bootstrap accepts one exact tuple, a packed product, and a disposable root. It uses production planners, writers, verifiers, operations, and cleanup. | Passed. |
+| Native safety | MCP keeps its environment caller identity. Codex rules use an exact executable and a hidden caller argument. Claude rule code uses an exact executable and a compact caller reference. Rule routes need a harness-proved launch fact. Store-free reads do not open a Store session. | Codex passed live. Claude permission rules failed live and stay blocked. |
+| Repeat and recovery | Fresh, current, partial, no-method, unsupported, drifted, blocked, failed, recovered, and repeat cases pass. | Passed. |
+| Retired paths | Production and package paths contain no dynamic result promotion or conformance bootstrap dependency. | Passed. |
 
-Under P2 authority, normal setup correctly rejected support resolution when it lacked an exact harness version, model or provider, or runtime. P3 now treats that behavior as obsolete. P3 must remove the gate instead of adding more fact discovery.
+The full suite passes with 80 test files and 1,259 tests. The Stage 2 tasks and acceptance items pass.
 
 ## Packed Candidate Identity
 
@@ -44,71 +45,99 @@ Under P2 authority, normal setup correctly rejected support resolution when it l
 | --- | --- |
 | Make Docs version | `2.0.0-rc` |
 | Distribution | packed npm tarball in a disposable directory |
-| Measured executable and behavior digest | `8a033ad9fb5e0267d734e825fdd2d08065cb960cee4f03098cc4fcba32a1a6e6` |
-| Initial empty registry digest | `ebdb02cb3a17fe5f064d8cc02a0cef62819c500a463e41620baabdced54ff1f8` |
-| Final promoted registry digest | `2d59d2bdc41131ab94bd9cfe3f3aba687a997dfb125eda16fb4e76a09199f39e` |
-| Final tarball digest | `7d4751437047ce8cf4777b6a2f1323f162f8beadf001ed1117d5935e1b43a917` |
+| Installed package smoke | Passed. |
+| Automated setup matrix | Fresh, current, partial, no-method, unsupported, drifted, blocked, failed, recovered, and repeat cases passed. |
+| Selected-method repeats | Codex MCP, Codex command rules, and Claude Code MCP each returned `current` with no write. |
 
-The final rebuild kept the executable behavior digest unchanged. It changed the packaged registry digest to the exact repo-root digest. This proves that registry promotion does not change measured product behavior.
+No package was installed into the real user home.
 
 ## Real-Harness Results
 
-| Harness path | Result | Support status | Evidence and next action |
-| --- | --- | --- | --- |
-| Claude Code MCP | Pass | `conformance-validated` | [Result](../../../conformance/results/claude-code/2026-09-14-mcp-store-operations-001.json). Caller identity, rejected write, allowed write, Store read, cleanup, and user-content preservation passed. |
-| Claude Code direct CLI | Pass | `conformance-validated` | [Result](../../../conformance/results/claude-code/2026-09-14-direct-resource-read-001.json). Resource list and read passed. The absent Store path stayed absent. |
-| Claude Code permission rules | Unsupported | `provisional` | [Result](../../../conformance/results/claude-code/2026-09-14-permission-rule-store-operations-001.json). The exact allow rule matched. A command outside the rule was blocked. Narrow Store access and a trusted launch identity did not pass. Keep this method unavailable under A35. Use Claude Code MCP. |
-| Codex MCP | Blocked | `provisional` | [Result](../../../conformance/results/codex/2026-09-14-mcp-store-operations-001.json). Log in only inside a disposable Codex home, then repeat the run. |
-| Codex command rules | Blocked | `provisional` | [Result](../../../conformance/results/codex/2026-09-14-bounded-rule-store-operations-001.json). Log in only inside a disposable Codex home, then prove allowed and denied commands plus the native launch fact. |
-| Codex direct CLI | Blocked | `provisional` | [Result](../../../conformance/results/codex/2026-09-14-direct-resource-read-001.json). Log in only inside a disposable Codex home, then repeat the Store-free read run. |
+| Harness path | Current result | Evidence and limit |
+| --- | --- | --- |
+| Codex MCP | Passed | The disposable native MCP configuration is recognized by the Codex CLI. Live project-state read and archive-surface write calls pass. Setup repeat returned `current` with no write. |
+| Codex command rules | Passed | The no-rule control cannot create the external Store lock. The rule-enabled Codex task reads project state as `ready` and creates only `.make-docs/archive/AGENTS.md`. It uses terminal commands only. The isolated Codex config has no Make Docs MCP entry. Setup repeat returned `current` with no write. |
+| Claude Code MCP | Passed | Claude Code 2.1.258 exposed the Make Docs MCP tools. Live project-state read and archive-surface write calls passed. Setup repeat returned `current` with no write. |
+| Claude Code permission rules | Failed and blocked | The no-rule control denied the Make Docs Store command. The rule task exposed only Bash, Edit, and Read. It exposed no MCP server. A natural request chose `make-docs` from `PATH`, so no generated rule matched. A supplied full command was cut inside the caller reference before the operation name. Claude denied both partial commands in `dontAsk` mode. No Store read or archive write ran. |
 
-All completed Claude Code sessions used Claude Code `2.1.258`, model `claude-sonnet-5`, and runtime `node-v24.19.0-darwin-arm64`. The Codex attempts used Codex CLI `0.154.0` and an explicit `openai:gpt-5.6-terra` tuple. The disposable Codex login check returned `Not logged in`.
+These checks used disposable projects, machine roots, settings files, and Stores. Claude Code kept the real `HOME`. It used `ANTHROPIC_API_KEY`. No credential file or Keychain access was used.
 
-Raw transcripts stayed in disposable session directories. Compact result records keep digest references. Cleanup removed the managed native entries and kept seeded user content.
+## Codex Command-Rule Correction
+
+The first live command-rule test failed. The generated rule started with `/usr/bin/env` and an environment assignment. Codex ran the Make Docs command through `zsh -lc`. The assignment stopped safe shell splitting. Codex checked the wrapper instead of the Make Docs command.
+
+The corrected Codex rule starts with the verified executable. It then uses `--make-docs-harness-caller`, one base64url identity value, and the exact operation prefix. The public help does not show this internal option. MCP keeps the environment form.
+
+The corrected live test used a packed package, a disposable project, an isolated Codex home, and a Store outside the child Codex workspace. It installed only Codex command rules. The control used `--ignore-rules` and failed with `store-unavailable` and `EPERM`. The rule-enabled read returned project state `ready`. The rule-enabled write created the archive surface. The root `AGENTS.md` SHA-256 stayed `11da6f811a9af64341e93289f3391d5f085b66d2bcc092c5f932c003db8a6c45`.
+
+The Store has one completed setup operation and one completed `project.surface.ensure` operation. It has only the three expected setup-system receipt rows. A repeat setup reported the Codex method as `current`. Its computer and project mutation states were `none`.
+
+`codex execpolicy check` allows the exact direct token list. It has no match for a missing or changed identity, another executable, setup, update, uninstall, or a command joined to unrelated work. The checker also has no direct match for the raw `zsh -lc` wrapper. The live Codex runs prove that the real shell path splits and applies the inner rule.
+
+## Claude Code Permission-Rule Correction
+
+The prior Claude rule used `/usr/bin/env` and raw identity JSON. The correction adds `--make-docs-harness-caller-ref`. The reference contains the Claude method, adapter version, canonical machine root, and the full identity digest. The CLI accepts it only before the public command. It rejects missing, repeated, malformed, misplaced, or conflicting values. Runtime policy rebuilds the identity and checks the executable, Store receipt, native rule, and project access limit.
+
+The generated Claude rules contain the exact executable, hidden reference, and one registry operation prefix. They contain no raw JSON, environment assignment, `/usr/bin/env`, MCP command, package runner, or shell wrapper. Receipt-aware repair can replace only exact old rules that the Store receipt owns. It preserves other settings and rule order.
+
+The live check used `/tmp/make-docs-claude-ref-live.vSObpD`. Make Docs setup wrote 22 permission rules and no MCP entry. The settings hash stayed `15e4f5c4b93e22bc9bb829339e88addc761b54fc05f7732c03eb60a1aedc995e`. The no-rule control denied the Store command. The rule task had no MCP server. It used Bash only for command attempts.
+
+The natural request tried `which make-docs`, `make-docs --help`, and `make-docs resource list`. Claude denied them because they did not match the exact rule. The supplied exact command also failed. Claude cut it inside the long reference before the operation name. The permission check saw only that partial command and denied it.
+
+The Store has one completed setup operation. It has three setup tool records. It has no project-surface operation. The sentinel hash stayed `31a2e1adc45d86aac3853a51a9c33b03d3b0d6228599fde070de6e63f07f22b0`. No archive surface was created. This result meets the stop rule. The static method stays blocked.
 
 ## A35 Decision
 
-A35 is the specific exception to the general missing-method close rule. Claude Code permission rules can remain unavailable when narrow sandbox Store access cannot pass. The recorded result meets that exception. Claude Code MCP remains the proved safe path.
+A35 is the specific exception to the general missing-method close rule. Claude Code permission rules can remain unavailable when narrow Store access cannot pass. The current blocked state meets that exception.
 
-This exception does not waive Codex MCP or Codex command-rule proof. Those paths still block P2 closeout.
+The failed live rule check does not affect the passed Claude Code MCP result.
 
 ## Final Automated Checks
 
 | Check | Result |
 | --- | --- |
-| `npm test -w packages/cli -- --reporter=dot` | 88 files and 1,305 tests passed. |
-| `npm run build -w packages/cli` | Passed. |
+| Focused W19 R6 checks | 4 files and 66 tests passed. |
+| Focused W20 R2 Human Experience checks | 2 files and 57 tests passed. |
+| `npm test -w packages/cli -- --reporter=dot` | 80 files and 1,264 tests passed. |
 | `./node_modules/.bin/tsc -p packages/cli/tsconfig.json --noEmit` | Passed. |
-| Focused support-lab and adapter checks | 25 tests passed. |
-| `npm run test:smoke-harness` | 13 tests passed. |
-| `npm run smoke:pack:local` | Passed from the promoted packed package in disposable homes. |
-| `npm run validate:defaults` | 51 template and link checks passed. |
-| `node packages/cli/dist/index.js run prd authority validate --target-root .` | Passed with 39 PRD files, 551 Markdown files, 206 structured files, 1,068 links, and no diagnostics. |
-| `node packages/cli/dist/index.js project path-hygiene validate --target-root .` | The repository-wide check found 3,025 existing findings in 771 files. A filter over the changed W19 R6 plan, work, guide, registry, and result paths found no P2 finding. The check changed no file. |
+| Installed package smoke | Passed. |
+| `npm run validate:defaults` | 53 checks passed. |
+| `node packages/cli/dist/index.js run prd authority validate --target-root .` | Passed with 36 PRD files, 567 Markdown files, 196 structured files, 1,091 links, and no diagnostics. |
+| Changed-file path-hygiene validator | Passed with exit 0 against 96 existing changed or untracked paths. It checked 65 content files and reported zero failing findings, zero I/O errors, and zero changed files. |
+| Resource parity | Eight changed resources match byte-for-byte across upstream, package, and dogfood copies. |
+| `bash scripts/check-instruction-routers.sh` and `bash scripts/check-wave-numbering.sh` | Passed. |
 | `git diff --check` | Passed. |
 
 The full suite includes the W19 R3 shared Store gate, contention, pending-operation, receipt, checkout-writer, and recovery checks. It also covers the setup method flags, exact screen order, explicit `none`, dry-run and JSON parity, config preservation, repeat states, and Store-free reads with absent or unsafe Store state.
 
-## Open Acceptance Work
+## Closeout Result
 
-- Get separate authority to implement P3.
-- Retire PRDs 20, 43, and 44 from the active set. Move each valid current rule to one current owner.
-- Classify the P2 diff by changed block before code cleanup.
-- Replace tuple-gated setup support with static Codex and Claude Code adapters.
-- Remove only conformance code and assets that have no current owner.
-- Prove Codex MCP, Codex narrow rules, Claude Code MCP, and direct resource reads in disposable homes.
-- Keep Claude Code permission rules unavailable if narrow Store access cannot pass.
-- Complete the installed setup matrix and six-promise Human Experience Review.
-- Re-run all P3 hard close checks.
+- The agent-owned six-promise Human Experience Review is complete.
+- All ten hard close rules pass.
+- P3, W19 R6, and D-033 are closed.
+- Staging, commit, publication, release, and real-home installation remain outside this work.
+
+## Future Follow-Up
+
+- A future design can test a shorter safe Claude Code permission-rule carrier. This is not a P3 close blocker. P3 permits this method to remain unavailable when narrow Store access cannot pass.
 
 ## Human Experience Review
 
-Status: `not-started`.
+Status: `satisfied`.
 
-P2 did not receive Human Experience acceptance. P3 defines six current promises. Each promise must receive `satisfied`, `material gap`, or `insufficient evidence`. A material gap or insufficient evidence keeps P3 open.
+| Promise | Evidence | Observation | Conclusion | Reviewer | Reviewer limit | Disposition |
+| --- | --- | --- | --- | --- | --- | --- |
+| Setup finds known installed harnesses without tuple questions. | Static detection tests, installed setup transcript, and setup matrix. | The installed flow detects known harnesses and does not ask for scenario, provider, model, runtime, or tuple facts. | `satisfied` | Implementation agent | Review uses recorded terminal and test evidence. It does not claim a lived human reaction. | Accept the no-tuple setup claim. |
+| Setup shows only product-owned safe methods and their effects. | Static adapter declarations, grouped review tests, real native files, and the blocked Claude permission-rule result. | Setup shows declared methods and their file effects. It does not show the failed Claude permission-rule method as available. | `satisfied` | Implementation agent | The review covers the current Codex and Claude Code versions in the evidence. | Accept only the declared current method set. |
+| MCP works for Codex and Claude Code with caller identity. | Disposable Codex and Claude Code MCP reads and writes plus no-write repeats. | Both MCP paths expose the expected tools and complete the bounded Store read and write. | `satisfied` | Implementation agent | The runs use disposable homes and projects. They do not prove all future harness versions. | Accept the tested MCP paths. |
+| Codex rules grant only the named narrow operations. | No-rule control, rule-enabled read and write, terminal-only trace, and execpolicy rejection matrix. | The control cannot reach the external Store. The allowed operations pass. Wider direct commands do not match. | `satisfied` | Implementation agent | The live shell path and direct token checks cover the tested Codex version. | Accept the tested narrow-rule claim. |
+| Project and user-owned native config stay intact across apply, repeat, drift, and recovery. | YAML preservation tests, native file hashes, setup matrix, receipts, and three no-write repeats. | Reviewed Make Docs entries change without loss of unrelated content or a repeat-write loop. | `satisfied` | Implementation agent | The evidence covers the recorded fixtures and disposable native files. | Accept the preservation and idempotence claim. |
+| Resource reads work without Store or special harness access. | Installed resource list and read, Store-absent, locked, unreadable, unsafe, and no-session tests. | Resource reads return installed provider data without opening a Store session or needing caller identity. | `satisfied` | Implementation agent | The review covers the shipped resource provider and tested failure states. | Accept the Store-free resource-read claim. |
+
+No explicit human acceptance gate applies. Optional later feedback can create a finding. A material defect can reopen or narrow only the affected claim.
 
 ## Phase State
 
-P1 remains an incomplete acceptance attempt and foundation code candidate. P2 is superseded because it used invalid retained Playbooks authority. The P3 authority package is ready. P3 implementation is not authorized and has not started. W19 R6 remains incomplete and unreleasable. D-033 remains open.
+P1 is superseded and remains an incomplete acceptance record. P2 is superseded because it used invalid retained Playbooks authority. P3 is complete. The authority reset, production implementation, installed harness acceptance, and agent-owned Human Experience Review pass. P3, W19 R6, and D-033 are closed.
 
 No files were staged or committed. No package was installed into the real user home. Nothing was published or released.

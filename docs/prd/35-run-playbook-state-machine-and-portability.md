@@ -57,8 +57,8 @@ General lightweight lifecycle run capture is owned by [38-global-store-and-proje
 
 ### Conformance and Support Boundary (R-SUPPORT)
 
-- R-SUPPORT-1 (MUST): current conformance scenarios and public support claims contain no Playbook/Protocol execution, nesting, parallelism, resume, plugin launch, or unattended-run tuple.
-- R-SUPPORT-2 (MUST): historical results remain provenance and do not advance a current support tuple.
+- R-SUPPORT-1 (MUST): no source-owned static harness adapter declares Playbook/Protocol execution, nesting, parallelism, resume, plugin launch, or unattended-run behavior, and direct installed-product proof cannot claim that behavior.
+- R-SUPPORT-2 (MUST): historical conformance results remain provenance only. They do not act as a current static adapter declaration or direct installed-product proof.
 
 ## Non-Requirements
 
@@ -89,6 +89,14 @@ PRD 18 owns migration classification, lock, backup, and rollback; PRDs 38 and 39
 A clean-room rebuild must not map former Playbook runner names into the general lifecycle run model. It must keep legacy rows opaque, preserve quiescence before retirement, and leave capability-specific workflow semantics with their current owners.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: current execution support boundary.
+- Previous contract: Historical conformance results could act as current support evidence for Playbook or Protocol execution and related run behavior.
+- Replacement contract: Static adapters declare no Playbook or Protocol execution, nesting, resume, plugin launch, or unattended-run behavior. Historical results remain provenance only.
+- Rationale: A retired conformance system cannot activate a removed runtime capability.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-08 — Not assigned
 

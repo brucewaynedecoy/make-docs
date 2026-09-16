@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Static Harness Adapters and Conformance Retirement"
 kind: "plan"
-status: "active"
+status: "complete"
 coordinate: "W19 R6 P3"
 source:
   type: "design"
@@ -38,13 +38,13 @@ Then keep the useful setup and access work. Replace the production gate with sta
 | Candidate | P3 decision | Current owner or action |
 | --- | --- | --- |
 | Setup screen order, flags, dry-run, JSON, and non-TTY behavior | `update-existing` | PRDs 07 and 39. |
-| Project `harnessIntegrations` intent | `update-existing` | PRD 24. |
+| Project `harnessIntegrations` intent | `link-only` | PRD 24 already owns this current contract. P3 preserves it. |
 | Store access, caller identity, and Store-free reads | `update-existing` | PRD 25. |
 | Static Codex and Claude Code adapters | `update-existing` | PRD 28. |
-| Skill selection and ownership | `link-only` | PRD 08. The shared project-wide choice does not change. |
-| System resource placement | `link-only` | PRD 17. |
+| Skill selection and ownership | `update-existing` | PRD 08. Keep the shared project-wide choice and state that a harness connection method is not a selected Skill. |
+| System resource placement | `update-existing` | PRD 17. Exclude retired dynamic conformance and lab assets from system resources. |
 | Package contents and installed checks | `update-existing` | PRDs 10 and 16. |
-| Global native config receipts and drift | `update-existing` | PRD 38. |
+| Global native config receipts and drift | `link-only` | PRD 38 already owns this current contract. P3 preserves it. |
 | Test and review standard | `update-existing` | PRDs 48 and 50. Remove old PRD 20 dependency. |
 | Adapter admission and future harnesses | `update-existing` | PRD 30. Replace dynamic conformance admission with source-owned adapter review. |
 | Agentics package boundary | `inspect-then-update` | PRD 36. Remove only Playbooks conformance dependencies. |
@@ -89,8 +89,8 @@ Stage 2 closes only when production setup has no import or data dependency on th
 5. Run the installed setup matrix for fresh, current, partial, no-method, unsupported, drifted, blocked, failed, recovered, and repeat states.
 6. Prove exact native file ownership, cleanup, and user-content preservation.
 7. Run the full CLI, Store, package, MCP, PRD, path, link, and diff checks.
-8. Prepare the Human Experience packet for the six P3 promises.
-9. Require the owner or maintainer to record each observation, conclusion, limit, and next action.
+8. The agent prepares and records a concise review for the six P3 promises. Use the accepted promises, the real result, and existing evidence. Record the evidence, observation, conclusion, reviewer, limit, and disposition.
+9. For completed direct human-facing work, give one to three normal-use steps, what to notice, and an invitation for optional feedback. Do not require a response unless accepted authority explicitly defines a human acceptance gate.
 
 Stage 3 closes only after direct product proof and Human Experience Review pass.
 
@@ -131,12 +131,12 @@ P3 stays open for a material gap or insufficient evidence.
 - Codex narrow rules still depend on a trusted native launch fact. If Codex cannot provide one, that method cannot ship.
 - Claude Code permission rules may not provide narrow Store access. P3 permits that method to remain unavailable.
 - Existing installed packages will learn new adapter rules only through a package update. This is expected for source-owned support.
-- Human Experience Review needs a person. Automated agents cannot supply lived acceptance.
+- The agent must not claim a lived human reaction. Optional later feedback becomes a finding and affects only the applicable completion claim.
 
 ## Implementation Authority and Exclusions
 
-This P3 authority package is documentation only. It does not authorize P3 implementation.
+The owner authorized P3 implementation on 2026-09-14. The authority reset, production implementation, installed acceptance, and agent-owned Human Experience Review are complete. All ten hard close rules pass.
 
-Later implementation must preserve unrelated worktree changes. It must not stage, commit, install into the real user home, publish, or release without separate authority.
+Review and closeout must preserve unrelated worktree changes. They must not stage, commit, install into the real user home, publish, or release without separate authority.
 
-It must use only disposable homes and projects for real-harness work.
+The completed real-harness work used only disposable homes and projects.

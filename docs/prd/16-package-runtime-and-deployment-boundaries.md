@@ -82,7 +82,7 @@ Validation and release boundary:
 - Package/release validation remains dry-run only unless the user separately authorizes irreversible registry or npm publish actions.
 - Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes by running the generated tarball in isolated temporary roots, as owned by [PRD 10](10-packaging-validation-and-release-reference.md).
 - MCP validation must prove registry parity, operation-domain reuse, CLI/native-MCP resource identity and byte parity where native resources are supported, manifest, audit, backup, uninstall, migration, write-permission, dry-run, and approval behavior against the same product contracts. New provider-backed, plugin, shared-agentics, or other MCP domains must add their own proof before support claims broaden.
-- [20-agent-harness-conformance-and-support-claims.md](./20-agent-harness-conformance-and-support-claims.md) keeps conformance-lab scenarios, records, and raw artifacts out of shipped package surfaces. Promoting a reviewed subset requires authoritative maintenance of PRDs 20, 43, and 44 plus the applicable package owner before the subset may ship.
+- Dynamic support registries, lab scenarios, result records, transcripts, bootstrap assets, and raw lab artifacts stay out of shipped package surfaces. Static adapter code may ship only through the current harness, package, release, and testing contracts in [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md), [PRD 10](./10-packaging-validation-and-release-reference.md), and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md).
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -93,6 +93,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: package runtime, deployment, and release validation boundary.
+- Previous contract: Dynamic registries, lab scenarios, results, transcripts, and bootstrap assets could remain part of the shipped support path.
+- Replacement contract: Those assets do not ship. Static adapter code ships only through the current harness, package, release, and direct testing contracts.
+- Rationale: The package must contain the product path, not a retired evidence lab or a second support authority.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

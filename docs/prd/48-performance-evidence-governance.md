@@ -110,7 +110,7 @@ It does not make performance proof mandatory for every change; define a product 
 
 - R-PERF-MODES-1 (MUST): performance, functional correctness, owner or architecture review, naive end-user UAT, knowledgeable visual/manual interaction, accessibility testing, visual-regression automation, conformance, release validation, and support-claim promotion retain independent applicability, evidence, outcomes, and gates.
 - R-PERF-MODES-2 (MUST): naive UAT may report perceived slowness, and conformance or package validation may reuse an instrumented physical execution, but no adjacent mode certifies a performance profile unless the performance authority, fields, comparability contract, and outcome remain explicit. A performance result never silently satisfies another mode.
-- R-PERF-MODES-3 (MUST): performance `pass`, characterization, `blocked`, or `waived` outcomes do not establish conformance, release readiness, or public support. Public support remains limited to the exact evidence-backed tuple governed by [PRD 20](20-agent-harness-conformance-and-support-claims.md).
+- R-PERF-MODES-3 (MUST): performance `pass`, characterization, `blocked`, or `waived` outcomes do not establish installed-harness correctness, release readiness, or public support. Public harness-method support remains limited to the static adapters and direct installed-product proof governed by [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) and [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
 
 ### R-PERF-COMPAT Conservative Adoption
 
@@ -188,10 +188,10 @@ Expiry records current-use status, material-change triggers, time or release bou
 - [10 Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) owns package projection, selected dogfood parity, and installed-resource proof; package success and performance evidence do not substitute for one another.
 - [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) owns candidate enumeration, the base `create`/`update-existing`/`link-only`/`none` axis, performance coverage routing, phase gates, and closeout consumption.
 - [18 Compatibility Classification and Migration Safety](18-compatibility-classification-and-migration-safety.md) owns conservative source classification, modified-content conflict stops, explicit dispositions, rollback, and non-retroactive adoption safety.
-- [20 Agent Harness Conformance and Support Claims](20-agent-harness-conformance-and-support-claims.md) owns exact support tuples and public-claim promotion; performance evidence cannot broaden them.
+- [PRD 28 Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters and their methods. Performance evidence cannot broaden them.
 - [21 Project Tool Directory and Resource Tiers](21-project-tool-directory-and-resource-tiers.md) owns peer contract/prompt/reference/template identity, optional local projection, installed-provider resolution, and current resource paths.
 - [38 Global Store and Project State](38-global-store-and-project-state.md) owns optional operational run/evidence capture, typed receipts, privacy, and the repository-versus-machine-state boundary.
-- [43 Conformance Scenario Model and Execution Kits](43-conformance-scenario-model-and-execution-kits.md) and [44 Conformance Lab Sessions and Evidence](44-conformance-lab-sessions-and-evidence.md) retain their independent conformance scenarios, deterministic evidence bar, lab sessions, and evidence homes; they do not become a benchmark lab.
+- [PRD 50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection and evidence. Performance evidence remains a separate proof mode.
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) owns `O-###` identity and routing for `defer-required` outcomes and future remediation accepted through a waiver.
 - [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings and unassisted human-goal evidence without certifying a quantitative performance profile.
 - [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
@@ -215,6 +215,14 @@ A clean-room rebuild must preserve applicability as a first-class decision, matu
 Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with conformance/UAT/release/support proof, or add a validator that makes product judgments or runs benchmarks. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: performance modes and public harness support claims.
+- Previous contract: A performance result could be read as support evidence for an installed harness method.
+- Replacement contract: Performance evidence cannot establish installed-harness correctness, release readiness, or public support. Static adapter authority and direct installed-product proof remain separate requirements.
+- Rationale: Speed and capacity evidence does not prove native configuration, permissions, or Store access behavior.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-28 — W21 R0
 

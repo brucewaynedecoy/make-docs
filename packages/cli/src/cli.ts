@@ -17,7 +17,16 @@ import {
   type MakeDocsConfig,
   type ProjectHarnessIntegrationRecord,
 } from "./config";
-import type { HarnessMethodSelection } from "./harness-access";
+import {
+  HARNESS_CALLER_IDENTITY_ARG,
+  HARNESS_CALLER_IDENTITY_ENV,
+  HARNESS_CALLER_REFERENCE_ARG,
+  encodeHarnessCallerIdentity,
+  parseHarnessCallerIdentity,
+  parseHarnessCallerIdentityArgument,
+  parseHarnessCallerReference,
+  type HarnessMethodSelection,
+} from "./harness-access";
 import {
   applyInstallPlan,
   findReviewableManagedFileConflicts,
@@ -29,8 +38,13 @@ import {
   executeInstallPlanMigration,
   executeStoreCheckpoint9Migration,
 } from "./migration";
-import { createExecutionContext } from "./operations/context";
+import {
+  createExecutionContext,
+  resolveCliOperationLaunch,
+  type CliOperationLaunch,
+} from "./operations/context";
 import { invokeOperation } from "./operations/registry";
+import { OperationError } from "./operations/types";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
@@ -140,22 +154,115 @@ type SkillsCommandRunner = (options: SkillsCommandOptions) => Promise<void>;
 let uninstallCommandLoaderOverride: UninstallCommandLoader | null = null;
 let skillsCommandRunnerOverride: SkillsCommandRunner | null = null;
 
+export interface ResolvedCliLaunchArgv {
+  argv: string[];
+  launch: CliOperationLaunch;
+}
+
+/** Remove the product-owned harness identity before parsing public commands. */
+export function resolveCliLaunchArgv(
+  argv: readonly string[],
+  environmentCallerIdentityRaw = process.env[HARNESS_CALLER_IDENTITY_ENV],
+): ResolvedCliLaunchArgv {
+  const identityPositions = argv.flatMap((value, index) =>
+    value === HARNESS_CALLER_IDENTITY_ARG ? [index] : [],
+  );
+  const referencePositions = argv.flatMap((value, index) =>
+    value === HARNESS_CALLER_REFERENCE_ARG ? [index] : [],
+  );
+  if (identityPositions.length > 1) {
+    throw new OperationError(`\`${HARNESS_CALLER_IDENTITY_ARG}\` can be given only once.`);
+  }
+  if (referencePositions.length > 1) {
+    throw new OperationError(`\`${HARNESS_CALLER_REFERENCE_ARG}\` can be given only once.`);
+  }
+  if (identityPositions.length && referencePositions.length) {
+    throw new OperationError("The Make Docs harness caller identity and reference cannot be used together.");
+  }
+  if (identityPositions.length === 1 && identityPositions[0] !== 0) {
+    throw new OperationError(`\`${HARNESS_CALLER_IDENTITY_ARG}\` must come before the public command.`);
+  }
+  if (referencePositions.length === 1 && referencePositions[0] !== 0) {
+    throw new OperationError(`\`${HARNESS_CALLER_REFERENCE_ARG}\` must come before the public command.`);
+  }
+
+  let argumentCallerIdentityRaw: string | undefined;
+  let callerReference: ReturnType<typeof parseHarnessCallerReference> | undefined;
+  let commandArgv = [...argv];
+  if (identityPositions[0] === 0) {
+    const argument = argv[1];
+    if (!argument) {
+      throw new OperationError(`\`${HARNESS_CALLER_IDENTITY_ARG}\` requires one caller identity.`);
+    }
+    try {
+      argumentCallerIdentityRaw = encodeHarnessCallerIdentity(
+        parseHarnessCallerIdentityArgument(argument),
+      );
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new OperationError(`The Make Docs harness caller identity is invalid: ${detail}`);
+    }
+    commandArgv = argv.slice(2);
+    if (commandArgv.length === 0) {
+      throw new OperationError(`\`${HARNESS_CALLER_IDENTITY_ARG}\` must be followed by a public command.`);
+    }
+  } else if (referencePositions[0] === 0) {
+    const argument = argv[1];
+    if (!argument) {
+      throw new OperationError(`\`${HARNESS_CALLER_REFERENCE_ARG}\` requires one caller reference.`);
+    }
+    try {
+      callerReference = parseHarnessCallerReference(argument);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new OperationError(`The Make Docs harness caller reference is invalid: ${detail}`);
+    }
+    commandArgv = argv.slice(2);
+    if (commandArgv.length === 0) {
+      throw new OperationError(`\`${HARNESS_CALLER_REFERENCE_ARG}\` must be followed by a public command.`);
+    }
+  }
+
+  if (callerReference && environmentCallerIdentityRaw) {
+    throw new OperationError("The Make Docs harness caller reference and environment identity cannot be used together.");
+  }
+
+  if (
+    argumentCallerIdentityRaw &&
+    environmentCallerIdentityRaw
+  ) {
+    let canonicalEnvironmentCallerIdentityRaw: string;
+    try {
+      canonicalEnvironmentCallerIdentityRaw = encodeHarnessCallerIdentity(
+        parseHarnessCallerIdentity(environmentCallerIdentityRaw),
+      );
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new OperationError(`The Make Docs harness caller identity is invalid: ${detail}`);
+    }
+    if (argumentCallerIdentityRaw !== canonicalEnvironmentCallerIdentityRaw) {
+      throw new OperationError("The command and environment harness caller identities do not match.");
+    }
+  }
+  const callerIdentityRaw = argumentCallerIdentityRaw ?? environmentCallerIdentityRaw;
+  return {
+    argv: commandArgv,
+    launch: resolveCliOperationLaunch(callerIdentityRaw, callerReference),
+  };
+}
+
 /**
- * Parses and validates one make-docs CLI argv WITHOUT executing it, throwing
- * exactly where {@link runCli} would refuse the invocation (unknown command,
- * unknown flag, flag/subcommand mismatch). Exposed for the W18 R13
- * conformance kit generator's executable-by-construction check (PRD 43
- * R-KIT-3): rendered scenario commands are projected through the REAL parser
- * — never a kit-local grammar table — so a command the current CLI does not
- * accept fails kit generation, before any lab session starts. `run` argv is
- * intentionally not deep-validated here; the run tree's own resolver and
- * adapters (`adaptRunCliArgv` in src/run/cli.ts) own that surface.
+ * Parse and validate one Make Docs CLI argv without running it.
+ * Safety tests use this parser to prove that generated commands use the real CLI grammar.
+ * The `run` tree keeps its own deep validation in `adaptRunCliArgv`.
  */
 export function validateMakeDocsCliArgv(argv: string[]): void {
-  validateParsedArgs(parseArgs(argv));
+  validateParsedArgs(parseArgs(resolveCliLaunchArgv(argv).argv));
 }
 
 export async function runCli(argv = process.argv.slice(2)): Promise<void> {
+  const resolvedLaunch = resolveCliLaunchArgv(argv);
+  argv = resolvedLaunch.argv;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
     return;
@@ -167,21 +274,25 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.command === "run") {
-    await runRunCommand(parsed.runArgs);
+    await runRunCommand(parsed.runArgs, {}, resolvedLaunch.launch);
     return;
   }
 
   if (parsed.command === "resource") {
-    await runResourceCommand(parsed.runArgs);
+    await runResourceCommand(parsed.runArgs, resolvedLaunch.launch);
     return;
   }
 
   if (parsed.command === "project") {
     if (parsed.runArgs[0] === "path-hygiene" && ["validate", "repair"].includes(parsed.runArgs[1] ?? "")) {
-      await runProjectPathHygieneCommand(parsed.runArgs.slice(2), parsed.runArgs[1] === "repair");
+      await runProjectPathHygieneCommand(
+        parsed.runArgs.slice(2),
+        parsed.runArgs[1] === "repair",
+        resolvedLaunch.launch,
+      );
       return;
     }
-    await runProjectCommand(parsed.runArgs);
+    await runProjectCommand(parsed.runArgs, resolvedLaunch.launch);
     return;
   }
 
@@ -776,7 +887,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
 }
 
-async function runProjectPathHygieneCommand(argv: string[], repair = false): Promise<void> {
+async function runProjectPathHygieneCommand(
+  argv: string[],
+  repair = false,
+  launch = resolveCliOperationLaunch(),
+): Promise<void> {
   try {
     let scope: "content" | "managed" | undefined;
     const paths: string[] = [];
@@ -836,7 +951,15 @@ async function runProjectPathHygieneCommand(argv: string[], repair = false): Pro
         ...(paths.length ? { paths } : {}),
         ...(repair ? { apply } : {}),
       },
-      createExecutionContext({ surface: "cli", cwd: targetRoot, writesAllowed: repair, dryRun: repair && !apply }),
+      createExecutionContext({
+        surface: "cli",
+        route: launch.route,
+        callerIdentityRaw: launch.callerIdentityRaw,
+        callerReference: launch.callerReference,
+        cwd: targetRoot,
+        writesAllowed: repair,
+        dryRun: repair && !apply,
+      }),
     );
     const result = invocation.value as unknown as import("./path-hygiene").PathHygieneRepairResult;
     if (format === "json") output.write(JSON.stringify(result, null, 2) + "\n");

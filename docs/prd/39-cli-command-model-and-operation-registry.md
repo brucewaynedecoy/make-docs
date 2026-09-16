@@ -26,7 +26,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Scope, Boundaries, and Runtime Invariants (R-SCOPE, R-KEEP)
 
-- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, resource, project, and `run` projections, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; PRDs [20](20-agent-harness-conformance-and-support-claims.md), [43](43-conformance-scenario-model-and-execution-kits.md), and [44](44-conformance-lab-sessions-and-evidence.md) own conformance; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns Global Store and project-state schemas. Playbooks and Protocols own no admitted current command, registry, runtime, package, or rendering surface. The frozen P3 legacy set is a staged compatibility exception and does not create a current support claim.
+- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, resource, project, and `run` projections, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters; [PRDs 10](10-packaging-validation-and-release-reference.md), [16](16-package-runtime-and-deployment-boundaries.md), and [50](50-proportionate-testing-and-human-centered-validation.md) own direct package, release, and installed-product proof; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns Global Store and project-state schemas. Playbooks and Protocols own no admitted current command, registry, runtime, package, or rendering surface. The frozen P3 legacy set is a staged compatibility exception and does not create a current support claim.
 - R-KEEP-1 (MUST): TypeScript is the v2 runtime authority; Rust is not a design target, distribution, or parity requirement. Remote execution through `npx`, `pnpm dlx`, and `bunx` is the primary posture, with an installed binary available where a package manager requires an entry point. The installer-first no-command posture remains valid and is not replaced by a mandatory command router. MCP tools delegate to the same deterministic operation contract as equivalent CLI commands with identical reads, configuration interpretation, provenance, audit, dry-run, and write permissions; native MCP resources use the same resolver as CLI resource list/read where supported. Deterministic logic lives in modular TypeScript operation domains behind thin dispatchers and is testable without CLI or MCP transport. Project `.make-docs/config.yaml` provides declarative project intent and presentation only after canonical routing. It is never routing or machine-permission authority.
 - R-KEEP-2 (MUST): lifecycle Store mutations return the `LifecycleStoreMutationReceipt` owned by [PRD 38](38-global-store-and-project-state.md#general-lifecycle-runs-and-evidence-r-ps). CLI JSON and MCP tools serialize the same receipt fields without transport-only additions or renamed fields. Read-only, failed, conflicted, unavailable, and rolled-back lifecycle operations return no success receipt.
 
@@ -49,11 +49,11 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-5 (MUST): `setup reconfigure` opens the same state model with existing project intent selected. `setup skills` opens the same Skill planning service. `setup backup` and `setup remove` remain separate lifecycle flows.
 - R-SETUP-6 (MUST): repeat setup reads desired machine state, project intent, live harness configuration, Store receipts, and pending operations. It does not repeat a verified change. It reports the exact incomplete or drifted part and resumes only through the owning operation.
 - R-SETUP-7 (MUST): resource placement offers installed-provider use, all local resource copies, or selected resource types. The text states that provider reads need no Store permission and that local copies do not grant harness or Store access.
-- R-SETUP-8 (MUST): setup exposes only adapter methods admitted by PRD 28 and claimable under PRD 20. Skipping a method is valid. The result explains which Store-backed agent operations remain unavailable without saying that Store-free resource reads are unavailable.
+- R-SETUP-8 (MUST): setup exposes only methods declared by the source-owned static adapters in PRD 28. Skipping a method is valid. The result explains which Store-backed agent operations remain unavailable without saying that Store-free resource reads are unavailable.
 - R-SETUP-9 (MUST): `setup` and `setup system` accept `--codex-method <none|mcp|command-rules>` and `--claude-code-method <none|mcp|permission-rules>` as the canonical non-interactive method inputs. A method flag selects its harness. A selected harness with no method fails before writes in non-interactive mode. `--yes` approves an already complete plan. It never supplies a missing choice.
-- R-SETUP-10 (MUST): `--dry-run` resolves the same central support registry, native state, receipts, machine intent, project intent, and pending operations as apply. It prints the exact grouped plan and writes nothing. An unsupported method fails with the missing proof and one useful lab or setup action.
+- R-SETUP-10 (MUST): `--dry-run` resolves the same static adapter declarations, native state, receipts, machine intent, project intent, and pending operations as apply. It prints the exact grouped plan and writes nothing. An unavailable method fails with its exact blocker and one useful setup action.
 - R-SETUP-11 (MUST): interactive project setup orders project state, harness selection, one method-and-Skills screen for each selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, and one final result. `setup system` starts at the per-harness method screens and performs no project initialization.
-- R-SETUP-12 (MUST): production setup reads method support only through the validated central conformance registry loader. Repeat setup reports `current`, `drifted`, `blocked`, `unsupported`, or `incomplete` and does not issue a generic rerun instruction unless the rerun follows a named changed condition.
+- R-SETUP-12 (MUST): production setup reads method support only from the source-owned static adapter declarations. It never loads a provider, model, runtime, scenario, tuple, result record, or support registry to decide method eligibility. Repeat setup reports `current`, `drifted`, `blocked`, `unsupported`, or `incomplete` and does not issue a generic rerun instruction unless the rerun follows a named changed condition.
 - R-SETUP-13 (MUST): `setup`, `setup reconfigure`, and `setup skills` read pending installation state for the target checkout before the first editable question. A pending operation stops the new setup flow. Human output names the operation, saved-plan state, last safe stage, and one permitted next action. Non-interactive, JSON, and MCP results carry the same facts. The stopped flow writes nothing.
 
 ### Tool Self-Management (R-SELF)
@@ -207,10 +207,10 @@ Code anchors:
 
 - R-FIX-2 (MUST): CLI rendering derives resume guidance from the current bounded lifecycle run state. It never reconstructs state from evidence references, never renders guidance for a completed, failed, or abandoned run, and never interprets legacy `playbook_runs`; this PRD owns command and presentation projection while PRD 38 owns Store schemas.
 
-### Conformance Compatibility (R-SEQ)
+### Installed Harness Compatibility (R-SEQ)
 
-- R-SEQ-1 (MUST): conformance executes only against the current generated-package content and CLI grammar; no scenario invokes an incompatible package or command form.
-- R-SEQ-2 (MUST): [43-conformance-scenario-model-and-execution-kits.md](43-conformance-scenario-model-and-execution-kits.md) uses current v2 dependency-block fixtures, canonical resource/lifecycle grammar, `probe`-based checks, and `--json` for every transcript consumed as machine evidence.
+- R-SEQ-1 (MUST): direct installed-harness checks execute only against current generated-package content and CLI grammar. No check invokes an incompatible package or command form.
+- R-SEQ-2 (MUST): machine-read installed-harness evidence uses current v2 dependency-block fixtures, canonical resource and lifecycle grammar, `probe`-based checks, and `--json` output.
 
 ### Verification (R-TEST)
 
@@ -248,6 +248,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: setup command model, method eligibility, and installed-harness compatibility.
+- Previous contract: Production setup loaded dynamic support facts and could return a generic rerun action for an unavailable method.
+- Replacement contract: Setup uses only PRD 28 static adapter declarations, reports exact current or blocked state, and keeps Store-free resource reads available without harness access.
+- Rationale: The command model must give one executable next action and cannot depend on facts that normal setup cannot create.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-15 — W19 R7
 

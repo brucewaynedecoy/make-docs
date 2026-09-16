@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -19,10 +20,13 @@ import {
   resolveEffectiveHarnessIntegration,
 } from "../src/config";
 import {
+  CLAUDE_CODE_HARNESS_ADAPTER,
   CODEX_HARNESS_ADAPTER,
   HARNESS_CALLER_IDENTITY_ENV,
+  encodeHarnessCallerReference,
   encodeHarnessCallerIdentity,
   fingerprintEntry,
+  parseHarnessCallerReference,
   sha256,
   validateHarnessCommandRules,
   verifyMakeDocsExecutable,
@@ -30,6 +34,10 @@ import {
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "../src/mcp/tools";
 import { createExecutionContext } from "../src/operations/context";
 import { assertOperationAccess } from "../src/operations/access";
+import {
+  assertStoreFreeHarnessOperationAllowed,
+  resolveHarnessOperationPolicy,
+} from "../src/operations/harness-policy";
 import {
   invokeOperation,
   listCommandRuleCandidates,
@@ -144,6 +152,62 @@ describe("W19 R6 operation access", () => {
     expect(existsSync(storeRoot)).toBe(false);
   });
 
+  it("checks a Claude caller reference and project limit without opening the Store", () => {
+    const targetRoot = tempDir("make-docs-r6-reference-store-free-project");
+    const nativeRoot = tempDir("make-docs-r6-reference-store-free-home");
+    const storeRoot = path.join(tempDir("make-docs-r6-reference-store-free-parent"), "absent-store");
+    const executable = verifyMakeDocsExecutable({
+      executablePath: path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dist/index.js",
+      ),
+    });
+    const callerReference = parseHarnessCallerReference(encodeHarnessCallerReference({
+      schemaVersion: 1,
+      kind: "make-docs-harness-caller",
+      adapterId: CLAUDE_CODE_HARNESS_ADAPTER.id,
+      adapterVersion: CLAUDE_CODE_HARNESS_ADAPTER.version,
+      harnessId: "claude-code",
+      connectionMethod: "permission-rules",
+      scope: "machine",
+      root: realpathSync(nativeRoot),
+      executable,
+    }));
+    const configPath = getMakeDocsConfigPath(targetRoot);
+    mkdirSync(path.dirname(configPath), { recursive: true });
+    writeFileSync(configPath, [
+      "harnessIntegrations:",
+      "  - harness: claude-code",
+      "    mode: narrow",
+      "    method: permission-rules",
+      "    accessCeiling:",
+      "      store: none",
+      "      project: read",
+      "      hostConfig: none",
+      "",
+    ].join("\n"));
+
+    expect(assertStoreFreeHarnessOperationAllowed({
+      operation: "resource.list",
+      required: { store: "none", project: "read", hostConfig: "none" },
+      targetRoot,
+      route: "native-rule",
+      callerReference,
+      runtimeExecutablePath: executable.path,
+    })).toMatchObject({
+      access: { store: "none", project: "read", hostConfig: "none" },
+    });
+    expect(() => assertStoreFreeHarnessOperationAllowed({
+      operation: "project.layout.apply",
+      required: { store: "none", project: "write", hostConfig: "none" },
+      targetRoot,
+      route: "native-rule",
+      callerReference,
+      runtimeExecutablePath: executable.path,
+    })).toThrow("does not allow operation 'project.layout.apply'");
+    expect(existsSync(storeRoot)).toBe(false);
+  });
+
   it("bypasses busy, unsafe, and unreadable Store state for store-free reads", async () => {
     const targetRoot = tempDir("make-docs-r6-resource-blocked-store");
     const storeRoot = path.join(tempDir("make-docs-r6-blocked-store-parent"), "store");
@@ -235,7 +299,7 @@ describe("W19 R6 harness intent", () => {
     targetRoot: string,
     storeRoot: string,
     nativeRoot: string,
-  ): void {
+  ): ReturnType<typeof verifyMakeDocsExecutable> {
     withInstallationOperation(targetRoot, "test.prepare-store", () => undefined, { storeRoot });
     const executable = verifyMakeDocsExecutable({
       executablePath: path.resolve(
@@ -246,7 +310,7 @@ describe("W19 R6 harness intent", () => {
     const plan = CODEX_HARNESS_ADAPTER.plan({
       method: "mcp",
       scope: "machine",
-      root: nativeRoot,
+      root: realpathSync(nativeRoot),
       executable,
     });
     const applied = CODEX_HARNESS_ADAPTER.apply({
@@ -283,6 +347,56 @@ describe("W19 R6 harness intent", () => {
       root: nativeRoot,
       executable,
     });
+    return executable;
+  }
+
+  function configureVerifiedClaudeRules(
+    targetRoot: string,
+    storeRoot: string,
+    nativeRoot: string,
+  ) {
+    withInstallationOperation(targetRoot, "test.prepare-store", () => undefined, { storeRoot });
+    const executable = verifyMakeDocsExecutable({
+      executablePath: path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dist/index.js",
+      ),
+    });
+    const plan = CLAUDE_CODE_HARNESS_ADAPTER.plan({
+      method: "permission-rules",
+      scope: "machine",
+      root: nativeRoot,
+      executable,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+      commandRules: COMMAND_RULE_AUTHORITY.list(),
+    });
+    const applied = CLAUDE_CODE_HARNESS_ADAPTER.apply({
+      plan,
+      approved: true,
+      operationId: "runtime-claude-rule-policy",
+      appliedVersion: executable.packageVersion,
+      verifiedAt: "2026-09-15T15:00:00.000Z",
+    });
+    recordHarnessIntegrationReceipt(targetRoot, storeRoot, applied.receipt);
+    const global = defaultGlobalConfig();
+    global.settings.harnesses["claude-code"] = {
+      selected: true,
+      maximumMethod: "permission-rules",
+      accessCeiling: { store: "write", project: "write", hostConfig: "none" },
+    };
+    writeGlobalConfig(storeRoot, global);
+    const identity = {
+      schemaVersion: 1,
+      kind: "make-docs-harness-caller",
+      adapterId: CLAUDE_CODE_HARNESS_ADAPTER.id,
+      adapterVersion: CLAUDE_CODE_HARNESS_ADAPTER.version,
+      harnessId: "claude-code",
+      connectionMethod: "permission-rules",
+      scope: "machine",
+      root: realpathSync(nativeRoot),
+      executable,
+    } as const;
+    return { executable, reference: encodeHarnessCallerReference(identity), settingsPath: path.join(nativeRoot, ".claude", "settings.json") };
   }
 
   it("keeps unknown global config fields while adding per-harness machine intent", () => {
@@ -463,6 +577,160 @@ describe("W19 R6 harness intent", () => {
       surface: "assets",
       allowWrite: true,
     })).rejects.toThrow("does not allow operation 'project.surface.ensure'");
+  });
+
+  it("rebuilds and verifies a Claude permission-rule identity from its compact reference", () => {
+    const targetRoot = tempDir("make-docs-r6-runtime-claude-project");
+    const storeRoot = tempDir("make-docs-r6-runtime-claude-store");
+    const nativeRoot = tempDir("make-docs-r6-runtime-claude-home");
+    const configured = configureVerifiedClaudeRules(targetRoot, storeRoot, nativeRoot);
+    const callerReference = parseHarnessCallerReference(configured.reference);
+    const policy = () => resolveHarnessOperationPolicy({
+      route: "native-rule",
+      targetRoot,
+      storeRoot,
+      callerReference,
+      runtimeExecutablePath: configured.executable.path,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    });
+    expect(policy()).toMatchObject({
+      verified: true,
+      harnesses: ["claude-code"],
+      methods: ["permission-rules"],
+      access: { store: "write", project: "write", hostConfig: "none" },
+    });
+
+    const changedDigest = parseHarnessCallerReference(
+      `${configured.reference.slice(0, -1)}${configured.reference.endsWith("0") ? "1" : "0"}`,
+    );
+    expect(() => resolveHarnessOperationPolicy({
+      route: "native-rule",
+      targetRoot,
+      storeRoot,
+      callerReference: changedDigest,
+      runtimeExecutablePath: configured.executable.path,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toThrow("reference digest does not match");
+
+    const unverifiedStore = tempDir("make-docs-r6-runtime-claude-no-receipt-store");
+    withInstallationOperation(targetRoot, "test.prepare-unverified-store", () => undefined, {
+      storeRoot: unverifiedStore,
+    });
+    const unverifiedGlobal = defaultGlobalConfig();
+    unverifiedGlobal.settings.harnesses["claude-code"] = {
+      selected: true,
+      maximumMethod: "permission-rules",
+      accessCeiling: { store: "write", project: "write", hostConfig: "none" },
+    };
+    writeGlobalConfig(unverifiedStore, unverifiedGlobal);
+    expect(() => resolveHarnessOperationPolicy({
+      route: "native-rule",
+      targetRoot,
+      storeRoot: unverifiedStore,
+      callerReference,
+      runtimeExecutablePath: configured.executable.path,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toThrow("No exact current Store receipt");
+
+    const otherExecutable = path.join(nativeRoot, "make-docs-other");
+    writeFileSync(otherExecutable, "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+    expect(() => resolveHarnessOperationPolicy({
+      route: "native-rule",
+      targetRoot,
+      storeRoot,
+      callerReference,
+      runtimeExecutablePath: otherExecutable,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toThrow("exact Make Docs package binary");
+
+    const changedRoot = tempDir("make-docs-r6-runtime-claude-other-home");
+    const changedRootReference = parseHarnessCallerReference(encodeHarnessCallerReference({
+      schemaVersion: 1,
+      kind: "make-docs-harness-caller",
+      adapterId: CLAUDE_CODE_HARNESS_ADAPTER.id,
+      adapterVersion: CLAUDE_CODE_HARNESS_ADAPTER.version,
+      harnessId: "claude-code",
+      connectionMethod: "permission-rules",
+      scope: "machine",
+      root: realpathSync(changedRoot),
+      executable: configured.executable,
+    }));
+    expect(() => resolveHarnessOperationPolicy({
+      route: "native-rule",
+      targetRoot,
+      storeRoot,
+      callerReference: changedRootReference,
+      runtimeExecutablePath: configured.executable.path,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toThrow("native entry is absent");
+
+    expect(() => resolveHarnessOperationPolicy({
+      route: "mcp",
+      targetRoot,
+      storeRoot,
+      callerReference,
+      runtimeExecutablePath: configured.executable.path,
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toThrow("MCP route needs an exact MCP caller identity");
+
+    writeFileSync(configured.settingsPath, JSON.stringify({ permissions: { allow: [] } }, null, 2));
+    expect(policy).toThrow("native entry is absent");
+  });
+
+  it("uses only the active harness record when project intent contains multiple harnesses", async () => {
+    const targetRoot = tempDir("make-docs-r6-runtime-mixed-project");
+    const storeRoot = tempDir("make-docs-r6-runtime-mixed-store");
+    const nativeRoot = tempDir("make-docs-r6-runtime-mixed-home");
+    const executable = configureVerifiedCodexMcp(targetRoot, storeRoot, nativeRoot);
+    writeProjectHarnessIntent(targetRoot, [
+      "harnessIntegrations:",
+      "  - harness: claude-code",
+      "    mode: disable",
+      "  - harness: codex",
+      "    mode: narrow",
+      "    method: mcp",
+      "    accessCeiling:",
+      "      store: write",
+      "      project: write",
+      "      hostConfig: none",
+    ]);
+
+    let tools = listMakeDocsMcpTools(targetRoot);
+    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
+    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
+    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+      .resolves.toMatchObject({ operation: "project.state.status", mcpReady: true });
+
+    process.env[HARNESS_CALLER_IDENTITY_ENV] = encodeHarnessCallerIdentity({
+      schemaVersion: 1,
+      kind: "make-docs-harness-caller",
+      adapterId: CLAUDE_CODE_HARNESS_ADAPTER.id,
+      adapterVersion: CLAUDE_CODE_HARNESS_ADAPTER.version,
+      harnessId: CLAUDE_CODE_HARNESS_ADAPTER.harnessId,
+      connectionMethod: "mcp",
+      scope: "machine",
+      root: nativeRoot,
+      executable,
+    });
+    tools = listMakeDocsMcpTools(targetRoot);
+    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(false);
+    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(false);
+
+    writeProjectHarnessIntent(targetRoot, [
+      "harnessIntegrations:",
+      "  - harness: codex",
+      "    mode: disable",
+      "  - harness: claude-code",
+      "    mode: narrow",
+      "    method: mcp",
+      "    accessCeiling:",
+      "      store: write",
+      "      project: write",
+      "      hostConfig: none",
+    ]);
+    tools = listMakeDocsMcpTools(targetRoot);
+    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
+    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
   });
 });
 

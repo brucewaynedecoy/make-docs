@@ -401,12 +401,13 @@ function runLocalPackedSmoke() {
   assertOnlyMakeDocsBin(packedPackage);
   assertPackedRouterGuidanceParity(packageRoot);
   assertPackedReaderFacingTemplate(packageRoot);
-  assertNoConformanceAssetsInTarball(packageRoot);
+  assertNoRetiredConformanceAssetsInTarball(packageRoot);
   assertMissing(
     path.join(packageRoot, "template/.make-docs/config.yaml"),
     "Packed template should not ship a default project config file.",
   );
   const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
+  assertPackedCliIdentity(packageRoot, packedPackage, packedMakeDocs);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "setup", "skills", "--help"], {
     encoding: "utf8",
     env: packedCliEnv,
@@ -483,7 +484,7 @@ function runLocalPackedSmoke() {
     const providerOnlyRouterPaths = assertProviderOnlyDefaultInstall(targetDir, installation);
     assertPackedInstructionTemplate(packageRoot, providerOnlyRouterPaths);
     assertManifestOmitsProjectConfig(installation);
-    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, targetDir, true);
+    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, true);
     assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, installation);
 
     execFileSync(
@@ -498,7 +499,7 @@ function runLocalPackedSmoke() {
     assertManifestPackageName(installation, EXPECTED_PACKAGE_NAME);
     assertManifestSkillFiles(installation, 0);
     assertPackedStateStatus(packedMakeDocs, installation, "ready");
-    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, targetDir, false);
+    assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, false);
     assertMissing(
       path.join(targetDir, ".claude/skills"),
       "Smoke pack setup install should not produce Claude Code skill files.",
@@ -644,6 +645,16 @@ function runLocalPackedSmoke() {
   );
   assertStoredOperation(installation, "setup.backup", path.relative(targetDir, path.join(backupDir, "AGENTS.md")));
 
+  // PRD 38 managed-ownership proof (D-026 successor): capture the complete
+  // Store-owned set before removal. The removed project manifest must not be
+  // the only place where this ownership evidence exists.
+  const managedPathsBeforeRemoval = Object.keys(readInstallationLedger(installation).files ?? {}).sort();
+  for (const requiredManagedPath of ["AGENTS.md", "CLAUDE.md", "docs/AGENTS.md", "docs/CLAUDE.md"]) {
+    if (!managedPathsBeforeRemoval.includes(requiredManagedPath)) {
+      throw new Error(`Smoke pack Store ledger omitted managed path ${requiredManagedPath} before removal.`);
+    }
+  }
+
   execFileSync(
     "node",
     [packedMakeDocs, "setup", "remove", "--yes", "--target", targetDir],
@@ -656,6 +667,12 @@ function runLocalPackedSmoke() {
     path.join(targetDir, ".make-docs/manifest.json"),
     "Smoke pack setup remove left the make-docs manifest behind.",
   );
+  for (const relativePath of managedPathsBeforeRemoval) {
+    assertMissing(
+      path.join(targetDir, relativePath),
+      `Smoke pack setup remove left Store-owned managed file ${relativePath} behind.`,
+    );
+  }
   for (const relativePath of EXPECTED_SKILL_PATHS) {
     assertMissing(
       path.join(targetDir, relativePath),
@@ -857,6 +874,35 @@ function assertOnlyMakeDocsBin(packageJson) {
 
   if (bin["make-docs"] !== "./dist/index.js" && bin["make-docs"] !== "dist/index.js") {
     throw new Error(`Packed make-docs bin points at ${bin["make-docs"]}.`);
+  }
+}
+
+/**
+ * PRDs 10 and 16 package identity proof (D-027 successor): execute the exact
+ * bin extracted from this tarball. A matching command found on PATH is not
+ * evidence about the candidate package.
+ */
+function assertPackedCliIdentity(packageRoot, packageJson, packedMakeDocs) {
+  if (packageJson.name !== EXPECTED_PACKAGE_NAME) {
+    throw new Error(`Packed package name was ${packageJson.name}, expected ${EXPECTED_PACKAGE_NAME}.`);
+  }
+  const resolvedPackageRoot = realpathSync(packageRoot);
+  const resolvedPackedMakeDocs = realpathSync(packedMakeDocs);
+  if (
+    resolvedPackedMakeDocs !== resolvedPackageRoot &&
+    !resolvedPackedMakeDocs.startsWith(`${resolvedPackageRoot}${path.sep}`)
+  ) {
+    throw new Error(`Packed make-docs bin resolved outside the extracted package: ${resolvedPackedMakeDocs}.`);
+  }
+  const actualVersion = execFileSync(process.execPath, [resolvedPackedMakeDocs, "--version"], {
+    encoding: "utf8",
+    env: packedCliEnv,
+  }).trim();
+  if (actualVersion !== packageJson.version) {
+    throw new Error(
+      `Packed make-docs identity mismatch: package.json is ${packageJson.version}, ` +
+        `but the extracted CLI reports ${actualVersion || "(empty)"}.`,
+    );
   }
 }
 
@@ -1098,11 +1144,17 @@ function assertPackedRouterGuidanceParity(packageRoot) {
     : "Packed upstream router parity passed. Installed parity requires a later --verify-dogfood run.");
 }
 
-function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, installTargetDir, checkFailure) {
-  const offlineEnv = createPackedOfflineEnv();
+function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, checkFailure) {
+  // PRDs 10, 16, and 25 require the public installed-provider resource path
+  // to work without a project installation or Store. Use a fresh target and
+  // an absent Store path. Do not let an existing Store hide a fallback.
+  const resourceTargetDir = registerAuxSmokeDir("make-docs-resource-store-free-");
+  const resourceStoreRoot = path.join(npmHome, `resource-store-must-not-open-${randomUUID()}`);
+  assertMissing(resourceStoreRoot, "Packed Store-free resource proof began with a Store.");
+  const offlineEnv = { ...createPackedOfflineEnv(), MAKE_DOCS_HOME: resourceStoreRoot };
   const listed = JSON.parse(execFileSync(
     "node",
-    [packedMakeDocs, "resource", "list", "--origin", "installed", "--format", "json", "--target", installTargetDir],
+    [packedMakeDocs, "resource", "list", "--origin", "installed", "--format", "json", "--target", resourceTargetDir],
     { encoding: "utf8", env: offlineEnv },
   ));
 
@@ -1125,7 +1177,7 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, insta
 
     const raw = execFileSync(
       "node",
-      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "raw", "--target", installTargetDir],
+      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "raw", "--target", resourceTargetDir],
       { env: offlineEnv },
     );
     if (!raw.equals(upstreamBytes)) {
@@ -1133,7 +1185,7 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, insta
     }
     const metadata = JSON.parse(execFileSync(
       "node",
-      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "json", "--target", installTargetDir],
+      [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "json", "--target", resourceTargetDir],
       { encoding: "utf8", env: offlineEnv },
     ));
     if (metadata.resource.origin !== "installed-machine") {
@@ -1149,7 +1201,7 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, insta
     const missingUri = "make-docs://system/contract/not-a-shipped-resource.md";
     const missing = runPackedCliExpectingFailure(
       packedMakeDocs,
-      ["resource", "read", missingUri, "--origin", "installed", "--target", installTargetDir],
+      ["resource", "read", missingUri, "--origin", "installed", "--target", resourceTargetDir],
       offlineEnv,
     );
     assertOutputContains(
@@ -1165,6 +1217,11 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, insta
       throw new Error("Packed CLI resource read did not return the supported missing-resource recovery action.");
     }
   }
+  assertMissing(resourceStoreRoot, "Packed Store-free resource operations opened a Store session.");
+  assertMissing(
+    path.join(resourceTargetDir, ".make-docs"),
+    "Packed Store-free resource operations wrote project state.",
+  );
 }
 
 function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, sourceInstallation) {
@@ -1391,31 +1448,14 @@ function assertNoProjectOperationState(targetDir, label) {
 
 function assertPackedStateStatus(packedMakeDocs, installation, expectedStatus) {
   const before = snapshotTree(installation.targetDir);
-  let output;
-  try {
-    output = execFileSync("node", [packedMakeDocs, "project", "state", "status", "--target-root", installation.targetDir, "--json"], {
-      encoding: "utf8", env: { ...packedCliEnv, MAKE_DOCS_HOME: installation.storeRoot },
-    });
-  } catch (error) {
-    const config = parseYaml(
-      readFileSync(path.join(installation.targetDir, ".make-docs/config.yaml"), "utf8"),
-    );
-    const integrations = Array.isArray(config?.harnessIntegrations) ? config.harnessIntegrations : [];
-    const explicitlyDisabled = integrations.length > 0 && integrations.every(entry => entry?.mode === "disable");
-    const stderr = String(error?.stderr ?? "");
-    if (!explicitlyDisabled || !stderr.includes('"code":"harness-operation-access-denied"')) throw error;
-    const storedStatus = inspectStore(installation, (db, checkout) => (
-      db.prepare("SELECT 1 FROM installation_ledgers WHERE checkout_id = ?").get(checkout.checkout_id)
-        ? "ready"
-        : "unregistered"
-    ));
-    if (storedStatus !== expectedStatus) {
-      throw new Error(`Packed Store state expected ${expectedStatus}, received ${storedStatus}.`);
-    }
-    if (snapshotTree(installation.targetDir) !== before) throw new Error("Denied packed state status changed project files.");
-    assertNoProjectOperationState(installation.targetDir, "denied project state status");
-    return;
-  }
+  const output = execFileSync(
+    process.execPath,
+    [packedMakeDocs, "project", "state", "status", "--target-root", installation.targetDir, "--json"],
+    {
+      encoding: "utf8",
+      env: { ...packedCliEnv, MAKE_DOCS_HOME: installation.storeRoot },
+    },
+  );
   const status = JSON.parse(output);
   if (status.status !== expectedStatus || status.storeAvailable !== true) {
     throw new Error(`Packed state status expected ${expectedStatus}: ${output}`);
@@ -1496,47 +1536,23 @@ function assertPackedReaderFacingTemplate(packageRoot) {
 }
 
 /**
- * W18 R9 P3 (PRD 20 R-TEST-3, R-KEEP-1): conformance assets — the tuple
- * registry, scenario specs, fixtures, and result records under the repo-root
- * `conformance/` directory (relocated from `docs/assets/conformance/` per
- * PRD 43) — are maintainer-only evidence infrastructure and never ship in
- * the npm tarball. Detection mirrors the repo-side check in
- * `packages/cli/src/conformance/meta-verification.ts` (the source of truth
- * for the marker set): the asset directory path (the canonical root-level
- * `conformance/` home, its distinctive subtrees at any depth, and the
- * pre-relocation `docs/assets/conformance` home), the registry data file's
- * basename, and the unambiguous schema identifiers as content markers, so a
- * relocated or renamed asset still fails. Check CODE bundled under `dist/`
- * is allowed to ship — only the ASSETS are excluded — so the content sweep
- * covers the packed template tree. A green sweep is an exclusion fact, never
- * a support claim: it proves the maintainer-only boundary held, not that any
- * harness recognizes any generated output.
+ * PRDs 10 and 16 package-content proof. The retired dynamic conformance
+ * system has no allowed package exception. A registry, lab result,
+ * transcript, scenario, bootstrap, or root conformance asset fails the pack.
  */
-function assertNoConformanceAssetsInTarball(packageRoot) {
-  const packagedRegistry = path.join(packageRoot, "conformance", "tuple-registry.json");
-  if (!existsSync(packagedRegistry)) {
-    throw new Error("Packed tarball does not contain the required conformance tuple registry.");
-  }
-  const sourceRegistry = path.join(repoRoot, "conformance", "tuple-registry.json");
-  if (createHash("sha256").update(readFileSync(packagedRegistry)).digest("hex") !==
-      createHash("sha256").update(readFileSync(sourceRegistry)).digest("hex")) {
-    throw new Error("Packed conformance registry digest differs from the root source.");
-  }
-  const registry = JSON.parse(readFileSync(packagedRegistry, "utf8"));
-  if (registry.schemaVersion !== 2) throw new Error("Packed conformance registry must use active schema version 2.");
+function assertNoRetiredConformanceAssetsInTarball(packageRoot) {
   const contentMarkers = [
     "make-docs.conformance.tuple-registry",
     "conformance.scenario.v1",
     "conformance.result.v1",
     "conformance.result.v2",
   ];
-  // Mirrors CONFORMANCE_ASSET_PATH_MARKERS / isConformanceAssetPath in
-  // packages/cli/src/conformance/meta-verification.ts.
-  const pathMarkers = [
-    "docs/assets/conformance",
-    "conformance/scenarios/",
-    "conformance/fixtures/",
-    "conformance/results/",
+  const pathPatterns = [
+    /(?:^|\/)conformance(?:\/|$)/,
+    /(?:^|\/)docs\/assets\/conformance(?:\/|$)/,
+    /(?:^|\/)(?:tuple-registry\.json|conformance-(?:kit|ingest|scenario|result|transcript|bootstrap)[^/]*)$/,
+    /(?:^|\/)[^/]*conformance-lab[^/]*$/,
+    /(?:^|\/)[^/]*(?:support|setup)-lab-(?:result|scenario|transcript|bootstrap)[^/]*$/,
   ];
   const pending = [packageRoot];
   while (pending.length > 0) {
@@ -1548,23 +1564,17 @@ function assertNoConformanceAssetsInTarball(packageRoot) {
         continue;
       }
       const relative = path.relative(packageRoot, absolute).split(path.sep).join("/");
-      if (
-        (relative.startsWith("conformance/") && relative !== "conformance/tuple-registry.json") ||
-        pathMarkers.some((marker) => relative.includes(marker))
-      ) {
+      if (pathPatterns.some((pattern) => pattern.test(relative))) {
         throw new Error(
-          `Packed tarball ships conformance asset path ${relative} (R-TEST-3, R-KEEP-1).`,
+          `Packed tarball ships retired conformance asset path ${relative}.`,
         );
       }
-      if (relative.startsWith("template/")) {
-        const content = readFileSync(absolute, "utf8");
-        for (const marker of contentMarkers) {
-          if (content.includes(marker)) {
-            throw new Error(
-              `Packed template file ${relative} carries conformance schema identifier ` +
-                `\`${marker}\`; relocated conformance assets still may not ship (R-TEST-3, R-KEEP-1).`,
-            );
-          }
+      const content = readFileSync(absolute, "utf8");
+      for (const marker of contentMarkers) {
+        if (content.includes(marker)) {
+          throw new Error(
+            `Packed file ${relative} carries retired conformance schema identifier \`${marker}\`.`,
+          );
         }
       }
     }

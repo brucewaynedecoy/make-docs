@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Unified Setup and Harness Access"
 kind: "plan"
-status: "active"
+status: "superseded"
 coordinate: "W19 R6 P1"
 source:
   type: "design"
@@ -128,6 +128,6 @@ Workers are not alone in the codebase. They must preserve other changes and adju
 
 The owner authorized this P1 implementation. The code candidate exists. Later product review found that production support loading, method selection, project intent writing, exact rule identity, real harness proof, and installed Human Experience acceptance are incomplete.
 
-P1 is an incomplete acceptance attempt. [Phase 2](02-corrective-production-path-and-acceptance.md) owns the correction.
+P1 is an incomplete acceptance attempt. [Phase 3](03-static-harness-adapters-and-conformance-retirement.md) supersedes P1 and P2 and owns the current correction and acceptance.
 
 This plan does not authorize staging, commit, release, publication, installation, or a change to a real harness.

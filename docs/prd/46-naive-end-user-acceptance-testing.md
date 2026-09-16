@@ -216,7 +216,7 @@ Every run records identity, scenario version, work coordinate, product build and
 - [PRD 22](22-project-documentation-asset-model.md), [PRD 38](38-global-store-and-project-state.md), and [PRD 47](47-persona-model.md) own evidence paths, optional projection, and Persona semantics.
 - [PRD 45](45-deferred-obligation-governance.md) owns accepted future work. It does not turn `not-needed-now` into an obligation.
 - [PRD 48](48-performance-evidence-governance.md) owns quantitative performance qualification triggered by a human observation.
-- [PRD 43](43-conformance-scenario-model-and-execution-kits.md) and [PRD 44](44-conformance-lab-sessions-and-evidence.md) own maintainer conformance and lab evidence. Their execution is not automatically an Unassisted Goal Test.
+- [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters, and [PRD 50](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product checks. Those checks are not automatically an Unassisted Goal Test.
 
 ## Rebuild Notes
 
@@ -256,6 +256,14 @@ R-NUAT-SKILL-1 (MUST): the optional first-party adapter retains the stable Skill
 R-NUAT-SKILL-2 (MUST): the adapter only discovers the shared system workflow and delegates to its typed CLI operations. It does not duplicate tester qualification, Persona resolution, scenario/evidence semantics, anti-coaching, or gate policy. The capability remains complete without installing the Skill. Source promotion must not delete valid installed shared payloads or change stable workflow resource identities.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: installed-harness proof and Unassisted Goal Testing selection.
+- Previous contract: Harness conformance and Unassisted Goal Testing could be read as one combined support path.
+- Replacement contract: PRD 28 owns static adapters and PRD 50 owns direct installed-product checks. Those checks do not automatically select or satisfy an Unassisted Goal Test.
+- Rationale: Functional harness proof and unassisted human-goal evidence answer different questions and need separate authority.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-14 — W19 R1
 

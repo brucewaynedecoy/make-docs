@@ -169,6 +169,11 @@ const HARNESS_CAPABILITY_RECORD_KEYS = new Set([
   "caveats",
 ]);
 const HARNESS_INTEGRATION_RECORD_KEYS = new Set(["harness", "mode", "method", "accessCeiling"]);
+const RETIRED_OPAQUE_CONFIG_KEYS = new Set([
+  "packaging",
+  "labels.lifecycle.playbook",
+  "labels.documentKinds.protocol",
+]);
 
 const STRUCTURAL_RENAME_KEYS = new Set([
   "contractName",
@@ -417,7 +422,6 @@ export function planProjectHarnessIntegrationWrite(input: {
   contentWhenMissing: string;
 }): ProjectHarnessIntegrationWritePlan {
   const configPath = getMakeDocsConfigPath(input.targetDir);
-  if (existsSync(configPath)) loadMakeDocsConfigOrThrow(input.targetDir);
   const beforeContent = existsSync(configPath) ? readFileSync(configPath, "utf8") : null;
   const updated = updateProjectHarnessIntegrationsYaml(
     beforeContent ?? input.contentWhenMissing,
@@ -1107,9 +1111,21 @@ function validateKeys(options: {
   keyPath: string;
   value: Record<string, unknown>;
 }): void {
-  // Validate known fields in their apply functions. Unknown fields belong to
-  // the project and remain opaque so setup can preserve future or local data.
-  void options;
+  for (const key of Object.keys(options.value)) {
+    if (options.allowedKeys.has(key)) continue;
+    const keyPath = joinKeyPath(options.keyPath, key);
+    if (RETIRED_OPAQUE_CONFIG_KEYS.has(keyPath)) continue;
+    if (isStructuralRenameKey(key)) {
+      addStructuralRenameDiagnostic(options.diagnostics, options.filePath, keyPath);
+      continue;
+    }
+    options.diagnostics.push({
+      code: "unknown-key",
+      filePath: options.filePath,
+      keyPath,
+      message: `Invalid make-docs config at ${options.filePath} (${keyPath}): unknown key '${key}'.`,
+    });
+  }
 }
 
 function getRequiredString(

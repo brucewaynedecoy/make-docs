@@ -8,14 +8,14 @@ order: 25
 tags:
   - setup
   - harnesses
-  - conformance
+  - adapters
   - store
 applies-to:
   - cli
   - mcp
-  - conformance
+  - testing
 related:
-  - "conformance-lab-scenario-and-result-contracts.md"
+  - "../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md"
   - "cli-development-local-build-and-install.md"
   - "cli-mcp-operation-parity-and-permissions.md"
   - "../user/cli-setting-up-projects-and-harness-access.md"
@@ -28,13 +28,13 @@ related:
 
 ## Overview
 
-This guide covers the safe maintenance path for unified setup and native harness access. It also states the proof that a connection method needs before setup can show it as supported.
+This guide covers the safe maintenance path for unified setup and native harness access. It also states the direct proof that a declared static adapter method needs before Make Docs can claim support.
 
-Adapter code is not support proof. A detected harness is not support proof. A native file at an expected path is not ownership proof.
+Adapter code is not installed-product proof. A detected harness is not a verified connection. A native file at an expected path is not ownership proof.
 
-The current Codex and Claude Code methods are implemented. The version 2 registry has exact real-harness proof for Claude Code MCP and Claude Code direct resource reads. Claude Code permission rules stay unavailable under A35. The Codex methods stay unavailable until a logged-in disposable Codex session passes exact proof. Pi is unsupported.
+Codex and Claude Code are the current static adapters. Codex can declare MCP and bounded verified-executable command rules. Claude Code can declare MCP. Claude Code permission rules remain blocked because the live CLI did not keep the exact allowed command. Pi is not a current adapter.
 
-Normal setup does not yet have an accepted source for the exact harness version, model or provider, and runtime facts. It can keep even a proved tuple unavailable. Do not add a wildcard. Treat this as an open production-selection gap.
+Provider, model, runtime, scenario, tuple, result-record, registry, and lab-bootstrap data do not control method selection.
 
 ## Code and State Map
 
@@ -42,7 +42,7 @@ Normal setup does not yet have an accepted source for the exact harness version,
 | --- | --- |
 | Shared setup service and system plan, review, apply, verify, and resume | `packages/cli/src/setup-system.ts` |
 | Interactive setup flow | `packages/cli/src/wizard.ts` and `packages/cli/src/cli.ts` |
-| Adapter contract and support decision | `packages/cli/src/harness-access/` |
+| Static adapter contract and method decision | `packages/cli/src/harness-access/` |
 | Operation access and command-rule authority | `packages/cli/src/operations/` |
 | Global machine intent | `packages/cli/src/store/global-config.ts` |
 | Exact native receipts | `packages/cli/src/store/harness-integration-receipts.ts` |
@@ -51,21 +51,13 @@ Normal setup does not yet have an accepted source for the exact harness version,
 
 The Store is the only operation and recovery state owner. Do not add a local receipt, a project manifest for system state, or a second recovery engine.
 
-## Adapter Evidence Binding
+## Static Adapter Binding
 
-Each adapter method has an exact identity. The identity includes the adapter, adapter version, harness, connection method, and surface.
+Each adapter has a stable id and name. It declares detection, native paths and methods, owned native entries, allowed Store operations, plan/apply/verify/repair/remove behavior, blockers, and useful next actions.
 
-`resolveHarnessMethodSupport()` must fail closed. It can use only the validated packaged registry. Tests can provide a temporary registry file through the same loader.
+Production setup reads this source-owned declaration. Tests can exercise the same declaration. They cannot inject a second method inventory.
 
-- an admitted adapter and method
-- the exact seven-part tuple
-- a `conformance-validated` registry status
-- a qualifying recorded result
-- matching Make Docs version, executable digest, and behavior digest
-- matching harness version, model or provider, and runtime
-- surfaced caveats
-
-Each failed check returns one typed reason and one useful next action. Local validation alone must not make a method selectable. Keep `publicSupportClaim: false` for each provisional tuple. Only an exact `conformance-validated` entry can make its method selectable.
+Each unavailable method returns one typed reason and one useful next action. A direct installed-product failure blocks the support claim. It does not add dynamic eligibility data to setup.
 
 ## Verified Caller and Command Rules
 
@@ -73,9 +65,21 @@ Native access must bind to the exact active Make Docs package binary. `verifyMak
 
 Command-rule plans must use the operation registry as their authority. The setup system path supplies both the registry list and the registry validator. It must not trust a caller-built rule list.
 
+Each Codex rule starts with the verified executable path. It then uses the hidden `--make-docs-harness-caller <base64url-identity>` option before the exact operation prefix. The value uses base64url so the shell sees one plain word. The CLI removes this internal option before it parses the public command. It rejects a missing, repeated, malformed, or misplaced option. If the environment also supplies a caller identity, both identities must match.
+
+Codex command rules must not use `/usr/bin/env`, an environment assignment, or another shell wrapper. MCP entries continue to carry the caller identity in `MAKE_DOCS_HARNESS_CALLER_IDENTITY`.
+
+The implemented Claude permission-rule form starts with the verified executable path. It then uses the hidden `--make-docs-harness-caller-ref <reference>` option before the exact operation prefix. The reference holds the Claude method, adapter version, machine root, and identity digest. It does not hold raw JSON. It grants no access by itself. Runtime checks rebuild the full identity and verify the executable, Store receipt, native rule, and project limit.
+
+Claude permission-rule setup is not selectable. The live Claude Code 2.1.258 check did not pass. A natural request selected the short `make-docs` command from `PATH`. That command did not match the rule. A second request supplied the full allowed command. Claude cut the long reference before the operation name. It then denied the partial command. Keep this method blocked until a shorter safe carrier passes the same live checks.
+
 The registry-derived rules exclude setup, update, uninstall, backup, removal, and shell wrappers. A forged rule, a changed rule, or a project-filtered list must not enter the machine file.
 
 Project-facing review can show the effective project-limited operations. The machine plan and machine verify path must still use the full system rule authority.
+
+The desired-entry check treats the old `/usr/bin/env` Codex form as drift. Replace it only after the Store receipt proves ownership and the user approves the machine change. Preserve all other rule files.
+
+The Claude adapter can also detect an old receipt-owned `/usr/bin/env` permission rule. It can replace only the exact rules in that receipt. It must block on a missing, changed, partial, or user-owned rule set. This repair code stays in place while the method remains blocked.
 
 ## Review and Apply Order
 
@@ -114,22 +118,18 @@ A drift repair is safe only when the current Store receipt proves ownership of e
 
 Unknown, user-owned, malformed, changed, remote, or symbolic-link state must block. Do not adopt it from its path, display name, or similar content.
 
-## Adding Exact Conformance Evidence
+## Adding or Changing a Static Adapter
 
-Use the setup-access mode in the current conformance lab. Do not use an automated fixture as real-harness proof.
+1. Update the source-owned adapter declaration.
+2. Keep its methods, owned native entries, Store operations, blockers, and next actions explicit.
+3. Add focused plan, apply, verify, repair, remove, repeat, and config-preservation checks.
+4. Pack the current candidate.
+5. Run the official harness only in a disposable home.
+6. Exercise each declared method through the installed package.
+7. Record the native files, caller and method identity, Store access, denied access, cleanup, and preserved user content.
+8. Confirm that setup shows only the declared methods.
 
-1. Pack the current candidate.
-2. Bootstrap one exact tuple with `npm run conformance:kit` and a disposable session root.
-3. Run the official harness only in that disposable home.
-4. Record the native files, identity, method, Store access, denied access, cleanup, and preserved content.
-5. Preview the version 2 result with `npm run conformance:ingest`.
-6. Have a maintainer review the result.
-7. Use reviewed ingestion to write the result and derive the registry status.
-8. Rebuild the package and confirm that its behavior digest stays stable.
-9. Confirm that normal installed setup shows support only for the exact proved tuple.
-10. Run `npm run conformance:kit -- --cleanup-session <session.json>` and confirm that the managed entry is absent and seeded user content is unchanged.
-
-Repeat this work for every harness and method. Evidence for Codex MCP does not prove Codex rules. Evidence for Codex does not prove Claude Code. A caveat must stay on the exact tuple that produced it.
+Repeat this work for every harness and method. Evidence for Codex MCP does not prove Codex rules. Evidence for Codex does not prove Claude Code.
 
 ## Required Validation Gates
 
@@ -146,16 +146,18 @@ git diff --check
 
 Also run isolated-home exact-file tests for every native format. Prove unrelated native content stays unchanged. Prove a computer success plus project failure. Prove interrupted native writes resume through the Store. Prove the project mutation callback runs once.
 
-Use a temporary home for all CLI and packed checks. Never point a test at a maintainer's real Codex or Claude Code home.
+For Codex rules, use `codex execpolicy check` on the direct token list. Check the exact allowed prefix, a missing or changed identity, another executable, setup, update, uninstall, and a command joined to unrelated work. Also run the real `zsh -lc` form. The checker can report no direct match for the shell wrapper because Codex splits safe shell scripts before it applies command rules. A live Codex run in a disposable home must prove the actual wrapper path.
 
-Before a support claim, run the real-harness conformance path for the exact tuple. Then review the installed setup screens for fresh, partial, skipped, blocked, drifted, failed, recovered, and repeat use.
+Use a disposable machine root for Make Docs setup and packed checks. Never write test config to the maintainer's real Codex or Claude Code home.
+
+Keep the real `HOME` when you start Claude Code. Pass the disposable settings file with `--settings`. Pass an empty MCP file with `--strict-mcp-config`. Use `--bare` and `dontAsk`. Do not copy or link Claude credentials. Stop and ask the user if `ANTHROPIC_API_KEY` is absent.
+
+Before a support claim, exercise the exact declared method through the installed package in a disposable harness home. Then review the installed setup screens for fresh, partial, skipped, blocked, drifted, failed, recovered, and repeat use.
 
 Human Experience Review is separate from automated tests. Record the promise, evidence, observation, conclusion, reviewer, and limit. An agent cannot certify lived ease or confidence.
 
 ## Current Release Gate
 
-The P2 production path and automated checks pass. The phase remains open.
+P2 is superseded. Its useful setup, config, Store, caller, receipt, and recovery work remains a correction input. Its dynamic eligibility gate is not current product authority.
 
-Claude Code MCP and direct resource reads have exact current proof. Claude Code permission rules remain safely unavailable under A35. Codex MCP, command rules, and direct resource reads are blocked because the disposable Codex home is not logged in. Normal setup also needs an accepted exact-fact discovery or input path before it can select a proved tuple.
-
-Do not mark P2 complete until the exact-fact input gap, Codex proof, installed terminal review, Human Experience Review, and final closeout checks are complete.
+Do not mark W19 R6 complete until P3 removes the dynamic gate and retired assets, direct installed-product checks pass for each shown method, the installed setup matrix passes, Human Experience Review covers all six promises, and every P3 hard close rule passes.

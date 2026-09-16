@@ -193,7 +193,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - MCP writes require explicit permission and registry-parity proof.
 - Bounded lifecycle operations use general run/evidence records and return surface-neutral typed receipts without Playbook-specific state.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.
-- Validation covers CLI/MCP parity, noninteractive/dry-run behavior, provider/cache failure behavior, package-runner behavior, and conformance-lab scenarios before public support claims.
+- Validation covers CLI/MCP parity, noninteractive/dry-run behavior, provider/cache failure behavior, package-runner behavior, and direct installed-product checks for each method declared by a source-owned static harness adapter before public support language changes.
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -204,6 +204,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: caller identity, operation access, and installed-harness validation.
+- Previous contract: Dynamic conformance evidence helped determine method support and did not require one direct installed-product exercise for each declared method.
+- Replacement contract: Operation metadata and verified caller identity keep Store access narrow. Every declared static adapter method needs direct installed-product proof, while Store-free reads need no Store session.
+- Rationale: Runtime authority must enforce the exact operation boundary without a separate dynamic support gate.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-09-12 — W19 R6
 
@@ -290,7 +298,6 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - [16 Package and Deployment Boundaries](16-package-runtime-and-deployment-boundaries.md)
 - [17 System Asset Materialization Contract](17-system-asset-materialization-and-local-bootstrap.md)
 - [18 Compatibility Audit and Migration Disposition](18-compatibility-classification-and-migration-safety.md)
-- [20 Agent Harness Model Conformance Lab](20-agent-harness-conformance-and-support-claims.md)
 - [21 Tool Directory System Custom Resource Tiers](21-project-tool-directory-and-resource-tiers.md)
 - [24 Configuration Convention Overlay](24-project-configuration-and-convention-overlay.md)
 - [25 TypeScript Runtime CLI MCP Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md)

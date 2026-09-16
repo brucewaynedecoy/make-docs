@@ -2,6 +2,7 @@ import path from "node:path";
 import os from "node:os";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
@@ -41,6 +42,13 @@ import {
 } from "../src/store";
 import * as installationState from "../src/store/installation-state";
 import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
+import {
+  CODEX_HARNESS_ADAPTER,
+  HARNESS_CALLER_IDENTITY_ENV,
+  encodeHarnessCallerIdentity,
+  verifyMakeDocsExecutable,
+} from "../src/harness-access";
+import { runSystemSetupCommand } from "../src/setup-system";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
 const sqliteAvailable = loadSqliteDriver().available;
@@ -48,8 +56,23 @@ const roots: string[] = [];
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   while (roots.length > 0) cleanupTempDir(roots.pop()!);
 });
+
+async function callWithMcpIdentity<T>(
+  callerIdentity: string,
+  call: () => Promise<T>,
+): Promise<T> {
+  const previous = process.env[HARNESS_CALLER_IDENTITY_ENV];
+  process.env[HARNESS_CALLER_IDENTITY_ENV] = callerIdentity;
+  try {
+    return await call();
+  } finally {
+    if (previous === undefined) delete process.env[HARNESS_CALLER_IDENTITY_ENV];
+    else process.env[HARNESS_CALLER_IDENTITY_ENV] = previous;
+  }
+}
 
 function storeRoot(): string {
   const root = createTempDir("make-docs-p6-store-");
@@ -934,6 +957,38 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
   test("20: CLI and MCP keep exact IDs, canonical results, and one-winner concurrency", async () => {
     const repoRoot = projectRoot();
     const root = storeRoot();
+    const machineRoot = createTempDir("make-docs-p6-mcp-home-");
+    roots.push(machineRoot);
+    vi.stubEnv("MAKE_DOCS_HOME", root);
+    vi.stubEnv(HARNESS_CALLER_IDENTITY_ENV, "");
+    const executable = verifyMakeDocsExecutable({
+      executablePath: path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dist/index.js",
+      ),
+    });
+    const setup = await runSystemSetupCommand({
+      dryRun: false,
+      yes: true,
+      harnesses: { codex: true, "claude-code": false },
+      methods: { codex: "mcp" },
+      executable,
+      machineRoot,
+      targetRoot: repoRoot,
+      storeRoot: root,
+    });
+    expect(setup.status).toBe("configured");
+    const mcpCallerIdentity = encodeHarnessCallerIdentity({
+      schemaVersion: 1,
+      kind: "make-docs-harness-caller",
+      adapterId: CODEX_HARNESS_ADAPTER.id,
+      adapterVersion: CODEX_HARNESS_ADAPTER.version,
+      harnessId: "codex",
+      connectionMethod: "mcp",
+      scope: "machine",
+      root: realpathSync(machineRoot),
+      executable,
+    });
     const lifecycleIds = listOperations()
       .filter((operation) => operation.id.startsWith("lifecycle."))
       .map((operation) => operation.id);
@@ -974,11 +1029,13 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       "--stage", "design",
     ]);
     const cliStart = JSON.parse(String(stdout.mock.calls[0]![0])) as Record<string, unknown>;
-    const mcpShow = await callMakeDocsMcpTool("make_docs_lifecycle_show", {
-      repoRoot,
-      storeRoot: root,
-      runId: "surface-run",
-    });
+    const mcpShow = await callWithMcpIdentity(mcpCallerIdentity, () =>
+      callMakeDocsMcpTool("make_docs_lifecycle_show", {
+        repoRoot,
+        storeRoot: root,
+        runId: "surface-run",
+      }),
+    );
     expect(mcpShow.result).toMatchObject({ status: "found", run: cliStart.run });
 
     const contenders = await Promise.allSettled([
@@ -989,13 +1046,15 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "--run-id", "surface-run",
         "--expected-version", "1",
       ]),
-      callMakeDocsMcpTool("make_docs_lifecycle_fail", {
-        repoRoot,
-        storeRoot: root,
-        runId: "surface-run",
-        expectedVersion: 1,
-        allowWrite: true,
-      }),
+      callWithMcpIdentity(mcpCallerIdentity, () =>
+        callMakeDocsMcpTool("make_docs_lifecycle_fail", {
+          repoRoot,
+          storeRoot: root,
+          runId: "surface-run",
+          expectedVersion: 1,
+          allowWrite: true,
+        }),
+      ),
     ]);
     expect(contenders.filter((entry) => entry.status === "fulfilled")).toHaveLength(1);
     expect(contenders.filter((entry) => entry.status === "rejected")).toHaveLength(1);
@@ -1021,13 +1080,15 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       "--expected-version", "2",
     ])));
     const mcpError = serializeOperationError(await captureError(() =>
-      callMakeDocsMcpTool("make_docs_lifecycle_pause", {
-        repoRoot,
-        storeRoot: root,
-        runId: "parity-run",
-        expectedVersion: 2,
-        allowWrite: true,
-      }),
+      callWithMcpIdentity(mcpCallerIdentity, () =>
+        callMakeDocsMcpTool("make_docs_lifecycle_pause", {
+          repoRoot,
+          storeRoot: root,
+          runId: "parity-run",
+          expectedVersion: 2,
+          allowWrite: true,
+        }),
+      ),
     ));
     expect(cliError).toEqual(mcpError);
     expect(cliError).toMatchObject({

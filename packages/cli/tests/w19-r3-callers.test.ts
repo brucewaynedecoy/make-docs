@@ -111,11 +111,11 @@ describe("W19 R3 installation callers", () => {
     vi.spyOn(process.stdout, "write").mockImplementation(((text: string) => { writes.push(String(text)); return true; }) as typeof process.stdout.write);
     await runProjectCommand(["state", "status", "--target-root", root, "--json"]);
     const cli = JSON.parse(writes.join(""));
-    const registry = await invokeOperation("project.state.status", { targetRoot: root }, createExecutionContext({ cwd: root, surface: "mcp", writesAllowed: false }));
+    const registry = await invokeOperation("project.state.status", { targetRoot: root }, createExecutionContext({ cwd: root, surface: "cli", route: "direct-cli", writesAllowed: false }));
     expect(cli).toEqual(registry.value);
     expect(collectFiles(root)).toEqual(before);
     expect(listOperations().map(x => x.id)).toContain("project.state.recover");
     await expect(runProjectCommand(["state", "recover", "missing-id", "--resume", "--rollback"])).rejects.toThrow("exactly one");
-    await expect(invokeOperation("project.state.recover", { targetRoot: root, operationId: "missing-id", mode: "resume" }, createExecutionContext({ cwd: root, surface: "mcp", writesAllowed: false }))).rejects.toThrow();
+    await expect(invokeOperation("project.state.recover", { targetRoot: root, operationId: "missing-id", mode: "resume" }, createExecutionContext({ cwd: root, surface: "mcp", route: "mcp", writesAllowed: false }))).rejects.toThrow();
   });
 });

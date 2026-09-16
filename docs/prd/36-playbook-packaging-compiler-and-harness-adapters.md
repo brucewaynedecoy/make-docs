@@ -25,7 +25,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 - Current extensibility admission: traced-consumer and evidence boundary in [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md).
 - Absent packaging surfaces: Playbook/Protocol package planner, compiler, generated plugin/skills bundle, marketplace writer, and packaging adapter registry.
 - Legacy generated artifacts: manifest-owned or user-modified outputs preserved and classified through migration safety.
-- Support evidence: current installed-product, Skill, CLI, MCP, and resource scenarios only.
+- Support evidence: direct current installed-product, Skill, CLI, MCP, and resource checks only.
 
 ## Requirements
 
@@ -39,7 +39,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 ### Harness Adapter Boundary (R-ADAPTER)
 
 - R-ADAPTER-1 (MUST): Make Docs maintains no packaging-specific harness capability descriptor, adapter module, marketplace registry, output-shape registry, hook lowering, or generated registration seam.
-- R-ADAPTER-2 (MUST): current harness knowledge is limited to evidence-backed routing, Skill exposure, CLI/MCP projection, and maintainer conformance needs owned by their current PRDs. It must not revive a compiler or plugin substrate.
+- R-ADAPTER-2 (MUST): current harness knowledge is limited to the static adapters, evidence-backed routing, Skill exposure, CLI/MCP projection, and direct installed-product checks owned by current PRDs. It must not revive a compiler, dynamic support registry, conformance lab, or plugin substrate.
 - R-ADAPTER-3 (MUST): an untraced adapter, hook, extension, plugin importer, or packaging registration is absent or a removal candidate. Tests, fixtures, archived plans, and historical generated files are not production consumers.
 - R-ADAPTER-4 (MUST): immediately before implementation-time deletion, one current import/registration trace confirms the candidate has no production consumer. A newly found consumer stops that deletion and routes to its existing owner PRD.
 
@@ -59,7 +59,7 @@ The general Skills catalog and explicitly selected Skill exposure remain current
 
 ### Conformance and Support Boundary (R-SUPPORT)
 
-- R-SUPPORT-1 (MUST): current conformance definitions contain no Playbook package, plugin marketplace, generated skills-bundle, compiler, adapter-installation, or dependency-materialization scenario.
+- R-SUPPORT-1 (MUST): current installed-product checks contain no Playbook package, plugin marketplace, generated skills-bundle, compiler, adapter-installation, or dependency-materialization scenario.
 - R-SUPPORT-2 (MUST): public support claims cover only current evidence-backed installed-product, Skill, CLI, MCP, system-resource, and optional-agentics surfaces. Unit tests or historical package results never imply harness recognition.
 
 ## Non-Requirements
@@ -85,13 +85,21 @@ The R-SCOPE, R-ADAPTER, R-LEGACY, R-SKILL, and R-SUPPORT requirements are normat
 
 ## Integrations
 
-PRDs 08 and 28 own current Skills distribution and exposure; PRD 30 owns optional integration admission; PRD 18 owns migration classification and preservation; PRDs 20, 43, and 44 own current support evidence; and PRDs 34 and 35 own the adjacent legacy procedural and execution boundaries.
+PRDs 08 and 28 own current Skills distribution and static harness exposure; PRD 30 owns optional integration admission; PRD 18 owns migration classification and preservation; PRDs 10, 16, 28, and 50 own direct package, release, adapter, and installed-product proof; and PRDs 34 and 35 own the adjacent legacy procedural and execution boundaries.
 
 ## Rebuild Notes
 
 A clean-room rebuild must keep authored Skills distinct from former Playbook compilation, admit no untraced adapter, preserve ambiguous legacy outputs, and avoid using historical harness shapes or package records as current support evidence.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: adapter boundary and support evidence.
+- Previous contract: Playbook packaging, generated bundles, a dynamic support registry, and conformance lab evidence remained adjacent to current harness support.
+- Replacement contract: Current harness knowledge is limited to static adapters, selected Skill exposure, CLI and MCP projection, and direct installed-product checks. No compiler or conformance lab is revived.
+- Rationale: Current support must stay separate from retired Playbook packaging and generated adapter concepts.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-08 — Not assigned
 
@@ -144,7 +152,6 @@ A clean-room rebuild must keep authored Skills distinct from former Playbook com
 - [35 Workflow Execution and Legacy Run Boundary](35-run-playbook-state-machine-and-portability.md)
 - [28 Shared Agentics Installation Harness Redirection](28-shared-agentics-installation-and-harness-exposure.md)
 - [30 Agentic Extensibility Boundary](30-plugin-substrate-and-workflow-bundles.md)
-- [20 Agent Harness Model Conformance Lab](20-agent-harness-conformance-and-support-claims.md)
 - [25 CLI Separation and MCP Boundary](25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - `packages/cli/src/operations/playbook-packaging/index.ts`
 - `packages/cli/src/operations/playbook/index.ts`
