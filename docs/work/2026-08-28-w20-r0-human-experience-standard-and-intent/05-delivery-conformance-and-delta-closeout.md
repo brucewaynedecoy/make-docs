@@ -10,6 +10,10 @@ source:
 
 # Phase 5: Delivery, Conformance, and Delta Closeout
 
+## W20 R2 Supersession
+
+[W20 R2](../../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md) supersedes only this phase's default owner-response requirement. The agent owns and records the Human Experience Review. An optional experience handoff does not block completion and does not create an obligation. Human acceptance blocks only a named scope when accepted authority explicitly defines the reviewer, surface, acceptance question, and gate effect. All other P5 tasks, blockers, dependencies, and evidence remain in force.
+
 ## Purpose
 
 Prove that the enhancement reaches supported agents and installed projects and changes a real human outcome.
@@ -123,7 +127,7 @@ The real outcome exercise must be product-neutral. It must not become an impleme
 - [ ] t23: Test one misleading agent-facing or headless case where a real human effect still exists.
 - [ ] t24: Test one missing-product-choice case where the agent stops instead of exposing the internal model as the default human path.
 - [ ] t25: Run deterministic structure checks for each result.
-- [ ] t26: Prepare required Human Experience Review for interpretation coherence. Reuse structure and conformance evidence where suitable. Present the proposed per-promise observations, conclusions, limits, and next actions to the owner. Record the owner's concise response, apply each correction, and then record the approved `satisfied`, `material gap`, or `insufficient evidence` result.
+- [ ] t26: Prepare and record the required agent Human Experience Review for interpretation coherence. Reuse structure and conformance evidence where suitable. Inspect the available real surface. Record the per-promise evidence, observations, `satisfied`, `material gap`, or `insufficient evidence` conclusion, reviewer, limits, and next actions. Keep each claim within the evidence. Do not require an owner response unless accepted authority explicitly defines a human acceptance gate.
 - [ ] t27: Record each harness, model, provider, runtime, result, finding, and supported claim under current conformance authority.
 
 ### Current Blocker
@@ -140,7 +144,7 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - None is not used to hide a material human effect.
 - Agents stop for a real product choice when authority is missing.
 - Human Experience Review, not deterministic checks alone, judges interpretation coherence.
-- The agent-prepared review stays proposed until the owner responds. Agent preparation alone is not owner approval.
+- The agent-owned review can support completion without an owner response when its evidence supports the claim and no explicit human acceptance gate exists.
 
 ### Dependencies
 
@@ -156,7 +160,7 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - [ ] t30: Use an installed Make Docs project and a supported agent to carry the fixture change through design, plan, PRD, work, implementation, review, and acceptance.
 - [ ] t31: Ensure the fixture produces a real runnable or inspectable human surface. Do not accept documents alone as the outcome.
 - [ ] t32: Capture the visible default result and optional detail path without requiring the reviewer to understand opaque IDs, revision internals, or storage structures.
-- [ ] t33: Apply required Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terminology. Present the prepared review and record the owner's concise response against each promise. The owner can correct it, add feedback, acknowledge it, or accept it without writing a formal report or using a special phrase. Apply each correction and then record the approved structured review.
+- [ ] t33: Apply and record the required agent Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terminology. Inspect the real surface. Record the evidence, observations, conclusions, reviewer, limits, and next actions against each promise. For completed direct human-facing work, give one to three normal-use steps, what to notice, and an invitation for optional feedback. Do not require a response unless accepted authority explicitly defines a human acceptance gate.
 - [ ] t34: Offer one optional Guided Progress Review. Separately carry the Phase 4 Unassisted Goal Testing decision and run its one bounded `NUAT-###` scenario with a qualified person only if selected.
 - [ ] t35: Compare the result with the recorded prior failure or risk and state the observable change. Do not infer improvement from document completion.
 - [ ] t36: Give each material finding a disposition. Remediate and repeat only affected proof, accept a bounded caveat or narrower claim, or record partial status. Create an `O-###` record only when an accepted future outcome remains owed.
@@ -168,8 +172,8 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - A person can understand the important subject, relationship, state, result, or next action without reconstructing the internal data model.
 - Internal detail remains available when useful but is not forced into the normal path.
 - Required Human Experience Review conclusions remain explicit against each applicable promise.
-- The agent prepares and presents the review. The owner gives a concise response, and the agent records the approved result.
-- Each owner correction replaces the affected proposed conclusion. The agent does not silently self-approve lived human experience.
+- The agent prepares and records the review. The agent does not claim a lived human reaction.
+- Optional feedback becomes a finding. A material defect can reopen or narrow only the affected completion claim.
 - Guided Progress Review is optional and cannot block completion.
 - Unassisted Goal Testing is advisory unless explicit authority gives it a gate effect.
 - The builder agent is not the only judge.
@@ -218,7 +222,7 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 - [ ] t50: Update the backlog checkboxes and closeout notes with concise evidence links and final capability status.
 - [ ] t51: Create one history record that preserves W20 R0 implementation outcome, source design and plan, current PRD authority, key evidence, findings, obligations, and final status.
 - [ ] t52: Run final link, path, generated-state, and diff checks after the history update.
-- [ ] t53: Present the closeout package for owner review. Do not stage, commit, publish, or release without separate authority.
+- [ ] t53: Present the closeout package and, for completed direct human-facing work, a short optional experience handoff. Do not require a response for phase closure. Do not stage, commit, publish, or release without separate authority.
 
 ### Acceptance criteria
 
@@ -234,10 +238,10 @@ W19 R6 owns the PRD 20 `connectionMethod` change, but its implementation is not 
 ### Dependencies
 
 - Stages 1 through 5.
-- Owner review for final acceptance.
+- No default human acceptance gate. Apply one only if accepted authority explicitly names its scope, human reviewer, surface, acceptance question, and gate effect.
 
 ### Closeout Notes
 
-- Testing decision(s): Automated Implementation Testing is `selected`. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for the current package-delivery decision. Reconsider Guided Progress Review and Unassisted Goal Testing after Stage 3 produces a real result. Human Experience Review is `insufficient evidence` for P5 completion because no real-person review has run.
+- Testing decision(s): Automated Implementation Testing is `selected`. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for the current package-delivery decision. Reconsider Guided Progress Review and Unassisted Goal Testing after Stage 3 produces a real result. Human Experience Review is `insufficient evidence` for P5 completion because the required real supported-agent surface and later P5 proof do not yet exist. A missing owner response is not the blocker.
 - Phase / capability status: P5 is active. Tasks t1 through t18 have evidence. Stage 1 is not accepted because its real-agent reach rule is not met. Later stage acceptance cannot close before it. Stages 3 through 6 remain open. W20 R0 is not closed.
 - Commit and release gate: Prepare evidence only. Wait for explicit owner authority before staging, commit, publication, or release.

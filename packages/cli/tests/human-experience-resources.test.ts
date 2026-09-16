@@ -38,7 +38,7 @@ describe("Human Experience resource delivery", () => {
     }
   });
 
-  it("requires an agent-prepared and owner-approved Human Experience Review", () => {
+  it("requires agent review, keeps the handoff optional, and preserves explicit human gates", () => {
     const content = new Map<string, string>();
     for (const [directory, name] of reviewWorkflowResources) {
       const local = `.make-docs/system/${directory}/${name}`;
@@ -48,14 +48,24 @@ describe("Human Experience resource delivery", () => {
       content.set(name, upstream);
     }
 
-    expect(content.get("human-experience-contract.md")).toContain("The normal path is agent-prepared and owner-approved.");
-    expect(content.get("human-experience.md")).toContain("Record the owner's concise response against each promise.");
-    expect(content.get("lifecycle.md")).toContain("An owner correction replaces the affected proposed conclusion.");
-    expect(content.get("execution-workflow.md")).toContain("Record the owner's concise response against each promise");
-    expect(content.get("design-workflow.md")).toContain("The agent prepares and presents the review.");
-    expect(content.get("coverage-pass-contract.md")).toContain("It does not treat agent preparation as owner approval.");
-    expect(content.get("output-contract.md")).toContain("distinguishes the approved result from the agent's proposal");
-    expect(content.get("work-phase.md")).toContain("without writing a formal report or using a special phrase");
+    expect(content.get("human-experience-contract.md")).toContain("A normal review does not require an owner response or approval.");
+    expect(content.get("human-experience-contract.md")).toContain("A human acceptance gate exists only when");
+    expect(content.get("human-experience.md")).toContain("one to three normal-use steps");
+    expect(content.get("human-experience.md")).toContain("It is not a test, sign-off request, or close gate.");
+    expect(content.get("lifecycle.md")).toContain("A missing human response does not block closure or create an obligation");
+    expect(content.get("execution-workflow.md")).toContain("Human Experience Review separate as required agent review work");
+    expect(content.get("design-workflow.md")).toContain("Human feedback is optional unless accepted authority explicitly defines a human acceptance gate.");
+    expect(content.get("coverage-pass-contract.md")).toContain("Human feedback is optional by default.");
+    expect(content.get("output-contract.md")).toContain("A short experience handoff is optional and non-blocking.");
+    expect(content.get("work-phase.md")).toContain("A missing response does not block closure or create an obligation.");
+
+    for (const [name, body] of content) {
+      expect(body, name).not.toContain("The normal path is agent-prepared and owner-approved.");
+      expect(body, name).not.toContain("Human Experience Review is required acceptance work");
+      expect(body, name).not.toContain("Record the owner's concise response against each promise");
+      expect(body, name).not.toContain("approved structured review");
+      expect(body, name).not.toContain("owner-approved result");
+    }
   });
 
   it("keeps adaptive material-reply guidance in the reference", () => {
@@ -78,7 +88,7 @@ describe("Human Experience resource delivery", () => {
     expect(reference).toContain("Routine short acknowledgements can stay light.");
     expect(reference).toContain("Do not force one layout, tone, length, or level of technical detail.");
     expect(reference).toContain(
-      "An accountable reviewer must inspect or use the result, keep its core idea in view, and record direct observations and limits.",
+      "The agent responsible for the work must inspect or use the available result, keep its core idea in view, and record direct observations and limits.",
     );
     expect(reference).toContain(
       "Use data, automated checks, and agent analysis to find problems and support a conclusion.",
@@ -98,28 +108,36 @@ describe("Human Experience resource delivery", () => {
 
   it.each([false, true])("lists and reads offline with local projection selected: %s", async selected => {
     const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-hx-resources-"));
-    roots.push(root);
-    const selections = defaultSelections();
-    selections.resourceProjection = selected ? ["contract", "reference"] : [];
-    const plan = await planInstall({ targetDir: root, selections, existingManifest: null });
-    const applied = applyInstallPlan({ targetDir: root, plan, existingManifest: null });
-    const context = createExecutionContext({ surface: "test", cwd: root });
-    const listed = (await invokeOperation("resource.list", { targetRoot: root }, context)).value as unknown as ResourceListOperationOutput;
-    for (const [type, directory, name] of resources) {
-      const uri = `make-docs://system/${type}/${name}`;
-      const local = `.make-docs/system/${directory}/${name}`;
-      const bytes = readFileSync(path.join(TEMPLATE_ROOT, local));
-      expect(listed.resources.find(r => r.uri === uri)?.result.ok).toBe(true);
-      const read = (await invokeOperation("resource.read", { uri, targetRoot: root }, context)).value as unknown as ResourceReadOperationOutput;
-      expect(Buffer.from(read.resource.content.data, "base64")).toEqual(bytes);
-      expect(read.resource.origin).toBe(selected ? "managed-snapshot" : "installed-machine");
-      expect(existsSync(path.join(root, local))).toBe(selected);
-      if (selected) {
-        expect(readFileSync(path.join(root, local))).toEqual(bytes);
-        expect(applied.manifest.resourceProjection?.resources[uri]?.uri).toBe(uri);
+    const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-hx-store-"));
+    roots.push(root, storeRoot);
+    const previousStoreHome = process.env.MAKE_DOCS_HOME;
+    process.env.MAKE_DOCS_HOME = storeRoot;
+    try {
+      const selections = defaultSelections();
+      selections.resourceProjection = selected ? ["contract", "reference"] : [];
+      const plan = await planInstall({ targetDir: root, selections, existingManifest: null });
+      const applied = applyInstallPlan({ targetDir: root, plan, existingManifest: null });
+      const context = createExecutionContext({ surface: "test", cwd: root });
+      const listed = (await invokeOperation("resource.list", { targetRoot: root }, context)).value as unknown as ResourceListOperationOutput;
+      for (const [type, directory, name] of resources) {
+        const uri = `make-docs://system/${type}/${name}`;
+        const local = `.make-docs/system/${directory}/${name}`;
+        const bytes = readFileSync(path.join(TEMPLATE_ROOT, local));
+        expect(listed.resources.find(r => r.uri === uri)?.result.ok).toBe(true);
+        const read = (await invokeOperation("resource.read", { uri, targetRoot: root }, context)).value as unknown as ResourceReadOperationOutput;
+        expect(Buffer.from(read.resource.content.data, "base64")).toEqual(bytes);
+        expect(read.resource.origin).toBe(selected ? "managed-snapshot" : "installed-machine");
+        expect(existsSync(path.join(root, local))).toBe(selected);
+        if (selected) {
+          expect(readFileSync(path.join(root, local))).toEqual(bytes);
+          expect(applied.manifest.resourceProjection?.resources[uri]?.uri).toBe(uri);
+        }
       }
+      const rerun = await planInstall({ targetDir: root, selections, existingManifest: applied.manifest, operation: "setup.sync" });
+      expect(rerun.actions.every(action => action.type === "noop")).toBe(true);
+    } finally {
+      if (previousStoreHome === undefined) delete process.env.MAKE_DOCS_HOME;
+      else process.env.MAKE_DOCS_HOME = previousStoreHome;
     }
-    const rerun = await planInstall({ targetDir: root, selections, existingManifest: applied.manifest, operation: "setup.sync" });
-    expect(rerun.actions.every(action => action.type === "noop")).toBe(true);
   });
 });

@@ -37,7 +37,7 @@ It owns:
 - lifecycle handoff semantics; and
 - boundaries with specialist testing and review owners.
 
-It does not replace detailed Performance Testing authority in [PRD 48](48-performance-evidence-governance.md), detailed Unassisted Goal Testing authority in [PRD 46](46-naive-end-user-acceptance-testing.md), the built-result Human Experience Standard in [PRD 49](49-human-experience-standard-and-intent.md), or specialist security, privacy, accessibility, architecture, visual, conformance, release, and support-claim authorities.
+It does not replace detailed Performance Testing authority in [PRD 48](48-performance-evidence-governance.md), detailed Unassisted Goal Testing authority in [PRD 46](46-naive-end-user-acceptance-testing.md), the built-result Human Experience Standard in [PRD 49](49-human-experience-standard-and-intent.md), or specialist security, privacy, accessibility, architecture, visual, static-adapter, release, and support-claim authorities.
 
 ## Terms
 
@@ -45,7 +45,9 @@ It does not replace detailed Performance Testing authority in [PRD 48](48-perfor
 - **Performance Testing:** Agent-coordinated evidence that answers an accepted performance decision for the current product maturity, risk, and support scope.
 - **Guided Progress Review:** A short prepared path that lets the owner, maintainer, or developer experience and understand meaningful progress with agent guidance.
 - **Unassisted Goal Test:** A qualified human attempt to understand and complete a meaningful goal from allowed public or starting information without private coaching.
-- **Human Experience Review:** A lens that checks evidence and the built result against accepted experience promises. It is not a fifth core testing type.
+- **Human Experience Review:** Required agent review work that checks evidence and the built result against accepted experience promises. It is not a fifth core testing type.
+- **Experience handoff:** Short completion communication that lets a person try a completed direct human-facing result and provide optional feedback. It is not a test or gate.
+- **Human acceptance gate:** An explicit requirement for a named human response that uses an existing gate effect and blocks only its named scope.
 - **Gate effect:** The exact way a test result can affect current work or a claim.
 - **Not needed now:** A valid decision that evidence cannot change a current product, implementation, release, or human decision.
 
@@ -61,7 +63,7 @@ It does not replace detailed Performance Testing authority in [PRD 48](48-perfor
 | Human Experience Review | Interpret evidence against accepted experience promises | [PRD 49](49-human-experience-standard-and-intent.md) |
 | Lifecycle routing | Select candidates, preserve decisions, and consume gates | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) |
 | Deferred testing outcomes | Preserve only accepted future outcomes that remain owed | [PRD 45](45-deferred-obligation-governance.md) |
-| Conformance and support | Prove supported agents apply the model | [PRD 20](20-agent-harness-conformance-and-support-claims.md), [PRD 43](43-conformance-scenario-model-and-execution-kits.md), and [PRD 44](44-conformance-lab-sessions-and-evidence.md) |
+| Installed harness and support | Prove each declared static adapter method works through the installed product | [PRD 10](10-packaging-validation-and-release-reference.md), [PRD 16](16-package-runtime-and-deployment-boundaries.md), and [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) |
 
 ## Requirements
 
@@ -158,9 +160,11 @@ It does not activate merely because a user-observable slice exists. It does not 
 
 ### R-TEST-09 Human Experience Review Lens
 
-Human Experience Review is a lens over suitable evidence and the built result. It can guide Guided Progress Review, Unassisted Goal Testing, expert review, indirect technical evidence, or remediation.
+Human Experience Review is an agent-owned lens over suitable evidence and the built result. It can guide Guided Progress Review, Unassisted Goal Testing, expert review, indirect technical evidence, or remediation.
 
 It is not a fifth core testing type. It must not require a duplicate test run when existing suitable evidence answers the accepted experience question.
+
+The agent records the review and its evidence limits. Completed direct human-facing work normally includes a short optional experience handoff. The handoff is not a testing decision, recorded result, or sign-off request. If an activity is intended to answer a current decision, select the applicable testing type.
 
 ### R-TEST-10 Human Testing Experience
 
@@ -179,6 +183,8 @@ Instructions must use the public product path, start from the person's goal, sta
 
 A technically correct test with needlessly difficult instructions is a poor Make Docs result.
 
+An optional experience handoff is lighter than a testing request. It normally gives one to three normal-use steps, states what to notice, and invites optional feedback. It does not require a prepared test environment, a verdict, or a response. Silence, refusal, or no feedback does not block work or create an obligation.
+
 ### R-TEST-11 Explicit Gate Effects
 
 Every testing decision records exactly one gate effect:
@@ -195,6 +201,7 @@ Default rules are:
 - Performance Testing blocks only an accepted hard outcome or bounded support claim.
 - Guided Progress Review is always advisory or informational.
 - Unassisted Goal Testing is advisory by default and blocks only through explicit current product or release authority.
+- Human acceptance blocks only when the user, an accepted design or PRD, release authority, or safety authority explicitly names the scope, human reviewer, surface, acceptance question, and gate effect.
 
 A failed, skipped, declined, or blocked non-blocking activity must not silently become a phase gate.
 
@@ -217,13 +224,13 @@ Unchanged evidence must be reused while its scope, implementation, environment, 
 
 A missing test creates a durable obligation only when an accepted future outcome is still owed and the record has an owner, trigger, target, exit criteria, and reason.
 
-`not-needed-now`, `declined`, `not-applicable`, or “test later” without accepted future authority must not create an `O-###` obligation.
+`not-needed-now`, `declined`, `not-applicable`, an unanswered optional experience handoff, or “test later” without accepted future authority must not create an `O-###` obligation.
 
-### R-TEST-14 Failure-Revealing Conformance
+### R-TEST-14 Failure-Revealing Installed-Harness Proof
 
-Supported-agent conformance must reveal both insufficient testing and excessive, early, duplicate, unauthorized, or needlessly difficult testing.
+Direct installed-harness proof must reveal both insufficient testing and excessive, early, duplicate, unauthorized, or needlessly difficult testing.
 
-Scenarios must include focused automated proof, justified expansion, rejected unsupported release-grade work, maturity-qualified performance selection, a non-gate Guided Progress Review, an anti-coached Unassisted Goal Test, valid `not-needed-now`, Human Experience evidence reuse, false-obligation prevention, and rejection of blocking verdicts without authority.
+The proof set must include focused automated checks, justified expansion, rejected unsupported release-grade work, maturity-qualified performance selection, a non-gate Guided Progress Review, an anti-coached Unassisted Goal Test, valid `not-needed-now`, Human Experience evidence reuse, false-obligation prevention, and rejection of blocking verdicts without authority. Each declared static adapter method also needs one direct exercise through the installed package in a disposable harness home.
 
 At least one realistic installed-product exercise must show that testing is shorter, easier to understand, and more meaningful for the owner than the prior technical walkthrough pattern.
 
@@ -254,9 +261,9 @@ Specialized records can add fields. They must preserve the shared meaning.
 - [PRD 06](06-template-contracts-and-generated-assets.md) owns upstream contracts, references, templates, prompts, package projection, and dogfood parity.
 - [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) owns lifecycle routing and phase-close consumption.
 - [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md) owns concise managed-router discovery.
-- [PRD 20](20-agent-harness-conformance-and-support-claims.md) owns support-claim promotion for agents that apply this model.
+- [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns the declared static adapters and harness methods that use this model.
 - [PRD 23](23-generated-document-metadata-and-lifecycle-handoffs.md) owns the body-record and handoff boundary.
-- [PRD 43](43-conformance-scenario-model-and-execution-kits.md) and [PRD 44](44-conformance-lab-sessions-and-evidence.md) own scenario and lab proof.
+- [PRDs 10](10-packaging-validation-and-release-reference.md) and [16](16-package-runtime-and-deployment-boundaries.md) own package and release proof. This PRD owns the proportionate direct test set and the installed-product evidence bar.
 - [PRD 45](45-deferred-obligation-governance.md) owns accepted future testing obligations.
 - [PRD 46](46-naive-end-user-acceptance-testing.md) owns Unassisted Goal Testing details.
 - [PRD 47](47-persona-model.md) owns intended-audience selection, not tester qualification by itself.
@@ -283,6 +290,8 @@ System resources are authored upstream under `packages/docs/template/` before do
 10. Skipped non-blocking testing creates no failed phase or false obligation.
 11. A blocking verdict is rejected because no current authority owns it.
 12. Human testing instructions are technically correct but fail acceptance because they impose needless setup, internal IDs, or duplicate assertions.
+13. Completed direct human-facing work closes after the agent review and gives the person a short optional experience handoff. No response is required.
+14. Accepted authority explicitly names a human acceptance gate. The named response blocks only the stated scope and uses an existing gate effect.
 
 ## Non-Requirements
 
@@ -293,10 +302,29 @@ System resources are authored upstream under `packages/docs/template/` before do
 - No hard gate from Guided Progress Review.
 - No default hard gate from Unassisted Goal Testing.
 - No Human Experience Review testing type.
+- No default owner response, approval, or sign-off gate.
 - No automatic obligation for `not-needed-now` or declined advisory work.
 - No mandatory testing Skill.
 - No new runtime command or frontmatter schema in the first release.
-- No replacement for specialist security, privacy, accessibility, visual, architecture, conformance, release, or support-claim authority.
+- No replacement for specialist security, privacy, accessibility, visual, architecture, static-adapter, release, or support-claim authority.
+
+## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: installed-harness testing and support evidence.
+- Previous contract: Retired conformance scenarios, kits, lab sessions, and results owned the proof path for supported harness behavior.
+- Replacement contract: Each declared static adapter method needs one direct exercise through the installed package in a disposable harness home. Test volume stays proportionate and Human Experience Review reuses suitable evidence.
+- Rationale: Direct product proof must expose both missing support and needless test burden without restoring the retired conformance system.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
+
+### 2026-09-15 — W20 R2
+
+- Affected requirement or section: terms, `R-TEST-09`, `R-TEST-10`, `R-TEST-11`, `R-TEST-13`, acceptance scenarios, and non-requirements.
+- Previous contract: Human Experience Review was not a fifth testing type, but normal completion still required an owner response to the agent-prepared review.
+- Replacement contract: The agent owns the review. The optional experience handoff is completion communication, not a test or gate. A human response blocks only through explicit accepted authority and an existing gate effect.
+- Rationale: Preserve proportionate human input without turning advisory feedback into a false phase gate or obligation.
+- Source: [W20 R2 Human Experience Review and Feedback Boundary plan](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md)
 
 ## Source Anchors
 

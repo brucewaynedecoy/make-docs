@@ -268,6 +268,15 @@ function bodyValue(markdown: string, label: string): string | null {
   return match?.[1]?.trim().replace(/^`|`$/gu, "") ?? null;
 }
 
+function sectionBody(markdown: string, heading: string): string {
+  const marker = `## ${heading}\n`;
+  const start = markdown.indexOf(marker);
+  if (start < 0) return "";
+  const bodyStart = start + marker.length;
+  const next = markdown.indexOf("\n## ", bodyStart);
+  return markdown.slice(bodyStart, next < 0 ? undefined : next).trim();
+}
+
 function promiseId(markdown: string): string | null {
   return markdown.match(/\[(HX-[A-Z]+-\d+)\]/u)?.[1] ?? null;
 }
@@ -770,6 +779,66 @@ describe("Human Experience lifecycle propagation fixtures", () => {
     expect(work).toContain("[Evidence](./evidence.md)");
     expect(evidence).toContain("byte-for-byte fixture comparison");
     expect(evidence).not.toMatch(/click|screen|walkthrough/iu);
+  });
+
+  it("keeps agent review, optional feedback, and explicit human gates separate", () => {
+    const boundary = readFileSync(
+      path.join(FIXTURE_ROOT, "feedback-boundary.md"),
+      "utf8",
+    );
+    const direct = sectionBody(boundary, "Default Direct Completion");
+    const explicitGate = sectionBody(boundary, "Explicit Human Acceptance Gate");
+    const indirect = sectionBody(boundary, "Indirect Effect");
+    const none = sectionBody(boundary, "None Boundary");
+    const insufficient = sectionBody(boundary, "Insufficient Evidence");
+    const laterFeedback = sectionBody(boundary, "Later Feedback");
+
+    expect(direct).toContain("Reviewer: implementation agent");
+    expect(direct).toContain("Real surface inspected: installed command result");
+    expect(direct).toContain("Human Experience Review conclusion: satisfied");
+    expect(direct).toContain("Human response required: no");
+    expect(direct).toContain("Completion: complete");
+    expect(direct).toContain("Obligation: none");
+    expect(direct).toContain("1. Run the normal status command.");
+    expect(direct).toContain("2. Read the current state before the detail.");
+    expect(direct).toContain("3. Follow the shown next action.");
+    expect(direct).toContain("What to notice:");
+    expect(direct).toContain("Feedback: optional");
+
+    for (const field of [
+      "Authority: accepted PRD R-GATE-01",
+      "Scope: release candidate onboarding result",
+      "Human reviewer: release owner",
+      "Surface: installed onboarding flow",
+      "Acceptance question:",
+      "Gate effect: blocks the release-candidate acceptance claim",
+      "Human response: pending",
+      "Completion: blocked for the named scope",
+    ]) {
+      expect(explicitGate, field).toContain(field);
+    }
+
+    expect(indirect).toContain(
+      "Experience handoff: only when useful to the person",
+    );
+    expect(indirect).toContain("Human response required: no");
+    expect(none).toContain("Experience handoff: none");
+    expect(none).toContain("Invented human task: no");
+    expect(insufficient).toContain(
+      "Human Experience Review conclusion: insufficient evidence",
+    );
+    expect(insufficient).toContain(
+      "Affected claim: limited to the proved technical behavior",
+    );
+    expect(insufficient).toContain("Human response required: no");
+    expect(insufficient).toContain(
+      "Completion: the unproved human claim remains open",
+    );
+    expect(laterFeedback).toContain("Feedback disposition: finding recorded");
+    expect(laterFeedback).toContain(
+      "Material defect effect: reopen or narrow only the affected completion claim",
+    );
+    expect(laterFeedback).toContain("Unrelated completion claims: unchanged");
   });
 
   it("keeps an accepted deferred outcome discoverable until its exit criteria are met", () => {

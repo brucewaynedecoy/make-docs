@@ -103,9 +103,9 @@ Suppose a request says “simplify account recovery,” but current authority do
 
 > “Data-driven design has its part, but it [shouldn't] lead the process. What matters *most* is being *personally involved*, testing everything *yourself*...And a huge part of that is paying attention to *how the product feels to you*, while always keeping its *core idea* in mind.”
 
-Use data, automated checks, and agent analysis to find problems and support a conclusion. Do not let them replace direct review of the real result. An accountable reviewer must inspect or use the result, keep its core idea in view, and record direct observations and limits.
+Use data, automated checks, and agent analysis to find problems and support a conclusion. Do not let them replace direct review of the real result. The agent responsible for the work must inspect or use the available result, keep its core idea in view, and record direct observations and limits.
 
-One reviewer's response is evidence from that reviewer. It is not proof of every person's experience.
+Human feedback adds evidence that an agent cannot create. One person's response is evidence from that person. It is not proof of every person's experience.
 
 ## Review the Actual Result
 
@@ -113,10 +113,12 @@ Use each accepted promise as a question about evidence. Can the reader identify 
 
 Use human names before internal IDs, but keep material facts visible. For example, a project name plus “3 rows failed; review the failed rows before retry” helps a decision. A short “success” message that hides those failures breaks meaning even if a JSON record remains exact elsewhere.
 
-Reuse a suitable screenshot, document, command transcript, fixture, or functional result. The agent prepares a concise review from the accepted promises, the real result, and this evidence. For each promise, it proposes the observation, conclusion, limit, and next action. It then presents the prepared review to the owner.
+Reuse a suitable screenshot, document, command transcript, fixture, or functional result. The agent prepares and records a concise review from the accepted promises, the real result, and this evidence. For each promise, it records the observation, conclusion, limit, and next action.
 
-Record the owner's concise response against each promise. The owner can correct a proposed conclusion, add feedback, acknowledge the prepared review, or accept it. The agent then records the approved structured review. The owner does not need to restate each promise, write a report, learn verdict words, or use a magic phrase. Any correction replaces the affected proposal.
+For completed direct human-facing work, normally give the person one to three normal-use steps, state what is worth noticing, and invite optional feedback. Keep this experience handoff short. It is not a test, sign-off request, or close gate. Silence, refusal, or no feedback does not block completion or create an obligation. Use a handoff for indirect work only when it gives the person useful information. Do not invent one for `none`.
 
-If evidence is insufficient, use current testing authority to select the smallest useful next activity. Ask for more input only when the evidence is insufficient or the owner identifies a gap. Do not create a second run just to call it Human Experience Review.
+Require a human response only when the user, an accepted design or PRD, release authority, or safety authority explicitly defines a human acceptance gate. Name the scope, human reviewer, surface, acceptance question, and gate effect. The agent prepares the review. The human can correct it, add feedback, acknowledge it, or accept it without writing a report or using a special phrase. Apply the response only to the named scope.
 
-An agent review can show that structure, wording, and evidence agree. It cannot silently approve lived human experience or prove a person's lived ease, confidence, or joy. Owner acknowledgment or acceptance confirms the prepared review. Keep that limit visible in completion claims.
+If evidence is insufficient, use current testing authority to select the smallest useful next activity only when it can change a current decision or an explicit gate requires it. Do not create a second run just to call it Human Experience Review.
+
+An agent review can show that structure, wording, behavior, and evidence agree. It cannot claim a person's lived ease, confidence, joy, or acceptance without evidence from that person. Keep that limit visible in completion claims. Later feedback becomes a normal finding. A material defect can reopen or narrow the affected claim.

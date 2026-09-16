@@ -709,24 +709,26 @@ The following record preserves the prior claims, findings, and close conditions.
 
 **Baseline resolution:** The drift-register test now permits appended valid IDs while preserving existing record names, sequence and duplicate checks. The original D-032-only baseline failure is resolved in the green final suite.
 
-### D-033 W19 R6 Setup Support Is Not Connected to the Production Conformance Path
+### D-033 W19 R6 Setup Uses Retired Dynamic Conformance Authority
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Keep the P1 code as a foundation candidate. Do not accept or release the W19 R6 feature. Complete the corrective W19 R6 P2 phase through the central registry and installed acceptance. | Implement [W19 R6 P2](../work/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md). Close only when all ten hard close rules pass. |
+| Closed | P2 is superseded because it correctly implemented invalid dynamic conformance authority. P3 keeps the useful setup, config, Store, caller, receipt, and recovery parts and replaces the eligibility gate with source-owned static Codex and Claude Code adapters plus direct installed-product proof. | [W19 R6 P3](../work/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md) passes all ten hard close rules. Keep P1 and P2 as superseded history. |
 
-**Issue:** The normal setup path does not load central conformance evidence. The central tuple registry has no current tuples. The adapter support resolver leaves every method unselectable. Reviewed adapter plans can enter only through a test-only input. Project setup reads `harnessIntegrations` but does not write the reviewed selection. The active runtime tuple code still uses the retired eight-part package tuple, while PRD 20 requires seven parts and PRDs 43 and 44 still state six parts.
+**Issue:** The active PRD set required a dynamic support tuple, registry, scenario-kit, and lab-session model copied from the removed Playbooks subsystem. P2 exposed the defect because the production setup needed exact provider, model, runtime, and scenario facts that the normal product cannot know. The result made every method unavailable even when the installed harness had a safe native integration.
 
-**Why it matters:** A person cannot complete the promised Codex or Claude Code Store-access setup. A rerun cannot create the missing proof or trust state. Unit and integration tests can pass while the installed feature stays unavailable. Make Docs is not release-ready on this surface.
+**Why it matters:** A person cannot complete the promised Codex or Claude Code Store-access setup. A rerun cannot create the missing facts. Unit and integration tests can pass while the installed feature stays unavailable. Make Docs is not release-ready on this surface.
 
-**Recommendation:** Use `conformance/tuple-registry.json` as the only support authority. Load it in production setup. Use one seven-part tuple. Add a real lab-only bootstrap path. Carry exact caller and method identity through every native route. Complete project config writing, machine-only setup, explicit non-interactive method inputs, repeat-state guidance, real disposable-harness proof, and installed Human Experience Review.
+**Recommendation:** Use source-owned static adapters for Codex and Claude Code. Each adapter declares its methods, native entries, allowed Store operations, plan/apply/verify/repair/remove behavior, blockers, and next actions. Carry exact caller and method identity through every native route. Keep resource list/read Store-free. Preserve project YAML and user-owned native config. Prove each shown method through the installed package in a disposable harness home.
 
-**To close:** Pass every W19 R6 P2 hard close rule. Evidence must include production-path tests, real Codex and Claude Code results for every shown method, installed setup observations, Store-free resource proof, and a Human Experience conclusion for each promise. A method with missing proof must remain unavailable with one useful action.
+**To close:** Pass every W19 R6 P3 hard close rule. Evidence must prove that the production path has no dynamic registry or tuple gate, only declared methods appear, project and native user content is preserved, Store access stays narrow, Store-free reads open no Store session, the package contains no retired registry or lab asset, all required Codex and Claude Code paths pass through the installed package, the setup and recovery matrix passes, Human Experience Review covers all six promises, and PRD, link, path, diff, package, CLI, MCP, and Store checks are green.
+
+**Closed, 2026-09-15:** The [P3 evidence](../work/2026-09-12-w19-r6-unified-setup-and-harness-access/evidence.md) records the static authority correction, product cleanup, installed Codex and Claude Code results, accepted blocked state for Claude Code permission rules under A35, setup and recovery matrix, current automated checks, and agent-owned Human Experience Review. All six promises are `satisfied`. No explicit human acceptance gate applies. P3 and W19 R6 are complete.
 
 Code anchors:
 
-- `conformance/tuple-registry.json`
-- `packages/cli/src/conformance/tuple.ts`
+- `packages/cli/src/harness-access/registry.ts`
+- `docs/work/2026-09-12-w19-r6-unified-setup-and-harness-access/evidence.md#real-harness-results`
 - `packages/cli/src/harness-access/contract.ts`
 - `packages/cli/src/setup-system.ts`
 - `packages/cli/src/cli.ts`
@@ -775,6 +777,56 @@ Code anchors:
 - `packages/cli/src/cli.ts`
 - `packages/cli/tests/installation-state.test.ts`
 - `scripts/smoke-pack.mjs`
+
+### D-036 Retired Plugin Product Leaves Live Product and Schema Surface
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Remove orphaned Make Docs plugin-product code and data surfaces. Do not preserve speculative compatibility only because old fields exist. First trace the complete live surface and select the smallest safe transition for the few known installations. Preserve user-owned native harness files without preserving a Make Docs plugin product. | Use [TD-001](../assets/maintainer/technical_debt.md#td-001-retired-plugin-product-surface) as the maintainer catalog entry. Prepare a bounded cleanup design and plan before code removal. |
+
+**Issue:** Current authority says Make Docs has no general plugin product. The CLI still defines and processes plugin selection fields, plugin manifest and provenance data, lifecycle review output, audit output, plugin lifecycle tests, and the `marketplaceAutoRegistration` global setting.
+
+**Why it matters:** This live but unsupported surface increases maintenance cost. It can mislead agents and people into treating a retired plugin product as current or planned behavior. It also makes later removal harder.
+
+**Recommendation:** Inventory the full plugin-shaped runtime, schema, manifest, UI, audit, test, package, and documentation surface. Separate preservation of user-owned native harness files from Make Docs-owned plugin behavior. Remove new writes and display first when useful. Then remove unused code, types, tests, and settings. Use a clear one-time migration or explicit incompatibility error only where a known installation needs it. Do not keep an indefinite read path without evidence.
+
+**To close:** Current code, schemas, manifests, lifecycle output, audit output, Store settings, package checks, tests, and product authority contain no Make Docs plugin-product surface. Any retained compatibility path has one known installation need, a removal condition, and a test. User-owned native files remain protected.
+
+Code anchors:
+
+- `packages/cli/src/types.ts`
+- `packages/cli/src/profile.ts`
+- `packages/cli/src/manifest.ts`
+- `packages/cli/src/lifecycle-ui.ts`
+- `packages/cli/src/audit.ts`
+- `packages/cli/src/store/global-config.ts`
+- `packages/cli/tests/plugin-lifecycle.test.ts`
+- `packages/cli/tests/store.test.ts`
+
+### D-037 Human Experience Review Creates a Default Owner Close Gate
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Keep Human Experience Review as required agent work. Make the normal human experience handoff optional. Human acceptance blocks completion only when accepted authority explicitly gives it a blocking gate effect. | [W20 R2](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md) updates current authority and shipped resources, reconciles active work, and proves the new default and explicit-gate cases. |
+
+**Issue:** Current Human Experience authority makes the agent prepare a review and then requires an owner response before the agent can record an approved result. This turns a cross-cutting agent duty into a recurring owner close gate. The low-friction wording reduces the work needed to respond, but it does not remove the response requirement.
+
+**Why it matters:** The process that should protect the human experience can interrupt the human's work and make routine closeout depend on ceremonial approval. It also conflicts with the testing rule that advisory human activity must not silently become a phase gate.
+
+**Recommendation:** Separate three behaviors. Require the agent to review applicable promises and inspect the real surface when it is available. Give the person a short optional experience handoff for completed direct human-facing work. Require a human response only when the user, an accepted design or PRD, release authority, or safety authority explicitly defines a human acceptance gate.
+
+**To close:** Current PRDs, upstream resources, package and dogfood copies, active W20 R0 and W19 R6 work, and focused tests all apply the new boundary. The normal path closes without an owner response. An explicit human gate still blocks its named scope. Historical W20 R0 and W20 R1 evidence remains unchanged.
+
+**Closed, 2026-09-15:** W20 R2 updates PRDs 14, 49, and 50; eight upstream resources; package and dogfood copies; and the active W20 R0 P5 and W19 R6 P3 records. Focused tests prove agent review, optional feedback, explicit human gates, proportionate `indirect` and `none` cases, bounded insufficient evidence, and later-feedback handling. W19 R6 closes without an owner response. Completed W20 R0 and W20 R1 evidence remains unchanged.
+
+Code anchors:
+
+- `docs/prd/49-human-experience-standard-and-intent.md`
+- `docs/prd/14-lifecycle-workflow-and-coverage-passes.md`
+- `docs/prd/50-proportionate-testing-and-human-centered-validation.md`
+- `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md`
+- `packages/cli/tests/human-experience-resources.test.ts`
+- `packages/cli/tests/human-experience-propagation.test.ts`
 
 ## Open Questions
 
@@ -1732,11 +1784,11 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: Adversarial review is exposed through the new architecture, as a Playbook and optionally a packaged distributable, with P3 rewritten accordingly and P4 validation updated, or W18 R3 is explicitly retired with its contract intent absorbed elsewhere.
 
-### R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Conformance Evidence
+### R-021 Adapter Contracts Can Regress to Assumed Paths and Outrun Direct Proof
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Packaging-specific adapters and generated-output support are retired under [PRD 36](./36-playbook-packaging-compiler-and-harness-adapters.md). Their old verification tasks and the negative Codex recognition probe remain historical evidence. The current risk is that supported harness routing, Skill exposure, or CLI/MCP claims exceed reviewed evidence under [PRD 20](./20-agent-harness-conformance-and-support-claims.md). | P8 excludes the retired packaging claims from current coverage. Keep current support review with its existing owner. Do not require a new plugin probe or adapter repair to close P8. |
+| Open | Packaging-specific adapters and generated-output support are retired under [PRD 36](./36-playbook-packaging-compiler-and-harness-adapters.md). Their old verification tasks and the negative Codex recognition probe remain historical evidence. The current risk is that static harness routing, Skill exposure, or CLI/MCP claims exceed the direct installed-product evidence required by [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md) and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md). | P8 excludes the retired packaging claims from current coverage. Keep current adapter and test review with PRDs 28 and 50. Do not require a new plugin probe or dynamic support registry to close P8. |
 
 **Issue**: An assumed harness path or an internal test can still be mistaken for proof of current harness support.
 
@@ -1744,7 +1796,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **Recommendation**: Limit current wording to the exact supported surface and reviewed evidence. Preserve the old negative probe and provisional records without promoting them or applying them to current Skills.
 
-**To close**: The retired packaging claims are excluded from current coverage. Any remaining current claim has the evidence required by PRD 20. The former generated-plugin recognition run is no longer a close condition.
+**To close**: The retired packaging claims are excluded from current coverage. Any remaining current claim has direct installed-product evidence under PRDs 10, 16, 28, and 50. The former generated-plugin recognition run is no longer a close condition.
 
 **Source**: [W19 R1 P8 approved retirement scope](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/08-traced-playbook-protocol-retirement.md). Current disposition recorded 2026-09-05.
 
@@ -1767,19 +1819,19 @@ The following record preserves the prior claims, findings, and close conditions.
 
 </details>
 
-### R-022 First-Pass Conformance Scenarios Depend on Real Harness Availability
+### R-022 Installed-Harness Proof Depends on Real Harness Availability
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner-approved P8 scope retires all four legacy packaging scenarios from current coverage: plugin marketplace install, generated Skill-bundle discovery/invocation, packaging dependency checks in both directions, and generated-output backup/uninstall cleanliness. [PRD 43](./43-conformance-scenario-model-and-execution-kits.md) preserves their historical specs, results, and evidence. Current scenario preconditions and honest support limits remain in force. | P8 retires these scenarios without replacement scenarios. Keep generic lab tools that serve current features. P9 and P10 retain their existing scope. Current harness gaps remain with their existing scenario and support owners. |
+| Open | The owner-approved P8 scope retires all four legacy packaging scenarios from current coverage. Git history preserves their former specs, results, and evidence. The current risk is that a direct installed-harness check cannot run because the official harness, login, or safe disposable environment is unavailable. | Keep the method unsupported when direct proof cannot run. Do not replace the missing proof with internal tests, dynamic scenario data, or a broad access rule. P9 and P10 retain their existing scope. |
 
-**Issue**: A current scenario can lack a usable harness or other required input. The old packaging suite cannot prove current installed-product, Skill, CLI, or MCP behavior.
+**Issue**: A current direct installed-product check can lack a usable harness or other required input. The old packaging suite cannot prove current installed-product, Skill, CLI, or MCP behavior.
 
 **Why it matters**: Missing evidence must not appear as a pass. Historical packaging results must not become current support claims.
 
-**Recommendation**: Keep unmet current preconditions visible as blocked. Preserve all historical packaging results, including negative or blocked results. Do not substitute internal tests for required harness evidence.
+**Recommendation**: Keep unmet current preconditions visible as blocked. Preserve historical packaging results in Git history. Do not substitute internal tests for required installed-harness evidence.
 
-**To close**: The four retired scenarios no longer count as current coverage. Remaining current claims satisfy their owning evidence requirements or state their limits. No new harness session or replacement scenario is added to P8 by this item.
+**To close**: The four retired scenarios no longer count as current coverage. Remaining current claims pass direct package, release, adapter, and installed-product checks or state their limits. No new dynamic harness session or replacement scenario is added to P8 by this item.
 
 **Source**: [W19 R1 P8 approved retirement scope](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/08-traced-playbook-protocol-retirement.md). Current disposition recorded 2026-09-05.
 
@@ -1920,7 +1972,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The accepted [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), accepted [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md), and current [PRD 48](./48-performance-evidence-governance.md) require an explicitly owner-approved owning-PRD requirement before a performance target can become blocking product authority; an `unsupported-assumption` receives no executable profile. [PRD 14](./14-lifecycle-workflow-and-coverage-passes.md) owns lifecycle qualification and [PRD 20](./20-agent-harness-conformance-and-support-claims.md) owns support-claim promotion, so neither may convert an unsupported candidate or incidental observation into product authority. | Carry the unsupported-target rejection and explicit promotion route into the upstream governance resources and lifecycle consumption. Any proposed promotion must return to owner approval and authoritative PRD maintenance rather than being inferred from a request, observation, result, or adjacent proof mode. |
+| Open | The accepted [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), accepted [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md), and current [PRD 48](./48-performance-evidence-governance.md) require an explicitly owner-approved owning-PRD requirement before a performance target can become blocking product authority; an `unsupported-assumption` receives no executable profile. [PRD 14](./14-lifecycle-workflow-and-coverage-passes.md) owns lifecycle qualification, [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md) owns static harness support, and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product testing. None may convert an unsupported candidate or incidental observation into product authority. | Carry the unsupported-target rejection and explicit promotion route into the upstream governance resources and lifecycle consumption. Any proposed promotion must return to owner approval and authoritative PRD maintenance rather than being inferred from a request, observation, result, or adjacent proof mode. |
 
 **Issue**: A requested number, observed baseline, incidental improvement, copied planning value, or measurable field could be treated as a product target even though no owning PRD accepts the protected outcome, source, trade-offs, scope, and approval.
 
@@ -1962,7 +2014,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The accepted [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), accepted [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md), and current [PRD 48](./48-performance-evidence-governance.md) make evidence comparable only under a matching fingerprint or an explicit justified equivalence rule; expired evidence remains history and cannot support a current pass, and requalification requires separate authorization and a new finite budget. [PRD 10](./10-packaging-validation-and-release-reference.md), [PRD 20](./20-agent-harness-conformance-and-support-claims.md), [PRD 43](./43-conformance-scenario-model-and-execution-kits.md), and [PRD 44](./44-conformance-lab-sessions-and-evidence.md) retain independent release, support, conformance, and lab authority and cannot treat stale or incomparable performance evidence as their proof. | Carry expiry, fingerprint, equivalence, and proof-mode separation into the upstream resources and every consuming gate. A current-use decision must expose invalidation or mismatch and route to reuse, bounded requalification, `revise`, `blocked`, or scoped failure without favorable inference. |
+| Open | The accepted [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), accepted [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md), and current [PRD 48](./48-performance-evidence-governance.md) make evidence comparable only under a matching fingerprint or an explicit justified equivalence rule; expired evidence remains history and cannot support a current pass, and requalification requires separate authorization and a new finite budget. [PRD 10](./10-packaging-validation-and-release-reference.md), [PRD 16](./16-package-runtime-and-deployment-boundaries.md), [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md), and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md) retain independent package, release, adapter, and installed-product authority and cannot treat stale or incomparable performance evidence as their proof. | Carry expiry, fingerprint, equivalence, and proof-mode separation into the upstream resources and every consuming gate. A current-use decision must expose invalidation or mismatch and route to reuse, bounded requalification, `revise`, `blocked`, or scoped failure without favorable inference. |
 
 **Issue**: A previously favorable result can be cited after its profile, build, environment, workload, support scope, dependency, instrument, analysis method, or declared validity has changed, or compared across materially different evidence fingerprints without an approved equivalence rule.
 
@@ -1976,13 +2028,13 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The accepted [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md), accepted [W20 R0 plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md), and current [PRD 49](49-human-experience-standard-and-intent.md) make Human Experience Intent and structural validation necessary but not sufficient. Real human-surface evidence, a Human Experience Review conclusion for each applicable promise, and bounded completion claims remain required. Suitable evidence must be reused without a duplicate test run or verdict. | Carry the limit into the contract, reference, prompts, templates, validators, agent conformance, review records, installed-product flow, and phase-close gates. Reject any claim that a complete section or passing structure check proves beauty, intuition, usefulness, or joy. |
+| Open | The accepted [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md), current [PRD 49](49-human-experience-standard-and-intent.md), and [W20 R2 correction](../designs/2026-09-15-human-experience-review-and-feedback-boundary.md) make Human Experience Intent and structural validation necessary but not sufficient. Agent review of the real surface, a conclusion for each applicable promise, and bounded completion claims remain required. The normal human handoff is optional. Human acceptance blocks only through explicit accepted authority. | Carry the corrected boundary into current authority, shipped resources, focused tests, and active work. Reject both structural self-certification and a recurring owner-response gate. |
 
 **Issue**: Agents and reviewers can complete every required field, repeat the right principles, and pass structural checks while the actual result remains confusing, dense, discontinuous, or shaped around the internal model.
 
 **Why it matters**: The enhancement would reproduce the original failure in a more formal form. Make Docs would appear to govern human quality while still accepting technically correct results that are difficult for people to understand or use.
 
-**Recommendation**: Treat structure as a prompt and traceability aid. Require proportionate evidence from the real surface, keep Human Experience Review as required acceptance work over suitable evidence, record friction even after technical completion, and prevent agents from self-certifying lived human experience.
+**Recommendation**: Treat structure as a prompt and traceability aid. Require proportionate evidence and agent review of the real surface. Give people a short optional experience handoff for completed direct work. Prevent agents from claiming lived human reactions, and require human acceptance only through an explicit scoped gate.
 
 **2026-09-08 clarification**: [W20 R0 P1](../work/2026-08-28-w20-r0-human-experience-standard-and-intent/01-prd-authority-and-requirement-trace.md) applies the accepted PRD 49 and PRD 50 rule. Each applicable promise receives `satisfied`, `material gap`, or `insufficient evidence`. The review is not a fifth testing type and must not require duplicate evidence or a duplicate test verdict. This wording repair does not close the risk. P4 owns failure-revealing review proof. P5 owns installed-product and real human outcome proof.
 
@@ -1990,7 +2042,11 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **2026-09-11 P4 evidence**: The [P4 evidence report](../work/2026-08-28-w20-r0-human-experience-standard-and-intent/evidence.md#failure-revealing-fixture) records a made-for-test result in which all required fields and automated checks pass while raw-ID relationships, unclear state history, and missing recovery cause three `material gap` conclusions. This proves that the P4 review rules can reject correct form with a poor human path. It does not prove package delivery, an installed product, or a lived human result. R-033 stays open. P5 owns that remaining proof.
 
-**To close**: Shipped resources, validators, conformance scenarios, review workflows, and at least one installed-product flow all preserve the difference between correct form and demonstrated human quality. No completion or release path treats structural conformance alone as sufficient proof.
+**2026-09-15 W20 R2 correction**: [W20 R2](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md) separates required agent review, an optional experience handoff, and an explicit human acceptance gate. It preserves real-surface evidence and claim limits. It removes the default owner-response gate that made the review process itself burdensome.
+
+**2026-09-15 W20 R2 implementation result**: Current PRDs and shipped resources now use the corrected boundary. Focused cases prove that direct work can close after agent review without an owner response, while an explicit human acceptance gate still blocks its named scope. The W19 R6 P3 installed-product evidence now contains an agent-owned six-promise review and closes without claiming a lived human reaction. The process failure is corrected. R-033 remains open for the broader W20 R0 P5 installed-product proof; that remaining risk is not an owner-response gate.
+
+**To close**: Shipped resources, validators, focused cases, review workflows, and at least one installed-product flow preserve the difference between correct form and demonstrated human quality. The normal path closes without an owner response. An explicit human gate remains blocking for only its named scope. No completion or release path treats structural conformance alone as sufficient proof.
 
 ### R-034 Testing Proportionality, Gate, and Human-Burden Drift
 
@@ -2026,7 +2082,6 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 - `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
 - `docs/prd/18-compatibility-classification-and-migration-safety.md`
 - `docs/prd/06-template-contracts-and-generated-assets.md`
-- `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 - `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - `docs/prd/22-project-documentation-asset-model.md`
 - `docs/prd/23-generated-document-metadata-and-lifecycle-handoffs.md`

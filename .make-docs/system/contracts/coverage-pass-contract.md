@@ -98,7 +98,7 @@ Reuse unchanged evidence. Expand the test boundary only after a failure signal, 
 
 When a work backlog retains evidence for acceptance or review, create or update `<work>/evidence.md`. Here, `<work>` is the owning backlog directory under `docs/work/`, not an individual phase file. This written report is the main entry point for the evidence. A folder of captures, a list of links, or a bare pass/fail statement does not replace it. The report is required even when all supporting evidence already exists elsewhere and no new capture folder is needed.
 
-For Human Experience Review, the agent prepares and presents the per-promise review. The owner gives a concise response by correcting the proposal, adding feedback, acknowledging it, or accepting it. The agent records the proposal, the owner's response, and the approved result. An owner correction replaces the affected proposed conclusion. The owner does not have to author the report or use a special response format.
+For Human Experience Review, the agent prepares and records the per-promise review with evidence, observations, conclusions, reviewer, and limits. Human feedback is optional by default. For completed direct human-facing work, the completion can include a short optional experience handoff. Require and record a human response only when accepted authority explicitly defines a human acceptance gate with a scope, human reviewer, surface, acceptance question, and gate effect.
 
 Keep one central report for the backlog. Start with a short summary of the current findings. Group the detail by phase and acceptance-case ID, or by named review when no case applies. For each case or review, record:
 
@@ -174,7 +174,7 @@ At close of pass, confirm:
 10. Testing output preserves separate type decisions, finite budgets, stop conditions, and evidence reuse.
 11. Each activated Unassisted Goal Test records one eligible configured Persona and a separately qualified executor.
 12. Retained backlog evidence has a central `evidence.md` report with findings, supporting links, tested build and environment, reviewer, and review limits. The backlog index and relevant phase records link to it. This applies even when no new capture folder is needed. When no report is needed, the phase record states why.
-13. A retained Human Experience Review separates the agent's proposal from the owner-approved result. It records the owner's concise response and applies each owner correction to the affected conclusion. It does not treat agent preparation as owner approval.
+13. A retained Human Experience Review records the agent's evidence, observations, conclusions, reviewer, and limits. A declined or unanswered optional experience handoff does not block closure or create an obligation. Any human acceptance gate names its explicit authority, scope, human reviewer, surface, acceptance question, response, and gate effect.
 14. New acceptance-case captures use the owning backlog's `evidence/a<number>/` path and stable case IDs. The central report links to them. Captured instructions are inert, and Make Docs operation state remains in the Store.
 
 ## Defining A New Coverage Pass

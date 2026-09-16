@@ -7,7 +7,7 @@ This PRD carries Human Experience Intent and proportionate testing decisions thr
 This document defines the current product contract for lifecycle workflow, coverage passes, and phase-close routing. Normative requirements are stated in the sections below; Requirement History is provenance only.
 ## Scope
 
-The scope includes Human Experience mapping, current-decision testing selection, explicit gate effects, evidence reuse, Human Experience Review as a lens, real-surface review, and bounded completion claims.
+The scope includes Human Experience mapping, current-decision testing selection, explicit gate effects, evidence reuse, Human Experience Review as an agent-owned lens, optional experience handoffs, real-surface review, and bounded completion claims.
 
 This authority owns lifecycle workflow, coverage passes, and phase-close routing. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
 ## Component and Capability Map
@@ -24,7 +24,9 @@ The requirements below define the owned components, behaviors, boundaries, and e
 - PRD reconciliation places each observable human outcome in the PRD that owns the capability.
 - Work traces tasks and acceptance criteria to the owning promise or preserved boundary. Generic acceptance such as `UX is good` is invalid.
 - Direct-impact implementation and review inspect the real human surface when it exists.
-- Coverage records Human Experience Review as a lens over suitable evidence and the built result. It does not create a fifth testing type or require duplicate evidence.
+- Coverage records Human Experience Review as an agent-owned lens over suitable evidence and the built result. It does not create a fifth testing type, require duplicate evidence, or require an owner response by default.
+- Completed direct human-facing work normally includes a short optional experience handoff. Silence, refusal, or no feedback does not block closure or create an obligation.
+- Human acceptance blocks only when the user, an accepted design or PRD, release authority, or safety authority explicitly names the scope, human reviewer, surface, acceptance question, and gate effect.
 - A bounded caveat must name the affected promise, evidence limit, risk, owner, and follow-on route.
 
 - **Coverage-pass contract** — a single reference owning the decision-frame
@@ -103,10 +105,10 @@ When closeout or the caller requires a session record, the pass updates the curr
 ### Adversarial Review Surface Boundary
 
 - A shipped prompt or system workflow reuses the coverage-pass contract and enters resource rules only after template/package parity is decided. A plugin or Skill adapter remains explicit-selection only and delegates any deterministic behavior to current typed operations. Long-running, nested, parallel, or unattended behavior uses the general lifecycle-run contract rather than adversarial-specific semantics.
-- A generated plugin, skills bundle, or harness entry uses the reviewed package-plan, adapter, lifecycle, provenance, and conformance model. Generated output is a distribution artifact, never the authoritative adversarial-review source.
+- A generated plugin, skills bundle, or harness entry uses the reviewed package-plan, source-owned static adapter, lifecycle, and provenance model. Generated output is a distribution artifact, never the authoritative adversarial-review source.
 - Bare setup, default sync, lifecycle-run capture, and plugin or Skill selection do not imply adversarial review.
-- Public claims for a harness, model, plugin bundle, unattended mode, CLI, MCP, or package delivery mode require implementation validation or conformance records for the exact support tuple. Without that evidence, language remains provisional.
-- Shipped adversarial assets are authored first in `packages/docs/template/`, dogfooded only for reviewed template-owned files, bundled through copy/prepack, and validated in local and packed paths. Required validation expands according to the selected surface: resource, typed-operation, optional-adapter, package-parity, link, and conformance evidence.
+- Public claims for a harness, model, plugin bundle, unattended mode, CLI, MCP, or package delivery mode require a source-owned static adapter declaration and direct installed-product and release proof for the claimed behavior. Without that evidence, language remains provisional.
+- Shipped adversarial assets are authored first in `packages/docs/template/`, dogfooded only for reviewed template-owned files, bundled through copy/prepack, and validated in local and packed paths. Required validation expands according to the selected surface: resource, typed-operation, optional-adapter, package-parity, link, and direct installed-product and release evidence.
 
 ## Contracts and Data
 
@@ -142,13 +144,13 @@ Lifecycle artifacts link to the accepted Human Experience Intent and record thei
 
 ## Phase-Close Obligation and UAT Gates
 
-A phase can close with partial capability status when an accepted future outcome remains owed and a valid obligation preserves it. A capability cannot be complete when evidence required by current authority is absent or an accepted material finding remains unresolved. A declined Guided Progress Review, `not-needed-now`, or skipped advisory test does not block closure or create an obligation.
+A phase can close with partial capability status when an accepted future outcome remains owed and a valid obligation preserves it. A capability cannot make an unqualified claim when evidence required by current authority is absent or an accepted material finding remains unresolved. A declined Guided Progress Review, `not-needed-now`, skipped advisory test, or declined or unanswered optional experience handoff does not block closure or create an obligation.
 
 Every phase-close gate must run the non-persona-scoped [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit). [R-OBL-COMPLETE](45-deferred-obligation-governance.md#r-obl-complete-phase-and-capability-status) allows a phase to be `complete` only when accepted outcomes are completed or validly routed; capability reporting must separately use `partial`, `complete`, or `unverified` so a completed phase cannot imply that an entire feature is done.
 
 Each phase-close testing candidate consumes the compact decision record from [PRD 50](50-proportionate-testing-and-human-centered-validation.md): testing type, decision, reason, maturity, scope, executor, gate effect, effort budget, stop condition, retained evidence, and rerun trigger. The phase does not activate all four core types merely because they are candidates.
 
-Automated Implementation Testing can block the scoped correctness claim. Performance Testing blocks only an accepted hard outcome or bounded support claim. Guided Progress Review is always advisory or informational. Unassisted Goal Testing is advisory by default and blocks only when explicit current product or release authority names the affected outcome or claim. A user-observable slice alone does not activate Unassisted Goal Testing.
+Automated Implementation Testing can block the scoped correctness claim. Performance Testing blocks only an accepted hard outcome or bounded support claim. Guided Progress Review is always advisory or informational. Unassisted Goal Testing is advisory by default and blocks only when explicit current product or release authority names the affected outcome or claim. An optional experience handoff is completion communication and never becomes a gate by silence or refusal. A separate human acceptance gate blocks only when accepted authority names its scope, human reviewer, surface, acceptance question, and gate effect. A user-observable slice alone does not activate Unassisted Goal Testing.
 
 When Unassisted Goal Testing activates, the phase record links the exact scenario identity and version when one exists, intended audience, qualified executor, public scope, result, evidence, findings, disposition, gate effect, and rerun trigger. `clear`, `friction`, `blocked`, `invalid-run`, and `not-needed-now` keep the meanings in [PRD 46](46-naive-end-user-acceptance-testing.md). Non-blocking results inform work without silently becoming phase failure.
 
@@ -163,6 +165,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project material use `docs/assets/project/**`; audience assets use `docs/assets/<persona-slug>/**`. The first needed content creates its path. Neither directory placement nor asset creation promotes content to product authority or adds a lifecycle stage. Resolve shipped defaults plus configured Personas under PRD 47. Ordinary lifecycle work can continue when optional CLI capture is unavailable; no local operational fallback is permitted.
 
 ## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: coverage evidence, support claims, and shipped optional-adapter assets.
+- Previous contract: Public harness claims could depend on dynamic conformance records and generated lab evidence.
+- Replacement contract: Public claims require a source-owned static adapter and direct installed-product and release proof. Generated output remains a distribution artifact, not authority.
+- Rationale: Current product authority and real installed behavior must control support wording.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
 
 ### 2026-08-08 — Not assigned
 
@@ -203,6 +213,14 @@ R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project materi
 - Replacement contract: Lifecycle selects only the four testing types that can change a current decision, treats Human Experience Review as a lens, keeps Guided Progress Review non-blocking, makes Unassisted Goal Testing conditional and advisory by default, and consumes explicit gate effects and rerun triggers.
 - Rationale: Phase-close rigor must protect current decisions without creating duplicate human work, false gates, or obligations for tests that are not useful now.
 - Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-15 — W20 R2
+
+- Affected requirement or section: `Human Experience Lifecycle and Review` and `Phase-Close Obligation and UAT Gates`.
+- Previous contract: Lifecycle treated the normal owner response to an agent-prepared Human Experience Review as required acceptance work.
+- Replacement contract: Lifecycle requires the agent review, makes the normal experience handoff optional and non-blocking, and consumes a human response as a gate only when accepted authority explicitly names its scope and gate effect.
+- Rationale: Human Experience must remain a real quality duty without creating a recurring human closeout task or false obligation.
+- Source: [W20 R2 Human Experience Review and Feedback Boundary plan](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md)
 
 ### 2026-09-09 — W19 R4 Asset and Persona Recovery
 

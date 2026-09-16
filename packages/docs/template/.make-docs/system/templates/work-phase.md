@@ -43,7 +43,7 @@ Record the current decision for each testing type. Do not activate a test only t
 | Guided Progress Review | {{GUIDED_PROGRESS_REVIEW_DECISION}} | {{GUIDED_PROGRESS_REVIEW_RECORD_OR_REASON}} |
 | Unassisted Goal Testing | {{UNASSISTED_GOAL_TESTING_DECISION}} | {{UNASSISTED_GOAL_TESTING_RECORD_OR_REASON}} |
 
-Human Experience Review is separate. Apply it as the required acceptance lens for each applicable promise. Reuse suitable evidence. The agent prepares and presents the proposed observations, conclusions, limits, and next actions. Record the owner's concise response against each promise. The owner can correct, add feedback, acknowledge, or accept without writing a formal report or using a special phrase. Apply corrections before the agent records the approved structured review. Do not record the review as a fifth testing type.
+Human Experience Review is separate. Apply it as required agent review work for each applicable promise. Reuse suitable evidence. The agent inspects the available real result and records observations, conclusions, limits, and next actions. For completed direct human-facing work, normally include a short optional experience handoff with one to three normal-use steps, what to notice, and an invitation for feedback. A missing response does not block closure or create an obligation. Require a human response only when accepted authority explicitly defines a human acceptance gate. Do not record the review or handoff as a fifth testing type.
 
 ## Source PRD Docs
 
@@ -87,7 +87,9 @@ Reject `UX is good`, `easy to use`, `intuitive`, and similar criteria. Replace e
 ### Closeout Notes
 
 - Four testing decisions: {{AUTOMATED_PERFORMANCE_GUIDED_UNASSISTED_DECISIONS}}
-- Human Experience Review: {{APPROVED_PROMISE_CONCLUSIONS_EVIDENCE_OWNER_RESPONSE_REVIEWER_AND_LIMITS}}
+- Human Experience Review: {{PROMISE_CONCLUSIONS_EVIDENCE_REVIEWER_AND_LIMITS}}
+- Optional experience handoff: {{SHORT_TRY_IT_STEPS_WHAT_TO_NOTICE_AND_OPTIONAL_FEEDBACK_OR_NOT_APPLICABLE}}
+- Explicit human acceptance gate: {{AUTHORITY_SCOPE_REVIEWER_SURFACE_QUESTION_GATE_EFFECT_AND_RESPONSE_OR_NONE}}
 - Evidence report: {{CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED}}
 - Phase / capability status: {{PHASE_AND_CAPABILITY_STATUS}}
 
