@@ -1,12 +1,12 @@
 ---
 title: "W20 R0 Human Experience Standard and Intent Work Backlog"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W20 R0"
 follow_on:
-  route: "implementation-loop"
-  next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the plan and PRD contract."
+  route: "none"
+  next_prompt: "none"
+  why: "All five phases are complete. W21 R0 remains a separate testing-governance backlog."
   coordinate_handoff: "Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase."
 source:
   type: "prd"
@@ -19,7 +19,7 @@ This backlog is a directory. Use this index first. Then use the phase files in o
 
 ## Interrupt Pause
 
-The W19 recovery interrupt is closed. P1 through P4 are accepted and closed. Their commits are `cc113d3` for P1, `c09adb9` for P2, `da10a5e` for P3, and `df0080a` for P4. P5 is active. Tasks t1 through t18 have evidence. Stage 1 is not accepted because no real-agent result exists. Supported-agent conformance is blocked by an unresolved tuple authority and implementation gap. P5, W20 R0, publication, and release remain open. W21 stays paused.
+The W19 recovery interrupt is closed. P1 through P4 remain accepted at `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. P5 is complete under current static-adapter and agent-review authority. W20 R0 is complete. Publication and release remain separate actions. W21 R0 can now proceed under its own authority.
 
 ## Purpose
 
@@ -43,17 +43,17 @@ Authority inputs:
 
 ## W21 Testing Alignment
 
-This revision preserves the W20 R0 coordinate and every phase task ID. W20 owns Human Experience Intent, propagation, and required Human Experience Review. W21 owns the four testing types and the rules that select, bound, run, stop, reuse, and gate them.
+This revision preserves the W20 R0 coordinate and every phase task ID. W20 owns Human Experience Intent, propagation, and agent Human Experience Review. W21 owns the four testing types and the rules that select, bound, run, stop, reuse, and gate them.
 
-Human Experience Review is mandatory acceptance work against each applicable promise. It is not a fifth testing type. It reuses suitable evidence. When evidence is insufficient, PRD 50 selects the smallest added testing activity that can answer the current question.
+Human Experience Review is required agent work against each applicable promise. It is not a fifth testing type. It reuses suitable evidence. When evidence is insufficient, PRD 50 selects the smallest added testing activity that can answer the current question. A person can try the result and give feedback, but that response is optional unless accepted authority defines an explicit human gate.
 
-After both backlogs are ready, implement W20 first. Then implement W21 against the Human Experience capability delivered by W20.
+W20 is complete. W21 can now reconcile and implement its testing rules against the delivered Human Experience capability.
 
 ## 2026-09-15 W20 R2 Supersession
 
-[W20 R2](../../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md) supersedes only the default owner-response rule in this active P5 record. The agent now prepares and records the Human Experience Review. A normal review does not require an owner response or approval. Completed direct human-facing work normally includes a short optional experience handoff. Silence, refusal, or no feedback does not block completion or create an obligation.
+[W20 R2](../../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md) supersedes only the former default owner-response rule. The agent prepares and records the Human Experience Review. A normal review does not require an owner response or approval. Completed direct human-facing work normally includes a short optional experience handoff. Silence, refusal, or no feedback does not block completion or create an obligation.
 
-Human acceptance remains blocking only when the user, an accepted design or PRD, release authority, or safety authority explicitly defines a gate with its scope, human reviewer, surface, acceptance question, and gate effect. This correction does not close P5. It preserves all non-Human-Experience blockers, tasks, and evidence. P1 through P4 stay accepted and closed.
+Human acceptance remains blocking only when the user, an accepted design or PRD, release authority, or safety authority explicitly defines a gate with its scope, human reviewer, surface, acceptance question, and gate effect. P5 applies this boundary and closes from agent-owned installed-product evidence. P1 through P4 stay accepted and closed.
 
 ## Phase Map
 
@@ -63,11 +63,11 @@ Human acceptance remains blocking only when the user, an accepted design or PRD,
 | 2 | [02-contract-reference-and-design-entry.md](02-contract-reference-and-design-entry.md) | Accepted and closed at `c09adb9`: shared rules, design entry, checks, and owner-approved local sync. Source, package, and installed copies match. |
 | 3 | [03-lifecycle-propagation-and-routing.md](03-lifecycle-propagation-and-routing.md) | Accepted and closed at `da10a5e`: the human goal and promises pass through plans, PRDs, work, routers, prompts, handoffs, and durable deferrals. Source, package, installed files, and Store evidence agree. |
 | 4 | [04-evidence-review-and-acceptance.md](04-evidence-review-and-acceptance.md) | Accepted and closed at `df0080a`: implementation and validation are complete, and independent review found no defect after repairs. The [central evidence](evidence.md#phase-4-review) records the bounded result. Guided Progress Review and Unassisted Goal Testing remain `not-needed-now` for P4. |
-| 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Active. Package, dogfood, clean-install, constructed update, and structural tasks have evidence. Stage 1 is not accepted because real-agent reach is not proved. Agent, adoption, real-human, reconciliation, and closeout work remain open. |
+| 5 | [05-delivery-conformance-and-delta-closeout.md](05-delivery-conformance-and-delta-closeout.md) | Complete. Package, dogfood, install, update, real-agent, real-surface, preservation, recovery, and agent Human Experience evidence support the bounded W20 R0 claim. Claude Code permission rules remain safely blocked. |
 
 ## Usage Notes
 
-- The owner accepted and closed P1 through P4. Their commits are `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. The owner authorized P5 implementation in the current task. Staging, commit, publication, and release still need separate authority.
+- The owner accepted and closed P1 through P4. Their commits are `cc113d3`, `c09adb9`, `da10a5e`, and `df0080a`. The owner authorized P5 implementation and commit in the current task. Publication and release still need separate authority.
 - Complete phases in order. A later phase can inspect future work, but it cannot close before its dependencies close.
 - Use phase-local task IDs. IDs start at `t1` in each phase and continue across that phase's stages.
 - Treat PRD 49 and the listed owner PRDs as product authority. Use the plan only for order, context, and scope provenance.
@@ -85,11 +85,9 @@ Human acceptance remains blocking only when the user, an accepted design or PRD,
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. It is authoritative unless the user explicitly overrides it. It is not an implementation approval.
+W20 R0 has no incomplete follow-on work.
 
-- Route: `implementation-loop`
-- Next Prompt: `.make-docs/system/references/execution-workflow.md`
-- Why: The backlog is the implementation queue derived from the plan and PRD contract.
-- Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
-
-Current next step: Resolve authority for the PRD 20 `connectionMethod` implementation and the separate PRD 43 tuple reconciliation. Then resume P5 agent evidence. Use the [central evidence report](evidence.md) as the handoff. P5 implementation is authorized. W19 R6 implementation, PRD 43 changes, staging, commit, publication, and release remain outside the current authority.
+- Route: `none`
+- Next Prompt: `none`
+- Why: All five phases and `R-033` are complete.
+- Separate work: W21 R0 remains the active backlog for testing governance. Its reconciliation does not reopen W20 R0.
