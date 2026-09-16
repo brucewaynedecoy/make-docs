@@ -22,14 +22,18 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 06 — Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
+- [PRD 10 — Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 - [PRD 14 — Lifecycle Workflow and Coverage Passes](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
+- [PRD 15 — Agent Instruction Ownership and Managed Blocks](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
 - [PRD 21 — Project Tool Directory and Resource Tiers](../../prd/21-project-tool-directory-and-resource-tiers.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
+- [PRD 49 — Human Experience Standard and Intent](../../prd/49-human-experience-standard-and-intent.md)
+- [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
 
 ## Source Obligations, Scenarios, And Findings
 
 - `O-###: none` — no deferred obligation is assigned at backlog generation.
-- `NUAT-###: none` — no naive-UAT scenario is assigned to this resource phase.
+- `NUAT-###: none` — no Unassisted Goal Test is assigned to this resource phase.
 - `Finding: none` — no finding is assigned; task completion cannot close a later finding.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
@@ -37,8 +41,8 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 ### Tasks
 
 - [ ] t1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, and current dirty state; stop on unexpected user work or unsafe resource pressure.
-- [ ] t2: Reread the current normative bodies of PRDs 06, 14, 21, and 48 plus PRD 03, and record each current revision or content digest before implementation.
-- [ ] t3: Reevaluate at minimum Q-017 only if this phase would change centralization or replication, Q-021, R-017, and R-029 through R-032; add any newly relevant current item discovered by the live reread.
+- [ ] t2: Reread the current normative bodies of PRDs 06, 10, 14, 15, 21, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
+- [ ] t3: Reevaluate at minimum Q-017 only if this phase would change centralization or replication, Q-021, R-017, R-029 through R-032, and R-034; add any newly relevant current item discovered by the live reread.
 - [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking t8.
 - [ ] t6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
@@ -56,12 +60,12 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 ### Dependencies
 
 - Accepted W19 R2 plan and reconciled PRD authority.
-- The [W19 R2 P1 work-history closeout](./01-prd-authority-and-target-inventory.md) records the PRD work as completed and validated in the current worktree. Before P2 implementation starts, that PRD authority and closeout must be committed and integrated, or this gate must stop on drift or missing authority.
-- W19 R1 peer-resource and upstream-first documentation authority available to the implementation worktree; documentation authority alone is not implementation or landing evidence for later runtime, projection, or dogfood tasks.
+- The [W19 R2 P1 work-history closeout](./01-prd-authority-and-target-inventory.md) records the original PRD work as completed and committed. The current phase-entry reread controls later authority drift.
+- Completed W19 R1 peer-resource and upstream-first documentation authority is available to the implementation worktree. Current W19 R6 static-adapter boundaries and W20 R2 agent-review boundaries also apply.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused documentation and representative-fixture checks plus independent review; naive UAT, accessibility review, and visual review are `none` unless the implemented surface materially activates them.
+- Testing-mode decision(s): focused Automated Implementation Testing is selected. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for the P2 resource-authoring decision. Agent Human Experience Review applies to the real maintainer-facing resources.
 - Phase / capability status: `blocked` until this gate records an unlock; gate completion alone does not complete P2.
 
 ## Stage 2 - Author The Canonical Governance Resources Upstream
@@ -108,13 +112,13 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 - Routers are concise, paired where required, and progressively disclose the canonical resources.
 - Lifecycle touchpoints link rather than copy targets or policy.
 - Direct CLI and native MCP resolve the same resource identities and content.
-- No Skill, optional agentic output, router, help text, or template owns duplicated UAT, performance, conformance, release, or support business logic.
+- No Skill, optional agentic output, router, help text, or template owns duplicated Unassisted Goal Testing, performance, static-adapter, installed-product, release, or support business logic.
 
 ### Dependencies
 
 - Stage 2 accepted.
 - R-017 remains explicitly guarded rather than implicitly closed.
-- Before t16, recorded successful W19 R1 P1, P2, and P3 closeouts plus current implementation validation evidence must prove the four-type system-resource layout and shared CLI/native-MCP list/read resolution that t16 consumes; otherwise defer t16 and its acceptance claim.
+- Before t16, reuse the completed W19 R1 resource and resolver evidence plus current validation of shared CLI and native-MCP list/read resolution. Stop only if the current evidence is stale or the changed surface invalidates it.
 
 ### Closeout Notes
 
@@ -130,7 +134,7 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 - [ ] t20: Deliberately dogfood only the authorized resource/router selection after review and prove required byte parity and optional-local versus machine-installed resolution.
 - [ ] t21: Run focused resource, router, path-hygiene, link, fixture, package-projection, and affected tests; retry only failed affected checks after a material correction and reuse unchanged results.
 - [ ] t22: Independently review the exact P2 diff for policy duplication, target-authority drift, hidden defaults, centralization creep, and arbitrary performance requirements.
-- [ ] t23: Record exact changed files, validations, remaining questions/risks/findings, consumed correction/review budget, and phase-versus-capability status; do not close PRD 03 items by task completion.
+- [ ] t23: Record exact changed files, validations, remaining questions, risks, findings, consumed correction and review budget, phase-versus-capability status, and agent Human Experience Review of the real resources; do not close PRD 03 items by task completion.
 
 ### Acceptance criteria
 
@@ -144,9 +148,9 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 - Stages 2 and 3 accepted.
 - Maintained projection and dogfood operations separately authorized at phase execution time.
-- Before t18 through t21, recorded successful W19 R1 P10 closeout plus current package-projection and maintainer-dogfood validation evidence must prove the consumed system-resource layout, CLI/native-MCP resolution, and required byte parity; otherwise defer those tasks.
+- Before t18 through t21, reuse the completed W19 R1 P10 package-projection evidence and rerun the affected current package, dogfood, resolution, and byte-parity checks. Do not require a separate historical acceptance gate.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused automated checks and independent review complete; `O-###`, `NUAT-###`, and finding remain `none` unless real execution created an authority-backed reference.
+- Testing-mode decision(s): focused Automated Implementation Testing and agent Human Experience Review are required for closeout. Performance Testing, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` unless current evidence changes the decision. `O-###`, `NUAT-###`, and finding remain `none` unless real execution creates an authority-backed reference.
 - Phase / capability status: P2 may close when all acceptance criteria pass; W19 R2 capability remains open through P3 and P5.

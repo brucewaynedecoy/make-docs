@@ -20,17 +20,21 @@ Define the executable queue for a possible deterministic, read-only structural v
 
 If the owner later admits the operation, it may report structural and traceability facts only. It may not run benchmarks, choose targets, decide applicability or comparability, approve waivers, fulfill obligations, promote support, rewrite files, or loop on results. The phase permits at most two materially distinct correction attempts and two review cycles after admission.
 
+This phase is not part of the current W19 R2 implementation path. Its blocked state creates no deferred obligation and does not prevent P5 or W19 R2 closeout. If later admitted, it must consume current PRD 49 and PRD 50 review and testing boundaries without adding a human-response gate.
+
 ## Source PRD Docs
 
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 25 — TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
+- [PRD 49 — Human Experience Standard and Intent](../../prd/49-human-experience-standard-and-intent.md)
+- [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
 
 ## Source Obligations, Scenarios, And Findings
 
 - `O-###: none` — no deferred obligation is assigned at backlog generation.
-- `NUAT-###: none` — no naive-UAT scenario is assigned to a structural validator.
+- `NUAT-###: none` — no Unassisted Goal Test is assigned to a structural validator.
 - `Finding: none` — no finding is assigned; validator output cannot close a finding by itself.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
@@ -39,7 +43,7 @@ If the owner later admits the operation, it may report structural and traceabili
 
 - [ ] t1: Verify the exact branch, HEAD, worktree, free disk, dirty-state allowlist, and P2/P3 closeout; record that P4 is currently blocked and perform no implementation write.
 - [ ] t2: Reread the current normative bodies of PRDs 25, 39, and 48 plus PRD 03, and record each current revision or content digest.
-- [ ] t3: Reevaluate the hard validator-admission question and at minimum R-025 plus R-029 through R-032; add any newly relevant current item discovered by the live reread.
+- [ ] t3: Reevaluate the hard validator-admission question and at minimum R-025, R-029 through R-032, and R-034; add any newly relevant current item discovered by the live reread.
 - [ ] t4: Classify every relevant `Open`, `Confirming`, `Deferred`, or closed regression item with its ID, authority revision or digest, phase impact, one classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: Unless owner admission and current PRD authority already exist, classify the missing admission and missing PRD 25/39 operation contract as blocking, stop before t8, and present an owner decision package rather than asking for implementation authorization by implication.
 - [ ] t6: The decision package must include the source anchor, affected phase/PRDs, bounded options (`remain documentation-only`, `defer`, or `admit the exact deterministic operation`), trade-offs, recommendation, consequences, exact PRD 25/39/03/48 and history changes, validation, and a decision-only commit boundary; do not create a standalone decision file.
@@ -63,7 +67,7 @@ If the owner later admits the operation, it may report structural and traceabili
 
 ### Closeout Notes
 
-- Testing-mode decision(s): phase-entry authority review only while blocked; all implementation testing is `none`.
+- Testing-mode decision(s): phase-entry authority review only while blocked. Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-applicable` until the operation is admitted. No Human Experience handoff is invented for an unimplemented surface.
 - Phase / capability status: `blocked / not-authorized` until every admission criterion passes.
 
 ## Stage 2 - Implement The Admitted Deterministic Operation Core
@@ -146,5 +150,5 @@ If the owner later admits the operation, it may report structural and traceabili
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused automated checks and independent review complete; `O-###`, `NUAT-###`, and finding remain `none` unless authority-backed records were created separately.
+- Testing-mode decision(s): focused Automated Implementation Testing and agent Human Experience Review apply only after admission and implementation. Performance Testing, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` unless a current decision activates them. `O-###`, `NUAT-###`, and finding remain `none` unless authority-backed records are created separately.
 - Phase / capability status: report `validated` only for the exact admitted structural operation; otherwise remain `blocked` or `deferred`.

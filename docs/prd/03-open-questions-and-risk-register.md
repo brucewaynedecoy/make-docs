@@ -2018,7 +2018,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **Issue**: A previously favorable result can be cited after its profile, build, environment, workload, support scope, dependency, instrument, analysis method, or declared validity has changed, or compared across materially different evidence fingerprints without an approved equivalence rule.
 
-**Why it matters**: Stale or incomparable evidence can produce a false current pass and can silently leak into release, conformance, support, or lab claims that have separate evidence bars.
+**Why it matters**: Stale or incomparable evidence can produce a false current pass and can silently leak into package, static-adapter, direct installed-product, release, or support claims that have separate evidence bars.
 
 **Recommendation**: Treat expiry as loss of current-use status, require matching fingerprints or explicit justified equivalence for comparison, and keep every adjacent proof mode's outcome and gate independent.
 
@@ -2054,13 +2054,13 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The current [testing design](../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md), [W21 R0 plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md), and [PRD 50](50-proportionate-testing-and-human-centered-validation.md) establish a four-type current-decision model. Testing must reveal both insufficient proof and excessive, early, duplicate, unauthorized, or needlessly difficult work. | Carry selection, effort budget, stop condition, evidence reuse, human testing experience, and explicit gate effects through PRDs 14, 20, 43-50, system resources, conformance, installed-product proof, and later W20 R0 revision. |
+| Open | The current [testing design](../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md), [W21 R0 plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md), and [PRD 50](50-proportionate-testing-and-human-centered-validation.md) establish a four-type current-decision model. Testing must reveal both insufficient proof and excessive, early, duplicate, unauthorized, or needlessly difficult work. | Carry selection, effort budget, stop condition, evidence reuse, human testing experience, and explicit gate effects through PRDs 10, 14, 16, 28, 39, and 45-50, system resources, static adapters, and direct installed-product proof. W20 R0 is complete and supplies the agent Human Experience Review boundary. |
 
 **Issue**: Agents can under-test a material current risk or over-test an unstable or low-risk increment. They can also turn advisory human activity into a phase gate, ask people to repeat automated checks, or create false obligations for testing that is not useful now.
 
 **Why it matters**: Under-testing weakens correctness and support claims. Over-testing wastes time and money, slows learning, and makes Make Docs unpleasant for owners and maintainers. False gates and obligations hide the actual product decision behind procedure.
 
-**Recommendation**: Require the common testing decision record, affected-first automated proof, maturity-qualified performance evidence, non-gate Guided Progress Review, conditional Unassisted Goal Testing, Human Experience Review as a lens, and failure-revealing conformance for both failure directions.
+**Recommendation**: Require the common testing decision record, affected-first automated proof, maturity-qualified performance evidence, non-gate Guided Progress Review, conditional Unassisted Goal Testing, agent Human Experience Review as a lens, and failure-revealing direct installed proof for both failure directions.
 
 **To close**: Implement and validate the W21 R0 resource set. Show that supported agents select the smallest useful test, stop at sufficient evidence, reject unsupported gates, reuse valid evidence, and give a person one short installed-product testing experience that is easier and more meaningful than the prior technical walkthrough pattern.
 

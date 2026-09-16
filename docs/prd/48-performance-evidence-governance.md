@@ -21,7 +21,7 @@ This capability applies to latency, throughput, resource consumption, capacity, 
 
 It owns applicability qualification, maturity proportionality, target classes, canonical `PERF-###` profile identity, measurement comparability, finite evidence budgets, stop rules, outcomes, findings, waivers, expiry, requalification, traceability, compatibility, and automation limits.
 
-It does not make performance proof mandatory for every change; define a product target, qualified host, workload, environment matrix, sample approach, statistic, variance limit, evidence budget, or expiry interval for every product; create a benchmark runner; or replace the separate correctness, durability, safety, security, privacy, accessibility, portability, cost, maintainability, conformance, naive-UAT, release, or support-claim authorities.
+It does not make performance proof mandatory for every change; define a product target, qualified host, workload, environment matrix, sample approach, statistic, variance limit, evidence budget, or expiry interval for every product; create a benchmark runner; or replace the separate correctness, durability, safety, security, privacy, accessibility, portability, cost, maintainability, Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, static-adapter, installed-product, release, or support-claim authorities.
 
 ## Component and Capability Map
 
@@ -108,8 +108,8 @@ It does not make performance proof mandatory for every change; define a product 
 
 ### R-PERF-MODES Proof-Mode and Claim Separation
 
-- R-PERF-MODES-1 (MUST): performance, functional correctness, owner or architecture review, naive end-user UAT, knowledgeable visual/manual interaction, accessibility testing, visual-regression automation, conformance, release validation, and support-claim promotion retain independent applicability, evidence, outcomes, and gates.
-- R-PERF-MODES-2 (MUST): naive UAT may report perceived slowness, and conformance or package validation may reuse an instrumented physical execution, but no adjacent mode certifies a performance profile unless the performance authority, fields, comparability contract, and outcome remain explicit. A performance result never silently satisfies another mode.
+- R-PERF-MODES-1 (MUST): Performance Testing, Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, agent Human Experience Review, owner or architecture review, accessibility testing, visual-regression automation, static-adapter and direct installed-product proof, release validation, and support-claim promotion retain independent applicability, evidence, conclusions, outcomes, and gate effects.
+- R-PERF-MODES-2 (MUST): Guided Progress Review or Unassisted Goal Testing may report perceived slowness, and automated, package, or direct installed-product proof may reuse an instrumented physical execution, but no adjacent testing type, review lens, or evidence gate certifies a performance profile unless the performance authority, fields, comparability contract, and outcome remain explicit. A performance result never silently satisfies another type, lens, or gate.
 - R-PERF-MODES-3 (MUST): performance `pass`, characterization, `blocked`, or `waived` outcomes do not establish installed-harness correctness, release readiness, or public support. Public harness-method support remains limited to the static adapters and direct installed-product proof governed by [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) and [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
 
 ### R-PERF-COMPAT Conservative Adoption
@@ -191,10 +191,10 @@ Expiry records current-use status, material-change triggers, time or release bou
 - [PRD 28 Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters and their methods. Performance evidence cannot broaden them.
 - [21 Project Tool Directory and Resource Tiers](21-project-tool-directory-and-resource-tiers.md) owns peer contract/prompt/reference/template identity, optional local projection, installed-provider resolution, and current resource paths.
 - [38 Global Store and Project State](38-global-store-and-project-state.md) owns optional operational run/evidence capture, typed receipts, privacy, and the repository-versus-machine-state boundary.
-- [PRD 50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection and evidence. Performance evidence remains a separate proof mode.
 - [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) owns `O-###` identity and routing for `defer-required` outcomes and future remediation accepted through a waiver.
 - [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings and unassisted human-goal evidence without certifying a quantitative performance profile.
-- [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
+- [49 Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) owns agent Human Experience Review and the optional experience handoff. Performance evidence can support an applicable promise, but it cannot claim a lived human reaction or require a human response without an explicit gate.
+- [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection, the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) are future integration candidates only after the separate validator admission gate; they are not current operation authority for this capability.
 
 ## Common Testing Standard Consumption
@@ -212,9 +212,17 @@ Performance Testing must consume the shared testing decision from [PRD 50](50-pr
 
 A clean-room rebuild must preserve applicability as a first-class decision, maturity proportionality, one canonical authority per target class, characterization before promotion, append-only `PERF-###` identity, meaningful version and superseding lineage, predeclared comparable measurement, visible uncertainty and outliers, non-sacrificable constraints, finite budgets, affected-only reruns, unchanged-result reuse, diminishing-return stops, normalized outcomes, bounded waivers, singular requalification, conservative adoption, proof-mode separation, and repository authority over optional operational projections.
 
-Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with conformance/UAT/release/support proof, or add a validator that makes product judgments or runs benchmarks. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
+Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, static-adapter, direct installed-product, release, or support proof, or add a validator that makes product judgments or runs benchmarks. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
 
 ## Requirement History
+
+### 2026-09-16 — W19 R2 Authority Rewrite
+
+- Affected requirement or section: scope, proof-mode separation, integrations, and rebuild notes.
+- Previous contract: Current PRD 48 still named retired dynamic conformance and naive-UAT proof forms even after W19 R6 and W20 R2 replaced those active boundaries.
+- Replacement contract: Performance evidence stays separate from the four PRD 50 testing types, agent Human Experience Review, static-adapter and direct installed-product proof, release validation, and support claims. A normal Human Experience handoff remains optional.
+- Rationale: W19 R2 implementation must consume current product authority without restoring retired scenario registries, lab sessions, tuple claims, or a default human-response gate.
+- Source: [W19 R6 P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md), [W20 R2 plan](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md), and the active [W19 R2 backlog](../work/2026-08-14-w19-r2-performance-evidence-governance/00-index.md).
 
 ### 2026-09-14 — W19 R6 P3
 

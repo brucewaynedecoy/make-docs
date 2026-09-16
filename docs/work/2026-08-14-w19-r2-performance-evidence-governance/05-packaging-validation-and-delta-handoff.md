@@ -1,5 +1,5 @@
 ---
-title: "Phase 5: Packaging, Validation, and Delta Handoff"
+title: "Phase 5: Packaging, Validation, and Closeout"
 kind: "work"
 status: "active"
 coordinate: "W19 R2 P5"
@@ -8,11 +8,11 @@ source:
   path: "docs/prd/48-performance-evidence-governance.md"
 ---
 
-# Phase 5: Packaging, Validation, and Delta Handoff
+# Phase 5: Packaging, Validation, and Closeout
 
 ## Purpose
 
-Assemble the authorized documentation-first W19 R2 outputs, prove upstream/package/dogfood integrity, run validation proportional to changed surfaces, and prepare the owner closeout without executing benchmarks, promoting support, publishing, releasing, or deploying.
+Assemble the authorized documentation-first W19 R2 outputs, prove upstream, package, dogfood, and installed integrity, run validation proportional to changed surfaces, and prepare the bounded agent closeout without executing benchmarks, promoting support, publishing, releasing, or deploying.
 
 ## Overview
 
@@ -23,20 +23,21 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 06 — Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
 - [PRD 10 — Packaging Validation and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
+- [PRD 16 — Package Runtime and Deployment Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [PRD 14 — Lifecycle Workflow and Coverage Passes](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 - [PRD 18 — Compatibility Classification and Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md)
-- [PRD 20 — Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [PRD 28 — Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 38 — Global Store and Project State](../../prd/38-global-store-and-project-state.md)
-- [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
-- [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
-- [PRD 46 — Naive End-User Acceptance Testing](../../prd/46-naive-end-user-acceptance-testing.md)
+- [PRD 46 — Unassisted Goal Testing](../../prd/46-naive-end-user-acceptance-testing.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
+- [PRD 49 — Human Experience Standard and Intent](../../prd/49-human-experience-standard-and-intent.md)
+- [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
 
 ## Source Obligations, Scenarios, And Findings
 
 - `O-###: none` — no deferred obligation is assigned at backlog generation; closeout must name any real later reference explicitly.
-- `NUAT-###: none` — no naive-UAT scenario is assigned; package proof is not naive UAT.
+- `NUAT-###: none` — no Unassisted Goal Test is assigned; package proof is not an Unassisted Goal Test.
 - `Finding: none` — no finding is assigned; task completion cannot close a later finding.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
@@ -44,8 +45,8 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 ### Tasks
 
 - [ ] t1: Verify the exact branch, HEAD, worktree, free disk, dirty-state allowlist, accepted P2/P3 closeouts, and the explicit P4 disposition; stop on unexpected user work or unsafe growth.
-- [ ] t2: Reread the current normative bodies of PRDs 06, 10, 14, 18, 20, 38, 43, 44, 45, 46, and 48 plus PRD 03, and record each current revision or content digest.
-- [ ] t3: Reevaluate at minimum Q-017 only if this phase changes layout behavior, closed R-003 as a package-resolution regression guard, R-017, R-021/R-022 only if support or conformance claims are touched, and R-029 through R-032; add newly relevant items from the live reread.
+- [ ] t2: Reread the current normative bodies of PRDs 06, 10, 14, 16, 18, 28, 38, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest.
+- [ ] t3: Reevaluate at minimum Q-017 only if this phase changes layout behavior, closed R-003 as a package-resolution regression guard, R-017, R-021 only if static-adapter or support claims are touched, closed R-022 as a direct-proof regression guard, R-029 through R-032, and R-034; add newly relevant items from the live reread.
 - [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and finite phase correction/review budget before unlocking t8.
 - [ ] t6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options/trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
@@ -54,7 +55,7 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 ### Acceptance criteria
 
 - Current owning PRDs and PRD 03 were reread and revisions or digests are recorded.
-- Q-017 and R-021/R-022 are classified unrelated unless layout behavior or support/conformance scope is actually affected.
+- Q-017 and R-021 are classified unrelated unless layout behavior or static-adapter or support scope is affected. R-022 is a closed direct-proof regression guard.
 - R-003 remains closed and is used only as a package-resolution regression check.
 - The gate records either an explicit no-blocker result or a complete owner decision package.
 - No implementation write occurred before unlock, and any blocking decision was validated and separately committed.
@@ -67,7 +68,7 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 
 ### Closeout Notes
 
-- Testing-mode decision(s): phase-entry authority and regression review; naive UAT, accessibility, and visual review remain `none` unless changed behavior activates them.
+- Testing-mode decision(s): phase-entry authority and regression review. Focused Automated Implementation Testing is selected for changed files. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` unless a current decision activates them. Agent Human Experience Review applies to the shipped and installed maintainer-facing result.
 - Phase / capability status: `blocked` until this gate records an unlock; gate completion alone does not complete P5.
 
 ## Stage 2 - Prove Upstream, Package, Dogfood, And Installed Resolution
@@ -79,7 +80,7 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 - [ ] t10: Verify all four peer URIs resolve to intended upstream bytes through optional project-local projection and machine-installed fallback, without requiring a full local snapshot.
 - [ ] t11: Verify router pairs are byte-consistent where required, remain thin, and point to canonical contract/prompt/reference/template authority rather than duplicating policy.
 - [ ] t12: Verify project-authored PRDs, `PERF-###` profiles, results, work, findings, waivers, obligations, history, and evidence do not enter shipped defaults or generated package assets.
-- [ ] t13: Prove package, release, conformance, lab, naive-UAT, and support authorities remain independent; package proof and Store receipts cannot promote a performance outcome or support claim.
+- [ ] t13: Prove package, release, static-adapter, direct installed-product, Unassisted Goal Testing, Human Experience Review, and support authorities remain independent; package proof and Store receipts cannot promote a performance outcome or support claim.
 - [ ] t14: If P4 remains blocked/not-authorized/deferred, prove no validator code, registry entry, CLI/MCP surface, fixture, or generated copy entered the package; if P4 was separately validated, prove exact admitted-scope projection only.
 
 ### Acceptance criteria
@@ -89,7 +90,7 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 - Thin routers and generated copies do not become product or performance authority.
 - Project-specific profiles/evidence remain project content and never ship as defaults.
 - The P4 disposition is honored exactly with no inferred validator admission.
-- Package proof makes no release, conformance, support, or performance claim.
+- Package proof makes no release, static-adapter, direct installed-product, support, or performance claim.
 
 ### Dependencies
 
@@ -129,10 +130,10 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused automated validation and independent review; no real benchmark or support qualification.
+- Testing-mode decision(s): focused Automated Implementation Testing and independent review; no real benchmark or support qualification. Agent Human Experience Review remains for final closeout.
 - Phase / capability status: validation complete; owner closeout remains open.
 
-## Stage 4 - Prepare The Bounded Owner Handoff
+## Stage 4 - Prepare The Bounded Closeout And Optional Handoff
 
 ### Tasks
 
@@ -140,16 +141,16 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 - [ ] t24: Summarize target-class authority, resource identities, lifecycle/gate integration, evidence/requalification semantics, compatibility/state boundaries, and the P4 disposition.
 - [ ] t25: Report validation commands and results, reused evidence, bounded waivers, unresolved questions, open risks, findings, deferred obligations, and exact supported scope without closing any item by inference.
 - [ ] t26: Prove no benchmark execution, support promotion, publication, release, deployment, or unauthorized Store/product mutation occurred.
-- [ ] t27: Distinguish each phase's task status from overall W19 R2 capability status and name any separately required decision, remediation, commit, integration, or release gate.
-- [ ] t28: Stop at the owner implementation-acceptance gate; do not stage, commit, integrate, push, publish, release, deploy, execute benchmarks, or promote support without separate authorization.
+- [ ] t27: Distinguish each phase's task status from overall W19 R2 capability status. Apply agent Human Experience Review to each accepted promise and record the evidence, observation, conclusion, limit, and next action. Name any separately required decision, remediation, commit, publication, or release gate.
+- [ ] t28: Present the bounded closeout and a short optional experience handoff. Do not require a human response unless an explicit acceptance gate applies. Stop before staging, commit, push, publication, release, deployment, benchmark execution, or support promotion without separate authorization.
 
 ### Acceptance criteria
 
-- The closeout package is exact, evidence-backed, and owner-decision ready.
+- The closeout package is exact, evidence-backed, and clear to a maintainer.
 - Every unresolved item retains its canonical ID, status, owner, and next gate.
 - Phase completion does not close findings, risks, waivers, obligations, or capability authority by implication.
 - No later lifecycle action is treated as authorized.
-- The owner can distinguish documentation-first completion from the optional-validator, commit, integration, release, benchmark, and support gates.
+- A maintainer can distinguish documentation-first completion from the optional-validator, commit, release, benchmark, and support gates.
 
 ### Dependencies
 
@@ -157,5 +158,5 @@ P5 requires accepted P2 and P3. It accepts either a separately validated P4 oper
 
 ### Closeout Notes
 
-- Testing-mode decision(s): all required focused validation and independent review recorded; `O-###`, `NUAT-###`, and finding remain `none` unless real authority-backed references were created.
-- Phase / capability status: P5 and W19 R2 may be presented for owner implementation acceptance; all later lifecycle stages remain separately gated.
+- Testing-mode decision(s): all required focused Automated Implementation Testing, independent review, and agent Human Experience Review are recorded. Performance Testing, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` unless a current decision activates them. `O-###`, `NUAT-###`, and finding remain `none` unless real authority-backed references are created.
+- Phase / capability status: P5 and W19 R2 can close when the evidence and affected claims pass. Optional human feedback does not block closeout. All later lifecycle stages remain separately gated.

@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: PRD Authority and Target Inventory"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R2 P1"
 source:
   type: "plan"
@@ -16,9 +16,15 @@ Record the completed W19 R2 P1 PRD work as durable work history. This file repai
 
 ## Overview
 
-P1 inventoried performance-shaped claims, created PRD 48, updated the exact current PRD owners, preserved adjacent proof and runtime boundaries, and passed focused review and validation. The PRD work is completed and validated in the current worktree. Its commit and mainline integration are pending.
+P1 inventoried performance-shaped claims, created PRD 48, updated the PRD owners that were current at that time, preserved adjacent proof and runtime boundaries, and passed focused review and validation. The authority landed in commit `02002ba`. Later revisions updated current product boundaries.
 
-This is a faithful closeout record that was added after the work finished. All checked tasks describe work that was completed before this record existed. Future authority drift reopens the phase-entry gate. This record does not authorize P2 implementation.
+This is a faithful closeout record that was added after the work finished. All checked tasks describe work that was completed before this record existed. Future authority drift reopens the P2 phase-entry gate. This record does not authorize P2 implementation.
+
+## 2026-09-16 Current Reconciliation
+
+PRDs 20, 43, and 44 were current inputs when P1 ran. W19 R6 later retired them and their dynamic tuple, registry, scenario-kit, and lab-session system. Their names and digests below remain historical evidence only. Current implementation uses PRDs 10, 16, 28, 30, 36, 39, 48, and 50 for package, static-adapter, operation, and direct installed-product boundaries.
+
+The term `naive UAT` below also records the language used when P1 ran. Current human-facing work uses Unassisted Goal Testing under PRD 46. Agent Human Experience Review and optional feedback follow PRDs 49 and 50. Do not rerun or rewrite the checked P1 tasks.
 
 ## Source PRD Docs
 
@@ -28,16 +34,14 @@ This is a faithful closeout record that was added after the work finished. All c
 - [PRD 10 — Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
 - [PRD 14 — Lifecycle Workflow and Coverage Passes](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 - [PRD 18 — Compatibility Classification and Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md)
-- [PRD 20 — Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
 - [PRD 21 — Project Tool Directory and Resource Tiers](../../prd/21-project-tool-directory-and-resource-tiers.md)
 - [PRD 25 — TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
 - [PRD 38 — Global Store and Project State](../../prd/38-global-store-and-project-state.md)
 - [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
-- [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
-- [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
-- [PRD 46 — Naive End-User Acceptance Testing](../../prd/46-naive-end-user-acceptance-testing.md)
+- [PRD 46 — Unassisted Goal Testing](../../prd/46-naive-end-user-acceptance-testing.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
+- [W19 R6 P3 retirement record](../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md)
 
 ## Source Obligations, Scenarios, And Findings
 
@@ -76,7 +80,7 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 ### Closeout Notes
 
 - Testing-mode decision(s): focused documentation authority review and PRD question/risk review; benchmark execution, naive UAT, accessibility review, and visual review were not applicable.
-- Phase / capability status: P1 PRD work is completed and validated in the current worktree. Commit and mainline integration are pending. W19 R2 implementation remains open.
+- Phase / capability status: P1 PRD work is completed and landed in `02002ba`. Later current-authority updates do not reopen this historical task record. W19 R2 implementation remains open at P2, P3, and P5.
 - Gate result: no P1 PRD-maintenance blocker. R-029 through R-032 stay open as implementation controls. A future change to an owning PRD or risk disposition reopens this gate.
 - Worktree revision record: branch `brucewaynedecoy/codex-v2-recovery-designs`; baseline HEAD `8dd9a6e209fed76a785fca4cceba8a12c8793d30`; current PRD digests are listed below.
 
@@ -135,7 +139,7 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 - [x] t13: Created [PRD 48](../../prd/48-performance-evidence-governance.md) as the coherent new authority for performance qualification, profiles, evidence, outcomes, expiry, and proof-mode boundaries.
 - [x] t14: Updated [PRD 00](../../prd/00-index.md) with the new capability and exact navigation links. Added open risks R-029 through R-032 to [PRD 03](../../prd/03-open-questions-and-risk-register.md).
 - [x] t15: Updated delivery and lifecycle owners [PRD 06](../../prd/06-template-contracts-and-generated-assets.md), [PRD 10](../../prd/10-packaging-validation-and-release-reference.md), [PRD 14](../../prd/14-lifecycle-workflow-and-coverage-passes.md), and [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md).
-- [x] t16: Updated proof, state, and obligation owners [PRD 20](../../prd/20-agent-harness-conformance-and-support-claims.md), [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 43](../../prd/43-conformance-scenario-model-and-execution-kits.md), [PRD 44](../../prd/44-conformance-lab-sessions-and-evidence.md), [PRD 45](../../prd/45-deferred-obligation-governance.md), and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md).
+- [x] t16: Updated the proof, state, and obligation owners that were current at execution: historical PRDs 20, 43, and 44, plus current [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 45](../../prd/45-deferred-obligation-governance.md), and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md). W19 R6 later retired PRDs 20, 43, and 44.
 - [x] t17: Preserved [PRD 21](../../prd/21-project-tool-directory-and-resource-tiers.md) as the W19 R1 resource-layout owner. Preserved [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) and [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) without W19 R2 validator-operation authority.
 - [x] t18: Applied the Requirement History rule. PRD 48 is new, and the W19 R2 consumer changes are additive. No W19 R2 history entry was required. Existing W19 R1 history remained unchanged.
 
@@ -155,7 +159,7 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 ### Closeout Notes
 
 - Testing-mode decision(s): delegated PRD authoring, shared-surface assembly, and independent documentation review.
-- Phase / capability status: PRD authority work is completed in the worktree. Commit and integration are pending.
+- Phase / capability status: The P1 PRD authority work is completed and landed in `02002ba`. Current implementation consumes later PRD revisions.
 
 ## Stage 4 - Validate, Review, And Close P1
 
@@ -174,7 +178,7 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 - Independent review has no remaining P0–P3 finding.
 - The worktree contains the authorized PRD, design, plan, and backlog documents only.
 - P1 is visible as completed PRD work in the running work history.
-- Commit and mainline integration remain pending and are not reported as complete.
+- The original authority and closeout are committed. Later authority changes remain separate history.
 
 ### Dependencies
 
@@ -185,6 +189,6 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 ### Closeout Notes
 
 - Testing-mode decision(s): focused PRD contract, relative-link, anchor, path-hygiene, and whitespace validation plus independent review; no package, implementation, benchmark, or full-suite execution.
-- Phase / capability status: W19 R2 P1 PRD work is completed and validated in the current worktree. This phase file was added after execution to repair the missing work-history link. Commit and mainline integration are pending. P2 through P5 remain separate work.
+- Phase / capability status: W19 R2 P1 PRD work is completed and committed. This phase file was added after execution to repair the missing work-history link. P2, P3, and P5 remain separate implementation work. P4 remains not authorized.
 - Current validation evidence: PRD authority passed across 37 PRD files, 1,028 Markdown files, 19 structured files, and 668 links with zero diagnostics; path hygiene checked 82 files with zero errors; focused W19 R2 work-contract validation checked six bundle files, five phase files, 129 continuous task IDs, and 82 relative links; whitespace and final-newline checks passed.
 - This phase is not an executable rerun queue. Reopen only if current authority drifts, review finds a material defect, or the owner changes the accepted requirement.

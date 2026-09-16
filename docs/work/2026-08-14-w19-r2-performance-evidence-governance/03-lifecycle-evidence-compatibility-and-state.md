@@ -16,25 +16,25 @@ Connect Performance Evidence Governance to lifecycle qualification, work packets
 
 ## Overview
 
-P3 consumes the canonical resources from P2, uses documentation fixtures rather than real benchmarks, and preserves independent correctness, naive-UAT, accessibility, visual/manual, conformance, release, and support gates. The phase permits at most two materially distinct correction attempts and two review cycles.
+P3 consumes the canonical resources from P2, uses documentation fixtures rather than real benchmarks, and preserves independent Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, accessibility, static-adapter, direct installed-product, release, and support boundaries. The phase permits at most two materially distinct correction attempts and two review cycles.
 
 ## Source PRD Docs
 
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
 - [PRD 14 — Lifecycle Workflow and Coverage Passes](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 - [PRD 18 — Compatibility Classification and Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md)
-- [PRD 20 — Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
+- [PRD 28 — Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 38 — Global Store and Project State](../../prd/38-global-store-and-project-state.md)
-- [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
-- [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
-- [PRD 46 — Naive End-User Acceptance Testing](../../prd/46-naive-end-user-acceptance-testing.md)
+- [PRD 46 — Unassisted Goal Testing](../../prd/46-naive-end-user-acceptance-testing.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
+- [PRD 49 — Human Experience Standard and Intent](../../prd/49-human-experience-standard-and-intent.md)
+- [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
 
 ## Source Obligations, Scenarios, And Findings
 
 - `O-###: none` — no deferred obligation is assigned at backlog generation; a `defer-required` disposition must use a real PRD 45 record before execution.
-- `NUAT-###: none` — no naive-UAT scenario is assigned; performance remains a separate non-persona coverage mode.
+- `NUAT-###: none` — no Unassisted Goal Test is assigned; Performance Testing remains a separate testing type.
 - `Finding: none` — no finding is assigned; a task result cannot close a later performance or adjacent-mode finding.
 
 ## Stage 1 - Phase-Entry PRD Question And Risk Gate
@@ -42,8 +42,8 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 ### Tasks
 
 - [ ] t1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, current dirty state, and completed P2 evidence; stop on unexpected user work or unsafe resource pressure.
-- [ ] t2: Reread the current normative bodies of PRDs 14, 18, 20, 38, 43, 44, 45, 46, and 48 plus PRD 03, and record each current revision or content digest before implementation.
-- [ ] t3: Reevaluate at minimum R-009, R-017, closed R-023 as a regression guard, and R-029 through R-032; reevaluate Q-018 only if this phase changes configuration ownership and Q-019 only if it changes Persona setup or configuration; use PRDs 46 and 48, not Q-019, as the authority for cross-mode non-substitution, and add newly relevant items from the live reread.
+- [ ] t2: Reread the current normative bodies of PRDs 14, 18, 28, 38, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
+- [ ] t3: Reevaluate at minimum R-009, R-017, closed R-023 as a regression guard, R-029 through R-032, and R-034; reevaluate Q-018 only if this phase changes configuration ownership and Q-019 only if it changes Persona setup or configuration; use PRDs 46, 48, 49, and 50, not Q-019, as the authority for cross-type and Human Experience boundaries, and add newly relevant items from the live reread.
 - [ ] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
 - [ ] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking t8.
 - [ ] t6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
@@ -65,7 +65,7 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused documentation fixtures and independent review; naive UAT, accessibility, and visual review remain `none` unless a material surface change activates them.
+- Testing-mode decision(s): focused Automated Implementation Testing is selected. Performance Testing of the W19 R2 implementation, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` unless a current decision activates them. Agent Human Experience Review applies to the human-facing lifecycle resources.
 - Phase / capability status: `blocked` until this gate records an unlock; gate completion alone does not complete P3.
 
 ## Stage 2 - Wire Qualification, Profiles, And Finite Execution Packets
@@ -131,13 +131,13 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Tasks
 
-- [ ] t21: Preserve independent applicability, evidence, outcomes, and gates for performance, functional correctness, architecture/owner review, naive UAT, visual/manual review, accessibility, visual regression, conformance, release, and support promotion.
-- [ ] t22: Allow one physical execution to contribute to multiple modes only when every mode's authority, fields, evidence, and verdict remain explicit; prevent perceived slowness, performance pass, waiver, or Store receipt from certifying another mode.
+- [ ] t21: Preserve independent applicability, evidence, outcomes, conclusions, and gate effects for Performance Testing, Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, agent Human Experience Review, architecture review, accessibility, static-adapter and direct installed-product proof, release, and support promotion.
+- [ ] t22: Allow one physical execution to contribute to multiple testing types, review lenses, or evidence gates only when each authority, field set, evidence use, conclusion, outcome, and gate effect remains explicit. Prevent perceived slowness, performance pass, waiver, or Store receipt from certifying another type, lens, or gate.
 - [ ] t23: At the first qualifying lifecycle event after adoption, inventory active current numeric thresholds, relative claims, resource budgets, absolute performance language, benchmark assets, and evidence without retroactively failing completed phases or rerunning, certifying, moving, deleting, or rewriting existing assets.
 - [ ] t24: Route ambiguous or modified managed resources through PRD 18 conflict-stop and explicit disposition, and require owner authority for keeping, reclassifying, deferring, narrowing, or removing current candidates.
 - [ ] t25: Keep repository knowledge canonical and any Project State or Global Store projection rebuildable and non-authoritative; add no new table, daemon, retry loop, hidden mutation, or self-authorizing budget ledger in documentation-first delivery.
 - [ ] t26: Prove closed R-023 regressions: operational projection or receipt cannot override profile, target, outcome, expiry, waiver, finding, obligation, ownership, or history authority.
-- [ ] t27: Prove performance outcomes cannot promote conformance, release readiness, public support, or a broader harness tuple, and apply R-021/R-022 only when this phase actually touches those claims.
+- [ ] t27: Prove performance outcomes cannot promote static-adapter availability, direct installed-product correctness, release readiness, public support, or a broader harness method, and apply R-021 or the closed R-022 regression guard only when this phase touches those claims.
 
 ### Acceptance criteria
 
@@ -145,16 +145,16 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 - Compatibility is conservative, non-retroactive, conflict-stopping, and evidence-honest.
 - Existing benchmark assets are neither executed nor reclassified by inference.
 - Repository authority remains canonical; optional state is rebuildable and proves recording only.
-- R-023 remains closed and guarded, and no performance result broadens conformance or support scope.
+- R-023 remains closed and guarded, and no performance result broadens static-adapter, installed-product, or support scope.
 
 ### Dependencies
 
 - Stage 3 accepted.
-- PRDs 18, 20, 38, 43, 44, and 46.
+- PRDs 18, 28, 38, 46, 48, 49, and 50.
 
 ### Closeout Notes
 
-- Testing-mode decision(s): cross-mode, compatibility, and Store-boundary fixtures; no real harness or benchmark session unless separately authorized by its own mode.
+- Testing-mode decision(s): cross-type, review-lens, compatibility, static-adapter, and Store-boundary fixtures; no real benchmark or added harness exercise unless a current decision and authority require it.
 - Phase / capability status: integration complete; P3 validation and closeout remain open.
 
 ## Stage 5 - Validate And Close P3
@@ -164,7 +164,7 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 - [ ] t28: Run focused documentation-contract, template, fixture, link, anchor, path-hygiene, PRD-authority regression, and affected tests without a platform/environment benchmark matrix.
 - [ ] t29: Retry only affected failed checks after a material correction, reuse unchanged valid evidence, and stop at the declared correction/review budget or diminishing return.
 - [ ] t30: Independently review the P3 diff for target copies, implicit budgets, outcome shopping, expiry loopholes, correctness trade-offs, cross-mode substitution, retroactive failure, and Store authority drift.
-- [ ] t31: Record exact changed files, validations, fixture coverage, remaining questions/risks/findings/waivers/obligations, budget consumption, and phase-versus-capability status.
+- [ ] t31: Record exact changed files, validations, fixture coverage, remaining questions, risks, findings, waivers, obligations, budget consumption, phase-versus-capability status, and agent Human Experience Review of the real lifecycle resources.
 - [ ] t32: Hand off P4 as `blocked / not-authorized` and P5 as the next documentation-first phase unless the owner separately admits the validator.
 
 ### Acceptance criteria
@@ -180,5 +180,5 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Closeout Notes
 
-- Testing-mode decision(s): focused automated checks and independent review complete; `O-###`, `NUAT-###`, and finding remain `none` unless execution created an authority-backed reference.
+- Testing-mode decision(s): focused Automated Implementation Testing and agent Human Experience Review are required for closeout. Performance Testing of the implementation, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` unless a current decision activates them. `O-###`, `NUAT-###`, and finding remain `none` unless execution creates an authority-backed reference.
 - Phase / capability status: P3 may close when acceptance passes; W19 R2 remains open through P5.
