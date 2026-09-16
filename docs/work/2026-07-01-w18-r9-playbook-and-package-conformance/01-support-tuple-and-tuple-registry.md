@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Support Tuple and Tuple Registry"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R9 P1"
 source:
   type: "prd"

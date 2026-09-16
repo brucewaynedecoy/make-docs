@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Run Surface Pruning and Retained Work Operations"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R11 P4"
 source:
   type: "prd"

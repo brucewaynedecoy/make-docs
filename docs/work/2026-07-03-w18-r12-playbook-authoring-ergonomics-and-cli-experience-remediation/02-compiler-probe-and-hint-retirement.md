@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Compiler Probe and Hint Retirement"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R12 P2"
 source:
   type: "prd"

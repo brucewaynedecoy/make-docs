@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Execution Modes and Digest-Aware Resume"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R7 P3"
 source:
   type: "prd"

@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Playbook Contract Authoring"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R6 P1"
 source:
   type: "prd"

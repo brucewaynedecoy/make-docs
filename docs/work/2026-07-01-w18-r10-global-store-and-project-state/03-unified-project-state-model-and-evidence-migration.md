@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Unified Project-State Model and Evidence Migration"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R10 P3"
 source:
   type: "prd"

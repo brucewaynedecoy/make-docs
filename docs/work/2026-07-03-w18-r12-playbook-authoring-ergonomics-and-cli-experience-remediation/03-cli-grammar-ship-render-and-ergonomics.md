@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: CLI Grammar, Ship, Render, and Ergonomics"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R12 P3"
 source:
   type: "prd"

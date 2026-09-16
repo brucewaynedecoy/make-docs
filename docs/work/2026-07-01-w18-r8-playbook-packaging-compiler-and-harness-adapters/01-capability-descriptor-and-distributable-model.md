@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Capability Descriptor and Distributable Model"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R8 P1"
 source:
   type: "prd"

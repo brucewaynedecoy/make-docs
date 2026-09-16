@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Run-State Record and Global-Store Storage"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R7 P1"
 source:
   type: "prd"

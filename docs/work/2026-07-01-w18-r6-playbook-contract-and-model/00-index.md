@@ -1,13 +1,13 @@
 ---
 title: "W18 R6 Playbook Contract and Model Work"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R6"
 follow_on:
-  route: "implementation-loop"
+  route: "none"
   next_prompt: ".make-docs/references/system/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the W18 R6 plan and PRD contract."
-  coordinate_handoff: "Carry W18 R6 into phase history records and commits, adding the active P coordinate for each phase."
+  why: "All phase tasks are complete. W19 R1 P8 later retired the Playbook runtime."
+  coordinate_handoff: "Keep W18 R6 as completed historical work. Use a new accepted coordinate for later work."
 source:
   type: "prd"
   path: "docs/prd/34-playbook-authoring-contract-and-model.md"
@@ -42,7 +42,7 @@ Implement the deterministic Playbook contract and model required by [34 Revise P
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
-- Route: `implementation-loop`
-- Next step: Start with Phase 1 and continue phase-by-phase.
-- Why: The backlog is the implementation queue derived from the W18 R6 plan and PRD contract, and the runner, packaging, and conformance work is gated on this model being parseable and enforceable.
-- Coordinate Handoff: Carry `W18 R6` into phase history records and commits, adding the active P coordinate for each phase.
+- Route: `none`.
+- Next step: No W18 R6 work remains.
+- Why: Every phase task is complete. W19 R1 P8 later retired the Playbook runtime and preserved this package as historical evidence.
+- Coordinate Handoff: Keep `W18 R6` closed. Use a new accepted coordinate for later work.

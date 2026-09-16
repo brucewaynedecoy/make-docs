@@ -1,13 +1,13 @@
 ---
 title: "W18 R10 Global Store and Project State Work"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R10"
 follow_on:
-  route: "implementation-loop"
+  route: "none"
   next_prompt: ".make-docs/references/system/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the W18 R10 plan and PRD contract."
-  coordinate_handoff: "Carry W18 R10 into phase history records and commits, adding the active P coordinate for each phase."
+  why: "All phase tasks are complete. The retained Store and project-state capabilities continue under current PRD authority."
+  coordinate_handoff: "Keep W18 R10 closed. Use a new accepted coordinate for later Store work."
 source:
   type: "prd"
   path: "docs/prd/38-global-store-and-project-state.md"
@@ -42,7 +42,7 @@ Implement the machine-level global store and unified project-state model require
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
-- Route: `implementation-loop`
-- Next step: Start with Phase 1 and continue phase-by-phase; the W18 R7 run-state storage phases and the W18 R11 retained work operations unblock as Phases 1 through 3 land.
-- Why: The backlog is the implementation queue derived from the W18 R10 plan and PRD contract, and R-019 records this store as the blocking prerequisite for the run-state relocation.
-- Coordinate Handoff: Carry `W18 R10` into phase history records and commits, adding the active P coordinate for each phase.
+- Route: `none`.
+- Next step: No W18 R10 work remains.
+- Why: Every phase task is complete. The retained Store and project-state capabilities continue under current PRD authority.
+- Coordinate Handoff: Keep `W18 R10` closed. Use a new accepted coordinate for later Store work.

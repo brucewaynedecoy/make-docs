@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Asset Reorganization and Spec Migration"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R13 P1"
 source:
   type: "prd"

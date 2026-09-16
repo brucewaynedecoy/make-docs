@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Evidence Bar and First-Pass Scenarios"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R9 P2"
 source:
   type: "prd"

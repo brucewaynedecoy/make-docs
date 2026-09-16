@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Playbook Model and Parser"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R6 P2"
 source:
   type: "prd"

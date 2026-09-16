@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Lifecycle and Privacy"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R10 P4"
 source:
   type: "prd"

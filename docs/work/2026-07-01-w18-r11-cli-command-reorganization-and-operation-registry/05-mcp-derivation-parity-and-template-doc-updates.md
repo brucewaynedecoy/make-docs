@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: MCP Derivation Parity and Template Doc Updates"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R11 P5"
 source:
   type: "prd"

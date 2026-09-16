@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Compiler Output Writer and Dependency Materialization"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R8 P2"
 source:
   type: "prd"

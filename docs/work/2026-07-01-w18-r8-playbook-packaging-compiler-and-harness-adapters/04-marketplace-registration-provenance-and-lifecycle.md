@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Marketplace Seam, Provenance, and Lifecycle"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R8 P4"
 source:
   type: "prd"

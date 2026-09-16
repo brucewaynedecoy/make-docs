@@ -1,13 +1,13 @@
 ---
 title: "W18 R9 Playbook and Package Conformance Work"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R9"
 follow_on:
-  route: "implementation-loop"
+  route: "none"
   next_prompt: ".make-docs/references/system/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the W18 R9 plan and PRD contract."
-  coordinate_handoff: "Carry W18 R9 into phase history records and commits, adding the active P coordinate for each phase."
+  why: "All phase tasks are complete. W19 R6 P3 later retired the conformance system."
+  coordinate_handoff: "Keep W18 R9 as completed historical work. Use current static-adapter authority for later harness work."
 source:
   type: "prd"
   path: "docs/prd/20-agent-harness-conformance-and-support-claims.md"
@@ -45,7 +45,7 @@ Implement the conformance extension required by [37 Enhance Playbook and Package
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
-- Route: `implementation-loop`
-- Next step: Start with Phase 1 and continue phase-by-phase.
-- Why: The backlog is the implementation queue derived from the W18 R9 plan and PRD contract, and every W18 R5 through W18 R8 provisional support claim can be promoted only through the evidence surface this backlog builds.
-- Coordinate Handoff: Carry `W18 R9` into phase history records and commits, adding the active P coordinate for each phase.
+- Route: `none`.
+- Next step: No W18 R9 work remains.
+- Why: Every phase task is complete. W19 R6 P3 later retired the conformance system and replaced it with static adapters and direct installed-product proof.
+- Coordinate Handoff: Keep `W18 R9` closed as historical evidence. Use current authority for later harness work.

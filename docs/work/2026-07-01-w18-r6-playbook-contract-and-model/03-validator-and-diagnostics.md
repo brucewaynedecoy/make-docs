@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Validator and Diagnostics"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R6 P3"
 source:
   type: "prd"

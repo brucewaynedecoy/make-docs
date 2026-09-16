@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Command Tree and Bare Command"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R11 P2"
 source:
   type: "prd"

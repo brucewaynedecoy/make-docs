@@ -1,13 +1,13 @@
 ---
 title: "W18 R12 Playbook Authoring Ergonomics and CLI Experience Remediation Work"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R12"
 follow_on:
-  route: "implementation-loop"
+  route: "none"
   next_prompt: ".make-docs/references/system/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the W18 R12 plan and PRD contract, and the W18 R9 conformance wave is gated behind it."
-  coordinate_handoff: "Carry W18 R12 into phase history records and commits, adding the active P coordinate for each phase; W18 R9 executes only after Phase 4 completes (register item R-026)."
+  why: "All phase tasks are complete. W19 R1 P8 later retired the Playbook runtime and package grammar."
+  coordinate_handoff: "Keep W18 R12 as completed historical work. Use a new accepted coordinate for later CLI experience work."
 source:
   type: "prd"
   path: "docs/prd/34-playbook-authoring-contract-and-model.md"
@@ -44,7 +44,7 @@ Implement the UAT remediation round required by [40 Revise Playbook Authoring Co
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
-- Route: `implementation-loop`
-- Next step: Start with Phase 1 and continue phase-by-phase.
-- Why: The backlog is the implementation queue derived from the W18 R12 plan and PRD contract, and the W18 R9 conformance wave binds its evidence to the surfaces this backlog remediates.
-- Coordinate Handoff: Carry `W18 R12` into phase history records and commits, adding the active P coordinate for each phase; begin W18 R9 only after Phase 4 completes and PRD 37 plus the W18 R9 backlog are reconciled.
+- Route: `none`.
+- Next step: No W18 R12 work remains.
+- Why: Every phase task is complete. W19 R1 P8 later retired the Playbook runtime and package grammar and preserved this package as historical evidence.
+- Coordinate Handoff: Keep `W18 R12` closed. Use a new accepted coordinate for later CLI experience work.

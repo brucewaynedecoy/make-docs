@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Guardrails, Portability, and Three-Tier Behavior"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R7 P4"
 source:
   type: "prd"

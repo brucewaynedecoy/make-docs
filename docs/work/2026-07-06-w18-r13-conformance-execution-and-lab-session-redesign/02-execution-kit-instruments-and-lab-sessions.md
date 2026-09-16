@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Execution Kit, Instruments, and Lab Sessions"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R13 P2"
 source:
   type: "prd"

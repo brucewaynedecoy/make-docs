@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Support-Claim Governance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R9 P4"
 source:
   type: "prd"

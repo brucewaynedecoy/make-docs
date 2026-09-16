@@ -1,13 +1,13 @@
 ---
 title: "W18 R13 Conformance Execution and Lab Session Redesign Work"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R13"
 follow_on:
-  route: "implementation-loop"
+  route: "none"
   next_prompt: ".make-docs/references/system/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from the W18 R13 plan and PRD contract, and every operated first-pass lab session — the R-021/R-022 close inputs — is gated behind it."
-  coordinate_handoff: "Carry W18 R13 into phase history records and commits, adding the active P coordinate for each phase; operate lab sessions against a real harness only after Phase 4 completes and the reconciliation greps return no live-surface hits (register item R-028)."
+  why: "All phase tasks are complete. W19 R6 P3 later retired the conformance system."
+  coordinate_handoff: "Keep W18 R13 as completed historical work. Use current static-adapter authority for later harness proof."
 source:
   type: "prd"
   path: "docs/prd/43-conformance-scenario-model-and-execution-kits.md"
@@ -44,7 +44,7 @@ Implement the conformance execution and lab session redesign required by [43 Rev
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
-- Route: `implementation-loop`
-- Next step: Start with Phase 1 and continue phase-by-phase.
-- Why: The backlog is the implementation queue derived from the W18 R13 plan and PRD contract, and the first operated lab sessions bind their evidence to the forms this backlog builds.
-- Coordinate Handoff: Carry `W18 R13` into phase history records and commits, adding the active P coordinate for each phase; operate first-pass lab sessions only after Phase 4 completes, the reconciliation greps return no live-surface hits, and register items D-023/D-024/D-025 are closed (R-028).
+- Route: `none`.
+- Next step: No W18 R13 work remains.
+- Why: Every phase task is complete. W19 R6 P3 later retired the conformance system and replaced it with static adapters and direct installed-product proof.
+- Coordinate Handoff: Keep `W18 R13` closed as historical evidence. Use current authority for later harness proof.

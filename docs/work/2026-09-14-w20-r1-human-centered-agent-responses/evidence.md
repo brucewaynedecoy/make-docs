@@ -1,7 +1,7 @@
 ---
 title: "W20 R1 Human-Centered Agent Responses Evidence"
 kind: "evidence"
-status: "active"
+status: "complete"
 coordinate: "W20 R1 P1"
 ---
 
@@ -11,7 +11,7 @@ coordinate: "W20 R1 P1"
 
 The W20 R1 implementation and owner Human Experience Review are complete. Focused automated checks pass. The owner approved all nine prepared `satisfied` conclusions on 2026-09-15 and requested no correction.
 
-No W20 R1 file is staged or committed. Commit authority remains separate.
+W20 R1 is complete. Commit `51bd35c` records the accepted implementation and evidence. The quoted prepared examples below remain unchanged as historical review material.
 
 ## Implemented Result
 

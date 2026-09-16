@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Store Bootstrap, Config, Manifest, and Database"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W18 R10 P1"
 source:
   type: "prd"
