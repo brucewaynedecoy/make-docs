@@ -178,7 +178,7 @@ The following text records the earlier decision state. It does not override the 
 
 **W19 R1 P7 disposition**: For W19 R1 P7 only, the selected first-party Unassisted Goal Testing Skill ships as a bundled local payload. Setup installs it through the canonical shared lifecycle and native harness projection. No remote fetch is required. The general Skill delivery question remains open.
 
-**W19 R1 P9 disposition (2026-09-05)**: The owner selected no optional integrations for P9. D-005, Q-001, and Q-007 remain open but do not block this `none` selection. The optional bundled local `naive-uat` Skill shipped in P7 remains available unchanged. This choice adds no integration or support claim. The [P9 preflight record](../work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/09-optional-agentics.md#stage-1---phase-entry-prd-question-and-risk-gate) keeps core checks and checkpoint evidence pending.
+**W19 R1 P9 disposition (reconciled 2026-09-15)**: The owner selected no optional integrations for P9. D-005 is now closed by W19 R5. Q-001 and Q-007 do not block this `none` selection. The bundled `naive-uat` Skill remains available unchanged. Current core, first-party Skill, static-adapter, and direct installed-product evidence closes checkpoint 12 as `not applicable`. This choice adds no integration or support claim.
 
 **Prior discussion and resolutions (retained)**
 
@@ -1595,7 +1595,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Current Skills, CLI/MCP surfaces, and shared harness exposure must use the typed CLI/shared-core boundary. [PRDs 30](./30-plugin-substrate-and-workflow-bundles.md), [34](./34-playbook-authoring-contract-and-model.md), [35](./35-run-playbook-state-machine-and-portability.md), and [36](./36-playbook-packaging-compiler-and-harness-adapters.md) retire the plugin, Playbook runner, and compiler legs. Q-022 is no longer a regeneration dependency. | Keep the remaining current-surface migration risk with its existing owners. P8 owns traced retirement. P9 and P10 retain their planned validation scope. |
+| Closed | Current Skills, CLI/MCP surfaces, and shared harness exposure use the typed CLI/shared-core boundary. W19 R1 P8 retired the plugin, Playbook runner, and compiler legs. W19 R1 P9 and P10 then closed their optional-integration and package validation scope without restoring them. | Preserve the typed boundary and use current package and installed-product checks for regressions. |
 
 **Issue**: Current Skills or harness entry points can break if they cite a script or operation before its replacement is available.
 
@@ -1823,7 +1823,7 @@ The following record preserves the prior claims, findings, and close conditions.
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner-approved P8 scope retires all four legacy packaging scenarios from current coverage. Git history preserves their former specs, results, and evidence. The current risk is that a direct installed-harness check cannot run because the official harness, login, or safe disposable environment is unavailable. | Keep the method unsupported when direct proof cannot run. Do not replace the missing proof with internal tests, dynamic scenario data, or a broad access rule. P9 and P10 retain their existing scope. |
+| Closed | The owner-approved P8 scope retired all four legacy packaging scenarios. W19 R6 replaced them with static product-owned adapters and direct installed-product checks. Tested methods passed. A method without safe direct proof stays blocked. | Keep using direct installed-product proof. Do not replace missing proof with internal tests, dynamic scenario data, or a broad access rule. |
 
 **Issue**: A current direct installed-product check can lack a usable harness or other required input. The old packaging suite cannot prove current installed-product, Skill, CLI, or MCP behavior.
 

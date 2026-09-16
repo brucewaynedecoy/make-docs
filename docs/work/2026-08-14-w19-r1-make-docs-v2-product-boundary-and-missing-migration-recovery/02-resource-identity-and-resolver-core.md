@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Resource Identity and Resolver Core"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R1 P2"
 source:
   type: "prd"

@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Upstream Documentation Authority"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R1 P1"
 source:
   type: "prd"
@@ -222,4 +222,4 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. The owner
 - Preservation and authority checks: legacy Playbook assets match HEAD. Old prompt-root and legacy mode searches return no match. Current Playbook and Protocol mentions outside preserved files are negative claims, preserved-path records, or the generic lowercase word `protocol` in `prd-reference.md`. No upstream `SKILL.md` contains copied UAT policy.
 - Whitespace check: `git diff --check` passed.
 - P2 handoff: P2 must implement the typed identity, installed-provider inventory, resolver, list/read surfaces, and derived origin, provider, package, version, digest, local-path, provenance, and content fields from this catalog and contract. P8 still owns fresh production-consumer tracing and retirement of every preserved Playbook or Protocol candidate.
-- Phase / capability status: P1 implementation is complete and stops before commit for owner review. P2 remains separately gated. No capability status changed.
+- Phase / capability status: P1 implementation is complete and was committed at `aa6560b`. P2 was later completed under its own gate. No capability status changed.
