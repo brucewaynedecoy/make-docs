@@ -51,7 +51,7 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 - [ ] t4: Define `focused`, `expanded`, and `release-grade` automated levels, their authority, and their default stop conditions.
 - [ ] t5: Define shared gate effects: `blocking-current-work`, `blocking-claim-only`, `advisory`, `informational`, and `not-applicable`.
 - [ ] t6: Define `not-needed-now`, evidence reuse, rerun triggers, and the rule against false obligations.
-- [ ] t7: Define Human Experience Review as a required lens that can reuse evidence and cannot create a fifth testing type or duplicate verdict.
+- [ ] t7: Define Human Experience Review as required agent work that can reuse evidence and cannot create a fifth testing type, duplicate verdict, or default human-response gate.
 - [ ] t8: Author the companion testing reference with selection questions, short examples, counterexamples, result interpretation, and specialist-owner links.
 - [ ] t9: Include examples for a small focused change, a justified expanded change, a rejected release-grade request, a valid `not-needed-now` result, and a skipped advisory human activity.
 - [ ] t10: Keep detailed performance and unassisted-human procedures in their specialist resources.
@@ -134,7 +134,7 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 - [ ] t36: Run focused resource-provider, resolver, catalog, consistency, template-link, router-preservation, and document-shape checks.
 - [ ] t37: Add failure fixtures for a missing shared resource, copied full policy in a router, an advisory activity made blocking, and a body record that omits a stop condition.
 - [ ] t38: Verify that the resource can be found from supported router paths and by stable identity.
-- [ ] t39: Review all human-facing examples with the required Human Experience lens. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise.
+- [ ] t39: Have the agent review all human-facing examples with the Human Experience lens. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise. Keep any human try-it handoff optional unless an explicit gate applies.
 - [ ] t40: Record the Phase 2 capability status, evidence, findings, obligations, and current testing decisions before Phase 3 starts.
 
 ### Acceptance criteria
@@ -153,5 +153,5 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 ### Closeout Notes
 
 - Testing decision(s): Use focused Automated Implementation Testing for affected resources, routing, catalog, and projection. Keep Performance Testing, Guided Progress Review, and Unassisted Goal Testing `not-needed-now` in this phase.
-- Human Experience Review: Required for human request patterns and examples. Reuse review evidence in Phase 4 and Phase 5.
+- Human Experience Review: Required agent work for human request patterns and examples. Reuse review evidence in Phase 4 and Phase 5. Do not require a human response by default.
 - Phase / capability status: Record the Phase 2 status and evidence before specialist integrations begin.

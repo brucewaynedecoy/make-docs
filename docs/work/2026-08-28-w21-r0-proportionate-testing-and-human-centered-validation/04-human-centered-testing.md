@@ -20,7 +20,7 @@ Guided Progress Review helps the owner experience meaningful progress and give n
 
 Unassisted Goal Testing reveals whether an intended person can understand and attempt a meaningful public goal without private coaching. It is conditional and diagnostic by default.
 
-Human Experience Review checks the built result and evidence against accepted promises. It can guide either human activity, but it is not another type of test.
+The agent performs Human Experience Review against the built result and accepted promises. The review can guide either human activity, but it is not another type of test. A normal human response is optional.
 
 ## Source PRD Docs
 
@@ -28,8 +28,8 @@ Human Experience Review checks the built result and evidence against accepted pr
 - [PRD 15 — Agent Instruction Ownership and Managed Blocks](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
 - [PRD 22 — Project Documentation Asset Model](../../prd/22-project-documentation-asset-model.md)
 - [PRD 23 — Generated Document Metadata and Lifecycle Handoffs](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md)
-- [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
-- [PRD 44 — Conformance Lab Sessions and Evidence](../../prd/44-conformance-lab-sessions-and-evidence.md)
+- [PRD 10 — Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
+- [PRD 28 — Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
 - [PRD 46 — Unassisted Goal Testing](../../prd/46-naive-end-user-acceptance-testing.md)
 - [PRD 47 — Persona Model](../../prd/47-persona-model.md)
@@ -41,7 +41,7 @@ Human Experience Review checks the built result and evidence against accepted pr
 - Risk: `R-034` includes duplicate, obtuse, unauthoritative, and needlessly difficult human testing.
 - Guided Progress Review: No scenario ID is required. It remains optional, advisory, and owner-controlled.
 - Unassisted Goal Testing: No `NUAT-###` scenario is active at phase start. Activate one only for a material current uncertainty.
-- Human Experience Review: Required for applicable W20 promises. It reuses evidence and records one review conclusion per promise.
+- Human Experience Review: Required agent work for applicable W20 promises. It reuses evidence and records one review conclusion per promise. Human feedback is optional unless an explicit gate applies.
 - Obligations: Declined guided work, `not-needed-now`, invalid unassisted runs, and skipped advisory work do not create obligations by themselves.
 
 ## Stage 1: Guided Progress Review
@@ -102,7 +102,7 @@ Human Experience Review checks the built result and evidence against accepted pr
 
 ### Tasks
 
-- [ ] t20: Connect the W20 Human Experience Review lens to Guided Progress Review, Unassisted Goal Testing, expert review, indirect evidence, and remediation without creating another test run.
+- [ ] t20: Connect the agent-owned W20 Human Experience Review lens to Guided Progress Review, Unassisted Goal Testing, expert review, indirect evidence, and remediation without creating another test run or default human gate.
 - [ ] t21: Reuse suitable W20 or implementation evidence for each applicable experience promise before selecting more testing.
 - [ ] t22: Record one `satisfied`, `material gap`, or `insufficient evidence` review conclusion per applicable promise.
 - [ ] t23: If evidence is insufficient, select the smallest testing type that can answer the current question.
@@ -115,7 +115,7 @@ Human Experience Review checks the built result and evidence against accepted pr
 
 ### Acceptance criteria
 
-- Human Experience Review is required and non-duplicative.
+- Agent Human Experience Review is required and non-duplicative. A human response is optional unless accepted authority defines an explicit gate.
 - Human requests state purpose, effort, gate, and control plainly.
 - The public goal comes before setup detail.
 - Evidence reuse is normal.
@@ -135,7 +135,7 @@ Human Experience Review checks the built result and evidence against accepted pr
 - [ ] t32: Add a passing diagnostic fixture where an unassisted attempt reveals a hidden relationship or mental-model gap.
 - [ ] t33: Add a failure fixture where coaching invalidates an unassisted run.
 - [ ] t34: Add a passing fixture where a user-visible slice selects `not-needed-now` because the activity cannot change a current decision.
-- [ ] t35: Add a passing fixture where Human Experience Review reuses existing evidence instead of creating a fifth run.
+- [ ] t35: Add a passing fixture where agent Human Experience Review reuses existing evidence and closes without a human response instead of creating a fifth run.
 - [ ] t36: Add a failure fixture where technically correct instructions are too long, too internal, or too difficult for the stated person and goal.
 - [ ] t37: Add a failure fixture where Guided Progress Review or default Unassisted Goal Testing is made a hard sign-off gate.
 - [ ] t38: Run focused checks for affected contracts, references, prompts, templates, Persona routing, evidence routing, and human scenario fixtures.
@@ -157,5 +157,5 @@ Human Experience Review checks the built result and evidence against accepted pr
 ### Closeout Notes
 
 - Testing decision(s): Use focused Automated Implementation Testing for affected resources and fixtures. Keep Performance Testing `not-needed-now`. Carry one optional Guided Progress Review candidate to Phase 5. Activate at most one Unassisted Goal Test only if t39 finds material current uncertainty.
-- Human Experience Review: Required for the human request pattern and exercise candidate. Reuse evidence from W20 and this phase.
-- Phase / capability status: Record the Phase 4 status and evidence before joint conformance.
+- Human Experience Review: Required agent work for the human request pattern and exercise candidate. Reuse evidence from W20 and this phase. Keep the experience handoff optional unless an explicit gate applies.
+- Phase / capability status: Record the Phase 4 status and evidence before joint installed proof.

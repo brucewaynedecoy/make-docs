@@ -20,14 +20,15 @@ Automated testing should answer the nearest correctness question and stop when t
 
 Performance Testing needs an even stronger decision check. A measurable value is not automatically important. An MVP can have a real feasibility cliff, but MVP status does not justify production-grade targets by itself.
 
-This phase changes guidance and conformance behavior. It does not create a benchmark runner. It does not define hard product targets that no current PRD owns.
+This phase changes guidance and direct installed-proof behavior. It does not create a benchmark runner. It does not define hard product targets that no current PRD owns.
 
 ## Source PRD Docs
 
 - [PRD 06 — Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
 - [PRD 14 — Lifecycle Workflow and Coverage Passes](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
-- [PRD 20 — Agent Harness Conformance and Support Claims](../../prd/20-agent-harness-conformance-and-support-claims.md)
-- [PRD 43 — Conformance Scenario Model and Execution Kits](../../prd/43-conformance-scenario-model-and-execution-kits.md)
+- [PRD 10 — Packaging, Validation, and Release Reference](../../prd/10-packaging-validation-and-release-reference.md)
+- [PRD 28 — Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md)
+- [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [PRD 45 — Deferred Obligation Governance](../../prd/45-deferred-obligation-governance.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
 - [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
@@ -98,7 +99,7 @@ This phase changes guidance and conformance behavior. It does not create a bench
 - [ ] t19: Require a maturity decision based on current outcome, failure cost, reversibility, support scope, stability, and baseline value before sophisticated proof.
 - [ ] t20: Reject copied numbers, round targets, words such as `fast`, and production-grade expectations that lack an owning current requirement.
 - [ ] t21: Permit bounded proof for an MVP only when it protects a real feasibility cliff, user harm, resource boundary, external mandate, or current architecture decision.
-- [ ] t22: Bind a performance gate only to an owner-approved hard outcome or a bounded claim that the evidence actually covers.
+- [ ] t22: Bind a performance gate only to an accepted hard outcome or a bounded claim that the evidence actually covers.
 - [ ] t23: Reuse valid performance evidence while workload, build, environment, comparison, expiry, and claim remain suitable.
 - [ ] t24: Retain only enough evidence for the decision. Keep large raw output only when its owner contract or a current finding needs it.
 - [ ] t25: Route `defer-required` through PRD 45. Do not create an obligation for `not-needed` or `reject-unsupported`.
@@ -124,17 +125,17 @@ This phase changes guidance and conformance behavior. It does not create a bench
 - [ ] t27: Add a failure fixture where an agent proposes release-grade work without authority.
 - [ ] t28: Add a failure fixture where an unstable MVP path rejects a copied performance target.
 - [ ] t29: Add a passing fixture where a real feasibility cliff activates bounded performance proof.
-- [ ] t30: Add a failure fixture where a passed suite is used to claim unsupported product quality or harness support.
+- [ ] t30: Add a failure fixture where a passed suite is used to claim unsupported product quality or static-adapter support.
 - [ ] t31: Add a passing fixture where unchanged valid evidence prevents an unnecessary rerun.
 - [ ] t32: Add a failure fixture where testing has no finite budget or stop condition.
-- [ ] t33: Run focused checks for every changed technical-testing resource, prompt, fixture, and conformance parser or registry owner.
+- [ ] t33: Run focused checks for every changed technical-testing resource, prompt, fixture, static adapter, and direct installed-proof owner.
 - [ ] t34: Confirm that W21 Performance Testing remains `not-needed-now` unless a current decision activated it during implementation.
-- [ ] t35: Record Phase 3 evidence, material findings, accepted obligations, and capability status for Phase 5 conformance assembly.
+- [ ] t35: Record Phase 3 evidence, material findings, accepted obligations, and capability status for Phase 5 direct-proof assembly.
 
 ### Acceptance criteria
 
 - Fixtures reveal both insufficient and excessive technical proof.
-- Focused, expanded, and release-grade boundaries are deterministic enough for conformance.
+- Focused, expanded, and release-grade boundaries are deterministic enough for direct product proof.
 - Performance choices retain PRD 48 authority.
 - No broad suite is repeated without a rerun trigger.
 - Phase 5 receives clear technical scenario and evidence needs.
@@ -147,4 +148,4 @@ This phase changes guidance and conformance behavior. It does not create a bench
 
 - Testing decision(s): Use focused Automated Implementation Testing for affected files and fixtures. Carry one justified expanded integration pass to Phase 5. Keep W21 Performance Testing `not-needed-now` unless a current decision activates it.
 - Human Experience Review: Check that examples explain the reason, scope, and stop in plain language. Do not create a human test for technical rules alone.
-- Phase / capability status: Record the Phase 3 status and evidence before joint conformance.
+- Phase / capability status: Record the Phase 3 status and evidence before joint installed proof.

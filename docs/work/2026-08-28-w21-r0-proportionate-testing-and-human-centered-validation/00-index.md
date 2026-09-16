@@ -5,7 +5,7 @@ status: "active"
 coordinate: "W21 R0"
 follow_on:
   route: "implementation-loop"
-  next_prompt: ".make-docs/references/system/execution-workflow.md"
+  next_prompt: ".make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from the accepted testing design, plan, and reconciled PRD set."
   coordinate_handoff: "Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase."
 source:
@@ -27,7 +27,7 @@ Both failures make the product worse. One hides important uncertainty. The other
 
 W21 R0 defines exactly four testing types: Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing. It requires an agent to select only the types that can change a current decision. It also requires clear effort, stop, evidence, executor, and gate boundaries.
 
-Human Experience Review remains required acceptance work from W20 R0. It is a lens over the built result and suitable evidence. It is not a fifth testing type. It does not create a duplicate run or verdict.
+Human Experience Review remains required agent work from W20 R0. It is a lens over the built result and suitable evidence. It is not a fifth testing type. It does not create a duplicate run or verdict. A human response is optional unless accepted authority defines an explicit gate.
 
 Current PRD bodies are normative. The accepted plan supplies order and rationale. The design preserves the original concern and the intended human testing experience.
 
@@ -43,15 +43,19 @@ Authority inputs:
 
 ## W20 Dependency and Scope Boundary
 
-**Current dependency, 2026-09-09:** W19 R3 is accepted and committed at `dabd0b36`. W20 and W21 remain paused for the [W19 R4 asset and Persona recovery interrupt](../../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Its single-phase package awaits backlog review and acceptance. R4 drafting and completion do not authorize W20 or W21 implementation. Existing W21 tasks and the accepted testing direction remain unchanged.
+**Current dependency, 2026-09-15:** [W20 R0](../2026-08-28-w20-r0-human-experience-standard-and-intent/00-index.md) is complete. It supplies Human Experience Intent, lifecycle propagation, agent Human Experience Review, optional experience handoff, and explicit-only human acceptance gates. W21 R0 is no longer paused by W20.
 
-Implement W20 R0 first. W20 must supply the Human Experience Intent, its lifecycle propagation, and the required Human Experience Review that W21 consumes.
+W21 consumes the completed W20 capability. It does not reopen W20 or require another owner response.
 
-Start W21 implementation only after the owner accepts enough W20 evidence for this dependency. A later W20 finding can still become a W21 input through normal finding and obligation rules.
+Start W21 implementation only with separate owner authority. A later material finding can still become a W21 input through normal finding and obligation rules.
 
 W21 owns the four testing types and the common rules that select, bound, run, stop, reuse, and gate them. W21 does not reimplement Human Experience Intent. It does not change W20 task IDs. It does not rewrite W20 evidence.
 
 If W21 implementation reveals a new W20 product decision, stop and return that decision to the owner. Do not silently edit W20 authority or backlog scope.
+
+PRDs 20, 43, and 44 and their tuple, registry, scenario-kit, and lab-session model are retired. W21 direct installed proof now uses source-owned static adapters and current PRDs 10, 16, 28, 30, 36, 39, 48, and 50. The active backlog does not restore the retired conformance system.
+
+This reconciliation changes the active queue only. It completes no W21 phase task. W21 R0 remains active and awaits separate implementation authority.
 
 ## Phase Map
 
@@ -61,11 +65,11 @@ If W21 implementation reveals a new W20 product decision, stop and return that d
 | 2 | [02-system-resources-and-lifecycle-routing.md](02-system-resources-and-lifecycle-routing.md) | Add the shared testing contract, interpretation reference, body record, lifecycle routing, prompts, routers, and stable resource delivery. |
 | 3 | [03-proportionate-technical-testing.md](03-proportionate-technical-testing.md) | Make automated and performance testing affected-first, maturity-qualified, finite, evidence-aware, and authority-bound. |
 | 4 | [04-human-centered-testing.md](04-human-centered-testing.md) | Give guided and unassisted human activities distinct purposes, safe executor boundaries, and short goal-led instructions. |
-| 5 | [05-conformance-delivery-and-w20-handoff.md](05-conformance-delivery-and-w20-handoff.md) | Prove under-testing and over-testing failures, deliver the upstream resource set, test an installed product, and close W21 without false gates or obligations. |
+| 5 | [05-installed-proof-delivery-and-w20-handoff.md](05-installed-proof-delivery-and-w20-handoff.md) | Prove under-testing and over-testing through current static-adapter and installed-product paths, deliver the upstream resource set, and close W21 without false gates or obligations. |
 
 ## Usage Notes
 
-- Start Phase 1 only after W20 R0 is implemented and the owner gives separate W21 implementation authority.
+- W20 R0 is complete. Start Phase 1 only after the owner gives separate W21 implementation authority.
 - Complete phases in order. Phases 3 and 4 can prepare independent fixtures after Phase 2 closes, but Phase 5 owns their joint proof.
 - Use phase-local task IDs. IDs start at `t1` in each phase and continue across that phase's stages.
 - Treat PRD 50 and the listed owner PRDs as product authority. Use the plan only for order, context, and scope provenance.
@@ -77,7 +81,7 @@ If W21 implementation reveals a new W20 product decision, stop and return that d
 - Start Performance Testing for W21 itself as `not-needed-now`. Reconsider it only if implementation reveals a current performance decision.
 - Offer one optional Guided Progress Review after a meaningful installed result exists. It is advisory or informational. A person can decline without failed work or a future obligation.
 - Do not pre-activate Unassisted Goal Testing. Select it only when an unassisted attempt can reveal a material current uncertainty. It is advisory unless explicit current authority states otherwise.
-- Apply the required Human Experience Review to W21's human testing instructions and installed-product result. Reuse suitable evidence. Add testing only when the current evidence is insufficient.
+- The agent applies Human Experience Review to W21's human testing instructions and installed-product result. Reuse suitable evidence. Add testing only when the current evidence is insufficient. Do not require a human response without an explicit gate.
 - Keep human requests short, goal-led, honest about effort and gate effect, and separate from optional technical help.
 - No `NUAT-###`, `PERF-###`, or W21-specific `O-###` item is active at backlog creation. Create one only when its current owner contract applies.
 - Give every material finding a disposition. Create a durable obligation only when the owner accepts a future outcome that remains owed.
@@ -90,6 +94,6 @@ If W21 implementation reveals a new W20 product decision, stop and return that d
 This handoff is advisory-default-but-overridable. It is authoritative unless the user explicitly overrides it. It is not an implementation approval.
 
 - Route: `implementation-loop`
-- Next step: After W20 R0 acceptance and separate owner approval, start with Phase 1 and continue phase by phase.
+- Next step: After separate W21 implementation authority, start with Phase 1 and continue phase by phase.
 - Why: This backlog turns the accepted testing design, plan, and PRD set into a bounded implementation and proof queue.
 - Coordinate Handoff: Carry `W21 R0` into phase history records and commits. Add the active P coordinate for each phase.
