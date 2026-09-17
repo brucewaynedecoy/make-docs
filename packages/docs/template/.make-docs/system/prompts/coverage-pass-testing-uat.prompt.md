@@ -23,6 +23,13 @@ For each testing decision, record:
 - Evidence retained; and
 - Rerun trigger.
 
+For each performance candidate, also record:
+
+- Performance applicability;
+- Canonical `PERF-###` profile link or `none`;
+- Finite evidence budget and stop-rule reference or `not-applicable`; and
+- Outcome and evidence handoff or `none`.
+
 For Unassisted Goal Testing, activate a run only when it can answer a material current human-experience uncertainty, or when explicit current authority requires it. Otherwise record `not-needed-now`, the reason, and the evidence that already answers the uncertainty. Do not create a scenario or obligation only for this result.
 
 For each activated run, resolve one configured Persona whose primitive is `user` or `maintainer`. Use canonical `user` when none is supplied. Keep Persona selection separate from executor qualification. Use one result: `clear`, `friction`, `blocked`, or `invalid-run`. Keep the default gate effect advisory unless explicit current authority names a blocking effect.

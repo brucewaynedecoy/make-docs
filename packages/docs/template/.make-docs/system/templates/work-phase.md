@@ -43,6 +43,13 @@ Record the current decision for each testing type. Do not activate a test only t
 | Guided Progress Review | {{GUIDED_PROGRESS_REVIEW_DECISION}} | {{GUIDED_PROGRESS_REVIEW_RECORD_OR_REASON}} |
 | Unassisted Goal Testing | {{UNASSISTED_GOAL_TESTING_DECISION}} | {{UNASSISTED_GOAL_TESTING_RECORD_OR_REASON}} |
 
+For each performance candidate, record only these lifecycle fields:
+
+- Performance applicability: `{{PERFORMANCE_APPLICABILITY}}`
+- Canonical `PERF-###` profile link or `none`: {{CANONICAL_PERF_PROFILE_LINK_OR_NONE}}
+- Finite evidence budget and stop-rule reference or `not-applicable`: {{PERFORMANCE_BUDGET_AND_STOP_REFERENCE_OR_NOT_APPLICABLE}}
+- Outcome and evidence handoff or `none`: {{PERFORMANCE_OUTCOME_AND_EVIDENCE_HANDOFF_OR_NONE}}
+
 Human Experience Review is separate. Apply it as required agent review work for each applicable promise. Reuse suitable evidence. The agent inspects the available real result and records observations, conclusions, limits, and next actions. For completed direct human-facing work, normally include a short optional experience handoff with one to three normal-use steps, what to notice, and an invitation for feedback. A missing response does not block closure or create an obligation. Require a human response only when accepted authority explicitly defines a human acceptance gate. Do not record the review or handoff as a fifth testing type.
 
 ## Source PRD Docs

@@ -112,6 +112,7 @@ function templateDocument(templatePath: string): TemplateLinkDocument {
       allowedWholeLinkTokens: [
         "SOURCE_PRD_LINK_ONE",
         "SOURCE_PRD_LINK_TWO",
+        "CANONICAL_PERF_PROFILE_LINK_OR_NONE",
         "CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED",
       ],
       representativeReplacements: {
@@ -119,8 +120,43 @@ function templateDocument(templatePath: string): TemplateLinkDocument {
           "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
         SOURCE_PRD_LINK_TWO:
           "[Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)",
+        CANONICAL_PERF_PROFILE_LINK_OR_NONE:
+          "[Performance profile](01-requirements-and-scope-gate.md#performance-profile)",
         CENTRAL_EVIDENCE_REPORT_SECTION_LINKS_OR_REASON_NO_DURABLE_RECORD_IS_NEEDED:
           "[Acceptance evidence](evidence.md#acceptance-findings)",
+      },
+    };
+  }
+
+  if (fileName === "performance-evidence-profile.md") {
+    return {
+      ...base,
+      renderedPath: `${REPRESENTATIVE_WORK_ROOT}/performance-evidence.md`,
+      allowedWholeLinkTokens: [
+        "RELATIVE_LINKS_TO_ACCEPTED_AUTHORITY_OR_NONE",
+        "RELATIVE_LINKS_TO_RELEVANT_EVIDENCE_OR_NONE",
+        "RELATIVE_OWNING_AUTHORITY_LINKS",
+        "SOURCE_LINK_OR_NONE",
+        "RELATIVE_LINK_AND_COORDINATE",
+        "RELATIVE_LINKS_OR_NONE",
+        "RELATIVE_LINKS",
+      ],
+      nonLinkTokens: ["CREATE_UPDATE_EXISTING_LINK_ONLY_OR_NONE"],
+      representativeReplacements: {
+        RELATIVE_LINKS_TO_ACCEPTED_AUTHORITY_OR_NONE:
+          "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
+        RELATIVE_LINKS_TO_RELEVANT_EVIDENCE_OR_NONE:
+          "[Acceptance evidence](evidence.md#acceptance-findings)",
+        RELATIVE_OWNING_AUTHORITY_LINKS:
+          "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
+        SOURCE_LINK_OR_NONE:
+          "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
+        RELATIVE_LINK_AND_COORDINATE:
+          "[Requirements and Scope](01-requirements-and-scope-gate.md)",
+        RELATIVE_LINKS_OR_NONE:
+          "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
+        RELATIVE_LINKS:
+          "[Package Runtime](../../prd/16-package-runtime-and-deployment-boundaries.md)",
       },
     };
   }

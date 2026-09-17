@@ -67,6 +67,21 @@
       "templates": [
         "make-docs://system/template/naive-uat-scenario.md"
       ]
+    },
+    {
+      "id": "performance-evidence",
+      "contracts": [
+        "make-docs://system/contract/performance-evidence-governance.md"
+      ],
+      "prompts": [
+        "make-docs://system/prompt/performance-coverage.prompt.md"
+      ],
+      "references": [
+        "make-docs://system/reference/performance-evidence.md"
+      ],
+      "templates": [
+        "make-docs://system/template/performance-evidence-profile.md"
+      ]
     }
   ],
   "preservedLegacyPaths": [

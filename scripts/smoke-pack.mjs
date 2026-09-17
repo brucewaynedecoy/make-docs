@@ -82,6 +82,28 @@ const HUMAN_EXPERIENCE_RESOURCES = [
     localPath: ".make-docs/system/references/human-experience.md",
   },
 ];
+const PERFORMANCE_EVIDENCE_RESOURCES = [
+  {
+    type: "contract",
+    uri: "make-docs://system/contract/performance-evidence-governance.md",
+    localPath: ".make-docs/system/contracts/performance-evidence-governance.md",
+  },
+  {
+    type: "reference",
+    uri: "make-docs://system/reference/performance-evidence.md",
+    localPath: ".make-docs/system/references/performance-evidence.md",
+  },
+  {
+    type: "prompt",
+    uri: "make-docs://system/prompt/performance-coverage.prompt.md",
+    localPath: ".make-docs/system/prompts/performance-coverage.prompt.md",
+  },
+  {
+    type: "template",
+    uri: "make-docs://system/template/performance-evidence-profile.md",
+    localPath: ".make-docs/system/templates/performance-evidence-profile.md",
+  },
+];
 // Independent acceptance table. Project Codex is direct; global Codex has a
 // separate native exposure. Do not derive these expected paths from runtime code.
 const STANDARD_SKILL_LAYOUTS = {
@@ -1158,13 +1180,13 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, check
     { encoding: "utf8", env: offlineEnv },
   ));
 
-  for (const resource of HUMAN_EXPERIENCE_RESOURCES) {
+  for (const resource of [...HUMAN_EXPERIENCE_RESOURCES, ...PERFORMANCE_EVIDENCE_RESOURCES]) {
     const upstreamBytes = readFileSync(path.join(repoRoot, "packages/docs/template", resource.localPath));
     const generatedBytes = readFileSync(path.join(cliPackageDir, "template", resource.localPath));
     const dogfoodBytes = readFileSync(path.join(repoRoot, resource.localPath));
     const packedBytes = readFileSync(path.join(packageRoot, "template", resource.localPath));
     if (!generatedBytes.equals(upstreamBytes) || !dogfoodBytes.equals(upstreamBytes) || !packedBytes.equals(upstreamBytes)) {
-      throw new Error(`Human Experience resource projections differ for ${resource.uri}.`);
+      throw new Error(`Governance resource projections differ for ${resource.uri}.`);
     }
 
     const entry = listed.resources.find((candidate) => candidate.uri === resource.uri);

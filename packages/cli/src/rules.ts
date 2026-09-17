@@ -11,6 +11,10 @@ export const PROMPT_RULES: PromptRule[] = [
     requires: [],
   },
   {
+    relativePath: ".make-docs/system/prompts/performance-coverage.prompt.md",
+    requires: [],
+  },
+  {
     relativePath: ".make-docs/system/prompts/request-to-design.prompt.md",
     requires: ["designs"],
   },
@@ -111,6 +115,7 @@ const ALWAYS_TEMPLATE_PATHS = [
   ".make-docs/system/templates/guide-user.md",
   ".make-docs/system/templates/history-record.md",
   ".make-docs/system/templates/naive-uat-scenario.md",
+  ".make-docs/system/templates/performance-evidence-profile.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
@@ -138,6 +143,8 @@ const REQUIRED_REFERENCE_PATHS = {
 const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/system/contracts/human-experience-contract.md",
   ".make-docs/system/references/human-experience.md",
+  ".make-docs/system/contracts/performance-evidence-governance.md",
+  ".make-docs/system/references/performance-evidence.md",
   ".make-docs/system/contracts/guide-contract.md",
   ".make-docs/system/contracts/deferred-obligation-contract.md",
   ".make-docs/system/contracts/naive-uat-contract.md",

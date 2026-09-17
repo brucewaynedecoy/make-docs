@@ -30,14 +30,14 @@ afterEach(() => {
 });
 
 describe("installed system-resource provider integration", () => {
-  it("resolves all 19 CLI-projected prompts and excludes prompt routers", () => {
+  it("resolves all 20 CLI-projected prompts and excludes prompt routers", () => {
     const provider = installedProvider();
     const manifest = loadManifest(fixtureRoot);
     expect(manifest).not.toBeNull();
     if (!manifest) return;
 
     const prompts = promptEntries(provider);
-    expect(prompts).toHaveLength(19);
+    expect(prompts).toHaveLength(20);
     expect(prompts.every((entry) => entry.identity.path.endsWith(".prompt.md"))).toBe(true);
     const project = projectContext(fixtureRoot, provider, prompts);
     const routerUris = ROUTER_NAMES.map((name) => `make-docs://system/prompt/${name}`);
@@ -49,7 +49,7 @@ describe("installed system-resource provider integration", () => {
       const listedPrompts = listed.value.resources.filter((item) =>
         item.uri.startsWith("make-docs://system/prompt/"),
       );
-      expect(listedPrompts).toHaveLength(19);
+      expect(listedPrompts).toHaveLength(20);
       expect(listed.value.resources.map((item) => item.uri)).not.toEqual(
         expect.arrayContaining(routerUris),
       );
