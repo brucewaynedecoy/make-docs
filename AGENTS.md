@@ -16,3 +16,7 @@ This repository is the Make Docs **maintainer repo** and, at the same time, a **
 `packages/docs/template/` is the single upstream authority. The `packages/cli/` package does not maintain its own template; it pulls `packages/docs/template/` in only at build time.
 
 Project artifacts this repo authors as a Make Docs *consumer* — designs, plans, PRDs, work backlogs, local guides, history, archives, and artifacts under `docs/` — are dogfood/project content and are edited in place here, not upstream. Full contract: `docs/designs/2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`.
+
+# Deterministic and Agentic Business Logic
+
+Before working on implementing or updating any Make Docs business logic (either deterministic or agentic), please review the guidelines in `docs/assets/project/developing-deterministic-agentic-twins.md`.
