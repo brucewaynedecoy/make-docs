@@ -9,8 +9,8 @@ I did not read or hash the tar. Both review captures report package digest `a772
 I used the supplied Node executable and CLI entry:
 
 ```text
-/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node
-/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/extracted/package/dist/index.js
+<user-home>/.nvm/versions/node/v24.19.0/bin/node
+<temp-dir>/make-docs-skill-proof-NimITh/extracted/package/dist/index.js
 ```
 
 I ran these argument sets:
@@ -72,7 +72,7 @@ I read all 15 files. I used numbered output for the Skills help and the two revi
 
    Skills help identifies `~/.agents/skills` as the shared payload path. It limits native links or copies to selected tools.
 
-   **Finding:** The next line only says: “Global native paths honor CODEX_HOME and CLAUDE_CONFIG_DIR.” It omits the `/skills` suffix and both default paths. This appears in live help and [captured Skills help, line 37](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review/public-output/skills-help.stdout.txt:37).
+   **Finding:** The next line only says: “Global native paths honor CODEX_HOME and CLAUDE_CONFIG_DIR.” It omits the `/skills` suffix and both default paths. This appears in live help and [captured Skills help, line 37](<temp-dir>/make-docs-skill-proof-NimITh/summary-review/public-output/skills-help.stdout.txt:37).
 
    To meet the stated goal, help must name `CODEX_HOME/skills` or `~/.codex/skills`, and `CLAUDE_CONFIG_DIR/skills` or `~/.claude/skills`.
 

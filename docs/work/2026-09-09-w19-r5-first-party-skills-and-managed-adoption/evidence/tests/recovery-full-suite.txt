@@ -7,7 +7,7 @@
 > vitest run
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 ./packages/cli
 
  ✓ tests/project-identity.test.ts (16 tests) 21768ms
    ✓ stable project identity minting (W18 R10 P2, R-ID-1) > mints a project identifier on fresh setup and persists its declaration in config and applied records in the Store  1077ms
@@ -131,7 +131,7 @@
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-aPIXUr[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-aPIXUr[22m  [90m│[39m
 [90m│[39m  [2mMode: existing install reconfigure[22m                                      [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (found or verified for [22m     [90m│[39m
 [90m│[39m  [2mtransfer)[22m                                                               [90m│[39m
@@ -175,7 +175,7 @@
 ◇  Information ────────────────────────────────────────────────────────────╮
 │                                                                          │
 │  Target:                                                                 │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8xzpwB  │
+│  <temp-dir>/make-docs-test-8xzpwB  │
 │  Mode: first install                                                     │
 │  Installation record: global Make Docs Store (will be created)           │
 │  Installed version: none detected                                        │
@@ -228,12 +228,12 @@
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8xzpwB.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-8xzpwB.
 │
 ◇  Information ────────────────────────────────────────────────────────────╮
 │                                                                          │
 │  Target:                                                                 │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-KoxOWn  │
+│  <temp-dir>/make-docs-test-KoxOWn  │
 │  Mode: existing install sync                                             │
 │  Installation record: global Make Docs Store (found or verified for      │
 │  transfer)                                                               │
@@ -277,7 +277,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8C019m[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-8C019m[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -328,12 +328,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8C019m.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-8C019m.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-rMBya1[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-rMBya1[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -389,14 +389,14 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                                    [90m│[39m
 [90m├────────────────────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-rMBya1.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-rMBya1.
 Legacy installation state will move to the global Make Docs Store. These verified records will be removed after Store readback:
 - .make-docs/manifest.json
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-4ntLX6[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-4ntLX6[22m  [90m│[39m
 [90m│[39m  [2mMode: existing install sync[22m                                             [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (found or verified for [22m     [90m│[39m
 [90m│[39m  [2mtransfer)[22m                                                               [90m│[39m
@@ -437,7 +437,7 @@ Legacy installation state will move to the global Make Docs Store. These verifie
 [90m│[39m                                                                            [90m│[39m
 [90m├────────────────────────────────────────────────────────────────────────────╯[39m
 
-Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-4ntLX6.
+Synced make-docs 2.0.0-rc in <temp-dir>/make-docs-test-4ntLX6.
 [90m│[39m
 [32m◇[39m  [0mCompatibility review required[0m [90m───────────────────────────────────────╮[39m
 [90m│[39m                                                                       [90m│[39m
@@ -460,7 +460,7 @@ Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/ma
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-6f6BkK[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-6f6BkK[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -581,7 +581,7 @@ Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/ma
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-lRFwSu[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-lRFwSu[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -613,64 +613,64 @@ Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/ma
 [90m│[39m  [2m- generate: .make-docs/system/prompts/CLAUDE.md[22m                             [90m│[39m
 [90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m                          [90m│[39m
 [90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m                           [90m│[39m
-[90m│[39m  [2m- generate: native harness exposure: /var/folders/x8/zvcz1qzj2v7_pdsktm01v[22m  [90m│[39m
+[90m│[39m  [2m- generate: native harness exposure: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m0ww0000gn/T/make-docs-home-Q2M5QD/.claude/skills/decompose-codebase[22m         [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/SKILL.md[22m                         [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/agents/openai.yaml[22m               [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/decomposition-plan.md[22m                                         [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-architecture.md[22m                                           [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-glossary.md[22m                                               [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/assets/templates/prd-index.md[22m    [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-overview.md[22m                                               [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-reference.md[22m                                              [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-risk-register.md[22m                                          [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/prd-subsystem.md[22m                                              [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/rebuild-backlog-index.md[22m                                      [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ass[22m  [90m│[39m
 [90m│[39m  [2mets/templates/rebuild-backlog-phase.md[22m                                      [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ref[22m  [90m│[39m
 [90m│[39m  [2merences/execution-workflow.md[22m                                               [90m│[39m
-[90m│[39m  [2m- generate: shared payload: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn[22m  [90m│[39m
+[90m│[39m  [2m- generate: shared payload: <temp-dir>[22m  [90m│[39m
 [90m│[39m  [2m/T/make-docs-home-Q2M5QD/.make-docs/agentics/skills/decompose-codebase/ref[22m  [90m│[39m
 [90m│[39m  [2merences/harness-capability-matrix.md[22m                                        [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md[22m       [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/references/output-contract.md[22m    [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/references/planning-workflow.md[22m  [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/scripts/probe_environment.py[22m     [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-home-Q2M5QD/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/scripts/validate_output.py[22m       [90m│[39m
 [90m│[39m  [2m- generate: CLAUDE.md[22m                                                       [90m│[39m
 [90m│[39m  [2m- generate: docs/CLAUDE.md[22m                                                  [90m│[39m
@@ -681,12 +681,12 @@ Synced make-docs 2.0.0-rc in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/ma
 [90m│[39m                                                                              [90m│[39m
 [90m├──────────────────────────────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-lRFwSu.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-lRFwSu.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-9NKMAL[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-9NKMAL[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -727,12 +727,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-9NKMAL.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-9NKMAL.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-rPbCIa[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-rPbCIa[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -773,12 +773,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-rPbCIa.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-rPbCIa.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-kzsucE[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-kzsucE[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -831,12 +831,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-kzsucE.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-kzsucE.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-R9tcPU[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-R9tcPU[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -889,12 +889,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-R9tcPU.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-R9tcPU.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-UzYhKQ[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-UzYhKQ[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1037,12 +1037,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                                              [90m│[39m
 [90m├──────────────────────────────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-UzYhKQ.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-UzYhKQ.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-nfY886[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-nfY886[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1098,12 +1098,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                                    [90m│[39m
 [90m├────────────────────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-nfY886.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-nfY886.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-zFqrk1[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-zFqrk1[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1156,12 +1156,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-zFqrk1.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-zFqrk1.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-gFVR1i[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-gFVR1i[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1214,12 +1214,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-gFVR1i.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-gFVR1i.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-pxZ9W6[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-pxZ9W6[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1260,12 +1260,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-pxZ9W6.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-pxZ9W6.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-JGEfqO[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-JGEfqO[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1306,12 +1306,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [90m│[39m                                                      [90m│[39m
 [90m├──────────────────────────────────────────────────────╯[39m
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-JGEfqO.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-test-JGEfqO.
 [90m│[39m
 [32m◇[39m  [0mInformation[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                          [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-Ne1nsr[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-Ne1nsr[22m  [90m│[39m
 [90m│[39m  [2mMode: first install[22m                                                     [90m│[39m
 [90m│[39m  [2mInstallation record: global Make Docs Store (will be created)[22m           [90m│[39m
 [90m│[39m  [2mInstalled version: none detected[22m                                        [90m│[39m
@@ -1369,8 +1369,8 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 [32m◇[39m  [0mmake-docs setup backup[0m [90m─────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  [2mTarget: [22m                                                                    [90m│[39m
-[90m│[39m  [2m/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-pBKAEZ[22m      [90m│[39m
-[90m│[39m  [2mDestination: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-te[22m  [90m│[39m
+[90m│[39m  [2m<temp-dir>/make-docs-test-pBKAEZ[22m      [90m│[39m
+[90m│[39m  [2mDestination: <temp-dir>/make-docs-te[22m  [90m│[39m
 [90m│[39m  [2mst-pBKAEZ/.make-docs/backup/2026-09-09[22m                                      [90m│[39m
 [90m│[39m  [2mSkills: disabled[22m                                                            [90m│[39m
 [90m│[39m  [2mPlugins: disabled[22m                                                           [90m│[39m
@@ -1583,7 +1583,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 ◇  make-docs setup backup ─────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-jot15T      │
+│  <temp-dir>/make-docs-test-jot15T      │
 │  Destination: (no backup directory will be created)                          │
 │  Files to copy: 0                                                            │
 │  Directories to materialize: 0                                               │
@@ -1597,11 +1597,11 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │  - none                                                                      │
 │                                                                              │
 │  Retained paths:                                                             │
-│  - /Users/tylerkneisly/.agents/skills (The selected-agentics root exists,    │
+│  - <user-home>/.agents/skills (The selected-agentics root exists,    │
 │  but fallback mode cannot prove which contents are make-docs-managed.)       │
-│  - /Users/tylerkneisly/.claude/plugins (The selected-agentics root exists,   │
+│  - <user-home>/.claude/plugins (The selected-agentics root exists,   │
 │  but fallback mode cannot prove which contents are make-docs-managed.)       │
-│  - /Users/tylerkneisly/.claude/skills (The selected-agentics root exists,    │
+│  - <user-home>/.claude/skills (The selected-agentics root exists,    │
 │  but fallback mode cannot prove which contents are make-docs-managed.)       │
 │                                                                              │
 │  Skipped paths:                                                              │
@@ -1924,7 +1924,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
-│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-p6-fres  │
+│  Target: <temp-dir>/make-docs-p6-fres  │
 │  h-project-yavGYk                                                            │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
@@ -1978,11 +1978,11 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-p6-fresh-project-yavGYk.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-p6-fresh-project-yavGYk.
 │
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
-│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-p6-fres  │
+│  Target: <temp-dir>/make-docs-p6-fres  │
 │  h-project-yavGYk                                                            │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
@@ -2042,7 +2042,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-a-Ma1gRV  │
+│  <temp-dir>/make-docs-target-a-Ma1gRV  │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
 │  Installed version: none detected                                            │
@@ -2095,12 +2095,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-a-Ma1gRV.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-target-a-Ma1gRV.
 │
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-b-arPaMm  │
+│  <temp-dir>/make-docs-target-b-arPaMm  │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
 │  Installed version: none detected                                            │
@@ -2153,12 +2153,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-b-arPaMm.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-target-b-arPaMm.
 │
 ◇  Information ──────────────────────────────────────────────────────────────╮
 │                                                                            │
 │  Target:                                                                   │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-px4bEX  │
+│  <temp-dir>/make-docs-target-px4bEX  │
 │  Mode: first install                                                       │
 │  Installation record: global Make Docs Store (will be created)             │
 │  Installed version: none detected                                          │
@@ -2211,12 +2211,12 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-px4bEX.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-target-px4bEX.
 │
 ◇  Information ──────────────────────────────────────────────────────────────╮
 │                                                                            │
 │  Target:                                                                   │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-IN2h6y  │
+│  <temp-dir>/make-docs-target-IN2h6y  │
 │  Mode: first install                                                       │
 │  Installation record: global Make Docs Store (will be created)             │
 │  Installed version: none detected                                          │
@@ -2269,7 +2269,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-IN2h6y.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-target-IN2h6y.
  ✓ tests/store.test.ts (16 tests) 5533ms
    ✓ local bootstrap independence (R-STORE-3, R-KEEP-2) > installs byte-identical managed content with and without an existing store  1201ms
    ✓ local bootstrap independence (R-STORE-3, R-KEEP-2) > bootstraps the store and upserts the registry mirror when the CLI applies an install  2355ms

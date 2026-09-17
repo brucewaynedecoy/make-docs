@@ -66,7 +66,7 @@ The rename applies to identifiers, paths, document kinds, contract names, namesp
 - **Immutable provenance.** `docs/assets/archive/designs/`, `docs/assets/archive/plans/`, `docs/assets/archive/work/`, `docs/assets/archive/history/`, and `docs/assets/archive/prds/` keep their Playbook terminology. Roughly 119 files under `docs/assets/` reference the term, and the archived ones record what was true when written. Rewriting them would falsify the record.
 - **Superseded designs, plans, and work.** `docs/designs/`, `docs/plans/`, and `docs/work/` entries that predate this wave are historical artifacts of their own coordinates. They are not rewritten; this plan and its delta backlog are the current record. Where a superseded artifact is still linked as current authority, the fix is to correct the link in the current surface, not to edit the historical artifact.
 - **Unrelated colloquial usage.** `packages/skills/decompose-codebase/references/mcp-playbook.md` and its two referring files (`packages/skills/decompose-codebase/SKILL.md`, `packages/skills/decompose-codebase/assets/README.md`) use "playbook" to mean an MCP usage walkthrough. Renaming them would create a false association with the Protocol mechanism.
-- **The external Playbooks CLI.** Any reference to `/Users/tylerkneisly/Developer/Source/Lemme/playbooks` or to the separate Playbooks product keeps that name, because that is its name. The glossary disambiguation added in phase 1 makes the distinction explicit.
+- **The external Playbooks CLI.** Any reference to `<user-home>/Developer/Source/Lemme/playbooks` or to the separate Playbooks product keeps that name, because that is its name. The glossary disambiguation added in phase 1 makes the distinction explicit.
 
 ### Mechanics
 

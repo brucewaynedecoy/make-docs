@@ -3,7 +3,7 @@
   "tar": "/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
   "tarSha256": "33ac19ff4b05caa0253b8f572b975c335c64239dd2e054a0cf47b40afc0fe462",
   "packed": "/tmp/w19-r5-corrected-package-vkazhec3/package",
-  "installed": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "installed": "<user-home>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
   "fileCount": 130,
   "files": [
     {

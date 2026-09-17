@@ -18,7 +18,7 @@
         "read-only",
         "--skip-git-repo-check",
         "--cd",
-        "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review",
+        "<temp-dir>/make-docs-skill-proof-NimITh/summary-review",
         "--json",
         "--output-last-message",
         "/tmp/w19-r5-standard-layout-summary-review-report.md",
@@ -34,7 +34,7 @@
     }
   },
   "roots": [
-    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/summary-review"
+    "<temp-dir>/make-docs-skill-proof-NimITh/summary-review"
   ],
   "candidateIdentity": [
     {
@@ -46,7 +46,7 @@
     },
     {
       "kind": "cli-entry",
-      "path": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-NimITh/extracted/package/dist/index.js",
+      "path": "<temp-dir>/make-docs-skill-proof-NimITh/extracted/package/dist/index.js",
       "expectedSha256": "7d50e979c0c44a49f7cdffd762ced8b946848bd24f81f326208ca6794a8f70d0",
       "actualSha256": "7d50e979c0c44a49f7cdffd762ced8b946848bd24f81f326208ca6794a8f70d0",
       "matched": true

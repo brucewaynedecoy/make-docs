@@ -3,7 +3,7 @@
 > vitest run --run tests/w19-r5-skill-adoption.test.ts tests/skill-adoption-store.test.ts tests/w19-r5-skills-command.test.ts tests/w19-r5-state-help.test.ts
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 ./packages/cli
 
  ✓ tests/w19-r5-skill-adoption.test.ts (32 tests) 28587ms
    ✓ reviewed first-party Skill adoption > keeps canonical symlink ownership after adoption, normal setup and skills sync  2289ms

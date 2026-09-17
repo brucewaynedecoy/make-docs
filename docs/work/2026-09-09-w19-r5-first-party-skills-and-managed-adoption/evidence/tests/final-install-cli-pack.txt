@@ -3,7 +3,7 @@ cd packages/cli && npm run prepack
 > @brucewaynedecoy/make-docs@2.0.0-rc prepack
 > node ../../scripts/copy-template-to-cli.mjs && npm run build
 
-Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/docs/template -> /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/template
+Copied ./packages/docs/template -> ./packages/cli/template
 
 > @brucewaynedecoy/make-docs@2.0.0-rc build
 > tsup
@@ -11,7 +11,7 @@ Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/do
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Using tsup config: ./packages/cli/tsup.config.ts
 CLI Target: node18
 CLI Cleaning output folder
 ESM Build start
@@ -55,7 +55,7 @@ cd packages/cli && npm pack
 > @brucewaynedecoy/make-docs@2.0.0-rc prepack
 > node ../../scripts/copy-template-to-cli.mjs && npm run build
 
-Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/docs/template -> /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/template
+Copied ./packages/docs/template -> ./packages/cli/template
 
 > @brucewaynedecoy/make-docs@2.0.0-rc build
 > tsup
@@ -63,7 +63,7 @@ Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/do
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Using tsup config: ./packages/cli/tsup.config.ts
 CLI Target: node18
 CLI Cleaning output folder
 ESM Build start

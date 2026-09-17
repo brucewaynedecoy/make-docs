@@ -11,7 +11,7 @@ All commands ran from the supplied `fresh-review` workspace.
 The CLI command prefix was:
 
 ```text
-/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js
+<user-home>/.nvm/versions/node/v24.19.0/bin/node <temp-dir>/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js
 ```
 
 I ran these arguments:
@@ -21,7 +21,7 @@ I ran these arguments:
 --version
 setup skills --help
 project state status --help
-setup skills --target /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review/sample-project --skill-scope project --no-codex --selected-skills human-experience,preflight,software-factory --adopt-existing human-experience,preflight,software-factory --dry-run
+setup skills --target <temp-dir>/make-docs-skill-proof-V9Hjjt/fresh-review/sample-project --skill-scope project --no-codex --selected-skills human-experience,preflight,software-factory --adopt-existing human-experience,preflight,software-factory --dry-run
 ```
 
 Other tools were `pwd`, `find`, `cat`, `rg`, and shell path checks.

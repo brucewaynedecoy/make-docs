@@ -6,7 +6,7 @@
 > @brucewaynedecoy/make-docs@2.0.0-rc prepack
 > node ../../scripts/copy-template-to-cli.mjs && npm run build
 
-Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/docs/template -> /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/template
+Copied ./packages/docs/template -> ./packages/cli/template
 
 > @brucewaynedecoy/make-docs@2.0.0-rc build
 > tsup
@@ -14,7 +14,7 @@ Copied /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/do
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Using tsup config: ./packages/cli/tsup.config.ts
 CLI Target: node18
 CLI Cleaning output folder
 ESM Build start
@@ -69,7 +69,7 @@ Saved lockfile
 ◇  Information ─────────────────────────────────────────────────────────────╮
 │                                                                           │
 │  Target:                                                                  │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv  │
+│  <temp-dir>/make-docs-smoke-XtK1Xv  │
 │  Mode: first install                                                      │
 │  Installation record: global Make Docs Store (will be created)            │
 │  Installed version: none detected                                         │
@@ -122,12 +122,12 @@ Saved lockfile
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-smoke-XtK1Xv.
 │
 ◇  Information ─────────────────────────────────────────────────────────────╮
 │                                                                           │
 │  Target:                                                                  │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv  │
+│  <temp-dir>/make-docs-smoke-XtK1Xv  │
 │  Mode: existing install sync                                              │
 │  Installation record: global Make Docs Store (found or verified for       │
 │  transfer)                                                                │
@@ -171,7 +171,7 @@ Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn
 ◇  make-docs setup skills plan ────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv     │
+│  <temp-dir>/make-docs-smoke-XtK1Xv     │
 │  Action: sync skills                                                         │
 │  Mode: apply                                                                 │
 │  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
@@ -288,8 +288,8 @@ Updated skills (53 changed). Ownership is recorded in the global Make Docs Store
 ◇  make-docs setup backup ─────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv     │
-│  Destination: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-sm  │
+│  <temp-dir>/make-docs-smoke-XtK1Xv     │
+│  Destination: <temp-dir>/make-docs-sm  │
 │  oke-XtK1Xv/.make-docs/backup/2026-09-09                                     │
 │  Skills: enabled (project)                                                   │
 │  Skills manifest: make-docs first-party skills (built-in)                    │
@@ -516,7 +516,7 @@ Updated skills (53 changed). Ownership is recorded in the global Make Docs Store
 │
 ◇  Backup complete ────────────────────────────────────────────────────────────╮
 │                                                                              │
-│  Destination: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-sm  │
+│  Destination: <temp-dir>/make-docs-sm  │
 │  oke-XtK1Xv/.make-docs/backup/2026-09-09                                     │
 │  Copied files: 63                                                            │
 │  Materialized directories: 50                                                │
@@ -538,7 +538,7 @@ Updated skills (53 changed). Ownership is recorded in the global Make Docs Store
 ◇  make-docs setup remove ─────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-smoke-XtK1Xv     │
+│  <temp-dir>/make-docs-smoke-XtK1Xv     │
 │  Backup before removal: not requested                                        │
 │  Skills: enabled (project)                                                   │
 │  Skills manifest: make-docs first-party skills (built-in)                    │

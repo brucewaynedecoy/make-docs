@@ -7,7 +7,7 @@
 > vitest run tests/consistency.test.ts tests/template-links.test.ts
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 ./packages/cli
 
  ❯ tests/template-links.test.ts (12 tests | 1 failed) 27ms
    × template link validation > all shipped and skill templates pass raw and representative-render checks 22ms
@@ -191,8 +191,8 @@ AssertionError: expected [ { …(3) }, { …(3) }, { …(3) }, …(1) ] to deepl
 
 npm error Lifecycle script `validate:defaults` failed with error:
 npm error code 1
-npm error path /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error path ./packages/cli
 npm error workspace @brucewaynedecoy/make-docs@2.0.0-rc
-npm error location /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+npm error location ./packages/cli
 npm error command failed
 npm error command sh -c vitest run tests/consistency.test.ts tests/template-links.test.ts

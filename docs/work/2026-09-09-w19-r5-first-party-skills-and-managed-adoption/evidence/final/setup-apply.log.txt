@@ -1,7 +1,7 @@
 │
 ◇  Information ───────────────────────────────────────────────────────────╮
 │                                                                         │
-│  Target: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs  │
+│  Target: .  │
 │  Mode: existing install sync                                            │
 │  Installation record: global Make Docs Store (found or verified for     │
 │  transfer)                                                              │
@@ -37,4 +37,4 @@
 │                                                                             │
 ├─────────────────────────────────────────────────────────────────────────────╯
 
-Synced make-docs 2.0.0-rc in /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs.
+Synced make-docs 2.0.0-rc in <repo-root>.

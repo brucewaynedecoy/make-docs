@@ -18,7 +18,7 @@
         "read-only",
         "--skip-git-repo-check",
         "--cd",
-        "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review",
+        "<temp-dir>/make-docs-skill-proof-V9Hjjt/fresh-review",
         "--json",
         "--output-last-message",
         "/tmp/w19-r5-standard-layout-fresh-review-report.md",
@@ -34,8 +34,8 @@
     }
   },
   "roots": [
-    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/fresh-review",
-    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/all-project-claude-code-copy/project/.claude/skills"
+    "<temp-dir>/make-docs-skill-proof-V9Hjjt/fresh-review",
+    "<temp-dir>/make-docs-skill-proof-V9Hjjt/all-project-claude-code-copy/project/.claude/skills"
   ],
   "candidateIdentity": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "kind": "cli-entry",
-      "path": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js",
+      "path": "<temp-dir>/make-docs-skill-proof-V9Hjjt/extracted/package/dist/index.js",
       "expectedSha256": "71f6068ffba7a10452a54277d15141617cd873ce975231533ab468568f343d35",
       "actualSha256": "71f6068ffba7a10452a54277d15141617cd873ce975231533ab468568f343d35",
       "matched": true

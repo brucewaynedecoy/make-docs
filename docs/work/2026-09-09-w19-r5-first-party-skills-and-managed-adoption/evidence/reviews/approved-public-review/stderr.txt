@@ -33,7 +33,7 @@
 2026-09-10T02:43:49.482046Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
 2026-09-10T02:43:49.530672Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
 2026-09-10T02:43:49.573122Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
-2026-09-10T02:44:20.991522Z  WARN codex_core_plugins::manager: failed to auto-upgrade configured marketplace marketplace="azure-skills" error=git clone marketplace source timed out after 30s: Cloning into '/Users/tylerkneisly/.codex/.tmp/marketplaces/.staging/marketplace-upgrade-lUoqsx'...
+2026-09-10T02:44:20.991522Z  WARN codex_core_plugins::manager: failed to auto-upgrade configured marketplace marketplace="azure-skills" error=git clone marketplace source timed out after 30s: Cloning into '<user-home>/.codex/.tmp/marketplaces/.staging/marketplace-upgrade-lUoqsx'...
 fatal: early EOF
 2026-09-10T02:45:53.161931Z  WARN codex_sandboxing::violation: recorded sandbox violation: resource=filesystem backend=seatbelt reason=operation_not_permitted path=unknown
 2026-09-10T02:47:20.059444Z  WARN codex_mcp::rmcp_client: failed to initialize MCP client during shutdown: MCP startup failed: OAuth refresh credentials for server linear are missing an authorization server issuer; authorization required: OAuth authorization required

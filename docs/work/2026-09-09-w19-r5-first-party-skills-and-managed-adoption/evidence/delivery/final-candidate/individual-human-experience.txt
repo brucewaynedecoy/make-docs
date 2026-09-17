@@ -1,7 +1,7 @@
 │
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
-│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-p  │
+│  Target: <temp-dir>/make-docs-skill-p  │
 │  roof-bhW7Wa/individual-human-experience/project                             │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
@@ -50,4 +50,4 @@
 │                                                                        │
 ├────────────────────────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/individual-human-experience/project.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-skill-proof-bhW7Wa/individual-human-experience/project.

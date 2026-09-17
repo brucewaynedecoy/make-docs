@@ -1,10 +1,10 @@
 Review this installed product as a new agent with no prior project context.
 
-Run commands from this isolated review workspace. Read only the explicit public input paths listed below: /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review.
-The installed CLI entry point is /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/extracted/package/dist/index.js. Invoke it with /Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node.
-The seven standalone installed Skills are at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills.
-The sample owner project is at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project.
-Read-only public command output, if needed, is at /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/public-output.
+Run commands from this isolated review workspace. Read only the explicit public input paths listed below: <temp-dir>/make-docs-skill-proof-bhW7Wa/fresh-review.
+The installed CLI entry point is <temp-dir>/make-docs-skill-proof-bhW7Wa/extracted/package/dist/index.js. Invoke it with <user-home>/.nvm/versions/node/v24.19.0/bin/node.
+The seven standalone installed Skills are at <temp-dir>/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills.
+The sample owner project is at <temp-dir>/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project.
+Read-only public command output, if needed, is at <temp-dir>/make-docs-skill-proof-bhW7Wa/fresh-review/public-output.
 The candidate package SHA-256 is 6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade.
 
 Your job is to assess whether a new owner can understand these Skills and bring existing copies under CLI management safely. Use only the installed SKILL.md files, their declared supporting files, CLI help/version output, and public read-only review output in this workspace. Do not read the CLI implementation, repository files, product requirements, plans, backlogs, previous reviews, history, agent memory, or other projects. Do not use index servers, web search, connectors, or other agents. Do not inspect authentication or global configuration files. If the session provides prior context or extra tools automatically, state that limit and do not use them.

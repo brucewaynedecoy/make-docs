@@ -7,7 +7,7 @@
 > vitest run tests/consistency.test.ts tests/template-links.test.ts
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 ./packages/cli
 
  ✓ tests/template-links.test.ts (12 tests) 10ms
  ✓ tests/consistency.test.ts (38 tests) 86ms

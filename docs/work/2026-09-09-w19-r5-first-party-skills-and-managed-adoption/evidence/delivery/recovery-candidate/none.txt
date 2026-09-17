@@ -1,7 +1,7 @@
 │
 ◇  Information ────────────────────────────────────────────────────────────────╮
 │                                                                              │
-│  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-p  │
+│  Target: <temp-dir>/make-docs-skill-p  │
 │  roof-AFi1nj/none/project                                                    │
 │  Mode: first install                                                         │
 │  Installation record: global Make Docs Store (will be created)               │
@@ -55,4 +55,4 @@
 │                                                      │
 ├──────────────────────────────────────────────────────╯
 
-Installed make-docs 2.0.0-rc into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/none/project.
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-skill-proof-AFi1nj/none/project.

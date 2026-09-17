@@ -1,7 +1,7 @@
 │
 ◇  Information ───────────────────────────────────────────────────────────╮
 │                                                                         │
-│  Target: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs  │
+│  Target: .  │
 │  Mode: existing install sync                                            │
 │  Installation record: global Make Docs Store (found or verified for     │
 │  transfer)                                                              │

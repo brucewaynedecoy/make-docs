@@ -7,7 +7,7 @@ The public files explain the main Skill roles and the adoption review. They cont
 - Candidate SHA-256 supplied by you: `6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade`.
 - I did not verify that package hash.
 
-For paths below, **Skills** means the supplied [installed Skills directory](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills).
+For paths below, **Skills** means the supplied [installed Skills directory](<temp-dir>/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills).
 
 **Commands and files read**
 
@@ -23,7 +23,7 @@ setup skills --help
 project state status --help
 
 setup skills
-  --target /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project
+  --target <temp-dir>/make-docs-skill-proof-bhW7Wa/fresh-review/sample-project
   --skill-scope project
   --no-claude-code
   --selected-skills preflight,software-factory,human-experience
@@ -41,7 +41,7 @@ Files read:
 - Decompose-codebase reference files through full or targeted reads.
 - Python helper headers and import lines only.
 - The sample preflight `SKILL.md`, through a comparison with the installed copy.
-- All four files in [public-output](/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review/public-output).
+- All four files in [public-output](<temp-dir>/make-docs-skill-proof-bhW7Wa/fresh-review/public-output).
 
 File listings also returned project router, configuration, and backup names. I did not read those files.
 
