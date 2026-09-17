@@ -978,6 +978,8 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       storeRoot: root,
     });
     expect(setup.status).toBe("configured");
+    const configPath = path.join(repoRoot, ".make-docs/config.yaml");
+    writeFileSync(configPath, `${readFileSync(configPath, "utf8")}harnessIntegrations:\n  - harness: codex\n    mode: narrow\n    method: mcp\n`);
     const mcpCallerIdentity = encodeHarnessCallerIdentity({
       schemaVersion: 1,
       kind: "make-docs-harness-caller",

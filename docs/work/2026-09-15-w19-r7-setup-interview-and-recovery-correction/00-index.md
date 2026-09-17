@@ -1,7 +1,7 @@
 ---
 title: "W19 R7 Setup Interview and Recovery Correction Work Backlog"
 kind: "work"
-status: "active"
+status: "superseded"
 coordinate: "W19 R7"
 source:
   type: "prd"
@@ -14,6 +14,8 @@ follow_on:
 ---
 
 # W19 R7 Setup Interview and Recovery Correction Work Backlog
+
+> Superseded on 2026-09-16 by [W19 R8 Store Access Bootstrap and Remediation](../2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-index.md). Do not implement this backlog separately.
 
 ## Purpose
 

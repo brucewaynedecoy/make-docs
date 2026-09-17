@@ -60,6 +60,8 @@ Code anchors:
 - R-SKILL-SETUP-3 (MUST): a Skill can guide an agent but does not grant Store access, host configuration access, or project write access. Setup text and reviews keep Skill installation separate from command rules, MCP servers, and harness extensions.
 - R-SKILL-SETUP-4 (MUST): an extension used as a harness connection method is not a selected Skill. A future Pi extension must be owned by the static harness adapter contract in PRD 28 and must not appear in setup until implementation, adapter admission, package proof, and direct installed-product checks pass.
 - R-SKILL-SETUP-5 (MUST): full setup and `setup skills` use one source-owned Skills interaction model and renderer. For the same effective manifest, saved selection, scope, harness support, and trust data, both paths show the same list order, active row, detail panel, selected summary, instructions, labels, navigation keys, empty state, cancellation result, and saved selection. The focused command may limit its final plan to Skill changes. It must not keep a second prompt grammar or selection implementation.
+- R-SKILL-SETUP-6 (MUST): full setup validates whether an existing install can apply a changed Skill selection before final grouped review. When the change belongs to `setup skills`, full setup can retain the valid saved selection and continue independent machine, project, or resource work, or stop only the Skill subplan with that exact route. It must not discard a verified independent subplan.
+- R-SKILL-SETUP-7 (MUST): repeat setup reuses the saved Skill selection when its manifest, source, scope, harness support, ownership, and live bytes remain valid. It does not ask the user to repeat that selection only because another setup subplan failed.
 
 - Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
@@ -311,8 +313,18 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Rationale: Remove hidden network and checkout dependencies without changing selection or UAT policy.
 - Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Explicit Selected-Skill Model`
+- Previous contract: Full setup and `setup skills` were required to share one interaction, but full setup could still collect a changed selection that its existing-install path rejected after the complete interview and before independent setup applied.
+- Replacement contract: Full setup validates Skill-plan ownership before final review. It retains a still-valid saved selection or stops only the Skill subplan with the exact focused route. A Skill refusal cannot discard a verified machine, project, or resource result.
+- Rationale: The observed setup accepted MCP selections and later reported that no files changed because the Skill change required `setup skills`.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)

@@ -397,7 +397,7 @@ describe("W19 R6 static first-party harness adapters", () => {
 });
 
 describe("verified executable and bounded command rules", () => {
-  it("rejects a mismatched executable fingerprint and a symbolic-link executable", () => {
+  it("accepts an exact package-manager link and rejects a mismatched fingerprint", () => {
     const { root, executable } = fixture();
     expect(() =>
       verifyMakeDocsExecutable({ executablePath: executable.path, expectedSha256: "0".repeat(64) }),
@@ -405,9 +405,33 @@ describe("verified executable and bounded command rules", () => {
     const linked = path.join(root, "bin", "linked-make-docs");
     mkdirSync(path.dirname(linked), { recursive: true });
     symlinkSync(executable.path, linked);
-    expect(() =>
-      verifyMakeDocsExecutable({ executablePath: linked, expectedSha256: executable.sha256 }),
-    ).toThrow("symbolic link");
+    expect(verifyMakeDocsExecutable({
+      executablePath: linked,
+      expectedSha256: executable.sha256,
+    })).toMatchObject({
+      launchPath: linked,
+      path: executable.path,
+      sha256: executable.sha256,
+    });
+  });
+
+  it("rejects a broken link with stable repair detail", () => {
+    const { root } = fixture();
+    const linked = path.join(root, "bin", "make-docs");
+    mkdirSync(path.dirname(linked), { recursive: true });
+    symlinkSync(path.join(root, "missing-package-bin"), linked);
+    try {
+      verifyMakeDocsExecutable({ executablePath: linked });
+      throw new Error("Expected executable verification to fail.");
+    } catch (error) {
+      expect(error).toMatchObject({
+        code: "executable-link-broken",
+        launchPath: linked,
+        resolvedPath: null,
+        failedRule: "resolved-package-bin",
+        nextAction: expect.stringContaining("Repair or reinstall"),
+      });
+    }
   });
 
   it("rejects an arbitrary executable script even when its caller supplies the matching hash", () => {

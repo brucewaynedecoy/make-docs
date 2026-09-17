@@ -213,8 +213,15 @@ export function scanPathHygieneManifest(input: PathHygieneInput): PathHygieneSca
   }
   const paths = new Set<string>();
   if (inventory) {
+    const skillPaths = new Set<string>();
+    collectManifestPaths(skillPaths, inventory.skillFiles);
     collectManifestPaths(paths, inventory.files);
-    if (input.includeSkills) collectManifestPaths(paths, inventory.skillFiles);
+    for (const skillPath of skillPaths) paths.delete(skillPath);
+    if (input.includeSkills) {
+      for (const skillPath of skillPaths) {
+        if (!path.isAbsolute(skillPath)) paths.add(skillPath);
+      }
+    }
   } else {
     inventoryNotice = "Checked local content only. This is not installation evidence.";
     collectContentPaths(projectRoot, paths, Boolean(input.includeSkills), input.paths);

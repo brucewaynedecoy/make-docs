@@ -55,6 +55,11 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-11 (MUST): interactive project setup orders project state, harness selection, one method-and-Skills screen for each selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, and one final result. `setup system` starts at the per-harness method screens and performs no project initialization.
 - R-SETUP-12 (MUST): production setup reads method support only from the source-owned static adapter declarations. It never loads a provider, model, runtime, scenario, tuple, result record, or support registry to decide method eligibility. Repeat setup reports `current`, `drifted`, `blocked`, `unsupported`, or `incomplete` and does not issue a generic rerun instruction unless the rerun follows a named changed condition.
 - R-SETUP-13 (MUST): `setup`, `setup reconfigure`, and `setup skills` read pending installation state for the target checkout before the first editable question. A pending operation stops the new setup flow. Human output names the operation, saved-plan state, last safe stage, and one permitted next action. Non-interactive, JSON, and MCP results carry the same facts. The stopped flow writes nothing.
+- R-SETUP-14 (MUST): grouped setup plans machine, project, Skills, and resource placement as independent reviewed subplans. Each subplan has its own state, blocker, changed condition, result, and next action. Machine apply and verify still runs first. A later subplan failure does not roll back, hide, or repeat an earlier verified result.
+- R-SETUP-15 (MUST): method state is computed after every prerequisite used by its plan, including resolved package-bin identity. A method cannot appear as available and later block on an already known prerequisite in the same review. Executable failure output keeps a stable code, checked launch and resolved paths, failed rule, and one action that can change the result. It never reduces distinct faults to a reinstall loop.
+- R-SETUP-16 (MUST): `setup` and `setup system` accept `--generic-mcp-client <label>` as the canonical non-interactive input for one bounded generic MCP profile. Interactive setup offers `Generic MCP client`. Machine setup records reviewed machine intent and prints the standard client-owned configuration object. Project setup records separate project intent for the same label. Make Docs does not edit unknown client files.
+- R-SETUP-17 (MUST): an active agent task that receives `store-not-configured` can show the exact selected-harness or generic-client setup command, continue independent Store-free work, refresh access after setup, and retry only the affected Store-backed operation. `store-unavailable`, `store-unsafe`, and `store-denied` keep the same scoped-stop rule with their own exact action.
+- R-SETUP-18 (MUST): Make Docs CLI and Store-access remediation does not require Store, MCP, a harness receipt, Store-backed lifecycle state, or successful setup in the maintainer checkout. Repository authority, direct package commands, temporary homes, and temporary Store roots remain sufficient. A missing Store is evidence, not a remediation blocker.
 
 ### Tool Self-Management (R-SELF)
 
@@ -114,6 +119,8 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-MIG-2 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration by its fingerprints and, when found, present a warning that itemizes the changes that could break on upgrade, followed by a choice between backing up and installing the latest version, which is recommended, and cancelling.
 - R-MIG-3 (MUST): MCP tool names are derived from the registry identifiers, so the MCP renames follow the same registry as the CLI.
 - R-MIG-4 (MUST): setup classifies and bootstraps the external Store before project mutation. Schema changes and their journal commit in one transaction. All project-operation receipts and recovery progress remain in the Store. A required Store failure stops the affected operation and returns a typed result with safe next steps. There is no local receipt projection or retry path. Recovery never replaces the whole Store after commit.
+- R-MIG-5 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each returns a reachable status and one safe next action. Input failure before mutation creates no blocking operation. Repeat setup preserves independent completed subplans and resumes only incomplete work.
+- R-MIG-6 (MUST): Store access results use `store-not-configured`, `store-unavailable`, `store-unsafe`, or `store-denied`. A required Store failure stops only the affected operation. It does not state that Store-free operations or the wider agent task are unavailable.
 
 ### Installation State Commands (R-STATE)
 
@@ -124,6 +131,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-STATE-5 (MUST): these two installation-state operations extend the historical P3 inventory. Existing identifiers and general lifecycle receipt meanings remain stable. New operation admission does not reactivate retired commands.
 - R-STATE-6 (MUST): status, setup admission, and recovery use one action-selection function. A complete verified plan can offer resume and rollback. An incomplete plan cannot offer resume. A proved incomplete zero-step operation with equal ledgers and no active lock offers no-effect rollback. Ambiguous evidence names no destructive action as safe.
 - R-STATE-7 (MUST): operation status output includes the stable failure code, safe summary, failed stage, and last safe next action when those facts exist. Older rows with no detail report `unknown`; they do not invent a cause. Human output leads with the problem and action. The versioned typed result preserves the same facts for CLI JSON and MCP.
+- R-STATE-8 (MUST): status reports project access intent separately from Store health and policy. No intent is `store-not-configured`. Configured but unreachable state is `store-unavailable`. Unsafe Store evidence and policy denial keep their own results. Status does not bootstrap, create a receipt, or turn absence into a task-wide blocker.
 
 ### Persona and Layout Commands (R-LAYOUT)
 
@@ -164,6 +172,10 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 - R-TEST-8 (MUST): setup tests cover fresh, current, partial, skipped, drifted, failed, and repeated flows; separate machine and project approvals and receipts; exact native configuration preservation; Store-free resource reads; and the rule that a project failure does not roll back verified machine setup.
 - R-TEST-9 (MUST): production-path tests cover both canonical method flags, missing-choice refusal, unsupported-method refusal, machine-only setup, project config writing, dry-run parity, central registry loading, repeat-state rendering, and useful blocker actions. A test-only reviewed plan cannot satisfy this requirement.
 - R-TEST-10 (MUST): interactive tests compare full setup and `setup skills` frames and key results from the same state. Admission tests prove each setup entry stops before editable questions for pending work. Recovery tests prove incomplete zero-step and complete partial action selection, persisted failure detail after restart, and human/JSON/MCP parity through one extracted package.
+- R-TEST-11 (MUST): persistent-install tests invoke the normal package-manager `make-docs` link and prove exact resolved package-bin identity, consistent method state, retained verifier detail, and rejection of broken, escaping, wrapper, runner, and mismatched launch paths.
+- R-TEST-12 (MUST): setup tests fail each machine, project, Skills, and resource subplan in turn. An earlier verified subplan remains current and visible. Repeat setup asks only for missing or changed choices and never replays the completed result.
+- R-TEST-13 (MUST): typed-access tests cover `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied` across human, JSON, MCP, and agent paths. Store-free work continues. An active-task case grants first-party or generic MCP access, refreshes state, retries one operation, and preserves prior task progress.
+- R-TEST-14 (MUST): one exact installed package with the repository unavailable covers fresh, v1, early-v2, partial, invalid-option, interrupted, repeat, no-Store, configured-Store, first-party MCP, generic MCP, recovery, repair, and removal cases. Candidate construction and proof do not require live Store or MCP access in the maintainer checkout.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -179,6 +191,7 @@ Code anchors:
 ### Human Rendering and Agent Invariance
 
 - R-INV-1 (MUST): operation result objects, MCP tool output, and machine-readable CLI output share the canonical operation-result shape and remain byte-identical across equivalent invocations, except for explicitly additive fields and flags. Human rendering never changes MCP schemas or removes an agent-reachable machine behavior.
+- R-INV-2 (MUST): agent-facing results state whether failure affects one operation or the requested goal. A Store-backed operation refusal never implies that Store-free work or the whole task must stop. When access can be added, the result gives one exact setup action and supports a later scoped retry without repeating already valid choices.
 
 ### Render Layer (R-RENDER)
 
@@ -368,8 +381,18 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: automation and agents need the same complete choices and results as the interactive flow.
 - Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Setup Command Contract`, `Command Compatibility and Upgrade Safety`, `Installation State Commands`, `Verification and Testability`, and `Human Rendering and Agent Invariance`
+- Previous contract: Setup ordered machine before project work and required useful blockers, but one late subplan refusal could stop the whole group, method availability could disagree with its own executable check, Store absence could broaden into a task stop, and unsupported MCP clients had no focused path.
+- Replacement contract: Setup uses independent subplans, complete prerequisite classification, exact verifier detail, `--generic-mcp-client <label>`, four typed Store access results, scoped agent retry, repeat-safe upgrade, and a Store-independent remediation rule. One exact installed package proves the full path.
+- Rationale: The observed setup, focused system setup, and agent task formed a closed loop with no valid exit.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)

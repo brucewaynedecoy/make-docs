@@ -738,7 +738,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Full setup and `setup skills` must use one source-owned Skills interaction model and renderer. The same state must produce the same list, detail panel, selected summary, instructions, words, keys, cancellation result, and saved selection. | Complete [W19 R7 P1](../work/2026-09-15-w19-r7-setup-interview-and-recovery-correction/01-setup-interview-and-recovery-correction.md). Close only after source, integration, and extracted-package parity pass and the owner accepts the Human Experience Review. |
+| Closed | Full setup and `setup skills` use one source-owned Skills interaction model. Existing setup routes Skill changes before final review and preserves independent machine and project results. | None. [W19 R8 P1 evidence](../work/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/evidence.md) records the source, integration, exact-package, and Human Experience proof. |
 
 **Issue:** The current full setup renders its Skills interaction in `packages/cli/src/wizard.ts`. The focused command renders another interaction in `packages/cli/src/skills-ui.ts`. The two public paths have different text and behavior. Full setup can also collect a changed Skill choice and reject it after the interview.
 
@@ -746,7 +746,9 @@ Code anchors:
 
 **Recommendation:** Keep one Skills interaction contract. Let each entry point supply the same effective manifest, saved selection, scope, harness support, and trust data. Limit only the focused command's final plan to Skill changes.
 
-**To close:** Prove exact frame and key-result parity for fresh, existing, empty, all-selected, partial, cancel, and changed-selection states. Run the same cases through one extracted CLI package. Record the tested package identity and owner response.
+**To close:** Prove exact frame and key-result parity for fresh, existing, empty, all-selected, partial, cancel, and changed-selection states. Prove that an invalid Skill change is identified before final review and does not discard a verified independent setup subplan. Run the same cases through one exact extracted CLI package. Record the tested package identity and agent Human Experience Review.
+
+**Resolution:** W19 R8 P1 passed the focused interaction, setup-subplan, exact-package, and Human Experience checks. `W19-R8-GATE-EXCEPTION-1` excludes only separate Performance Evidence projection failures and does not cover this finding.
 
 Code anchors:
 
@@ -760,7 +762,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Setup must inspect pending checkout state before editable questions. It must derive resume or rollback from saved proof. An incomplete plan never offers resume. A zero-step incomplete operation with equal ledgers and no active lock can finish through a no-effect rollback that keeps an explicit final record. | Complete [W19 R7 P1](../work/2026-09-15-w19-r7-setup-interview-and-recovery-correction/01-setup-interview-and-recovery-correction.md). Close only after the incomplete and complete recovery matrix, failure-detail retention, extracted-package legacy proof, and owner review pass. |
+| Closed | Setup inspects pending checkout state before editable questions. It derives resume or rollback from saved proof. An incomplete plan never offers resume. A proved no-effect rollback keeps project files and the installation ledger unchanged. | None. [W19 R8 P1 evidence](../work/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/evidence.md) records the recovery matrix, retained detail, and exact-package proof. |
 
 **Issue:** The current write admission path tells every pending installation operation to preview resume. The recovery path blocks resume when `plan_complete=0`. The observed pending `setup.migration` record has no steps, equal before and after ledgers, and no active lock. The Store row also lacks a safe failure code and summary, so it cannot explain the first fault.
 
@@ -769,6 +771,8 @@ Code anchors:
 **Recommendation:** Read pending state before setup questions. Derive one safe action from plan completeness, steps, ledgers, lock state, and current file evidence. Retain a stable failure code, safe summary, failed stage, and last safe next action in the Store. Never store secrets, document bodies, or raw terminal output.
 
 **To close:** Prove that incomplete plans do not offer resume, proved zero-effect rollback changes no project file or installation ledger, complete partial plans retain verified resume and rollback, changed content blocks mutation, failure detail survives restart, and CLI, JSON, MCP, status, setup, and recovery agree. Prove the same behavior from one extracted package before any real-project recovery.
+
+**Resolution:** W19 R8 P1 passed the incomplete, interrupted, resume, rollback, retained-detail, and exact installed-package cases. `W19-R8-GATE-EXCEPTION-1` excludes only separate Performance Evidence projection failures and does not cover this finding.
 
 Code anchors:
 
@@ -827,6 +831,33 @@ Code anchors:
 - `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md`
 - `packages/cli/tests/human-experience-resources.test.ts`
 - `packages/cli/tests/human-experience-propagation.test.ts`
+
+### D-038 Setup and Store Access Form a Closed Recovery Loop
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | W19 R8 repairs normal package-launch verification, independent setup subplans, optional Store behavior, mid-task access recovery, generic MCP setup, and agent continuation. The repair does not depend on Store or MCP access. | None. [W19 R8 P1 evidence](../work/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/evidence.md) records the exact installed package and complete acceptance matrix. |
+
+**Issue:** Full setup can ask for machine MCP, Skills, and resources and then reject an existing project's Skill change without applying any valid independent setup. Focused machine setup can label MCP methods available and later block them because it cannot verify the active packaged executable. The verifier rejects a symbolic-link launch path before it resolves the declared package bin, drops the exact error, and recommends reinstall. A normal global npm install creates the same link again. Agent guidance can then ask for a method already selected or stop the whole task when only one Store-backed operation is unavailable.
+
+**Why it matters:** Setup is the supported path that grants Store access. The same Store and harness access is then treated as a prerequisite for repair and agent work. A person can repeat setup or reinstall without reaching a different state. A safe scoped refusal becomes a permanent product and task stop.
+
+**Recommendation:** Treat launch path and verified package binary as separate facts. Apply machine, project, Skills, and resource setup as independent reviewed subplans. Distinguish `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied`. Stop only the affected Store-backed operation. Continue Store-free work. Let an active agent task refresh access and retry only that operation. Add a bounded generic MCP profile and reachable help. State that W19 R8 remediation does not require Store, MCP, harness receipts, Store-backed lifecycle state, or successful setup.
+
+**To close:** Prove a normal package-manager link verifies the exact package bin while unsafe links remain blocked with exact detail. Prove one subplan failure does not erase another verified result. Prove no-Store projects keep Store-free behavior. Prove all four Store access results and one exact action across human, JSON, MCP, and agent output. Prove mid-task first-party and generic MCP setup, access refresh, one-operation retry, upgrade from v1 and early v2, interrupted setup, repeat setup, and W19 R7 recovery cases from one exact installed package with no repository available.
+
+**Resolution:** W19 R8 P1 passed all stated close cases against the recorded package candidate. `W19-R8-GATE-EXCEPTION-1` excludes only separate Performance Evidence projection failures and does not cover this finding.
+
+Code anchors:
+
+- `packages/cli/src/harness-access/contract.ts`
+- `packages/cli/src/setup-system.ts`
+- `packages/cli/src/cli.ts`
+- `packages/cli/src/wizard.ts`
+- `packages/cli/src/skills-ui.ts`
+- `packages/cli/src/operations/harness-policy.ts`
+- `packages/cli/src/store/bootstrap.ts`
+- `scripts/smoke-pack.mjs`
 
 ## Open Questions
 

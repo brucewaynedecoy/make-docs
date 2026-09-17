@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Setup Interview and Recovery Correction"
 kind: "work"
-status: "active"
+status: "superseded"
 coordinate: "W19 R7 P1"
 source:
   type: "prd"
@@ -9,6 +9,8 @@ source:
 ---
 
 # Phase 1: Setup Interview and Recovery Correction
+
+> Superseded on 2026-09-16 by [W19 R8 P1 Store Access Bootstrap and Remediation](../2026-09-16-w19-r8-store-access-bootstrap-and-remediation/01-store-access-bootstrap-and-remediation.md). Do not implement this phase separately.
 
 ## Purpose
 

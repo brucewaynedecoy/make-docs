@@ -1,12 +1,13 @@
 import {
   encodeHarnessCallerIdentity,
-  parseHarnessCallerIdentity,
+  parseHarnessCallerIdentityValue,
   parseHarnessCallerReference,
   requireFirstPartyHarnessAdapter,
   sha256,
   validateHarnessMethodSelection,
   verifyMakeDocsExecutable,
   type HarnessCallerIdentity,
+  type ParsedHarnessCallerIdentity,
   type HarnessCallerReference,
   type HarnessCommandRuleAuthority,
   type HarnessConnectionMethod,
@@ -25,6 +26,7 @@ import { validateInstallationStoreRoot } from "../store/installation-state";
 import { NO_ACCESS, type OperationAccess } from "./access";
 import type { OperationRoute } from "./context";
 import { OperationError } from "./types";
+import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
 
 const FULL_OPERATION_ACCESS: OperationAccess = Object.freeze({
   store: "write",
@@ -44,12 +46,23 @@ export interface HarnessOperationPolicyResult extends ProjectHarnessAccessProjec
   methods: readonly HarnessConnectionMethod[];
 }
 
-export class HarnessOperationAccessDeniedError extends OperationError {
-  readonly code = "harness-operation-access-denied";
-
-  constructor(message: string) {
-    super(message);
-    this.name = "HarnessOperationAccessDeniedError";
+export class HarnessOperationAccessDeniedError extends StoreAccessStateError {
+  constructor(
+    operation: string,
+    message: string,
+    targetRoot: string,
+    code: "store-not-configured" | "store-denied" = "store-denied",
+    nextAction?: string,
+  ) {
+    super(
+      code,
+      operation,
+      message,
+      nextAction ?? (code === "store-not-configured"
+        ? `Run \`make-docs setup --generic-mcp-client <label> --target ${JSON.stringify(targetRoot)}\` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.`
+        : `Run \`make-docs setup --target ${JSON.stringify(targetRoot)}\` to review machine and project access.`),
+      { projectRoot: targetRoot },
+    );
   }
 }
 
@@ -66,7 +79,7 @@ export function resolveProjectHarnessAccessProjection(
   runtimeExecutablePath?: string,
 ): ProjectHarnessAccessProjection {
   const records = loadMakeDocsConfigOrThrow(targetRoot).config.harnessIntegrations;
-  let identity: HarnessCallerIdentity | undefined;
+  let identity: ParsedHarnessCallerIdentity | undefined;
   if (callerIdentityRaw || callerReference) {
     try {
       identity = resolveCallerIdentity({
@@ -90,6 +103,25 @@ export function resolveProjectHarnessAccessProjection(
     return deniedProjection("The harness tool list has no native launch identity.");
   }
 
+  const record = records.find(candidate => candidate.harness === identity.harnessId);
+  if (identity.kind === "make-docs-generic-mcp-caller") {
+    if (
+      method !== "mcp" ||
+      identity.connectionMethod !== "mcp" ||
+      identity.adapterId !== "generic-mcp" ||
+      !record ||
+      record.mode !== "narrow" ||
+      record.method !== "mcp"
+    ) {
+      return deniedProjection("The generic MCP tool-list identity has no matching project intent.");
+    }
+    return {
+      configured: true,
+      access: record.accessCeiling ? { ...record.accessCeiling } : { ...FULL_OPERATION_ACCESS },
+      reason: `Access uses the reviewed '${record.harness}' generic MCP project limit.`,
+    };
+  }
+
   let adapter: ReturnType<typeof requireFirstPartyHarnessAdapter>;
   try {
     adapter = requireFirstPartyHarnessAdapter(identity.harnessId);
@@ -97,6 +129,7 @@ export function resolveProjectHarnessAccessProjection(
     return deniedProjection(`The harness tool-list identity is not supported: ${message(error)}`);
   }
   if (
+    identity.kind !== "make-docs-harness-caller" ||
     identity.adapterId !== adapter.id ||
     identity.adapterVersion !== adapter.version ||
     identity.connectionMethod !== method ||
@@ -105,7 +138,6 @@ export function resolveProjectHarnessAccessProjection(
     return deniedProjection("The harness tool-list identity does not match the active adapter method.");
   }
 
-  const record = records.find(candidate => candidate.harness === identity.harnessId);
   if (!record) {
     return {
       configured: true,
@@ -128,6 +160,7 @@ export function resolveProjectHarnessAccessProjection(
 
 /** Resolve verified effective access for one exact caller or all project limits. */
 export function resolveHarnessOperationPolicy(input: {
+  operation?: string;
   targetRoot: string;
   storeRoot: string;
   route: Exclude<OperationRoute, "test">;
@@ -166,27 +199,36 @@ export function resolveHarnessOperationPolicy(input: {
 
   const storeRoot = validateInstallationStoreRoot(input.targetRoot, input.storeRoot);
   const global = loadGlobalConfig(storeRoot).config;
-  let identity: HarnessCallerIdentity;
+  let identity: ParsedHarnessCallerIdentity;
   try {
     identity = resolveCallerIdentity(input);
   } catch (error) {
-    throw denied(`The harness caller identity is invalid: ${message(error)}`);
+    throw denied(input.operation ?? "unknown", `The harness caller identity is invalid: ${message(error)}`, input.targetRoot);
   }
   if (input.route === "mcp" && identity.connectionMethod !== "mcp") {
-    throw denied("The MCP route needs an exact MCP caller identity.");
+    throw denied(input.operation ?? "unknown", "The MCP route needs an exact MCP caller identity.", input.targetRoot);
   }
   if (input.route === "native-rule" && identity.connectionMethod === "mcp") {
-    throw denied("The native-rule route needs an exact command-rule or permission-rule caller identity.");
+    throw denied(input.operation ?? "unknown", "The native-rule route needs an exact command-rule or permission-rule caller identity.", input.targetRoot);
   }
   const project = records.find((record) => record.harness === identity.harnessId);
-  const access = verifyIntegration({
-    targetRoot: input.targetRoot,
-    storeRoot,
-    project,
-    machine: machineApproval(global.settings.harnesses[identity.harnessId]),
-    identity,
-    commandRuleAuthority: input.commandRuleAuthority,
-  });
+  const access = identity.kind === "make-docs-generic-mcp-caller"
+    ? verifyGenericMcpIntegration({
+        targetRoot: input.targetRoot,
+        project,
+        machine: global.settings.harnesses[identity.harnessId],
+        identity,
+        operation: input.operation ?? "unknown",
+      })
+    : verifyIntegration({
+        targetRoot: input.targetRoot,
+        storeRoot,
+        project,
+        machine: machineApproval(global.settings.harnesses[identity.harnessId]),
+        identity,
+        operation: input.operation ?? "unknown",
+        commandRuleAuthority: input.commandRuleAuthority,
+      });
   return {
     configured: true,
     verified: true,
@@ -208,11 +250,74 @@ export function assertHarnessOperationAllowed(input: {
   runtimeExecutablePath?: string;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
 }): HarnessOperationPolicyResult {
-  const policy = resolveHarnessOperationPolicy(input);
+  if (
+    input.route !== "direct-cli" &&
+    loadMakeDocsConfigOrThrow(input.targetRoot).config.harnessIntegrations.length === 0
+  ) {
+    throw new HarnessOperationAccessDeniedError(
+      input.operation,
+      "This project has no Store access configuration for an agent harness.",
+      input.targetRoot,
+      "store-not-configured",
+    );
+  }
+  let policy: HarnessOperationPolicyResult;
+  try {
+    policy = resolveHarnessOperationPolicy(input);
+  } catch (error) {
+    if (error instanceof StoreAccessStateError) {
+      if (error.operation === "unknown") {
+        throw makeStoreAccessStateError({
+          code: error.code,
+          operation: input.operation,
+          reason: error.reason,
+          nextAction: error.nextAction,
+          details: error.details,
+        });
+      }
+      throw error;
+    }
+    const record = error && typeof error === "object" ? error as Record<string, unknown> : {};
+    const issue = record.issue && typeof record.issue === "object"
+      ? record.issue as Record<string, unknown>
+      : null;
+    if (record.code === "store-unavailable") {
+      const unsafe = issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
+      throw makeStoreAccessStateError({
+        code: unsafe ? "store-unsafe" : "store-unavailable",
+        operation: input.operation,
+        reason: message(error),
+        nextAction: unsafe
+          ? `Run \`make-docs project state status --target-root ${JSON.stringify(input.targetRoot)}\` and review the Store state.`
+          : "Restore access to the configured Make Docs Store, then retry only this operation.",
+        details: { projectRoot: input.targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
+      });
+    }
+    if (["writer-active", "ownership-unverified", "recovery-required", "snapshot-drift"].includes(String(record.code))) {
+      throw makeStoreAccessStateError({
+        code: "store-unsafe",
+        operation: input.operation,
+        reason: message(error),
+        nextAction: `Run \`make-docs project state status --target-root ${JSON.stringify(input.targetRoot)}\` and use its exact recovery action.`,
+        details: { projectRoot: input.targetRoot, priorCode: record.code },
+      });
+    }
+    throw denied(input.operation, message(error), input.targetRoot);
+  }
+  if (!policy.configured && input.route !== "direct-cli") {
+    throw new HarnessOperationAccessDeniedError(
+      input.operation,
+      "This project has no Store access configuration for an agent harness.",
+      input.targetRoot,
+      "store-not-configured",
+    );
+  }
   if (!accessAtMost(input.required, policy.access)) {
     throw denied(
+      input.operation,
       `Harness access for this project does not allow operation '${input.operation}'. ` +
         `It needs ${formatAccess(input.required)}, but effective access is ${formatAccess(policy.access)}.`,
+      input.targetRoot,
     );
   }
   return policy;
@@ -228,17 +333,17 @@ export function assertStoreFreeHarnessOperationAllowed(input: {
   callerReference?: HarnessCallerReference;
   runtimeExecutablePath?: string;
 }): ProjectHarnessAccessProjection {
-  let identity: HarnessCallerIdentity;
+  let identity: ParsedHarnessCallerIdentity;
   try {
     identity = resolveCallerIdentity(input);
   } catch (error) {
-    throw denied(`The harness caller identity is invalid: ${message(error)}`);
+    throw denied(input.operation, `The harness caller identity is invalid: ${message(error)}`, input.targetRoot);
   }
   if (input.route === "mcp" && identity.connectionMethod !== "mcp") {
-    throw denied("The MCP route needs an exact MCP caller identity.");
+    throw denied(input.operation, "The MCP route needs an exact MCP caller identity.", input.targetRoot);
   }
   if (input.route === "native-rule" && identity.connectionMethod === "mcp") {
-    throw denied("The native-rule route needs an exact command-rule or permission-rule caller identity.");
+    throw denied(input.operation, "The native-rule route needs an exact command-rule or permission-rule caller identity.", input.targetRoot);
   }
   const projection = resolveProjectHarnessAccessProjection(
     input.targetRoot,
@@ -249,8 +354,10 @@ export function assertStoreFreeHarnessOperationAllowed(input: {
   );
   if (!accessAtMost(input.required, projection.access)) {
     throw denied(
+      input.operation,
       `Harness access for this project does not allow operation '${input.operation}'. ` +
         `It needs ${formatAccess(input.required)}, but effective access is ${formatAccess(projection.access)}.`,
+      input.targetRoot,
     );
   }
   return projection;
@@ -260,11 +367,11 @@ function resolveCallerIdentity(input: {
   callerIdentityRaw?: string;
   callerReference?: HarnessCallerReference;
   runtimeExecutablePath?: string;
-}): HarnessCallerIdentity {
+}): ParsedHarnessCallerIdentity {
   if (input.callerIdentityRaw && input.callerReference) {
     throw new Error("The harness caller identity and reference cannot be used together.");
   }
-  if (input.callerIdentityRaw) return parseHarnessCallerIdentity(input.callerIdentityRaw);
+  if (input.callerIdentityRaw) return parseHarnessCallerIdentityValue(input.callerIdentityRaw);
   if (!input.callerReference) throw new Error("The harness caller identity is missing.");
 
   const parsed = parseHarnessCallerReference(input.callerReference.raw);
@@ -314,6 +421,7 @@ function verifyIntegration(input: {
   machine: MachineHarnessApproval;
   identity: HarnessCallerIdentity;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
+  operation: string;
 }): OperationAccess {
   const adapter = requireFirstPartyHarnessAdapter(input.identity.harnessId);
   if (
@@ -321,7 +429,7 @@ function verifyIntegration(input: {
     input.identity.adapterVersion !== adapter.version ||
     input.identity.scope !== "machine"
   ) {
-    throw denied("The harness caller does not match the active first-party adapter.");
+    throw denied(input.operation, "The harness caller does not match the active first-party adapter.", input.targetRoot);
   }
   const effective = resolveEffectiveHarnessIntegration(
     input.project,
@@ -329,14 +437,14 @@ function verifyIntegration(input: {
     input.identity.harnessId,
   );
   if (!effective.enabled || effective.method !== input.identity.connectionMethod) {
-    throw denied("The project and machine settings do not admit this harness method.");
+    throw denied(input.operation, "The project and machine settings do not admit this harness method.", input.targetRoot);
   }
   const method = validateHarnessMethodSelection({
     harnessId: input.identity.harnessId,
     method: input.identity.connectionMethod,
     scope: "machine",
   });
-  if (!method) throw denied("The harness method is disabled.");
+  if (!method) throw denied(input.operation, "The harness method is disabled.", input.targetRoot);
   const receipt = readCurrentHarnessIntegrationReceipt(
     input.targetRoot,
     input.storeRoot,
@@ -351,7 +459,7 @@ function verifyIntegration(input: {
     receipt.scope !== "machine" ||
     !sameExecutable(receipt.executable, input.identity.executable)
   ) {
-    throw denied("No exact current Store receipt proves this harness caller.");
+    throw denied(input.operation, "No exact current Store receipt proves this harness caller.", input.targetRoot);
   }
   let executable: VerifiedExecutableIdentity;
   try {
@@ -360,16 +468,16 @@ function verifyIntegration(input: {
       expectedSha256: input.identity.executable.sha256,
     });
   } catch (error) {
-    throw denied(`The active Make Docs package binary is not verified: ${message(error)}`);
+    throw denied(input.operation, `The active Make Docs package binary is not verified: ${message(error)}`, input.targetRoot);
   }
   if (!sameExecutable(executable, receipt.executable)) {
-    throw denied("The current package binary differs from the harness receipt.");
+    throw denied(input.operation, "The current package binary differs from the harness receipt.", input.targetRoot);
   }
   const rules = method.requiresCommandRules
     ? input.commandRuleAuthority?.validate(input.commandRuleAuthority.list())
     : undefined;
   if (method.requiresCommandRules && !rules) {
-    throw denied("The native command method has no operation-registry authority.");
+    throw denied(input.operation, "The native command method has no operation-registry authority.", input.targetRoot);
   }
   const verification = adapter.verify({
     method: input.identity.connectionMethod,
@@ -381,10 +489,80 @@ function verifyIntegration(input: {
   });
   if (verification.state !== "current") {
     throw denied(
+      input.operation,
       `The harness-native entry is not current: ${verification.reason ?? verification.state}.`,
+      input.targetRoot,
     );
   }
   return { ...effective.access };
+}
+
+function verifyGenericMcpIntegration(input: {
+  targetRoot: string;
+  project: ProjectHarnessIntegrationRecord | undefined;
+  machine: unknown;
+  identity: Extract<ParsedHarnessCallerIdentity, { kind: "make-docs-generic-mcp-caller" }>;
+  operation: string;
+}): OperationAccess {
+  if (!input.project) {
+    const label = input.identity.harnessId.slice("generic-mcp-".length);
+    throw new HarnessOperationAccessDeniedError(
+      input.operation,
+      "This generic MCP client has no reviewed project access intent.",
+      input.targetRoot,
+      "store-not-configured",
+      `Run \`make-docs setup --generic-mcp-client ${label} --target ${JSON.stringify(input.targetRoot)}\` to add project access, then retry only this operation.`,
+    );
+  }
+  if (input.project.mode !== "narrow" || input.project.method !== "mcp") {
+    throw denied(input.operation, "This generic MCP client has no reviewed project access intent.", input.targetRoot);
+  }
+  if (!input.machine || typeof input.machine !== "object" || Array.isArray(input.machine)) {
+    throw denied(input.operation, "This generic MCP client has no reviewed machine profile.", input.targetRoot);
+  }
+  const machine = input.machine as Record<string, unknown>;
+  if (
+    machine.selected !== true ||
+    machine.maximumMethod !== "mcp" ||
+    machine.profileKind !== "generic-mcp" ||
+    machine.lifecycleState !== "active" ||
+    machine.clientLabel !== input.identity.harnessId.slice("generic-mcp-".length) ||
+    machine.machineRoot !== input.identity.root ||
+    typeof machine.proofSha256 !== "string" ||
+    !/^[a-f0-9]{64}$/.test(machine.proofSha256) ||
+    sha256(input.identity.proof) !== machine.proofSha256
+  ) {
+    throw denied(input.operation, "The generic MCP identity proof is absent, stale, or does not match the reviewed profile.", input.targetRoot);
+  }
+  let executable: VerifiedExecutableIdentity;
+  try {
+    executable = verifyMakeDocsExecutable({
+      executablePath: input.identity.executable.launchPath ?? input.identity.executable.path,
+      expectedSha256: input.identity.executable.sha256,
+    });
+  } catch (error) {
+    throw denied(input.operation, `The active Make Docs package binary is not verified: ${message(error)}`, input.targetRoot);
+  }
+  if (!sameExecutable(executable, input.identity.executable)) {
+    throw denied(input.operation, "The current package binary differs from the generic MCP profile.", input.targetRoot);
+  }
+  const expectedConfiguration = {
+    mcpServers: {
+      "make-docs": {
+        command: executable.path,
+        args: ["mcp"],
+        env: { MAKE_DOCS_HARNESS_CALLER_IDENTITY: encodeHarnessCallerIdentity(input.identity) },
+      },
+    },
+  };
+  if (
+    typeof machine.configurationDigest !== "string" ||
+    sha256(JSON.stringify(expectedConfiguration)) !== machine.configurationDigest
+  ) {
+    throw denied(input.operation, "The generic MCP configuration does not match the reviewed profile.", input.targetRoot);
+  }
+  const machineAccess = machineApproval(machine).accessCeiling;
+  return intersectAccess(machineAccess, input.project.accessCeiling ?? FULL_OPERATION_ACCESS);
 }
 
 function safeFirstPartyRecord(record: ProjectHarnessIntegrationRecord): boolean {
@@ -425,8 +603,8 @@ function deniedProjection(reason: string): ProjectHarnessAccessProjection {
   return { configured: true, access: { ...NO_ACCESS }, reason };
 }
 
-function denied(reason: string): HarnessOperationAccessDeniedError {
-  return new HarnessOperationAccessDeniedError(reason);
+function denied(operation: string, reason: string, targetRoot: string): HarnessOperationAccessDeniedError {
+  return new HarnessOperationAccessDeniedError(operation, reason, targetRoot);
 }
 
 function sameExecutable(

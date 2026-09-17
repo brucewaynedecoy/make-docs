@@ -527,7 +527,7 @@ describe("W19 R6 harness intent", () => {
     });
   });
 
-  it("blocks production MCP operation access and exposure when the project disables a harness", async () => {
+  it("keeps typed MCP tools visible but blocks access when the project disables a harness", async () => {
     const targetRoot = tempDir("make-docs-r6-runtime-disable-project");
     const storeRoot = tempDir("make-docs-r6-runtime-disable-store");
     withInstallationOperation(targetRoot, "test.prepare-store", () => undefined, { storeRoot });
@@ -540,7 +540,7 @@ describe("W19 R6 harness intent", () => {
     ]);
 
     const tools = listMakeDocsMcpTools(targetRoot);
-    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(false);
+    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "resource.list")?.mcpReady).toBe(true);
     await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
       .rejects.toThrow("does not allow operation 'project.state.status'");
@@ -565,7 +565,7 @@ describe("W19 R6 harness intent", () => {
 
     const tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
-    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(false);
+    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
     await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
       .resolves.toMatchObject({
         operation: "project.state.status",
@@ -713,8 +713,10 @@ describe("W19 R6 harness intent", () => {
       executable,
     });
     tools = listMakeDocsMcpTools(targetRoot);
-    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(false);
-    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(false);
+    expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
+    expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
+    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+      .rejects.toThrow("do not admit this harness method");
 
     writeProjectHarnessIntent(targetRoot, [
       "harnessIntegrations:",

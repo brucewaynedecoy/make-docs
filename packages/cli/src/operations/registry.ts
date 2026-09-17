@@ -28,9 +28,9 @@ import { workOperations } from "./work/ops";
 import {
   accessAtMost,
   assertHarnessOperationAllowed,
-  assertStoreFreeHarnessOperationAllowed,
   resolveProjectHarnessAccessProjection,
 } from "./harness-policy";
+import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -462,53 +462,45 @@ export async function invokeOperation(
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
   const targetRoot = operationTargetRoot(parsed.data, context.cwd);
-  const run = async () => {
-    if (context.surface === "cli" || context.surface === "mcp") {
-      if (definition.access.store === "none") {
-        if (
-          (context.route === "mcp" || context.route === "native-rule") &&
-          (context.callerIdentityRaw || context.callerReference)
-        ) {
-          assertStoreFreeHarnessOperationAllowed({
-            operation: id,
-            required: definition.access,
-            targetRoot,
-            route: context.route,
-            callerIdentityRaw: context.callerIdentityRaw,
-            callerReference: context.callerReference,
-          });
-        }
-      } else {
-        if (context.route === "test") {
-          throw new OperationError("A production Store operation needs an explicit route.");
-        }
-        const authority: HarnessCommandRuleAuthority = {
-          list: listHarnessCommandRules,
-          validate: validateRegistryHarnessCommandRules,
-        };
-        assertHarnessOperationAllowed({
-          operation: id,
-          required: definition.access,
-          targetRoot,
-          storeRoot: context.storeRoot,
-          route: context.route,
-          callerIdentityRaw: context.callerIdentityRaw,
-          callerReference: context.callerReference,
-          commandRuleAuthority: authority,
-        });
-      }
+  if (
+    (context.surface === "cli" || context.surface === "mcp") &&
+    definition.access.store !== "none"
+  ) {
+    if (context.route === "test") {
+      throw new OperationError("A production Store operation needs an explicit route.");
     }
+    const authority: HarnessCommandRuleAuthority = {
+      list: listHarnessCommandRules,
+      validate: validateRegistryHarnessCommandRules,
+    };
+    assertHarnessOperationAllowed({
+      operation: id,
+      required: definition.access,
+      targetRoot,
+      storeRoot: context.storeRoot,
+      route: context.route,
+      callerIdentityRaw: context.callerIdentityRaw,
+      callerReference: context.callerReference,
+      commandRuleAuthority: authority,
+    });
+  }
+  const run = async () => {
     return (await handler(parsed.data, context)) as JsonValue;
   };
-  const value = definition.access.store === "none"
-    ? await run()
-    : await context.withStoreSession(
-        definition.access.store,
-        id,
-        definition.access,
-        targetRoot,
-        run,
-      );
+  let value: JsonValue;
+  try {
+    value = definition.access.store === "none"
+      ? await run()
+      : await context.withStoreSession(
+          definition.access.store,
+          id,
+          definition.access,
+          targetRoot,
+          run,
+        );
+  } catch (error) {
+    throw scopeStoreAccessFailure(error, id, targetRoot);
+  }
   return {
     operation: id,
     value,
@@ -520,6 +512,37 @@ export async function invokeOperation(
   };
 }
 
+function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: string): unknown {
+  if (error instanceof StoreAccessStateError) return error;
+  const record = error && typeof error === "object" ? error as Record<string, unknown> : {};
+  const code = typeof record.code === "string" ? record.code : "";
+  const issue = record.issue && typeof record.issue === "object"
+    ? record.issue as Record<string, unknown>
+    : null;
+  if (code === "store-unavailable") {
+    const unsafe = issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
+    return makeStoreAccessStateError({
+      code: unsafe ? "store-unsafe" : "store-unavailable",
+      operation,
+      reason: error instanceof Error ? error.message : String(error),
+      nextAction: unsafe
+        ? `Run \`make-docs project state status --target-root ${JSON.stringify(targetRoot)}\` and review the Store state.`
+        : "Restore access to the configured Make Docs Store, then retry only this operation.",
+      details: { projectRoot: targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
+    });
+  }
+  if (["writer-active", "ownership-unverified", "recovery-required", "snapshot-drift"].includes(code)) {
+    return makeStoreAccessStateError({
+      code: "store-unsafe",
+      operation,
+      reason: error instanceof Error ? error.message : String(error),
+      nextAction: `Run \`make-docs project state status --target-root ${JSON.stringify(targetRoot)}\` and use its exact recovery action.`,
+      details: { projectRoot: targetRoot, priorCode: code },
+    });
+  }
+  return error;
+}
+
 function operationTargetRoot(input: unknown, fallback: string): string {
   if (input && typeof input === "object" && !Array.isArray(input)) {
     const record = input as Record<string, unknown>;
@@ -527,6 +550,8 @@ function operationTargetRoot(input: unknown, fallback: string): string {
       ? record.targetRoot
       : typeof record.targetDir === "string"
         ? record.targetDir
+        : typeof record.repoRoot === "string"
+          ? record.repoRoot
         : undefined;
     if (candidate) return path.resolve(candidate);
   }

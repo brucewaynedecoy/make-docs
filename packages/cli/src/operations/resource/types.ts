@@ -136,6 +136,11 @@ export interface SystemResourceProjectContext {
   projectRoot: string;
   evidence: readonly SystemResourceProjectEvidence[];
   digestEvidence?: readonly SystemResourceDigestEvidence[];
+  /**
+   * Resolve only from the installed provider. Store-free operation adapters use
+   * this mode because applied local-projection evidence is Store-owned.
+   */
+  providerOnly?: boolean;
 }
 
 export type SystemResourceResolutionState =

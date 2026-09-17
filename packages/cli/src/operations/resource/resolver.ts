@@ -107,6 +107,17 @@ export function resolveSystemResource(
   if (origin === "installed") {
     return { ok: true, value: fromProvider(provider, providerEntry) };
   }
+  if (project.providerOnly) {
+    if (origin === "local") {
+      return failure(
+        "resource-not-found",
+        `System resource ${uri} is not available from the Store-free project view.`,
+        "Use the installed origin, or use a Store-backed reviewed projection operation.",
+        uri,
+      );
+    }
+    return { ok: true, value: fromProvider(provider, providerEntry) };
+  }
   const validatedProject = validateProjectContext(project);
   if (!validatedProject.ok) {
     return validatedProject;
@@ -243,8 +254,10 @@ export function listSystemResources(
   }
   const providerUris = new Set(providerEntries.value.keys());
   let uris: Set<string>;
-  if (origin === "installed") {
+  if (origin === "installed" || (origin === "effective" && project.providerOnly)) {
     uris = providerUris;
+  } else if (origin === "local" && project.providerOnly) {
+    uris = new Set();
   } else {
     const validatedProject = validateProjectContext(project);
     if (!validatedProject.ok) {

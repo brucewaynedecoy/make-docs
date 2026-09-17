@@ -70,6 +70,7 @@ export async function createInstallPlan(options: {
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
   skillRegistry?: SkillRegistry;
+  preserveExistingSkills?: boolean;
   operation?: "setup" | "setup.reconfigure" | "setup.sync";
 }): Promise<InstallPlan> {
   const {
@@ -146,20 +147,34 @@ export async function createInstallPlan(options: {
       assets.findIndex((candidate) => candidate.relativePath === asset.relativePath) === index,
     )
     .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
-  const desiredSkillAssets = await getDesiredSkillAssets(
-    profile.selections,
-    skillRegistry,
-  );
+  const preserveExistingSkills = Boolean(options.preserveExistingSkills && existingManifest);
+  const desiredSkillAssets = preserveExistingSkills
+    ? []
+    : await getDesiredSkillAssets(profile.selections, skillRegistry);
   if (!options.reviewedSkillAdoption) assertStandardSkillDestinations(existingManifest, desiredSkillAssets);
-  const desiredSkillFiles = desiredSkillAssets.map((asset) => asset.relativePath);
+  const desiredSkillFiles = preserveExistingSkills
+    ? [...(existingManifest?.skillFiles ?? [])]
+    : desiredSkillAssets.map((asset) => asset.relativePath);
   const desiredSkillFileSet = new Set(desiredSkillFiles);
   const previousSkillContent = await getPreviousSkillContentByPath(existingManifest);
   const allDesiredAssets: ResolvedInstallAsset[] = [
     ...desiredAssets,
     ...desiredSkillAssets,
   ];
-  const baseDesiredFiles = Object.fromEntries(
-    allDesiredAssets.map((asset) => [
+  const preservedSkillFiles = preserveExistingSkills
+    ? Object.fromEntries(
+        Object.entries(existingManifest?.files ?? {})
+          .filter(([relativePath, entry]) =>
+            desiredSkillFileSet.has(relativePath) ||
+            Boolean(entry.skillExposure) ||
+            entry.sourceId.startsWith("skill"),
+          )
+          .map(([relativePath, entry]) => [relativePath, { ...entry }]),
+      )
+    : {};
+  const baseDesiredFiles = {
+    ...Object.fromEntries(
+      allDesiredAssets.map((asset) => [
       asset.relativePath,
       {
         hash: getManifestHashForAsset(asset),
@@ -167,9 +182,11 @@ export async function createInstallPlan(options: {
         ...(isSkillExposureAsset(asset)
           ? { skillExposure: asset.skillExposure }
           : {}),
-      },
-    ]),
-  );
+        },
+      ]),
+    ),
+    ...preservedSkillFiles,
+  };
   const systemAssetManifestState = createSystemAssetManifestState({
     mode: systemAssetMaterialization.mode,
     sourcePackage: packageMeta.name,

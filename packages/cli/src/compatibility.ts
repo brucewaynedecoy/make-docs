@@ -11,7 +11,7 @@ import {
   validateAndMigrateManifest,
   MANIFEST_RELATIVE_PATH,
 } from "./manifest";
-import { assertManagedPathHasNoSymlinks, readPackageFile } from "./utils";
+import { assertManagedPathHasNoSymlinks, readPackageFile, relativePathToTarget } from "./utils";
 import type {
   AuditReport,
   CompatibilityDisposition,
@@ -335,7 +335,7 @@ function evaluateFilesystemTrust(
   const malformedManagedBlockPaths: string[] = [];
 
   for (const [relativePath, entry] of Object.entries(manifest.files)) {
-    const absolutePath = path.join(targetDir, relativePath);
+    const absolutePath = relativePathToTarget(targetDir, relativePath);
     if (!existsSync(absolutePath)) {
       missingPaths.push(relativePath);
       continue;
@@ -509,7 +509,7 @@ function evaluateSkillTrust(
   filesystemTrust: CompatibilityEvidence["filesystemTrust"],
 ): CompatibilityEvidence["skillTrust"] {
   const missingSkillOutputs = manifest.skillFiles.filter(
-    (relativePath) => !existsSync(path.join(targetDir, relativePath)),
+    (relativePath) => !existsSync(relativePathToTarget(targetDir, relativePath)),
   );
   const skillFileSet = new Set(manifest.skillFiles);
   const modifiedSkillOutputs = filesystemTrust.modifiedPaths.filter((relativePath) =>

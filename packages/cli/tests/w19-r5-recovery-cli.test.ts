@@ -25,7 +25,7 @@ const sourceEntry=fileURLToPath(new URL('../src/index.ts',import.meta.url));
 const candidateEntry=process.env.MAKE_DOCS_RECOVERY_TEST_CLI;
 beforeEach(()=>{
   if(candidateEntry && (!path.isAbsolute(candidateEntry) || !fs.statSync(candidateEntry).isFile()))throw new Error('MAKE_DOCS_RECOVERY_TEST_CLI must be an existing absolute CLI entry path.');
-  temp=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'make-docs-recovery-cli-')));root=path.join(temp,'project');home=path.join(temp,'home');store=path.join(temp,'store');fs.mkdirSync(root);fs.mkdirSync(home);fs.writeFileSync(path.join(root,'notes.txt'),'unrelated project bytes');vi.stubEnv('HOME',home);vi.stubEnv('MAKE_DOCS_HOME',store);vi.stubEnv('CODEX_HOME',path.join(home,'.codex'));vi.stubEnv('CLAUDE_CONFIG_DIR',path.join(home,'.claude'));vi.stubEnv('MAKE_DOCS_DISABLE_SKILL_SYMLINKS','');vi.spyOn(os,'homedir').mockReturnValue(home);
+  temp=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'make-docs-recovery-cli-')));root=path.join(temp,'project');home=path.join(temp,'home');store=path.join(temp,'store');fs.mkdirSync(path.join(root,'.make-docs'),{recursive:true});fs.mkdirSync(home);fs.writeFileSync(path.join(root,'notes.txt'),'unrelated project bytes');fs.writeFileSync(path.join(root,'.make-docs/config.yaml'),'harnessIntegrations:\n  - harness: codex\n    mode: narrow\n    method: mcp\n');vi.stubEnv('HOME',home);vi.stubEnv('MAKE_DOCS_HOME',store);vi.stubEnv('CODEX_HOME',path.join(home,'.codex'));vi.stubEnv('CLAUDE_CONFIG_DIR',path.join(home,'.claude'));vi.stubEnv('MAKE_DOCS_DISABLE_SKILL_SYMLINKS','');vi.spyOn(os,'homedir').mockReturnValue(home);
 });
 afterEach(()=>{faults.link=false;vi.restoreAllMocks();vi.unstubAllEnvs();fs.rmSync(temp,{recursive:true,force:true});});
 function cli(args:string[]) {
@@ -63,7 +63,7 @@ describe('fresh public CLI Skill adoption recovery',()=>{
       const checked=await client.callTool({name:'make_docs_project_state_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume',dryRun:true,allowWrite:true}});
       expect(checked.isError,JSON.stringify(checked)).not.toBe(true);
       expect(JSON.stringify(checked)).toContain(prepared.operationId);
-      expect(fs.readdirSync(root)).toEqual(['notes.txt']);
+      expect(fs.readdirSync(root)).toEqual(['.make-docs','notes.txt']);
       expect(readInstallationManifest(root)).toBeNull();
       const denied=await client.callTool({name:'make_docs_project_state_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume'}});
       expect(denied.isError).toBe(true);

@@ -126,7 +126,7 @@ describe("Human Experience resource delivery", () => {
         expect(listed.resources.find(r => r.uri === uri)?.result.ok).toBe(true);
         const read = (await invokeOperation("resource.read", { uri, targetRoot: root }, context)).value as unknown as ResourceReadOperationOutput;
         expect(Buffer.from(read.resource.content.data, "base64")).toEqual(bytes);
-        expect(read.resource.origin).toBe(selected ? "managed-snapshot" : "installed-machine");
+        expect(read.resource.origin).toBe("installed-machine");
         expect(existsSync(path.join(root, local))).toBe(selected);
         if (selected) {
           expect(readFileSync(path.join(root, local))).toEqual(bytes);

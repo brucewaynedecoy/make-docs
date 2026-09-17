@@ -44,6 +44,11 @@ The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. D
 - R-HARNESS-8 (MUST): Codex command rules use exact verified Make Docs executable prefixes and Codex's native allow-rule form. Real Codex proof must show that the admitted command runs outside the restricted sandbox, that a non-admitted command does not gain that access, and that exact caller and method identity reach the shared operation policy.
 - R-HARNESS-9 (MUST): Claude Code native permission rules and Claude Code sandbox file access are separate controls. A Claude rules method is supported only when disposable real-harness proof shows that the exact admitted command can reach the Store without broad home-directory access. Make Docs never adds a broad `~/.make-docs` or home write allowance. If no safe narrow form is available, setup leaves the method unavailable and names MCP as the safe configured alternative when MCP is proved.
 - R-HARNESS-10 (MUST): source-owned static adapter declarations are the only production method inventory. Provider, model, runtime, scenario, tuple, result-record, registry, and lab-bootstrap data do not control method selection. Tests cannot inject a second method inventory or make an undeclared method selectable.
+- R-HARNESS-11 (MUST): executable verification keeps the launch path separate from the resolved package bin. A package-manager symbolic link is accepted only when its final regular executable file is the exact bin declared by the active Make Docs package manifest, stays inside the real package root, and passes mode and fingerprint checks. Broken, escaping, wrapper, runner, and mismatched paths remain blocked.
+- R-HARNESS-12 (MUST): method support is classified after all prerequisites used by the plan are checked. One review cannot label the same method available and later blocked on an already known executable, package, identity, or native-configuration prerequisite. A blocker keeps its stable reason and one action that can change it.
+- R-HARNESS-13 (MUST): setup offers a bounded `Generic MCP client` profile for a validated stable local client label. It records reviewed machine intent and separate project intent, produces a standard MCP server configuration object, and uses receipt-bound identity proof that a caller-controlled name or environment value cannot replace. It never guesses or edits the client's native files.
+- R-HARNESS-14 (MUST): generic profile setup supports review, repeat, drift, rotation, repair, removal, and on-demand help. Normal status output never reveals secret proof. If safe proof cannot fit current Store records, implementation stops for schema authority instead of weakening caller verification.
+- R-HARNESS-15 (MUST): an active agent task can read typed access state, direct the user to the exact first-party or generic MCP setup action, refresh state after setup, and retry only the affected Store-backed operation. All independent Store-free work and task context remain available.
 
 ### Manifest Ownership
 
@@ -217,8 +222,18 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: a native file fixture does not prove that a restricted harness can safely use the Store.
 - Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Harness Connection Methods`
+- Previous contract: First-party static adapters required a verified executable and exact native identity, but normal package-manager links could fail before resolution, known prerequisites could render as available and later blocked, and unsupported MCP clients had no bounded setup path.
+- Replacement contract: Verification accepts only a safely resolved exact package bin. Method state is consistent. A bounded generic MCP profile supplies client-owned configuration output and reviewed identity. Active tasks can refresh access and retry one operation without losing Store-free progress.
+- Rationale: Both first-party MCP methods were shown as available and then blocked by a generic executable error, while an agent repeated a method choice instead of recovering access.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
 - [W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
 

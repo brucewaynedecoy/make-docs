@@ -168,6 +168,8 @@ export interface RunSelectionWizardOptions {
   harnessSupport?: SetupHarnessState[];
   /** Runs the harness method screens after harness selection and before shared Skills. */
   afterHarnessSelection?: (selections: InstallSelections) => Promise<boolean>;
+  /** Existing installs change Skills only through `make-docs setup skills`. */
+  lockSkills?: boolean;
 }
 
 export interface CapabilityChecklistOption {
@@ -222,6 +224,7 @@ export interface OptionsStepState {
     label: string;
     hint: string;
   }>;
+  skillsLocked: boolean;
 }
 
 export interface ReviewStepState {
@@ -356,6 +359,7 @@ export function applyHarnessSelections(
 function buildOptionsStepState(
   selections: InstallSelections,
   skillRegistry?: SkillRegistry,
+  skillsLocked = false,
 ): OptionsStepState {
   const options = getWizardOptionSelections(selections);
   const skillChoices = getRecommendedSkillChoices(skillRegistry);
@@ -364,6 +368,7 @@ function buildOptionsStepState(
     selections,
     options,
     skillSelection: buildSkillSelectionState(options, skillChoices),
+    skillsLocked,
     skillScopeOptions: [
       {
         value: "project",
@@ -588,14 +593,24 @@ export async function runSelectionWizardWithRenderer(
 
     if (step === "options") {
       const nextOptions = await renderer.editOptions(
-        buildOptionsStepState(selections, options.skillRegistry),
+        buildOptionsStepState(selections, options.skillRegistry, options.lockSkills),
       );
 
       if (!nextOptions) {
         return null;
       }
 
-      selections = applyWizardOptionSelections(selections, nextOptions);
+      selections = applyWizardOptionSelections(
+        selections,
+        options.lockSkills
+          ? {
+              ...nextOptions,
+              skills: selections.skills,
+              skillScope: selections.skillScope,
+              selectedSkills: [...selections.selectedSkills],
+            }
+          : nextOptions,
+      );
       return normalizeWizardSelections(selections);
     }
 
@@ -1010,22 +1025,29 @@ async function promptForOptions(
     (harness) => HARNESS_METADATA[harness].label,
   );
 
-  const skillsResult = await confirm({
-    message: `Install optional Skills for ${formatInlineList(harnessLabels)}? Skills guide agents. They do not grant Store access.`,
-    withGuide: true,
-    initialValue: options.skills,
-    active: "Yes",
-    inactive: "No",
-  });
-
-  if (isCancel(skillsResult)) {
-    return null;
+  if (state.skillsLocked) {
+    note(
+      "This setup keeps the saved Skill selection. Use `make-docs setup skills` to change the enabled state, scope, source, or selected names.",
+      "Skills",
+    );
   }
+
+  const skillsResult = state.skillsLocked
+    ? options.skills
+    : await confirm({
+        message: `Install optional Skills for ${formatInlineList(harnessLabels)}? Skills guide agents. They do not grant Store access.`,
+        withGuide: true,
+        initialValue: options.skills,
+        active: "Yes",
+        inactive: "No",
+      });
+
+  if (isCancel(skillsResult)) return null;
 
   let skillScope: InstallSelections["skillScope"] = options.skillScope;
   let selectedSkills = options.selectedSkills;
 
-  if (skillsResult) {
+  if (skillsResult && !state.skillsLocked) {
     const scopeResult = await select<InstallSelections["skillScope"]>({
       message: "Where should skills be installed?",
       withGuide: true,
@@ -1061,7 +1083,7 @@ async function promptForOptions(
     } else {
       selectedSkills = [];
     }
-  } else {
+  } else if (!skillsResult) {
     selectedSkills = [];
   }
 

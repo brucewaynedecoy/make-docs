@@ -1,7 +1,7 @@
 ---
 title: "Setup Interview and Recovery Correction"
 kind: "design"
-status: "draft"
+status: "superseded"
 coordinate: "W19 R7"
 follow_on:
   route: "change-plan"
@@ -11,6 +11,8 @@ follow_on:
 ---
 
 # Setup Interview and Recovery Correction
+
+> Superseded on 2026-09-16 by [W19 R8 Store Access Bootstrap and Remediation](2026-09-16-store-access-bootstrap-and-remediation.md). Do not implement this package separately.
 
 ## Purpose
 

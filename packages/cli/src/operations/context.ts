@@ -8,7 +8,7 @@ import {
 import { resolveStoreRoot } from "../store/paths";
 import {
   HARNESS_CALLER_IDENTITY_ENV,
-  parseHarnessCallerIdentity,
+  parseHarnessCallerIdentityValue,
   type HarnessCallerReference,
 } from "../harness-access/contract";
 
@@ -37,7 +37,7 @@ export function resolveCliOperationLaunch(
   if (callerReference) return Object.freeze({ route: "native-rule", callerReference });
   if (!callerIdentityRaw) return Object.freeze({ route: "direct-cli" });
   try {
-    parseHarnessCallerIdentity(callerIdentityRaw);
+    parseHarnessCallerIdentityValue(callerIdentityRaw);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new OperationError(`The Make Docs harness caller identity is invalid: ${detail}`);
@@ -145,6 +145,11 @@ export interface SerializedOperationError {
   pendingLineage?: string;
   handlerAvailable?: boolean;
   recovery?: string;
+  reason?: string;
+  nextAction?: string;
+  scope?: "operation";
+  taskCanContinue?: boolean;
+  details?: Record<string, unknown>;
   uri?: string;
   path?: string;
   runId?: string;
@@ -202,6 +207,15 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
       ? { handlerAvailable: record.handlerAvailable }
       : {}),
     ...(typeof record.recovery === "string" ? { recovery: record.recovery } : {}),
+    ...(typeof record.reason === "string" ? { reason: record.reason } : {}),
+    ...(typeof record.nextAction === "string" ? { nextAction: record.nextAction } : {}),
+    ...(record.scope === "operation" ? { scope: "operation" as const } : {}),
+    ...(typeof record.taskCanContinue === "boolean"
+      ? { taskCanContinue: record.taskCanContinue }
+      : {}),
+    ...(record.details && typeof record.details === "object" && !Array.isArray(record.details)
+      ? { details: { ...(record.details as Record<string, unknown>) } }
+      : {}),
     ...(typeof record.uri === "string" ? { uri: record.uri } : {}),
     ...(typeof record.path === "string" ? { path: record.path } : {}),
     ...(typeof record.runId === "string" ? { runId: record.runId } : {}),

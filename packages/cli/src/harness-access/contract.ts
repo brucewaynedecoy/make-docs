@@ -21,6 +21,9 @@ export type HarnessNativeFormat =
 
 export interface VerifiedExecutableIdentity {
   kind: "make-docs";
+  /** The path used to launch Make Docs. It can be a verified package-manager link. */
+  launchPath?: string;
+  /** The resolved package bin. Native entries use this stable path. */
   path: string;
   sha256: string;
   size: number;
@@ -51,6 +54,22 @@ export interface HarnessCallerIdentity {
   executable: VerifiedExecutableIdentity;
 }
 
+/** A generic MCP client must present the reviewed secret proof. */
+export interface GenericMcpCallerIdentity {
+  schemaVersion: 1;
+  kind: "make-docs-generic-mcp-caller";
+  adapterId: "generic-mcp";
+  adapterVersion: 1;
+  harnessId: string;
+  connectionMethod: "mcp";
+  scope: "machine";
+  root: string;
+  executable: VerifiedExecutableIdentity;
+  proof: string;
+}
+
+export type ParsedHarnessCallerIdentity = HarnessCallerIdentity | GenericMcpCallerIdentity;
+
 /**
  * Compact Claude Code permission-rule carrier. This reference is not authority.
  * Store-backed calls must rebuild and verify the full caller identity and receipt.
@@ -67,6 +86,32 @@ export interface HarnessCallerReference {
 export interface VerifyExecutableInput {
   executablePath: string;
   expectedSha256?: string;
+}
+
+export type ExecutableVerificationCode =
+  | "executable-path-not-absolute"
+  | "executable-fingerprint-invalid"
+  | "executable-path-missing"
+  | "executable-link-broken"
+  | "executable-not-file"
+  | "executable-not-executable"
+  | "executable-runner-forbidden"
+  | "executable-fingerprint-mismatch"
+  | "executable-package-mismatch";
+
+export class ExecutableVerificationError extends Error {
+  readonly name = "ExecutableVerificationError";
+
+  constructor(
+    readonly code: ExecutableVerificationCode,
+    message: string,
+    readonly launchPath: string,
+    readonly resolvedPath: string | null,
+    readonly failedRule: string,
+    readonly nextAction: string,
+  ) {
+    super(message);
+  }
 }
 
 export interface HarnessCommandRule {
@@ -301,7 +346,7 @@ export function reverifyMakeDocsExecutableIdentity(
   executable: VerifiedExecutableIdentity,
 ): VerifiedExecutableIdentity {
   return verifyMakeDocsExecutable({
-    executablePath: executable.path,
+    executablePath: executable.launchPath ?? executable.path,
     expectedSha256: executable.sha256,
   });
 }
@@ -311,41 +356,115 @@ function verifyExecutableAgainstPackage(
   packaged: ReturnType<typeof resolvePackagedExecutableIdentity>,
 ): VerifiedExecutableIdentity {
   if (!path.isAbsolute(input.executablePath)) {
-    throw new Error("The Make Docs executable path must be absolute.");
+    throw verificationError(
+      "executable-path-not-absolute",
+      "The Make Docs executable path must be absolute.",
+      input.executablePath,
+      null,
+      "absolute-launch-path",
+      "Run the installed `make-docs` command through its absolute package-manager link.",
+    );
   }
   if (input.expectedSha256 !== undefined && !SHA256.test(input.expectedSha256)) {
-    throw new Error("The expected Make Docs executable fingerprint must be a SHA-256 digest.");
+    throw verificationError(
+      "executable-fingerprint-invalid",
+      "The expected Make Docs executable fingerprint must be a SHA-256 digest.",
+      input.executablePath,
+      null,
+      "expected-sha256",
+      "Create a new setup review from the active installed executable.",
+    );
   }
 
-  const stat = lstatSync(input.executablePath);
-  if (stat.isSymbolicLink()) {
-    throw new Error("The Make Docs executable path must not be a symbolic link.");
+  let launchStat: ReturnType<typeof lstatSync>;
+  try {
+    launchStat = lstatSync(input.executablePath);
+  } catch (error) {
+    throw verificationError(
+      "executable-path-missing",
+      `The Make Docs launch path cannot be read: ${toMessage(error)}`,
+      input.executablePath,
+      null,
+      "launch-path-present",
+      "Run setup from the installed `make-docs` command or reinstall the package if the link is missing.",
+    );
   }
+
+  let actualPath: string;
+  try {
+    actualPath = realpathSync(input.executablePath);
+  } catch (error) {
+    throw verificationError(
+      "executable-link-broken",
+      `The Make Docs launch path cannot resolve to a package binary: ${toMessage(error)}`,
+      input.executablePath,
+      null,
+      "resolved-package-bin",
+      "Repair or reinstall the broken package-manager link, then review setup again.",
+    );
+  }
+
+  const stat = lstatSync(actualPath);
   if (!stat.isFile()) {
-    throw new Error("The Make Docs executable path must name a regular file.");
+    throw verificationError(
+      "executable-not-file",
+      "The resolved Make Docs package binary is not a regular file.",
+      input.executablePath,
+      actualPath,
+      "regular-package-bin",
+      "Repair the installed package and review setup again.",
+    );
   }
   if (process.platform !== "win32" && (stat.mode & 0o111) === 0) {
-    throw new Error("The Make Docs executable file is not executable.");
+    throw verificationError(
+      "executable-not-executable",
+      "The resolved Make Docs package binary is not executable.",
+      input.executablePath,
+      actualPath,
+      "executable-package-bin",
+      "Repair the package file mode or reinstall the package, then review setup again.",
+    );
   }
 
   const executableName = path.basename(input.executablePath).toLowerCase().replace(/\.exe$/, "");
   if (FORBIDDEN_EXECUTABLE_NAMES.has(executableName)) {
-    throw new Error(`A package runner or shell cannot be used as the Make Docs executable: ${executableName}.`);
+    throw verificationError(
+      "executable-runner-forbidden",
+      `A package runner or shell cannot be used as the Make Docs executable: ${executableName}.`,
+      input.executablePath,
+      actualPath,
+      "direct-make-docs-launcher",
+      "Run the installed `make-docs` command directly, then review setup again.",
+    );
   }
 
-  const bytes = readFileSync(input.executablePath);
+  const bytes = readFileSync(actualPath);
   const actualSha256 = sha256(bytes);
   if (input.expectedSha256 !== undefined && actualSha256 !== input.expectedSha256) {
-    throw new Error("The Make Docs executable fingerprint does not match the reviewed executable.");
+    throw verificationError(
+      "executable-fingerprint-mismatch",
+      "The Make Docs executable fingerprint does not match the reviewed executable.",
+      input.executablePath,
+      actualPath,
+      "reviewed-sha256",
+      "Create a new setup review from the current installed executable.",
+    );
   }
 
-  const actualPath = realpathSync(input.executablePath);
   if (actualPath !== packaged.path) {
-    throw new Error("The executable is not the exact Make Docs package binary for this installation.");
+    throw verificationError(
+      "executable-package-mismatch",
+      "The executable is not the exact Make Docs package binary for this installation.",
+      input.executablePath,
+      actualPath,
+      "declared-package-bin",
+      "Run the `make-docs` command installed by this package, then review setup again.",
+    );
   }
 
   return {
     kind: "make-docs",
+    launchPath: input.executablePath,
     path: packaged.path,
     sha256: actualSha256,
     size: bytes.byteLength,
@@ -355,6 +474,28 @@ function verifyExecutableAgainstPackage(
     packageRoot: packaged.packageRoot,
     binRelativePath: packaged.binRelativePath,
   };
+}
+
+function verificationError(
+  code: ExecutableVerificationCode,
+  message: string,
+  launchPath: string,
+  resolvedPath: string | null,
+  failedRule: string,
+  nextAction: string,
+): ExecutableVerificationError {
+  return new ExecutableVerificationError(
+    code,
+    message,
+    launchPath,
+    resolvedPath,
+    failedRule,
+    nextAction,
+  );
+}
+
+function toMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function resolvePackagedExecutableIdentity(): {
@@ -501,7 +642,7 @@ export function fingerprintEntry(value: NativeEntryValue): string {
   return sha256(canonicalJson(value));
 }
 
-export function encodeHarnessCallerIdentity(identity: HarnessCallerIdentity): string {
+export function encodeHarnessCallerIdentity(identity: ParsedHarnessCallerIdentity): string {
   assertHarnessCallerIdentityShape(identity);
   return canonicalJson(identity as unknown as NativeEntryValue);
 }
@@ -515,6 +656,7 @@ export function encodeHarnessCallerIdentityArgument(identity: HarnessCallerIdent
 export function encodeHarnessCallerReference(identity: HarnessCallerIdentity): string {
   assertHarnessCallerIdentityShape(identity);
   if (
+    identity.kind !== "make-docs-harness-caller" ||
     identity.harnessId !== "claude-code" ||
     identity.connectionMethod !== "permission-rules" ||
     identity.adapterVersion !== 1
@@ -569,7 +711,7 @@ function canonicalMachineRoot(root: string): string {
 }
 
 /** Decode one shell-safe caller identity argument before normal CLI dispatch. */
-export function parseHarnessCallerIdentityArgument(raw: string): HarnessCallerIdentity {
+export function parseHarnessCallerIdentityArgument(raw: string): ParsedHarnessCallerIdentity {
   if (!raw || !/^[A-Za-z0-9_-]+$/.test(raw)) {
     throw new Error("The harness caller identity argument is not valid base64url.");
   }
@@ -577,11 +719,11 @@ export function parseHarnessCallerIdentityArgument(raw: string): HarnessCallerId
   if (Buffer.from(decoded, "utf8").toString("base64url") !== raw) {
     throw new Error("The harness caller identity argument is not canonical base64url.");
   }
-  return parseHarnessCallerIdentity(decoded);
+  return parseHarnessCallerIdentityValue(decoded);
 }
 
 /** Parse the marker shape only. The caller must still verify its receipt and package identity. */
-export function parseHarnessCallerIdentity(raw: string): HarnessCallerIdentity {
+export function parseHarnessCallerIdentityValue(raw: string): ParsedHarnessCallerIdentity {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
@@ -595,7 +737,20 @@ export function parseHarnessCallerIdentity(raw: string): HarnessCallerIdentity {
   });
 }
 
-function assertHarnessCallerIdentityShape(value: unknown): asserts value is HarnessCallerIdentity {
+/** Parse the first-party identity used by native adapter tests and rule carriers. */
+export function parseHarnessCallerIdentity(raw: string): HarnessCallerIdentity {
+  const parsed = parseHarnessCallerIdentityValue(raw);
+  if (parsed.kind !== "make-docs-harness-caller") {
+    throw new Error("The harness caller identity is not a first-party adapter identity.");
+  }
+  return parsed;
+}
+
+function assertHarnessCallerIdentityShape(value: unknown): asserts value is ParsedHarnessCallerIdentity {
+  const generic = Boolean(
+    value && typeof value === "object" && !Array.isArray(value) &&
+    (value as Record<string, unknown>).kind === "make-docs-generic-mcp-caller",
+  );
   if (!isExactRecord(value, [
     "schemaVersion",
     "kind",
@@ -606,17 +761,20 @@ function assertHarnessCallerIdentityShape(value: unknown): asserts value is Harn
     "scope",
     "root",
     "executable",
+    ...(generic ? ["proof"] : []),
   ])) {
     throw new Error("The harness caller identity has an invalid object shape.");
   }
   if (
     value.schemaVersion !== 1 ||
-    value.kind !== "make-docs-harness-caller" ||
+    (value.kind !== "make-docs-harness-caller" && value.kind !== "make-docs-generic-mcp-caller") ||
     typeof value.adapterId !== "string" ||
     !value.adapterId.trim() ||
     !Number.isSafeInteger(value.adapterVersion) ||
     (value.adapterVersion as number) < 1 ||
-    (value.harnessId !== "codex" && value.harnessId !== "claude-code") ||
+    (generic
+      ? typeof value.harnessId !== "string" || !/^generic-mcp-[a-z][a-z0-9-]*$/.test(value.harnessId)
+      : value.harnessId !== "codex" && value.harnessId !== "claude-code") ||
     !["mcp", "command-rules", "permission-rules"].includes(value.connectionMethod as string) ||
     value.scope !== "machine" ||
     typeof value.root !== "string" ||
@@ -624,11 +782,20 @@ function assertHarnessCallerIdentityShape(value: unknown): asserts value is Harn
   ) {
     throw new Error("The harness caller identity fields are invalid.");
   }
+  if (generic && (
+    value.adapterId !== "generic-mcp" ||
+    value.adapterVersion !== 1 ||
+    value.connectionMethod !== "mcp" ||
+    typeof value.proof !== "string" ||
+    !/^[A-Za-z0-9_-]{32,}$/.test(value.proof)
+  )) {
+    throw new Error("The generic MCP caller identity fields are invalid.");
+  }
   assertExecutableIdentityShape(value.executable);
 }
 
 function assertExecutableIdentityShape(value: unknown): asserts value is VerifiedExecutableIdentity {
-  if (!isExactRecord(value, [
+  if (!isExactRecordWithOptionalKeys(value, [
     "kind",
     "path",
     "sha256",
@@ -638,11 +805,13 @@ function assertExecutableIdentityShape(value: unknown): asserts value is Verifie
     "packageVersion",
     "packageRoot",
     "binRelativePath",
-  ])) {
+  ], ["launchPath"])) {
     throw new Error("The harness caller executable identity has an invalid object shape.");
   }
   if (
     value.kind !== "make-docs" ||
+    (value.launchPath !== undefined &&
+      (typeof value.launchPath !== "string" || !path.isAbsolute(value.launchPath))) ||
     typeof value.path !== "string" ||
     !path.isAbsolute(value.path) ||
     typeof value.sha256 !== "string" ||
@@ -662,6 +831,17 @@ function assertExecutableIdentityShape(value: unknown): asserts value is Verifie
   ) {
     throw new Error("The harness caller executable identity fields are invalid.");
   }
+}
+
+function isExactRecordWithOptionalKeys(
+  value: unknown,
+  requiredKeys: readonly string[],
+  optionalKeys: readonly string[],
+): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const actual = Object.keys(value);
+  const allowed = new Set([...requiredKeys, ...optionalKeys]);
+  return requiredKeys.every(key => actual.includes(key)) && actual.every(key => allowed.has(key));
 }
 
 function isExactRecord(value: unknown, keys: readonly string[]): value is Record<string, unknown> {

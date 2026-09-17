@@ -112,14 +112,16 @@ function unwrap<T>(result: SystemResourceResult<T>): T {
   return result.value;
 }
 
-function loadRuntime(target: string): ResourceRuntime {
+function loadRuntime(target: string, includeStoreEvidence = false): ResourceRuntime {
   if (runtimeLoaderOverride) {
     return runtimeLoaderOverride(target);
   }
   const provider = unwrap(loadInstalledSystemResourceProvider());
   return {
     provider,
-    project: projectContextFromManifest(target, provider),
+    project: includeStoreEvidence
+      ? projectContextFromManifest(target, provider)
+      : { projectRoot: target, evidence: [], providerOnly: true },
   };
 }
 
@@ -239,7 +241,7 @@ async function ensureHandler(
   context: OperationExecutionContext,
 ): Promise<ResourceEnsureOperationOutput> {
   const root = path.resolve(input.targetRoot ?? context.cwd);
-  const runtime = loadRuntime(root);
+  const runtime = loadRuntime(root, true);
   const ensured = unwrap(
     ensureSystemResource({
       uri: input.uri,

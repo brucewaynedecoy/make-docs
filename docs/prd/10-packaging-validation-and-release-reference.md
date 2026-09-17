@@ -51,6 +51,7 @@ The smoke script is therefore more than a tarball smoke test. Local mode gives b
 | `npm run smoke:pack:local` | Local packaged validation | Exercises prepack, tarball creation, packed CLI install, skills, backup, and uninstall without package-runner or registry access. It is not release evidence. | `package.json`, `scripts/smoke-pack.mjs` |
 | `npm run smoke:pack:runners` | Online package-runner validation | Exercises cold-cache `npx`, `pnpm dlx`, and Bun installs after a bounded command and registry preflight. | `package.json`, `scripts/smoke-pack.mjs`, `scripts/lib/smoke-pack-runner.mjs` |
 | `npm run smoke:pack` | Complete packaged end-to-end validation | Runs the local and online paths against one tarball. This is the required release proof. | `package.json`, `scripts/smoke-pack.mjs` |
+| Installed global-link matrix | Persistent package-manager installation | Installs the exact tarball into an isolated home, invokes the normal `make-docs` link with the repository unavailable, and proves that setup verifies the resolved declared package bin while unsafe links remain blocked. | `scripts/smoke-pack.mjs`, `packages/cli/src/harness-access/contract.ts`, `packages/cli/src/setup-system.ts` |
 | Package-runner spot checks | Manual packaged run | Use only when diagnosing runner-specific behavior beyond smoke-pack. The maintained automated proof is the tarball smoke run, not a persistent local CLI install. | `scripts/smoke-pack.mjs` |
 
 For Performance Evidence Governance changes, the validation matrix also requires focused proof that the four stable resource URIs resolve to the intended upstream bytes, the packaged projection is generated rather than hand-edited, selected root dogfood matches upstream where parity is required, router pairs remain thin and byte-consistent where required, and installed-project resolution preserves the selected local-projection and machine-installed fallback precedence. This is resource-delivery proof, not benchmark execution or a new validator operation.
@@ -122,7 +123,10 @@ R-ASSET-PACK-2 (MUST): prove exact destination and link mapping for legacy syste
 - R-LEGACY-CANDIDATE-1 (MUST): setup, Skills, Store, migration, backup, or recovery changes require one tarball candidate to be built after focused and full CLI tests pass. Record the tarball identity and digest. Install and test that exact tarball in isolated homes with the repository unavailable. A source checkout or a different global install is not candidate proof.
 - R-LEGACY-CANDIDATE-2 (MUST): the fixed candidate matrix includes a pre-v2 project with Skills disabled, old managed instruction blocks, an incomplete zero-step pending operation with equal ledgers and no active lock, a complete partial operation, verified backup and rollback, repeat setup, and full-setup versus `setup skills` interaction parity. Use separate Store roots and disposable project copies.
 - R-LEGACY-CANDIDATE-3 (MUST): the candidate gate records before and after project and Store inventories. It proves user-owned files remain unchanged, backup copies and their Store index are verified before destructive writes, recovery advice is executable, and failure detail survives process restart. It must not use the affected real project as the first candidate test.
-- R-LEGACY-CANDIDATE-4 (MUST): no release recommendation or real-project recovery can use the candidate until the fixed matrix passes and the owner reviews the Human Experience evidence. A later real-project action needs separate approval and a fresh read-only state check.
+- R-LEGACY-CANDIDATE-4 (MUST): no release recommendation or real-project recovery can use the candidate until the fixed matrix and agent Human Experience Review pass. Human feedback is optional unless separate accepted authority creates a human gate. A later real-project action needs separate approval and a fresh read-only state check.
+- R-LEGACY-CANDIDATE-5 (MUST): setup, Store-access, or harness changes add a persistent package-manager install to the fixed matrix. Invoke the normal linked `make-docs` command, record its launch path and resolved package bin, and prove the verifier accepts only the exact bin declared by the active package manifest. Reinstalling the same link form is not a recovery action unless the failed condition changes.
+- R-LEGACY-CANDIDATE-6 (MUST): the matrix covers fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup; Store not configured, unavailable, unsafe, denied, and configured; independent machine, project, Skills, and resource subplans; first-party and generic MCP; and one active-task access refresh and retry. Use one exact tarball with the repository unavailable.
+- R-LEGACY-CANDIDATE-7 (MUST): candidate construction and proof do not require the Make Docs Store, MCP, a harness receipt, or successful setup in the maintainer checkout. Use direct package commands, isolated homes, disposable projects, and temporary Store roots. A Store failure is evidence for the matrix, not a reason to stop remediation.
 
 ## Bundled First-Party Skill Proof
 
@@ -193,8 +197,18 @@ R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, 
 - Rationale: Package existence alone does not prove standalone or offline Skill delivery.
 - Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Validation Matrix` and `Installed Legacy-Project Candidate Proof`
+- Previous contract: Package proof covered an extracted candidate and legacy recovery, but it did not require the normal persistent package-manager link, optional Store states, independent setup subplans, generic MCP, or a Store-independent remediation path.
+- Replacement contract: One exact tarball is installed through a normal package manager and invoked through its linked command with the repository unavailable. The fixed matrix covers all setup, Store, harness, mid-task, and recovery states. Candidate construction and proof never require the broken Store or MCP surface.
+- Rationale: The normal global launcher was rejected before its link resolved, while the public error told the user to reinstall the same package form.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`

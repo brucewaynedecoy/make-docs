@@ -42,6 +42,8 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 
 - [05-installation-profile-and-manifest-lifecycle.md](./05-installation-profile-and-manifest-lifecycle.md) owns prompt, template, and reference wizard questions and review rows.
 - [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) owns skill selection and review language; no required/default/optional category contract exists.
+- Full setup validates whether each saved or changed selection belongs to its owning subplan before final review. It does not collect a Skill, harness, machine, project, or resource choice that the selected entry cannot apply or route.
+- Machine, project, Skills, and resource placement are separate reviewed subplans inside one ordered setup result. Their statuses, blockers, and next actions remain visible independently.
 
 ### Interactive Selection Contract
 
@@ -85,6 +87,8 @@ The generic post-plan confirmation is conditional. When the wizard has already c
 Prompting is also the boundary between interactive and non-interactive conflict handling. Interactive runs may collect the accepted file-scoped dispositions for reviewable diffs; non-interactive runs fail when a disposition or ownership/provenance claim is unresolved instead of guessing.
 
 When apply succeeds, `writeApplyCompletionSummary` in `packages/cli/src/cli.ts` varies completion language by mode and surfaces staged conflict files for manual review. That behavior matches the install/readme promise that conflicting replacements are staged rather than overwritten in `README.md` and `packages/cli/README.md`.
+
+A verified machine subplan remains complete when a later project, Skill, or resource subplan fails. Repeat setup does not replay that machine change. It asks only for missing or changed choices and reports the exact independent part that remains. A subplan failure cannot convert a valid earlier result into `no files changed` for the whole reviewed group.
 
 ### Lifecycle commands
 
@@ -301,8 +305,18 @@ Code and documentation anchors:
 - Rationale: the installed setup must complete the user goal, not only render component state in tests.
 - Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Interactive wizard and review flow` and `Plan review, confirmation, and apply orchestration`
+- Previous contract: Setup ordered machine work before project work, but a late invalid Skill or project choice could block the whole grouped result after the user completed the interview.
+- Replacement contract: Setup validates each choice before final review and uses independent machine, project, Skills, and resource subplans. A verified earlier subplan remains complete and visible when a later subplan blocks. Repeat setup asks only for missing or changed choices.
+- Rationale: The installed CLI collected valid MCP selections and then changed nothing because the existing-project Skills path rejected a late selection.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`

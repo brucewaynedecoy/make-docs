@@ -73,6 +73,14 @@ import {
   runSelectionWizard,
 } from "./wizard";
 import { resolveUnifiedSetupState } from "./setup-state";
+import {
+  applyGenericMcpSetup,
+  genericMcpProjectIntent,
+  prepareGenericMcpSetup,
+  renderGenericMcpSetupResult,
+  type GenericMcpAction,
+  type GenericMcpSetupPlan,
+} from "./generic-mcp-setup";
 
 /**
  * The seven-command top level per PRD 39 R-TOP-1.
@@ -114,6 +122,8 @@ interface ParsedArgs {
   noClaudeCode: boolean;
   codexMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "command-rules">;
   claudeCodeMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "permission-rules">;
+  genericMcpClient?: string;
+  genericMcpAction?: GenericMcpAction;
   json: boolean;
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
@@ -336,10 +346,32 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       },
       ...(!parsed.json && output.isTTY ? { onReview: (review: string) => note(review, "This computer") } : {}),
     });
+    let genericPlan: GenericMcpSetupPlan | null = null;
+    if (parsed.genericMcpClient) {
+      genericPlan = prepareGenericMcpSetup({
+        clientLabel: parsed.genericMcpClient,
+        action: parsed.genericMcpAction,
+      });
+      if (!parsed.dryRun) {
+        let approved = parsed.yes;
+        if (!approved && input.isTTY && output.isTTY) {
+          const answer = await confirm({
+            message: `${genericPlan.review} Apply this Make Docs-owned profile?`,
+            initialValue: false,
+            active: "Yes",
+            inactive: "No",
+            withGuide: true,
+          });
+          approved = !isCancel(answer) && Boolean(answer);
+        }
+        if (approved || !genericPlan.changed) genericPlan = applyGenericMcpSetup(genericPlan);
+      }
+    }
     if (parsed.json || !output.isTTY) {
-      output.write(`${JSON.stringify(result)}\n`);
+      output.write(`${JSON.stringify(genericPlan ? { ...result, genericMcp: genericPlan } : result)}\n`);
     } else {
       output.write(renderSystemSetupResult(result));
+      if (genericPlan) output.write(renderGenericMcpSetupResult(genericPlan));
     }
     return;
   }
@@ -505,6 +537,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   const resolvedSelections = resolveSelections({ parsed, existingManifest });
   const installationStatus = readInstallationStatus(targetDir, resolveStoreRoot());
+  if (interactive && installationStatus.status === "recovery-required") {
+    output.write(
+      `Setup found pending project work before editable questions. ${installationStatus.nextAction}\n`,
+    );
+    return;
+  }
   const projectState = freshInstallTarget
     ? "fresh"
     : installationStatus.status === "recovery-required"
@@ -588,6 +626,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         harnessSupport,
         afterHarnessSelection,
         config: makeDocsConfig,
+        lockSkills: true,
         ...(parsed.skillsManifest
           ? { skillRegistry: effectiveSkillRegistry.registry }
           : {}),
@@ -606,10 +645,14 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
-  assertExistingInstallSkillSelectionUnchanged({
+  const skillReconciliation = reconcileExistingInstallSkillSelection({
     existingManifest,
     selections,
   });
+  selections = skillReconciliation.selections;
+  if (skillReconciliation.routed && !jsonOutput) {
+    output.write(`${EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR}\n`);
+  }
 
   const {
     applyPreparedSystemSetup,
@@ -645,6 +688,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
   const preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
+  const genericMcpPlan = parsed.genericMcpClient
+    ? prepareGenericMcpSetup({
+        clientLabel: parsed.genericMcpClient,
+        action: parsed.genericMcpAction,
+      })
+    : null;
 
   const packageMeta = readPackageMeta();
   let plan = await planInstall({
@@ -653,6 +702,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     existingManifest,
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
+    preserveExistingSkills: skillReconciliation.routed,
     operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
   });
 
@@ -673,6 +723,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
         packageMeta,
         managedFileConflictResolutions,
         skillRegistry: effectiveSkillRegistry.registry,
+        preserveExistingSkills: skillReconciliation.routed,
         operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
       });
     }
@@ -684,6 +735,10 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
 
   const reviewedHarnessIntegrations = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
     .filter(harness => selections.harnesses[harness])
+    .filter(harness => {
+      const harnessPlan = preparedSystemSetup.plans.find(candidate => candidate.harness === harness);
+      return harnessPlan?.status !== "blocked" && harnessPlan?.status !== "unsupported";
+    })
     .map((harness): ProjectHarnessIntegrationRecord => {
       const method = preparedSystemSetup.selections[harness];
       if (method === "none") return { harness, mode: "disable" };
@@ -691,6 +746,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
       return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
     });
+  if (genericMcpPlan) reviewedHarnessIntegrations.push(genericMcpProjectIntent(genericMcpPlan));
   const plannedConfigValue = plan.actions.find(action =>
     action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
   )?.content ?? "{}\n";
@@ -707,6 +763,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
   const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
   if (!jsonOutput) note(preparedSystemSetup.review, "This computer");
+  if (!jsonOutput && genericMcpPlan) note(renderGenericMcpSetupResult(genericMcpPlan), "Generic MCP client");
   if (!jsonOutput) printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
@@ -726,18 +783,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
   }
 
-  const blockedSystemPlans = preparedSystemSetup.plans.filter(
-    (systemPlan) => systemPlan.status === "blocked" || systemPlan.status === "unsupported",
-  );
-  if (blockedSystemPlans.length > 0) {
-    const failedCondition = blockedSystemPlans.map(item => `${item.harness}: ${item.detail}`).join("; ");
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition, nextAction: blockedSystemPlans[0]?.detail ?? null });
-    else output.write(`Setup stopped at machine scope. ${failedCondition}\n`);
-    return;
-  }
-
   if (parsed.dryRun) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed ? "Run setup with the same choices and --yes to apply this plan." : null });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed || genericMcpPlan?.changed ? "Run setup with the same choices and --yes to apply this plan." : null });
     else output.write("\nDry run complete.\n");
     return;
   }
@@ -759,8 +806,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  let systemApproved = parsed.yes || !preparedSystemSetup.changed;
-  if (interactive && preparedSystemSetup.changed) {
+  let systemApproved = parsed.yes || (!preparedSystemSetup.changed && !genericMcpPlan?.changed);
+  if (interactive && (preparedSystemSetup.changed || genericMcpPlan?.changed)) {
     const proceed = await confirm({
       message: "Apply the reviewed This computer changes?",
       initialValue: false,
@@ -787,20 +834,24 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (!systemApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
     else output.write("Machine setup was not approved. No system or project files were changed.\n");
     return;
   }
 
   const systemSetup = await applyPreparedSystemSetup(preparedSystemSetup);
+  const appliedGenericMcpPlan = genericMcpPlan ? applyGenericMcpSetup(genericMcpPlan) : null;
+  if (!jsonOutput && appliedGenericMcpPlan?.configuration) {
+    output.write(renderGenericMcpSetupResult(appliedGenericMcpPlan));
+  }
   if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
     else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
     return;
   }
 
   if (!projectApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
     else output.write("This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n");
     return;
   }
@@ -881,7 +932,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (jsonOutput) {
-    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
+    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
   }
 
 
@@ -1100,15 +1151,15 @@ function resolveSelections(options: {
 }
 
 const EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR =
-  "Existing installs cannot change skill selections with `make-docs setup` or `make-docs setup reconfigure`. Use `make-docs setup skills` to change the enabled state, scope, selected skill names, manifest source, or selection provenance. No files were changed.";
+  "Existing installs cannot change skill selections with `make-docs setup` or `make-docs setup reconfigure`. Use `make-docs setup skills` to change the enabled state, scope, selected names, source, or provenance. This setup kept the saved Skill selection. Other reviewed setup parts can continue.";
 
-function assertExistingInstallSkillSelectionUnchanged(options: {
+function reconcileExistingInstallSkillSelection(options: {
   existingManifest: InstallManifest | null;
   selections: InstallSelections;
-}): void {
+}): { selections: InstallSelections; routed: boolean } {
   const { existingManifest, selections } = options;
   if (!existingManifest) {
-    return;
+    return { selections, routed: false };
   }
 
   const existingSelections = existingManifest.selections;
@@ -1136,8 +1187,19 @@ function assertExistingInstallSkillSelectionUnchanged(options: {
     selectedSkillNamesChanged ||
     existingSkillBinding !== requestedSkillBinding
   ) {
-    throw new Error(EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR);
+    const reconciled = cloneSelections(selections);
+    reconciled.skills = existingSelections.skills;
+    reconciled.skillScope = existingSelections.skillScope;
+    reconciled.selectedSkills = [...existingSelections.selectedSkills];
+    reconciled.skillManifest = existingSelections.skillManifest
+      ? { ...existingSelections.skillManifest }
+      : undefined;
+    reconciled.skillSelectionProvenance = existingSelections.skillSelectionProvenance
+      ? existingSelections.skillSelectionProvenance.map(record => ({ ...record }))
+      : undefined;
+    return { selections: reconciled, routed: true };
   }
+  return { selections, routed: false };
 }
 
 function hasSelectionOverrides(parsed: ParsedArgs): boolean {
@@ -1231,6 +1293,8 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.claudeCodeMethod !== undefined) {
     flags.push("--claude-code-method");
   }
+  if (parsed.genericMcpClient !== undefined) flags.push("--generic-mcp-client");
+  if (parsed.genericMcpAction !== undefined) flags.push("--generic-mcp-action");
   if (parsed.noSkills) {
     flags.push("--no-skills");
   }
@@ -1401,6 +1465,20 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.claudeCodeMethod = value;
         break;
       }
+      case "--generic-mcp-client": {
+        const value = args.shift();
+        if (!value) throw new Error("`--generic-mcp-client` requires a stable local client label.");
+        parsed.genericMcpClient = value;
+        break;
+      }
+      case "--generic-mcp-action": {
+        const value = args.shift();
+        if (value !== "configure" && value !== "rotate" && value !== "repair" && value !== "remove") {
+          throw new Error("`--generic-mcp-action` must be configure, rotate, repair, or remove.");
+        }
+        parsed.genericMcpAction = value;
+        break;
+      }
       case "--no-skills":
         parsed.noSkills = true;
         break;
@@ -1463,6 +1541,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   if (parsed.review && !parsed.adoptExisting) throw new Error("`--review` requires `--adopt-existing`.");
+  if (parsed.genericMcpAction && !parsed.genericMcpClient) throw new Error("`--generic-mcp-action` requires `--generic-mcp-client`.");
   if (parsed.adoptExisting && parsed.remove) throw new Error("`--adopt-existing` cannot be combined with `--remove`.");
   if (parsed.adoptExisting && parsed.yes && !parsed.dryRun && !parsed.review) {
     throw new Error("`--yes` alone cannot authorize adoption. Preview with `--dry-run`, then supply its matching `--review <digest>`.");
@@ -1620,6 +1699,7 @@ function writeCanonicalSetupResult(input: {
   targetRoot: string;
   prepared?: import("./setup-system").PreparedSystemSetup;
   system?: import("./setup-system").SystemSetupResult;
+  genericMcp?: GenericMcpSetupPlan | null;
   projectChanged: boolean;
   projectActions: readonly PlannedAction[];
   failedCondition: string | null;
@@ -1644,6 +1724,7 @@ function writeCanonicalSetupResult(input: {
         detail: plan.detail,
       })),
       configured: input.system?.configured ?? [],
+      ...(input.genericMcp ? { genericMcp: input.genericMcp } : {}),
     },
     project: {
       changed: input.projectChanged,
@@ -1662,9 +1743,9 @@ function validateParsedArgs(parsed: ParsedArgs): void {
   if (parsed.claudeCodeMethod !== undefined && parsed.noClaudeCode) {
     throw new Error("`--claude-code-method` cannot be combined with `--no-claude-code`.");
   }
-  if ((parsed.codexMethod !== undefined || parsed.claudeCodeMethod !== undefined) &&
+  if ((parsed.codexMethod !== undefined || parsed.claudeCodeMethod !== undefined || parsed.genericMcpClient !== undefined || parsed.genericMcpAction !== undefined) &&
       (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
-    throw new Error("Harness method flags are valid only with setup, setup reconfigure, or setup system.");
+    throw new Error("Harness and generic MCP flags are valid only with setup, setup reconfigure, or setup system.");
   }
   if (parsed.json && (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
     throw new Error("`--json` is valid only with setup, setup reconfigure, or setup system.");
@@ -2178,6 +2259,9 @@ const SETUP_SHARED_OPTIONS = `General options:
 Harness options:
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --generic-mcp-client <label>  Add one bounded generic MCP client profile.
+  --generic-mcp-action <configure|rotate|repair|remove>
+                                Choose its repeat-safe lifecycle action.
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
   Deprecated aliases: --no-agents, --no-claude
@@ -2212,6 +2296,9 @@ Content options:
 Harness options:
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --generic-mcp-client <label>  Add one bounded generic MCP client profile.
+  --generic-mcp-action <configure|rotate|repair|remove>
+                                Choose its repeat-safe lifecycle action.
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
   Deprecated aliases: --no-agents, --no-claude
@@ -2244,6 +2331,8 @@ Options:
   --json                         Emit only the canonical setup result JSON.
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --generic-mcp-client <label>  Print a bounded client-owned MCP configuration.
+  --generic-mcp-action <configure|rotate|repair|remove>
   --no-codex                     Skip Codex support.
   --no-claude-code               Skip Claude Code support.
   --help, -h                     Show help for this command.

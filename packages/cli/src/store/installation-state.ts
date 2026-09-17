@@ -1165,7 +1165,14 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
             const manifest = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {
                 manifest_json: string;
             } | undefined)?.manifest_json;
-            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : 'unregistered', nextAction: pending ? prepared ? detachedHooks.get(pending.operation)!.nextAction(root, pending.operation_id, prepared.mode) : `make-docs project state recover ${pending.operation_id} --resume --dry-run --target-root ${JSON.stringify(root)}` : lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : 'Review setup before installing.' };
+            const pendingAction = pending
+                ? prepared
+                    ? detachedHooks.get(pending.operation)!.nextAction(root, pending.operation_id, prepared.mode)
+                    : pending.plan_complete
+                        ? `make-docs project state recover ${pending.operation_id} --resume --dry-run --target-root ${JSON.stringify(root)}`
+                        : `make-docs project state recover ${pending.operation_id} --rollback --dry-run --target-root ${JSON.stringify(root)}`
+                : null;
+            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, planComplete: Boolean(pending.plan_complete), ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : 'unregistered', nextAction: pendingAction ?? (lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : 'Review setup before installing.') };
         }, { storeRoot: store, readOnly: true });
     }
     catch (e) {

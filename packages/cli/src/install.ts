@@ -57,6 +57,7 @@ export async function planInstall(options: {
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
   skillRegistry?: SkillRegistry;
+  preserveExistingSkills?: boolean;
   operation?: "setup" | "setup.reconfigure" | "setup.sync";
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
@@ -70,6 +71,7 @@ export async function planInstall(options: {
     managedFileConflictResolutions: options.managedFileConflictResolutions,
     systemAssetMaterializationMode: options.systemAssetMaterializationMode,
     skillRegistry: options.skillRegistry,
+    preserveExistingSkills: options.preserveExistingSkills,
     operation: options.operation,
   });
 }

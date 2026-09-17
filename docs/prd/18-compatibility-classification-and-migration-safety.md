@@ -81,6 +81,9 @@ A proposed reorder must cite this authority, explain how every earlier safety in
 Migration safety:
 
 - R-MIG-STORE-3 (MUST): supported legacy operational files are imported and read back from the Store before exact verified source cleanup. Preserve unknown, malformed, changed, symlinked, or actively written files. Record partial cleanup in the Store so a repeat resumes safely. Do not delete `.make-docs/state/` merely because its name is known.
+- R-MIG-REENTRY-1 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each has a reachable next action. Input rejection before mutation creates no blocking operation. A saved incomplete operation uses the verified recovery rules below. The CLI never requires a successful prior setup to repair setup.
+- R-MIG-REENTRY-2 (MUST): machine, project, Skills, and resource setup are independent reviewed subplans. A later subplan failure preserves every earlier verified result and its recovery evidence. Repeat setup resumes only incomplete work and does not replay or roll back an independent completed subplan.
+- R-MIG-REENTRY-3 (MUST): remediation of the CLI, Store bootstrap, migration, or harness access can proceed from repository and package authority with no usable Store or MCP connection in the maintainer checkout. Isolated temporary Store roots remain required for Store behavior tests. No project-local fallback state is permitted.
 
 - Migration must not silently overwrite user-modified content.
 - Migration must not broaden skill selection or install skill files by default.
@@ -210,8 +213,18 @@ R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, co
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Ordered Migration`, migration reentry, and rollback
+- Previous contract: Store classification and recovery were fail-closed, but invalid input or a later setup-subplan failure could leave no reachable setup path or could hide an independent valid result.
+- Replacement contract: Every supported prior state has a reachable repeat or recovery action. Input refusal before mutation creates no blocker. Independent verified subplans remain complete. CLI and Store-access remediation does not require working Store or MCP access in the maintainer checkout.
+- Rationale: The observed upgrade and setup paths could stop before Store access was installed and then require the same broken setup path to continue.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 

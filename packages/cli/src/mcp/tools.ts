@@ -15,7 +15,6 @@ import {
   type OperationDefinition,
 } from "../operations/registry";
 import type { OperationAccess } from "../operations/access";
-import { accessAtMost, resolveProjectHarnessAccessProjection } from "../operations/harness-policy";
 import { cloneSelections, defaultSelections } from "../profile";
 import type {
   InstallPlan,
@@ -213,17 +212,18 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   ...DERIVED_MCP_OPERATION_TOOLS,
 ];
 
-/** Project-aware MCP descriptors. This Store-free projection can only narrow exposure. */
+/**
+ * List the stable MCP surface. Access policy runs at invocation time so a
+ * caller can receive the typed not-configured, unavailable, unsafe, or denied
+ * result instead of an incorrect tool-not-found result.
+ */
 export function listMakeDocsMcpTools(
   targetRoot = process.cwd(),
 ): MakeDocsMcpToolDescriptor[] {
-  const callerIdentityRaw = process.env[HARNESS_CALLER_IDENTITY_ENV];
-  const projection = resolveProjectHarnessAccessProjection(targetRoot, "mcp", callerIdentityRaw);
+  void targetRoot;
   return MAKE_DOCS_MCP_TOOLS.map((tool) => {
     if (!tool.operation || !tool.access) return tool;
-    const mcpReady = tool.mcpReady === true &&
-      (tool.access.store === "none" || accessAtMost(tool.access, projection.access));
-    return { ...tool, access: { ...tool.access }, mcpReady };
+    return { ...tool, access: { ...tool.access } };
   });
 }
 

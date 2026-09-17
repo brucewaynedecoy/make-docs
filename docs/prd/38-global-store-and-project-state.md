@@ -27,6 +27,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 ### Scope and Boundaries (R-SCOPE)
 
 - R-SCOPE-1 (MUST): this authority owns the global Store location, tool state, SQLite safety, stable project and checkout identity, installation records, migration progress, locks, receipts, harness-integration application evidence, recovery metadata, general lifecycle runs, privacy, and platform behavior. PRD 24 owns declarative project settings. PRD 17 owns resource resolution. PRD 28 owns harness adapter behavior. PRD 39 owns command grammar. The Store must not define document authority, restore retired Playbook/Protocol behavior, or interpret opaque legacy state.
+- R-SCOPE-2 (MUST): a Make Docs project can exist and support repository-authoritative and Store-free behavior with no project Store or harness access configured. Absence of project access intent is `store-not-configured`, not corruption, unavailability, or denial. Required managed writes still need safe Store initialization and records before mutation.
 
 ### The Boundary Principle (R-BND)
 
@@ -40,6 +41,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-STORE-3 (MUST): the global Store is distinct from machine-installed system resources and any pinned cache; it holds operational state, not shipped template assets or repository documents, and its presence or absence must not weaken repository authority or the deterministic local-router fallback defined by [17-system-asset-materialization-and-local-bootstrap.md](17-system-asset-materialization-and-local-bootstrap.md).
 
 - R-STORE-4 (MUST): every resolved Store root, override, database, lock, journal, temporary-state, and recovery metadata path remains outside the target project and all registered checkouts. Validate canonical paths and existing parent links before access, then revalidate under the lock before mutation. Reject project-contained overrides, symlink aliases, traversal, case collisions, and unsupported permission or filesystem states. Never fall back to a project path.
+- R-STORE-5 (MUST): agent and operation results distinguish `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied`. A Store-backed refusal stops only the affected operation. Store-free operations and ordinary repository work continue with no direct Store write, project-local fallback, queued write, or false success.
 
 ### The SQLite Database (R-DB)
 
@@ -79,6 +81,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-LIFE-4 (MUST): repository backup and reviewed content copies may remain under `.make-docs/backup/**` or their approved export destination. Legacy root `.backup/**` remains protected. The Store holds live backup indexes, restoration order, operation state, and recovery authority. A local backup description may explain saved bytes but cannot authorize or drive automatic recovery without verified Store records. Store backup does not absorb project document bodies. Tool uninstall, project removal, and content backup retain separate reviewed scopes.
 - R-LIFE-5 (MUST): all migration steps write durable progress and receipts to the Store. Each operation records a unique id, stable project and checkout binding, frozen plan identity, step, before/after evidence, outcome, and recovery state. Commit intent before a project write and confirm the result after it. Repeat execution uses the saved operation and verifies actual bytes. A crash, receipt failure, or mismatch leaves a visible pending or failed operation; it must not report success, replay destructive work blindly, or fall back to local state.
 - R-LIFE-6 (MUST): each installation operation can retain a stable failure code, a short safe failure summary, the stage that failed, and the last safe next action. A schema migration preserves old rows and treats absent fields as unknown. These fields must not contain secrets, document bodies, raw terminal output, or private file content. When the Store remains safe to write, the operation records this detail before it releases its context. A failure while recording the first fault does not erase prior recovery evidence or create a success claim.
+- R-LIFE-7 (MUST): grouped setup keeps separate machine, project, Skills, and resource subplan status and recovery evidence. Each subplan commits only its own intent and result. A later subplan failure does not roll back, hide, or repeat an earlier verified subplan. Input refusal before any owned mutation creates no blocking operation.
 
 ### Skill Adoption State (R-SKILL-STATE)
 
@@ -96,6 +99,8 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-HARNESS-STATE-4 (MUST): repeat setup reads global intent, project intent, live harness-native configuration, and Store receipts. It reports current, missing, drifted, unsupported, blocked, and incomplete state. It changes only reviewed Make Docs-owned entries and resumes an incomplete operation without duplicating a verified change.
 - R-HARNESS-STATE-5 (MUST): the effective permission is the most restrictive valid result across machine intent, live native configuration, Store evidence, and project intent. A receipt does not overrule removed or narrowed native permission. Project config cannot widen machine trust.
 - R-HARNESS-STATE-6 (MUST): this capability uses the current Store schema when its records fit existing installation and operation data. W19 R6 must not add a database migration solely for setup state. If implementation proves that safe records cannot fit, it must stop for new authority before changing the schema.
+- R-HARNESS-STATE-7 (MUST): direct machine setup can safely initialize a missing Store and record its own intent and receipt without prior harness or MCP access. Project access remains absent until separate project intent is reviewed. Failure to create safe Store evidence stops only the managed machine change before native mutation; it does not block Store-free work or CLI remediation.
+- R-HARNESS-STATE-8 (MUST): a bounded generic MCP profile retains a validated client label, reviewed machine ceiling, separate project intent, non-secret identity metadata, one-way secret proof when required, rotation state, native configuration output digest, and lifecycle result. Normal status never returns secret proof. Unknown client files remain user-owned and untouched.
 
 ### Transfer and Recovery (R-XFER)
 
@@ -107,6 +112,7 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 
 - R-XFER-6 (MUST): the corrected CLI is the minimum supported writer after transfer. Setup names that boundary and blocks known active old writers through scoped evidence. Probe the actual prior package to document its guard or limit; do not claim that an immutable old binary obeys new Store rules. Use a declarative format guard only when that parser proves rejection before writes. No local marker, dual writes, automatic CLI replacement, broad process scan, or second-version bridge is required or permitted by this scope.
 - R-XFER-7 (MUST): the Store service derives recovery actions from `plan_complete`, saved steps, before and after ledgers, checkout binding, lock state, and current file evidence. Resume is valid only for a complete verified plan. An incomplete zero-step operation with equal ledgers and no active lock can finish as a no-effect rollback that changes only its status and final time. Unknown or conflicting evidence blocks mutation and keeps the pending record visible.
+- R-XFER-8 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup can always reach status plus one safe next action. A repeat reads independent completed subplans and resumes only incomplete work. It never requires manual database edits, deletion of a pending row, successful prior MCP access, or a reinstall that does not change the failed condition.
 
 ### Privacy (R-PRIV)
 
@@ -131,6 +137,10 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-TEST-7 (MUST): verify shipped agent guidance and the optional capture path with the CLI unavailable and with the CLI present but optional capture failing. Ordinary project work continues with an accurate unavailable notice, no false success, no direct Store write, no local fallback state, and no queued write. Pair this evidence with a CLI-managed operation whose required Store write fails. That operation must stop before further project changes and preserve recovery evidence.
 - R-TEST-8 (MUST): prove ownership-only Skill adoption, stale review rejection for package/source/selection/input/ownership changes, read-only review without Store creation, required Store failure before managed changes, and interrupted adoption through shared recovery. Test both scopes and competing writers. Matching bytes alone must never hide a missing ownership transition or authorize unreviewed content.
 - R-TEST-11 (MUST): prove plan-aware action selection for incomplete zero-step and complete partial operations. Prove failure detail survives process restart and matches human, JSON, and MCP results. Prove the no-effect rollback leaves project files and the installation ledger byte-identical, changes no other operation, and does not delete the historical row.
+- R-TEST-12 (MUST): prove all four Store access states across human, JSON, MCP, and agent results. Prove `store-not-configured` opens no Store, and prove every Store-backed refusal leaves independent Store-free work available.
+- R-TEST-13 (MUST): prove independent setup subplans by failing each machine, project, Skills, and resource part in turn. Earlier verified parts remain current and later repeat setup does not replay them.
+- R-TEST-14 (MUST): prove direct machine setup can initialize a missing safe Store without existing MCP or harness access. Prove a failed Store initialization makes no native host change. Prove generic MCP identity, ceiling, rotation, removal, and secret non-disclosure without editing client-owned files.
+- R-TEST-15 (MUST): remediation proof runs with Make Docs Store and MCP access unavailable in the maintainer checkout. It uses one exact installed package, temporary homes, disposable projects, and temporary Store roots. Store unavailability is a tested condition, not a remediation blocker.
 
 This PRD fixes Store-only operational state, external Store paths, separate project and checkout identity, crash-safe recovery, the current lifecycle model, opaque legacy data, and local document authority. Physical SQL tables remain implementation choices within those requirements.
 
@@ -231,8 +241,18 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: Prevent a content-noop optimization from bypassing required ownership state.
 - Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Scope and Boundaries`, `Store Location and Contents`, `Backup, Uninstall, and Upgrade`, `Harness Integration State`, `Transfer and Recovery`, and `Verification and Testability`
+- Previous contract: Missing Store state preserved repository reads and required managed writes failed closed, but project access absence was not a first-class state, grouped setup could hide independent results, and remediation could be treated as dependent on the Store surface under repair.
+- Replacement contract: No project Store intent is valid `store-not-configured` state. Four typed access results stop only the affected operation. Setup stores independent subplan results. Direct machine setup can initialize a safe missing Store without prior harness access. Generic MCP has bounded Store-owned proof. Remediation uses isolated Store evidence and never depends on live Store access in the maintainer checkout.
+- Rationale: The current setup and agent paths formed a closed loop that could not install, use, or repair Store access through a reachable action.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
 ## Source Anchors
 
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
 - [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
 - [Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)

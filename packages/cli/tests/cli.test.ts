@@ -335,6 +335,7 @@ describe("cli interactive flows", () => {
         allowCapabilityExpansion: true,
         harnessSupport: expect.any(Array),
         afterHarnessSelection: expect.any(Function),
+        lockSkills: true,
         config: expect.objectContaining({
           labels: expect.any(Object),
           personas: expect.any(Array),
@@ -654,27 +655,36 @@ personas:
     }
   });
 
-  test("rejects an existing-install skill enabled-state change before any write", async () => {
+  test("routes an existing-install skill enabled-state change and continues other setup", async () => {
     const targetDir = createTempDir();
 
     try {
       await installManifest(targetDir, enableAllSkills);
-      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const claudeSkillPath = path.join(targetDir, ".claude/skills/archive-docs/SKILL.md");
       const codexSkillPath = path.join(targetDir, ".agents/skills/archive-docs/SKILL.md");
-      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
+      const manifestBefore = loadManifest(targetDir)!;
+      const skillSelectionBefore = {
+        skills: manifestBefore.selections.skills,
+        skillScope: manifestBefore.selections.skillScope,
+        selectedSkills: manifestBefore.selections.selectedSkills,
+        skillSelectionProvenance: manifestBefore.selections.skillSelectionProvenance,
+      };
       const claudeSkillBefore = readFileSync(claudeSkillPath);
       const codexSkillBefore = readFileSync(codexSkillPath);
       confirmMock.mockResolvedValue(true);
 
-      const error = await captureCliError(["setup", "--no-skills", "--target", targetDir]);
+      const output = await captureCliOutput(["setup", "--yes", ...NONE_METHODS, "--no-skills", "--target", targetDir]);
 
-      expect(error.message).toContain("Existing installs cannot change skill selections");
-      expect(error.message).toContain("Use `make-docs setup skills`");
+      expect(output).toContain("Existing installs cannot change skill selections");
+      expect(output).toContain("Use `make-docs setup skills`");
       expect(runSelectionWizardMock).not.toHaveBeenCalled();
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).not.toHaveBeenCalled();
-      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
+      const manifestAfter = loadManifest(targetDir)!;
+      expect(manifestAfter.selections.skills).toBe(skillSelectionBefore.skills);
+      expect(manifestAfter.selections.skillScope).toBe(skillSelectionBefore.skillScope);
+      expect(manifestAfter.selections.selectedSkills).toEqual(skillSelectionBefore.selectedSkills);
+      expect(manifestAfter.selections.skillSelectionProvenance).toEqual(skillSelectionBefore.skillSelectionProvenance);
       expect(readFileSync(claudeSkillPath)).toEqual(claudeSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
     } finally {
@@ -682,7 +692,7 @@ personas:
     }
   });
 
-  test("rejects existing-install skill source and provenance changes before any write", async () => {
+  test("routes existing-install skill source and provenance changes without changing Skills", async () => {
     const targetDir = createTempDir();
     const firstSource = createLocalSkillManifestFixture();
     const secondSource = createLocalSkillManifestFixture();
@@ -700,17 +710,22 @@ personas:
         "--target",
         targetDir,
       ]);
-      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const sharedSkillPath = path.join(
         targetDir,
         ".agents/skills/acme-release/SKILL.md",
       );
       const codexSkillPath = path.join(targetDir, ".agents/skills/acme-release/SKILL.md");
-      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
+      const manifestBefore = loadManifest(targetDir)!;
+      const skillSelectionBefore = {
+        skills: manifestBefore.selections.skills,
+        skillScope: manifestBefore.selections.skillScope,
+        selectedSkills: manifestBefore.selections.selectedSkills,
+        skillSelectionProvenance: manifestBefore.selections.skillSelectionProvenance,
+      };
       const sharedSkillBefore = readFileSync(sharedSkillPath);
       const codexSkillBefore = readFileSync(codexSkillPath);
 
-      const sourceError = await captureCliError([
+      const sourceOutput = await captureCliOutput([
         "setup",
         "--yes",
         "--skill-manifest",
@@ -720,9 +735,8 @@ personas:
         "--target",
         targetDir,
       ]);
-      expect(sourceError.message).toContain("manifest source");
-      expect(sourceError.message).toContain("Use `make-docs setup skills`");
-      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
+      expect(sourceOutput).toContain("Use `make-docs setup skills`");
+      expect(loadManifest(targetDir)?.selections).toMatchObject(skillSelectionBefore);
       expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
 
@@ -735,7 +749,7 @@ personas:
         `${JSON.stringify(changedProvenanceManifest, null, 2)}\n`,
         "utf8",
       );
-      const provenanceError = await captureCliError([
+      const provenanceOutput = await captureCliOutput([
         "setup",
         "--yes",
         "--skill-manifest",
@@ -745,8 +759,8 @@ personas:
         "--target",
         targetDir,
       ]);
-      expect(provenanceError.message).toContain("selection provenance");
-      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
+      expect(provenanceOutput).toContain("Use `make-docs setup skills`");
+      expect(loadManifest(targetDir)?.selections).toMatchObject(skillSelectionBefore);
       expect(readFileSync(sharedSkillPath)).toEqual(sharedSkillBefore);
       expect(readFileSync(codexSkillPath)).toEqual(codexSkillBefore);
     } finally {
@@ -1394,7 +1408,7 @@ personas:
     }
   });
 
-  test("rejects a reconfigure skill enabled-state change before any write", async () => {
+  test("routes a reconfigure skill enabled-state change and keeps saved Skills", async () => {
     const targetDir = createTempDir();
     const fakeHome = createTempDir("make-docs-home-");
     const restoreHome = mockHomeDirectory(fakeHome);
@@ -1405,22 +1419,32 @@ personas:
         selections.skillScope = "global";
         selections.selectedSkills = ["decompose-codebase"];
       });
-      const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
       const skillPath = path.join(fakeHome, ".agents/skills/decompose-codebase/SKILL.md");
-      const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
+      const manifestBefore = loadManifest(targetDir)!;
+      const skillSelectionBefore = {
+        skills: manifestBefore.selections.skills,
+        skillScope: manifestBefore.selections.skillScope,
+        selectedSkills: manifestBefore.selections.selectedSkills,
+        skillSelectionProvenance: manifestBefore.selections.skillSelectionProvenance,
+      };
       const skillBefore = readFileSync(skillPath);
 
-      const error = await captureCliError([
+      const output = await captureCliOutput([
         "setup",
         "reconfigure",
         "--yes",
+        ...NONE_METHODS,
         "--no-skills",
         "--target",
         targetDir,
       ]);
 
-      expect(error.message).toContain("Use `make-docs setup skills`");
-      expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
+      expect(output).toContain("Use `make-docs setup skills`");
+      const manifestAfter = loadManifest(targetDir)!;
+      expect(manifestAfter.selections.skills).toBe(skillSelectionBefore.skills);
+      expect(manifestAfter.selections.skillScope).toBe(skillSelectionBefore.skillScope);
+      expect(manifestAfter.selections.selectedSkills).toEqual(skillSelectionBefore.selectedSkills);
+      expect(manifestAfter.selections.skillSelectionProvenance).toEqual(skillSelectionBefore.skillSelectionProvenance);
       expect(readFileSync(skillPath)).toEqual(skillBefore);
     } finally {
       restoreHome();
@@ -1429,7 +1453,7 @@ personas:
     }
   });
 
-  test("rejects reconfigure skill scope and selected-name changes before any write", async () => {
+  test("routes reconfigure skill scope and selected-name changes without changing Skills", async () => {
     for (const skillChangeArgs of [
       ["--skill-scope", "project"],
       ["--selected-skills", "none"],
@@ -1444,25 +1468,35 @@ personas:
           selections.skillScope = "global";
           selections.selectedSkills = ["decompose-codebase"];
         });
-        const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
         const skillPath = path.join(
           fakeHome,
           ".agents/skills/decompose-codebase/SKILL.md",
         );
-        const manifestBefore = Buffer.from(JSON.stringify(loadManifest(targetDir)));
+        const manifestBefore = loadManifest(targetDir)!;
+        const skillSelectionBefore = {
+          skills: manifestBefore.selections.skills,
+          skillScope: manifestBefore.selections.skillScope,
+          selectedSkills: manifestBefore.selections.selectedSkills,
+          skillSelectionProvenance: manifestBefore.selections.skillSelectionProvenance,
+        };
         const skillBefore = readFileSync(skillPath);
 
-        const error = await captureCliError([
+        const output = await captureCliOutput([
           "setup",
           "reconfigure",
           "--yes",
+          ...NONE_METHODS,
           ...skillChangeArgs,
           "--target",
           targetDir,
         ]);
 
-        expect(error.message).toContain("Use `make-docs setup skills`");
-        expect(Buffer.from(JSON.stringify(loadManifest(targetDir)))).toEqual(manifestBefore);
+        expect(output).toContain("Use `make-docs setup skills`");
+        const manifestAfter = loadManifest(targetDir)!;
+        expect(manifestAfter.selections.skills).toBe(skillSelectionBefore.skills);
+        expect(manifestAfter.selections.skillScope).toBe(skillSelectionBefore.skillScope);
+        expect(manifestAfter.selections.selectedSkills).toEqual(skillSelectionBefore.selectedSkills);
+        expect(manifestAfter.selections.skillSelectionProvenance).toEqual(skillSelectionBefore.skillSelectionProvenance);
         expect(readFileSync(skillPath)).toEqual(skillBefore);
       } finally {
         restoreHome();

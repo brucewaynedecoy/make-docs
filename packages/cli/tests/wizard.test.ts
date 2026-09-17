@@ -136,6 +136,37 @@ beforeEach(() => {
 });
 
 describe("selection wizard", () => {
+  test("locks saved Skills while other existing-install options remain editable", async () => {
+    const selections = defaultSelections();
+    selections.skills = true;
+    selections.skillScope = "global";
+    selections.selectedSkills = ["preflight"];
+    const renderer = new MockWizardRenderer(
+      [],
+      [["codex"]],
+      [{
+        skills: false,
+        skillScope: "project",
+        selectedSkills: [],
+        resourceProjection: ["contract"],
+      }],
+      [],
+    );
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: selections,
+      introTitle: "Review",
+      projectState: "partial",
+      lockSkills: true,
+    });
+    expect(renderer.seenOptionStates[0]?.skillsLocked).toBe(true);
+    expect(result).toMatchObject({
+      skills: true,
+      skillScope: "global",
+      selectedSkills: ["preflight"],
+      resourceProjection: ["contract"],
+    });
+  });
+
   test("derives disabled capability rows from unmet prerequisites", () => {
     const selections = defaultSelections();
     selections.capabilities.plans = false;
