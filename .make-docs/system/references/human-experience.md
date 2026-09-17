@@ -27,6 +27,20 @@ First identify what the user needs next. They may need orientation, a decision, 
 - Put technical proof after the human account. Keep exact paths, identifiers, commands, and evidence available when they help the user verify or continue the work.
 - Keep material limits and uncertainty visible.
 
+When the reply asks the user to act, check these questions:
+
+- What does the user need to do?
+- Why is the action needed now?
+- Is it required, optional, or a separate authorization?
+- What work waits for it?
+- What should the user return or expect afterward?
+
+Weak: "Please approve `commit-phase-gate`; see task `w4 r1 p2 t19`."
+
+Useful: "Please authorize staging for the reviewed notification-recovery changes. Staging means placing only the reviewed changes into the proposed commit set. This separate permission is required before any file is staged, and it blocks only the proposed commit. The linked work record lists the exact files and checks. After you authorize staging, the agent will stage only that set and return the staged diff for a separate commit decision."
+
+The useful request explains the internal staging term and the separate commit decision through normal words. The reply supplies the meaning and action. The linked work record supplies audit detail.
+
 Do not force one layout, tone, length, or level of technical detail. Routine short acknowledgements can stay light. Do not add a separate experience summary or claim how the user feels.
 
 ## Examples and Counterexamples

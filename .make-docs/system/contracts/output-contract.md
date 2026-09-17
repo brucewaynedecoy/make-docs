@@ -189,6 +189,8 @@ Each handoff includes:
 - `Coordinate Handoff:` the W/R/P lineage or coordinate question the downstream
   workflow should carry
 
+A route, coordinate, workflow term, or task ID does not replace a plain-language next step. State what the user should do in normal words. Use internal labels only as supporting navigation or audit detail.
+
 For PRD indexes, use route `work-backlog-generation` and recommend creating or
 updating the work backlog from the PRD set.
 For work indexes, use route `implementation-loop` and recommend starting with

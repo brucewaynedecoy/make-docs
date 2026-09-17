@@ -84,6 +84,10 @@ Apply the principles that matter to the goal:
 
 Human and machine surfaces may differ in form and density. They must preserve the same meaning and outcome. Exact identifiers, records, revisions, and receipts remain available for automation and audit. Context determines the useful default: interactive use may favor human presentation; pipes, exports, APIs, or explicit machine output may favor exact data.
 
+## User Action Requests
+
+When a reply asks the user to act, make the request self-contained. State what the user must do, why it is needed, whether it is required or optional, what work it blocks, where supporting detail is available, and what should happen after the action. Explain internal terms and identifiers. A link can provide detail, but the user must not need to open it to understand the request.
+
 ## Lifecycle Duties
 
 Carry accepted intent through the current [lifecycle](../references/lifecycle.md). Do not add a lifecycle stage or copy the full section into each later artifact.

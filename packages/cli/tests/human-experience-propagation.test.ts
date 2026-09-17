@@ -995,6 +995,10 @@ describe("Human Experience authority discovery and router preservation", () => {
       expect(upstreamBlock.body).not.toContain(
         "Routine short acknowledgements can stay light",
       );
+      expect(upstreamBlock.body).not.toContain(
+        "When a reply asks the user to act",
+      );
+      expect(upstreamBlock.body).not.toContain("what work it blocks");
     },
   );
 

@@ -99,6 +99,51 @@ describe("Human Experience resource delivery", () => {
     );
   });
 
+  it("keeps user action requests self-contained", () => {
+    const contract = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/contracts/human-experience-contract.md"),
+      "utf8",
+    );
+    const reference = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/references/human-experience.md"),
+      "utf8",
+    );
+    const executionWorkflow = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/references/execution-workflow.md"),
+      "utf8",
+    );
+    const outputContract = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/contracts/output-contract.md"),
+      "utf8",
+    );
+
+    expect(contract).toContain(
+      "When a reply asks the user to act, make the request self-contained. State what the user must do, why it is needed, whether it is required or optional, what work it blocks, where supporting detail is available, and what should happen after the action. Explain internal terms and identifiers. A link can provide detail, but the user must not need to open it to understand the request.",
+    );
+
+    for (const question of [
+      "What does the user need to do?",
+      "Why is the action needed now?",
+      "Is it required, optional, or a separate authorization?",
+      "What work waits for it?",
+      "What should the user return or expect afterward?",
+    ]) {
+      expect(reference).toContain(question);
+    }
+
+    expect(reference).toContain('Weak: "Please approve `commit-phase-gate`');
+    expect(reference).toContain('Useful: "Please authorize staging');
+    expect(reference).toContain(
+      "The reply supplies the meaning and action. The linked work record supplies audit detail.",
+    );
+    expect(executionWorkflow).toContain(
+      "confirm that the request is understandable without opening another document",
+    );
+    expect(outputContract).toContain(
+      "A route, coordinate, workflow term, or task ID does not replace a plain-language next step.",
+    );
+  });
+
   it("includes both shared resources even when the design capability is not selected", () => {
     const selections = defaultSelections();
     selections.capabilities.designs = false;

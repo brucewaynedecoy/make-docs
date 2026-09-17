@@ -18,7 +18,7 @@ Add one clear Human Experience route for material agent replies. Make the reply 
 
 Update the Human Experience Reference and managed root routers upstream. Dogfood the reviewed change into this maintainer repo. Prove safe preservation and parity. Then review representative replies against the accepted promises.
 
-The owner authorized implementation on 2026-09-15. The owner approved the prepared Human Experience Review on 2026-09-15 and requested no correction. W20 R1 P1 is complete. Staging and commit remain separate and are not authorized.
+The owner authorized implementation on 2026-09-15. The owner approved the prepared Human Experience Review on 2026-09-15 and requested no correction. W20 R1 P1 is complete. The accepted P1 set was later committed as `51bd35c`.
 
 ## Human Experience Outcome
 
@@ -136,4 +136,4 @@ Human Experience Review is separate. It applies as the acceptance lens over the 
 - Four testing decisions: Automated selected; Performance `not-needed-now`; Guided selected; Unassisted `not-needed-now`.
 - Human Experience Review: Owner approved all nine prepared `satisfied` conclusions on 2026-09-15. The owner said the reply examples and conclusions match the intended result. The owner requested no correction.
 - Evidence report: [evidence.md](evidence.md).
-- Phase / capability status: W20 R1 P1 is complete. No correction remains. Staging and commit remain separate and are not authorized.
+- Phase / capability status: W20 R1 P1 is complete. No correction remains. The accepted P1 set was committed as `51bd35c`.
