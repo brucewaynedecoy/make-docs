@@ -634,6 +634,91 @@ describe("Codex native access lifecycle", () => {
     expect(repeated.changedPaths).toEqual([]);
   });
 
+  it("preserves repeated Codex TOML array tables through plan, apply, repeat, and removal", () => {
+    const { root, executable } = fixture();
+    const configPath = path.join(root, ".codex", "config.toml");
+    mkdirSync(path.dirname(configPath), { recursive: true });
+    const skills = Array.from({ length: 21 }, (_, index) => [
+      "[[skills.config]]",
+      `name = "skill-${index + 1}"`,
+      `enabled = ${index % 2 === 0}`,
+      "[skills.config.metadata]",
+      `source = "fixture-${index + 1}"`,
+    ].join("\n")).join("\n\n");
+    const original = `model = "gpt-test"\n\n${skills}\n`;
+    writeFileSync(configPath, original);
+
+    const plan = CODEX_HARNESS_ADAPTER.plan({ method: "mcp", scope: "machine", root, executable });
+    expect(plan).toMatchObject({ state: "missing", changes: [{ action: "update" }] });
+    expect(readFileSync(configPath, "utf8")).toBe(original);
+
+    const applied = CODEX_HARNESS_ADAPTER.apply({
+      plan,
+      approved: true,
+      operationId: "system.codex.mcp.array-tables",
+      appliedVersion: "2.0.0-rc",
+    });
+    expect(applied.verification.state).toBe("current");
+    const configured = readFileSync(configPath, "utf8");
+    expect(configured.startsWith(original)).toBe(true);
+    expect(configured.match(/^\[\[skills\.config\]\]$/gm)).toHaveLength(21);
+    expect(configured).toContain("# make-docs:begin harness-access codex mcp");
+
+    const repeat = CODEX_HARNESS_ADAPTER.plan({
+      method: "mcp",
+      scope: "machine",
+      root,
+      executable,
+      receipt: applied.receipt,
+    });
+    expect(repeat).toMatchObject({ state: "current", changes: [{ action: "none" }] });
+
+    const removal = CODEX_HARNESS_ADAPTER.planRemoval({
+      method: "mcp",
+      scope: "machine",
+      root,
+      executable,
+      receipt: applied.receipt,
+    });
+    const removed = CODEX_HARNESS_ADAPTER.applyRemoval({ plan: removal, approved: true });
+    expect(removed.verification.state).toBe("missing");
+    expect(readFileSync(configPath, "utf8")).toBe(original);
+  });
+
+  it.each([
+    {
+      name: "a duplicate key in one array element",
+      content: '[[skills.config]]\nname = "one"\nname = "two"\n',
+      reason: "duplicate or conflicting assignment",
+    },
+    {
+      name: "a duplicate normal table",
+      content: '[skills.config]\nname = "one"\n[skills.config]\n',
+      reason: "duplicate or conflicting table header",
+    },
+    {
+      name: "a normal-table and array-table collision",
+      content: '[skills.config]\nname = "one"\n[[skills.config]]\n',
+      reason: "duplicate or conflicting table header",
+    },
+    {
+      name: "an array table below a value parent",
+      content: 'skills = "not-a-table"\n[[skills.config]]\n',
+      reason: "duplicate or conflicting table header",
+    },
+  ])("blocks $name without changing Codex TOML", ({ content, reason }) => {
+    const { root, executable } = fixture();
+    const configPath = path.join(root, ".codex", "config.toml");
+    mkdirSync(path.dirname(configPath), { recursive: true });
+    writeFileSync(configPath, content);
+
+    const plan = CODEX_HARNESS_ADAPTER.plan({ method: "mcp", scope: "machine", root, executable });
+
+    expect(plan).toMatchObject({ state: "blocked", changes: [{ action: "none" }] });
+    expect(plan.changes[0].blockedReason).toContain(reason);
+    expect(readFileSync(configPath, "utf8")).toBe(content);
+  });
+
   it("preserves a matching user-owned MCP table and a changed managed block", () => {
     const { root, executable } = fixture();
     const configPath = path.join(root, ".codex", "config.toml");

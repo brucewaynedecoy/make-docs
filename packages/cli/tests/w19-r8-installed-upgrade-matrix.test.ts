@@ -1,5 +1,12 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -90,6 +97,34 @@ function setupArgs(projectRoot: string, json = false): string[] {
   ];
 }
 
+function codexMcpSetupArgs(projectRoot: string, dryRun = false): string[] {
+  return [
+    "setup",
+    "--target",
+    projectRoot,
+    ...(dryRun ? ["--dry-run"] : []),
+    "--yes",
+    "--codex-method",
+    "mcp",
+    "--claude-code-method",
+    "none",
+    "--project-resources",
+    "contract,reference,prompt,template",
+    "--json",
+  ];
+}
+
+function sanitizedCodexConfig(): string {
+  const skills = Array.from({ length: 21 }, (_, index) => [
+    "[[skills.config]]",
+    `name = "fixture-skill-${index + 1}"`,
+    `enabled = ${index % 2 === 0}`,
+    "[skills.config.metadata]",
+    `source = "fixture-source-${index + 1}"`,
+  ].join("\n")).join("\n\n");
+  return `model = "fixture-model"\n\n${skills}\n`;
+}
+
 async function compatibilityFixture(state: CompatibilitySourceState) {
   const priorStore = process.env.MAKE_DOCS_HOME;
   process.env.MAKE_DOCS_HOME = storeRoot;
@@ -113,6 +148,44 @@ async function compatibilityFixture(state: CompatibilitySourceState) {
 }
 
 describe.skipIf(candidateEntry === undefined)("W19 R8 exact installed setup matrix", () => {
+  it("preserves repeated Codex TOML array tables through exact setup and repair", () => {
+    const projectRoot = path.join(testRoot, "codex-array-table-project");
+    const configPath = path.join(homeRoot, ".codex", "config.toml");
+    mkdirSync(projectRoot, { recursive: true });
+    mkdirSync(path.dirname(configPath), { recursive: true });
+    const original = sanitizedCodexConfig();
+    writeFileSync(configPath, original);
+
+    const dryRun = runCandidate(projectRoot, codexMcpSetupArgs(projectRoot, true));
+    expect(dryRun.status, dryRun.stderr || dryRun.stdout).toBe(0);
+    expect(JSON.parse(dryRun.stdout)).toMatchObject({ operation: "setup" });
+    expect(readFileSync(configPath, "utf8")).toBe(original);
+
+    const applied = runCandidate(projectRoot, codexMcpSetupArgs(projectRoot));
+    expect(applied.status, applied.stderr || applied.stdout).toBe(0);
+    expect(JSON.parse(applied.stdout)).toMatchObject({
+      operation: "setup",
+      status: "complete",
+    });
+    const configured = readFileSync(configPath, "utf8");
+    expect(configured.startsWith(original)).toBe(true);
+    expect(configured.match(/^\[\[skills\.config\]\]$/gm)).toHaveLength(21);
+    expect(configured).toContain("# make-docs:begin harness-access codex mcp");
+
+    const repeated = runCandidate(projectRoot, codexMcpSetupArgs(projectRoot));
+    expect(repeated.status, repeated.stderr || repeated.stdout).toBe(0);
+    expect(readFileSync(configPath, "utf8")).toBe(configured);
+
+    writeFileSync(configPath, original);
+
+    const repaired = runCandidate(projectRoot, codexMcpSetupArgs(projectRoot));
+    expect(repaired.status, repaired.stderr || repaired.stdout).toBe(0);
+    const repairedConfig = readFileSync(configPath, "utf8");
+    expect(repairedConfig.startsWith(original)).toBe(true);
+    expect(repairedConfig.match(/^\[\[skills\.config\]\]$/gm)).toHaveLength(21);
+    expect(repairedConfig).toContain("# make-docs:begin harness-access codex mcp");
+  }, 60_000);
+
   it("runs fresh setup, repeated setup, and recovery after an invalid option", () => {
     const projectRoot = path.join(testRoot, "fresh-project");
     mkdirSync(projectRoot, { recursive: true });

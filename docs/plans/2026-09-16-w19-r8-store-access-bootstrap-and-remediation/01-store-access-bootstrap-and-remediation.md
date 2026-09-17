@@ -73,6 +73,14 @@ Build one tarball after Stages 1 through 3 pass. Install it through a normal pac
 
 Stage 4 closes only when the exact candidate passes every required case. A release-blocking failure keeps P1 open and routes a bounded fix inside this phase.
 
+### Stage 5 - Codex TOML array-table correction
+
+Reopen P1 for the valid repeated-array-table case found by live W19 R2 use. Keep the first package as replaced evidence. Replace the flat TOML table and value sets with an internal container tree. Resolve assignments and nested normal tables against the current array element. Preserve all current safety blocks.
+
+Add a sanitized 21-element `[[skills.config]]` fixture. Prove dry-run preservation, apply, repeat, repair, and exact removal. Add negative cases for duplicate keys in one element, duplicate normal tables, normal-table and array-table conflicts, malformed input, and an array table below an invalid parent. Build one replacement package and run the full setup option shape in a temporary home. Then run the real W19 R2 command as a dry run only.
+
+Stage 5 closes only when the replacement package passes Codex MCP planning against the real configuration shape. A later project projection conflict remains separate W19 R2 work. Store or MCP access is not an admission gate for this correction.
+
 ## Verification Set
 
 - V1 — Package launcher: verify the normal npm link, resolved package bin, real package root, executable mode, and fingerprint. Reject broken, escaping, wrapper, runner, and mismatched cases with exact detail.
@@ -87,6 +95,7 @@ Stage 4 closes only when the exact candidate passes every required case. A relea
 - V10 — Upgrade: prove fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each has a valid next action and never requires manual Store edits.
 - V11 — Package identity: record one tarball name and digest, install it in isolated homes with the repository unavailable, and run V1 through V10 through the installed executable.
 - V12 — Human Experience Review: record evidence, observations, conclusions, reviewer, limits, and next actions for HX-1 through HX-8. Offer a short optional human handoff. Do not make a response a gate.
+- V13 — Codex TOML arrays: preserve 21 sanitized repeated array-table elements byte for byte, allow the same keys and nested normal-table paths in separate elements, reject conflicts inside one container, and pass the exact real W19 R2 dry-run planning step.
 
 ## Exit Criteria
 
@@ -100,6 +109,7 @@ Stage 4 closes only when the exact candidate passes every required case. A relea
 - No Store or MCP dependency blocked the remediation work.
 - No project-local operational state, false success, broad permission, or task-wide Store failure appears.
 - HX-1 through HX-8 have agent-reviewed evidence and conclusions.
+- The replacement package passes V13. The first package remains recorded as replaced evidence.
 
 ## Failure and Scope Rules
 

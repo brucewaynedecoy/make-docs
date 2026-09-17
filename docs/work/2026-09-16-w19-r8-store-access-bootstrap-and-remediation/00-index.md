@@ -20,6 +20,12 @@ Preserve the completed implementation record for the setup and Store-access corr
 
 The owner authorized P1 implementation on 2026-09-16. The phase remains open until every close rule passes.
 
+## P1 Correction Record
+
+Live W19 R2 use reopened P1 after the first W19 R8 commit and package. A valid real Codex configuration used 21 repeated `[[skills.config]]` array tables. The Codex writer blocked the second element as a duplicate table. This invalidated the broad Codex MCP setup claim.
+
+The correction stays in W19 R8 P1 as Stage 5. It does not create P2 or another wave. The first package identity remains prior evidence and is marked replaced. P1 is reclosed only by the replacement package and the real W19 R2 dry run.
+
 ## Remediation Execution Rule
 
 This work repairs the Make Docs CLI and Store-access path. Store access, MCP access, harness receipts, Store-backed lifecycle state, and successful setup are not prerequisites.
@@ -45,7 +51,7 @@ The agent can stop only for a real safety risk, missing authority, missing requi
 
 | File | Purpose |
 | --- | --- |
-| [01-store-access-bootstrap-and-remediation.md](01-store-access-bootstrap-and-remediation.md) | Implement and prove the complete correction through four ordered stages inside one phase. |
+| [01-store-access-bootstrap-and-remediation.md](01-store-access-bootstrap-and-remediation.md) | Implement and prove the complete correction through five ordered stages inside one phase. Stage 5 corrects Codex TOML array-table handling. |
 
 ## Usage Notes
 
@@ -66,5 +72,5 @@ This handoff is authoritative unless the user overrides it. It does not authoriz
 
 - Route: `separate-commit-review`.
 - Next step: Review the completed [W19 R8 P1](01-store-access-bootstrap-and-remediation.md) result. Use separate authority for any commit, push, publish, or release.
-- Why: The exact W19 R8 package and installed matrix pass. The owner accepted a bounded exception for failures owned by the separate Performance Evidence backlog.
+- Why: The replacement W19 R8 package and installed matrix pass. The real W19 R2 dry run reaches Codex MCP planning. The owner accepted a bounded exception only for failures owned by the separate Performance Evidence backlog.
 - Coordinate Handoff: Keep those projection failures with their owning backlog. Do not reopen W19 R8 unless its implementation or supported claims change.

@@ -44,7 +44,17 @@ The agent can stop only for a real safety risk, missing authority, missing requi
 - Coordinate: `W19 R8`.
 - Classification: `revision`.
 - Evidence: The work corrects W19 R3 Store-owned state, W19 R5 Skills adoption, W19 R6 harness setup, and the unimplemented W19 R7 setup and recovery correction. R8 is the next unused revision in that lineage.
-- Phase count: Exactly one implementation phase. Four ordered stages keep the package fast while preserving one final candidate gate.
+- Phase count: Exactly one implementation phase. Five ordered stages keep the package fast while preserving one final candidate gate. Stage 5 is the P1 correction for the missed Codex TOML array-table case.
+
+## P1 Correction Note
+
+Live W19 R2 use proved that the first W19 R8 package could not plan Codex MCP setup for a valid configuration with repeated `[[skills.config]]` array tables. This evidence invalidated the broad setup claim and reopened P1.
+
+Keep the first candidate identity and results as prior evidence. Mark that candidate as replaced. Add one correction stage to P1. Do not create W19 R8 P2 or a new wave.
+
+The correction must preserve valid repeated array elements and their repeated nested normal-table paths. It must keep all current malformed-input, duplicate-within-one-container, table-kind conflict, multiline, null-byte, conflict-marker, and managed-marker blocks. It must add no TOML package dependency and no public interface.
+
+One replacement package must pass the source checks, exact installed checks, and the real W19 R2 command as a dry run. Only the existing Performance Evidence gate exception is allowed. Any TOML, setup, MCP, native-file, or W19 R8 failure keeps P1 open.
 
 ## Maintenance Inputs
 

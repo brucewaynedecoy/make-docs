@@ -92,7 +92,7 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method.
 - R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
 - R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
-- R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. Project setup cannot use its project approval as host-write authority.
+- R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. For TOML, preservation includes valid repeated arrays of tables, repeated key names in separate array elements, and repeated nested normal-table paths under separate elements. Duplicate keys inside one element, duplicate normal-table headers, and normal-table versus array-table conflicts remain blocked. Project setup cannot use its project approval as host-write authority.
 - R-ACCESS-6 (MUST): every Store-backed harness invocation supplies exact caller and `connectionMethod` identity to the shared operation policy. The policy verifies that identity against the admitted adapter, executable identity, live native configuration, Store receipt, machine intent, and project intent. An executable path, environment variable, or rule match alone grants no access.
 - R-ACCESS-7 (MUST): MCP can carry the managed caller identity in its exact native server environment. A command-rule or permission-rule route must carry equivalent method identity through a harness-proved native launch fact. If the harness cannot supply and prove that fact, the method remains unavailable. The runtime does not weaken identity checks to make a setup option appear usable.
 - R-ACCESS-8 (MUST): no project Store or harness intent is a valid `store-not-configured` state. It is distinct from configured-but-unavailable, unsafe, and denied state. An operation with `access.store: none` never checks those states and remains available without Store or harness setup.
@@ -190,7 +190,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - MCP tools have one shared operation contract with CLI/shared-core behavior and must ship in v2.
 - CLI resource list/read/ensure and their MCP tools use one resolver. Native MCP resource discovery/read where supported expose the same stable URI inventory and bytes as CLI list/read.
 - Operation definitions carry the complete access contract. Tests prove that `store: none` operations do not open the Store and that each adapter exposes only its admitted operation set.
-- Command-rule and MCP setup tests prove separate host approval, exact native-file preservation, verified executable identity, and the absence of broad or unsafe command grants.
+- Command-rule and MCP setup tests prove separate host approval, exact native-file preservation, verified executable identity, and the absence of broad or unsafe command grants. Codex TOML tests include a valid repeated-array-table file with repeated nested normal tables and prove dry run, apply, repeat, repair, receipt-bound removal, and byte-for-byte restoration of user-owned content.
 - Real-harness tests prove that each shown native route reaches the operation policy with the exact caller and method identity. A wrong, absent, copied, or cross-method identity fails without a Store-backed operation.
 - Pending P4, P6, and P7 registrations carry exact phase lineage and do not claim that handlers exist.
 - Existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain unchanged through P3. P3 adds no legacy behavior or support claim.
@@ -293,6 +293,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: No project Store intent is a valid `store-not-configured` state. Four typed access results stop only the affected operation. Store-free work continues. Generic MCP uses reviewed bounded identity, and CLI/Store remediation never depends on the surface under repair.
 - Rationale: Setup could not grant access, agents could not fail gracefully, and the only suggested repair returned to the same blocked path.
 - Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+### 2026-09-16 — W19 R8 P1 correction
+
+- Affected requirement or section: `Operation Access Contract` and `Acceptance Criteria`
+- Previous contract: Native configuration preservation did not state how a bounded TOML writer must handle repeated arrays of tables. The Codex writer used flat global path sets and blocked the second valid array element.
+- Replacement contract: The planner preserves separate array-table elements and resolves assignments and nested normal tables against the current element. It permits repeated names across elements and keeps duplicates or table-kind conflicts inside one container blocked.
+- Rationale: Live W19 R2 setup used 21 valid `[[skills.config]]` elements and exposed a false conflict that blocked Codex MCP planning.
+- Source: [W19 R8 correction design note](../designs/2026-09-16-store-access-bootstrap-and-remediation.md#p1-correction--codex-toml-array-tables) and [P1 correction stage](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/01-store-access-bootstrap-and-remediation.md#stage-5---codex-toml-array-table-correction)
 
 ## Source Anchors
 

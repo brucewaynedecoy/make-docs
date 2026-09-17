@@ -16,7 +16,7 @@ Repair the closed setup and Store-access loop in one phase. Preserve strict Stor
 
 ## Overview
 
-This phase owns the open W19 R7 correction and the wider W19 R8 defect. Four ordered stages produce one exact package candidate. No stage is a release point.
+This phase owns the open W19 R7 correction and the wider W19 R8 defect. Five ordered stages produce the accepted replacement package candidate. No stage is a release point. Stage 5 records the Codex TOML array-table correction found by live W19 R2 use.
 
 The phase does not require Make Docs Store or MCP access to start or continue. Those surfaces are test subjects. The agent uses repository authority, direct package commands, temporary homes, temporary Store roots, and isolated projects.
 
@@ -207,4 +207,45 @@ Human Experience Review is separate. The validation owner must inspect the real 
 - Optional experience handoff: Provide one to three normal-use setup steps, what to notice, and an invitation for feedback after agent proof. A response is optional.
 - Explicit human acceptance gate: None.
 - Evidence report: Link A18 through A25 and the underlying installed captures from `evidence.md`.
-- Phase / capability status: P1 is complete. All W19 R8 acceptance cases pass. `W19-R8-GATE-EXCEPTION-1` routes unrelated Performance Evidence projection failures to their owning backlog. Release, commit, push, and real-project repair remain separate actions.
+- Phase / capability status: This was the original Stage 4 close. Live W19 R2 use later reopened P1 for Stage 5. `W19-R8-GATE-EXCEPTION-1` still routes only unrelated Performance Evidence projection failures. Release, commit, push, and real-project repair remain separate actions.
+
+## Stage 5 - Codex TOML Array-Table Correction
+
+### Tasks
+
+- [x] t24: Record that live W19 R2 use invalidated the first candidate's broad Codex MCP setup claim. Keep the first identity and results as replaced evidence.
+- [x] t25: Replace flat TOML table and value sets with an internal container tree for normal tables, arrays of tables, current array elements, and values.
+- [x] t26: Make each `[[path]]` header create a separate element. Resolve assignments and nested normal tables against the current element.
+- [x] t27: Preserve duplicate-key, duplicate-normal-table, table-kind conflict, malformed value, multiline TOML, null-byte, conflict-marker, and unsafe managed-marker blocks.
+- [x] t28: Add a sanitized fixture with 21 `[[skills.config]]` elements and repeated `[skills.config.metadata]` tables. Prove plan, apply, repeat, repair, removal, and exact byte preservation.
+- [x] t29: Extend the exact installed setup matrix with the failure-producing full setup option shape. Use one temporary home, Store, project, and Codex file.
+- [x] t30: Build one replacement package and use that exact package for every installed correction check.
+- [x] t31: Run the real W19 R2 command as a dry run only. Record the configuration shape and result. Do not record private values or apply setup.
+- [x] t32: Repeat HX-2 and HX-3 review for independent setup results and safe setup retry.
+
+### Acceptance criteria
+
+- A26: Valid repeated TOML array tables can use the same key names and nested normal-table paths in separate elements.
+- A27: Duplicate keys in one element, duplicate normal tables, table-kind conflicts, malformed input, and invalid parents remain blocked without file changes.
+- A28: Planning changes no Codex file. Apply adds only the Make Docs managed block. Repeat changes nothing. Receipt-bound removal restores the original user bytes.
+- A29: The exact installed matrix uses a sanitized 21-element configuration and the full setup option shape. It proves dry run, apply, repeat, and repair.
+- A30: The correction adds no TOML dependency and no public CLI, MCP, Store, schema, or configuration interface.
+- A31: The replacement package passes the TypeScript check, focused tests, W19 R8 tests, build, installed matrix, and the real W19 R2 dry-run planning step.
+- A32: `W19-R8-GATE-EXCEPTION-1` covers only the existing Performance Evidence failures. It covers no TOML, setup, MCP, native-file, or W19 R8 failure.
+- A33: The 20 pre-existing Performance Evidence worktree paths remain unstaged and are not restored or rewritten by this correction.
+- A34: The first package remains recorded as replaced evidence. P1 reclose uses the replacement package identity and result.
+
+### Dependencies
+
+- The original Stages 1 through 4 remain historical prerequisites.
+- Store and MCP access are not correction prerequisites.
+- No branch or worktree change is allowed.
+
+### Closeout Notes
+
+- Four testing decisions: Automated satisfied; Performance not-needed-now; Guided Progress Review repeated for HX-2 and HX-3; Unassisted Goal Testing not-needed-now.
+- Human Experience Review: The replacement package can plan Codex MCP setup for the real 21-element configuration shape. Setup retry is safe and does not change the file in dry-run mode.
+- Optional experience handoff: Resume W19 R2 from its preserved candidate. Treat any later `work-phase.md` projection conflict as separate W19 R2 work.
+- Explicit human acceptance gate: None.
+- Evidence report: Link A26 through A34 and the replacement package record in `evidence.md`.
+- Phase / capability status: P1 is reclosed. Commit, push, publication, release, and real setup apply remain separate actions.

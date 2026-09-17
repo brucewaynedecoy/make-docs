@@ -1040,13 +1040,120 @@ function locateCodexMcpBlock(content: string): LocatedManagedBlock | null {
   return { start: begins[0], end, content: content.slice(begins[0], ends[0] + CODEX_MCP_END.length) };
 }
 
+type TomlTableDeclaration =
+  | "root"
+  | "implicit-header"
+  | "implicit-assignment"
+  | "explicit";
+
+interface TomlTableNode {
+  kind: "table";
+  declaration: TomlTableDeclaration;
+  entries: Map<string, TomlContainerNode>;
+}
+
+interface TomlArrayTableNode {
+  kind: "array-table";
+  elements: TomlTableNode[];
+}
+
+interface TomlValueNode {
+  kind: "value";
+}
+
+type TomlContainerNode = TomlTableNode | TomlArrayTableNode | TomlValueNode;
+
+const TOML_VALUE_NODE: TomlValueNode = Object.freeze({ kind: "value" });
+
+function tomlTable(declaration: TomlTableDeclaration): TomlTableNode {
+  return { kind: "table", declaration, entries: new Map() };
+}
+
+function resolveTomlHeader(
+  root: TomlTableNode,
+  path: readonly string[],
+  arrayTable: boolean,
+): TomlTableNode {
+  let parent = root;
+  for (const part of path.slice(0, -1)) {
+    const existing = parent.entries.get(part);
+    if (existing === undefined) {
+      const implicit = tomlTable("implicit-header");
+      parent.entries.set(part, implicit);
+      parent = implicit;
+      continue;
+    }
+    if (existing.kind === "table") {
+      parent = existing;
+      continue;
+    }
+    if (existing.kind === "array-table") {
+      const active = existing.elements.at(-1);
+      if (active) {
+        parent = active;
+        continue;
+      }
+    }
+    throw new Error("The Codex configuration has a duplicate or conflicting table header.");
+  }
+
+  const leaf = path.at(-1);
+  if (leaf === undefined) {
+    throw new Error("The Codex configuration has a malformed table header.");
+  }
+  const existing = parent.entries.get(leaf);
+  if (arrayTable) {
+    if (existing !== undefined && existing.kind !== "array-table") {
+      throw new Error("The Codex configuration has a duplicate or conflicting table header.");
+    }
+    const array = existing ?? { kind: "array-table" as const, elements: [] };
+    if (existing === undefined) parent.entries.set(leaf, array);
+    const element = tomlTable("explicit");
+    array.elements.push(element);
+    return element;
+  }
+
+  if (existing === undefined) {
+    const table = tomlTable("explicit");
+    parent.entries.set(leaf, table);
+    return table;
+  }
+  if (existing.kind !== "table" || existing.declaration !== "implicit-header") {
+    throw new Error("The Codex configuration has a duplicate or conflicting table header.");
+  }
+  existing.declaration = "explicit";
+  return existing;
+}
+
+function defineTomlValue(table: TomlTableNode, path: readonly string[]): void {
+  let parent = table;
+  for (const part of path.slice(0, -1)) {
+    const existing = parent.entries.get(part);
+    if (existing === undefined) {
+      const implicit = tomlTable("implicit-assignment");
+      parent.entries.set(part, implicit);
+      parent = implicit;
+      continue;
+    }
+    if (existing.kind !== "table") {
+      throw new Error("The Codex configuration has a duplicate or conflicting assignment.");
+    }
+    parent = existing;
+  }
+
+  const leaf = path.at(-1);
+  if (leaf === undefined || parent.entries.has(leaf)) {
+    throw new Error("The Codex configuration has a duplicate or conflicting assignment.");
+  }
+  parent.entries.set(leaf, TOML_VALUE_NODE);
+}
+
 function validateCodexTomlContainer(content: string): void {
   if (content.includes('"""') || content.includes("'''")) {
     throw new Error("The Codex configuration contains multiline TOML that this bounded writer cannot validate.");
   }
-  const values = new Set<string>();
-  const tables = new Set<string>();
-  let tablePath: readonly string[] = [];
+  const root = tomlTable("root");
+  let table = root;
   for (const statement of splitTomlStatements(content)) {
     if (statement.startsWith("[")) {
       const arrayTable = statement.startsWith("[[");
@@ -1056,12 +1163,7 @@ function validateCodexTomlContainer(content: string): void {
         throw new Error("The Codex configuration has a malformed table header.");
       }
       const key = statement.slice(openLength, -openLength).trim();
-      tablePath = parseTomlKeyPath(key, "table header");
-      const canonical = canonicalTomlPath(tablePath);
-      if (tables.has(canonical) || hasOverlappingTomlPath(values, tablePath)) {
-        throw new Error("The Codex configuration has a duplicate or conflicting table header.");
-      }
-      tables.add(canonical);
+      table = resolveTomlHeader(root, parseTomlKeyPath(key, "table header"), arrayTable);
       continue;
     }
 
@@ -1073,18 +1175,7 @@ function validateCodexTomlContainer(content: string): void {
     const valueSource = statement.slice(equals + 1).trim();
     if (!valueSource) throw new Error("The Codex configuration has an empty assignment value.");
     new TomlValueSyntaxParser(valueSource).parse();
-
-    const fullPath = [...tablePath, ...keyPath];
-    const canonical = canonicalTomlPath(fullPath);
-    if (
-      values.has(canonical) ||
-      tables.has(canonical) ||
-      hasOverlappingTomlPath(values, fullPath) ||
-      hasDescendantTomlPath(tables, fullPath)
-    ) {
-      throw new Error("The Codex configuration has a duplicate or conflicting assignment.");
-    }
-    values.add(canonical);
+    defineTomlValue(table, keyPath);
   }
 }
 
@@ -1198,30 +1289,6 @@ function parseTomlKeyPath(source: string, location: string): string[] {
     throw new Error(`The Codex configuration has an empty ${location}.`);
   }
   return pathParts;
-}
-
-function canonicalTomlPath(parts: readonly string[]): string {
-  return JSON.stringify(parts);
-}
-
-function hasOverlappingTomlPath(paths: ReadonlySet<string>, candidate: readonly string[]): boolean {
-  for (const serialized of paths) {
-    const existing = JSON.parse(serialized) as string[];
-    if (isTomlPathPrefix(existing, candidate) || isTomlPathPrefix(candidate, existing)) return true;
-  }
-  return false;
-}
-
-function hasDescendantTomlPath(paths: ReadonlySet<string>, candidate: readonly string[]): boolean {
-  for (const serialized of paths) {
-    const existing = JSON.parse(serialized) as string[];
-    if (existing.length > candidate.length && isTomlPathPrefix(candidate, existing)) return true;
-  }
-  return false;
-}
-
-function isTomlPathPrefix(prefix: readonly string[], value: readonly string[]): boolean {
-  return prefix.length <= value.length && prefix.every((part, index) => part === value[index]);
 }
 
 class TomlKeySyntaxParser {

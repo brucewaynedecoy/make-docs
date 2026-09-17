@@ -139,6 +139,16 @@ All upgrade and setup entries must be safe to run again after invalid input, a b
 
 The correction uses one implementation phase. Ordered stages exist inside that phase. No stage is a release point. The phase closes only after the exact packaged candidate passes the full matrix.
 
+## P1 Correction — Codex TOML Array Tables
+
+Live W19 R2 use invalidated one broad W19 R8 setup claim after the first P1 package was recorded. The real Codex configuration contains valid repeated `[[skills.config]]` array tables. The bounded Codex writer treated each repeated header as a duplicate normal table. This stopped Codex MCP planning before setup could repair access.
+
+W19 R8 P1 reopens for this missed case. The first package candidate and its passing results remain prior evidence, but that candidate is replaced. This correction does not create W19 R8 P2 or another wave.
+
+The Codex TOML validator uses an internal container tree. It represents normal tables, arrays of tables, current array elements, and values. Each `[[path]]` header creates one new element. Assignments and nested normal tables resolve against the current element. The same key and nested table path can appear in separate elements. Duplicate keys in one element, duplicate normal table headers, normal-table and array-table conflicts, malformed values, multiline TOML, null bytes, conflict markers, and unsafe managed markers remain blocked.
+
+The correction adds no TOML dependency. It adds no public CLI, MCP, Store, schema, or configuration interface. P1 can reclose only after one replacement package passes the exact installed matrix and the real W19 R2 command passes Codex MCP planning as a dry run. The separate Performance Evidence projection conflict remains owned by W19 R2 work and does not broaden `W19-R8-GATE-EXCEPTION-1`.
+
 ## Alternatives Considered
 
 ### Require working Store access before remediation
