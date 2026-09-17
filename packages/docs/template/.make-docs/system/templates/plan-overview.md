@@ -35,6 +35,14 @@ For `direct` or `indirect` impact, map each accepted promise:
 
 For `none`, replace the table with the preserved human boundary and the evidence that will prove it unchanged.
 
+## Performance Evidence Plan
+
+For current performance candidates, read `make-docs://system/contract/performance-evidence-governance.md` with `make-docs resource read`. Record both decisions. Link one canonical profile for each executable candidate. Do not copy a product target into this plan.
+
+| Candidate | Base maintenance action | Performance applicability | Target class | Canonical `PERF-###` or next record | Finite budget and stop reference | Lifecycle point |
+| --- | --- | --- | --- | --- | --- | --- |
+| {{PERFORMANCE_CANDIDATE_OR_NONE}} | `{{BASE_MAINTENANCE_ACTION}}` | `{{REQUIRED_NOW_CHARACTERIZE_NOW_DEFER_REQUIRED_NOT_NEEDED_OR_REJECT_UNSUPPORTED}}` | `{{TARGET_CLASS_OR_NONE}}` | {{PERF_O_OR_NONE}} | {{BUDGET_AND_STOP_REFERENCE_OR_NOT_APPLICABLE}} | {{ACTIVATION_POINT_OR_NONE}} |
+
 ## Coordinate Decision
 
 - Coordinate: `W{{W}} R{{R}}`

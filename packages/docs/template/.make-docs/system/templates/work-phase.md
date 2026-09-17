@@ -45,10 +45,13 @@ Record the current decision for each testing type. Do not activate a test only t
 
 For each performance candidate, record only these lifecycle fields:
 
+- Base maintenance action: `{{BASE_MAINTENANCE_ACTION}}`
 - Performance applicability: `{{PERFORMANCE_APPLICABILITY}}`
 - Canonical `PERF-###` profile link or `none`: {{CANONICAL_PERF_PROFILE_LINK_OR_NONE}}
 - Finite evidence budget and stop-rule reference or `not-applicable`: {{PERFORMANCE_BUDGET_AND_STOP_REFERENCE_OR_NOT_APPLICABLE}}
+- Execution packet link or `not-applicable`: {{PERFORMANCE_EXECUTION_PACKET_OR_NOT_APPLICABLE}}
 - Outcome and evidence handoff or `none`: {{PERFORMANCE_OUTCOME_AND_EVIDENCE_HANDOFF_OR_NONE}}
+- Gate disposition and supported-scope limit or `not-applicable`: {{PERFORMANCE_GATE_DISPOSITION_AND_SCOPE_OR_NOT_APPLICABLE}}
 
 Human Experience Review is separate. Apply it as required agent review work for each applicable promise. Reuse suitable evidence. The agent inspects the available real result and records observations, conclusions, limits, and next actions. For completed direct human-facing work, normally include a short optional experience handoff with one to three normal-use steps, what to notice, and an invitation for feedback. A missing response does not block closure or create an obligation. Require a human response only when accepted authority explicitly defines a human acceptance gate. Do not record the review or handoff as a fifth testing type.
 
@@ -94,6 +97,7 @@ Reject `UX is good`, `easy to use`, `intuitive`, and similar criteria. Replace e
 ### Closeout Notes
 
 - Four testing decisions: {{AUTOMATED_PERFORMANCE_GUIDED_UNASSISTED_DECISIONS}}
+- Performance evidence: {{BASE_ACTION_APPLICABILITY_PROFILE_PACKET_RESULT_FINDING_WAIVER_EXPIRY_BUDGET_GATE_AND_SCOPE_OR_NONE}}
 - Human Experience Review: {{PROMISE_CONCLUSIONS_EVIDENCE_REVIEWER_AND_LIMITS}}
 - Optional experience handoff: {{SHORT_TRY_IT_STEPS_WHAT_TO_NOTICE_AND_OPTIONAL_FEEDBACK_OR_NOT_APPLICABLE}}
 - Explicit human acceptance gate: {{AUTHORITY_SCOPE_REVIEWER_SURFACE_QUESTION_GATE_EFFECT_AND_RESPONSE_OR_NONE}}

@@ -52,6 +52,8 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 - the validation pass and any follow-up review
 - for `direct` or `indirect` impact, a per-promise map to the owning PRD, affected human-facing surface or indirect effect, work phase, evidence source or selected testing type, and any accepted obligation
 - for `none`, the preserved human boundary and the evidence that will prove it unchanged
+- for each performance candidate, both the base maintenance action and performance applicability disposition
+- for each executable performance candidate, one canonical `PERF-###` profile link plus a finite execution budget and stop-rule reference
 
 For authoritative PRD maintenance, the plan should also settle:
 
@@ -115,6 +117,7 @@ Every plan should cover:
 - MCP strategy and fallback strategy
 - validation and review steps
 - the Human Experience promise map or preserved `none` boundary, with links to the source design and canonical authority
+- the bounded performance-candidate inventory, with no copied product target or implicit execution authority
 
 PRD authority-maintenance plans should additionally cover:
 
@@ -124,6 +127,7 @@ PRD authority-maintenance plans should additionally cover:
 - affected links, risks, plans, and work artifacts
 - delta backlog scope and downstream authority links
 - obligation routing, current-uncertainty planning, and separate testing decisions when Unassisted Goal Testing is implicated
+- canonical performance-profile ownership, execution-packet ownership, evidence reuse, expiry, and phase-gate consumption when Performance Testing is implicated
 
 ## File Writing Rule
 

@@ -36,6 +36,7 @@ Do not create PRDs whose subject is an editorial action. Active filenames, H1 ti
 - If a candidate cuts across several owners, update each owning PRD rather than creating a cross-cutting editorial record.
 - If the current PRDs already cover the decision, create no PRD and record `none` with its rationale outside the active PRD tree.
 - Put each current observable Human Experience outcome in the PRD that owns the affected capability. Link to the [Human Experience Contract](../contracts/human-experience-contract.md) and use the [Human Experience Reference](human-experience.md) for examples. Do not create an editorial Human Experience PRD, copy the universal standard, or add Human Experience frontmatter.
+- For each performance candidate, keep the base maintenance action separate from its performance applicability disposition. A hard product target and its canonical `PERF-###` profile belong only in the PRD that owns the protected outcome. Link to plan/work guardrails, characterization, experiments, obligations, results, and history without copying them into competing current authority.
 
 ## Requirement History Contract
 
@@ -135,6 +136,8 @@ Before closing PRD authority maintenance, confirm:
 9. No existing PRD was renumbered or broadly rewritten without an ownership-based reason.
 10. Observable Human Experience outcomes are current requirements in their capability owners, with links to canonical authority and no copied standard, editorial experience PRD, or new frontmatter field.
 11. Plans and work preserve each accepted promise or `none` boundary through observable acceptance, evidence, and any accepted obligation.
+12. Every performance candidate has both decisions, and every executable candidate links exactly one canonical profile with its version, digest, target class, owner, supported scope, and lineage.
+13. No result, Store projection, plan/work profile, or adjacent proof mode changes a hard product target or promotes a support claim.
 
 ## Deterministic Authority Validation
 

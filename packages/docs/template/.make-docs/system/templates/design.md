@@ -51,6 +51,14 @@ Evidence required:
 
 - {{PLANNED_EVIDENCE}}
 
+## Performance Evidence Candidates
+
+When the design contains a performance candidate, read `make-docs://system/contract/performance-evidence-governance.md` with `make-docs resource read`. Keep this inventory short and do not invent a target.
+
+| Candidate | Base maintenance action | Performance applicability | Protected outcome | Decision informed | Canonical owner or next record |
+| --- | --- | --- | --- | --- | --- |
+| {{PERFORMANCE_CANDIDATE_OR_NONE}} | `{{BASE_MAINTENANCE_ACTION}}` | `{{REQUIRED_NOW_CHARACTERIZE_NOW_DEFER_REQUIRED_NOT_NEEDED_OR_REJECT_UNSUPPORTED}}` | {{PROTECTED_OUTCOME_OR_NONE}} | {{DECISION_INFORMED_OR_NONE}} | {{OWNER_PERF_O_OR_NONE}} |
+
 ## Decision
 
 Describe the chosen approach clearly enough that planning can proceed from it.

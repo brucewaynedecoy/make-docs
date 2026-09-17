@@ -89,6 +89,25 @@ Human Experience is a cross-cutting lens. It is not a new lifecycle stage. Use t
 
 This lens does not replace architecture, accessibility, visual design, security, privacy, safety, performance, Persona, or testing authority. Use those owners when their specialized decision is required. Direct impact does not activate Unassisted Goal Testing by itself.
 
+### Performance Evidence
+
+Performance Evidence is a cross-cutting decision and evidence path. It is not mandatory for every change. Use the [Performance Evidence Governance Contract](../contracts/performance-evidence-governance.md) as the only detailed policy source and the [Performance Evidence Reference](performance-evidence.md) for explanation. Keep the two candidate decisions separate: the base maintenance action and the performance applicability disposition.
+
+| Lifecycle point | Local action |
+| --- | --- |
+| Design | Inventory current candidates, protected outcomes, and decisions without inventing targets. |
+| Plan | Select each target class and canonical owner. Give every executable candidate one `PERF-###` profile and a finite evidence budget. |
+| PRD | Keep hard product targets only in the owning PRD. Link to bounded non-product profiles without copying their targets. |
+| Work backlog | Link the canonical profile and render a finite execution packet with build, environment, workload, measurement, correctness, budget, fingerprint, reuse, stop, and evidence fields. |
+| Implementation | Validate correctness and the measurement seam first. Execute only an authorized packet. Reuse unchanged evidence and rerun only affected checks within the remaining budget. |
+| Coverage | Record both candidate decisions. Keep Performance Testing separate from the other testing types and review lenses. |
+| Closeout | Consume result validity, findings, waivers, obligations, expiry, comparability, budget, reuse, requalification, gate effect, and supported scope. Missing, expired, invalid, non-comparable, adjacent-mode, or unrun required evidence does not pass. |
+| Release / publish | Do not turn a performance result or waiver into installed-product proof, release readiness, public support, or wider scope. |
+
+Repository records own qualification, profile meaning, target authority, supported scope, findings, waivers, obligations, and history. Optional Project State or Global Store data is a rebuildable operational aid. It proves recording only and cannot authorize a run, renew a budget, or change an outcome.
+
+At the first qualifying lifecycle event after adoption, inventory current performance claims and assets without retroactive failure or inferred certification. Route an ambiguous or modified managed resource through the compatibility conflict stop in the [PRD Change Management Guide](prd-change-management.md) and its owning authority.
+
 ## Default Ordering
 
 Implementation normally derives from a work backlog.

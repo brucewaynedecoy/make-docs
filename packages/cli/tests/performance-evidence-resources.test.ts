@@ -46,6 +46,20 @@ const workflowMembership = {
 const routerCases = ["designs", "plans", "prd", "work"].flatMap(directory =>
   ["AGENTS.md", "CLAUDE.md"].map(name => [`docs/${directory}/${name}`, directory, name] as const),
 );
+const lifecycleProjectionPaths = [
+  ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
+  ".make-docs/system/references/execution-workflow.md",
+  ".make-docs/system/references/lifecycle.md",
+  ".make-docs/system/references/planning-workflow.md",
+  ".make-docs/system/references/prd-change-management.md",
+  ".make-docs/system/templates/design.md",
+  ".make-docs/system/templates/plan-overview.md",
+  ".make-docs/system/templates/work-phase.md",
+] as const;
+const lifecycleFixturePath = path.join(
+  repoRoot,
+  "packages/cli/tests/fixtures/performance-evidence/lifecycle-cases.md",
+);
 
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
@@ -145,6 +159,7 @@ describe("Performance Evidence resource delivery", () => {
       "utf8",
     );
     for (const body of [coverage, workPhase]) {
+      expect(body).toContain("Base maintenance action");
       expect(body).toContain("Performance applicability");
       expect(body).toContain("Canonical `PERF-###` profile link or `none`");
       expect(body).toContain("Finite evidence budget and stop-rule reference or `not-applicable`");
@@ -152,6 +167,116 @@ describe("Performance Evidence resource delivery", () => {
       expect(body).not.toContain("## Assign One Target Class And Owner");
       expect(body).not.toContain("## Define Comparable Evidence");
     }
+  });
+
+  it("keeps P3 lifecycle surfaces upstream-first and thin", () => {
+    for (const relativePath of lifecycleProjectionPaths) {
+      const upstream = readFileSync(path.join(repoRoot, "packages/docs/template", relativePath));
+      expect(readFileSync(path.join(TEMPLATE_ROOT, relativePath))).toEqual(upstream);
+      expect(readFileSync(path.join(repoRoot, relativePath))).toEqual(upstream);
+    }
+
+    const lifecycle = readFileSync(
+      path.join(TEMPLATE_ROOT, ".make-docs/system/references/lifecycle.md"),
+      "utf8",
+    );
+    for (const lifecyclePoint of [
+      "Design",
+      "Plan",
+      "PRD",
+      "Work backlog",
+      "Implementation",
+      "Coverage",
+      "Closeout",
+      "Release / publish",
+    ]) {
+      expect(lifecycle).toContain(`| ${lifecyclePoint} |`);
+    }
+    expect(lifecycle).toContain("the only detailed policy source");
+    expect(lifecycle).toContain("proves recording only");
+  });
+
+  it("covers target classes, outcomes, gates, reuse, expiry, and proof separation with documentation fixtures", () => {
+    const fixture = readFileSync(lifecycleFixturePath, "utf8");
+
+    for (const targetClass of [
+      "hard-product-requirement",
+      "engineering-guardrail",
+      "characterization-baseline",
+      "experiment-or-stretch",
+      "deferred-required-outcome",
+      "unsupported-assumption",
+    ]) {
+      expect(fixture).toContain(`\`${targetClass}\``);
+    }
+    for (const outcome of ["pass", "fail", "revise", "blocked", "waived"]) {
+      expect(fixture).toContain(`\`${outcome}\``);
+    }
+    for (const requiredCase of [
+      "Expired result",
+      "Non-comparable result",
+      "Missing or invalid result",
+      "Adjacent-mode evidence",
+      "Unchanged reuse",
+      "Affected-only rerun",
+      "Budget exhausted",
+      "First requalification execution",
+      "Repeated requalification execution",
+    ]) {
+      expect(fixture).toContain(`| ${requiredCase} |`);
+    }
+    for (const packetField of [
+      "Environment",
+      "Workload and fixture",
+      "Instrument and measurement",
+      "Correctness precondition",
+      "Finite budget",
+      "Fingerprint",
+      "Reuse rule",
+      "Stop rule",
+      "Evidence destinations",
+    ]) {
+      expect(fixture).toContain(`| ${packetField} |`);
+    }
+    for (const promotionField of [
+      "Source",
+      "Comparability",
+      "Normal variance",
+      "Measurement resolution",
+      "Protected-outcome rationale",
+      "Trade-offs",
+      "Owner approval",
+      "Superseding lineage",
+    ]) {
+      expect(fixture).toContain(`| ${promotionField} |`);
+    }
+    for (const resultField of [
+      "Identity",
+      "Exact profile binding",
+      "Build",
+      "Fingerprint",
+      "Environment",
+      "Workload",
+      "Raw evidence",
+      "Analyzed evidence",
+      "Observed distribution",
+      "Uncertainty",
+      "Exclusions",
+      "Budget ledger",
+      "Outcome",
+      "Findings",
+      "Owner or reviewer disposition",
+      "Scope limit",
+      "Expiry",
+      "Later-result link",
+    ]) {
+      expect(fixture).toContain(`| ${resultField} |`);
+    }
+    expect(fixture).toContain("Task completion does not close it.");
+    expect(fixture).toContain("A Store receipt proves recording only.");
+    expect(fixture).toContain("Performance Testing remains separate from Automated Implementation Testing");
+    expect(fixture).toContain("Do not retroactively fail a completed phase.");
+    expect(fixture).toContain("PRD 18 conflict stop");
   });
 
   it("keeps the contract as the only reusable policy authority", () => {
