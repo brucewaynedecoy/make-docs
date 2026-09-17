@@ -6,8 +6,8 @@ coordinate: "W19 R2"
 follow_on:
   route: "implementation-loop"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "The backlog preserves completed P1 authority history and carries the current P2, P3, and P5 documentation-first implementation queue."
-  coordinate_handoff: "Carry W19 R2 P1 as completed authority history. Implementation begins at P2 after its current phase-entry gate and separate authorization. P4 remains not authorized and is not required for W19 R2 closeout."
+  why: "P1 through P3 are complete. P4 is admitted but requires its decision-only authority commit and separate implementation authority before P5."
+  coordinate_handoff: "Carry completed W19 R2 P1 through P3 as history. Keep the P4 decision commit, P4 implementation commit, and P5 gates separate."
 source:
   type: "prd"
   path: "docs/prd/48-performance-evidence-governance.md"
@@ -21,13 +21,15 @@ source:
 
 Turn the accepted W19 R2 plan and reconciled PRD authority into a dependency-ordered implementation queue for documentation-first performance-evidence governance. This backlog preserves target-class authority, characterization before threshold promotion, versioned `PERF-###` profiles, finite budgets and diminishing-return stops, unchanged-result reuse, affected-only reruns, explicit single-execution expiry or release requalification, normalized outcomes, non-sacrificable correctness and safety constraints, and proof-mode separation. It creates no universal target, sample-count default, statistical recipe, benchmark framework, release authority, or support claim.
 
-W19 R2 P1 records completed PRD reconciliation. Its authority landed in commit `02002ba` and later received current static-adapter and testing-boundary updates. Its work file is historical closeout evidence, not a rerun queue. Implementation begins at P2 after the current phase-entry gate unlocks and the owner gives separate implementation authority.
+W19 R2 P1 records completed PRD reconciliation. Its authority landed in commit `02002ba` and later received current static-adapter and testing-boundary updates. P2 landed in `f79ec885`. P3 landed in `b840b746`. Their work files are historical closeout evidence, not rerun queues. P4 is the next implementation phase after its decision-only authority commit and separate implementation authority.
 
 ## Authority And Source Inputs
 
 - [Accepted W19 R2 plan](../../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
 - [Accepted W19 R2 P1 plan phase](../../plans/2026-08-13-w19-r2-performance-evidence-governance/01-prd-authority-and-target-inventory.md)
 - [PRD 03 — Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md)
+- [PRD 25 — TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md)
+- [PRD 39 — CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [PRD 48 — Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
 - [PRD 49 — Human Experience Standard and Intent](../../prd/49-human-experience-standard-and-intent.md)
 - [PRD 50 — Proportionate Testing and Human-Centered Validation](../../prd/50-proportionate-testing-and-human-centered-validation.md)
@@ -44,6 +46,20 @@ P4 remains `blocked / not-authorized`. W19 R2 can complete through P2, P3, and P
 
 The accepted design, plan, and P1 digest record keep their historical terms as provenance. This active backlog and current PRD 48 control implementation.
 
+## 2026-09-17 P4 Admission Decision
+
+The owner admitted P4 as a dual-path Performance Evidence validator. This decision supersedes only the prospective P4 status in the 2026-09-16 rewrite. It does not rewrite the historical fact that P4 was not authorized when P2 and P3 closed.
+
+The admitted capability contains:
+
+- one read-only `performance.evidence.validate` TypeScript core;
+- one CLI projection and one derived MCP tool with the same complete result;
+- one canonical installed agent method for CLI-absent projects and catalog-marked judgment questions;
+- one stable rule catalog that maps deterministic rules, agent instructions, diagnostics, fixtures, and explicit one-sided reasons; and
+- distinct `validator-passed`, `agent-reviewed`, and `combined` proof states that cannot certify the other method or prove a performance outcome.
+
+This decision authorizes only the PRD, plan, work, risk, and requirement-history updates needed to record the direction. It does not authorize P4 implementation, staging, commit, push, benchmark execution, publication, release, or support promotion. P4 implementation stays locked until these decision-only changes pass focused validation, receive a separate reviewed commit, record that commit SHA in the P4 phase-entry record, and receive separate implementation authority.
+
 ## Human Experience Trace
 
 | Promise | Work phase | Evidence and gate |
@@ -51,6 +67,7 @@ The accepted design, plan, and P1 digest record keep their historical terms as p
 | A maintainer can decide whether performance evidence is useful now without inventing a target. | P2 and P3 | Review the real contract, prompt, reference, profile, and lifecycle examples. Unsupported candidates must stop without an executable profile. |
 | A maintainer can identify the target owner, current evidence state, finite budget, stop condition, result, and next action. | P2, P3, and P5 | Agent Human Experience Review of the shipped and installed resources. A material gap blocks only the affected claim. |
 | Internal Store, fingerprint, and schema detail stays out of the normal decision path while exact evidence remains available. | P3 and P5 | Inspect normal human-facing guidance and the detailed evidence path. Store projection remains non-authoritative. |
+| A maintainer can use deterministic checks when the CLI is available or receive a clear bounded agent review when it is not, without confusing either path with a performance result. | P4 and P5 | Review CLI/MCP parity, installed agent instructions, rule mappings, proof states, and the real human-facing result. |
 | The implementation does not ask a person to repeat automated proof or approve a report by default. | P5 | Guided Progress Review stays optional. Human feedback is invited only through a short optional handoff unless an explicit gate applies. |
 
 ## Phase-Entry PRD Question And Risk Gate
@@ -68,28 +85,27 @@ Task completion never closes a question, risk, finding, waiver, deferred obligat
 | File | Coordinate | State | Purpose |
 | --- | --- | --- | --- |
 | [01-prd-authority-and-target-inventory.md](./01-prd-authority-and-target-inventory.md) | W19 R2 P1 | Completed authority history; superseded terms are labeled | Preserve the original target inventory, PRD 48 creation, consumer updates, risk dispositions, and validation without treating retired PRDs as current authority. |
-| [02-governance-resources-and-routing.md](./02-governance-resources-and-routing.md) | W19 R2 P2 | Ready after its current phase-entry gate and separate implementation authority | Author the four peer governance resources upstream, keep routers thin, and prove resource resolution and projection lineage. |
-| [03-lifecycle-evidence-compatibility-and-state.md](./03-lifecycle-evidence-compatibility-and-state.md) | W19 R2 P3 | Depends on P2 | Connect qualification, execution packets, results, expiry, gates, compatibility, proof-mode separation, and optional state without moving product authority. |
-| [04-optional-validator-operation.md](./04-optional-validator-operation.md) | W19 R2 P4 | Blocked / not authorized | Admit and implement a deterministic validator only after an explicit owner decision and separately committed PRD 25/39 authority. |
-| [05-packaging-validation-and-delta-handoff.md](./05-packaging-validation-and-delta-handoff.md) | W19 R2 P5 | Depends on P2 and P3; P4 may remain not authorized | Prove upstream, package, dogfood, and installed integrity; run proportionate validation; complete agent review; and prepare the bounded closeout. |
+| [02-governance-resources-and-routing.md](./02-governance-resources-and-routing.md) | W19 R2 P2 | Completed and committed as `f79ec885` | Author the four peer governance resources upstream, keep routers thin, and prove resource resolution and projection lineage. |
+| [03-lifecycle-evidence-compatibility-and-state.md](./03-lifecycle-evidence-compatibility-and-state.md) | W19 R2 P3 | Completed and committed as `b840b746` | Connect qualification, execution packets, results, expiry, gates, compatibility, proof-mode separation, and optional state without moving product authority. |
+| [04-optional-validator-operation.md](./04-optional-validator-operation.md) | W19 R2 P4 | Direction admitted; decision-only commit and separate implementation authority pending | Implement and prove one deterministic CLI/MCP core, one installed agent method, one mapped rule catalog, and distinct proof states without benchmark or product judgment. |
+| [05-packaging-validation-and-delta-handoff.md](./05-packaging-validation-and-delta-handoff.md) | W19 R2 P5 | Depends on accepted and committed P4 | Prove upstream, package, dogfood, installed agent fallback, CLI/MCP parity, catalog integrity, and bounded closeout. |
 
 ## Usage Notes
 
-- Read P1 as completed authority history, then implement P2, P3, and P5 in order. Do not execute P4 unless its admission gate is separately satisfied.
-- P5 may consume a documented `not-authorized` or `deferred` P4 disposition; P4 is not an implicit prerequisite for documentation-first completion.
+- Read P1 through P3 as completed history. Validate and commit the P4 admission decision before requesting separate P4 implementation authority. P5 follows accepted and committed P4 delivery.
 - Candidate mappings in phase-entry stages are minimum starters. The live PRD 03 reread controls.
 - Each phase allows at most two materially distinct correction attempts and two review cycles. Retry only affected failed checks after a material change; reuse unchanged valid evidence.
 - Stop on budget exhaustion, diminishing returns, unsafe resource growth, conflicting authority, or a blocking phase-entry item.
-- No `O-###`, `NUAT-###`, or finding is assigned at backlog generation. Each phase records valid `none` until current authority and phase scope establish a real reference. P4's not-authorized state creates no obligation.
+- No `O-###`, `NUAT-###`, or finding is assigned at backlog generation. Each phase records valid `none` until current authority and phase scope establish a real reference. The P4 admission decision creates no deferred obligation.
 - Apply agent Human Experience Review to the maintainer-facing resources and installed result. Give a short optional experience handoff for direct work. Do not require a human response without an explicit gate.
 - Work tasks may implement only their named phase. They may not silently promote plan/work guardrails to product authority or close findings, risks, or deferred obligations.
-- P2, P3, and P5 implementation, commits, publication, release, deployment, benchmark execution, and support-claim promotion remain subject to their own authorization and phase gates. P4 is not part of the current implementation path.
+- P4 and P5 implementation, commits, publication, release, deployment, benchmark execution, and support-claim promotion remain subject to their own authorization and phase gates.
 
 ## Intended Follow-On
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
 - Route: `implementation-loop`
-- Next step: After this authority rewrite is reviewed and separate implementation authority is given, begin W19 R2 P2 with its Stage 1 phase-entry PRD question and risk gate.
-- Why: P1 authority is committed. P2, P3, and P5 are the remaining documentation-first implementation path. P4 remains outside that path.
-- Coordinate Handoff: Carry completed `W19 R2 P1` as history. Add the active P coordinate when P2, P3, or P5 starts. Keep any phase-entry decision-only commit separate from implementation commits.
+- Next step: Validate these decision-only P4 authority changes and stop for separate staging and commit authority. After the decision commit exists, record its SHA and stop for separate P4 implementation authority.
+- Why: P2 and P3 are complete. P4 is now required before P5, but this decision does not authorize code or package changes.
+- Coordinate Handoff: Carry completed P1, P2, and P3 as history. Keep the P4 decision commit, P4 implementation commit, P5 implementation, and P5 commit as separate gates.

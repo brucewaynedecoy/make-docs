@@ -2095,6 +2095,20 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: Implement and validate the W21 R0 resource set. Show that supported agents select the smallest useful test, stop at sufficient evidence, reject unsupported gates, reuse valid evidence, and give a person one short installed-product testing experience that is easier and more meaningful than the prior technical walkthrough pattern.
 
+### R-035 Deterministic and Agentic Performance Validation Could Drift or Overstate Proof
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner admitted W19 R2 P4 as a dual-path Performance Evidence validator. One read-only TypeScript core projects through CLI and MCP. One canonical installed agent method supports projects where the CLI is absent or unavailable and handles questions that require judgment. A stable rule catalog maps both methods, and proof states remain distinct. Neither method certifies the other or proves a performance outcome. | W19 R2 P4 must implement the catalog, deterministic core, installed agent instructions, distinct proof states, and focused parity tests. W19 R2 P5 must prove packed delivery, CLI/MCP parity, agent fallback availability, explicit one-sided reasons, and no proof substitution. |
+
+**Issue**: The deterministic operation and agent instructions can drift. A project can then receive different findings based on the available method. A report can also imply that the missing method ran or that structural validation proved a product, performance, release, or support result.
+
+**Why it matters**: Drift weakens repeatability and trust. Running the agent for every objective fact wastes tokens and time. Requiring the CLI for every project removes a useful fallback. Cross-certification can turn limited evidence into a false pass or support claim.
+
+**Recommendation**: Keep one stable rule catalog. Prefer deterministic checks for admitted objective facts. Use the canonical agent method for CLI-absent projects and judgment-only questions. Preserve `validator-passed`, `agent-reviewed`, and `combined` as evidence-path states, not performance outcomes. Fail parity checks when a twin changes without review, a one-sided rule lacks a reason, CLI and MCP differ, or installed instructions are missing.
+
+**To close**: Focused operation, catalog, installed-resource, and parity evidence shows that both methods apply the mapped contract, expose their limits, never claim the other method ran, never make forbidden product judgments, and never substitute for performance, installed-product, release, or support proof.
+
 ## Source Anchors
 
 - `docs/designs/2026-08-28-human-experience-standard-and-intent.md`

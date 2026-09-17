@@ -145,6 +145,14 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 - Selected-skill prose, references, examples, metadata, and routing may remain skill assets, but they never become the sole owner of deterministic Make Docs behavior. Thin compatibility wrappers may remain only after an equivalent shared operation exists. Custom user scripts remain custom and outside this migration unless explicitly brought into scope by a later PRD.
 - Each retained operation exposes deterministic inputs, outputs, read-only or dry-run behavior where applicable, provenance, and error semantics shared by CLI and MCP. Modules align with operation domains and remain testable without the CLI parser or MCP transport.
 
+#### Performance Evidence Validation Twin
+
+- The admitted `performance.evidence.validate` operation is a read-only deterministic twin of the canonical agent instructions in the Performance Evidence Governance contract. The operation is projected through the CLI and MCP from one TypeScript core and one structured result.
+- The agentic method remains available when the CLI is absent or unavailable. It reads repository authority, applies the canonical instructions, reports its evidence and limits, and does not become a registry operation.
+- One stable rule catalog maps every rule to its fact-or-decision class, deterministic support state, agent instruction location, judgment requirement, diagnostic code, and focused fixtures or tests. A one-sided rule requires an explicit reason.
+- An earned proof state is `validator-passed`, `agent-reviewed`, or `combined`. A failed, blocked, or refused deterministic result records its typed status and earns no favorable proof state. The proof state reports which method supplied accepted evidence. It does not certify the other method, prove a performance outcome, authorize execution, or promote a support claim.
+- Focused parity checks fail when a deterministic rule or agent instruction changes without review of its mapped twin, when a one-sided rule lacks a mapping or reason, when CLI and MCP results differ, or when installed resources omit the agent method.
+
 #### Operation-First Migration Sequence
 
 1. Add the shared operation or system-resource replacement and its focused tests.
@@ -197,6 +205,7 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - MCP writes require explicit permission and registry-parity proof.
 - Bounded lifecycle operations use general run/evidence records and return surface-neutral typed receipts without Playbook-specific state.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.
+- Performance evidence validation preserves one read-only TypeScript core across CLI and MCP, one canonical agent method in installed resources, one mapped rule catalog, and distinct proof states that prevent either method from certifying the other.
 - Validation covers CLI/MCP parity, noninteractive/dry-run behavior, provider/cache failure behavior, package-runner behavior, and direct installed-product checks for each method declared by a source-owned static harness adapter before public support language changes.
 ## Contracts and Data
 
@@ -208,6 +217,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-17 — W19 R2 P4 Admission
+
+- Affected requirement or section: `Domain and Script Classification`, `Performance Evidence Validation Twin`, and `Acceptance Criteria`
+- Previous contract: Deterministic operations and agent judgment had a general separation, but performance evidence validation was not admitted and had no shared rule-catalog or proof-state contract.
+- Replacement contract: W19 R2 P4 may implement one read-only deterministic operation through CLI and MCP plus one canonical agent method for CLI-absent projects. A stable catalog maps the twins, and distinct proof states prevent cross-certification.
+- Rationale: Deterministic checks reduce repeated cost and improve repeatability, while the agent method preserves useful validation where the CLI is unavailable and handles questions that require judgment.
+- Source: owner-approved W19 R2 P4 direction and the [active W19 R2 backlog](../work/2026-08-14-w19-r2-performance-evidence-governance/00-index.md)
 
 ### 2026-09-14 — W19 R6 P3
 

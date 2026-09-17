@@ -34,7 +34,7 @@ It does not make performance proof mandatory for every change; define a product 
 | Results and findings | Record comparable observations, uncertainty, normalized outcomes, defects, and escalation choices | Repository records linked to the canonical profile and owning requirement |
 | Operational projection | Support resumability, raw-observation references, fingerprints, and budget ledgers without relocating product meaning | Optional rebuildable projection under [PRD 38](38-global-store-and-project-state.md) |
 | Lifecycle consumption | Route candidates, evidence, findings, waivers, and obligations through coverage and phase gates | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) |
-| Deterministic validation | Report structural and traceability facts without making product judgments | Documentation-first contract now; any validator operation requires a separate future owner gate |
+| Dual-path validation | Report structural and traceability facts through one deterministic CLI/MCP operation or one canonical agent method without making product judgments | This PRD owns the performance boundary; [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns the runtime split; [PRD 39](39-cli-command-model-and-operation-registry.md) owns the admitted operation and projections |
 
 ## Requirements
 
@@ -119,12 +119,17 @@ It does not make performance proof mandatory for every change; define a product 
 - R-PERF-COMPAT-3 (MUST): existing scripts and results remain assets according to their proven ownership. Adoption does not delete, move, rename, rerun, certify, tighten, promote, or broaden them; infer a pass from old green output; fabricate missing evidence; or rewrite archives.
 - R-PERF-COMPAT-4 (MUST): modified managed resources and ambiguous project content follow [PRD 18](18-compatibility-classification-and-migration-safety.md) conflict-stop and explicit-disposition rules.
 
-### R-PERF-AUTOMATION Documentation First and Deterministic Limits
+### R-PERF-AUTOMATION Dual-Path Validation and Deterministic Limits
 
-- R-PERF-AUTOMATION-1 (MUST): first delivery is documentation-first: one governing contract, progressive profile template, performance coverage starter, lifecycle and phase-gate references, plan/work linkage, and concise routers delivered through the current resource model. It does not require or imply a benchmark platform.
-- R-PERF-AUTOMATION-2 (MAY): only after a separate explicit owner gate may a deterministic TypeScript validator inventory candidate language and verify structural facts such as profile identity, fields, links, owner/location by class, approval, expiry, budget, stop rules, traceability, evidence references, stricter work criteria, and declared fingerprint equality.
-- R-PERF-AUTOMATION-3 (MUST NOT): automation decides applicability, maturity, target value, statistical treatment, representative environment, comparability, user impact, severity, acceptable trade-offs, waiver approval, obligation fulfillment, supported scope, requirement changes, or support-claim promotion. It reports missing, contradictory, or unsupported declarations and never authorizes execution or retries.
-- R-PERF-AUTOMATION-4 (MUST): [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [PRD 39](39-cli-command-model-and-operation-registry.md) are not current validator-operation authority. They may be maintained only after the separate gate admits an operation, exact modules and fixtures, read-only failure behavior, and CLI/MCP projection from one shared result schema.
+- R-PERF-AUTOMATION-1 (MUST): the documentation-first delivery remains the policy authority: one governing contract, progressive profile template, performance coverage starter, lifecycle and phase-gate references, plan/work linkage, and concise routers delivered through the current resource model. The admitted validator adds no benchmark platform.
+- R-PERF-AUTOMATION-2 (MUST): W19 R2 P4 implements one deterministic TypeScript operation through one shared CLI/MCP result and one canonical agent method in the installed Performance Evidence Governance instructions. The agent method remains usable when the CLI is absent or unavailable.
+- R-PERF-AUTOMATION-3 (MAY): the deterministic operation may inventory candidate numeric units, rates, percentiles, percentages, resource quantities, relative comparisons, and absolute performance language. It may validate `PERF-###` identity and version, required fields and links, target-class owner and location, approval, expiry, finite budget and stop rules, allowed outcome vocabulary, declared fingerprint equality, profile-to-work/result/finding traceability, evidence references, and work criteria that are stricter than linked product authority.
+- R-PERF-AUTOMATION-4 (MUST): the agent method performs an equivalent structural and traceability review from repository authority, handles judgment-only questions, and reports its evidence, observation, conclusion, limit, and next action. It never claims that the deterministic validator ran.
+- R-PERF-AUTOMATION-5 (MUST NOT): either method decides applicability, maturity, target value, statistical treatment, representative environment, comparability, user impact, severity, acceptable trade-offs, waiver approval, obligation fulfillment, supported scope, requirement changes, or support-claim promotion. It never authorizes execution, a rerun, or a renewed budget.
+- R-PERF-AUTOMATION-6 (MUST): one stable rule catalog links every rule to its fact-or-decision class, deterministic support state, agent instruction location, judgment requirement, diagnostic code, focused fixtures or tests, and parity mapping or an explicit one-sided reason.
+- R-PERF-AUTOMATION-7 (MUST): accepted validation evidence may record exactly one proof state: `validator-passed`, `agent-reviewed`, or `combined`. A failed, blocked, or refused deterministic result records its typed validation status and no favorable proof state. `combined` requires a passed deterministic result and a completed agent review and retains both records separately. No proof state is a performance outcome or adjacent proof.
+- R-PERF-AUTOMATION-8 (MUST): focused parity checks fail when either twin changes without review of the mapped twin, a one-sided rule lacks a mapping or reason, CLI and MCP results differ, or installed resources omit the agent method.
+- R-PERF-AUTOMATION-9 (MUST NOT): the validator or agent method runs a benchmark, writes or repairs project files, selects a target or remediation, creates hidden state, loops on results, or substitutes for Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, installed-product proof, release proof, or support authority.
 
 ## Contracts and Data
 
@@ -182,6 +187,12 @@ Expiry records current-use status, material-change triggers, time or release bou
 
 `qualification -> PERF-### profile -> plan budget -> work execution packet -> performance result -> finding -> PRD or O-### disposition -> phase gate -> history`
 
+### Validation Rule Catalog and Proof State
+
+The rule catalog is the stable link between deterministic checks, canonical agent instructions, and focused evidence. Each entry records `rule_id`, `class` as `fact` or `decision`, deterministic support state, agent instruction anchor, judgment requirement, diagnostic code, fixture or test references, and the parity mapping or explicit one-sided reason.
+
+The validation record preserves its typed validation status, any earned proof state, exact repository target, catalog version or digest, deterministic result when run, agent review result when performed, findings, evidence references, limits, and next action. `validator-passed` means only that the deterministic rules passed. `agent-reviewed` means only that the bounded agent review was completed. `combined` means that the deterministic rules passed and the agent review was completed, with both records separately inspectable. A failed, blocked, or refused deterministic result earns no favorable proof state. None of these values changes a `PERF-###` outcome, target authority, waiver, obligation, phase gate, installed-product claim, release claim, or support claim.
+
 ## Integrations
 
 - [06 Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md) owns upstream-first authoring and delivery of the governing contract, prompt, reference, progressive profile template, and thin routers.
@@ -195,7 +206,7 @@ Expiry records current-use status, material-change triggers, time or release bou
 - [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings and unassisted human-goal evidence without certifying a quantitative performance profile.
 - [49 Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) owns agent Human Experience Review and the optional experience handoff. Performance evidence can support an applicable promise, but it cannot claim a lived human reaction or require a human response without an explicit gate.
 - [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection, the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
-- [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) and [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) are future integration candidates only after the separate validator admission gate; they are not current operation authority for this capability.
+- [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns the deterministic-versus-agent runtime split. [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) admits `performance.evidence.validate` as pending W19 R2 P4 work and owns its CLI/MCP projections, catalog mapping, proof-state transport, and parity tests.
 
 ## Common Testing Standard Consumption
 
@@ -212,9 +223,17 @@ Performance Testing must consume the shared testing decision from [PRD 50](50-pr
 
 A clean-room rebuild must preserve applicability as a first-class decision, maturity proportionality, one canonical authority per target class, characterization before promotion, append-only `PERF-###` identity, meaningful version and superseding lineage, predeclared comparable measurement, visible uncertainty and outliers, non-sacrificable constraints, finite budgets, affected-only reruns, unchanged-result reuse, diminishing-return stops, normalized outcomes, bounded waivers, singular requalification, conservative adoption, proof-mode separation, and repository authority over optional operational projections.
 
-Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, static-adapter, direct installed-product, release, or support proof, or add a validator that makes product judgments or runs benchmarks. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
+Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, static-adapter, direct installed-product, release, or support proof, or add a validator that makes product judgments or runs benchmarks. They must preserve the dual-path rule catalog, installed agent method, distinct proof states, and the rule that neither method certifies the other. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
 
 ## Requirement History
+
+### 2026-09-17 — W19 R2 P4 Admission
+
+- Affected requirement or section: component map, `R-PERF-AUTOMATION`, contracts and data, integrations, and rebuild notes.
+- Previous contract: Delivery was documentation-first, and any future deterministic validator needed a later owner gate. No agent fallback, shared rule catalog, or distinct proof state was normative.
+- Replacement contract: The owner admitted W19 R2 P4 as a dual-path validator. One read-only deterministic operation projects through CLI and MCP. One canonical installed agent method supports CLI-absent projects and judgment-only review. A stable catalog maps the methods, and distinct proof states prevent cross-certification or proof substitution.
+- Rationale: The two paths improve repeatability and access while keeping repository authority, product judgment, performance outcomes, and adjacent proof modes separate.
+- Source: owner-approved W19 R2 P4 direction and the [active W19 R2 backlog](../work/2026-08-14-w19-r2-performance-evidence-governance/00-index.md).
 
 ### 2026-09-16 — W19 R2 Authority Rewrite
 

@@ -4,17 +4,17 @@ kind: "plan"
 status: "draft"
 coordinate: "W19 R2"
 follow_on:
-  route: "prd-generation"
-  next_prompt: ".make-docs/system/prompts/prd-change-to-work.prompt.md"
-  why: "Performance Evidence Governance must become current PRD authority before implementation work can create governance resources, execute profiles, or admit an optional validator."
-  coordinate_handoff: "Carry W19 R2 into maintained PRD requirement history, source links, and one downstream W19 R2 delta backlog."
+  route: "implementation-loop"
+  next_prompt: ".make-docs/system/references/execution-workflow.md"
+  why: "P2 and P3 are complete. P4 is admitted but requires its decision-only authority commit and separate implementation authority before code or package work."
+  coordinate_handoff: "Carry completed W19 R2 P1 through P3 as history. Keep the P4 decision commit, P4 implementation commit, and P5 gates separate."
 ---
 
 # W19 R2 Performance Evidence Governance
 
 ## Purpose
 
-Translate the accepted [Performance Testing Guardrails design](../../designs/2026-08-12-performance-testing-guardrails.md) into a decision-complete PRD authority-maintenance and delivery plan. The plan creates one coherent Performance Evidence Governance product authority, reconciles its existing consumers, and sequences documentation-first resources before any separately accepted deterministic validator. It does not authorize PRD edits, backlog generation, benchmark execution, implementation, dogfood projection, or publication.
+Translate the accepted [Performance Testing Guardrails design](../../designs/2026-08-12-performance-testing-guardrails.md) into a decision-complete PRD authority-maintenance and delivery plan. The plan creates one coherent Performance Evidence Governance product authority, reconciles its existing consumers, and sequences documentation-first resources before the owner-admitted dual-path validator. It does not authorize benchmark execution, implementation, staging, commit, dogfood projection, publication, release, or support promotion.
 
 ## Objective
 
@@ -25,7 +25,7 @@ Completion of this plan requires later, separately authorized stages to:
 - deliver one upstream-first contract, progressive profile template, performance-coverage prompt, governing reference, and thin routers through the accepted system-resource layout;
 - keep product-owned hard requirements distinct from phase-owned engineering guardrails and forbid silent authority promotion;
 - preserve repository authority while allowing optional machine-local operational evidence capture;
-- keep the first delivery documentation-first and admit any TypeScript validator only after a separate owner decision; and
+- keep the first delivery documentation-first, then implement the owner-admitted dual-path validator only after its decision commit and separate implementation authority; and
 - produce one scoped W19 R2 delta backlog from the maintained PRD set rather than rewriting earlier backlogs.
 
 ## Governing Invariant
@@ -121,7 +121,7 @@ Every candidate has exactly one PRD maintenance decision.
 | Deferred performance outcomes and waiver remediation use `O-###` | `update-existing` | PRD 45 | PRD 45 owns durable future-outcome routing. |
 | Naive UAT may report slowness but cannot certify performance | `update-existing` | PRD 46 | PRD 46 owns UAT modes, evidence, findings, and gates. |
 | Resource identity/layout changes | `link-only` | PRDs 21 and 06 as maintained by W19 R1 | W19 R2 consumes the accepted layout and links its resources; it must not reopen the sibling boundary. |
-| Optional deterministic validator operation and CLI/MCP exposure | `none` for current operation authority | PRD 48 now; PRDs 25 and 39 only after a later owner gate | Documentation-first delivery accepts validator constraints, not validator implementation or operation admission. |
+| Dual-path Performance Evidence validator | `update-existing` | PRDs 25, 39, and 48 | Admit one pending read-only CLI/MCP operation, one installed agent method, one mapped rule catalog, and distinct proof states without authorizing implementation. |
 | Existing numeric conformance and UAT sufficiency minima | `none` | PRDs 20 and 46 | They belong to separate proof modes and remain unchanged. |
 | Universal performance target, host, sample count, variance limit, or benchmark runner | `none` | Not created | Explicit design non-goal. |
 
@@ -132,7 +132,10 @@ All updates are surgical and occur only after plan approval and separate PRD-mai
 | Existing PRD | Owning sections | Planned current normative update | Preserved authority |
 | --- | --- | --- | --- |
 | `00-index.md` | `Document Map` | Add PRD 48 as a `capability`; update related-authority links for direct consumers. | Existing slots, kinds, statuses, and unrelated relationships. |
-| `03-open-questions-and-risk-register.md` | `Rebuild Risks` and any exact existing matching item | Track invented targets, unbounded reruns, and second-authority risk without duplicating existing risks. | Stable D/Q/R/O identities and canonical sections. |
+| `03-open-questions-and-risk-register.md` | `Rebuild Risks` and any exact existing matching item | Track invented targets, unbounded reruns, second-authority risk, deterministic/agent drift, repeated cost, and proof substitution without duplicating existing risks. | Stable D/Q/R/O identities and canonical sections. |
+| `25-typescript-runtime-cli-mcp-operation-boundaries.md` | `No-Scripts Migration Dependency`; `Acceptance Criteria` | Admit one read-only deterministic performance validator through CLI/MCP and one mapped agent method for CLI-absent projects. | Shared TypeScript core, access metadata, and no separate MCP business model. |
+| `39-cli-command-model-and-operation-registry.md` | `R-SURF`; `R-RUN`; `R-PERF-VALIDATE`; `R-TEST` | Admit `performance.evidence.validate` as pending W19 R2 P4 work with exact CLI/MCP projections, catalog mapping, proof states, and parity tests. | One registry, typed pending state, and judgment exclusion. |
+| `48-performance-evidence-governance.md` | `R-PERF-AUTOMATION`; contracts and data; integrations | Replace the future-only validator gate with the owner-admitted dual path and its product-judgment, proof-state, and repository-authority limits. | Documentation-first policy, target authority, finite evidence, and proof-mode separation. |
 | `06-template-contracts-and-generated-assets.md` | `Template Ownership and Mutation Order`; `Contracts and Data` | Add the four governance resources, peer prompt type, concise routers, and upstream-first target layout. | General template mutation order and project-owned content boundary. |
 | `10-packaging-validation-and-release-reference.md` | `Packaging Surface`; `Validation Matrix`; `Package Projection Proof` | Require packaged-resource and dogfood proof while excluding results and benchmark evidence from release/support authority. | Existing release procedure and conformance gates. |
 | `14-lifecycle-workflow-and-coverage-passes.md` | `Pass Skeleton`; `Candidate Record and Verdicts`; `Phase-Close Obligation and UAT Gates` | Add non-persona performance qualification, dispositions, expired-evidence and unchanged-check coverage, and exact gate consumption. | Existing base decisions, UAT/obligation gates, and optional adversarial review. |
@@ -154,7 +157,8 @@ PRD 48 receives no document-level W/R coordinate. It links to the accepted desig
 
 ## Requirement History Entries
 
-- No history entry is required for purely additive cross-mode links or the new PRD 48.
+- PRDs 25, 39, and 48 record the 2026-09-17 W19 R2 P4 admission because it materially replaces the future-only validator boundary.
+- No history entry is required for purely additive cross-mode links.
 - PRD 38 records a W19 R2 history entry only if narrowing "quick access" materially changes a product promise rather than removing an unsupported adjective.
 - Any active hard performance target discovered in the execution-time inventory is updated inline in its actual subsystem owner and receives a W19 R2 history entry only when its material contract is replaced, removed, or reclassified.
 - Performance-plan and work profiles remain operational lineage; they are never copied into Requirement History as current authority.
@@ -164,7 +168,7 @@ PRD 48 receives no document-level W/R coordinate. It links to the accepted desig
 | Surface | Artifact | Required maintenance | Authority role |
 | --- | --- | --- | --- |
 | Index | `docs/prd/00-index.md` | Add PRD 48 and direct relationships. | Navigation only. |
-| Risks | `docs/prd/03-open-questions-and-risk-register.md` | Add or update bounded risks for unsupported targets, rerun loops, authority duplication, and stale evidence. | Living risk/decision register. |
+| Risks | `docs/prd/03-open-questions-and-risk-register.md` | Add or update bounded risks for unsupported targets, rerun loops, authority duplication, stale evidence, twin drift, repeated cost, and proof substitution. | Living risk/decision register. |
 | Plan | This directory | Preserve sequencing, ownership, and owner gates. | Non-product execution authority. |
 | Prior plan | `docs/plans/2026-08-11-w19-r0-playbooks-to-protocol-narrow-guardrail-refactor/` | No edits; supersession is owned by W19 R1. | Historical/unexecuted lineage. |
 | Work | `docs/work/<actual-execution-date>-w19-r2-performance-evidence-governance/` | Resolve the date when work generation executes, then generate one delta backlog only after PRD maintenance passes authority validation. | Future implementation queue. |
@@ -177,7 +181,7 @@ PRD 48 receives no document-level W/R coordinate. It links to the accepted desig
 - Product authority: active `docs/prd/` after authorized maintenance.
 - Execution mode: delegated, coordinator-supervised, disjoint write scopes. The coordinator owns no output-writing task while delegation is available.
 - Initial delivery: documentation resources and representative fixtures only. It does not build a benchmark platform or execute product benchmarks.
-- Later validator delivery: optional, deterministic, TypeScript-owned, and separately gated.
+- Later validator delivery: required before P5, dual-path, TypeScript-owned for deterministic facts, instruction-owned for agent review, and separately gated.
 
 ## Output Contract
 
@@ -186,7 +190,7 @@ PRD 48 receives no document-level W/R coordinate. It links to the accepted desig
   - phases: `01-prd-authority-and-target-inventory.md`, `02-governance-resources-and-routing.md`, `03-lifecycle-evidence-compatibility-and-state.md`, `04-optional-validator-operation.md`, `05-packaging-validation-and-delta-handoff.md`
 - Existing PRD updates: 00, 03, 06, 10, 14, 18, 20, 38, 43, 44, 45, and 46.
 - New PRD: `docs/prd/48-performance-evidence-governance.md`.
-- Conditional future PRD updates: 25 and 39 only if the owner later admits the optional validator operation.
+- P4 admission PRD updates: 03, 25, 39, and 48.
 - Resource identifiers: the four stable URIs in `Planning Preflight Results`.
 - Delta backlog: `docs/work/<actual-execution-date>-w19-r2-performance-evidence-governance/`; resolve the date at work-generation time while preserving `W19 R2`.
 
@@ -197,10 +201,10 @@ PRD 48 receives no document-level W/R coordinate. It links to the accepted desig
 | 1 | [01-prd-authority-and-target-inventory.md](01-prd-authority-and-target-inventory.md) | Repeat the bounded inventory, create PRD 48, reconcile exact consumer PRDs, and validate current authority. |
 | 2 | [02-governance-resources-and-routing.md](02-governance-resources-and-routing.md) | Author the contract, prompt, reference, progressive profile template, and thin routers upstream-first. |
 | 3 | [03-lifecycle-evidence-compatibility-and-state.md](03-lifecycle-evidence-compatibility-and-state.md) | Integrate coverage, gates, execution packets, outcomes, traceability, state, cross-mode boundaries, and conservative adoption. |
-| 4 | [04-optional-validator-operation.md](04-optional-validator-operation.md) | Separately gated deterministic TypeScript validator, shared result schema, and optional CLI/MCP parity. |
+| 4 | [04-optional-validator-operation.md](04-optional-validator-operation.md) | Owner-admitted dual-path validation: one deterministic TypeScript core through CLI/MCP, one installed agent method, one mapped rule catalog, and honest proof states. |
 | 5 | [05-packaging-validation-and-delta-handoff.md](05-packaging-validation-and-delta-handoff.md) | Package/dogfood proof, focused validation, finite closeout, and delta-backlog handoff. |
 
-Phase 1 precedes all delivery. Phases 2 and 3 may proceed in parallel only after W19 R1 has stabilized shared resource and PRD boundaries. Phase 4 is optional and cannot begin without a new owner gate. Phase 5 consumes whichever of phases 2-4 are authorized and completed.
+Phase 1 precedes all delivery. Phases 2 and 3 are complete. The 2026-09-17 owner decision admits Phase 4 after its decision-only authority commit and separate implementation authority. The remaining order is Phase 4, then Phase 5.
 
 ## Worker Ownership
 
@@ -211,7 +215,7 @@ Phase 1 precedes all delivery. Phases 2 and 3 may proceed in parallel only after
 | Shared-surface worker | Index and risk/register assembly | `docs/prd/00-index.md`, `docs/prd/03-open-questions-and-risk-register.md` | All subject PRDs | Coherent navigation and risks. |
 | Governance-resource worker | Contract/prompt/reference/template and routers | `packages/docs/template/.make-docs/system/**` only | Maintained PRDs and W19 R1 layout | Upstream resource set. |
 | Lifecycle-integration worker | Coverage, phase-gate, work-linkage, compatibility, and state docs/templates | Disjoint upstream template/reference surfaces | Phases 1-2 | Integrated documentation-first flow. |
-| Optional-validator worker | Shared TypeScript operation and focused tests | Exact operation/registry/test modules assigned by the future backlog | Separate validator gate | Deterministic validation only. |
+| Dual-path validator worker | Shared TypeScript operation, rule catalog, canonical agent instructions, package assets, and focused tests | Exact modules and resource paths assigned by P4 after its authority gate | Separate P4 implementation authority | Deterministic CLI/MCP validation plus mapped agent review. |
 | Projection/validation worker | Generated package projection, selected dogfood copy, and focused checks | Generated/owned copies named by the backlog | Authorized delivery phases | Parity and packaging evidence. |
 | Backlog/assembly worker | One W19 R2 delta backlog and final link assembly | `docs/work/<actual-execution-date>-w19-r2-performance-evidence-governance/`, with the date resolved when work generation executes | Maintained PRDs and approved work-generation stage | Delegation-ready implementation queue. |
 
@@ -220,7 +224,7 @@ Every worker receives an exact allowlist. No worker may rewrite sibling plans, a
 ## MCP Strategy
 
 - Project docs: use jdocmunch for authority, headings, anchors, and backlinks; refresh the local index once when genuinely stale.
-- Code and signatures: use jcodemunch for the future TypeScript validator and registry admission; refresh once when stale.
+- Code and signatures: use jcodemunch for the admitted TypeScript validator and registry activation; refresh once when stale.
 - Fallback: after one failed refresh, use focused `rg`, `rg --files`, and bounded direct reads. Do not run concurrent repository-wide indexes.
 - Validation uses the repository-authoritative operations and scripts named by current PRDs; absence or failure is reported, not bypassed by inventing alternate authority.
 
@@ -234,9 +238,10 @@ The dependency and merge order is:
 4. PRD 48 and consumer PRDs are drafted in disjoint scopes, then shared index/risk assembly runs.
 5. The maintained PRD set passes the PRD-authority validator and focused link/contract checks.
 6. Owner separately authorizes work generation; one W19 R2 delta backlog is generated from current PRDs.
-7. Documentation-first phases execute in backlog order.
-8. The optional validator requires an additional explicit owner decision before PRDs 25/39, code, CLI, or MCP change.
-9. Projection/package validation and owner acceptance close only the authorized implementation scope.
+7. Documentation-first P2 and P3 execute and close separately.
+8. The owner admits P4. PRDs 03, 25, 39, and 48 plus plan and work authority update in one decision-only change and commit.
+9. P4 code and package work begin only after separate implementation authority, then close through their own review and commit gate.
+10. P5 projection, package validation, and bounded closeout follow accepted P4 delivery.
 
 ## Validation
 
@@ -250,7 +255,8 @@ The later execution stages must validate:
 - correctness and non-sacrificable constraints as preconditions to performance pass;
 - relative links, anchors, YAML frontmatter, path hygiene, whitespace, and changed-file allowlists;
 - `make-docs run prd authority validate --target-root <project>` as a regression check after PRD maintenance;
-- focused resource, router, package-copy, and representative fixture validation after documentation delivery; and
+- focused resource, router, package-copy, and representative fixture validation after documentation delivery;
+- focused operation, rule-catalog, CLI/MCP, installed-agent, cross-certification, and twin-change parity validation for P4; and
 - no full benchmark matrix, universal sample count, theoretical proof, or materially unchanged rerun.
 
 Full implementation/package suites are proportional to the later changed surfaces. This plan stage runs documentation-only validation.
@@ -261,7 +267,7 @@ No shared product-behavior question remains unresolved. The following are intent
 
 - individual target values, statistics, sample approaches, environments, approvers, budgets, and expiry triggers;
 - whether a specific project candidate is `required-now`, `characterize-now`, `defer-required`, `not-needed`, or `reject-unsupported`; and
-- whether the optional deterministic validator is ever admitted. Documentation-first delivery does not depend on that choice.
+- the exact implementation modules and any project-specific validation profile details, which P4 resolves only after its decision commit and separate implementation authority.
 
 ## Approval State
 
@@ -272,11 +278,13 @@ The originating design is accepted. This plan remains `draft` until the owner ap
 
 These are separate gates. Plan acceptance does not imply PRD-reconciliation authorization, and PRD-reconciliation authorization does not imply work generation or later execution.
 
+On 2026-09-17, the owner approved the P4 dual-path direction and authorized only its decision-only authority updates. That approval does not authorize P4 implementation, staging, commit, push, benchmark execution, publication, release, or support promotion.
+
 ## Intended Follow-On
 
 This handoff is advisory-default-but-overridable and is not an execution gate by itself.
 
-- Route: `prd-generation`
-- Next step: After explicit owner authorization, create PRD 48 and surgically reconcile the existing PRD consumers described in [Phase 1](01-prd-authority-and-target-inventory.md); then stop for PRD authority review before work generation.
-- Why: Downstream work must cite the current product contract. This plan's sequencing and engineering guardrails cannot substitute for PRD authority.
-- Coordinate Handoff: Carry `W19 R2` into source links, any material requirement-history entries, and one later delta backlog at `docs/work/<actual-execution-date>-w19-r2-performance-evidence-governance/`; resolve the date when the separately authorized work-generation stage executes.
+- Route: `implementation-loop`
+- Next step: Validate and separately commit the decision-only P4 authority changes. Then stop for separate P4 implementation authority before changing code, installed resources, fixtures, registry data, or package assets.
+- Why: P4 is now admitted, but product authority must land before implementation begins. P5 depends on accepted P4 delivery.
+- Coordinate Handoff: Record the decision commit in W19 R2 P4. Keep the later P4 implementation, phase commit, P5 implementation, and P5 commit as separate gates.

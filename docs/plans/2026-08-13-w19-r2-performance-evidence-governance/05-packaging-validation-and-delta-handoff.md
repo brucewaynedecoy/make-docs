@@ -16,7 +16,7 @@ Assemble the authorized W19 R2 outputs, prove upstream/package/dogfood integrity
 - Current validated PRD authority from Phase 1.
 - Upstream resources and routers from Phase 2.
 - Lifecycle, evidence, compatibility, and state integrations from Phase 3.
-- Either the accepted optional validator output or an explicit `not-authorized`/`deferred` disposition from Phase 4.
+- Accepted Phase 4 dual-path validation delivery, its rule catalog, deterministic result contract, installed agent method, focused review, and phase commit.
 - The owner-approved W19 R2 delta backlog, generated only after PRD maintenance.
 
 ## Package And Dogfood Proof
@@ -33,6 +33,8 @@ Confirm:
 - prompt, contract, reference, and template remain peer types;
 - router pairs are byte-consistent where required and contain only thin progressive-disclosure guidance;
 - project-authored PRDs, results, work, and evidence do not enter shipped defaults; and
+- the installed package contains the canonical agent validation method and rule-catalog anchors without project records;
+- `performance.evidence.validate` projects one deterministic result through CLI and MCP; and
 - performance results are not treated as package, release, conformance, or support authority.
 
 ## Focused Validation Matrix
@@ -46,7 +48,7 @@ Run only checks proportional to authorized changed surfaces:
 | Routers | Pairing, managed blocks, line budgets, progressive-disclosure targets. |
 | Lifecycle fixtures | Candidate dispositions, profile classes, finite budgets, outcomes, expiry/requalification, gates, and cross-mode separation. |
 | Compatibility fixtures | Existing/modified/ambiguous content, no retroactive failure, no fabricated evidence. |
-| Optional validator | Focused operation and CLI/MCP parity tests only when separately authorized. |
+| Dual-path validator | Focused operation, rule-catalog, CLI/MCP, installed-agent, one-sided-rule, twin-change, proof-state, and non-capability tests. |
 | Package/dogfood | Generated copy parity and selected installed-resource resolution. |
 | Repository hygiene | Path hygiene, whitespace, diff allowlist, and no unexpected files. |
 
@@ -66,7 +68,7 @@ The later work-generation stage creates exactly one directory, resolving the dat
 
 `docs/work/<actual-execution-date>-w19-r2-performance-evidence-governance/`
 
-Each phase cites current PRD 48 and exact consumer PRDs. The backlog preserves the plan's phase order, disjoint write scopes, optional validator gate, finite budgets, and acceptance criteria. It does not copy product targets from PRDs or silently promote engineering guardrails.
+Each phase cites current PRD 48 and exact consumer PRDs. The backlog preserves the plan's phase order, disjoint write scopes, dual-path validator gate, finite budgets, and acceptance criteria. It does not copy product targets from PRDs or silently promote engineering guardrails.
 
 ## Closeout Package
 
@@ -77,17 +79,19 @@ Present the owner with:
 - PRD decisions and history entries;
 - resource identifiers and projection evidence;
 - validation commands/results and any bounded waivers;
-- unresolved findings, obligations, risks, and optional-validator disposition;
+- unresolved findings, obligations, risks, and exact P4 validation limits;
 - proof that no benchmarks, support claims, publication, or deployment occurred; and
 - the exact next lifecycle gate requested.
 
 ## Acceptance
 
-- All authorized phases are complete or explicitly deferred/blocked with owner-visible reasons.
+- P2, P3, and P4 are complete and separately committed before P5 closeout.
 - Current PRDs remain the product authority.
 - Shipped governance resources originate upstream and resolve through the accepted resource model.
 - Evidence budgets, unchanged checks, expiry/requalification, outcomes, and non-sacrificable constraints are represented coherently.
 - Package and dogfood proof does not promote a performance or support claim.
+- The installed agent method remains usable without the CLI and never claims that the deterministic operation ran.
+- CLI/MCP parity, rule-catalog mapping, distinct proof states, and twin-change review are proved.
 - The worktree contains only authorized changes and passes focused hygiene validation.
 
 ## Handoff
