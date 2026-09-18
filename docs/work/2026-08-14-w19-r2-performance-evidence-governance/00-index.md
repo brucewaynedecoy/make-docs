@@ -1,13 +1,13 @@
 ---
 title: "W19 R2 Performance Evidence Governance Work Backlog"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W19 R2"
 follow_on:
   route: "implementation-loop"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "P1 through P3 are complete. P4 is admitted but requires its decision-only authority commit and separate implementation authority before P5."
-  coordinate_handoff: "Carry completed W19 R2 P1 through P3 as history. Keep the P4 decision commit, P4 implementation commit, and P5 gates separate."
+  why: "P1 through P5 are complete. Staging and the P5 commit need separate owner authority."
+  coordinate_handoff: "Carry W19 R2 as completed implementation history. Keep the P5 commit and every later release or support action separate."
 source:
   type: "prd"
   path: "docs/prd/48-performance-evidence-governance.md"
@@ -21,7 +21,7 @@ source:
 
 Turn the accepted W19 R2 plan and reconciled PRD authority into a dependency-ordered implementation queue for documentation-first performance-evidence governance. This backlog preserves target-class authority, characterization before threshold promotion, versioned `PERF-###` profiles, finite budgets and diminishing-return stops, unchanged-result reuse, affected-only reruns, explicit single-execution expiry or release requalification, normalized outcomes, non-sacrificable correctness and safety constraints, and proof-mode separation. It creates no universal target, sample-count default, statistical recipe, benchmark framework, release authority, or support claim.
 
-W19 R2 P1 records completed PRD reconciliation. Its authority landed in commit `02002ba` and later received current static-adapter and testing-boundary updates. P2 landed in `f79ec885`. P3 landed in `b840b746`. Their work files are historical closeout evidence, not rerun queues. P4 is the next implementation phase after its decision-only authority commit and separate implementation authority.
+W19 R2 P1 records completed PRD reconciliation. Its authority landed in commit `02002ba` and later received current static-adapter and testing-boundary updates. P2 landed in `f79ec885`, P3 in `b840b746`, and P4 in `d868bdc5`. P5 is complete and awaits separate staging and commit authority. The phase files are historical closeout evidence, not rerun queues.
 
 ## Authority And Source Inputs
 
@@ -87,25 +87,25 @@ Task completion never closes a question, risk, finding, waiver, deferred obligat
 | [01-prd-authority-and-target-inventory.md](./01-prd-authority-and-target-inventory.md) | W19 R2 P1 | Completed authority history; superseded terms are labeled | Preserve the original target inventory, PRD 48 creation, consumer updates, risk dispositions, and validation without treating retired PRDs as current authority. |
 | [02-governance-resources-and-routing.md](./02-governance-resources-and-routing.md) | W19 R2 P2 | Completed and committed as `f79ec885` | Author the four peer governance resources upstream, keep routers thin, and prove resource resolution and projection lineage. |
 | [03-lifecycle-evidence-compatibility-and-state.md](./03-lifecycle-evidence-compatibility-and-state.md) | W19 R2 P3 | Completed and committed as `b840b746` | Connect qualification, execution packets, results, expiry, gates, compatibility, proof-mode separation, and optional state without moving product authority. |
-| [04-optional-validator-operation.md](./04-optional-validator-operation.md) | W19 R2 P4 | Direction admitted; decision-only commit and separate implementation authority pending | Implement and prove one deterministic CLI/MCP core, one installed agent method, one mapped rule catalog, and distinct proof states without benchmark or product judgment. |
-| [05-packaging-validation-and-delta-handoff.md](./05-packaging-validation-and-delta-handoff.md) | W19 R2 P5 | Depends on accepted and committed P4 | Prove upstream, package, dogfood, installed agent fallback, CLI/MCP parity, catalog integrity, and bounded closeout. |
+| [04-optional-validator-operation.md](./04-optional-validator-operation.md) | W19 R2 P4 | Completed and committed as `d868bdc5` | Implement and prove one deterministic CLI/MCP core, one installed agent method, one mapped rule catalog, and distinct proof states without benchmark or product judgment. |
+| [05-packaging-validation-and-delta-handoff.md](./05-packaging-validation-and-delta-handoff.md) | W19 R2 P5 | Complete; final review passed, commit pending | Prove upstream, package, dogfood, installed agent fallback, CLI/MCP parity, catalog integrity, and bounded closeout. |
 
 ## Usage Notes
 
-- Read P1 through P3 as completed history. Validate and commit the P4 admission decision before requesting separate P4 implementation authority. P5 follows accepted and committed P4 delivery.
+- Read P1 through P4 as completed history. P5 follows accepted and committed P4 delivery.
 - Candidate mappings in phase-entry stages are minimum starters. The live PRD 03 reread controls.
 - Each phase allows at most two materially distinct correction attempts and two review cycles. Retry only affected failed checks after a material change; reuse unchanged valid evidence.
 - Stop on budget exhaustion, diminishing returns, unsafe resource growth, conflicting authority, or a blocking phase-entry item.
 - No `O-###`, `NUAT-###`, or finding is assigned at backlog generation. Each phase records valid `none` until current authority and phase scope establish a real reference. The P4 admission decision creates no deferred obligation.
 - Apply agent Human Experience Review to the maintainer-facing resources and installed result. Give a short optional experience handoff for direct work. Do not require a human response without an explicit gate.
 - Work tasks may implement only their named phase. They may not silently promote plan/work guardrails to product authority or close findings, risks, or deferred obligations.
-- P4 and P5 implementation, commits, publication, release, deployment, benchmark execution, and support-claim promotion remain subject to their own authorization and phase gates.
+- P5 completion and commit, publication, release, deployment, benchmark execution, and support-claim promotion remain subject to their own authorization and phase gates.
 
 ## Intended Follow-On
 
 This handoff is advisory-default-but-overridable: it is authoritative unless the user explicitly overrides it, and it is not a gate or precondition.
 
 - Route: `implementation-loop`
-- Next step: Validate these decision-only P4 authority changes and stop for separate staging and commit authority. After the decision commit exists, record its SHA and stop for separate P4 implementation authority.
-- Why: P2 and P3 are complete. P4 is now required before P5, but this decision does not authorize code or package changes.
-- Coordinate Handoff: Carry completed P1, P2, and P3 as history. Keep the P4 decision commit, P4 implementation commit, P5 implementation, and P5 commit as separate gates.
+- Next step: Obtain separate owner authority to stage the nine reviewed P5 files and create the P5 commit. Do not push.
+- Why: P1 through P5 are complete. Automated checks and both independent review cycles pass within the recorded limits.
+- Coordinate Handoff: Carry completed P1 through P5 as history. Keep the optional local-projection receipt repair as separate non-blocking follow-up work. Both correction attempts and both review cycles are used. Keep the P5 commit, push, publication, release, deployment, benchmark, and support gates separate.

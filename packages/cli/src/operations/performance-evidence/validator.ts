@@ -121,25 +121,43 @@ const REQUIRED_PROFILE_FIELDS = [
   "profile_id",
   "profile_version",
   "source_digest",
+  "title",
   "protected_outcome",
   "source_requirements",
   "canonical_owner",
+  "product_maturity",
   "applicability",
   "target_class",
+  "risk_and_failure_cost",
   "owner",
   "approver",
   "surface",
   "platform_or_runtime",
   "deployment_or_device_class",
   "scale",
+  "account_and_network_state",
+  "resource_envelope",
+  "exclusions",
+  "comparable_baseline",
+  "target",
+  "unit",
+  "direction",
+  "tolerance",
+  "target_source",
+  "target_approval",
   "product_build",
   "dependency_state",
   "configuration",
   "qualified_environment",
   "dataset_or_fixture",
   "workload",
+  "concurrency",
+  "operation_mix",
+  "workload_exclusions",
   "measurement_boundary",
   "instrument_and_version",
+  "cold_or_warm_state",
+  "warmup_rule",
   "repetitions_or_observation_window",
   "statistic",
   "variance_reporting",
@@ -147,7 +165,16 @@ const REQUIRED_PROFILE_FIELDS = [
   "outlier_treatment",
   "comparison_method",
   "raw_evidence_retention",
+  "observer_effects",
   "correctness",
+  "durability",
+  "safety",
+  "security",
+  "privacy",
+  "accessibility",
+  "portability",
+  "cost",
+  "maintainability",
   "fixture_and_measurement_seam",
   "authorizing_plan_or_work_scope",
   "budget_event_id",
@@ -157,24 +184,70 @@ const REQUIRED_PROFILE_FIELDS = [
   "elapsed_investigation_time_limit",
   "compute_limit",
   "external_resource_spend_limit",
+  "unchanged_fingerprint_action",
+  "material_change_action",
   "diminishing_return_rule",
   "budget_exhaustion_disposition",
+  "pass",
+  "fail",
+  "revise",
+  "blocked",
+  "waived",
+  "severity_treatment",
+  "reproducibility_treatment",
+  "finding_route",
+  "escalation_route",
   "material_change_triggers",
+  "time_or_release_boundary",
   "current_use_invalidation_rule",
   "next_review_condition",
   "requalification_authority",
   "requalification_budget",
   "unchanged_fingerprint_qualification_limit",
+  "predecessor",
+  "successor",
+  "promotion_source",
+  "promotion_approval",
+  "supersession_reason",
   "plan_and_work_links",
+  "result_links",
+  "finding_links",
+  "obligation_links",
+  "history_links",
+  "support_links",
   "profile_id_version_and_digest",
   "product_build_and_relevant_code_state",
   "dependency_and_configuration_state",
-  "qualified_environment",
   "workload_and_fixture_or_dataset",
   "instrument_version",
   "analysis_method",
   "comparability_result_and_reasons",
 ] as const;
+
+const EXPLICIT_NONE_ALLOWED_PROFILE_FIELDS = new Set([
+  "exclusions",
+  "comparable_baseline",
+  "target",
+  "unit",
+  "direction",
+  "tolerance",
+  "target_source",
+  "target_approval",
+  "workload_exclusions",
+  "comparison_method",
+  "observer_effects",
+  "time_or_release_boundary",
+  "predecessor",
+  "successor",
+  "promotion_source",
+  "promotion_approval",
+  "supersession_reason",
+  "result_links",
+  "finding_links",
+  "obligation_links",
+  "history_links",
+  "support_links",
+]);
 
 const FINITE_BUDGET_FIELDS = [
   "characterization_pass_limit",
@@ -223,7 +296,8 @@ export function validatePerformanceEvidence(targetRootInput: string): Performanc
   const rootsScanned: string[] = [];
   for (const relativeRoot of SUPPORTED_ROOTS) {
     const absoluteRoot = path.join(targetRoot, relativeRoot);
-    if (!existsSync(absoluteRoot)) continue;
+    const authorityRootState = inspectAuthorityRoot(targetRoot, absoluteRoot, diagnostics);
+    if (authorityRootState !== "valid") continue;
     rootsScanned.push(relativeRoot);
     collectMarkdownDocuments(targetRoot, absoluteRoot, documents, diagnostics);
   }
@@ -241,9 +315,9 @@ export function validatePerformanceEvidence(targetRootInput: string): Performanc
 
   const candidates = documents.flatMap(inventoryCandidates);
   const parsedProfiles = documents.flatMap(parseProfiles);
-  const duplicateProfileIds = validateDuplicateProfiles(parsedProfiles, diagnostics);
+  const duplicateProfiles = validateDuplicateProfiles(parsedProfiles, diagnostics);
   const profiles = parsedProfiles.map((profile) =>
-    validateProfile(targetRoot, profile, diagnostics, duplicateProfileIds.has(profile.id)),
+    validateProfile(targetRoot, profile, diagnostics, duplicateProfiles.has(profile)),
   );
   validateWorkCriterionTraceability(documents, diagnostics);
 
@@ -271,6 +345,69 @@ export function validatePerformanceEvidence(targetRootInput: string): Performanc
     profiles,
     diagnostics: diagnostics.sort(compareDiagnostics),
   };
+}
+
+function inspectAuthorityRoot(
+  targetRoot: string,
+  authorityRoot: string,
+  diagnostics: PerformanceEvidenceDiagnostic[],
+): "valid" | "missing" | "unreadable" | "unsafe" {
+  const relativeRoot = path.relative(targetRoot, authorityRoot);
+  let currentPath = targetRoot;
+  try {
+    for (const segment of relativeRoot.split(path.sep).filter(Boolean)) {
+      currentPath = path.join(currentPath, segment);
+      const stat = lstatSync(currentPath);
+      if (stat.isSymbolicLink()) {
+        diagnostics.push(diagnostic({
+          code: "PERF-VAL-001",
+          ruleId: "PERF-RULE-001",
+          path: relativePath(targetRoot, currentPath),
+          message: "A supported authority root uses a symbolic path.",
+          reason: "unsafe authority root",
+          remediation: "Replace the link with a repository-owned directory or remove it from the authority path.",
+        }));
+        return "unsafe";
+      }
+    }
+    const rootStat = lstatSync(authorityRoot);
+    if (!rootStat.isDirectory()) {
+      diagnostics.push(diagnostic({
+        code: "PERF-VAL-001",
+        ruleId: "PERF-RULE-001",
+        path: relativePath(targetRoot, authorityRoot),
+        message: "A supported authority root is not a directory.",
+        reason: "unreadable authority root",
+        remediation: "Restore the expected repository-owned directory before validation.",
+      }));
+      return "unreadable";
+    }
+    const physicalTargetRoot = realpathSync(targetRoot);
+    const physicalAuthorityRoot = realpathSync(authorityRoot);
+    if (!isWithin(physicalTargetRoot, physicalAuthorityRoot)) {
+      diagnostics.push(diagnostic({
+        code: "PERF-VAL-001",
+        ruleId: "PERF-RULE-001",
+        path: relativePath(targetRoot, authorityRoot),
+        message: "A supported authority root resolves outside the project.",
+        reason: "unsafe authority root escape",
+        remediation: "Use only repository-owned authority directories inside the physical project root.",
+      }));
+      return "unsafe";
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return "missing";
+    diagnostics.push(diagnostic({
+      code: "PERF-VAL-001",
+      ruleId: "PERF-RULE-001",
+      path: relativePath(targetRoot, authorityRoot),
+      message: "A supported authority root cannot be inspected.",
+      reason: `unreadable authority root: ${errorMessage(error)}`,
+      remediation: "Restore read access or remove the unreadable authority path.",
+    }));
+    return "unreadable";
+  }
+  return "valid";
 }
 
 function inspectTargetRoot(
@@ -455,16 +592,16 @@ function parseProfiles(document: MarkdownDocument): ParsedProfile[] {
 function validateDuplicateProfiles(
   profiles: ParsedProfile[],
   diagnostics: PerformanceEvidenceDiagnostic[],
-): Set<string> {
+): Set<ParsedProfile> {
   const byId = new Map<string, ParsedProfile[]>();
-  const duplicateProfileIds = new Set<string>();
-  for (const profile of profiles) {
+  const duplicateProfiles = new Set<ParsedProfile>();
+  for (const profile of profiles.filter((candidate) => !isHistoricalProfilePath(candidate.path))) {
     byId.set(profile.id, [...(byId.get(profile.id) ?? []), profile]);
   }
   for (const [id, matches] of byId) {
     if (!/^PERF-\d{3}$/.test(id) || matches.length < 2) continue;
-    duplicateProfileIds.add(id);
     for (const profile of matches) {
+      duplicateProfiles.add(profile);
       diagnostics.push(diagnostic({
         code: "PERF-VAL-003",
         ruleId: "PERF-RULE-003",
@@ -476,7 +613,7 @@ function validateDuplicateProfiles(
       }));
     }
   }
-  return duplicateProfileIds;
+  return duplicateProfiles;
 }
 
 function validateProfile(
@@ -509,7 +646,11 @@ function validateProfile(
       remediation: "Record a positive numeric version such as 1 or 1.1.",
     }));
   }
-  const missing = REQUIRED_PROFILE_FIELDS.filter((field) => isMissing(fields[field]));
+  const missing = REQUIRED_PROFILE_FIELDS.filter((field) =>
+    EXPLICIT_NONE_ALLOWED_PROFILE_FIELDS.has(field)
+      ? isUnresolved(fields[field])
+      : isMissing(fields[field]),
+  );
   if (missing.length > 0) {
     diagnostics.push(diagnostic({
       code: "PERF-VAL-004",
@@ -533,7 +674,7 @@ function validateProfile(
       reason: `target_class=${targetClass || "missing"}`,
       remediation: "Use the applicability record for deferred or unsupported candidates. Keep PERF profiles for executable classes.",
     }));
-  } else if (!targetClassLocationMatches(targetClass, profile.path)) {
+  } else if (!isHistoricalProfilePath(profile.path) && !targetClassLocationMatches(targetClass, profile.path)) {
     diagnostics.push(diagnostic({
       code: "PERF-VAL-005",
       ruleId: "PERF-RULE-005",
@@ -548,10 +689,10 @@ function validateProfile(
   } else {
     const canonicalOwner = stripMarkup(fields.canonical_owner ?? "");
     const canonicalOwnerPath = resolveCanonicalOwnerPath(canonicalOwner, profile.path);
-    if (
-      !isMissing(canonicalOwner) &&
-      (canonicalOwnerPath !== profile.path || !targetClassLocationMatches(targetClass, canonicalOwnerPath ?? ""))
-    ) {
+    const ownerMatches = isHistoricalProfilePath(profile.path)
+      ? targetClassLocationMatches(targetClass, canonicalOwnerPath ?? "")
+      : canonicalOwnerPath === profile.path && targetClassLocationMatches(targetClass, canonicalOwnerPath ?? "");
+    if (!isMissing(canonicalOwner) && !ownerMatches) {
       diagnostics.push(diagnostic({
         code: "PERF-VAL-005",
         ruleId: "PERF-RULE-005",
@@ -948,9 +1089,18 @@ function classifyFingerprint(value: string | undefined): {
 }
 
 function isMissing(value: string | undefined): boolean {
+  if (isUnresolved(value)) return true;
+  return /^(?:none|n\/a|not applicable)$/i.test(stripMarkup(value ?? "").trim());
+}
+
+function isUnresolved(value: string | undefined): boolean {
   if (!value) return true;
   const normalized = stripMarkup(value).trim();
   return normalized.length === 0 || /\{\{|\}\}|\b(?:tbd|todo|unknown)\b/i.test(normalized);
+}
+
+function isHistoricalProfilePath(value: string): boolean {
+  return value === ".make-docs/archive/history" || value.startsWith(".make-docs/archive/history/");
 }
 
 function stripMarkup(value: string): string {
