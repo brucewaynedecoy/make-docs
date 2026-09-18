@@ -66,12 +66,12 @@ Human Experience Review is separate. P1 records whether the proposed target can 
 
 ### Tasks
 
-- [ ] t1: Record the W22 R0 freeze rule and list allowed release-blocking containment exceptions.
-- [ ] t2: Inventory Store schemas, tables, fields, migrations, writers, readers, retention, privacy, and recovery use.
-- [ ] t3: Inventory project identity, checkout identity, path claims, file fingerprints, device and inode use, locks, process liveness, and file mutation guards.
-- [ ] t4: Inventory harness receipts, native entries, executable identity, caller identity, operation access, machine approval, and project approval.
-- [ ] t5: Inventory setup, system setup, status, verify, repair, recovery, resource selection, projection, CLI, JSON, and MCP paths.
-- [ ] t6: Inventory current tests, real-platform proof, public docs, PRD rules, prior packages, and current consumers for each mechanism.
+- [x] t1: Record the W22 R0 freeze rule and list allowed release-blocking containment exceptions.
+- [x] t2: Inventory Store schemas, tables, fields, migrations, writers, readers, retention, privacy, and recovery use.
+- [x] t3: Inventory project identity, checkout identity, path claims, file fingerprints, device and inode use, locks, process liveness, and file mutation guards.
+- [x] t4: Inventory harness receipts, native entries, executable identity, caller identity, operation access, machine approval, and project approval.
+- [x] t5: Inventory setup, system setup, status, verify, repair, recovery, resource selection, projection, CLI, JSON, and MCP paths.
+- [x] t6: Inventory current tests, real-platform proof, public docs, PRD rules, prior packages, and current consumers for each mechanism.
 
 ### Acceptance criteria
 
@@ -88,19 +88,19 @@ Human Experience Review is separate. P1 records whether the proposed target can 
 
 - Four testing decisions: Automated inventory checks required; Performance Testing `not-needed-now`; Guided Progress Review waits for Stage 2; Unassisted Goal Testing `not-needed-now`.
 - Human Experience Review: Record promise risks only. Do not claim future behavior.
-- Evidence report: Create only when P1 starts and evidence exists.
-- Phase / capability status: P1 remains active.
+- Evidence report: [P1 architecture inventory and decision evidence](evidence.md).
+- Phase / capability status: Stage 1 is complete. P1 continued through the required owner decisions in Stage 2.
 
 ## Stage 2 - Symptom Mapping and Decision Package
 
 ### Tasks
 
-- [ ] t7: Create one append-only symptom table with observed behavior, confidence, platform, code path, authority owner, human promise, and missing proof.
-- [ ] t8: Trace each mechanism to an accepted public capability or safety failure. Mark dependency-only justification as insufficient.
-- [ ] t9: Assign `keep`, `rework`, or `remove` to every mechanism. State the evidence, migration effect, and public behavior effect.
-- [ ] t10: Prepare the proposed minimal state and platform boundary map. Identify every conflict with current PRDs.
-- [ ] t11: Present repository authority, Store authority, checkout identity, harness trust, setup composition, resource projection, platform support, and compatibility decisions one at a time.
-- [ ] t12: Record owner decisions and update the P2 input matrix. Stop on any unresolved product choice.
+- [x] t7: Create one append-only symptom table with observed behavior, confidence, platform, code path, authority owner, human promise, and missing proof.
+- [x] t8: Trace each mechanism to an accepted public capability or safety failure. Mark dependency-only justification as insufficient.
+- [x] t9: Assign `keep`, `rework`, or `remove` to every mechanism. State the evidence, migration effect, and public behavior effect.
+- [x] t10: Prepare the proposed minimal state and platform boundary map. Identify every conflict with current PRDs.
+- [x] t11: Present repository authority, Store authority, checkout identity, harness trust, setup composition, resource projection, platform support, and compatibility decisions one at a time.
+- [x] t12: Record owner decisions and update the P2 input matrix. Stop on any unresolved product choice.
 
 ### Acceptance criteria
 
@@ -115,7 +115,7 @@ Human Experience Review is separate. P1 records whether the proposed target can 
 
 ### Closeout Notes
 
-- Four testing decisions: Record the final inventory check and Guided Progress Review decisions. Keep Performance and Unassisted Goal Testing `not-needed-now` unless the decision scope changes.
-- Human Experience Review: Record whether each accepted target can support HX-1 through HX-6 and name open limits.
-- Evidence report: Link the decision ledger and symptom table.
-- Phase / capability status: Close P1 only after all target decisions have a recorded owner disposition.
+- Four testing decisions: Automated inventory checks passed. Guided Progress Review completed with D1 through D8 accepted. Performance and Unassisted Goal Testing remain `not-needed-now`.
+- Human Experience Review: The [P1 evidence report](evidence.md) records accepted target support, observations, conclusions, evidence limits, and next actions for HX-1 through HX-6.
+- Evidence report: The [P1 evidence report](evidence.md) contains the decision ledger and the one append-only symptom table.
+- Phase / capability status: P1 is complete as of 2026-09-18. P2 is unblocked by P1 authority, but it has not been authorized or started. Product implementation remains unauthorized.
