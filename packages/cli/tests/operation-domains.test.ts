@@ -35,6 +35,7 @@ describe("operation domain modules", () => {
 
     expect(domains.map((domain) => domain.name)).toEqual([
       "prd",
+      "performance",
       "project",
       "work",
       "resource",
@@ -46,6 +47,7 @@ describe("operation domain modules", () => {
     expect(identifiers).toEqual([
       // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
       "prd.authority.validate",
+      "performance.evidence.validate",
       "project.state.status",
       "project.state.recover",
       "project.surface.ensure",

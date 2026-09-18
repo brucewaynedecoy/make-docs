@@ -25,6 +25,7 @@ const sqliteAvailable = loadSqliteDriver().available;
 
 const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "prd.authority.validate": "make_docs_prd_authority_validate",
+  "performance.evidence.validate": "make_docs_performance_evidence_validate",
   "work.item.resolve": "make_docs_work_item_resolve",
   "work.evidence.record": "make_docs_work_evidence_record",
   "work.evidence.read": "make_docs_work_evidence_read",

@@ -206,7 +206,7 @@ The validation record preserves its typed validation status, any earned proof st
 - [46 Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) owns perceived-slowness findings and unassisted human-goal evidence without certifying a quantitative performance profile.
 - [49 Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) owns agent Human Experience Review and the optional experience handoff. Performance evidence can support an applicable promise, but it cannot claim a lived human reaction or require a human response without an explicit gate.
 - [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection, the common current-decision record, human testing experience, shared gate effects, and cross-type evidence reuse. This PRD remains the detailed Performance Testing owner.
-- [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns the deterministic-versus-agent runtime split. [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) admits `performance.evidence.validate` as pending W19 R2 P4 work and owns its CLI/MCP projections, catalog mapping, proof-state transport, and parity tests.
+- [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns the deterministic-versus-agent runtime split. [39 CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) owns the active `performance.evidence.validate` operation, its CLI/MCP projections, catalog mapping, proof-state transport, and parity tests.
 
 ## Common Testing Standard Consumption
 
@@ -226,6 +226,14 @@ A clean-room rebuild must preserve applicability as a first-class decision, matu
 Rebuilders must not infer product targets from observed baselines, copy plan/work guardrails into PRDs, let execution packets redefine targets, treat expired or missing evidence as success, allow a waiver to count as pass, broaden a result beyond its supported scope, equate performance with Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, static-adapter, direct installed-product, release, or support proof, or add a validator that makes product judgments or runs benchmarks. They must preserve the dual-path rule catalog, installed agent method, distinct proof states, and the rule that neither method certifies the other. Documentation resources remain upstream-authored through [PRD 06](06-template-contracts-and-generated-assets.md) and resolved through [PRD 21](21-project-tool-directory-and-resource-tiers.md).
 
 ## Requirement History
+
+### 2026-09-17 — W19 R2 P4 Implementation
+
+- Affected requirement or section: `R-PERF-AUTOMATION`, integrations, and rebuild notes.
+- Previous contract: the validation twin was admitted, but the deterministic operation remained pending.
+- Replacement contract: the deterministic operation is active through one read-only TypeScript core, CLI and MCP projections, stable diagnostics, focused fixtures, and parity tests. The canonical agent method remains separate and available when the CLI is absent.
+- Rationale: The owner supplied separate implementation authority after the decision-only admission commit.
+- Source: [W19 R2 P4 work record](../work/2026-08-14-w19-r2-performance-evidence-governance/04-optional-validator-operation.md)
 
 ### 2026-09-17 — W19 R2 P4 Admission
 

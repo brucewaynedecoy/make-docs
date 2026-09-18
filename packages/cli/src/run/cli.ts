@@ -215,6 +215,11 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       targetRoot: path.resolve(options.values["target-root"] ?? "."),
     },
   }),
+  "performance.evidence.validate": (options) => ({
+    input: {
+      targetRoot: path.resolve(options.values["target-root"] ?? "."),
+    },
+  }),
   "lifecycle.start": (options) => ({
     input: {
       repoRoot: resolveRepoRoot(options),
@@ -540,11 +545,12 @@ export async function runRunCommand(
 /** Explicit validators report their complete result and then fail the CLI. */
 function setValidationExitCode(operationId: string, value: JsonValue): void {
   if (
-    operationId === "prd.authority.validate" &&
+    (operationId === "prd.authority.validate" ||
+      operationId === "performance.evidence.validate") &&
     value !== null &&
     typeof value === "object" &&
     !Array.isArray(value) &&
-    value.status === "failed"
+    value.status !== "passed"
   ) {
     process.exitCode = 1;
   }

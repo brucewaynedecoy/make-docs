@@ -6,6 +6,7 @@ import { applyInstallPlan, planInstall } from "../src/install";
 import { defaultSelections } from "../src/profile";
 import { createExecutionContext } from "../src/operations/context";
 import { invokeOperation } from "../src/operations/registry";
+import { PERFORMANCE_EVIDENCE_RULES } from "../src/operations/performance-evidence";
 import type { ResourceListOperationOutput, ResourceReadOperationOutput } from "../src/operations/resource/ops";
 import { TEMPLATE_ROOT } from "../src/utils";
 
@@ -294,5 +295,23 @@ describe("Performance Evidence resource delivery", () => {
     expect(bodies.get("prompt")).toContain("Use the contract as the only reusable policy source.");
     expect(bodies.get("template")).not.toContain("This is the sole reusable policy source");
     expect(workflowMembership.contracts).toHaveLength(1);
+  });
+
+  it("ships the canonical agent method and every stable rule mapping", () => {
+    const contractPath = ".make-docs/system/contracts/performance-evidence-governance.md";
+    const referencePath = ".make-docs/system/references/performance-evidence.md";
+    const contract = readFileSync(path.join(TEMPLATE_ROOT, contractPath), "utf8");
+    const reference = readFileSync(path.join(TEMPLATE_ROOT, referencePath), "utf8");
+
+    expect(contract).toContain("### Agent method");
+    expect(contract).toContain("State whether the deterministic operation ran.");
+    expect(contract).toContain("evidence, observation, conclusion, limit, and next action");
+    expect(contract).toContain("It does not create a benchmark runner, daemon, retry service, or hidden state change.");
+    expect(reference).toContain("## Use The Validation Twin");
+    expect(reference).toContain("The agent must say whether the deterministic operation ran.");
+    for (const rule of PERFORMANCE_EVIDENCE_RULES) {
+      expect(contract).toContain(`\`${rule.id}\``);
+      expect(contract).toContain(`\`${rule.diagnosticCode}\``);
+    }
   });
 });

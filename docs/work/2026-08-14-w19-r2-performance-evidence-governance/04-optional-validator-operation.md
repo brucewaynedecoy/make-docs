@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Dual-Path Performance Evidence Validation"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W19 R2 P4"
 source:
   type: "prd"
@@ -10,11 +10,11 @@ source:
 
 # Phase 4: Dual-Path Performance Evidence Validation
 
-> **Phase status: DIRECTION ADMITTED / IMPLEMENTATION NOT AUTHORIZED.** Do not begin validator code, tests, registry activation, CLI/MCP implementation, resource changes, or package work until Stage 1 records the separate decision commit SHA and the owner gives separate implementation authority.
+> **Phase status: CLOSED / VALIDATED DUAL-PATH OPERATION.** Decision commit `4b8b5956` records the admitted direction. The owner gave separate P4 implementation authority on 2026-09-17. The repository and packed implementation are complete. Independent review passed after one owner-authorized focused correction cycle and recheck. The stale Store receipt is separate follow-up work and a P5 confirmation item. Staging, commit, push, benchmark execution, publication, release, and support promotion remain outside this authority.
 
 ## Purpose
 
-Define the executable queue for the owner-admitted dual-path Performance Evidence validator. One read-only deterministic TypeScript core projects through CLI and MCP. One canonical agent method supports CLI-absent projects and judgment-only review. This authority update does not authorize implementation.
+Implement the owner-admitted dual-path Performance Evidence validator. One read-only deterministic TypeScript core projects through CLI and MCP. One canonical agent method supports CLI-absent projects and judgment-only review. This record keeps implementation, review, staging, and commit gates separate.
 
 ## Overview
 
@@ -47,7 +47,7 @@ P4 is now required before P5. The phase permits at most two materially distinct 
 - [x] t4: Classify R-025, R-029 through R-032, R-034, and R-035 as `impacted-nonblocking`. The decision-only edits reconcile phase links, prevent target promotion, preserve finite budgets and repository authority, reject stale proof, keep proportional review, and add twin-parity controls.
 - [x] t5: Record the owner's 2026-09-17 admission of the dual-path P4 direction. Keep implementation blocked until the authority commit and separate implementation authority exist.
 - [x] t6: Reconcile PRDs 03, 25, 39, and 48 plus plan, work, P5, and history surfaces. Do not create a standalone decision file.
-- [ ] t7: Validate the authority changes, obtain separate staging and commit authority, create the decision-only commit, record its SHA here, and obtain separate P4 implementation authority. Then record the no-blocker/no-authority-gap result and unlock t8 with at most two materially distinct correction attempts and two review cycles.
+- [x] t7: The focused authority validation passed with 36 PRDs, 576 Markdown files, 196 structured files, 1,120 links, and no diagnostics. The separately authorized decision-only commit is `4b8b5956`. The owner gave separate P4 implementation authority on 2026-09-17. Phase-entry result: no blocker and no authority gap. Unlock t8 with at most two materially distinct correction attempts and two review cycles.
 
 ### Acceptance criteria
 
@@ -56,31 +56,31 @@ P4 is now required before P5. The phase permits at most two materially distinct 
 - R-025, R-029 through R-032, R-034, and R-035 have explicit phase classifications and rationales.
 - After all admission items are classified and resolved, the phase-entry record states an explicit no-blocker/no-authority-gap result and the finite correction/review budget before t8 unlocks.
 - No validator implementation, test, registry, CLI, MCP, or package write occurred before unlock.
-- The owner decision is documented in canonical PRDs, the risk register, requirement history, plan, and work records. Validation, the separate commit, and its recorded SHA remain open.
+- The owner decision is documented in canonical PRDs, the risk register, requirement history, plan, and work records. Validation passed, and decision commit `4b8b5956` is recorded here.
 - No standalone decision file exists, and task completion cannot close a risk, finding, obligation, or capability.
 
 ### Dependencies
 
 - P2 and P3 accepted.
 - Owner admission decision: complete on 2026-09-17.
-- Separately reconciled, validated, and committed PRDs 03, 25, 39, and 48: authority edits in progress; commit pending.
+- Separately reconciled, validated, and committed PRDs 03, 25, 39, and 48: complete in `4b8b5956`.
 
 ### Closeout Notes
 
 - Testing-mode decision(s): decision-only PRD and documentation validation applies now. Automated Implementation Testing remains locked until implementation authority. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`. No Human Experience handoff is invented for an unimplemented surface.
 - Human Experience Review: the promise is that a maintainer can tell what the owner admitted, what remains blocked, and what action comes next. Evidence is the P4 plan authority gate, the active backlog admission record and phase map, this Stage 1 record, and the P5 dependency. The documents state that the direction is admitted, implementation is not authorized, validation and a separate decision commit come next, and P5 waits for accepted P4. Conclusion: `satisfied` for the decision-only maintainer path. Limit: no CLI, MCP, or installed agent surface exists yet, so this review supports no implementation-use claim. Next action: finish focused validation and stop for separate staging and commit authority.
-- Phase / capability status: direction admitted; decision-only authority changes active; implementation not authorized; t8 locked until t7 completes.
+- Phase / capability status: direction admitted; decision-only authority committed; implementation authorized and active; t8 unlocked.
 
 ## Stage 2 - Implement The Rule Catalog, Deterministic Core, And Agent Method
 
 ### Tasks
 
-- [ ] t8: Use jcodemunch to name the exact operation, registry, CLI, MCP, resource, catalog, fixture, and package modules. Record supported document roots, access metadata, failure behavior, and one shared structured result before code changes.
-- [ ] t9: Implement one stable rule catalog. Each rule records its stable ID, fact-or-decision class, deterministic support state, agent instruction location, judgment requirement, diagnostic code, focused fixtures or tests, and parity mapping or explicit one-sided reason.
-- [ ] t10: Implement one read-only TypeScript core that inventories candidate language and validates only admitted structural facts: `PERF-###` identity and version, required fields, links, class-based owner and location, approval, expiry, finite budget and stops, traceability, evidence references, stricter work criteria, and declared fingerprint equality.
-- [ ] t11: Emit stable diagnostic codes, complete structured results, reasons, remediation text, catalog identity, and honest proof state for missing, contradictory, unsupported, unreadable, unsafe, or escaping targets. Fail closed before mutation.
-- [ ] t12: Add the canonical agent method to the upstream Performance Evidence Governance contract and its explanatory reference. It must work from repository authority when the CLI is absent, handle catalog-marked judgment questions, and report evidence, observation, conclusion, limit, and next action without claiming the deterministic operation ran.
-- [ ] t13: Enforce non-capabilities for both methods. They cannot decide applicability, maturity, target/statistic/environment value, comparability judgment, user impact, severity, trade-offs, waiver approval, obligation fulfillment, supported scope, requirement change, or support promotion. They execute no benchmark, rewrite no file, choose no remediation, renew no budget, and loop on no result.
+- [x] t8: jcodemunch identified the operation registry, CLI adapter and renderer, derived MCP tools, resource tests, and package projection seams. The implementation modules are `packages/cli/src/operations/performance-evidence/catalog.ts`, `validator.ts`, `ops.ts`, and `index.ts`; the shared registry is `packages/cli/src/operations/registry.ts`; CLI projection and rendering are `packages/cli/src/run/cli.ts` and `render.ts`; MCP remains derived through `packages/cli/src/mcp/tools.ts` with no per-operation logic. Canonical agent instructions remain upstream in `packages/docs/template/.make-docs/system/contracts/performance-evidence-governance.md` and its explanatory reference. Generated `packages/cli/template/` and dogfood `.make-docs/system/` copies are projections only. Focused fixtures and tests live under `packages/cli/tests/fixtures/performance-evidence-validator/` and `packages/cli/tests/performance-evidence-validator.test.ts`. Supported project authority roots are Markdown under `docs/` and `.make-docs/archive/history/`. Access is `store: none`, `project: read`, and `hostConfig: none`. Missing or unreadable roots return `blocked`; symlinked or escaping paths return `refused`; structural defects return `failed`; only a clean result returns `passed` with `validator-passed`. One shared report carries catalog identity, candidates, profiles, diagnostics, fingerprint classifications, and explicit non-mutation and no-benchmark facts.
+- [x] t9: Implemented catalog `make-docs.performance-evidence-validation-rules.v1` with 18 stable rule and diagnostic mappings. Every entry records its class, deterministic support, agent instruction, judgment need, focused tests, and parity or one-sided reason.
+- [x] t10: Implemented one read-only TypeScript core. It inventories candidate language and validates admitted profile, owner, approval, expiry, budget, stop, outcome, trace, evidence-link, work-criterion, and fingerprint structure.
+- [x] t11: Added stable `PERF-VAL-*` and `PERF-AGENT-*` diagnostics. The complete report carries reasons, next actions, catalog identity, typed status, and an honest proof state. Unsafe or unreadable authority fails closed before mutation.
+- [x] t12: Added the canonical agent method and stable catalog to the upstream Performance Evidence Governance contract. Added a thin explanatory reference. Both dogfood files match upstream bytes.
+- [x] t13: Kept both methods inside the admitted limits. The operation declares no Store or host access, writes no file, runs no benchmark, authorizes no retry, makes no owner decision, and certifies no adjacent proof mode.
 
 ### Acceptance criteria
 
@@ -101,17 +101,17 @@ P4 is now required before P5. The phase permits at most two materially distinct 
 ### Closeout Notes
 
 - Testing-mode decision(s): focused Automated Implementation Testing for structural facts, catalog mapping, agent instructions, proof-state honesty, and non-capabilities; no benchmark execution.
-- Phase / capability status: catalog, core, and agent method implemented; projections, package delivery, and parity remain open.
+- Phase / capability status: catalog, core, and agent method implemented. Registry, package, and parity work passed focused checks.
 
 ## Stage 3 - Project, Package, And Prove Both Validation Paths
 
 ### Tasks
 
-- [ ] t14: Register `performance.evidence.validate` with exact read-only metadata, inputs, outputs, project access, pending-lineage activation, and failure modes.
-- [ ] t15: Derive human CLI rendering and MCP tool output from the same complete result schema with no separate validation or business logic. Preserve typed failed, blocked, and refused statuses without a favorable proof state. Preserve `validator-passed`, `agent-reviewed`, and `combined` only as earned evidence-path states.
-- [ ] t16: Rebuild generated package resources from the upstream template. Prove that the packed and disposable installed project contain the canonical agent method and rule-catalog anchors without project-specific profiles, results, findings, waivers, obligations, or evidence.
-- [ ] t17: Add bounded fixtures for each target class, invalid or duplicate identity, wrong owner, unsupported stricter work criterion, expired evidence, unchanged fingerprint, valid single-event requalification declaration, prohibited repeat, broken evidence link, unsafe target root, all five outcomes, judgment-only rules, explicit one-sided rules, and absent CLI use.
-- [ ] t18: Prove CLI/MCP result parity, complete diagnostics, read-only behavior, fail-closed path handling, installed agent fallback, twin-change review, explicit one-sided reasons, honest proof states, and absence of output-triggered retries. Prove neither method can admit itself, update PRDs, approve a waiver, close an obligation or finding, execute a profile, promote a result, or change support status.
+- [x] t14: Activated `performance.evidence.validate` with exact read-only metadata, strict input, one handler, project-read access, typed output, and the admitted failure states. PRD 39 now records eight active and seventeen pending nonlegacy operations.
+- [x] t15: Derived the CLI and MCP projections from the same result. Interactive CLI output leads with status and counts, then gives each diagnostic reason and next action. Non-interactive and `--json` output preserve the complete structured result.
+- [x] t16: Rebuilt generated package resources from the upstream template. `smoke:pack:local -- --verify-dogfood` passed. It proved packed, installed, and dogfood router parity in a disposable project. The package includes the agent method and catalog anchors. It includes no project performance records as defaults.
+- [x] t17: Added bounded fixtures for all admitted target classes and outcomes, identity and owner faults, budget and requalification faults, expiry, three fingerprint classes, broken and unsafe links, agent-only rules, proof states, and no-mutation behavior.
+- [x] t18: Focused tests prove CLI/MCP result parity, complete diagnostics, fail-closed handling, installed fallback, mapped twin rules, honest proof state, and no retry or benchmark authority. The operation cannot update PRDs, approve waivers, close records, execute profiles, or change support.
 
 ### Acceptance criteria
 
@@ -130,16 +130,16 @@ P4 is now required before P5. The phase permits at most two materially distinct 
 ### Closeout Notes
 
 - Testing-mode decision(s): focused operation, registry, CLI/MCP, catalog, installed-resource, router, proof-state, twin-change, and unsafe-path tests.
-- Phase / capability status: both paths and projections complete; final review and closeout remain open.
+- Phase / capability status: both validation paths, public adapters, package projection, and direct dogfood bytes are complete. Store-backed local discovery is not current because the Codex MCP receipt binds to the pre-P4 local CLI digest. Safe setup previews were not applied. Independent review and final closeout remain open.
 
 ## Stage 4 - Validate And Close Or Reblock P4
 
 ### Tasks
 
-- [ ] t19: Run only the focused operation, registry, catalog, type/build, fixture, CLI/MCP, installed-agent, proof-state, twin-change, router, path-hygiene, link, package, and affected tests required by the admitted surface.
-- [ ] t20: Retry only affected failed checks after a material correction, reuse unchanged valid results, and stop at the finite correction/review budget or diminishing return.
-- [ ] t21: Independently review the exact diff for scope creep, judgment automation, mutation, benchmark execution, incomplete diagnostics, rule drift, CLI/MCP difference, missing installed fallback, false cross-certification, hidden retry, and target-authority promotion.
-- [ ] t22: Record exact changed files, decision commit SHA, validation evidence, remaining risks, findings, obligations, correction and review budget, and one disposition: `validated dual-path operation`, `blocked`, or `deferred`.
+- [x] t19: Focused validation passed: CLI build; TypeScript no-emit check; PRD authority validation with 36 PRDs, 576 Markdown files, 196 structured files, 1,120 links, and no diagnostics; the original 51 focused P4 tests; 38 affected consistency tests; template-link and package-safety tests; packed local smoke with dogfood parity; byte parity; and `git diff --check`. After the focused correction cycle, all 23 validator tests and all 56 tests across the five affected files passed. The rebuilt validator passed on this repository after scanning 863 Markdown files and 279 candidates. It found no executable profile, returned 40 trace warnings and no errors, wrote nothing, ran no benchmark, and authorized no retry. Final closeout PRD authority validation passed with 36 PRDs, 591 Markdown files, 196 structured files, 1,181 links, and no diagnostic. The current whole-repository path check passed after scanning 815 files with no finding or I/O error.
+- [x] t20: Used correction attempt 1 for real-path, fixture, parser, and projection-test issues found by the first focused run. Used correction attempt 2 to add admitted risk `R-035` to the fixed risk inventory test. Independent review found four false-pass defects. On 2026-09-18, the owner authorized one additional focused correction cycle for those four findings. That cycle changed only the validator and its focused test file. It added canonical-owner validation, strict single-run validation, per-criterion work trace checks outside embedded profiles, and invalid per-profile status for duplicate identities. The owner-authorized additional correction cycle is used.
+- [x] t21: Independent review task `01a0b475-9d20-7181-bff0-7f16ae0ea702` reviewed the exact 21-file diff. Review cycle 1 failed on four findings. Review cycle 2 performed a read-only focused recheck after the authorized corrections. It found no remaining or new material finding and passed t21. It confirmed no scope creep, judgment automation, mutation, benchmark execution, incomplete diagnostics, rule drift, CLI/MCP difference, missing installed fallback, false cross-certification, hidden retry, or target-authority promotion.
+- [x] t22: The exact changed files are `.make-docs/system/contracts/performance-evidence-governance.md`, `.make-docs/system/references/performance-evidence.md`, `docs/prd/39-cli-command-model-and-operation-registry.md`, `docs/prd/48-performance-evidence-governance.md`, this work record, `packages/cli/src/operations/registry.ts`, `packages/cli/src/run/cli.ts`, `packages/cli/src/run/render.ts`, `packages/cli/src/operations/performance-evidence/catalog.ts`, `packages/cli/src/operations/performance-evidence/index.ts`, `packages/cli/src/operations/performance-evidence/ops.ts`, `packages/cli/src/operations/performance-evidence/validator.ts`, `packages/cli/tests/consistency.test.ts`, `packages/cli/tests/mcp-derivation.test.ts`, `packages/cli/tests/operation-domains.test.ts`, `packages/cli/tests/performance-evidence-resources.test.ts`, `packages/cli/tests/registry-contract.test.ts`, `packages/cli/tests/fixtures/performance-evidence-validator/profile.md`, `packages/cli/tests/performance-evidence-validator.test.ts`, `packages/docs/template/.make-docs/system/contracts/performance-evidence-governance.md`, and `packages/docs/template/.make-docs/system/references/performance-evidence.md`. Decision commit: `4b8b5956`. Remaining risks R-025, R-029 through R-032, R-034, and R-035 remain `impacted-nonblocking` within their recorded controls. Finding, `O-###`, and `NUAT-###` remain `none`. The two original correction attempts and the one owner-authorized additional focused cycle are used. Both review cycles are used. Disposition: `validated dual-path operation`.
 
 ### Acceptance criteria
 
@@ -157,4 +157,6 @@ P4 is now required before P5. The phase permits at most two materially distinct 
 ### Closeout Notes
 
 - Testing-mode decision(s): focused Automated Implementation Testing and agent Human Experience Review apply only after admission and implementation. Performance Testing, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` unless a current decision activates them. `O-###`, `NUAT-###`, and finding remain `none` unless authority-backed records are created separately.
-- Phase / capability status: report `validated` only for the exact admitted dual-path capability; otherwise remain `blocked` or `deferred`.
+- Human Experience Review: the promised surface is a maintainer-facing validation result that states the result first, explains each problem, and states the limits. Evidence is the interactive CLI output for a missing authority root, the complete JSON output, the repository validation result, the canonical agent instructions, the four failure-revealing regression cases, and the independent focused recheck. Observation: the interactive output starts with `failed`, gives profile, candidate, and diagnostic counts, names the applicable diagnostic, explains why the input failed, gives the exact next action, and ends with the no-benchmark, no-write, and no-retry limits. The repository result reports `passed` with 40 warnings and no errors without turning warnings into a performance outcome. The corrected validator now rejects the reviewed false-pass cases for owner authority, hidden retry language, unlinked criteria, and duplicate identity summaries. Conclusion: `satisfied` for the implemented agent-facing and maintainer-facing result. Limit: this was an agent review of code, tests, terminal behavior, documents, and package evidence. It is not a lived human-use study, performance result, current Store receipt, release proof, or support approval. Next action: maintainer feedback after normal use is optional and is not a completion gate.
+- Store and setup limit: the stale Codex MCP receipt is tracked by a separate repair task. It is not a P4 blocker. Direct dogfood file projection changed only the two reviewed resource files and has byte parity. Packed-package proof and installed fallback passed. P5 must confirm current local and installed discovery after the separate receipt repair. No Store or machine file changed in P4.
+- Phase / capability status: repository implementation, package proof, independent review, and Human Experience Review are complete within the stated limits. P4 disposition is `validated dual-path operation`. This does not prove a performance outcome, installed-harness receipt, release readiness, or support scope. Staging and commit need separate owner authority.

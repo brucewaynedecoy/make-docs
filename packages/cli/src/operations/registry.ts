@@ -18,6 +18,7 @@ import {
   type OperationExecutionContext,
 } from "./context";
 import { lifecycleOperations } from "./lifecycle/registry-ops";
+import { performanceEvidenceOperations } from "./performance-evidence/ops";
 import { projectOperations } from "./project/ops";
 import { projectLayoutOperations } from "./project/layout";
 import { uatOperations } from "./uat/ops";
@@ -118,6 +119,7 @@ export const OPERATION_ID_PATTERN = new RegExp(`^${SEGMENT}\\.${SEGMENT}(?:\\.${
 
 export const ADMITTED_OPERATION_IDS = [
   "prd.authority.validate",
+  "performance.evidence.validate",
   "work.item.resolve",
   "work.evidence.record",
   "work.evidence.read",
@@ -154,6 +156,7 @@ export const ADMITTED_OPERATION_IDS = [
 
 const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [OperationCliRoot, string]> = {
   "prd.authority.validate": ["run", "prd authority validate"],
+  "performance.evidence.validate": ["run", "performance evidence validate"],
   "work.item.resolve": ["run", "work item resolve"],
   "work.evidence.record": ["run", "work evidence record"],
   "work.evidence.read": ["run", "work evidence read"],
@@ -189,6 +192,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "performance.evidence.validate":
+    "make-docs run performance evidence validate [--target-root <project>] [--json]",
   "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
   "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
   "project.layout.prepare": "make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--target-root <path>] [--json]",
@@ -249,6 +254,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
   const registry = new Map<string, OperationDefinition>();
   const definitions: OperationDefinition[] = [
     ...prdOperations,
+    ...performanceEvidenceOperations,
     ...projectOperations,
     ...projectLayoutOperations,
     ...workOperations,

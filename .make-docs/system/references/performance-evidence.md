@@ -96,3 +96,19 @@ Do not fill these gaps with guessed values.
 Performance evidence can support another review. It cannot replace automated tests, Guided Progress Review, Unassisted Goal Testing, Human Experience Review, accessibility review, installed-product proof, release validation, or support approval.
 
 Repository records own product meaning. Project State or the Global Store can hold operational run state and evidence references. That state is a rebuildable aid. It is not product authority.
+
+## Use The Validation Twin
+
+The [Performance Evidence Governance Contract](../contracts/performance-evidence-governance.md#validation-methods) owns both validation methods and the stable rule catalog.
+
+Use the deterministic CLI method for repeatable structure and trace checks when the CLI is available. Use the agent method when the CLI is absent or when a catalog rule requires judgment. The agent must say whether the deterministic operation ran.
+
+Keep the evidence paths distinct:
+
+- `validator-passed` means the deterministic result passed.
+- `agent-reviewed` means the canonical agent review is complete within its stated evidence and limits.
+- `combined` means both separate records exist.
+
+These states describe how validation evidence was supplied. They do not prove a performance outcome, certify the other method, authorize execution, close a finding or obligation, approve a waiver, or promote supported scope.
+
+For an agent review, report the rule ID, evidence, observation, conclusion, limit, and next action. Keep missing, invalid, expired, non-comparable, adjacent-mode, and unsupported evidence visible. Route product choices to the owner or owning PRD.

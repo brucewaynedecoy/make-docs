@@ -8,7 +8,7 @@ This is the sole reusable policy source for Make Docs performance evidence. The 
 
 This contract applies to latency, throughput, resource use, capacity, startup or interaction response, and artifact size when size changes execution. It applies across GUI, CLI, API, SDK, service, device, batch, background, and headless surfaces.
 
-The first delivery is documentation only. It does not create a benchmark runner, validator, daemon, retry service, or hidden state change.
+The initial delivery is documentation-first. The admitted validation twin adds one read-only structural validator and one canonical agent review method. It does not create a benchmark runner, daemon, retry service, or hidden state change.
 
 ## Resource Composition
 
@@ -194,8 +194,64 @@ Keep an existing hard target only when its source, owner, protected outcome, pro
 
 Existing scripts and results remain assets only for what they prove. Adoption does not delete, move, rename, rerun, certify, tighten, promote, or broaden them. Do not infer a pass from old green output or fabricate missing evidence.
 
+## Validation Methods
+
+Use one or both methods. Keep their evidence separate.
+
+### Deterministic method
+
+When the Make Docs CLI is available, run:
+
+```text
+make-docs run performance evidence validate --target-root <project>
+```
+
+The operation reads Markdown repository authority under `docs/` and `.make-docs/archive/history/`. It inventories candidate language and validates the catalog-marked structural facts. It runs no benchmark and writes no project, Store, or host file.
+
+The result status is `passed`, `failed`, `blocked`, or `refused`. Only `passed` earns `validator-passed`. A failed, blocked, or refused result has no favorable proof state. A fingerprint classification is only `unchanged`, `materially-changed`, or `not-comparable`, with its recorded reason. It never authorizes an execution or retry.
+
+### Agent method
+
+Use this method when the CLI is absent or unavailable, or when a catalog rule requires judgment.
+
+1. Read repository authority from `docs/` and `.make-docs/archive/history/`. Do not use hidden state as authority.
+2. State whether the deterministic operation ran. If it did not run, say so. Do not infer a validator pass.
+3. Inventory numeric units, rates, percentiles, percentages, resource quantities, relative comparisons, and absolute performance language. Do not decide applicability from the inventory alone.
+4. Review every applicable `PERF-###` profile and linked result, finding, waiver, obligation, and evidence record against the rule catalog below.
+5. For each reviewed rule, record the rule ID, exact evidence, observation, conclusion, limit, and next action.
+6. Apply judgment only to catalog rules marked `agent-only` or `partial`. Report a missing owner choice as a product question. Do not answer it on the owner's behalf.
+7. Preserve missing, invalid, expired, non-comparable, adjacent-mode, and unsupported evidence without favorable inference.
+8. A complete agent review can earn `agent-reviewed`. It cannot earn `validator-passed`. Use `combined` only when a separate passed deterministic result and a separate completed agent review both exist.
+
+The agent method is read-only. It does not repair files, run a benchmark, select a target, approve a waiver, close a finding or obligation, renew a budget, authorize a run or retry, promote supported scope, or substitute for another testing or proof mode.
+
+### Stable rule catalog
+
+| Rule | Class | Deterministic support | Agent review | Diagnostic | Parity or one-sided reason |
+| --- | --- | --- | --- | --- | --- |
+| `PERF-RULE-001` | fact | full | Confirm safe, readable repository authority roots. | `PERF-VAL-001` | Both methods stop on unreadable, unsafe, or escaping authority. |
+| `PERF-RULE-002` | fact | full | Inventory candidate language without deciding applicability. | `PERF-VAL-002` | Both methods preserve the same candidate classes. |
+| `PERF-RULE-003` | fact | full | Confirm one append-only `PERF-###` identity, version, and digest. | `PERF-VAL-003` | Both methods inspect the same profile binding. |
+| `PERF-RULE-004` | fact | full | Confirm required profile structure and resolved values. | `PERF-VAL-004` | Both methods use the canonical profile shape. |
+| `PERF-RULE-005` | fact | full | Confirm the target class and canonical owner location. | `PERF-VAL-005` | Both methods use the target-class owner map. |
+| `PERF-RULE-006` | fact | full | Confirm the durable approver and required target approval. | `PERF-VAL-006` | Both methods require recorded approval evidence. |
+| `PERF-RULE-007` | fact | full | Confirm expiry triggers and one bounded unchanged-fingerprint requalification. | `PERF-VAL-007` | Both methods preserve expiry and separate requalification authority. |
+| `PERF-RULE-008` | fact | full | Confirm every evidence limit is finite and cannot renew itself. | `PERF-VAL-008` | Both methods reject unspecified, unlimited, and self-renewing budgets. |
+| `PERF-RULE-009` | fact | full | Confirm diminishing-return and budget-exhaustion stops. | `PERF-VAL-009` | Both methods preserve finite stop behavior. |
+| `PERF-RULE-010` | fact | full | Confirm only `pass`, `fail`, `revise`, `blocked`, and `waived`. | `PERF-VAL-010` | Both methods keep outcome and proof state separate. |
+| `PERF-RULE-011` | fact | full | Confirm authority, plan, work, result, finding, waiver, and obligation lineage. | `PERF-VAL-011` | Both methods keep repository records authoritative. |
+| `PERF-RULE-012` | fact | full | Confirm evidence links are present, readable, and repository-bounded. | `PERF-VAL-012` | Both methods preserve missing or unsafe evidence as a failure state. |
+| `PERF-RULE-013` | fact | full | Report the declared fingerprint class and reason only. | `PERF-VAL-013` | Neither method turns fingerprint equality into run authority. |
+| `PERF-RULE-014` | fact | partial | Decide whether a flagged numeric work criterion is stricter than linked authority. | `PERF-VAL-014` | The validator flags missing traceability. The agent supplies the decision-specific comparison. |
+| `PERF-RULE-015` | decision | agent-only | Review applicability and maturity against the current product decision. | `PERF-AGENT-015` | Applicability and maturity depend on current risk, value, and product direction. |
+| `PERF-RULE-016` | decision | agent-only | Review whether the declared environment and comparison support the current decision. | `PERF-AGENT-016` | Representative conditions and material equivalence require decision-specific judgment. |
+| `PERF-RULE-017` | decision | agent-only | Review impact, severity, accepted risk, waiver authority, and supported scope. | `PERF-AGENT-017` | These items are owner decisions and cannot be derived from structure. |
+| `PERF-RULE-018` | fact | full | Confirm honest proof state and all method limits. | `PERF-VAL-018` | Each method reports only its own evidence path and never certifies the other. |
+
+Any catalog change must review its mapped deterministic rule, agent instruction, diagnostic, fixtures, and tests. An agent-only or otherwise one-sided rule must retain its explicit reason.
+
 ## Automation Limit
 
-A future deterministic validator needs a separate owner gate. It may check structure, links, identity, owner location, approval, expiry, budget, stop rules, traceability, evidence references, and declared fingerprint equality.
+The deterministic operation may check structure, links, identity, owner location, approval, expiry, budget, stop rules, traceability, evidence references, controlled vocabulary, and declared fingerprint equality.
 
-Automation must not decide applicability, maturity, target value, analysis method, representative environment, comparability, user impact, severity, trade-offs, waiver approval, obligation fulfillment, supported scope, requirement changes, or support-claim promotion. It must not authorize executions or retries.
+Neither method may decide applicability, maturity, target value, analysis method, representative environment, comparability, user impact, severity, trade-offs, waiver approval, obligation fulfillment, supported scope, requirement changes, or support-claim promotion. Neither method may authorize executions or retries.

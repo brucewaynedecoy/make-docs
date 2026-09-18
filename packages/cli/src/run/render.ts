@@ -72,8 +72,31 @@ function renderPrdAuthorityValidation(value: JsonValue): string[] | null {
   return lines;
 }
 
+function renderPerformanceEvidenceValidation(value: JsonValue): string[] | null {
+  const report = asRecord(value);
+  if (!report) return null;
+  const diagnostics = recordEntries(report.diagnostics);
+  const catalog = asRecord(report.catalog);
+  const lines = [
+    `Performance Evidence validation: ${text(report, "status") ?? "unknown"} (${String(report.profileCount ?? "?")} profiles, ${String(report.candidateCount ?? "?")} candidates, ${diagnostics.length} diagnostics).`,
+    `Rule catalog: ${text(catalog, "id") ?? "unknown"} (${String(catalog?.ruleCount ?? "?")} rules).`,
+  ];
+  const proofState = text(report, "proofState");
+  if (proofState) lines.push(`Proof state: ${proofState}.`);
+  for (const entry of diagnostics) {
+    lines.push(
+      `${text(entry, "code") ?? "PERF-VAL-?"} ${text(entry, "path") ?? "?"}:${String(entry.line ?? "?")} ${text(entry, "message") ?? "Validation issue."}`,
+      `  Reason: ${text(entry, "reason") ?? "No reason was recorded."}`,
+      `  Next: ${text(entry, "remediation") ?? "Review the Performance Evidence authority."}`,
+    );
+  }
+  lines.push("No benchmark ran. No project file changed. This result does not authorize a run or retry.");
+  return lines;
+}
+
 const TEXT_RENDERERS: Record<string, (value: JsonValue) => string[] | null> = {
   "prd.authority.validate": renderPrdAuthorityValidation,
+  "performance.evidence.validate": renderPerformanceEvidenceValidation,
 };
 
 /**

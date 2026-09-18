@@ -797,6 +797,7 @@ describe("risk register routing contract", () => {
       "R-032 Expired or Non-Comparable Performance Evidence Could Be Reused as Current Proof",
       "R-033 Human Experience Structure Could Become Checklist Compliance",
       "R-034 Testing Proportionality, Gate, and Human-Burden Drift",
+      "R-035 Deterministic and Agentic Performance Validation Could Drift or Overstate Proof",
     ]);
   });
 
