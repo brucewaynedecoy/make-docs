@@ -13,6 +13,7 @@ import { executeInstallPlanMigration } from "../src/migration";
 import { runUninstallCommand } from "../src/uninstall";
 import { readPackageFile } from "../src/utils";
 import { getLegacyIncompleteRouterPaths } from "../src/router-paths";
+import { RESOURCE_PROJECTION_AUTHORITIES } from "../src/project-projection";
 
 import { readRawStoreLedger, writeRawStoreLedger } from "./store-ledger-fixture";
 import { resolveStoreRoot } from "../src/store/paths";
@@ -24,6 +25,15 @@ afterEach(() => {
 });
 
 describe("W19 R1 P4 projection and lifecycle", () => {
+  it("keeps one owner for each W22 resource fact", () => {
+    expect(RESOURCE_PROJECTION_AUTHORITIES).toEqual({
+      desiredSelection: "project-config",
+      sourceIdentity: "installed-provider",
+      liveBytes: "project-files",
+      appliedOwnership: "store-installation-ledger",
+    });
+  });
+
   it("accepts none, all, and individual explicit projection selections", () => {
     for (const value of ["none", "all", "contract,prompt", "reference"]) {
       expect(() => validateMakeDocsCliArgv([
@@ -45,10 +55,22 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const plan = await planInstall({ targetDir, selections, existingManifest: null });
     const applied = applyInstallPlan({ targetDir, plan, existingManifest: null });
     expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8").startsWith("user bytes\n")).toBe(true);
-    expect(applied.manifest.resourceProjection?.selectedTypes).toEqual(["prompt"]);
+    expect(applied.manifest.selections.resourceProjection).toEqual(["prompt"]);
+    expect(applied.manifest.resourceProjection).not.toHaveProperty("selectedTypes");
+    expect(applied.manifest.resourceProjection).not.toHaveProperty("provider");
     expect(Object.values(applied.manifest.resourceProjection?.resources ?? {})).not.toHaveLength(0);
-    expect(Object.values(applied.manifest.resourceProjection?.resources ?? {}).every((entry) =>
-      entry.type === "prompt" && entry.ownershipClass === "managed-snapshot" && entry.provenanceState === "verified",
+    expect(Object.entries(applied.manifest.resourceProjection?.resources ?? {}).every(([uri, entry]) =>
+      uri.startsWith("make-docs://system/prompt/") &&
+      entry.ownershipClass === "managed-snapshot" &&
+      Object.keys(entry).sort().join(",") === [
+        "hashAlgorithm",
+        "installedDigest",
+        "lastVerifiedAt",
+        "lifecycleDisposition",
+        "managedDestination",
+        "ownershipClass",
+        "uri",
+      ].join(","),
     )).toBe(true);
     expect(existsSync(path.join(targetDir, ".make-docs/system/prompts"))).toBe(true);
     expect(existsSync(path.join(targetDir, ".make-docs/system/references"))).toBe(true);
@@ -633,31 +655,25 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     const invalidCases = [
       { label: "map key", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.uri = `${uri}-other`; } },
       {
-        label: "canonical URI",
+        label: "canonical system URI",
         mutate: (copy: typeof applied.manifest) => {
           const resource = copy.resourceProjection!.resources[uri]!;
-          const wrongUri = `${uri}-wrong`;
+          const wrongUri = uri.replace("/prompt/", "/unknown/");
           delete copy.resourceProjection!.resources[uri];
           copy.resourceProjection!.resources[wrongUri] = { ...resource, uri: wrongUri };
         },
       },
-      { label: "must equal selections.resourceProjection", mutate: (copy: typeof applied.manifest) => { copy.selections.resourceProjection = []; } },
-      { label: "must be selected", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.type = "reference"; } },
-      { label: "provider identity", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.providerPackage = "wrong-package"; } },
-      { label: "provider identity", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.providerVersion = "wrong-version"; } },
-      { label: "provider identity", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.providerImmutableRef = "wrong-ref"; } },
-      { label: "canonical relative", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.resourcePath = "../escape.md"; } },
+      { label: "must be selected by project config", mutate: (copy: typeof applied.manifest) => { copy.selections.resourceProjection = []; } },
+      { label: "duplicates config or provider authority", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.type = "reference"; } },
+      { label: "duplicates config or provider authority", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.providerPackage = "wrong-package"; } },
+      { label: "duplicates config or provider authority", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.resourcePath = "../escape.md"; } },
       { label: "managedDestination", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.managedDestination = ".make-docs/system/references/wrong.md"; } },
-      { label: "sha256", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.sourceDigest = "bad"; } },
-      { label: "materializationMode", mutate: (copy: typeof applied.manifest) => { delete (copy.resourceProjection!.resources[uri] as Partial<typeof entry>).materializationMode; } },
+      { label: "sha256", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.installedDigest = "bad"; } },
       { label: "lastVerifiedAt", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.lastVerifiedAt = "not-a-time"; } },
       { label: "lifecycleDisposition", mutate: (copy: typeof applied.manifest) => { delete (copy.resourceProjection!.resources[uri] as Partial<typeof entry>).lifecycleDisposition; } },
-      { label: "adoptionReceipt", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.adoptionReceipt = { receiptId: "bad", adoptedAt: new Date().toISOString(), priorOwnershipClass: "managed-snapshot", evidenceRefs: ["review"] }; } },
-      { label: "provenanceEvidence", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.provenanceEvidence = []; } },
-      { label: "competingClaims", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.provenanceState = "ambiguous"; } },
       { label: "must match managed manifest.files ownership", mutate: (copy: typeof applied.manifest) => { copy.resourceProjection!.resources[uri]!.installedDigest = "c".repeat(64); } },
     ];
-    expect(entry.sourceDigest).toMatch(/^[a-f0-9]{64}$/);
+    expect(entry.installedDigest).toMatch(/^[a-f0-9]{64}$/);
     for (const invalidCase of invalidCases) {
       const copy = structuredClone(applied.manifest);
       invalidCase.mutate(copy);

@@ -1224,6 +1224,126 @@ function validateResourceProjectionManifestState(
   systemAssetMaterialization: SystemAssetManifestState,
 ): ResourceProjectionManifestState {
   assertPlainObject(value, "manifest.resourceProjection");
+  assertPlainObject(value.resources, "manifest.resourceProjection.resources");
+  const legacy = "selectedTypes" in value || "provider" in value;
+  if (legacy) {
+    return validateLegacyResourceProjectionManifestState(
+      value,
+      selectedResourceTypes,
+      packageMeta,
+      files,
+      systemAssetMaterialization,
+    );
+  }
+
+  const selectedTypes = selectedResourceTypes ?? [];
+  const resources: ResourceProjectionManifestState["resources"] = {};
+  const allowedFields = new Set([
+    "uri",
+    "managedDestination",
+    "ownershipClass",
+    "installedDigest",
+    "hashAlgorithm",
+    "lastVerifiedAt",
+    "lifecycleDisposition",
+  ]);
+  for (const [uri, rawEntry] of Object.entries(value.resources)) {
+    assertPlainObject(rawEntry, `manifest.resourceProjection.resources.${uri}`);
+    const duplicateField = Object.keys(rawEntry).find((field) => !allowedFields.has(field));
+    if (duplicateField) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.${duplicateField} duplicates config or provider authority`,
+      );
+    }
+    const entryUri = validateString(
+      rawEntry.uri,
+      `manifest.resourceProjection.resources.${uri}.uri`,
+    );
+    if (entryUri !== uri) {
+      throw new Error(`manifest.resourceProjection.resources.${uri}.uri must equal its map key`);
+    }
+    const match = /^make-docs:\/\/system\/(contract|prompt|reference|template)\/(.+)$/.exec(uri);
+    if (!match) {
+      throw new Error(`manifest.resourceProjection.resources.${uri} must use a canonical system URI`);
+    }
+    const type = match[1] as ProjectResourceType;
+    const resourcePath = validateCanonicalResourcePath(
+      match[2],
+      `manifest.resourceProjection.resources.${uri}.uri`,
+    );
+    if (!selectedTypes.includes(type)) {
+      throw new Error(`manifest.resourceProjection.resources.${uri} must be selected by project config`);
+    }
+    const typeDirectory = {
+      contract: "contracts",
+      prompt: "prompts",
+      reference: "references",
+      template: "templates",
+    }[type];
+    const managedDestination = validateString(
+      rawEntry.managedDestination,
+      `manifest.resourceProjection.resources.${uri}.managedDestination`,
+    );
+    const canonicalDestination = `.make-docs/system/${typeDirectory}/${resourcePath}`;
+    if (managedDestination !== canonicalDestination) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.managedDestination must be ${canonicalDestination}`,
+      );
+    }
+    const ownershipClass = rawEntry.ownershipClass;
+    if (ownershipClass !== "managed-snapshot" && ownershipClass !== "project-owned") {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri}.ownershipClass must be managed-snapshot or project-owned`,
+      );
+    }
+    const installedDigest = validateSha256Digest(
+      rawEntry.installedDigest,
+      `manifest.resourceProjection.resources.${uri}.installedDigest`,
+    );
+    if (rawEntry.hashAlgorithm !== "sha256") {
+      throw new Error(`manifest.resourceProjection.resources.${uri}.hashAlgorithm must be sha256`);
+    }
+    const fileEntry = files[managedDestination];
+    const expectedFileOwnership = ownershipClass === "managed-snapshot"
+      ? "managed-projection"
+      : "project-owned";
+    if (
+      fileEntry?.sourceId !== `resource:${uri}` ||
+      fileEntry.ownershipClass !== expectedFileOwnership ||
+      fileEntry.hash !== installedDigest
+    ) {
+      throw new Error(
+        `manifest.resourceProjection.resources.${uri} must match managed manifest.files ownership`,
+      );
+    }
+    resources[uri] = {
+      uri: entryUri,
+      managedDestination,
+      ownershipClass,
+      installedDigest,
+      hashAlgorithm: "sha256",
+      lastVerifiedAt: validateIsoTimestamp(
+        rawEntry.lastVerifiedAt,
+        `manifest.resourceProjection.resources.${uri}.lastVerifiedAt`,
+      ),
+      lifecycleDisposition: validateLifecycleDisposition(
+        rawEntry.lifecycleDisposition,
+        `manifest.resourceProjection.resources.${uri}.lifecycleDisposition`,
+      ),
+    };
+  }
+  assertCompleteResourceProjection(resources, selectedTypes, files, systemAssetMaterialization);
+  return { resources };
+}
+
+function validateLegacyResourceProjectionManifestState(
+  value: Record<string, unknown>,
+  selectedResourceTypes: ProjectResourceType[] | undefined,
+  packageMeta: PackageMeta,
+  files: Record<string, ManifestFileEntry>,
+  systemAssetMaterialization: SystemAssetManifestState,
+): ResourceProjectionManifestState {
+  assertPlainObject(value, "manifest.resourceProjection");
   const selectedTypes = validateResourceProjectionSelection(value.selectedTypes);
   if (
     JSON.stringify(selectedTypes) !== JSON.stringify(selectedResourceTypes ?? [])
@@ -1492,6 +1612,65 @@ function validateResourceProjectionManifestState(
     provider,
     resources,
   };
+}
+
+function assertCompleteResourceProjection(
+  resources: ResourceProjectionManifestState["resources"],
+  selectedTypes: ProjectResourceType[],
+  files: Record<string, ManifestFileEntry>,
+  systemAssetMaterialization: SystemAssetManifestState,
+): void {
+  const requiredResources = new Map<string, string>();
+  const selectedDirectories = new Set(
+    selectedTypes.map((type) => ({
+      contract: "contracts",
+      prompt: "prompts",
+      reference: "references",
+      template: "templates",
+    })[type]),
+  );
+  for (const asset of Object.values(systemAssetMaterialization.assets)) {
+    const localPath = asset.localPath;
+    if (
+      !localPath ||
+      asset.materializationClass !== "deferred-system-asset" ||
+      asset.selectionTrigger !== "internal-materialization-mode"
+    ) {
+      continue;
+    }
+    const match = /^\.make-docs\/system\/(contracts|prompts|references|templates)\/(.+)$/.exec(localPath);
+    if (!match || !selectedDirectories.has(match[1])) continue;
+    const type = ({
+      contracts: "contract",
+      prompts: "prompt",
+      references: "reference",
+      templates: "template",
+    } as const)[match[1] as "contracts" | "prompts" | "references" | "templates"];
+    requiredResources.set(`make-docs://system/${type}/${match[2]}`, localPath);
+  }
+  for (const [relativePath, file] of Object.entries(files)) {
+    if (!file.sourceId.startsWith("resource:")) continue;
+    const uri = file.sourceId.slice("resource:".length);
+    if (!resources[uri] || resources[uri].managedDestination !== relativePath) {
+      throw new Error(
+        `manifest.resourceProjection.resources must include managed resource ${uri}`,
+      );
+    }
+  }
+  for (const [uri, localPath] of requiredResources) {
+    if (!resources[uri] || resources[uri].managedDestination !== localPath) {
+      throw new Error(
+        `manifest.resourceProjection.resources must include selected provider resource ${uri}`,
+      );
+    }
+  }
+  for (const uri of Object.keys(resources)) {
+    if (!requiredResources.has(uri)) {
+      throw new Error(
+        `manifest.resourceProjection.resources contains unselected or unmaterialized resource ${uri}`,
+      );
+    }
+  }
 }
 
 function validateCanonicalResourcePath(value: unknown, label: string): string {

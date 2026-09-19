@@ -188,14 +188,18 @@ export interface HarnessReceiptEntry {
 }
 
 export interface HarnessAccessReceipt {
-  schemaVersion: 1;
+  /**
+   * Schema 1 receipts retain the executable that was current when setup ran.
+   * Schema 2 receipts prove only the managed native entry and its history.
+   */
+  schemaVersion: 1 | 2;
   operationId: string;
   adapterId: string;
   adapterVersion: number;
   harnessId: HarnessId;
   connectionMethod: HarnessConnectionMethod;
   scope: HarnessScope;
-  executable: VerifiedExecutableIdentity;
+  executable?: VerifiedExecutableIdentity;
   appliedVersion: string;
   verifiedAt: string;
   entries: readonly HarnessReceiptEntry[];

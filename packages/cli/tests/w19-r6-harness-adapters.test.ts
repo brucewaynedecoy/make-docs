@@ -47,6 +47,10 @@ import { resolveHarnessOperationPolicy } from "../src/operations/harness-policy.
 import { createExecutionContext, resolveCliOperationRoute } from "../src/operations/context.js";
 import { runSystemSetupCommand } from "../src/setup-system.js";
 import { platform } from "../src/platform.js";
+import {
+  readCurrentHarnessIntegrationReceipt,
+  recordHarnessIntegrationReceipt,
+} from "../src/store/harness-integration-receipts.js";
 
 const roots: string[] = [];
 
@@ -393,6 +397,63 @@ describe("W19 R6 static first-party harness adapters", () => {
         commandRuleAuthority: COMMAND_RULE_AUTHORITY,
       })).toThrow(route === "mcp" ? "native-rule route" : "MCP route");
     }
+  });
+
+  it("does not bind current execution to a legacy receipt from an older package", async () => {
+    const { root, executable } = fixture();
+    const storeContainer = mkdtempSync(path.join(os.tmpdir(), "make-docs-harness-update-store-"));
+    roots.push(storeContainer);
+    const storeRoot = path.join(storeContainer, "store");
+    const initial = await runSystemSetupCommand({
+      dryRun: false,
+      yes: true,
+      harnesses: { codex: true, "claude-code": false },
+      methods: { codex: "mcp" },
+      executable,
+      machineRoot: root,
+      targetRoot: root,
+      storeRoot,
+    });
+    expect(initial.status).toBe("configured");
+    const receipt = readCurrentHarnessIntegrationReceipt(root, storeRoot, "machine", "codex", "mcp");
+    expect(receipt).toMatchObject({ schemaVersion: 2, result: "verified" });
+    expect(receipt).not.toHaveProperty("executable");
+    recordHarnessIntegrationReceipt(root, storeRoot, {
+      ...receipt!,
+      schemaVersion: 1,
+      operationId: "legacy-executable-history",
+      executable: {
+        ...executable,
+        sha256: "0".repeat(64),
+        packageVersion: "1.9.9",
+      },
+    });
+    const movedLaunchPath = path.join(root, "bin", "make-docs-moved");
+    mkdirSync(path.dirname(movedLaunchPath), { recursive: true });
+    symlinkSync(executable.path, movedLaunchPath);
+    const movedExecutable = verifyMakeDocsExecutable({ executablePath: movedLaunchPath });
+    const repeated = await runSystemSetupCommand({
+      dryRun: false,
+      yes: true,
+      harnesses: { codex: true, "claude-code": false },
+      methods: { codex: "mcp" },
+      executable: movedExecutable,
+      machineRoot: root,
+      targetRoot: root,
+      storeRoot,
+    });
+    expect(repeated.status).toBe("configured");
+    expect(readCurrentHarnessIntegrationReceipt(root, storeRoot, "machine", "codex", "mcp"))
+      .toMatchObject({ schemaVersion: 2, result: "verified" });
+    expect(readCurrentHarnessIntegrationReceipt(root, storeRoot, "machine", "codex", "mcp"))
+      .not.toHaveProperty("executable");
+    expect(resolveHarnessOperationPolicy({
+      route: "mcp",
+      targetRoot: root,
+      storeRoot,
+      callerIdentityRaw: makeCallerIdentityRaw(root, movedExecutable, "mcp"),
+      commandRuleAuthority: COMMAND_RULE_AUTHORITY,
+    })).toMatchObject({ verified: true, methods: ["mcp"] });
   });
 });
 

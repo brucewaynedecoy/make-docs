@@ -28,6 +28,12 @@ import {
 import { readPackageFile } from "./utils";
 
 const P4_OPERATION_LINEAGE = "W19 R1 P4" as const;
+export const RESOURCE_PROJECTION_AUTHORITIES = Object.freeze({
+  desiredSelection: "project-config",
+  sourceIdentity: "installed-provider",
+  liveBytes: "project-files",
+  appliedOwnership: "store-installation-ledger",
+} as const);
 export type ProjectSurface = "archive" | "artifacts" | "assets";
 
 export function normalizeProjectResourceSelection(
@@ -74,11 +80,7 @@ export function buildSelectedResourceProjection(options: {
         resource.identity.path,
       );
       const previous = options.existingState?.resources[resource.identity.uri];
-      const lastVerifiedAt = previous?.provenanceState === "verified" &&
-        previous.providerPackage === provider.provider.identity.packageName &&
-        previous.providerVersion === provider.provider.identity.version &&
-        previous.providerImmutableRef === provider.provider.identity.immutableRef &&
-        previous.sourceDigest === resource.digest &&
+      const lastVerifiedAt = previous?.ownershipClass === "managed-snapshot" &&
         previous.installedDigest === resource.digest
         ? previous.lastVerifiedAt
         : verifiedAt;
@@ -86,28 +88,12 @@ export function buildSelectedResourceProjection(options: {
         resource.identity.uri,
         {
           uri: resource.identity.uri,
-          type: resource.identity.type,
-          resourcePath: resource.identity.path,
           managedDestination,
           ownershipClass: "managed-snapshot" as const,
-          provenanceState: "verified" as const,
-          providerPackage: provider.provider.identity.packageName,
-          providerVersion: provider.provider.identity.version,
-          providerImmutableRef: provider.provider.identity.immutableRef,
-          materializationMode: "provider-backed-copy" as const,
-          sourceDigest: resource.digest,
           installedDigest: resource.digest,
           hashAlgorithm: "sha256" as const,
           lastVerifiedAt,
           lifecycleDisposition: "active" as const,
-          adoptionReceipt: null,
-          selectionTrigger: options.selectionTrigger,
-          operationLineage: P4_OPERATION_LINEAGE,
-          provenanceEvidence: [
-            `provider-inventory:sha256:${provider.provider.inventoryDigest}`,
-            `resource:${resource.identity.uri}`,
-          ],
-          competingClaims: [],
         },
       ];
     }),
@@ -115,15 +101,6 @@ export function buildSelectedResourceProjection(options: {
   return {
     assets,
     state: {
-      selectedTypes,
-      provider: {
-        ownershipClass: "installed-provider",
-        provenanceState: "verified",
-        packageName: provider.provider.identity.packageName,
-        version: provider.provider.identity.version,
-        immutableRef: provider.provider.identity.immutableRef,
-        inventoryDigest: provider.provider.inventoryDigest,
-      },
       resources,
     },
   };

@@ -196,7 +196,7 @@ export function isStoredHarnessIntegrationReceipt(
 ): value is StoredHarnessIntegrationReceipt {
   if (!isRecord(value)) return false;
   const adapter = typeof value.harnessId === "string" ? getFirstPartyHarnessAdapter(value.harnessId) : undefined;
-  return value.schemaVersion === 1 &&
+  return (value.schemaVersion === 1 || value.schemaVersion === 2) &&
     isSafeId(value.operationId) &&
     adapter !== undefined &&
     value.adapterId === adapter.id &&
@@ -204,7 +204,7 @@ export function isStoredHarnessIntegrationReceipt(
     Number(value.adapterVersion) > 0 &&
     (value.connectionMethod === "mcp" || value.connectionMethod === "command-rules" || value.connectionMethod === "permission-rules") &&
     (value.scope === "machine" || value.scope === "project") &&
-    isExecutable(value.executable) &&
+    (value.schemaVersion === 1 ? isExecutable(value.executable) : value.executable === undefined) &&
     isSafeId(value.appliedVersion) &&
     isTimestamp(value.verifiedAt) &&
     Array.isArray(value.entries) &&

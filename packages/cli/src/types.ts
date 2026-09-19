@@ -303,30 +303,33 @@ export type ManifestLifecycleDisposition =
 
 export interface ManifestResourceProjectionEntry {
   uri: string;
-  type: ProjectResourceType;
-  resourcePath: string;
   managedDestination: string;
   ownershipClass: "managed-snapshot" | "project-owned";
-  provenanceState: ManifestProvenanceState;
-  providerPackage: string;
-  providerVersion: string;
-  providerImmutableRef: string;
-  materializationMode: "provider-backed-copy";
-  sourceDigest: string;
   installedDigest: string;
   hashAlgorithm: "sha256";
   lastVerifiedAt: string;
   lifecycleDisposition: ManifestLifecycleDisposition;
-  adoptionReceipt: ManifestAdoptionReceipt | null;
-  selectionTrigger: "setup-selection" | "reconfigure-selection";
-  operationLineage: "W19 R1 P4";
-  provenanceEvidence: string[];
-  competingClaims: ManifestProvenanceClaim[];
+  /** Legacy schema-4 mirrors. New manifests do not write these provider facts. */
+  type?: ProjectResourceType;
+  resourcePath?: string;
+  provenanceState?: ManifestProvenanceState;
+  providerPackage?: string;
+  providerVersion?: string;
+  providerImmutableRef?: string;
+  materializationMode?: "provider-backed-copy";
+  sourceDigest?: string;
+  adoptionReceipt?: ManifestAdoptionReceipt | null;
+  selectionTrigger?: "setup-selection" | "reconfigure-selection";
+  operationLineage?: "W19 R1 P4";
+  provenanceEvidence?: string[];
+  competingClaims?: ManifestProvenanceClaim[];
 }
 
 export interface ResourceProjectionManifestState {
-  selectedTypes: ProjectResourceType[];
-  provider: {
+  /** Legacy schema-4 mirrors. Desired selection now comes only from config. */
+  selectedTypes?: ProjectResourceType[];
+  /** Legacy schema-4 mirror. Provider identity now comes only from the provider. */
+  provider?: {
     ownershipClass: "installed-provider";
     provenanceState: "verified";
     packageName: string;

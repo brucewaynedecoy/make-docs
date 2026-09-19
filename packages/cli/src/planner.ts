@@ -526,7 +526,7 @@ export async function createInstallPlan(options: {
           relativePath,
           sourceId: manifestEntry.sourceId,
           reason:
-            "Resource removal stopped because verified URI, provider, digest, destination, and ownership evidence is incomplete.",
+            "Resource removal stopped because applied destination, digest, and ownership evidence is incomplete.",
         });
         continue;
       }
@@ -1709,10 +1709,7 @@ function hasVerifiedResourceOwnership(
       entry.uri === uri &&
       entry.managedDestination === relativePath &&
       entry.ownershipClass === "managed-snapshot" &&
-      entry.provenanceState === "verified" &&
       entry.lifecycleDisposition === "active" &&
-      entry.competingClaims.length === 0 &&
-      entry.sourceDigest === entry.installedDigest &&
       manifestFile?.ownershipClass === "managed-projection" &&
       manifestFile.sourceId === sourceId &&
       manifestFile.hash === entry.installedDigest,

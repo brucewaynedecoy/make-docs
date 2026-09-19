@@ -456,22 +456,21 @@ function verifyIntegration(input: {
     !receipt ||
     receipt.adapterId !== adapter.id ||
     receipt.adapterVersion !== adapter.version ||
-    receipt.scope !== "machine" ||
-    !sameExecutable(receipt.executable, input.identity.executable)
+    receipt.scope !== "machine"
   ) {
-    throw denied(input.operation, "No exact current Store receipt proves this harness caller.", input.targetRoot);
+    throw denied(input.operation, "No current Store receipt proves ownership of this harness entry.", input.targetRoot);
   }
   let executable: VerifiedExecutableIdentity;
   try {
     executable = verifyMakeDocsExecutable({
-      executablePath: input.identity.executable.path,
+      executablePath: input.identity.executable.launchPath ?? input.identity.executable.path,
       expectedSha256: input.identity.executable.sha256,
     });
   } catch (error) {
     throw denied(input.operation, `The active Make Docs package binary is not verified: ${message(error)}`, input.targetRoot);
   }
-  if (!sameExecutable(executable, receipt.executable)) {
-    throw denied(input.operation, "The current package binary differs from the harness receipt.", input.targetRoot);
+  if (!sameExecutable(executable, input.identity.executable)) {
+    throw denied(input.operation, "The current package binary differs from the caller proof.", input.targetRoot);
   }
   const rules = method.requiresCommandRules
     ? input.commandRuleAuthority?.validate(input.commandRuleAuthority.list())

@@ -316,7 +316,7 @@ function assertReceiptOwnedDrift(
 ): void {
   if (
     !receipt ||
-    receipt.schemaVersion !== 1 ||
+    (receipt.schemaVersion !== 1 && receipt.schemaVersion !== 2) ||
     receipt.adapterId !== plan.adapterId ||
     receipt.adapterVersion !== plan.adapterVersion ||
     receipt.harnessId !== plan.harnessId ||
@@ -392,7 +392,7 @@ function assertReceiptMatchesPlan(
 ): void {
   const plan = pending.plan;
   if (
-    receipt.schemaVersion !== 1 ||
+    receipt.schemaVersion !== 2 ||
     receipt.operationId !== pending.operationId ||
     receipt.adapterId !== pending.adapterId ||
     receipt.adapterVersion !== plan.adapterVersion ||
@@ -405,7 +405,6 @@ function assertReceiptMatchesPlan(
     receipt.verificationResult !== "passed" ||
     receipt.driftState !== "current" ||
     receipt.recoveryStatus !== "complete" ||
-    JSON.stringify(receipt.executable) !== JSON.stringify(plan.executable) ||
     receipt.entries.length !== plan.changes.length
   ) {
     throw new Error(`Machine setup receipt does not match pending plan ${pending.operationId}.`);

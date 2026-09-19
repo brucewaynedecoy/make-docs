@@ -630,7 +630,7 @@ describe("W19 R6 harness intent", () => {
       callerReference,
       runtimeExecutablePath: configured.executable.path,
       commandRuleAuthority: COMMAND_RULE_AUTHORITY,
-    })).toThrow("No exact current Store receipt");
+    })).toThrow("No current Store receipt proves ownership of this harness entry");
 
     const otherExecutable = path.join(nativeRoot, "make-docs-other");
     writeFileSync(otherExecutable, "#!/bin/sh\nexit 0\n", { mode: 0o755 });

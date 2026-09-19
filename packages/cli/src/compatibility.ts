@@ -423,10 +423,7 @@ function hasTrustedLocalOwnershipProof(
     return Boolean(
       resource?.managedDestination === relativePath &&
       resource.ownershipClass === "managed-snapshot" &&
-      resource.provenanceState === "verified" &&
       resource.lifecycleDisposition === "active" &&
-      resource.adoptionReceipt === null &&
-      resource.sourceDigest === entry.hash &&
       resource.installedDigest === entry.hash,
     );
   }

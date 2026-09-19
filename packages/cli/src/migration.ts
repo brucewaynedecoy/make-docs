@@ -1534,7 +1534,7 @@ function fixedStagePlan(
     ...basePlan,
     profile: resourceProjection ? resolveInstallProfile({
       ...basePlan.profile.selections,
-      resourceProjection: [...resourceProjection.selectedTypes],
+      resourceProjection: [...(basePlan.profile.selections.resourceProjection ?? [])],
     }) : basePlan.profile,
     actions: [...actions],
     desiredSkillFiles: [...(product.currentManifest?.skillFiles ?? [])],

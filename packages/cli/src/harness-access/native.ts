@@ -328,14 +328,13 @@ function applyHarnessAccessPlan(
 
   const entries = receiptEntriesFromPlan(plan);
   const receipt: HarnessAccessReceipt = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     operationId,
     adapterId: adapter.id,
     adapterVersion: adapter.version,
     harnessId: adapter.harnessId,
     connectionMethod: plan.connectionMethod,
     scope: plan.scope,
-    executable: plan.executable,
     appliedVersion,
     verifiedAt,
     entries,
@@ -1533,23 +1532,16 @@ function receiptEntryFor(
 
 function validateReceiptIdentity(
   adapter: HarnessAdapter,
-  input: Pick<HarnessPlanInput, "method" | "scope" | "executable">,
+  input: Pick<HarnessPlanInput, "method" | "scope">,
   receipt: HarnessAccessReceipt,
 ): void {
   if (
-    receipt.schemaVersion !== 1 ||
+    (receipt.schemaVersion !== 1 && receipt.schemaVersion !== 2) ||
     receipt.adapterId !== adapter.id ||
     receipt.adapterVersion !== adapter.version ||
     receipt.harnessId !== adapter.harnessId ||
     receipt.connectionMethod !== input.method ||
     receipt.scope !== input.scope ||
-    receipt.executable.path !== input.executable.path ||
-    receipt.executable.sha256 !== input.executable.sha256 ||
-    receipt.executable.productMarker !== input.executable.productMarker ||
-    receipt.executable.packageName !== input.executable.packageName ||
-    receipt.executable.packageVersion !== input.executable.packageVersion ||
-    receipt.executable.packageRoot !== input.executable.packageRoot ||
-    receipt.executable.binRelativePath !== input.executable.binRelativePath ||
     receipt.result !== "verified" ||
     receipt.verificationResult !== "passed" ||
     receipt.driftState !== "current" ||
@@ -1563,7 +1555,7 @@ function validateReceiptIdentity(
         !/^[0-9a-f]{64}$/.test(entry.fileFingerprint),
     )
   ) {
-    throw new Error("The harness receipt does not match this exact adapter, method, scope, and executable.");
+    throw new Error("The harness receipt does not match this exact adapter, method, scope, and managed entry.");
   }
 }
 

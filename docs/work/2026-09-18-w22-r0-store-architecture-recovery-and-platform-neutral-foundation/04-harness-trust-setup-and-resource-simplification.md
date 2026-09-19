@@ -61,12 +61,12 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 
 ### Tasks
 
-- [ ] t1: Reduce harness receipts to managed entry identity, method and scope, before and after value evidence, ownership, applied version, verification result, and recovery facts required by current authority.
-- [ ] t2: Separate current executable and package verification from the historical receipt. Verify current execution at each Store-backed call.
-- [ ] t3: Keep machine approval, project approval, caller identity, and operation access as distinct decisions with one policy service.
-- [ ] t4: Implement the accepted Windows method or enforce the owner-approved support limit across help, setup, adapters, tests, and release claims.
-- [ ] t5: Add valid update, changed entry, moved executable, changed package, revoked approval, forged identity, and cross-project tests.
-- [ ] t6: Prove that a valid package update does not fail only because the old executable hash differs.
+- [x] t1: Reduce harness receipts to managed entry identity, method and scope, before and after value evidence, ownership, applied version, verification result, and recovery facts required by current authority.
+- [x] t2: Separate current executable and package verification from the historical receipt. Verify current execution at each Store-backed call.
+- [x] t3: Keep machine approval, project approval, caller identity, and operation access as distinct decisions with one policy service.
+- [x] t4: Implement the accepted Windows method or enforce the owner-approved support limit across help, setup, adapters, tests, and release claims.
+- [x] t5: Add valid update, changed entry, moved executable, changed package, revoked approval, forged identity, and cross-project tests.
+- [x] t6: Prove that a valid package update does not fail only because the old executable hash differs.
 
 ### Acceptance criteria
 
@@ -81,22 +81,22 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 
 ### Closeout Notes
 
-- Four testing decisions: Automated Implementation Testing required; Performance and Unassisted Goal Testing `not-needed-now`; Guided Progress Review waits for P6.
-- Human Experience Review: Prepare clear access and repair result observations.
-- Evidence report: Retain receipt, caller, approval, and platform cases.
-- Phase / capability status: P4 remains active.
+- Four testing decisions: Automated Implementation Testing is complete. Performance and Unassisted Goal Testing remain `not-needed-now`. Guided Progress Review waits for P6.
+- Human Experience Review: The agent review found that current caller proof is separate from entry history. A Store-backed denial names the stopped operation and one next action. Store-free resource work continues. This is local source-build evidence, not lived-human or installed-package proof.
+- Evidence report: Receipt, caller, approval, package-update, moved-launch-path, Store-state, and platform-boundary results are recorded in [evidence.md](evidence.md#p4-harness-trust-setup-and-resource-simplification).
+- Phase / capability status: Stage 1 is complete. P4 closes through the Stage 2 gate below.
 
 ## Stage 2 - Thin Setup, One Recovery Path, and Minimal Projection State
 
 ### Tasks
 
-- [ ] t7: Split setup into bounded read, plan, review, apply, verify, and recover services. Keep the interactive shell as a coordinator.
-- [ ] t8: Make interactive, non-interactive, JSON, and MCP surfaces call the same operation services and return the same facts.
-- [ ] t9: Read pending operation and Store access state before editable questions. Stop only the action that requires the unavailable Store.
-- [ ] t10: Remove the closed recovery loop. Give one action that the current saved evidence permits and that the named command accepts.
-- [ ] t11: Keep desired resource selections in project config, provider identity in the provider, live projected bytes in the project, and only minimum applied ownership in the Store.
-- [ ] t12: Remove or stop writing duplicate projection facts after compatibility support exists.
-- [ ] t13: Add complete, partial, blocked, failed, pending, Store-absent, denied, unsafe, unavailable, repeat, repair, and removal tests across CLI, JSON, and MCP.
+- [x] t7: Split setup into bounded read, plan, review, apply, verify, and recover services. Keep the interactive shell as a coordinator.
+- [x] t8: Make interactive, non-interactive, JSON, and MCP surfaces call the same operation services and return the same facts.
+- [x] t9: Read pending operation and Store access state before editable questions. Stop only the action that requires the unavailable Store.
+- [x] t10: Remove the closed recovery loop. Give one action that the current saved evidence permits and that the named command accepts.
+- [x] t11: Keep desired resource selections in project config, provider identity in the provider, live projected bytes in the project, and only minimum applied ownership in the Store.
+- [x] t12: Remove or stop writing duplicate projection facts after compatibility support exists.
+- [x] t13: Add complete, partial, blocked, failed, pending, Store-absent, denied, unsafe, unavailable, repeat, repair, and removal tests across CLI, JSON, and MCP.
 
 ### Acceptance criteria
 
@@ -112,7 +112,7 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 
 ### Closeout Notes
 
-- Four testing decisions: Record automated results. Performance and Unassisted Goal Testing remain `not-needed-now`; Guided Progress Review waits for P6.
-- Human Experience Review: Record output observations for HX-2, HX-3, and HX-5 with clear reviewer limits.
-- Evidence report: Link Store-free, state-transition, parity, and projection cases.
-- Phase / capability status: Close P4 only when all surfaces use the same services and recovery rule.
+- Four testing decisions: Automated Implementation Testing is complete. Performance and Unassisted Goal Testing remain `not-needed-now`. Guided Progress Review waits for P6.
+- Human Experience Review: HX-2, HX-3, and HX-5 are satisfied for the P4 source boundary. Complete, planned, blocked, failed, pending, and Store-unavailable results keep exact state and one compatible next action. Store-free resource reads remain available. The review does not claim lived-human acceptance.
+- Evidence report: Store-free behavior, state transitions, CLI/JSON/MCP parity, recovery, repeat, removal, and minimal projection cases are recorded in [evidence.md](evidence.md#p4-harness-trust-setup-and-resource-simplification).
+- Phase / capability status: Tasks t1 through t13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits. The owner authorized closeout on 2026-09-19. P4 is closed. P5 requires separate implementation approval.

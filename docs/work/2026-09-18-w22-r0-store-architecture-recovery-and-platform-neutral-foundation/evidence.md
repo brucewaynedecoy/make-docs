@@ -1,6 +1,6 @@
 # W22 R0 Store Architecture Recovery Evidence
 
-The sections through the first Phase Gate record P1 architecture inventory and decision evidence. Later sections record P2 authority work and P3 platform-safety implementation evidence.
+The sections through the first Phase Gate record P1 architecture inventory and decision evidence. Later sections record P2 authority work, P3 platform-safety implementation, and P4 harness, setup, and projection evidence.
 
 ## Status
 
@@ -902,3 +902,72 @@ Tasks t1 through t12 are complete. Acceptance criteria A13 through A19 are satis
 The durable schema no longer depends on low-level file identity. The real-platform contract cases agree on public meaning. The owner authorized closeout on 2026-09-19. P3 is closed.
 
 P4 and later implementation still need separate explicit approval.
+
+## P4 Harness Trust, Setup, and Resource Simplification
+
+### Status
+
+P4 implementation, review, and source-level validation are complete. The owner authorized implementation and final closeout. P4 is closed on 2026-09-19.
+
+The implementation and closeout changes remain unstaged and uncommitted. Concurrent W23 files remain outside the P4 change set.
+
+P5 and later implementation remain unauthorized. This closeout grants no later-phase authority.
+
+### Implementation Result
+
+- Schema 2 harness receipts prove managed native entry history. They do not serve as permanent proof of the current executable. Schema 1 receipts remain readable for compatibility.
+- Each Store-backed call verifies the current executable and caller proof. One policy service keeps machine approval, project approval, caller identity, and operation access as separate decisions.
+- A valid package update or moved launch path can keep a valid managed entry. A changed or unowned entry still blocks mutation and remains intact.
+- Setup uses bounded prepare, review, apply, verify, and recover services. Pending state is read before editable questions. Human, JSON, and MCP routes reuse operation services and canonical facts.
+- New projection state keeps desired selections in project config, source identity in the installed provider, live bytes in project files, and minimum applied ownership in the Store or installation ledger. Old projection records remain readable, but new writes omit duplicate provider and selection facts.
+- Agent routes do not gain host-configuration authority. They cannot widen machine or project approval, change caller identity, or bypass operation policy. Update and stop behavior remains subject to these trust rules.
+
+### Platform Boundary
+
+P4 adds no operating-system-specific business branch and no narrower platform route. Harness, setup, receipt, and projection logic use the P3 platform boundary. The local P4 gate includes the platform contract tests. P3 already proved the shared platform contract on real Windows, macOS, and Linux runners in [workflow 35464032778](https://github.com/brucewaynedecoy/make-docs/actions/runs/35464032778).
+
+This supports A23 for the P4 source boundary. P6 still owns final installed-package proof on all three real hosts.
+
+### Human Experience Review
+
+Reviewer: Codex agent.
+
+Review surface: the built local CLI, focused P4 results, setup help and dry-run output, a Store-unavailable project-state call, and a Store-free resource-list call. This is not a final installed package.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: a person sees the project state and one valid next action | A fresh setup dry run returned `planned`, listed each planned file action, and named the apply command. A Store-unavailable status result named `project.state.status`, said that no project files changed, kept `taskCanContinue: true`, and gave one retry action. | Satisfied for the P4 source and command-result boundary. | The output is agent-reviewed local source-build evidence. P6 must inspect the final installed human and machine-readable results. |
+| HX-3: independent work continues without Store access | In the same restricted environment, `project state status` stopped with `store-unavailable`, while `resource list` succeeded and returned all 20 installed prompt resources. The failure stated that independent Store-free work could continue. | Satisfied for the tested Store-unavailable route and the shared Store-free resource service. | Automated cases cover absent, denied, unsafe, and unavailable Store states. P6 must repeat them against the installed package. |
+| HX-5: setup and repair use one open recovery path | Setup help names direct system setup and explicit recovery controls. Focused state-transition tests show pending work is checked first. Resume, repair, repeat, and removal use the saved operation state and return a compatible next action. | Satisfied for the P4 setup and recovery service boundary. | No lived-human response is claimed. P5 owns compatibility-bridge recovery. P6 owns the final installed path. |
+
+The review supports only these P4 source-level claims. It does not claim a person's lived ease, confidence, or acceptance.
+
+### Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| CLI build | Passed with `npm run build -w packages/cli`. |
+| Focused P4 gate | Passed 129 of 129 tests across harness receipts, caller policy, system setup, Store remediation, projection lifecycle, CLI/JSON/MCP operation surfaces, platform safety, Human Experience resources, and provider integration. |
+| Full CLI set | The full run passed 1,336 tests and skipped 5 before two failures. The P4 failure was an old expected error string. It was corrected, and its 15-test file plus the final 129-test P4 gate passed. The only remaining failure is the separate W23 risk-list fixture that expects R-001 through R-035 while the active register also contains R-036 through R-038. |
+| Store-unavailable surface | `project state status` stopped only that operation, reported that no project files changed, kept independent work available, and gave one retry action. |
+| Store-free surface | `resource list --type prompt` succeeded in the same environment and returned 20 provider resources. |
+| Projection compatibility | New manifests contain minimum applied ownership proof. Legacy schema-4 projection mirrors remain readable. Repeat and removal cases pass. |
+| Receipt compatibility | New schema 2 receipts omit executable proof. Legacy schema 1 receipts remain readable. Current execution is verified at each Store-backed call. |
+| Diff check | Passed with `git diff --check` before closeout. |
+
+The W23 fixture does not exercise P4 harness, setup, Store-access, recovery, resource, or projection behavior. It remains a visible validation limit. P4 closure does not mark it as fixed.
+
+### Testing Decisions
+
+- Automated Implementation Testing: complete. The blocking P4 source-level gate passed.
+- Performance Testing: `not-needed-now`. P4 has no accepted performance target.
+- Guided Progress Review: deferred by current authority until the installed P6 candidate exists.
+- Unassisted Goal Testing: `not-needed-now`. Automated and maintainer review answer the current architecture and safety decision.
+
+### P4 Gate
+
+Tasks t1 through t13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits.
+
+Harness receipt history is separate from current caller proof. Setup and recovery use the accepted service boundary. Store-free work remains available. New projection writes have one owner for each fact. The owner authorized closeout on 2026-09-19. P4 is closed.
+
+P5 and later implementation still need separate explicit approval.
