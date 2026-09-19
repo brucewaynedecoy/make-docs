@@ -70,6 +70,7 @@ import {
   assertInstallationLockActive,
   recordMigrationState,
   readMigrationState,
+  withReviewedStoreCompatibilityBridge,
 } from "./store/installation-state";
 
 export const LEGACY_COMPATIBILITY_OPERATION_IDS = [
@@ -1163,7 +1164,7 @@ export function executeInstallPlanMigration(input: InstallPlanMigrationInput): I
       throw new MigrationSafetyError("snapshot-drift", "Project config changed after migration review.");
     }
   }
-  return withInstallationOperation(input.projectRoot, "setup.migration", () => {
+  return withReviewedStoreCompatibilityBridge(() => withInstallationOperation(input.projectRoot, "setup.migration", () => {
     if (stableJson(loadManifest(input.projectRoot)) !== stableJson(input.existingManifest)) {
       throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
     }
@@ -1181,7 +1182,7 @@ export function executeInstallPlanMigration(input: InstallPlanMigrationInput): I
   }, {
     storeRoot: input.storeRoot,
     projectId: input.existingManifest?.projectId,
-  });
+  }));
 }
 function executeInstallPlanMigrationOwned(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
@@ -1265,9 +1266,10 @@ export function executeStoreCheckpoint9Migration(input: {
 }): StoreCheckpoint9ExecutionResult {
   const storeClassification = assertStoreCheckpoint9SetupSafe(input.storeRoot);
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
-  const lock = acquireProjectMigrationLock({ projectRoot, storeRoot: input.storeRoot });
-  try {
-    const classification: MigrationCompatibilityClassification = {
+  return withReviewedStoreCompatibilityBridge(() => {
+    const lock = acquireProjectMigrationLock({ projectRoot, storeRoot: input.storeRoot });
+    try {
+      const classification: MigrationCompatibilityClassification = {
       state: "clean-v2-full-snapshot",
       disposition: "sync",
       facets: {
@@ -1283,8 +1285,8 @@ export function executeStoreCheckpoint9Migration(input: {
       unattendedSafe: true,
       reviewedMigrationAllowed: true,
     };
-    const createdAt = new Date().toISOString();
-    const snapshotSubject = {
+      const createdAt = new Date().toISOString();
+      const snapshotSubject = {
       schemaVersion: 1 as const,
       createdAt,
       repository: lock.repository,
@@ -1292,15 +1294,16 @@ export function executeStoreCheckpoint9Migration(input: {
       paths: [] as MigrationPathSnapshot[],
       legacyOperations: [...LEGACY_COMPATIBILITY_OPERATION_IDS],
     };
-    const snapshot: ReviewedMigrationSnapshot = {
+      const snapshot: ReviewedMigrationSnapshot = {
       ...snapshotSubject,
       snapshotId: `sha256:${digest(stableJson(snapshotSubject))}`,
     };
-    bindQuiescenceToSnapshot(lock, snapshot.snapshotId);
-    return executeCheckpoint9WithLock({ lock, snapshot, storeRoot: input.storeRoot });
-  } finally {
-    releaseProjectMigrationLock(lock);
-  }
+      bindQuiescenceToSnapshot(lock, snapshot.snapshotId);
+      return executeCheckpoint9WithLock({ lock, snapshot, storeRoot: input.storeRoot });
+    } finally {
+      releaseProjectMigrationLock(lock);
+    }
+  });
 }
 
 function executeCheckpoint9WithLock(input: {

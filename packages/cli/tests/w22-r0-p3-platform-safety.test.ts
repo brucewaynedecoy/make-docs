@@ -162,14 +162,17 @@ describe("W22 R0 P3 platform safety contract", () => {
     try {
       applyStoreMigrations(migrated, 3);
       expect(migrated.prepare("PRAGMA user_version").get()).toEqual({ user_version: CURRENT_STORE_SCHEMA_VERSION });
-      const row = migrated.prepare("SELECT root_path_key,verified_at,verification_json,root_device,root_inode FROM installation_checkouts WHERE checkout_id='checkout-1'").get() as Record<string, unknown>;
+      const row = migrated.prepare("SELECT root_path_key,verified_at,verification_json FROM installation_checkouts WHERE checkout_id='checkout-1'").get() as Record<string, unknown>;
       expect(row).toMatchObject({
         root_path_key: "/old/project",
-        root_device: "legacy-device",
-        root_inode: "legacy-inode",
       });
       expect(typeof row.verified_at).toBe("string");
       expect(JSON.parse(String(row.verification_json))).toEqual({ schemaVersion: 1, kind: "legacy-path-import" });
+      const columns = (migrated.prepare("PRAGMA table_info(installation_checkouts)").all() as Array<{ name: string }>).map(candidate => candidate.name);
+      expect(columns).not.toContain("root_device");
+      expect(columns).not.toContain("root_inode");
+      const archived = migrated.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id='checkout-1' AND kind='legacy-import' AND record_id='w22-p5:checkout-object-numbers:v4'").get() as { record_json: string };
+      expect(JSON.parse(archived.record_json)).toMatchObject({ rootDevice: "legacy-device", rootInode: "legacy-inode", retainedAs: "legacy-comparison-evidence" });
     } finally {
       migrated.close();
     }

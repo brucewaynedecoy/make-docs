@@ -9,6 +9,7 @@ import {
   readdirSync,
   realpathSync,
   renameSync,
+  statfsSync,
   type Stats,
 } from "node:fs";
 import os from "node:os";
@@ -58,6 +59,7 @@ export interface PlatformService {
   sameFileObject(left: Stats, right: Stats, kind?: GuardedFileKind): boolean;
   atomicReplace(source: string, target: string): void;
   syncDirectory(directory: string): void;
+  availableBytes(input: string): bigint;
 }
 
 export class PlatformOperationError extends Error {
@@ -370,6 +372,18 @@ export function createPlatformService(
         );
       } finally {
         if (fd !== null) closeSync(fd);
+      }
+    },
+    availableBytes(input) {
+      try {
+        const stats = statfsSync(input, { bigint: true });
+        return stats.bavail * stats.bsize;
+      } catch (error) {
+        throw new PlatformOperationError(
+          "path-unavailable",
+          `Available storage space cannot be verified for: ${path.resolve(input)}`,
+          error,
+        );
       }
     },
   };

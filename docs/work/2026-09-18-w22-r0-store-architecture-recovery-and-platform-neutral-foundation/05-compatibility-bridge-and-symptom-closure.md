@@ -61,13 +61,13 @@ Human Experience Review is separate. Inspect preview, blocked, converted, quaran
 
 ### Tasks
 
-- [ ] t1: Build fixtures for every supported old schema, receipt, installation ledger, checkout record, path claim, projection record, and pending-operation shape.
-- [ ] t2: Implement read-only classification as convert, retain as history, rebuild, quarantine, unsupported, or removable after proof.
-- [ ] t3: Produce an exact preview of Store, project, and native changes with blockers and one next action.
-- [ ] t4: Record one conversion operation journal before the first write. Use P3 locks and file guards.
-- [ ] t5: Convert accepted state to the new model. Preserve stable project identity, useful recovery evidence, user files, and changed native entries.
-- [ ] t6: Verify converted state before old active fields or rows are retired. Keep historical evidence under its accepted retention rule.
-- [ ] t7: Implement rollback from the saved before state. Keep ambiguous state quarantined without destructive cleanup.
+- [x] t1: Build fixtures for every supported old schema, receipt, installation ledger, checkout record, path claim, projection record, and pending-operation shape.
+- [x] t2: Implement read-only classification as convert, retain as history, rebuild, quarantine, unsupported, or removable after proof.
+- [x] t3: Produce an exact preview of Store, project, and native changes with blockers and one next action.
+- [x] t4: Record one conversion operation journal before the first write. Use P3 locks and file guards.
+- [x] t5: Convert accepted state to the new model. Preserve stable project identity, useful recovery evidence, user files, and changed native entries.
+- [x] t6: Verify converted state before old active fields or rows are retired. Keep historical evidence under its accepted retention rule.
+- [x] t7: Implement rollback from the saved before state. Keep ambiguous state quarantined without destructive cleanup.
 
 ### Acceptance criteria
 
@@ -84,23 +84,23 @@ Human Experience Review is separate. Inspect preview, blocked, converted, quaran
 ### Closeout Notes
 
 - Four testing decisions: Automated Implementation Testing required; other testing types `not-needed-now` for this stage.
-- Human Experience Review: Prepare preview, block, convert, quarantine, and rollback observations for P6.
+- Human Experience Review: The P5 source review records preview, block, convert, quarantine, rollback, and recovery observations. P6 still owns the final installed-package review.
 - Evidence report: Retain fixture identity, before and after inventories, operation records, and byte-preservation proof.
-- Phase / capability status: P5 remains active.
+- Phase / capability status: Stage 1 is complete.
 
 ## Stage 2 - Symptom Cases and Old-State Retirement
 
 ### Tasks
 
-- [ ] t8: Update the append-only symptom table with the final cause, accepted rule, exact case, migration effect, and evidence link.
-- [ ] t9: Prove moved checkout behavior without durable device or inode identity.
-- [ ] t10: Prove valid package update behavior without historical executable hash lock-in.
-- [ ] t11: Prove the accepted Windows harness behavior or accepted narrow limit.
-- [ ] t12: Prove setup and Store access no longer form a closed recovery loop.
-- [ ] t13: Prove selected resource projection has one desired-state owner and one minimum applied-state record.
-- [ ] t14: Add each later owner-provided in-scope symptom and prove it through the accepted model.
-- [ ] t15: Stop writing obsolete active fields. Retire them only after all supported upgrade, repeat, interruption, and rollback cases pass.
-- [ ] t16: Run focused and full tests, default validation, package smoke preparation, authority checks, links, paths, and diff checks.
+- [x] t8: Update the append-only symptom table with the final cause, accepted rule, exact case, migration effect, and evidence link.
+- [x] t9: Prove moved checkout behavior without durable device or inode identity.
+- [x] t10: Prove valid package update behavior without historical executable hash lock-in.
+- [x] t11: Prove the accepted Windows harness behavior or accepted narrow limit.
+- [x] t12: Prove setup and Store access no longer form a closed recovery loop.
+- [x] t13: Prove selected resource projection has one desired-state owner and one minimum applied-state record.
+- [x] t14: Add each later owner-provided in-scope symptom and prove it through the accepted model.
+- [x] t15: Stop writing obsolete active fields. Retire them only after all supported upgrade, repeat, interruption, and rollback cases pass.
+- [x] t16: Run focused and full tests, default validation, package smoke preparation, authority checks, links, paths, and diff checks.
 
 ### Acceptance criteria
 
@@ -117,6 +117,6 @@ Human Experience Review is separate. Inspect preview, blocked, converted, quaran
 ### Closeout Notes
 
 - Four testing decisions: Record final automated bridge and symptom results. Performance, Guided Progress, and Unassisted Goal Testing remain `not-needed-now` until P6.
-- Human Experience Review: Record per-symptom observations and remaining limits.
+- Human Experience Review: The P5 evidence records per-promise observations, conclusions, and remaining limits.
 - Evidence report: Link every symptom row to its before and after evidence.
-- Phase / capability status: Close P5 only when all supported old state and known in-scope symptoms have a disposition.
+- Phase / capability status: All supported old state and known in-scope symptoms have a disposition. The owner authorized closeout on 2026-09-19. P5 is closed.

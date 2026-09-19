@@ -48,7 +48,9 @@ import { OperationError } from "./operations/types";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
+  previewStoreCompatibilityBridge,
   resolveStoreRoot,
+  type StoreCompatibilityBridgePreview,
 } from "./store";
 import { readInstallationStatus } from "./store/installation-state";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
@@ -451,6 +453,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
+  const storeRoot = resolveStoreRoot();
+  const storeBridgePreview = previewStoreCompatibilityBridge(storeRoot);
+  if (storeBridgePreview.blockers.length) {
+    throw new Error(
+      `Store compatibility preview stopped setup: ${storeBridgePreview.blockers.join("; ")} ${storeBridgePreview.nextAction}`,
+    );
+  }
   const legacyState = previewLegacyInstallationState(targetDir);
   if (legacyState.blockers.length) {
     throw new Error(`Legacy installation state requires review before setup: ${legacyState.blockers.join("; ")}`);
@@ -764,6 +773,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
   if (!jsonOutput) note(preparedSystemSetup.review, "This computer");
   if (!jsonOutput && genericMcpPlan) note(renderGenericMcpSetupResult(genericMcpPlan), "Generic MCP client");
+  if (!jsonOutput && storeBridgePreview.changes.store.length) {
+    output.write("Store plan:\n");
+    for (const change of storeBridgePreview.changes.store) output.write(`- ${change}\n`);
+    output.write(`Next: ${storeBridgePreview.nextAction}\n`);
+  }
   if (!jsonOutput) printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
@@ -784,7 +798,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.dryRun) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed || genericMcpPlan?.changed ? "Run setup with the same choices and --yes to apply this plan." : null });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed || genericMcpPlan?.changed || storeBridgePreview.disposition === "convert" ? "Run setup with the same choices and --yes to apply this plan." : null });
     else output.write("\nDry run complete.\n");
     return;
   }
@@ -834,7 +848,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (!systemApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
     else output.write("Machine setup was not approved. No system or project files were changed.\n");
     return;
   }
@@ -845,18 +859,24 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     output.write(renderGenericMcpSetupResult(appliedGenericMcpPlan));
   }
   if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
     else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
     return;
   }
 
   if (!projectApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
     else output.write("This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n");
     return;
   }
 
-  const storeRoot = resolveStoreRoot();
+  const checkpoint9 = executeStoreCheckpoint9Migration({
+    projectRoot: targetDir,
+    storeRoot,
+  });
+  if (!checkpoint9.setupMayContinue) {
+    throw new Checkpoint9ReceiptProjectionError(checkpoint9);
+  }
   if (legacyState.sources.length) {
     const imported = importLegacyInstallationState(targetDir, storeRoot);
     existingManifest = loadManifest(targetDir);
@@ -867,15 +887,6 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     });
     if (imported.recoveryRequired) {
       throw new Error("Legacy state was transferred. A pending operation requires review. Run `make-docs project state status` before a new mutation.");
-    }
-  }
-  if (freshInstallTarget || !hasInstallMutation) {
-    const checkpoint9 = executeStoreCheckpoint9Migration({
-      projectRoot: targetDir,
-      storeRoot,
-    });
-    if (!checkpoint9.setupMayContinue) {
-      throw new Checkpoint9ReceiptProjectionError(checkpoint9);
     }
   }
   let applied: ReturnType<typeof applyInstallPlan>;
@@ -932,7 +943,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (jsonOutput) {
-    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
+    const completedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
+    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: completedStoreBridge, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
   }
 
 
@@ -1700,6 +1712,7 @@ function writeCanonicalSetupResult(input: {
   prepared?: import("./setup-system").PreparedSystemSetup;
   system?: import("./setup-system").SystemSetupResult;
   genericMcp?: GenericMcpSetupPlan | null;
+  storeBridge?: StoreCompatibilityBridgePreview;
   projectChanged: boolean;
   projectActions: readonly PlannedAction[];
   failedCondition: string | null;
@@ -1726,6 +1739,18 @@ function writeCanonicalSetupResult(input: {
       configured: input.system?.configured ?? [],
       ...(input.genericMcp ? { genericMcp: input.genericMcp } : {}),
     },
+    store: input.storeBridge ? {
+      state: input.storeBridge.storeState,
+      sourceSchemaVersion: input.storeBridge.sourceSchemaVersion,
+      targetSchemaVersion: input.storeBridge.targetSchemaVersion,
+      disposition: input.storeBridge.disposition,
+      mutationState: input.storeBridge.disposition === "convert"
+        ? (input.dryRun ? "planned" : "applied")
+        : "none",
+      changes: input.storeBridge.changes.store,
+      blockers: input.storeBridge.blockers,
+      nextAction: input.storeBridge.nextAction,
+    } : null,
     project: {
       changed: input.projectChanged,
       mutationState: input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none",

@@ -40,7 +40,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 4;
+export const CURRENT_STORE_SCHEMA_VERSION = 5;
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -225,6 +225,72 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       )`,
     ],
   },
+  {
+    version: 5,
+    description: "W22 P5 compatibility bridge: target migration receipts and retired durable object-number identity.",
+    statements: [
+      `INSERT INTO tool_operations
+        (operation_id, operation, status, pid, hostname, metadata_json, started_at, finished_at)
+       SELECT
+        'compatibility-bridge:w22-p5:v5',
+        'compatibility.bridge',
+        'pending',
+        0,
+        'schema-migration',
+        '{"schemaVersion":1,"bridgeId":"w22-p5-store-schema-v5","sourceSchemaMaximum":4,"targetSchema":5}',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now'),
+        NULL
+       WHERE EXISTS (SELECT 1 FROM installation_checkouts)
+          OR EXISTS (SELECT 1 FROM installation_ledgers)
+          OR EXISTS (SELECT 1 FROM installation_transfers)
+          OR EXISTS (SELECT 1 FROM store_checkpoint_journal)`,
+      `CREATE TABLE store_migration_receipts (
+        receipt_id TEXT PRIMARY KEY CHECK (length(receipt_id) = 71),
+        operation TEXT NOT NULL CHECK (operation = 'store.schema.migrate'),
+        project_root_digest TEXT NOT NULL CHECK (length(project_root_digest) = 64),
+        source_schema_version INTEGER NOT NULL CHECK (source_schema_version BETWEEN 0 AND 4),
+        target_schema_version INTEGER NOT NULL CHECK (target_schema_version = 5),
+        snapshot_id TEXT NOT NULL CHECK (length(snapshot_id) = 71),
+        result TEXT NOT NULL CHECK (result = 'completed'),
+        committed_at TEXT NOT NULL,
+        receipt_json TEXT NOT NULL CHECK (length(receipt_json) BETWEEN 2 AND 16384)
+      )`,
+      `CREATE INDEX idx_store_migration_receipts_project
+       ON store_migration_receipts (project_root_digest, operation, committed_at, receipt_id)`,
+      `INSERT INTO store_migration_receipts
+        (receipt_id, operation, project_root_digest, source_schema_version,
+         target_schema_version, snapshot_id, result, committed_at, receipt_json)
+       SELECT receipt_id, 'store.schema.migrate', project_root_digest, 2, 5,
+              snapshot_id, 'completed', committed_at, receipt_json
+         FROM store_checkpoint_journal`,
+      `INSERT INTO installation_migration_records
+        (checkout_id, kind, record_id, record_json)
+       SELECT checkout_id,
+              'legacy-import',
+              'w22-p5:checkout-object-numbers:v4',
+              json_object(
+                'schemaVersion', 1,
+                'bridgeId', 'w22-p5-checkout-object-numbers',
+                'rootDevice', root_device,
+                'rootInode', root_inode,
+                'retainedAs', 'legacy-comparison-evidence'
+              )
+         FROM installation_checkouts`,
+      `ALTER TABLE installation_checkouts DROP COLUMN root_device`,
+      `ALTER TABLE installation_checkouts DROP COLUMN root_inode`,
+      `UPDATE tool_operations
+          SET status = 'completed',
+              finished_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+        WHERE operation_id = 'compatibility-bridge:w22-p5:v5'
+          AND operation = 'compatibility.bridge'
+          AND status = 'pending'`,
+      `INSERT INTO store_schema_journal VALUES (
+        5,
+        'W22 P5 compatibility bridge',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+    ],
+  },
 ];
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
@@ -356,8 +422,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 4 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 5 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -980,6 +1046,8 @@ export interface StoreCheckpoint9MigrationResult {
   schemaVersion: number;
   migrated: boolean;
   journal: StoreCheckpoint9JournalEntry | null;
+  /** Verified pre-conversion Store backup. Null for a fresh or current Store. */
+  backupPath: string | null;
 }
 
 export type StoreCheckpoint9Requirement =
@@ -997,6 +1065,7 @@ const VERSION_TWO_TABLES = [
 
 const VERSION_THREE_TABLES = [...VERSION_TWO_TABLES, "installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps", "installation_locks", "installation_migration_records", "installation_transfers", "tool_operations", "store_schema_journal"] as const;
 const VERSION_FOUR_TABLES = VERSION_THREE_TABLES;
+const VERSION_FIVE_TABLES = [...VERSION_FOUR_TABLES, "store_migration_receipts"] as const;
 
 /** Classifies the Store without creating a directory, database, sidecar, or table. */
 export function classifyStoreCheckpoint9State(
@@ -1074,7 +1143,7 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-newer", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
       const reason = `schema version ${schemaVersion} is not a supported checkpoint-9 input`;
       return {
         state: "unknown",
@@ -1090,7 +1159,9 @@ export function classifyStoreCheckpoint9State(
         ? VERSION_TWO_TABLES
         : schemaVersion === 3
           ? VERSION_THREE_TABLES
-          : VERSION_FOUR_TABLES;
+          : schemaVersion === 4
+            ? VERSION_FOUR_TABLES
+            : VERSION_FIVE_TABLES;
     const actualTables = new Set(
       (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
         .map((row) => row.name),
@@ -1107,8 +1178,8 @@ export function classifyStoreCheckpoint9State(
       };
     }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 }
-      : { state: "supported-current", databasePath, schemaVersion: 4 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 }
+      : { state: "supported-current", databasePath, schemaVersion: 5 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);
@@ -1165,9 +1236,14 @@ export function migrateStoreDatabaseAtCheckpoint9(
   const databasePath = getStoreDatabasePath(storeRoot);
   const db = connect(driver.sqlite, databasePath, classification.state !== "absent");
   let startingVersion: number | null = null;
+  let backupPath: string | null = null;
   try {
-    db.exec("BEGIN IMMEDIATE");
     startingVersion = readUserVersion(db);
+    if (startingVersion > 0 && startingVersion < CURRENT_STORE_SCHEMA_VERSION) {
+      assertStoreBridgeInputSafe(db, startingVersion);
+      backupPath = createVerifiedStoreBridgeBackup(db, databasePath, startingVersion);
+    }
+    db.exec("BEGIN IMMEDIATE");
     assertCheckpoint9StateInsideTransaction(db, databasePath, startingVersion);
     if (startingVersion === CURRENT_STORE_SCHEMA_VERSION) {
       db.exec("COMMIT");
@@ -1177,19 +1253,23 @@ export function migrateStoreDatabaseAtCheckpoint9(
         schemaVersion: CURRENT_STORE_SCHEMA_VERSION,
         migrated: false,
         journal: null,
+        backupPath: null,
       };
     }
     for (const migration of STORE_MIGRATIONS) {
       if (migration.version <= startingVersion) continue;
-      for (const statement of migration.statements) db.exec(statement);
+      executeStoreMigrationStatements(db, migration);
     }
     db.prepare(
-      `INSERT INTO store_checkpoint_journal
-        (receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json)
-       VALUES (?, 9, ?, ?, ?, ?)`,
+      `INSERT INTO store_migration_receipts
+        (receipt_id, operation, project_root_digest, source_schema_version,
+         target_schema_version, snapshot_id, result, committed_at, receipt_json)
+       VALUES (?, 'store.schema.migrate', ?, ?, ?, ?, 'completed', ?, ?)`,
     ).run(
       journal.receiptId,
       journal.projectRootDigest,
+      startingVersion,
+      CURRENT_STORE_SCHEMA_VERSION,
       journal.snapshotId,
       journal.committedAt,
       journal.receiptJson,
@@ -1202,6 +1282,7 @@ export function migrateStoreDatabaseAtCheckpoint9(
       schemaVersion: CURRENT_STORE_SCHEMA_VERSION,
       migrated: true,
       journal,
+      backupPath,
     };
   } catch (error) {
     try {
@@ -1231,7 +1312,14 @@ export function readStoreCheckpoint9JournalEntry(
     });
     const row = db.prepare(
       `SELECT receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
-         FROM store_checkpoint_journal
+         FROM (
+           SELECT receipt_id, 9 AS checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
+             FROM store_migration_receipts
+            WHERE operation = 'store.schema.migrate'
+           UNION ALL
+           SELECT receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
+             FROM store_checkpoint_journal
+         )
         WHERE project_root_digest = ? AND checkpoint = 9
         ORDER BY committed_at DESC, receipt_id DESC
         LIMIT 1`,
@@ -1274,16 +1362,22 @@ export function withStoreDatabase<T>(
  * migration either fully lands with its version or not at all (R-DB-2).
  */
 export function applyStoreMigrations(db: StoreDatabase, fromVersion: number): number {
+  const initialVersion = fromVersion;
   let version = fromVersion;
   for (const migration of STORE_MIGRATIONS) {
     if (migration.version <= version) {
       continue;
     }
+    if (migration.version === 5 && initialVersion > 0) {
+      assertStoreBridgeInputSafe(db, version);
+      const row = db.prepare("PRAGMA database_list").all() as Array<{ name: string; file: string }>;
+      const databasePath = row.find((entry) => entry.name === "main")?.file ?? "";
+      if (!databasePath) throw new Error("The Store compatibility bridge requires a file-backed database.");
+      createVerifiedStoreBridgeBackup(db, databasePath, version);
+    }
     db.exec("BEGIN IMMEDIATE");
     try {
-      for (const statement of migration.statements) {
-        db.exec(statement);
-      }
+      executeStoreMigrationStatements(db, migration);
       db.exec(`PRAGMA user_version = ${assertSchemaVersion(migration.version)}`);
       db.exec("COMMIT");
     } catch (error) {
@@ -1297,6 +1391,125 @@ export function applyStoreMigrations(db: StoreDatabase, fromVersion: number): nu
     version = migration.version;
   }
   return version;
+}
+
+function assertStoreBridgeInputSafe(db: StoreDatabase, sourceVersion: number): void {
+  if (sourceVersion < 3) return;
+  const activeLocks = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as { count: number | bigint }).count);
+  if (activeLocks > 0) {
+    throw new Error(`The Store compatibility bridge found ${activeLocks} active installation lock(s). Finish the active writer and run setup again.`);
+  }
+  const pendingToolOperations = Number((db.prepare("SELECT COUNT(*) AS count FROM tool_operations WHERE status='pending'").get() as { count: number | bigint }).count);
+  if (pendingToolOperations > 0) {
+    throw new Error(`The Store compatibility bridge found ${pendingToolOperations} pending tool operation(s). Recover them before schema conversion.`);
+  }
+  const collision = db.prepare(
+    "SELECT checkout_id FROM installation_migration_records WHERE kind='legacy-import' AND record_id IN ('w22-p5:checkout-object-numbers:v4','w22-p5:installation-ledger-projection:v4') LIMIT 1",
+  ).get() as { checkout_id: string } | undefined;
+  if (collision) {
+    throw new Error(`The Store compatibility bridge record already exists for checkout ${collision.checkout_id}. The source schema is unclear and was preserved.`);
+  }
+  const ledgers = db.prepare("SELECT checkout_id, manifest_json FROM installation_ledgers ORDER BY checkout_id").all() as Array<{ checkout_id: string; manifest_json: string }>;
+  for (const ledger of ledgers) {
+    let value: unknown;
+    try {
+      value = JSON.parse(ledger.manifest_json);
+    } catch {
+      throw new Error(`The installation ledger for checkout ${ledger.checkout_id} is not valid JSON. The Store was preserved for review.`);
+    }
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error(`The installation ledger for checkout ${ledger.checkout_id} has an unsupported shape. The Store was preserved for review.`);
+    }
+  }
+}
+
+function executeStoreMigrationStatements(db: StoreDatabase, migration: StoreMigration): void {
+  for (const [index, statement] of migration.statements.entries()) {
+    db.exec(statement);
+    // The first schema-5 statement records intent. Conversion follows it and
+    // stays inside the same SQLite transaction as verification and cutover.
+    if (migration.version === 5 && index === 0) convertLegacyProjectionLedgerRows(db);
+  }
+}
+
+function convertLegacyProjectionLedgerRows(db: StoreDatabase): void {
+  const legacyFields = new Set([
+    "type",
+    "resourcePath",
+    "provenanceState",
+    "providerPackage",
+    "providerVersion",
+    "providerImmutableRef",
+    "materializationMode",
+    "sourceDigest",
+    "adoptionReceipt",
+    "selectionTrigger",
+    "operationLineage",
+    "provenanceEvidence",
+    "competingClaims",
+  ]);
+  const rows = db.prepare("SELECT checkout_id, manifest_json FROM installation_ledgers ORDER BY checkout_id").all() as Array<{ checkout_id: string; manifest_json: string }>;
+  for (const row of rows) {
+    const manifest = JSON.parse(row.manifest_json) as Record<string, unknown>;
+    const projection = manifest.resourceProjection;
+    if (!projection || typeof projection !== "object" || Array.isArray(projection)) continue;
+    const target = structuredClone(manifest);
+    const targetProjection = target.resourceProjection as Record<string, unknown>;
+    let changed = false;
+    for (const field of ["selectedTypes", "provider"]) {
+      if (field in targetProjection) {
+        delete targetProjection[field];
+        changed = true;
+      }
+    }
+    const resources = targetProjection.resources;
+    if (resources && typeof resources === "object" && !Array.isArray(resources)) {
+      for (const entry of Object.values(resources as Record<string, unknown>)) {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+        for (const field of Object.keys(entry as Record<string, unknown>)) {
+          if (!legacyFields.has(field)) continue;
+          delete (entry as Record<string, unknown>)[field];
+          changed = true;
+        }
+      }
+    }
+    if (!changed) continue;
+    db.prepare(
+      "INSERT INTO installation_migration_records (checkout_id,kind,record_id,record_json) VALUES (?,'legacy-import','w22-p5:installation-ledger-projection:v4',?)",
+    ).run(row.checkout_id, row.manifest_json);
+    db.prepare("UPDATE installation_ledgers SET manifest_json=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE checkout_id=?")
+      .run(JSON.stringify(target), row.checkout_id);
+  }
+}
+
+function createVerifiedStoreBridgeBackup(
+  db: StoreDatabase,
+  databasePath: string,
+  sourceVersion: number,
+): string {
+  const source = lstatSync(databasePath);
+  const requiredBytes = BigInt(Math.max(source.size * 2, 1_048_576));
+  const availableBytes = platform.availableBytes(path.dirname(databasePath));
+  if (availableBytes < requiredBytes) {
+    throw new Error(`The Store compatibility bridge needs at least ${requiredBytes} available bytes for a verified backup, but only ${availableBytes} are available.`);
+  }
+  const backupPath = `${databasePath}.bridge-v${sourceVersion}-to-v${CURRENT_STORE_SCHEMA_VERSION}-${randomUUID()}.backup`;
+  const escaped = backupPath.replaceAll("'", "''");
+  db.exec(`VACUUM INTO '${escaped}'`);
+  let backup: StoreDatabase | null = null;
+  try {
+    const driver = loadSqliteDriver();
+    if (!driver.available) throw new Error(driver.reason);
+    backup = openSqliteWithRetry(driver.sqlite, backupPath, { readOnly: true }, "verify Store bridge backup");
+    const check = backup.prepare("PRAGMA quick_check").get() as { quick_check?: string } | undefined;
+    const backedUpVersion = readUserVersion(backup);
+    if (check?.quick_check !== "ok" || backedUpVersion !== sourceVersion) {
+      throw new Error(`The Store bridge backup did not verify as schema ${sourceVersion}.`);
+    }
+    return backupPath;
+  } finally {
+    closeQuietly(backup);
+  }
 }
 
 /** Reads the recorded schema version (`PRAGMA user_version`). */
@@ -1429,7 +1642,7 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
     });
   }
-  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
     throw new StoreCheckpoint9StateError({
       state: "unknown",
       databasePath,
@@ -1443,7 +1656,9 @@ function assertCheckpoint9StateInsideTransaction(
       ? VERSION_TWO_TABLES
       : schemaVersion === 3
         ? VERSION_THREE_TABLES
-        : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_FOUR_TABLES : [];
+        : schemaVersion === 4
+          ? VERSION_FOUR_TABLES
+          : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_FIVE_TABLES : [];
   const actualTables = new Set(
     (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
       .map((row) => row.name),

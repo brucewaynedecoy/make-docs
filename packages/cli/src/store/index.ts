@@ -73,6 +73,15 @@ export {
 } from "./database";
 
 export {
+  STORE_COMPATIBILITY_BRIDGE_REGISTER,
+  previewStoreCompatibilityBridge,
+  type StoreBridgeDisposition,
+  type StoreBridgeRecordClassification,
+  type StoreBridgeRegisterEntry,
+  type StoreCompatibilityBridgePreview,
+} from "./compatibility-bridge";
+
+export {
   PlaybookRunExistsError,
   PlaybookRunNotFoundError,
   createPlaybookRunRecord,

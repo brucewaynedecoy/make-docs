@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, statSync, fstatSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, fstatSync } from 'node:fs';
 import path from 'node:path';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
@@ -28,8 +28,6 @@ interface Checkout {
     checkout_id: string;
     project_id: string;
     root_path: string;
-    root_device: string;
-    root_inode: string;
     root_path_key: string | null;
     verified_at: string | null;
     verification_json: string | null;
@@ -81,6 +79,7 @@ export type PlannedFileState = {
     target: string;
 };
 const held = new Map<string, HeldLock>();
+let reviewedStoreBridgeDepth = 0;
 const active = new Map<string, {
     id: string;
     storeRoot: string;
@@ -434,6 +433,8 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
         const current = classifyStoreCheckpoint9State(storeRoot);
         if (current.state === 'supported-current')
             return;
+        if (current.state === 'supported-legacy' && reviewedStoreBridgeDepth === 0)
+            fail('store-unavailable', `The Store uses supported legacy schema ${current.schemaVersion}. Run make-docs setup to review and apply the compatibility bridge. No project files changed.`);
         if (current.state !== 'supported-legacy' && current.state !== 'absent') {
             const issue = ('issue' in current ? current.issue : undefined) ?? {
                 code: current.state === 'corrupt' ? 'corrupt' as const : current.state === 'newer-unknown' ? 'schema-newer' as const : 'schema-unknown' as const,
@@ -515,6 +516,17 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
             if (value.token === token)
                 unlinkSync(lockPath);
         }
+    }
+}
+
+/** Allow schema conversion only inside a setup or update path that was reviewed. */
+export function withReviewedStoreCompatibilityBridge<T>(fn: () => T): T {
+    reviewedStoreBridgeDepth++;
+    try {
+        return fn();
+    }
+    finally {
+        reviewedStoreBridgeDepth--;
     }
 }
 export function withInstallationDatabase<T>(projectRoot: string, fn: (db: StoreDatabase) => T, options: {
@@ -650,13 +662,6 @@ function sameCheckoutEvidence(left: CheckoutVerificationEvidence, right: Checkou
         left.ledgerDigest === right.ledgerDigest && left.managedContentDigest === right.managedContentDigest;
 }
 
-function legacyObjectNumbers(root: string): { root_device: string; root_inode: string } {
-    if (!existsSync(root)) return { root_device: 'uncreated', root_inode: 'uncreated' };
-    const stat = statSync(root);
-    // Schema 4 keeps these bridge columns for P5 compatibility. Current identity does not read them.
-    return { root_device: String(stat.dev), root_inode: String(stat.ino) };
-}
-
 function assertCheckoutIdentity(row: Checkout, root: string): void {
     const id = readDeclarativeProjectId(root);
     if (id && id !== row.project_id)
@@ -701,10 +706,9 @@ function bindCheckout(db: StoreDatabase, root: string, projectId?: string): Chec
             .run(root, key, verifiedAt, verificationJson, row.checkout_id);
         return { ...row, root_path: root, root_path_key: key, verified_at: verifiedAt, verification_json: verificationJson };
     }
-    const bridge = legacyObjectNumbers(root);
-    const row: Checkout = { checkout_id: randomUUID(), project_id: id, root_path: root, ...bridge, root_path_key: platform.comparisonKey(root), verified_at: null, verification_json: null };
-    db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,root_device,root_inode,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?,?,?)')
-        .run(row.checkout_id, id, root, row.root_device, row.root_inode, now(), row.root_path_key, row.verified_at, row.verification_json);
+    const row: Checkout = { checkout_id: randomUUID(), project_id: id, root_path: root, root_path_key: platform.comparisonKey(root), verified_at: null, verification_json: null };
+    db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
+        .run(row.checkout_id, id, root, now(), row.root_path_key, row.verified_at, row.verification_json);
     return row;
 }
 export function getInstallationCheckoutId(projectRoot: string, storeRoot?: string): string {
@@ -1475,8 +1479,6 @@ export function importInstallationState(projectRoot: string, input: {
             }
             for (const record of input.records)
                 db.prepare('INSERT INTO installation_migration_records VALUES (?,?,?,?) ON CONFLICT(checkout_id,kind,record_id) DO NOTHING').run(row.checkout_id, record.kind, record.id, JSON.stringify(record.value));
-            for (const source of input.sources)
-                db.prepare("INSERT INTO installation_transfers VALUES (?,?,?,'imported',?) ON CONFLICT DO NOTHING").run(row.checkout_id, source.relativePath, source.digest, now());
             db.prepare("INSERT INTO installation_migration_records VALUES (?,'legacy-import',?,?)").run(row.checkout_id, input.importId, JSON.stringify({ sources: input.sources, recoveryRequired: input.recoveryRequired, importedAt: now() }));
             if (input.recoveryRequired)
                 db.prepare("INSERT INTO installation_operations (operation_id,checkout_id,operation,status,before_ledger,after_ledger,created_at,finished_at) VALUES (?,?,?,'pending',?,?,?,NULL)").run(input.importId, row.checkout_id, 'legacy.recovery', ledger?.manifest_json ?? null, input.manifest ? JSON.stringify(input.manifest) : null, now());

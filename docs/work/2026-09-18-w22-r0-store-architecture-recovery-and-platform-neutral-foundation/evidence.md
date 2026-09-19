@@ -214,6 +214,12 @@ Do not edit an old row to change its meaning. Add a new row that supersedes it.
 | S-008 | PRD 24 makes project config the owner of desired settings. Older manifest wording can still imply that selection and ownership share one local manifest authority. | Medium | Documentation | PRDs 02, 24, and 38 | PRD authority | A user must know what travels with a project and what stays local. | P2 line-by-line authority repair. |
 | S-009 | The Store has no one stated retention rule for completed operations, receipts, paths, host names, or saved file bytes. | High | All | Store tables and delete helpers | Store architecture | A user must be able to understand and remove local tool data. | Owner retention decision and P2 requirements. |
 | S-010 | Setup owns both orchestration and detailed machine mutation state. | Medium | All | `setup-state.ts`, `setup-system.ts`, planner, wizard | Setup | Setup must remain understandable and recoverable. | Accepted composition boundary. |
+| S-011 | Supersedes S-002. The cause was durable checkout identity that depended on device and inode values. PRD 38 now limits identity to project and checkout ids plus verified path evidence. Schema 5 archives the exact old strings, removes both active columns, and leaves move decisions to content and config proof. | High | Windows, macOS, and Linux | `store/database.ts`; `store/installation-state.ts`; `installation-state.test.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | Store identity | A safe move must keep the right checkout without trusting unstable file object numbers. | Source conversion, move, repeat, interruption, and rollback proof is complete. P6 owns final installed-package proof. |
+| S-012 | A historical receipt could bind current execution to an old package hash. The accepted rule makes the receipt history only and verifies the live package at each call. Schema 2 receipts omit executable proof. Schema 1 receipts remain readable history. | High | Windows, macOS, and Linux | `harness-integration-receipts.ts`; `harness-policy.ts`; `w19-r6-harness-adapters.test.ts`; P5 bridge register | Harness trust | A valid package update must not lose access only because old executable bytes changed. | Source update and compatibility proof is complete. P6 owns installed package-manager proof. |
+| S-013 | Supersedes S-001. Windows native launch handling used an explicit not-implemented branch. P3 moved host facts behind one platform contract. P4 limits public harness methods through one reviewed adapter result. The same platform contract passed on Windows, macOS, and Linux. | High | Windows, macOS, and Linux | `platform.ts`; `harness-access/native.ts`; `w22-r0-p3-platform-safety.test.ts`; workflow 35464032778 | Platform and harness adapter | A supported action must have the same meaning and safe stop on each supported host. | Source and real-runner contract proof is complete. P6 owns the final installed route. |
+| S-014 | Supersedes S-005. The earlier recovery loop came from making setup depend on the Store or access path that setup had to repair. Setup now previews the Store directly, applies the reviewed bridge through the shared journal, keeps Store-free work available, and returns one next action for blocked state. | High | All | `cli.ts`; `setup-system.ts`; `installation-state.ts`; `w19-r8-store-access-remediation.test.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | Setup and Store recovery | A person must be able to repair setup without a successful prior Store or MCP call. | Source absent, legacy, blocked, repeat, and recovery cases pass. P6 owns final installed output review. |
+| S-015 | Supersedes S-007 for resource projection. The cause was projection records that repeated desired selection and provider facts beside applied ownership. P4 target writers keep only URI, target path, digest, algorithm, applied time, lifecycle result, and ownership in the projection record. P5 converts legacy mirrors and saves the exact old ledger in private migration history. | High | All | `manifest.ts`; `project-projection.ts`; `store/database.ts`; `p4-projection-lifecycle.test.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | Resource projection and Store architecture | Status and repair must not choose between duplicate desired and applied facts. | Source conversion and target-writer proof is complete. Separate approval is still required before old history is deleted. |
+| S-016 | Supersedes S-008. The cause was authority text that let a local installation manifest appear to own both project intent and machine-applied facts. PRDs 24 and 38 now separate repository intent from Store-applied proof. P5 enforces the physical bridge rules for checkout identity, receipts, transfers, projection mirrors, and pending operations. | High | Documentation and all hosts | PRDs 24 and 38; `store/compatibility-bridge.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | PRD and Store authority | A user must know what travels with the project and what stays local to one checkout. | Normative authority and source bridge proof are complete. P6 owns the final installed explanation. |
 
 ## Mechanism Disposition Ledger
 
@@ -971,3 +977,68 @@ Tasks t1 through t13 are complete. Acceptance criteria A20 through A27 are satis
 Harness receipt history is separate from current caller proof. Setup and recovery use the accepted service boundary. Store-free work remains available. New projection writes have one owner for each fact. The owner authorized closeout on 2026-09-19. P4 is closed.
 
 P5 and later implementation still need separate explicit approval.
+
+## P5 Compatibility Bridge and Symptom Closure
+
+### Status
+
+P5 implementation and closeout are complete. The owner authorized closeout, staging, and commit on 2026-09-19. P5 is closed.
+
+Concurrent W23 files remain outside the P5 change set.
+
+### Implementation Result
+
+- Store schema 5 is the current target. Ordinary Store writers reject schemas 1 through 4 and direct the user to reviewed setup. Only the reviewed setup and update migration paths can apply the bridge.
+- `previewStoreCompatibilityBridge` reads without writes. It classifies absent, supported old, current, malformed, corrupt, unclear, and newer Store state. It reports Store, project, and native changes, blockers, and one next action.
+- The bridge register records the old form, target form, first bridge version, owner, old-write stop proof, remaining-state check, exit condition, removal phase, required tests, retention rule, and separate deletion approval for seven bridge classes.
+- Conversion creates and verifies one private SQLite backup before the first schema write. One shared `tool_operations` record covers the conversion. The schema change and final operation state use one transaction.
+- Schema 5 removes active checkout device and inode columns after it archives the exact old strings. It copies checkpoint receipts to target receipt history. It removes legacy projection selection and provider mirrors from active ledger JSON. It keeps old checkpoint and transfer rows as private history because deletion still needs separate approval.
+- Setup applies the Store bridge before legacy import or project mutation. A completed JSON result reads the Store again, so it reports the post-conversion state instead of a stale pending plan.
+- A failed conversion rolls the database transaction back. The verified backup remains available. Malformed, conflicting, corrupt, unclear, or newer state stays unchanged and receives a safe stop result.
+- The append-only symptom table now records the final source result for checkout object numbers, package updates, Windows parity, setup recovery, projection mirrors, and authority separation.
+
+### Human Experience Review
+
+Reviewer: Codex agent.
+
+Review surface: the built local CLI and focused P5 fixtures for preview, conversion, repeat use, interruption, quarantine, unsupported state, rollback, and recovery. This is not the final installed package.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-1: the same supported action keeps the same meaning, safety result, and recovery path on Windows, macOS, and Linux | P5 uses the P3 platform service for file-space and Store-path work. It adds no host-specific identity or recovery path. | Preserved for the P5 source boundary. | P6 must run the final installed package on Windows, macOS, and Linux. |
+| HX-2: a person can identify state, effects, blockers, and one safe next action | The preview reports Store, project, and native changes. Malformed and newer state report a clear block and one safe next action without changing the database. | Satisfied for the P5 source and command-result boundary. | P6 must inspect the final installed human and machine-readable output. |
+| HX-3: Store loss or denial stops only the operation that needs the Store | Preview is read-only. Unsupported and unsafe Store state stops conversion without project or native changes. P5 adds no Store dependency to independent repository reads. | Preserved for the P5 bridge boundary. | P6 must repeat Store-free and Store-blocked cases with the installed package. |
+| HX-4: an existing installation can convert without losing project files, native entries, or useful operation evidence | Supported fixtures preserve user bytes, stable identifiers, pending recovery, receipt history, and retained transfer history. Conversion archives old identity values before it removes active columns. | Satisfied for supported P5 source fixtures. | P6 must prove the same result with the final installed package. |
+| HX-5: setup and recovery do not form a closed dependency loop | Reviewed setup can start the bridge. Ordinary writers refuse old schemas. A failed conversion rolls back to the old schema, keeps the verified backup, and leaves one valid retry path. Repeated conversion creates no second backup or operation. | Satisfied for the P5 source setup and recovery boundary. | P6 must inspect normal installed setup, failure, retry, and recovery paths. |
+
+This agent review shows that the source behavior, results, and recorded evidence agree. It does not claim a person's lived ease, confidence, or acceptance. P6 still owns the final installed-package review.
+
+### Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| CLI build | Passed with `npm run build -w packages/cli`. |
+| Focused P5 and regression gate | Passed 188 of 188 tests across the P5 bridge, migration safety, global Store lifecycle, installation state, and the complete CLI test file. |
+| Full CLI set | Passed 1,346 tests and skipped 5. One separate W23 risk-list fixture failed because it expects R-001 through R-035 while the active register also contains R-036 through R-038. |
+| Default validation | Passed 52 tests. The same separate W23 risk-list fixture was the only failure. |
+| Package smoke preparation | Passed 13 of 13 smoke-harness tests. |
+| Read-only preview | Schemas 1 through 4 kept identical database bytes during preview. |
+| Conversion and repeat | The schema-4 fixture preserved user bytes, stable ids, pending recovery, receipt history, and retained transfer history. A repeat made no second backup or conversion. |
+| Interruption and rollback | An injected schema conversion failure restored schema version 4 and every checked old row and column. The verified before backup remained present. |
+| Unsafe state | Malformed state was quarantined. Newer state was unsupported. Both database files remained byte-identical. |
+| Diff check | Passed with `git diff --check` during implementation. |
+
+The W23 fixture does not exercise the P5 bridge, migration, setup, Store, or recovery paths. It remains a visible validation limit. P5 implementation does not mark it as fixed.
+
+### Testing Decisions
+
+- Automated Implementation Testing: complete. The blocking P5 source gate passed.
+- Performance Testing: `not-needed-now`. P5 has no accepted duration target.
+- Guided Progress Review: `not-needed-now` for source implementation. P6 owns the installed result.
+- Unassisted Goal Testing: `not-needed-now`. The accepted automated fixtures answer the P5 source safety decision.
+
+### P5 Gate
+
+Tasks t1 through t16 are complete. Acceptance criteria A28 through A35 have source-level evidence within the recorded P6 and W23 limits.
+
+The owner authorized closeout on 2026-09-19. P5 is closed. P6 needs separate explicit authority.
