@@ -9,6 +9,7 @@ import {
   readFileSync,
   unlinkSync,
   writeFileSync,
+  type BigIntStats,
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -1773,11 +1774,49 @@ interface ParentGuard {
   fd: number | null;
   path: string;
   guard: FileMutationGuard;
+  objectIdentity: NativeObjectIdentity;
 }
 
 type TargetGuard =
   | { exists: false }
-  | { exists: true; fd: number | null; guard: FileMutationGuard };
+  | {
+      exists: true;
+      fd: number | null;
+      guard: FileMutationGuard;
+      objectIdentity: NativeObjectIdentity;
+    };
+
+interface NativeObjectIdentity {
+  device: bigint;
+  inode: bigint;
+  mode: bigint;
+  size: bigint;
+  birthtimeNs: bigint;
+  ctimeNs: bigint;
+}
+
+function captureNativeObjectIdentity(stats: BigIntStats): NativeObjectIdentity {
+  return {
+    device: stats.dev,
+    inode: stats.ino,
+    mode: stats.mode,
+    size: stats.size,
+    birthtimeNs: stats.birthtimeNs,
+    ctimeNs: stats.ctimeNs,
+  };
+}
+
+function matchesNativeObjectIdentity(
+  stats: BigIntStats,
+  identity: NativeObjectIdentity,
+): boolean {
+  if (identity.device !== 0n || identity.inode !== 0n) {
+    return stats.dev === identity.device && stats.ino === identity.inode;
+  }
+  const stableBirth = identity.birthtimeNs > 0n && stats.birthtimeNs > 0n;
+  return stats.mode === identity.mode && stats.size === identity.size &&
+    (stableBirth ? stats.birthtimeNs === identity.birthtimeNs : stats.ctimeNs === identity.ctimeNs);
+}
 
 function ensureNativeParent(root: string, relativePath: string): void {
   const parentRelative = path.dirname(relativePath);
@@ -1807,17 +1846,27 @@ function openParentGuard(parent: string): ParentGuard {
     closeSync(fd);
     throw new Error("Harness native parent is not a directory.");
   }
-  return { fd, path: parent, guard: platform.captureFileGuard(stat, "directory") };
+  return {
+    fd,
+    path: parent,
+    guard: platform.captureFileGuard(stat, "directory"),
+    objectIdentity: captureNativeObjectIdentity(fstatSync(fd, { bigint: true })),
+  };
 }
 
 function assertParentGuard(root: string, relativePath: string, guard: ParentGuard): void {
   assertNativePath(root, relativePath);
   const descriptor = guard.fd === null ? null : fstatSync(guard.fd);
+  const descriptorIdentity = guard.fd === null ? null : fstatSync(guard.fd, { bigint: true });
   const live = lstatSync(guard.path);
+  const liveIdentity = lstatSync(guard.path, { bigint: true });
   if (
     live.isSymbolicLink() ||
     !live.isDirectory() ||
     !platform.matchesFileGuard(live, guard.guard) ||
+    !matchesNativeObjectIdentity(liveIdentity, guard.objectIdentity) ||
+    (descriptorIdentity !== null &&
+      !matchesNativeObjectIdentity(descriptorIdentity, guard.objectIdentity)) ||
     (descriptor !== null && !platform.matchesFileGuard(descriptor, guard.guard))
   ) {
     throw new Error(`Harness native parent changed after review: ${relativePath}.`);
@@ -1847,7 +1896,12 @@ function openTargetGuard(absolutePath: string, relativePath: string): TargetGuar
     ) {
       throw new Error(`Harness native target changed after review: ${relativePath}.`);
     }
-    return { exists: true, fd, guard: platform.captureFileGuard(descriptor, "file") };
+    return {
+      exists: true,
+      fd,
+      guard: platform.captureFileGuard(descriptor, "file"),
+      objectIdentity: captureNativeObjectIdentity(fstatSync(fd, { bigint: true })),
+    };
   } catch (error) {
     closeSync(fd);
     throw error;
@@ -1891,9 +1945,14 @@ function assertNativeMutationBoundary(
     throw new Error(`Harness native target changed after review: ${relativePath}.`);
   }
   const descriptor = targetGuard.fd === null ? null : fstatSync(targetGuard.fd);
+  const descriptorIdentity = targetGuard.fd === null
+    ? null
+    : fstatSync(targetGuard.fd, { bigint: true });
   let live: ReturnType<typeof lstatSync>;
+  let liveIdentity: BigIntStats;
   try {
     live = lstatSync(absolutePath);
+    liveIdentity = lstatSync(absolutePath, { bigint: true });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new Error(`Harness native target changed after review: ${relativePath}.`);
@@ -1902,9 +1961,12 @@ function assertNativeMutationBoundary(
   }
   if (
     (descriptor !== null && (!descriptor.isFile() || !platform.matchesFileGuard(descriptor, targetGuard.guard))) ||
+    (descriptorIdentity !== null &&
+      !matchesNativeObjectIdentity(descriptorIdentity, targetGuard.objectIdentity)) ||
     live.isSymbolicLink() ||
     !live.isFile() ||
-    !platform.matchesFileGuard(live, targetGuard.guard)
+    !platform.matchesFileGuard(live, targetGuard.guard) ||
+    !matchesNativeObjectIdentity(liveIdentity, targetGuard.objectIdentity)
   ) {
     throw new Error(`Harness native target changed after review: ${relativePath}.`);
   }
