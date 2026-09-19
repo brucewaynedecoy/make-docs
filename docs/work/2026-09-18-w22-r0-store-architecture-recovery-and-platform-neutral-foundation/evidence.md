@@ -1,6 +1,6 @@
 # W22 R0 Store Architecture Recovery Evidence
 
-The sections through the first Phase Gate record P1 architecture inventory and decision evidence.
+The sections through the first Phase Gate record P1 architecture inventory and decision evidence. Later sections record P2 authority work and P3 platform-safety implementation evidence.
 
 ## Status
 
@@ -818,3 +818,87 @@ Tasks t1 through t12 are complete.
 The owner accepted this current product contract on 2026-09-19. P2 is closed. No implementation blocker or unsettled product choice remains in P2.
 
 P3 and later code work still need separate explicit implementation approval.
+
+## P3 Platform-Neutral Filesystem and Checkout Safety
+
+### Status
+
+P3 implementation and required platform proof are complete. The owner authorized implementation, the commits needed for remote proof, the pull request, the repair commits, and final closeout. P3 is closed on 2026-09-19.
+
+The P3 implementation is in commits `46b65816`, `907d1401`, `bc0575f3`, and `aa0dd742`. The closeout commit changes only this evidence record and the P3 work record. Concurrent W23 files remain outside the P3 change set.
+
+P4 and later implementation remain unauthorized. This closeout grants no later-phase authority.
+
+### Implementation Result
+
+- One typed platform service owns path normalization and comparison, user data roots, executable discovery, process liveness, short-lived file guards, locking, and atomic replacement.
+- Store schema 4 keeps project ID, checkout ID, normalized current path, and accepted verification facts. Device and inode values are no longer durable checkout identity.
+- A verified checkout move preserves project association. Changed content, a collision, or an unsafe link blocks mutation and preserves prior accepted bytes and Store evidence.
+- Atomic replacement and lock behavior use platform-owned rules. Failure results preserve accepted state and return stable error meaning.
+
+### Real-Platform Contract Results
+
+Workflow: [Platform safety run 35464032778](https://github.com/brucewaynedecoy/make-docs/actions/runs/35464032778)
+
+| Host | Result | Evidence |
+| --- | --- | --- |
+| Ubuntu | Passed in 25 seconds | [Job 105952859027](https://github.com/brucewaynedecoy/make-docs/actions/runs/35464032778/job/105952859027) |
+| macOS | Passed in 42 seconds | [Job 105952858899](https://github.com/brucewaynedecoy/make-docs/actions/runs/35464032778/job/105952858899) |
+| Windows | Passed in 1 minute 5 seconds | [Job 105952858980](https://github.com/brucewaynedecoy/make-docs/actions/runs/35464032778/job/105952858980) |
+
+Each job used the same TypeScript check, build, and exact platform contract suite. The suite passed 127 tests on each host.
+
+### Public Contract Comparison
+
+| Contract area | Cross-platform result |
+| --- | --- |
+| Path identity | Each host applies its own drive, UNC, separator, link, and case rules through the same platform interface. Business rules do not guess from another host's syntax. |
+| Checkout move | Accepted project identity and content proof preserve the checkout association after a path move. Low-level file object numbers do not decide durable identity. |
+| Blocked mutation | Changed content, a collision, an unsafe link or reparse point, or ambiguous identity blocks the write and preserves prior accepted bytes and evidence. |
+| Atomic replacement | Success leaves accepted new bytes. Failure returns the stable `atomic-replace-failed` class and does not leave an untracked partial result. |
+| Lock ownership | One live writer owns the lock. Token checks protect release. A stale or dead owner can be reviewed without deleting unrelated work. |
+| Process and executable checks | Each host uses native process and executable rules. Unknown remote-host state remains unknown instead of becoming a guessed success or failure. |
+
+No product-level difference was found in public state, preservation, error meaning, or next safe action. Host-specific syntax remains an internal platform concern. No support limit was accepted or required.
+
+### Human Experience Review
+
+Reviewer: Codex agent.
+
+Review surface: focused P3 results, local Store and checkout results, and the same contract suite on real Windows, macOS, and Linux runners. P3 does not yet provide the final installed public surface.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-1: the same supported action has the same meaning, safety result, and recovery path on Windows, macOS, and Linux | The same 127-test contract suite passed on all three hosts. The comparison found no difference in public error meaning, preservation result, or next safe action. | Satisfied for the P3 platform and Store boundary. | This is runner and agent evidence. P6 must inspect the final installed package and public output on all three hosts. |
+| HX-4: a move or package update does not fail only because device, inode, or package hash changed | Schema 4 removes device and inode from durable checkout identity. Focused tests show that verified moves keep association and changed content blocks mutation without data loss. | Satisfied for the P3 checkout-identity scope. | Clone, worktree, remount, package-update, and final installed-route proof remain owned by P5 and P6. |
+
+The review supports only these P3 technical claims. It does not claim a person's lived ease, confidence, or acceptance.
+
+### Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| TypeScript | Passed with `npm exec -w packages/cli tsc -- --noEmit`. |
+| CLI build | Passed with `npm run build -w packages/cli`. |
+| Exact P3 platform suite | Passed 127 of 127 tests locally and on Windows, macOS, and Linux. |
+| Full CLI set | Passed 1,334 tests and skipped 5. One separate risk-list fixture failed because it expects R-001 through R-035 while the active register also contains R-036 through R-038. |
+| Default validation | Reached the same separate risk-list fixture failure. This result does not support a fully green default-validation claim. |
+| Diff check | Passed with `git diff --check` before closeout. |
+| Pull request checks | All required Windows, macOS, and Linux platform contract jobs passed. |
+
+The risk-list fixture does not exercise P3 platform behavior. It remains a visible validation limit. P3 closure does not mark that separate fixture as fixed.
+
+### Testing Decisions
+
+- Automated Implementation Testing: complete and blocking proof passed for the P3 scope.
+- Performance Testing: `not-needed-now`. No performance target is open in P3.
+- Guided Progress Review: `not-needed-now`. P6 owns the installed public behavior review.
+- Unassisted Goal Testing: `not-needed-now`. Automated file, Store, and real-platform proof answer the P3 decision.
+
+### P3 Gate
+
+Tasks t1 through t12 are complete. Acceptance criteria A13 through A19 are satisfied within the recorded evidence and limits.
+
+The durable schema no longer depends on low-level file identity. The real-platform contract cases agree on public meaning. The owner authorized closeout on 2026-09-19. P3 is closed.
+
+P4 and later implementation still need separate explicit approval.
