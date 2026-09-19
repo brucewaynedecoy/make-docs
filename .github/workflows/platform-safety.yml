@@ -20,7 +20,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            test_args: ""
+          - os: macos-latest
+            test_args: ""
+          - os: windows-latest
+            test_args: "--no-file-parallelism --maxWorkers=1"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out source
@@ -45,6 +51,7 @@ jobs:
         run: >-
           npm test -w packages/cli --
           --testTimeout=120000
+          ${{ matrix.test_args }}
           tests/w22-r0-p3-platform-safety.test.ts
           tests/installation-state.test.ts
           tests/resource-resolver.test.ts
@@ -123,10 +130,13 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: ubuntu-latest
+            test_args: ""
           - os: macos-latest
             platform: macos-latest
+            test_args: ""
           - os: windows-latest
             platform: windows-latest
+            test_args: "--no-file-parallelism --maxWorkers=1"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out proof harness
@@ -148,6 +158,7 @@ jobs:
         run: >-
           npm test -w packages/cli --
           --testTimeout=120000
+          ${{ matrix.test_args }}
           tests/w22-r0-p3-platform-safety.test.ts
           tests/installation-state.test.ts
           tests/resource-resolver.test.ts
