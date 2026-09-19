@@ -110,6 +110,7 @@ jobs:
         with:
           name: w22-p6-package-candidate
           path: .p6-candidate/
+          include-hidden-files: true
           if-no-files-found: error
 
   installed-package:

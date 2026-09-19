@@ -8,6 +8,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { withInstallationOperation, withInstallationDatabase, sealInstallationOperation, preparePlannedFileChange, recordPlannedFileChange, readInstallationStatus, recoverInstallationOperation, readDeclarativeProjectId, readMigrationState, recordMigrationState, acquireInstallationLock, releaseInstallationLock, getInstallationCheckoutId, canonicalInstallationPath } from '../src/store/installation-state';
 import { serializeOperationError } from '../src/operations/context';
+import { platform } from '../src/platform';
 
 let temp:string, project:string, store:string;
 beforeEach(()=>{temp=mkdtempSync(path.join(os.tmpdir(),'make-docs-installation-'));project=path.join(temp,'project');store=path.join(temp,'store');mkdirSync(project);});
@@ -59,7 +60,7 @@ describe('Store-owned installation safety',()=>{
   });
   it('keeps live legacy leases and replaces only a proven-dead local lease',()=>{
     operation(()=>{});const access=path.join(store,'store-access.lock');const active=JSON.stringify({token:'legacy-live',pid:process.pid,hostname:os.hostname(),startedAt:new Date().toISOString()});writeFileSync(access,active,{mode:0o600});
-    let error:unknown;try{acquireStoreAccess(store,false,0);}catch(value){error=value;}expect(error).toBeInstanceOf(StoreUnavailableError);expect((error as StoreUnavailableError).issue).toMatchObject({code:'contention-timeout',path:access});expect(readFileSync(access,'utf8')).toBe(active);rmSync(access);
+    let error:unknown;try{acquireStoreAccess(store,false,0);}catch(value){error=value;}expect(error).toBeInstanceOf(StoreUnavailableError);const issue=(error as StoreUnavailableError).issue;expect(issue).toMatchObject({code:'contention-timeout'});expect(platform.samePath(issue.path,access)).toBe(true);expect(readFileSync(access,'utf8')).toBe(active);rmSync(access);
     writeFileSync(access,JSON.stringify({token:'legacy-dead',pid:2147483647,hostname:os.hostname(),startedAt:new Date().toISOString()}),{mode:0o600});const release=acquireStoreAccess(store,false,0);expect(statSync(access).isDirectory()).toBe(true);release();expect(existsSync(access)).toBe(false);
   });
   it.each([

@@ -63,24 +63,27 @@ export function acquireGlobalAssetLock(projectRoot: string): GlobalAssetLock {
     throw error;
   }
   const token = randomUUID();
-  const lockStat = fstatSync(fd);
-  const lock: GlobalAssetLock = {
-    storeRoot,
-    lockPath,
-    token,
-    rootGuard: platform.captureFileGuard(rootStat, "directory"),
-    lockGuard: platform.captureFileGuard(lockStat, "file"),
-  };
+  let lock: GlobalAssetLock | null = null;
   try {
     writeFileSync(fd, JSON.stringify({ token, pid: process.pid, hostname: platform.hostname }));
     fsyncSync(fd);
+    lock = {
+      storeRoot,
+      lockPath,
+      token,
+      rootGuard: platform.captureFileGuard(rootStat, "directory"),
+      lockGuard: platform.captureFileGuard(fstatSync(fd), "file"),
+    };
     held.set(storeRoot, { lock, depth: 1 });
     assertGlobalAssetLockActive(lock);
     return lock;
   } catch (error) {
     held.delete(storeRoot);
     const current = lstatSync(lockPath, { throwIfNoEntry: false });
-    if (current?.isFile() && platform.matchesFileGuard(current, lock.lockGuard)) unlinkSync(lockPath);
+    if (current?.isFile() && !current.isSymbolicLink() &&
+        (lock ? platform.matchesFileGuard(current, lock.lockGuard) : platform.sameFileObject(fstatSync(fd), current, "file"))) {
+      unlinkSync(lockPath);
+    }
     throw error;
   } finally { closeSync(fd); }
 }

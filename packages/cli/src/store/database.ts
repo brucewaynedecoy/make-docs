@@ -875,7 +875,12 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
 
 /** Acquire one shared Store session. Nested calls in this process reuse it. */
 export function acquireStoreAccess(storeRoot: string, preparing = false, timeoutMs = STORE_OWNER_WAIT_MS): () => void {
-  storeRoot = path.resolve(storeRoot);
+  const requestedStoreRoot = path.resolve(storeRoot);
+  try {
+    storeRoot = platform.describePath(requestedStoreRoot).canonicalPath;
+  } catch (error) {
+    throw new StoreUnavailableError(makeStoreIssue("io-error", requestedStoreRoot, "resolve Store root", error));
+  }
   const prior = accessLeases.get(storeRoot);
   if (prior) {
     prior.count++;

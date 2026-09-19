@@ -12,6 +12,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runCli } from "../src/cli";
 import { loadManifest } from "../src/manifest";
+import { platform } from "../src/platform";
 import {
   CURRENT_STORE_SCHEMA_VERSION,
   GLOBAL_CONFIG_FILE,
@@ -257,7 +258,7 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
         expect(manifest?.projectId).toBeDefined();
         withStoreDatabase(storeRoot, (db) => {
           const entry = db.prepare('SELECT root_path FROM installation_checkouts WHERE project_id=?').get(manifest!.projectId!) as {root_path:string};
-          expect(entry.root_path).toBe(realpathSync(targetDir));
+          expect(platform.samePath(entry.root_path, targetDir)).toBe(true);
           const ledger = db.prepare('SELECT manifest_json FROM installation_ledgers').get() as {manifest_json:string};
           expect(JSON.parse(ledger.manifest_json)).toEqual(manifest);
         });
