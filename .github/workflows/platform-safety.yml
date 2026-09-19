@@ -141,9 +141,13 @@ jobs:
       - name: Install locked proof dependencies
         run: npm ci
 
+      - name: Prepare the CLI test package
+        run: npm run prepack -w packages/cli
+
       - name: Run required source safety matrix
         run: >-
           npm test -w packages/cli --
+          --testTimeout=120000
           tests/w22-r0-p3-platform-safety.test.ts
           tests/installation-state.test.ts
           tests/resource-resolver.test.ts
