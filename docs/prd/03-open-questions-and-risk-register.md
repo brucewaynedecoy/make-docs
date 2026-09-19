@@ -859,6 +859,48 @@ Code anchors:
 - `packages/cli/src/store/bootstrap.ts`
 - `scripts/smoke-pack.mjs`
 
+### D-039 Durable File Identity and Broad Store State Exceed the Accepted Model
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W22 R0 D1 through D3 accept repository-owned project identity, Store-owned checkout identity, minimum last-applied state, and no durable device or inode identity. | W22 R0 P3 implements the platform and checkout model. P5 migrates old fields and broad ledger forms through accepted bridges. |
+
+**Issue**: Current checkout rows persist `root_device` and `root_inode`, and current installation ledgers mix desired selections, provenance, and applied ownership. Those forms exceed the accepted field-level authority and identity model.
+
+**Why it matters**: A remount, clone, worktree, move, or package change can block valid work or make two state homes appear authoritative. A repair can then change the wrong identity or ownership record.
+
+**Recommendation**: Keep project id in the repository, keep one Store checkout id per clone or worktree, make root path mutable lookup data, use device and inode values only inside one live verification window, and migrate broad ledgers to the minimum last-applied ownership fields in PRD 38.
+
+**To close**: The target schema and writers pass move, clone, worktree, remount, path-case, package-update, conflict-stop, resume, rollback, and Store-loss tests on Windows, macOS, and Linux. No current writer persists device or inode as identity or writes a broad old-form ledger.
+
+### D-040 Harness Receipt History Is Still Coupled to Current Access Proof
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W22 R0 D4 accepts receipts as history and current per-call proof across adapter, method, executable where applicable, owned native entry, operation, machine approval, and project approval. | W22 R0 P4 updates harness policy, setup, receipts, and resource operations. P5 migrates old receipt forms through bounded bridges. |
+
+**Issue**: Current access checks and receipt records still carry exact package and executable facts in forms that can be mistaken for current caller authority. Generic MCP exposure can also be mistaken for admission of every server tool.
+
+**Why it matters**: A copied or stale receipt can outlive the executable, native entry, scope, permission, package, or operation it described. Broad server exposure can then bypass per-operation policy.
+
+**Recommendation**: Verify current caller facts at call time, keep receipts as audit history, keep machine and project approval separate, and apply current accepted registry policy per operation. Let the admitted generic MCP set expand, contract, or consolidate only through approved product work.
+
+**To close**: Current and stale receipt cases, executable and native-entry drift, separate approval changes, generic MCP identity, per-operation admission, rotation, repair, removal, and scoped-stop behavior pass through one exact installed package. Store-free operations require no receipt or harness access.
+
+### D-041 Core Platform Parity Is Broader Than Current Windows Proof
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W22 R0 D7 requires full Windows, macOS, and Linux parity for core Store, identity, setup, recovery, resource, CLI, machine-readable, and MCP capabilities. The support matrix records evidence and cannot narrow scope. | W22 R0 P3 creates the platform service. P6 runs the exact installed package matrix on all three hosts. |
+
+**Issue**: Operating-system rules remain spread across Store, harness, resource, and file-mutation code. Windows native launch and several real-host recovery paths do not yet have the proof required by the accepted support target.
+
+**Why it matters**: Unit tests or one working host can hide a path, lock, process, atomic-write, executable, or recovery failure on another supported host. An evidence gap can then become an accidental product-scope cut.
+
+**Recommendation**: Route all host behavior through one typed platform service. Treat every missing core capability as a defect unless the owner approves a time-bounded exception with a repair phase and measurable end condition.
+
+**To close**: One exact package candidate passes the full core capability and recovery matrix on real Windows, macOS, and Linux hosts with the source repository unavailable. Public support text matches the same passing matrix and no unapproved parity gap remains.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -2109,8 +2151,52 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: Focused operation, catalog, installed-resource, and parity evidence shows that both methods apply the mapped contract, expose their limits, never claim the other method ran, never make forbidden product judgments, and never substitute for performance, installed-product, release, or support proof.
 
+### R-036 Compatibility Bridges Could Become Permanent Duplicate Authority
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W22 R0 D8 requires versioned readers, one target writer, no old-form writes after cutover, and one owner and measurable exit contract per bridge. | W22 R0 P5 creates the bridge register, proves remaining-state checks, and requests separate approval before any removal. |
+
+**Issue**: The Store contains checkpoint, transfer, broad manifest, migration, receipt, and opaque legacy forms that can remain readable for compatibility. Without a proved end condition, a temporary reader can become a second permanent authority or old writes can resume.
+
+**Why it matters**: Two writable forms can disagree during setup, repair, removal, or recovery. Removing the old form too early can also destroy opaque or non-rebuildable evidence.
+
+**Recommendation**: Give every bridge a stable id, old and target forms, first version, owner, proof that old writes stopped, deterministic remaining-state check, measurable end condition, removal phase, tests, retention and export rule, and separate deletion approval.
+
+**To close**: The bridge register is complete, target readers and writers pass, no old-form writer remains, every old fact is migrated, exported, preserved as opaque history, or separately approved for deletion, and each removal meets its accepted exit contract.
+
+### R-037 Minimal Store Migration Could Lose Recovery or Opaque Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | PRD 38 now classifies every current durable field and separates live recovery, bounded history, rebuildable cache, and obsolete bridge state. | W22 R0 P5 must prove retention, export, backup, migration, rollback, and scoped deletion against all 15 current tables and non-table Store forms. |
+
+**Issue**: Reducing broad ledgers and migration records to a minimal model can discard before/after evidence, failure detail, backup order, or opaque data that cannot be rebuilt.
+
+**Why it matters**: A smaller schema is unsafe if a process restart can no longer resume or roll back, or if a migration silently deletes data whose meaning is unknown.
+
+**Recommendation**: Apply the field register before schema work. Preserve verified checkout ids, retain live recovery evidence through terminal verification, keep bounded receipt and failure history, and preserve opaque data until explicit export or deletion approval.
+
+**To close**: Migration fixtures prove current, old, interrupted, corrupt, newer, opaque, clone, worktree, move, edited-file, repeat, rollback, and removal cases. Before and after inventories show no unapproved data loss and no cross-checkout change.
+
+### R-038 Platform Evidence Could Be Used to Excuse a Core Parity Gap
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | PRDs 10 and 16 make the matrix evidence only and require an owner-approved time-bounded exception for any core gap. | W22 R0 P6 records host-by-capability proof and blocks closeout on every unapproved gap. |
+
+**Issue**: A missing host, unavailable harness, or hard-to-build capability can be marked unsupported or not applicable without an explicit product decision.
+
+**Why it matters**: That practice turns test availability into product scope and encourages future agents to stop seeking capability parity.
+
+**Recommendation**: Keep Windows, macOS, and Linux core parity as the fixed target. Use typed unsupported results only as temporary containment. Require each exception to name the human effect, reason, owner, repair phase, and end condition.
+
+**To close**: The real-host matrix is complete, all core gaps are fixed or covered by active accepted exceptions, expired exceptions fail the gate, and public support claims match the evidence without reducing target scope.
+
 ## Source Anchors
 
+- `docs/designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md`
+- `docs/plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md`
 - `docs/designs/2026-08-28-human-experience-standard-and-intent.md`
 - `docs/plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md`
 - `docs/prd/49-human-experience-standard-and-intent.md`

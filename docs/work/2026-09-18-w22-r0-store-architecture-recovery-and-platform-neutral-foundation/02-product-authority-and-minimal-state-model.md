@@ -58,12 +58,12 @@ Human Experience Review is separate. Review each promise against the current nor
 
 ### Tasks
 
-- [ ] t1: Convert every accepted P1 fact into repository-canonical, Store-canonical, Store-cached, live-machine, short-lived guard, historical, or obsolete state.
-- [ ] t2: Update PRDs 02 and 38 with one repository and Store boundary and one project and checkout identity model.
-- [ ] t3: Update PRDs 18 and 38 with one operation journal, lock, interruption, recovery, and compatibility rule.
-- [ ] t4: Update PRDs 28 and 38 with separate native-entry ownership, current executable proof, operation access, machine approval, and project approval.
-- [ ] t5: Update PRDs 06, 07, 24, 25, and 39 with thin setup, Store-free work, one recovery path, and minimal resource projection state.
-- [ ] t6: Update PRDs 10 and 16 with equal Windows, macOS, and Linux proof and the bounded platform layer.
+- [x] t1: Convert every accepted P1 fact into repository-canonical, Store-canonical, Store-cached, live-machine, short-lived guard, historical, or obsolete state.
+- [x] t2: Update PRDs 02 and 38 with one repository and Store boundary and one project and checkout identity model.
+- [x] t3: Update PRDs 18 and 38 with one operation journal, lock, interruption, recovery, and compatibility rule.
+- [x] t4: Update PRDs 28 and 38 with separate native-entry ownership, current executable proof, operation access, machine approval, and project approval.
+- [x] t5: Update PRDs 06, 07, 24, 25, and 39 with thin setup, Store-free work, one recovery path, and minimal resource projection state.
+- [x] t6: Update PRDs 10 and 16 with equal Windows, macOS, and Linux proof and the bounded platform layer.
 
 ### Acceptance criteria
 
@@ -78,21 +78,21 @@ Human Experience Review is separate. Review each promise against the current nor
 
 ### Closeout Notes
 
-- Four testing decisions: Automated document checks required; Performance Testing `not-needed-now`; Guided Progress Review waits for Stage 2; Unassisted Goal Testing `not-needed-now`.
-- Human Experience Review: Map each promise to the owning requirement.
-- Evidence report: Retain the authority decision matrix and validator results.
-- Phase / capability status: P2 remains active. Code work is still not authorized.
+- Four testing decisions: Automated document checks passed; Performance Testing `not-needed-now`; Guided Progress Review is ready in Stage 2; Unassisted Goal Testing `not-needed-now`.
+- Human Experience Review: HX-1 through HX-6 map to current owning requirements in [evidence.md](evidence.md#human-experience-review-1).
+- Evidence report: The authority decision, state register, history, risks, and validator results are in [evidence.md](evidence.md#p2-product-authority-and-minimal-state-model).
+- Phase / capability status: Stage 1 is complete. P2 remains active until owner acceptance. Code work is still not authorized.
 
 ## Stage 2 - Risk, History, and Validation
 
 ### Tasks
 
-- [ ] t7: Add or update numbered PRD 03 items for confirmed drift, open choices, and rebuild risks. Do not duplicate existing items.
-- [ ] t8: Add `2026-09-18 — W22 R0` requirement-history entries to materially changed product PRDs.
-- [ ] t9: Update PRD 00 links only where the accepted owner relationships changed.
-- [ ] t10: Validate every PRD owner, source link, history entry, risk item, and Human Experience promise mapping.
-- [ ] t11: Run PRD authority validation, links, path hygiene, metadata checks, and `git diff --check`.
-- [ ] t12: Present the final current-authority change for owner acceptance and record any limit that blocks implementation.
+- [x] t7: Add or update numbered PRD 03 items for confirmed drift, open choices, and rebuild risks. Do not duplicate existing items.
+- [x] t8: Add `2026-09-18 — W22 R0` requirement-history entries to materially changed product PRDs.
+- [x] t9: Update PRD 00 links only where the accepted owner relationships changed.
+- [x] t10: Validate every PRD owner, source link, history entry, risk item, and Human Experience promise mapping.
+- [x] t11: Run PRD authority validation, links, path hygiene, metadata checks, and `git diff --check`.
+- [x] t12: Present the final current-authority change for owner acceptance and record any limit that blocks implementation.
 
 ### Acceptance criteria
 
@@ -107,7 +107,7 @@ Human Experience Review is separate. Review each promise against the current nor
 
 ### Closeout Notes
 
-- Four testing decisions: Record final document checks and Guided Progress Review. Performance and Unassisted Goal Testing remain `not-needed-now`.
-- Human Experience Review: Record per-promise authority coverage, conclusion, reviewer, and limits.
-- Evidence report: Link validator results and the owner decision.
-- Phase / capability status: Close P2 only with accepted current authority. Do not infer implementation approval.
+- Four testing decisions: Automated document checks passed. Guided Progress Review passed through owner acceptance on 2026-09-19. Performance and Unassisted Goal Testing remain `not-needed-now`.
+- Human Experience Review: Per-promise authority coverage, observations, conclusions, reviewer, and limits are recorded in [evidence.md](evidence.md#human-experience-review-1).
+- Evidence report: Validator results and the accepted owner decision are recorded in [evidence.md](evidence.md#validation-evidence).
+- Phase / capability status: Tasks t1 through t12 are complete. P2 is closed. P3 and later code work still require separate explicit implementation approval.

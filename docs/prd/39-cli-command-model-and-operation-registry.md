@@ -61,6 +61,13 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-17 (MUST): an active agent task that receives `store-not-configured` can show the exact selected-harness or generic-client setup command, continue independent Store-free work, refresh access after setup, and retry only the affected Store-backed operation. `store-unavailable`, `store-unsafe`, and `store-denied` keep the same scoped-stop rule with their own exact action.
 - R-SETUP-18 (MUST): Make Docs CLI and Store-access remediation does not require Store, MCP, a harness receipt, Store-backed lifecycle state, or successful setup in the maintainer checkout. Repository authority, direct package commands, temporary homes, and temporary Store roots remain sufficient. A missing Store is evidence, not a remediation blocker.
 
+### Setup Coordination and Scoped Stops (R-SETUP-COMP)
+
+- R-SETUP-COMP-1 (MUST): setup is a guided coordinator over registered shared operations. It holds a short-lived review plan in memory, then records only approved operation intent, progress, results, and recovery facts through the owning journals. It creates no separate durable setup session authority.
+- R-SETUP-COMP-2 (MUST): machine, project, Skill, and resource subplans keep separate approval, dependency, status, blocker, result, and next-action fields. Independent approved subplans can proceed. Dependent subplans wait for the named verified result.
+- R-SETUP-COMP-3 (MUST): status is read-only. Repair, resume, and rollback are explicit reviewed operations. No setup, status, update, stop, or recovery route can add an unreviewed selection, method, permission, capability, or ownership claim.
+- R-SETUP-COMP-4 (MUST): direct machine setup and repair remain callable without the Store or MCP path they create or repair. A Store access error stops only the affected operation and preserves the current task and all independent Store-free operations.
+
 ### Tool Self-Management (R-SELF)
 
 - R-SELF-1 (MUST): `uninstall` removes the installed CLI when one is present and preserves the global Store by default. Store removal requires the separate explicit `--remove-store` choice, reviewed scope, and the safeguards in [PRD 38 R-LIFE-1](38-global-store-and-project-state.md#backup-uninstall-and-upgrade-r-life). `--yes` alone never authorizes Store removal. A remote-execution user with no global install receives a clear no-binary result; the same separate Store choice applies. Removal requires confirmation unless already authorized through explicit flags. Project removal remains only `setup remove`; tool uninstall must not remove repository content.
@@ -80,6 +87,12 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SURF-3 (MUST): delivery history remains explicit. W19 R1 P4 activated `project.surface.ensure`; W19 R1 P6 activated the lifecycle identifiers; W19 R1 P7 activated the UAT identifiers; and W19 R2 P4 activated `performance.evidence.validate` after the decision-only authority commit and separate implementation authority. No identifier in this cohort remains pending.
 
 - Existing Playbook and Protocol registry entries, implementations, CLI surfaces, and MCP surfaces form a frozen compatibility baseline outside the 25 admitted nonlegacy identifiers. P3 preserves that baseline unchanged and adds no legacy behavior or support claim. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
+
+### Registry Evolution and Resource Operations (R-REG-EVOLVE)
+
+- R-REG-EVOLVE-1 (MUST): registry membership can expand, contract, or consolidate through approved product authority and the normal implementation and compatibility gates. Stable admitted identifiers are never reassigned. Generic MCP admission remains per profile, method, and operation and is not a fixed feature list.
+- R-REG-EVOLVE-2 (MUST): `resource.list` and `resource.read` are Store-free operations. `resource.ensure` changes one named resource and cannot broaden saved selection. Any future refresh or remove operation must use the same resolver and minimum last-applied ownership contract before admission.
+- R-REG-EVOLVE-3 (MUST): an MCP tool, CLI command, or native MCP resource cannot create an operation by existing alone. Registry admission, access metadata, shared-core behavior, surface parity, and package proof are all required.
 
 ### Current Run Surface (R-RUN)
 
@@ -143,6 +156,12 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-STATE-6 (MUST): status, setup admission, and recovery use one action-selection function. A complete verified plan can offer resume and rollback. An incomplete plan cannot offer resume. A proved incomplete zero-step operation with equal ledgers and no active lock offers no-effect rollback. Ambiguous evidence names no destructive action as safe.
 - R-STATE-7 (MUST): operation status output includes the stable failure code, safe summary, failed stage, and last safe next action when those facts exist. Older rows with no detail report `unknown`; they do not invent a cause. Human output leads with the problem and action. The versioned typed result preserves the same facts for CLI JSON and MCP.
 - R-STATE-8 (MUST): status reports project access intent separately from Store health and policy. No intent is `store-not-configured`. Configured but unreachable state is `store-unavailable`. Unsafe Store evidence and policy denial keep their own results. Status does not bootstrap, create a receipt, or turn absence into a task-wide blocker.
+
+### Checkout Path Update and Safety Stop (R-CHECKOUT)
+
+- R-CHECKOUT-1 (MUST): a verified checkout move can change only current path lookup data and its verification time or evidence. It cannot change project id, checkout id, local ownership, or the one-checkout-per-clone and worktree rule.
+- R-CHECKOUT-2 (MUST): device, inode, path, content match, receipt, or package evidence cannot by itself authorize an identity update. A move requires the old path to be absent, the project id and managed-content facts to match, no competing checkout claim, and no pending operation.
+- R-CHECKOUT-3 (MUST): a safety stop blocks only the affected mutation and reports review facts and one safe next action. It cannot rewrite identity, merge checkouts, transfer ownership, delete Store state, or choose a repair. Any identity or ownership repair is a separate explicit reviewed operation.
 
 ### Persona and Layout Commands (R-LAYOUT)
 
@@ -273,6 +292,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Setup Command Contract`, `Operation Registry and Shared Core`, `Installation State Commands`, `Setup Coordination and Scoped Stops`, `Registry Evolution and Resource Operations`, and `Checkout Path Update and Safety Stop`
+- Previous contract: Setup, registry admission, resource operations, checkout updates, and safety stops had strong local rules but no single current rule that kept setup thin and prevented update or stop behavior from changing identity or ownership.
+- Replacement contract: Setup coordinates shared operations; registry membership changes only through approved work; resource reads remain Store-free; path updates and safety stops cannot rewrite identity, ownership, or repair choices.
+- Rationale: Public commands must enforce the accepted identity and authority model instead of becoming an alternate recovery writer.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-17 — W19 R2 P4 Implementation
 

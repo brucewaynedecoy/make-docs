@@ -212,7 +212,24 @@ Code and documentation anchors:
 - `docs/assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md`
 - `docs/assets/archive/plans/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-overview.md`
 
+## Setup Composition and Store-Free Use
+
+- R-CLI-SETUP-1 (MUST): setup is one guided plan, review, apply, verify, and recover coordinator over the same shared operations used by direct CLI and MCP routes. It does not own a separate durable setup state machine.
+- R-CLI-SETUP-2 (MUST): discovery and status are read-only. They cannot repair, adopt, migrate, widen a selection, create Store state, or change native host configuration.
+- R-CLI-SETUP-3 (MUST): machine, project, Skill, and resource work remain separate reviewed subplans with separate effects, approvals, dependencies, results, and next actions. An independent approved subplan can complete when another subplan is blocked. A dependent subplan waits for its named prerequisite to apply and verify.
+- R-CLI-SETUP-4 (MUST): apply records intent before each write and uses the shared operation journal for progress, resume, and rollback. Repair is an explicit reviewed plan. Repeat setup with no requested or detected change is a content and state no-op.
+- R-CLI-SETUP-5 (MUST): direct machine setup and repair cannot depend on the Store, MCP, harness receipt, or access route that they create or repair. Failure to establish one route stops only that route and does not block resource reads or other declared Store-free work.
+- R-CLI-SETUP-6 (MUST): setup cannot add a capability, Skill, resource selection, harness method, or command permission that was not shown in the review. Human output names the project, current state, affected action, and one safe next action before receipt, operation, or checkout identifiers.
+
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Interactive wizard and review flow`, `Plan review, confirmation, and apply orchestration`, `Lifecycle commands`, and `Setup Composition and Store-Free Use`
+- Previous contract: Setup composed several valid flows, but its boundary could still be read as a second state machine and a closed recovery dependency.
+- Replacement contract: Setup is a thin coordinator over shared operations with separate subplans, read-only status, explicit repair, scoped stops, and Store-free continuation.
+- Rationale: A blocked access route must not erase valid work or require that same route for repair.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-14 — W19 R6 P3
 

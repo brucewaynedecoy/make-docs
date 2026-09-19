@@ -76,7 +76,31 @@ R-ASSET-ARCH-1 (MUST): shared material uses `docs/assets/project/**`; audience m
 
 R-ASSET-ARCH-2 (MUST): ordinary content work and audience discovery remain possible without CLI or Store access, resource-body projections, an assets directory, or prior task memory. Short, always-present documentation routing supplies the defaults, config path, and shared-material path. Required layout preparation, progress, and verified completion use the R3 Store service. No local operational fallback is allowed.
 
+## Authority and State Model
+
+- R-ARCH-STATE-1 (MUST): the repository owns stable project identity, desired project settings, selected project resource content, product documents, and product authority. The Store may bind or mirror those facts, but it cannot override them.
+- R-ARCH-STATE-2 (MUST): the Store owns a distinct checkout identity for each clone or worktree, non-rebuildable local operation and migration evidence, machine preferences and approvals, historical receipts, and only the last-applied ownership facts needed for safe verification, repair, removal, and recovery. It does not own desired project settings or project content.
+- R-ARCH-STATE-3 (MUST): current paths, executable proof, process state, file facts, and device or inode values are live platform facts or short-lived mutation guards. They are not permanent project, checkout, caller, or ownership identity.
+- R-ARCH-STATE-4 (MUST): the installed package owns immutable provider content, static harness adapters, command grammar projection, and versioned compatibility readers. It does not own project decisions or local applied ownership.
+- R-ARCH-STATE-5 (MUST): setup is a guided coordinator over shared operations, not a second authority or state machine. Resource reads and other declared Store-free operations remain available when Store access is absent, denied, unsafe, or unavailable. A refusal stops only the operation that needs the Store and reports the project, state, affected action, and one safe next action before internal identifiers.
+- R-ARCH-STATE-6 (MUST): [PRD 38](./38-global-store-and-project-state.md) owns the field-level state classes and checkout invariants. [PRD 18](./18-compatibility-classification-and-migration-safety.md) owns compatibility bridges. [PRDs 10](./10-packaging-validation-and-release-reference.md) and [16](./16-package-runtime-and-deployment-boundaries.md) own core platform parity and proof. No lower-level implementation fact can weaken those owners.
+
+| Layer | Canonical responsibility | Excluded responsibility |
+| --- | --- | --- |
+| Repository | Project identity, desired settings, selected content, and product records | Applied package state, checkout identity, locks, receipts, or recovery progress |
+| Store | Local checkout binding, non-rebuildable operation evidence, machine intent, receipt history, and minimum last-applied ownership | Project content, desired project settings, or permanent file-system object identity |
+| Live platform service | Current path and executable checks, process and lock facts, atomic file behavior, and short-lived file guards | Durable project, checkout, caller, or ownership identity |
+| Installed package | Provider bytes, static adapters, command projection, and compatibility readers | Project decisions or local applied ownership |
+
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Runtime Boundaries`, `Data Flow`, `Configuration Surfaces`, and `Authority and State Model`
+- Previous contract: Repository, Store, installed-package, live-machine, setup, and harness authority were described across several boundaries without one current minimal model.
+- Replacement contract: The repository owns portable project intent and content; the Store owns non-rebuildable local state and minimum last-applied ownership; live platform facts are not durable identity; setup coordinates shared operations.
+- Rationale: One canonical home per fact prevents conflicting recovery writers and lets Store-free work continue during a scoped Store failure.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

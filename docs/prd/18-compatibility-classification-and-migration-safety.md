@@ -136,6 +136,15 @@ Validation boundary:
 - Minimum coverage includes clean v1, clean v2 full-snapshot, provider-backed v2 with provider unavailable, hybrid pinned-cache with stale hashes, modified v1 managed files, malformed managed blocks, malformed manifest, missing manifest with canonical files, missing manifest with ambiguous files, and unknown/non-make-docs shape.
 - Validation extends current lifecycle coverage through `npm test -w packages/cli`, targeted audit/backup/uninstall/install/managed-block tests, `npm run validate:defaults`, `npm run smoke:pack`, package dry-run checks when package contents change, and the dogfood/template parity rules owned by [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md), [09-dogfood-and-maintainer-operations.md](./09-dogfood-and-maintainer-operations.md), and [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md).
 - Final recovery validation must cover fresh installation, representative legacy migrations across the state/disposition and facet matrix, generated package projection, root dogfood parity, path and symlink safety, privacy-preserving Store behavior, and Windows/macOS/Linux fixtures before any release recommendation.
+## Compatibility Bridge Contract
+
+- R-BRIDGE-1 (MUST): every changed or retired Store field, table, receipt, manifest, ledger, or local operational form uses a versioned reader and a bounded bridge before removal. After cutover, only the accepted target form receives new writes. Dual writes to old and new authority forms are forbidden.
+- R-BRIDGE-2 (MUST): before migration, verify source schema, exact package, checkout binding, active locks, pending operations, and backup space. Create and verify a recoverable Store backup before the first destructive schema action. Record intent before writes and use the shared operation journal when database and file changes cross one transaction boundary.
+- R-BRIDGE-3 (MUST): preserve verified checkout identifiers. Old device and inode values are legacy evidence only. Unknown or opaque data remains preserved outside the new authority model until an explicit export or deletion action is approved. Project content is never deleted as a schema side effect.
+- R-BRIDGE-4 (MUST): every bridge register entry contains a stable bridge id, old form, target form, first bridge version, owner, proof that old-form writes stopped, deterministic remaining-state check, last supported old version or other measurable end condition, removal phase or release, required tests, retention and export rule, and separate deletion approval.
+- R-BRIDGE-5 (MUST): a bridge without an owner and measurable exit is not temporary and cannot be introduced. A bridge can be removed only after target reader, writer, verifier, repair, and recovery pass; every old fact is migrated, exported, preserved as opaque history, or separately approved for deletion; affected core capabilities pass the exact installed package on Windows, macOS, and Linux; and the owner separately approves the removal action.
+- R-BRIDGE-6 (MUST): a newer unknown, corrupt, or unclear schema fails closed for Store-backed mutation while Store-free work continues. Older packages fail closed on a newer schema and never rewrite it. A pre-project failure restores the verified Store backup. A post-project failure uses the recorded resume or rollback path.
+
 ## Existing-Project Adoption Boundaries
 
 Under [R-OBL-COMPAT](45-deferred-obligation-governance.md#r-obl-compat-existing-project-adoption) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption), existing Make Docs projects adopt the new contracts conservatively at the first qualifying lifecycle, coverage, reconciliation, or phase-close event after upgrade. Historical phases are not retroactively failed, archived artifacts are not rewritten, and existing UAT/manual-test artifacts remain valid evidence unless a later qualifying slice requires them to be supplemented.
@@ -173,6 +182,14 @@ R-ASSET-MIG-5 (MUST): an explicit reviewed move may relocate project-owned or mo
 R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, concurrent writer exclusion, changed inputs, unsafe paths, conflicting destinations, real project content, and empty-directory cleanup. Completion permits only named, verified archival or backup exclusions outside active legacy routing. Ordinary work without the CLI remains valid; it does not authorize unreviewed legacy cleanup.
 
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Quiescence and Mutation Barrier`, `Ordered Migration`, and `Compatibility Bridge Contract`
+- Previous contract: Migration required classification, backup, journals, and preservation, but each temporary reader or legacy form did not require one measurable exit contract and old-write stop.
+- Replacement contract: Each old form uses a versioned reader, one target writer, a complete bridge register entry, a measurable exit, and separate removal approval.
+- Rationale: A compatibility layer without an owner and exit condition becomes a second permanent authority.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-15 — W19 R7
 

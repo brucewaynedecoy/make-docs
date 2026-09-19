@@ -50,6 +50,14 @@ The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. D
 - R-HARNESS-14 (MUST): generic profile setup supports review, repeat, drift, rotation, repair, removal, and on-demand help. Normal status output never reveals secret proof. If safe proof cannot fit current Store records, implementation stops for schema authority instead of weakening caller verification.
 - R-HARNESS-15 (MUST): an active agent task can read typed access state, direct the user to the exact first-party or generic MCP setup action, refresh state after setup, and retry only the affected Store-backed operation. All independent Store-free work and task context remain available.
 
+### Current Caller Trust
+
+- R-HARNESS-16 (MUST): machine approval and project approval are separate facts. Approval for one scope never grants the other scope. The effective method is the most restrictive valid result across static adapter admission, machine intent, project intent, live native configuration, and current executable proof.
+- R-HARNESS-17 (MUST): every receipt records history, including reviewed method, operation, before and after evidence, result, and verification facts. A receipt never acts as a bearer token and cannot overrule a removed native entry, narrowed approval, changed executable, or different operation.
+- R-HARNESS-18 (MUST): a native executable route resolves and verifies the executable at call time. A native entry route verifies the current Make Docs-owned entry and reviewed command boundary. Current access binds the caller, adapter, method, executable proof when applicable, native entry, and operation.
+- R-HARNESS-19 (MUST): generic MCP admission remains per operation under the current accepted registry. The set may expand, contract, or consolidate through approved product work. A server tool is not admitted only because it exists.
+- R-HARNESS-20 (MUST): missing approval, drift, caller mismatch, executable mismatch, or native-entry mismatch stops only the affected operation and shows one recovery action. Status is read-only. Repair or method rotation is a separate reviewed plan and never an automatic verification side effect.
+
 ### Manifest Ownership
 
 `selectedSkills` remains the behavior-level selected-skill list.
@@ -148,6 +156,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Harness Connection Methods` and `Current Caller Trust`
+- Previous contract: Store receipts and executable facts were part of effective state, but historical proof and current caller proof did not have one strict separation.
+- Replacement contract: Receipts are history; every Store-backed call proves its current route, operation, native entry, executable when applicable, and separate approvals.
+- Rationale: Copied or stale evidence must not survive a changed launch path, native rule, scope, or permission.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-14 — W19 R6 P3
 

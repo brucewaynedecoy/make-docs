@@ -144,7 +144,24 @@ R-SKILL-SOURCE-2 (MUST): the complete registry-declared UAT Skill payload must b
 
 R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identities and authority. Moving a Skill's authoring source must not duplicate UAT policy in the Skill, make it required, or change the shared CLI operations under [PRD 46](46-naive-end-user-acceptance-testing.md).
 
+## Resource Projection Ownership
+
+- R-PROJECTION-1 (MUST): the repository owns desired resource selection and all selected local resource bytes. The installed package owns immutable provider bytes and the provider catalog. The Store owns only the minimum last-applied ownership record needed to verify, refresh, remove, and recover a managed local projection.
+- R-PROJECTION-2 (MUST): each last-applied record names the stable resource URI, target path, applied content digest and algorithm, provider identity, provider version or immutable reference, apply time, and recovery reference. Device, inode, size, and file time may guard one read or mutation window, but they do not prove durable ownership.
+- R-PROJECTION-3 (MUST): resource list and read use one deterministic resolver and remain Store-free. CLI, machine-readable output, MCP tools, and native MCP resources return the same URI, bytes, origin meaning, and typed errors.
+- R-PROJECTION-4 (MUST): ensure changes one named resource only and cannot broaden saved selection. Refresh cannot overwrite a local edit without a specific reviewed replacement or adoption action. Removal deletes a path only when its current bytes still match the last-applied owned digest. Changed content is preserved and reported.
+- R-PROJECTION-5 (MUST): a clone or worktree receives repository content and desired selection but never inherits another checkout's applied Store ownership. Store absence stops only Store-backed ensure, refresh, removal, or recovery. It does not stop list, read, or independent repository work.
+- R-PROJECTION-6 (MUST): resolution order is explicit project override, then verified selected local projection, then verified installed provider. A source cannot silently replace a higher-priority source or turn a Store receipt into project-content authority.
+
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Invariant Managed Asset Contract`, `Template Ownership and Mutation Order`, and `Resource Projection Ownership`
+- Previous contract: Projection selection, projected bytes, provider provenance, manifest state, and applied ownership could be read as one combined managed-asset authority.
+- Replacement contract: The repository owns selected content and intent, the package owns provider bytes, and the Store owns only minimum last-applied ownership for safe local change.
+- Rationale: The split keeps project behavior portable while preserving safe verify, refresh, remove, and recovery behavior.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-09 — W19 R5 Standard Skill Locations
 

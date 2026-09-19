@@ -1,4 +1,6 @@
-# W22 R0 P1 Architecture Inventory and Decision Evidence
+# W22 R0 Store Architecture Recovery Evidence
+
+The sections through the first Phase Gate record P1 architecture inventory and decision evidence.
 
 ## Status
 
@@ -702,3 +704,117 @@ P1 is complete as of 2026-09-18.
 Tasks t1 through t12 are complete.
 
 D1 through D8 have an owner disposition. P2 is unblocked by P1 authority, but P2 has not been authorized or started. Product implementation remains unauthorized.
+
+## P2 Product Authority and Minimal State Model
+
+### Status
+
+P2 document implementation is complete. The owner accepted the current product contract on 2026-09-19. P2 is closed.
+
+No product code, Store state, installed package, template, branch, worktree, staging area, commit, push, publication, or release was changed by P2.
+
+P3 and later product implementation remain unauthorized. This acceptance closes only P2 current-authority work.
+
+The `project.state.status` preflight returned `store-not-configured`. Only that operation stopped. P2 continued as Store-free repository work.
+
+### Authority Maintenance Decision
+
+| Candidate | Decision | Result and reason |
+| --- | --- | --- |
+| Architecture, state ownership, identity, operations, setup, resources, platforms, harness trust, and compatibility | `update-existing` | PRDs 02, 06, 07, 10, 16, 18, 24, 25, 28, 38, and 39 already own the affected product subjects. |
+| Confirmed drift and rebuild risk | `update-existing` | PRD 03 remains the one living register. Six stable W22 items were added without renumbering old items. |
+| New product authority | `none` | P1 found no ownerless capability or boundary. |
+| PRD 00 navigation | `none` | No document was created, renamed, retired, or given a new navigation relationship. The concurrent W23 edit remained untouched. |
+
+### Current Authority Coverage
+
+| P1 decision | Current owning requirements | Result |
+| --- | --- | --- |
+| D1 Repository authority | PRD 02 `R-ARCH-STATE-1`; PRD 24 `R-CONFIG-STATE-*` and `R-CONFIG-RESOURCE-*`; PRD 38 `R-BND-*`, `R-MIN-*`, and `R-KEEP-*` | Repository owns portable project identity, desired settings, selected content, and product records. |
+| D2 Store authority | PRD 38 `R-MIN-*` field register | Every current durable Store field group and non-table state form has one class, owner, writer, reader set, retention, privacy, and recovery use. |
+| D3 Checkout identity | PRD 38 `R-ID-*` and `R-CHECKOUT-*`; PRD 39 `R-CHECKOUT-*` | Checkout id remains local durable identity. Path is mutable lookup. Device and inode are not durable identity. Update and stop rules cannot rewrite identity or ownership. |
+| D4 Harness trust | PRD 25 `R-ACCESS-12` through `R-ACCESS-16`; PRD 28 `R-HARNESS-16` through `R-HARNESS-20`; PRD 38 `R-HARNESS-STATE-*` | Receipts are history. Current access is per caller, route, approval, and operation. Generic MCP admission is current registry policy, not a feature freeze. |
+| D5 Setup composition | PRD 07 `R-CLI-SETUP-*`; PRD 39 `R-SETUP-COMP-*` | Setup is a thin coordinator over shared operations with separate subplans, read-only status, and explicit repair. |
+| D6 Resource projection | PRD 06 `R-PROJECTION-*`; PRD 24 `R-CONFIG-RESOURCE-*`; PRD 39 `R-REG-EVOLVE-2`; PRD 38 target last-applied field row | Repository owns intent and selected bytes. Store owns only minimum local applied ownership. List and read remain Store-free. |
+| D7 Platform support | PRD 10 `R-PLATFORM-PROOF-*`; PRD 16 `R-PLATFORM-*`; PRD 38 `R-PLATFORM-*` | One platform service owns host rules. Full core parity remains required on Windows, macOS, and Linux. Evidence cannot reduce scope. |
+| D8 Compatibility and removal | PRD 18 `R-BRIDGE-*`; PRD 38 legacy and obsolete field rows | Versioned readers, one target writer, no old-form writes after cutover, one bridge exit contract, and separate removal approval are required. |
+
+### Field-Level State Result
+
+PRD 38 classifies the 15 current Store tables and the current non-table forms. It also classifies repository config, global config, target project and global last-applied ownership, receipt history, layout state, live locks, and legacy forms.
+
+The accepted class set is:
+
+- repository-canonical and portable;
+- Store-canonical and non-rebuildable;
+- Store-cached and rebuildable;
+- live-machine fact verified at use time;
+- short-lived mutation guard;
+- historical evidence; or
+- obsolete and removable after migration.
+
+The register preserves opaque legacy data. It stops old-form writes after cutover. It removes data only after its bridge exit and separate approval.
+
+### Risk and History Result
+
+PRD 03 adds:
+
+- `D-039` for durable file identity and broad Store state;
+- `D-040` for receipt history and current harness proof;
+- `D-041` for the current core platform parity gap;
+- `R-036` for permanent compatibility bridges;
+- `R-037` for loss of recovery or opaque evidence during Store reduction; and
+- `R-038` for misuse of an evidence matrix to reduce platform scope.
+
+W22 adds no open product question. D1 through D8 settled the P2 choices. A new material choice must return to P1 instead of becoming an inferred P2 rule.
+
+Eleven materially changed product PRDs contain a `2026-09-18 — W22 R0` Requirement History entry. PRD 03 uses its stable item history and receives no Requirement History section.
+
+### Human Experience Review
+
+Reviewer: Codex agent.
+
+Review surface: the current normative PRD text changed by P2. No installed runtime surface exists for the target yet.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-1: the same supported action has the same meaning, safety result, and recovery path on Windows, macOS, and Linux | PRDs 10, 16, and 38 make full core parity the target, use one typed platform service, and prohibit evidence from reducing scope. | Satisfied for P2 authority. | P3 must implement the service. P6 must pass one exact installed package on all three real hosts. |
+| HX-2: a person can identify the project, state, blocked action, and next safe action before internal ids | PRDs 02, 07, and 39 require human output to name the project, state, affected action, and one safe next action before internal identifiers. | Satisfied for P2 authority. | P4 and P6 must inspect complete, partial, blocked, and failed installed output. |
+| HX-3: Store loss or denial stops only the operation that needs the Store | PRDs 02, 06, 07, 16, 25, 38, and 39 preserve Store-free work and scoped refusal. The P2 preflight returned `store-not-configured`; only that status operation stopped and P2 continued. | Satisfied for P2 authority and this Store-free document task. | P4 and P6 must repeat all four Store states across final human, machine-readable, MCP, and installed-host routes. |
+| HX-4: a move or package update does not fail only because device, inode, or package hash changed | PRDs 38 and 39 prohibit those facts from authorizing identity change. PRD 25 treats package proof as provenance. | Satisfied for P2 authority. | P3 and P5 must prove move, clone, worktree, remount, path-case, and package-update cases. |
+| HX-5: setup and repair do not form a closed dependency loop | PRDs 07 and 39 keep setup thin and direct machine repair independent from the access path under repair. | Satisfied for P2 authority. | P4 and P5 must prove partial setup, explicit repair, resume, rollback, and repeat behavior. |
+| HX-6: a maintainer can explain every retained field and safety mechanism | PRD 38 gives every current durable field group and non-table form a class, owner, writer, readers, retention, privacy, and recovery use. PRD 18 gives each bridge an exit contract. | Satisfied for P2 authority. | P5 must prove the physical schema and every bridge conform to the register. |
+
+This review supports the document-authority result only. It does not claim that the future installed behavior exists or that a person has accepted its lived use.
+
+### Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| PRD authority validation | Passed. It scanned 37 PRD files, 606 Markdown files, 196 structured files, and 1,217 authority links with no diagnostics. |
+| Path hygiene | Passed. It checked 830 local content files with no finding or I/O error. This is content hygiene, not installation evidence. |
+| P2 metadata form | Passed. All 12 changed PRDs keep a numbered H1. The two PRDs with frontmatter retain valid title, `prd` kind, and `active` status. Ten older PRDs keep their valid no-frontmatter form. No top-level coordinate was added. |
+| P2 links | Passed. Every relative link added by P2 resolves. The PRD authority link scan also passed. |
+| Cross-owner consistency | Passed. Deterministic checks found D1 through D8 in their assigned current owners. |
+| Requirement history | Passed. All 11 materially changed product PRDs contain the W22 entry. |
+| Risk records | Passed. `D-039` through `D-041` and `R-036` through `R-038` are present. |
+| Diff whitespace | Passed with `git diff --check`. |
+
+The corpus-wide documentation index reports 247 older broken-link findings. None comes from a P2-added section. The findings span prior historical plans, work evidence, retired PRD links, and recorded temporary paths. P2 did not change or hide that existing debt. It does not block the P2 current-authority result because all P2-added links and the active PRD authority scan pass.
+
+### Testing Decisions
+
+| Testing type | Result |
+| --- | --- |
+| Automated Implementation Testing | Passed for documentation authority through the checks above. |
+| Performance Testing | `not-needed-now`; P2 sets no performance target. |
+| Guided Progress Review | Passed. The owner accepted the current product contract on 2026-09-19. |
+| Unassisted Goal Testing | `not-needed-now`; this is informed product-authority review, not a normal-use discoverability test. |
+
+### P2 Gate
+
+Tasks t1 through t12 are complete.
+
+The owner accepted this current product contract on 2026-09-19. P2 is closed. No implementation blocker or unsettled product choice remains in P2.
+
+P3 and later code work still need separate explicit implementation approval.

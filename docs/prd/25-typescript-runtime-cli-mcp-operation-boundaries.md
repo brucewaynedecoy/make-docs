@@ -100,6 +100,14 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-10 (MUST): a generic MCP client uses a reviewed bounded identity that cannot be granted by a caller-controlled label, executable path, environment value, or rule match alone. Machine intent and project intent remain separate and the effective ceiling remains the most restrictive valid result. Make Docs prints a standard configuration object but does not edit unknown client files.
 - R-ACCESS-11 (MUST): remediation of the Make Docs CLI, Store bootstrap, migration, or harness-access path can proceed from repository and package authority without Store, MCP, harness-receipt, or Store-backed lifecycle access in the maintainer checkout. Isolated temporary Store roots prove Store behavior. No production check is weakened and no project-local operational state is added.
 
+### Current Caller and Generic MCP Admission
+
+- R-ACCESS-12 (MUST): a harness receipt is historical evidence, not a current access token. Each Store-backed call verifies the current adapter, connection method, executable when applicable, owned native entry, operation, machine approval, and project approval. Package name, version, and digest are provenance and cannot grant current access.
+- R-ACCESS-13 (MUST): a generic MCP client can call only operations that the current accepted operation registry admits for that profile. An operation is not admitted only because the MCP server exposes it. The admitted set may expand, contract, or consolidate through approved product work; this rule is not a feature freeze.
+- R-ACCESS-14 (MUST): Store-free operations do not require a harness receipt, caller proof, or Store session. A receipt, path, environment value, package digest, or client label cannot widen access.
+- R-ACCESS-15 (MUST): a caller, executable, native-entry, approval, or policy mismatch stops only the affected operation and returns one typed result with one safe next action. Verification cannot repair state. Repair is a separate reviewed operation.
+- R-ACCESS-16 (MUST): CLI, machine-readable output, MCP, command-rule, permission-rule, and first-party extension routes use the same operation policy and typed result. Surface-specific adapters can narrow access but cannot change business meaning or bypass the platform, Store, identity, or recovery contracts.
+
 ### Asset and Config Boundaries
 
 MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
@@ -217,6 +225,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Required MCP Surface`, `Operation Access Contract`, and `Current Caller and Generic MCP Admission`
+- Previous contract: Receipts, executable facts, and registry-derived MCP exposure could still be read as sufficient current caller authority or a fixed generic MCP feature set.
+- Replacement contract: Current access is proved per call and per operation; receipts remain history; generic MCP admission follows approved registry policy that can change through product work.
+- Rationale: Stale evidence must not grant access, and the safety rule must not freeze future deterministic operation design.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-17 — W19 R2 P4 Admission
 

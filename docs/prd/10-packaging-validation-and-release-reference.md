@@ -138,7 +138,23 @@ R-SKILL-PACK-3 (MUST): package proof covers old-source managed upgrades without 
 
 R-SKILL-PACK-4 (MUST): retain the tested package identity and observed results, including the real installed CLI proof owned by [PRD 09](09-dogfood-and-maintainer-operations.md). The same package must contain the selected `naive-uat` adapter from its canonical Skill source and preserve the stable shared-workflow boundary in [PRD 46](46-naive-end-user-acceptance-testing.md).
 
+## Core Platform Candidate Proof
+
+- R-PLATFORM-PROOF-1 (MUST): full core capability parity is the target on Windows, macOS, and Linux for Store bootstrap and migration, checkout bind and move, locks and stale recovery, atomic mutation and recovery, setup and repair, resource operations, CLI and machine-readable output, MCP, and each admitted harness method.
+- R-PLATFORM-PROOF-2 (MUST): one exact package candidate is installed and exercised on each real host with the source repository unavailable. Unit tests and simulated platform cases are required, but they are not real-host support proof.
+- R-PLATFORM-PROOF-3 (MUST): the capability matrix reports current proof. It cannot reduce target scope. A missing core host or capability is a defect, not `not applicable`, unless an owner approves a time-bounded exception that names the host, capability, human effect, reason, owner, repair phase, and measurable end condition.
+- R-PLATFORM-PROOF-4 (MUST): W22 cannot close with an unapproved core parity gap. Public support text and release checks use the same matrix. A host-specific harness method is allowed only when the external harness lacks that host, and the exception has direct evidence and owner approval.
+- R-PLATFORM-PROOF-5 (MUST): each host case records the package identity and digest, native path behavior, operation result, recovery result, CLI and MCP parity, and Store-free continuation after one unsupported or refused capability. Unsupported behavior stops before mutation and returns one typed result with one safe next action.
+
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Validation Matrix`, `Installed Legacy-Project Candidate Proof`, and `Core Platform Candidate Proof`
+- Previous contract: Cross-platform fixtures and installed-package checks existed, but a proof matrix could still be mistaken for the supported target and real three-host core parity was not one release rule.
+- Replacement contract: Windows, macOS, and Linux core parity is mandatory, with one exact installed candidate on each real host and bounded owner-approved exceptions only.
+- Rationale: Missing evidence or difficult implementation cannot silently narrow the product's platform promise.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-14 — W19 R6 P3
 

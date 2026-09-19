@@ -83,6 +83,15 @@ Validation and release boundary:
 - Package validation must prove `npx`, `pnpm dlx`, and `bunx` / `bun x` behavior where remote package execution changes by running the generated tarball in isolated temporary roots, as owned by [PRD 10](10-packaging-validation-and-release-reference.md).
 - MCP validation must prove registry parity, operation-domain reuse, CLI/native-MCP resource identity and byte parity where native resources are supported, manifest, audit, backup, uninstall, migration, write-permission, dry-run, and approval behavior against the same product contracts. New provider-backed, plugin, shared-agentics, or other MCP domains must add their own proof before support claims broaden.
 - Dynamic support registries, lab scenarios, result records, transcripts, bootstrap assets, and raw lab artifacts stay out of shipped package surfaces. Static adapter code may ship only through the current harness, package, release, and testing contracts in [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md), [PRD 10](./10-packaging-validation-and-release-reference.md), and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md).
+## Platform Service and Core Parity
+
+- R-PLATFORM-1 (MUST): one small platform service owns user data and configuration roots, path normalization and comparison, case and volume behavior, safe real-path and link checks, atomic replace and directory sync, file locks and stale-lock checks, process liveness, executable resolution, and short-lived file mutation guards.
+- R-PLATFORM-2 (MUST): Store, setup, harness, resource, and file-mutation code consume typed platform results and do not copy operating-system rules. Project identity, checkout identity, caller identity, and durable ownership remain outside the platform service.
+- R-PLATFORM-3 (MUST): internal path keys use the platform comparison rule. Human output preserves a useful native display path. Device, inode, file time, and similar host facts never become durable identity or ownership.
+- R-PLATFORM-4 (MUST): Windows, macOS, and Linux have the same core operation input, result meaning, mutation safety, and recovery contract. A support matrix records proof and does not set scope. A parity gap is a defect unless a time-bounded owner exception names its effect, owner, repair phase, and end condition.
+- R-PLATFORM-5 (MUST): an unsupported capability fails before mutation with a typed result and safe next action. It stops only that capability. Store-free and otherwise independent work continues.
+- R-PLATFORM-6 (MUST): tests cover path case, separators, drive and UNC forms, links, object-number reuse, process and lock state, atomic replace, directory sync, and interruption. Real-host installed-package proof remains required under [PRD 10](./10-packaging-validation-and-release-reference.md).
+
 ## Contracts and Data
 
 The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
@@ -93,6 +102,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Requirements` and `Platform Service and Core Parity`
+- Previous contract: Runtime and package rules named platform cases, but operating-system logic could remain spread across features and current proof could narrow target support.
+- Replacement contract: One typed platform service owns all host rules, and full core parity remains required on Windows, macOS, and Linux.
+- Rationale: Central host behavior prevents conflicting safety decisions and makes a missing capability a visible defect instead of an implied scope choice.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-14 — W19 R6 P3
 

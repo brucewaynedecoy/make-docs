@@ -95,6 +95,12 @@ Validation must cover absent config, absent and empty Persona lists, inherited b
 ### Source-First Templates
 
 If a default config template is introduced, it starts in `packages/docs/template/`, is copied through the accepted package-preparation path, and is dogfooded into repo-root `docs/` or `.make-docs/` only through planned template work.
+### Resource Selection and Applied Ownership
+
+- R-CONFIG-RESOURCE-1 (MUST): project config is the only desired-setting authority for selected resources, capabilities, harnesses, and Skills. Selected local resource bytes are repository content. Neither a Store ledger nor a receipt can silently change that intent or those bytes.
+- R-CONFIG-RESOURCE-2 (MUST): the Store records only reviewed applied results and minimum last-applied ownership. A clone or worktree inherits project identity, desired settings, and repository content, but it receives a distinct checkout identity and no inherited local ownership.
+- R-CONFIG-RESOURCE-3 (MUST): setup can apply a reviewed difference between desired and applied state. Status reports that difference without changing either side. Ensure, refresh, remove, repair, or migration cannot broaden selection or rewrite project intent as a side effect.
+
 ## Non-Requirements
 
 - No structural path, filename, metadata-key, route-id, prompt-path, skill-name, contract-name, harness-name, manifest-key, or coordinate-model rename.
@@ -125,6 +131,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Declarative Identity and Settings`, `Harness Capability Records`, and `Resource Selection and Applied Ownership`
+- Previous contract: Project config owned declarative settings, but desired resource state and Store-applied ownership were not fully separated for clones, worktrees, and repair.
+- Replacement contract: Project config and repository content own intent and selected bytes; the Store owns only reviewed local applied results for one checkout.
+- Rationale: Portable project intent must not inherit or conflict with another checkout's machine-local ownership.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
 
 ### 2026-09-12 — W19 R6
 
