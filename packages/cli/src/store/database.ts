@@ -16,7 +16,7 @@ import {
   type Stats,
 } from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { platform } from "../platform";
 import { getStoreDatabasePath } from "./paths";
@@ -55,6 +55,15 @@ const STORE_SESSION_VERSION = 1;
 const STORE_WAIT_MIN_MS = 25;
 const STORE_WAIT_MAX_MS = 250;
 const waitBuffer = new Int32Array(new SharedArrayBuffer(4));
+
+function storeSessionHostTag(hostname: string): string {
+  const hostKey = createHash("sha256").update(hostname).digest("hex").slice(0, 16);
+  return `h${hostKey}`;
+}
+
+export function storeSessionPendingName(pid: number, hostname: string, token: string): string {
+  return `.pending-${pid}.${storeSessionHostTag(hostname)}.${token}`;
+}
 
 type SqliteModule = typeof import("node:sqlite");
 
@@ -655,9 +664,9 @@ export function tryCreateExclusiveStoreLease(
   try {
     fd = openSync(pending, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
     platform.applyPrivateMode(fd, 0o600);
-    stat = fstatSync(fd);
     writeFileSync(fd, JSON.stringify(owner));
     fsyncSync(fd);
+    stat = fstatSync(fd);
     try {
       linkSync(pending, lockPath);
     } catch (error) {
@@ -739,7 +748,12 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
       }
       const pid = Number(pending[1]);
       let hostname: string;
-      try {
+      if (/^h[0-9a-f]{16}$/.test(pending[2])) {
+        if (pending[2] !== storeSessionHostTag(platform.hostname)) {
+          throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, "recover Store sessions", new Error("The pending session owner is on another host.")));
+        }
+        hostname = platform.hostname;
+      } else try {
         hostname = Buffer.from(pending[2], "base64url").toString("utf8");
       } catch {
         throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, "recover Store sessions", new Error("The pending session owner is unreadable.")));
@@ -897,7 +911,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
 
     const token = randomUUID();
     const file = path.join(directory, `${token}.json`);
-    const pendingFile = path.join(directory, `.pending-${process.pid}.${Buffer.from(platform.hostname).toString("base64url")}.${token}`);
+    const pendingFile = path.join(directory, storeSessionPendingName(process.pid, platform.hostname, token));
     let fd: number | null = null;
     let leaseStat: Stats | null = null;
     try {
@@ -905,9 +919,9 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       // when O_CREAT creates a new file, so it must not be used here.
       fd = openSync(pendingFile, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
       platform.applyPrivateMode(fd, 0o600);
-      leaseStat = fstatSync(fd);
       writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() }));
       fsyncSync(fd);
+      leaseStat = fstatSync(fd);
       platform.atomicReplace(pendingFile, file);
       const lateBlocker = exclusiveBlocker(storeRoot, preparing);
       if (lateBlocker) {

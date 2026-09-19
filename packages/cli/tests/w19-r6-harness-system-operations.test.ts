@@ -82,7 +82,7 @@ describe("W19 R6 Store-owned harness system operations", () => {
       verifiedAt: pending.verifiedAt,
     });
     expect(readFileSync(path.join(input.nativeRoot, ".codex/config.toml"), "utf8")).toContain(
-      input.executable.path,
+      `command = ${JSON.stringify(input.executable.path)}`,
     );
     expect(() => completeHarnessSystemOperation(
       input.targetRoot,

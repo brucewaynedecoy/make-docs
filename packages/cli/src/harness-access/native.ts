@@ -140,7 +140,7 @@ function detectHarness(
       assertNativePath(root, relativePath);
       const absolutePath = path.join(root, relativePath);
       if (existsSync(absolutePath)) evidence.add(relativePath);
-      const nativeRoot = relativePath.split(path.sep)[0];
+      const nativeRoot = path.normalize(relativePath).split(path.sep)[0];
       if (nativeRoot && existsSync(path.join(root, nativeRoot))) evidence.add(nativeRoot);
     }
     return {
@@ -1715,6 +1715,7 @@ function writeNativeContent(
       if (liveBefore === null) return;
       const targetGuard = openTargetGuard(absolutePath, relativePath);
       try {
+        prepareNativeMutationGuards(guard, targetGuard);
         harnessNativeMutationHookForTests?.({
           action: "remove",
           absolutePath,
@@ -1746,6 +1747,7 @@ function writeNativeContent(
       }
       const targetGuard = openTargetGuard(absolutePath, relativePath);
       try {
+        prepareNativeMutationGuards(guard, targetGuard);
         harnessNativeMutationHookForTests?.({
           action: "replace",
           absolutePath,
@@ -1771,25 +1773,25 @@ function writeNativeContent(
       throw error;
     }
   } finally {
-    closeSync(guard.fd);
+    if (guard.fd !== null) closeSync(guard.fd);
   }
 }
 
 interface ParentGuard {
-  fd: number;
+  fd: number | null;
   path: string;
   guard: FileMutationGuard;
 }
 
 type TargetGuard =
   | { exists: false }
-  | { exists: true; fd: number; guard: FileMutationGuard };
+  | { exists: true; fd: number | null; guard: FileMutationGuard };
 
 function ensureNativeParent(root: string, relativePath: string): void {
   const parentRelative = path.dirname(relativePath);
   if (parentRelative === ".") return;
   let current = root;
-  for (const segment of parentRelative.split(path.sep).filter(Boolean)) {
+  for (const segment of path.normalize(parentRelative).split(path.sep).filter(Boolean)) {
     current = path.join(current, segment);
     try {
       mkdirSync(current, { mode: 0o700 });
@@ -1818,13 +1820,13 @@ function openParentGuard(parent: string): ParentGuard {
 
 function assertParentGuard(root: string, relativePath: string, guard: ParentGuard): void {
   assertNativePath(root, relativePath);
-  const descriptor = fstatSync(guard.fd);
+  const descriptor = guard.fd === null ? null : fstatSync(guard.fd);
   const live = lstatSync(guard.path);
   if (
     live.isSymbolicLink() ||
     !live.isDirectory() ||
     !platform.matchesFileGuard(live, guard.guard) ||
-    !platform.matchesFileGuard(descriptor, guard.guard)
+    (descriptor !== null && !platform.matchesFileGuard(descriptor, guard.guard))
   ) {
     throw new Error(`Harness native parent changed after review: ${relativePath}.`);
   }
@@ -1861,7 +1863,19 @@ function openTargetGuard(absolutePath: string, relativePath: string): TargetGuar
 }
 
 function closeTargetGuard(guard: TargetGuard): void {
-  if (guard.exists) closeSync(guard.fd);
+  if (guard.exists && guard.fd !== null) {
+    closeSync(guard.fd);
+    guard.fd = null;
+  }
+}
+
+function prepareNativeMutationGuards(parentGuard: ParentGuard, targetGuard: TargetGuard): void {
+  if (platform.canMutateOpenPaths) return;
+  closeTargetGuard(targetGuard);
+  if (parentGuard.fd !== null) {
+    closeSync(parentGuard.fd);
+    parentGuard.fd = null;
+  }
 }
 
 function assertNativeMutationBoundary(
@@ -1884,7 +1898,7 @@ function assertNativeMutationBoundary(
     }
     throw new Error(`Harness native target changed after review: ${relativePath}.`);
   }
-  const descriptor = fstatSync(targetGuard.fd);
+  const descriptor = targetGuard.fd === null ? null : fstatSync(targetGuard.fd);
   let live: ReturnType<typeof lstatSync>;
   try {
     live = lstatSync(absolutePath);
@@ -1895,8 +1909,7 @@ function assertNativeMutationBoundary(
     throw error;
   }
   if (
-    !descriptor.isFile() ||
-    !platform.matchesFileGuard(descriptor, targetGuard.guard) ||
+    (descriptor !== null && (!descriptor.isFile() || !platform.matchesFileGuard(descriptor, targetGuard.guard))) ||
     live.isSymbolicLink() ||
     !live.isFile() ||
     !platform.matchesFileGuard(live, targetGuard.guard)

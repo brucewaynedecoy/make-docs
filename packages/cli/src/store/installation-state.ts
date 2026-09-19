@@ -995,7 +995,7 @@ function inspect(root: string, relative: string): FileState {
         fail('ownership-unverified', 'Unsupported recovery file type.');
     return { kind: 'file', digest: sha(readFileSync(target)), mode: st.mode & 0o777 };
 }
-function matches(root: string, relative: string, expected: FileState): boolean { const current = inspect(root, relative); return current.kind === expected.kind && current.digest === expected.digest && current.target === expected.target && (expected.mode === undefined || current.mode === expected.mode); }
+function matches(root: string, relative: string, expected: FileState): boolean { const current = inspect(root, relative); return current.kind === expected.kind && current.digest === expected.digest && current.target === expected.target && (expected.mode === undefined || (current.mode !== undefined && platform.matchesFileMode(current.mode, expected.mode))); }
 function savePayload(root: string, opId: string, ordinal: number, label: string, bytes: Uint8Array | string): string {
     const relative = `.make-docs/backup/operations/${opId}/${ordinal}-${label}`;
     const target = assertSafeFilePath(root, relative);
@@ -1100,11 +1100,11 @@ function atomicTemporaryStates(db: StoreDatabase, root: string, op: Operation, s
         const mode = stat.mode & 0o777;
         if (sha(intended) !== record.digest || bytes.length > intended.length || !bytes.equals(intended.subarray(0, bytes.length))) fail('snapshot-drift', `Temporary file was changed: ${record.temporary}`);
         if (record.guard) {
-            if (!platform.matchesFileGuard(stat, record.guard)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
+            if (!platform.matchesFileIdentity(stat, record.guard)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
         } else if (record.device !== undefined || record.inode !== undefined) {
             if (record.device !== String(stat.dev) || record.inode !== String(stat.ino)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
-        } else if (bytes.length !== 0 || mode !== 0o600) fail('snapshot-drift', `Unproved temporary file creation: ${record.temporary}`);
-        if (mode !== 0o600 && !(bytes.length === intended.length && mode === record.mode)) fail('snapshot-drift', `Temporary file mode changed: ${record.temporary}`);
+        } else if (bytes.length !== 0 || !platform.matchesFileMode(mode, 0o600)) fail('snapshot-drift', `Unproved temporary file creation: ${record.temporary}`);
+        if (!platform.matchesFileMode(mode, 0o600) && !(bytes.length === intended.length && platform.matchesFileMode(mode, record.mode))) fail('snapshot-drift', `Temporary file mode changed: ${record.temporary}`);
         temporary[record.temporary] = {kind: 'file', digest: sha(bytes), mode};
     }
     return temporary;
@@ -1301,7 +1301,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         }
         const selected = new Set<number>();
         const conflicts: string[] = [];
-        const equal = (a: FileState, b: FileState) => a.kind === b.kind && a.digest === b.digest && a.target === b.target && (b.mode === undefined || a.mode === b.mode);
+        const equal = (a: FileState, b: FileState) => a.kind === b.kind && a.digest === b.digest && a.target === b.target && (b.mode === undefined || (a.mode !== undefined && platform.matchesFileMode(a.mode, b.mode)));
         const lastSteps = new Map([...byPath].map(([p, items]) => [p, items[items.length - 1]]));
         for (const [relative, steps] of byPath) {
             const current = subsumedByAncestor(root, steps[steps.length - 1], lastSteps) || (state.detached && JSON.parse(steps[0].before_json).kind === 'missing' && underSavedBeforeLink(root,relative,state.detached.changes)) ? { kind: "missing" as const } : inspect(root, relative);

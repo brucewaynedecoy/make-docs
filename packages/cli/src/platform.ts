@@ -39,6 +39,7 @@ export interface PlatformService {
   readonly kind: CorePlatform;
   readonly hostname: string;
   readonly caseSensitiveComparison: boolean;
+  readonly canMutateOpenPaths: boolean;
   userHome(options?: { homeDir?: string }): string;
   userDataRoot(options?: { env?: NodeJS.ProcessEnv; homeDir?: string }): string;
   describePath(input: string): PlatformPath;
@@ -47,11 +48,13 @@ export interface PlatformService {
   isPathInside(root: string, candidate: string): boolean;
   assertPathInside(root: string, candidate: string): void;
   acceptsExecutableMode(mode: number): boolean;
+  matchesFileMode(actual: number, expected: number): boolean;
   applyPrivateMode(fd: number, mode: number): void;
   findExecutable(executableName: string, executablePath?: string): string | null;
   processLiveness(pid: number, ownerHostname?: string): ProcessLiveness;
   captureFileGuard(stats: Stats, kind?: GuardedFileKind): FileMutationGuard;
   matchesFileGuard(stats: Stats, guard: FileMutationGuard): boolean;
+  matchesFileIdentity(stats: Stats, guard: FileMutationGuard): boolean;
   sameFileObject(left: Stats, right: Stats, kind?: GuardedFileKind): boolean;
   atomicReplace(source: string, target: string): void;
   syncDirectory(directory: string): void;
@@ -239,10 +242,23 @@ export function createPlatformService(
         : stats.ctimeMs === guard.ctimeMs);
   };
 
+  const matchesFileIdentity = (stats: Stats, guard: FileMutationGuard): boolean => {
+    const currentKind = fileKind(stats);
+    if (currentKind !== guard.kind) return false;
+    if (guard.strategy === "object-number") {
+      return stats.dev === guard.device && stats.ino === guard.inode;
+    }
+    const stableBirth = guard.birthtimeMs > 0 && stats.birthtimeMs > 0;
+    return stableBirth
+      ? stats.birthtimeMs === guard.birthtimeMs
+      : stats.mode === guard.mode && stats.size === guard.size && stats.ctimeMs === guard.ctimeMs;
+  };
+
   const service: PlatformService = {
     kind,
     hostname,
     caseSensitiveComparison,
+    canMutateOpenPaths: kind !== "win32",
     userHome(options = {}) {
       return options.homeDir ?? os.homedir();
     },
@@ -278,6 +294,9 @@ export function createPlatformService(
     },
     acceptsExecutableMode(mode) {
       return kind === "win32" || (mode & 0o111) !== 0;
+    },
+    matchesFileMode(actual, expected) {
+      return kind === "win32" || (actual & 0o777) === (expected & 0o777);
     },
     applyPrivateMode(fd, mode) {
       if (kind !== "win32") fchmodSync(fd, mode);
@@ -315,8 +334,9 @@ export function createPlatformService(
     },
     captureFileGuard,
     matchesFileGuard,
+    matchesFileIdentity,
     sameFileObject(left, right, expected) {
-      return matchesFileGuard(right, captureFileGuard(left, expected));
+      return matchesFileIdentity(right, captureFileGuard(left, expected));
     },
     atomicReplace(source, target) {
       try {

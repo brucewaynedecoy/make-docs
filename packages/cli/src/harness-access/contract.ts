@@ -702,13 +702,13 @@ function canonicalMachineRoot(root: string): string {
   if (!path.isAbsolute(root) || root.includes("\0") || path.normalize(root) !== root) {
     throw new Error("The harness caller reference root must be an absolute normalized path.");
   }
-  let canonical: string;
   try {
-    canonical = realpathSync(root);
+    const stat = lstatSync(root);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error("not-directory");
+    return platform.describePath(root).canonicalPath;
   } catch {
     throw new Error("The harness caller reference root does not exist.");
   }
-  return canonical;
 }
 
 /** Decode one shell-safe caller identity argument before normal CLI dispatch. */

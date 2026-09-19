@@ -310,7 +310,7 @@ async function resumePendingSystemSetup(
   try {
     const adapter = requireFirstPartyHarnessAdapter(pending.harnessId);
     if (adapter.id !== pending.adapterId) throw new Error("The pending adapter identity does not match this build.");
-    if (path.resolve(pending.plan.root) !== path.resolve(machineRoot)) {
+    if (!platform.samePath(pending.plan.root, machineRoot)) {
       throw new Error(`The pending machine root ${pending.plan.root} does not match ${machineRoot}.`);
     }
     const executable = verifyMakeDocsExecutable({

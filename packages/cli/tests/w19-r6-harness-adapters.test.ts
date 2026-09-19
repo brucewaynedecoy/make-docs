@@ -4,7 +4,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  realpathSync,
   renameSync,
   rmSync,
   symlinkSync,
@@ -47,6 +46,7 @@ import {
 import { resolveHarnessOperationPolicy } from "../src/operations/harness-policy.js";
 import { createExecutionContext, resolveCliOperationRoute } from "../src/operations/context.js";
 import { runSystemSetupCommand } from "../src/setup-system.js";
+import { platform } from "../src/platform.js";
 
 const roots: string[] = [];
 
@@ -89,7 +89,7 @@ function makeCallerIdentityRaw(
     harnessId: "codex",
     connectionMethod: method,
     scope: "machine",
-    root: realpathSync(root),
+    root: platform.describePath(root).canonicalPath,
     executable,
   });
 }
@@ -106,7 +106,7 @@ function makeClaudeCallerIdentity(
     harnessId: "claude-code",
     connectionMethod: "permission-rules",
     scope: "machine",
-    root: realpathSync(root),
+    root: platform.describePath(root).canonicalPath,
     executable,
   } as const;
 }
@@ -276,7 +276,7 @@ describe("W19 R6 static first-party harness adapters", () => {
       harnessId: "claude-code",
       connectionMethod: "permission-rules",
       adapterVersion: 1,
-      root: realpathSync(root),
+      root: platform.describePath(root).canonicalPath,
       identitySha256: expect.stringMatching(/^[0-9a-f]{64}$/),
     });
     expect(resolveCliOperationRoute(undefined, parsed)).toBe("native-rule");
@@ -545,7 +545,7 @@ describe("Codex native access lifecycle", () => {
         harnessId: adapter.harnessId,
         connectionMethod: "mcp",
         scope: "machine",
-        root: realpathSync(root),
+        root: platform.describePath(root).canonicalPath,
         executable,
       });
       expect(encodeHarnessCallerIdentity(identity)).toBe(encoded);
@@ -883,7 +883,7 @@ describe("Codex native access lifecycle", () => {
     });
     const rules = String(plan.changes[0].afterEntryValue ?? "");
     expect(rules).toContain(
-      `pattern = ["${executable.path}", "${HARNESS_CALLER_IDENTITY_ARG}", `,
+      `pattern = [${JSON.stringify(executable.path)}, ${JSON.stringify(HARNESS_CALLER_IDENTITY_ARG)}, `,
     );
     expect(rules).toContain(`, "resource", "list"]`);
     expect(rules).not.toContain("/usr/bin/env");
@@ -1064,7 +1064,7 @@ describe("Claude Code native access lifecycle", () => {
     expect(parseHarnessCallerReference(callerReference)).toMatchObject({
       harnessId: "claude-code",
       connectionMethod: "permission-rules",
-      root: realpathSync(root),
+      root: platform.describePath(root).canonicalPath,
     });
 
     const removal = CLAUDE_CODE_HARNESS_ADAPTER.planRemoval({

@@ -26,6 +26,7 @@ import {
   classifyStoreCheckpoint9State,
   CURRENT_STORE_SCHEMA_VERSION,
   openStoreSqliteConnection,
+  storeSessionPendingName,
   STORE_MIGRATIONS,
 } from "../src/store/database";
 
@@ -86,6 +87,7 @@ describe("W22 R0 P3 platform safety contract", () => {
     expect(fallbackGuard.strategy).toBe("metadata");
     expect(platform.matchesFileGuard(fallback, fallbackGuard)).toBe(true);
     expect(platform.matchesFileGuard({ ...fallback, size: fallback.size + 1 } as Stats, fallbackGuard)).toBe(false);
+    expect(platform.matchesFileIdentity({ ...fallback, size: fallback.size + 1 } as Stats, fallbackGuard)).toBe(true);
   });
 
   it("reports local process state and does not guess about another host", () => {
@@ -130,6 +132,15 @@ describe("W22 R0 P3 platform safety contract", () => {
     expect(createPlatformService("linux").userDataRoot({ env: {}, homeDir: "/home/test" })).toBe("/home/test");
     expect(createPlatformService("darwin").userDataRoot({ env: {}, homeDir: "/Users/test" })).toBe("/Users/test");
     expect(() => win.applyPrivateMode(-1, 0o600)).not.toThrow();
+    expect(win.matchesFileMode(0o666, 0o600)).toBe(true);
+    expect(win.canMutateOpenPaths).toBe(false);
+    expect(createPlatformService("linux").matchesFileMode(0o666, 0o600)).toBe(false);
+  });
+
+  it("bounds Store session names even when a host name is long", () => {
+    const name = storeSessionPendingName(12345, "host.".repeat(100), "00000000-0000-4000-8000-000000000000");
+    expect(name.length).toBeLessThan(100);
+    expect(name).toMatch(/^\.pending-12345\.h[0-9a-f]{16}\.00000000-0000-4000-8000-000000000000$/);
   });
 
   it("upgrades schema 3 checkout rows without treating legacy object numbers as identity", () => {
