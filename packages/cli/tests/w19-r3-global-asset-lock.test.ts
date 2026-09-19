@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import os from "node:os";
 import path from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
+import { platform } from "../src/platform";
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock } from "../src/store/global-asset-lock";
 
 const roots: string[] = [];
@@ -24,7 +25,7 @@ it("uses one machine Store namespace when selected Stores differ", () => {
     vi.stubEnv("MAKE_DOCS_HOME", path.join(f.project, "second-store"));
     const second = acquireGlobalAssetLock(f.project);
     expect(second).toBe(first);
-    expect(first.storeRoot).toBe(realpathSync(f.store));
+    expect(platform.samePath(first.storeRoot, realpathSync(f.store))).toBe(true);
     releaseGlobalAssetLock(second);
     expect(() => assertGlobalAssetLockActive(first)).not.toThrow();
     expect(existsSync(path.join(f.project, "first-store"))).toBe(false);

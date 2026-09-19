@@ -96,7 +96,7 @@ describe("W19 R5 standard native Skill layout", () => {
   test.each(["project-empty","project-unknown","project-dangling","global-empty","global-unknown","global-dangling"])("normal Skill setup preserves and refuses %s legacy roots", async scenario => {
     const selections=defaultSelections(); selections.skills=true; selections.selectedSkills=["archive-docs"];
     selections.skillScope=scenario.startsWith("global") ? "global" : "project";
-    const home=path.join(root,"fixture-home"); vi.stubEnv("HOME",home);
+    const home=path.join(root,"fixture-home"); vi.stubEnv("HOME",home); vi.stubEnv("USERPROFILE",home);
     vi.spyOn(os,"homedir").mockReturnValue(home);
     const oldRoot=path.join(selections.skillScope==="global" ? home : root,".make-docs/agentics");
     mkdirSync(path.dirname(oldRoot),{recursive:true});

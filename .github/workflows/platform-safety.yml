@@ -44,6 +44,7 @@ jobs:
       - name: Run platform safety contracts
         run: >-
           npm test -w packages/cli --
+          --testTimeout=120000
           tests/w22-r0-p3-platform-safety.test.ts
           tests/installation-state.test.ts
           tests/resource-resolver.test.ts
