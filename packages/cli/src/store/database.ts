@@ -10,7 +10,6 @@ import {
   openSync,
   readFileSync,
   readdirSync,
-  renameSync,
   rmdirSync,
   rmSync,
   unlinkSync,
@@ -18,9 +17,9 @@ import {
   type Stats,
 } from "node:fs";
 import path from "node:path";
-import os from "node:os";
 import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
+import { platform } from "../platform";
 import { getStoreDatabasePath } from "./paths";
 
 /**
@@ -42,7 +41,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 3;
+export const CURRENT_STORE_SCHEMA_VERSION = 4;
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -197,6 +196,27 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       `INSERT INTO store_schema_journal VALUES (3, 'Store-owned installation state', strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     ],
   },
+  {
+    version: 4,
+    description: "Platform-neutral checkout path keys and bounded verification evidence.",
+    statements: [
+      `ALTER TABLE installation_checkouts ADD COLUMN root_path_key TEXT`,
+      `ALTER TABLE installation_checkouts ADD COLUMN verified_at TEXT`,
+      `ALTER TABLE installation_checkouts ADD COLUMN verification_json TEXT`,
+      `UPDATE installation_checkouts
+       SET root_path_key = root_path,
+           verified_at = created_at,
+           verification_json = '{"schemaVersion":1,"kind":"legacy-path-import"}'
+       WHERE root_path_key IS NULL`,
+      `CREATE INDEX idx_installation_checkouts_path_key
+       ON installation_checkouts (root_path_key)`,
+      `INSERT INTO store_schema_journal VALUES (
+        4,
+        'Platform-neutral checkout path verification',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+    ],
+  },
 ];
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
@@ -328,8 +348,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 3 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 4 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -518,7 +538,7 @@ export function waitForStoreRetry(attempt: number, deadline: number): void {
 }
 
 function sameFile(left: Stats, right: Stats): boolean {
-  return left.dev === right.dev && left.ino === right.ino && right.isFile();
+  return platform.sameFileObject(left, right, "file");
 }
 
 function readOwnerLease(file: string, operation: string, expectedVersion?: number): StoreLeaseSnapshot | null {
@@ -568,16 +588,14 @@ function readOwnerLease(file: string, operation: string, expectedVersion?: numbe
 }
 
 function processOwnerState(pid: number, hostname: string, file: string): "alive" | "dead" {
-  if (hostname !== os.hostname()) {
-    throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, "inspect owner", new Error("The lease belongs to another or unknown host.")));
-  }
-  try {
-    process.kill(pid, 0);
-    return "alive";
-  } catch (error) {
-    if (systemCode(error) === "ESRCH") return "dead";
-    throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, "inspect owner", error));
-  }
+  const state = platform.processLiveness(pid, hostname);
+  if (state === "alive" || state === "dead") return state;
+  throw new StoreUnavailableError(makeStoreIssue(
+    "owner-unverified",
+    file,
+    "inspect owner",
+    new Error("The lease owner is on another host or its state cannot be verified."),
+  ));
 }
 
 function ownerState(lease: StoreLeaseSnapshot): "alive" | "dead" {
@@ -806,7 +824,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
 
     const blocker = exclusiveBlocker(storeRoot, preparing);
     if (blocker) {
-      if (blocker.pid === process.pid && blocker.hostname === os.hostname()) {
+      if (blocker.pid === process.pid && blocker.hostname === platform.hostname) {
         throw new StoreUnavailableError({ code: "contention-timeout", path: blocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
       }
       if (ownerState(blocker) !== "alive") {
@@ -858,7 +876,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       if (named.isSymbolicLink() || !named.isDirectory()) {
         throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "verify session directory", new Error("The Store session path is not a safe directory.")));
       }
-      if (opened.dev !== named.dev || opened.ino !== named.ino) {
+      if (!platform.sameFileObject(opened, named, "directory")) {
         if (Date.now() < deadline) {
           pause(attempt++, deadline);
           continue;
@@ -880,7 +898,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
 
     const token = randomUUID();
     const file = path.join(directory, `${token}.json`);
-    const pendingFile = path.join(directory, `.pending-${process.pid}.${Buffer.from(os.hostname()).toString("base64url")}.${token}`);
+    const pendingFile = path.join(directory, `.pending-${process.pid}.${Buffer.from(platform.hostname).toString("base64url")}.${token}`);
     let fd: number | null = null;
     let leaseStat: Stats | null = null;
     try {
@@ -889,16 +907,16 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       fd = openSync(pendingFile, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
       fchmodSync(fd, 0o600);
       leaseStat = fstatSync(fd);
-      writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: os.hostname(), startedAt: new Date().toISOString() }));
+      writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() }));
       fsyncSync(fd);
-      renameSync(pendingFile, file);
+      platform.atomicReplace(pendingFile, file);
       const lateBlocker = exclusiveBlocker(storeRoot, preparing);
       if (lateBlocker) {
         closeSync(fd);
         fd = null;
         removeOwnedSession(file, token, leaseStat, "cancel Store session");
         cleanupAccessDirectory(directory);
-        if (lateBlocker.pid === process.pid && lateBlocker.hostname === os.hostname()) {
+        if (lateBlocker.pid === process.pid && lateBlocker.hostname === platform.hostname) {
           throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
         }
         if (ownerState(lateBlocker) !== "alive") {
@@ -965,6 +983,7 @@ const VERSION_TWO_TABLES = [
 ] as const;
 
 const VERSION_THREE_TABLES = [...VERSION_TWO_TABLES, "installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps", "installation_locks", "installation_migration_records", "installation_transfers", "tool_operations", "store_schema_journal"] as const;
+const VERSION_FOUR_TABLES = VERSION_THREE_TABLES;
 
 /** Classifies the Store without creating a directory, database, sidecar, or table. */
 export function classifyStoreCheckpoint9State(
@@ -1042,7 +1061,7 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-newer", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
       const reason = `schema version ${schemaVersion} is not a supported checkpoint-9 input`;
       return {
         state: "unknown",
@@ -1052,7 +1071,13 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-unknown", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    const expectedTables = schemaVersion === 1 ? VERSION_ONE_TABLES : schemaVersion === 2 ? VERSION_TWO_TABLES : VERSION_THREE_TABLES;
+    const expectedTables = schemaVersion === 1
+      ? VERSION_ONE_TABLES
+      : schemaVersion === 2
+        ? VERSION_TWO_TABLES
+        : schemaVersion === 3
+          ? VERSION_THREE_TABLES
+          : VERSION_FOUR_TABLES;
     const actualTables = new Set(
       (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
         .map((row) => row.name),
@@ -1069,8 +1094,8 @@ export function classifyStoreCheckpoint9State(
       };
     }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 }
-      : { state: "supported-current", databasePath, schemaVersion: 3 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 }
+      : { state: "supported-current", databasePath, schemaVersion: 4 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);
@@ -1352,7 +1377,7 @@ export function openStoreSqliteConnection(
 function quarantineDatabase(databasePath: string): string {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const quarantinedPath = `${databasePath}.corrupt-${stamp}`;
-  renameSync(databasePath, quarantinedPath);
+  platform.atomicReplace(databasePath, quarantinedPath);
   // Stale WAL/SHM sidecars must not be replayed against the fresh database.
   for (const suffix of ["-wal", "-shm"]) {
     rmSync(`${databasePath}${suffix}`, { force: true });
@@ -1391,7 +1416,7 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
     });
   }
-  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
     throw new StoreCheckpoint9StateError({
       state: "unknown",
       databasePath,
@@ -1403,7 +1428,9 @@ function assertCheckpoint9StateInsideTransaction(
     ? VERSION_ONE_TABLES
     : schemaVersion === 2
       ? VERSION_TWO_TABLES
-      : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_THREE_TABLES : [];
+      : schemaVersion === 3
+        ? VERSION_THREE_TABLES
+        : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_FOUR_TABLES : [];
   const actualTables = new Set(
     (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
       .map((row) => row.name),

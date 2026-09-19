@@ -120,8 +120,8 @@ export interface SystemResourceFileFingerprint {
   size: number;
   mtimeMs: number;
   ctimeMs: number;
-  device: number;
-  inode: number;
+  birthtimeMs?: number;
+  mode?: number;
 }
 
 export interface SystemResourceDigestEvidence {

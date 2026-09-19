@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import os from "node:os";
 import path from "node:path";
 import { existsSync, lstatSync, unlinkSync, readFileSync, type Stats } from "node:fs";
 import { GLOBAL_ASSET_LOCK_FILE } from "./global-asset-lock";
@@ -7,6 +6,7 @@ import { STORE_LEASE_RECOVERY_FILE } from "./lease-recovery";
 import { getStoreDatabasePath, classifyStoreCheckpoint9State } from "../store";
 import { acquireStoreAccess, makeStoreIssue, openStoreSqliteConnection, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain } from "./database";
 import { validateInstallationStoreRoot, withInstallationDatabase } from "./installation-state";
+import { platform } from "../platform";
 
 export interface ToolOperationMetadata {
   manager: string;
@@ -42,7 +42,7 @@ export async function runRecordedToolOperation<T extends { exitCode: number | nu
       const writer = db.prepare("SELECT root_path FROM installation_locks LIMIT 1").get() as {root_path:string}|undefined;
       if (installation || writer) throw new Error("An installation operation or checkout writer is pending. Resolve that work before a tool change. No command was run.");
       db.prepare("INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'pending',?,?,?,?,NULL)")
-        .run(operationId, operation, process.pid, os.hostname(), JSON.stringify(metadata), new Date().toISOString());
+        .run(operationId, operation, process.pid, platform.hostname, JSON.stringify(metadata), new Date().toISOString());
       db.exec("COMMIT");
     } catch(error) { db.exec("ROLLBACK"); throw error; }
   }, {storeRoot});
@@ -50,7 +50,7 @@ export async function runRecordedToolOperation<T extends { exitCode: number | nu
   // starts later must see this pending row; an earlier remover blocks here.
   withInstallationDatabase(targetDir, db => {
     const saved = db.prepare("SELECT status, operation, pid, hostname FROM tool_operations WHERE operation_id=?").get(operationId) as {status:string;operation:string;pid:number;hostname:string}|undefined;
-    if (!saved || saved.status !== "pending" || saved.operation !== operation || saved.pid !== process.pid || saved.hostname !== os.hostname()) {
+    if (!saved || saved.status !== "pending" || saved.operation !== operation || saved.pid !== process.pid || saved.hostname !== platform.hostname) {
       throw new Error(`Tool intent read-back failed for ${operationId}; no package manager command was run.`);
     }
   }, {storeRoot,readOnly:true});
@@ -79,7 +79,7 @@ function acquireRemovalLease(storeRoot: string, lockPath: string, token: string)
   let attempts = 0;
   while (true) {
     try {
-      const result = tryCreateExclusiveStoreLease(lockPath, { token, pid: process.pid, hostname: os.hostname(), startedAt: new Date().toISOString() });
+      const result = tryCreateExclusiveStoreLease(lockPath, { token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() });
       if (result.created) return result.stat;
       throw Object.assign(new Error("The Store removal lock exists."), { code: "EEXIST" });
     } catch (error) {
@@ -103,6 +103,7 @@ export function withStoreRemovalLock<T>(targetDir: string, storeRoot: string, re
   const lockPath = path.join(storeRoot, "removal.lock");
   const token = randomUUID();
   const lockStat = acquireRemovalLease(storeRoot, lockPath, token);
+  const lockGuard = platform.captureFileGuard(lockStat, "file");
   try {
     const assertNoStoreAccess = () => {
       if (["installation-bootstrap.lock", GLOBAL_ASSET_LOCK_FILE, STORE_LEASE_RECOVERY_FILE].some(name => lstatSync(path.join(storeRoot,name), { throwIfNoEntry: false }))) {
@@ -123,7 +124,7 @@ export function withStoreRemovalLock<T>(targetDir: string, storeRoot: string, re
     return remove();
   } finally {
     const current = lstatSync(lockPath, { throwIfNoEntry: false });
-    if (current?.isFile() && current.dev === lockStat.dev && current.ino === lockStat.ino) {
+    if (current?.isFile() && platform.matchesFileGuard(current, lockGuard)) {
       try {
         const record = JSON.parse(readFileSync(lockPath, "utf8")) as { token?: unknown };
         if (record.token === token) unlinkSync(lockPath);

@@ -6,12 +6,12 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  realpathSync,
   statSync,
   writeFileSync,
 } from "node:fs";
 import type { Stats } from "node:fs";
 import path from "node:path";
+import { platform } from "../../platform";
 import { createSystemResourceIdentity, parseSystemResourceUri } from "./identity";
 import { matchesSystemResourceCatalogPath } from "./provider";
 import {
@@ -637,8 +637,8 @@ function validateProjectContext(
         size: rawEvidence.fingerprint.size,
         mtimeMs: rawEvidence.fingerprint.mtimeMs,
         ctimeMs: rawEvidence.fingerprint.ctimeMs,
-        device: rawEvidence.fingerprint.device,
-        inode: rawEvidence.fingerprint.inode,
+        ...(rawEvidence.fingerprint.birthtimeMs !== undefined ? { birthtimeMs: rawEvidence.fingerprint.birthtimeMs } : {}),
+        ...(rawEvidence.fingerprint.mode !== undefined ? { mode: rawEvidence.fingerprint.mode } : {}),
       },
       digest: rawEvidence.digest,
     });
@@ -693,7 +693,7 @@ function inspectProjectRoot(rootInput: string): SystemResourceResult<string> {
         absolute,
       );
     }
-    const real = realpathSync(absolute);
+    const real = platform.describePath(absolute).canonicalPath;
     if (!statSync(real).isDirectory()) {
       return failure(
         "unsafe-root",
@@ -749,7 +749,7 @@ function inspectLocalPath(root: string, relativePath: string): SystemResourceRes
         );
       }
     }
-    const real = realpathSync(current);
+    const real = platform.describePath(current).canonicalPath;
     if (!isWithinRoot(root, real)) {
       return failure(
         "root-escape",
@@ -893,7 +893,7 @@ function inspectOptionalDirectory(root: string, relativePath: string): SystemRes
         );
       }
     }
-    const real = realpathSync(current);
+    const real = platform.describePath(current).canonicalPath;
     if (!isWithinRoot(root, real)) {
       return failure(
         "root-escape",
@@ -939,7 +939,7 @@ function listSafeProjectFiles(root: string, directory: string): SystemResourceRe
             path: candidate,
           };
         }
-        const real = realpathSync(candidate);
+        const real = platform.describePath(candidate).canonicalPath;
         if (!isWithinRoot(root, real)) {
           return {
             code: "root-escape",
@@ -1007,7 +1007,7 @@ function ensureSafeParents(root: string, targetDirectory: string): SystemResourc
           current,
         );
       }
-      const real = realpathSync(current);
+      const real = platform.describePath(current).canonicalPath;
       if (!isWithinRoot(root, real) || !statSync(real).isDirectory()) {
         return failure(
           "root-escape",
@@ -1156,8 +1156,8 @@ function localDigestTrustKey(
     fingerprint.size,
     fingerprint.mtimeMs,
     fingerprint.ctimeMs,
-    fingerprint.device,
-    fingerprint.inode,
+    fingerprint.birthtimeMs ?? null,
+    fingerprint.mode ?? null,
   ]);
 }
 
@@ -1176,8 +1176,8 @@ function fingerprintOf(stats: Stats): SystemResourceFileFingerprint {
     size: stats.size,
     mtimeMs: stats.mtimeMs,
     ctimeMs: stats.ctimeMs,
-    device: stats.dev,
-    inode: stats.ino,
+    birthtimeMs: stats.birthtimeMs,
+    mode: stats.mode,
   };
 }
 
@@ -1189,8 +1189,8 @@ function sameFingerprint(
     left.size === right.size &&
     left.mtimeMs === right.mtimeMs &&
     left.ctimeMs === right.ctimeMs &&
-    left.device === right.device &&
-    left.inode === right.inode
+    left.birthtimeMs === right.birthtimeMs &&
+    left.mode === right.mode
   );
 }
 
@@ -1199,8 +1199,8 @@ function isValidFingerprint(value: Record<string, unknown>): value is Record<str
     isNonNegativeSafeInteger(value.size) &&
     isFiniteNumber(value.mtimeMs) &&
     isFiniteNumber(value.ctimeMs) &&
-    isNonNegativeSafeInteger(value.device) &&
-    isNonNegativeSafeInteger(value.inode)
+    (value.birthtimeMs === undefined || isFiniteNumber(value.birthtimeMs)) &&
+    (value.mode === undefined || isNonNegativeSafeInteger(value.mode))
   );
 }
 

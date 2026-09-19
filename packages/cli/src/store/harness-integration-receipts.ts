@@ -1,5 +1,5 @@
-import os from "node:os";
 import path from "node:path";
+import { platform } from "../platform";
 import {
   fingerprintEntry,
   getFirstPartyHarnessAdapter,
@@ -45,8 +45,8 @@ export function recordHarnessIntegrationReceipt(
     const write = db.prepare(
       "INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'completed',?,?,?,?,?) ON CONFLICT(operation_id) DO UPDATE SET status='completed',metadata_json=excluded.metadata_json,finished_at=excluded.finished_at",
     );
-    write.run(recordId, "setup.system.receipt", process.pid, os.hostname(), JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
-    write.run(currentId, "setup.system.receipt-current", process.pid, os.hostname(), JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
+    write.run(recordId, "setup.system.receipt", process.pid, platform.hostname, JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
+    write.run(currentId, "setup.system.receipt-current", process.pid, platform.hostname, JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
   }, { storeRoot });
 }
 
@@ -72,7 +72,7 @@ export function recordHarnessIntegrationReceiptObservation(
   withInstallationDatabase(targetRoot, (db) => {
     db.prepare(
       "INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'completed',?,?,?,?,?) ON CONFLICT(operation_id) DO UPDATE SET status='completed',metadata_json=excluded.metadata_json,finished_at=excluded.finished_at",
-    ).run(observationId, "setup.system.receipt-observation", process.pid, os.hostname(), JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
+    ).run(observationId, "setup.system.receipt-observation", process.pid, platform.hostname, JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
   }, { storeRoot });
 }
 

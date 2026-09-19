@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
-import os from "node:os";
 import path from "node:path";
+import { platform } from "../platform";
 import type {
   HarnessAccessPlan,
   HarnessAccessReceipt,
@@ -97,7 +97,7 @@ export function prepareHarnessSystemOperation(
         pending.operationId,
         OPERATION,
         process.pid,
-        os.hostname(),
+        platform.hostname,
         savedJson,
         pending.verifiedAt,
       );

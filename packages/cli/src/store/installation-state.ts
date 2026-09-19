@@ -1,7 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, lstatSync, realpathSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, statSync, fstatSync, renameSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync, openSync, closeSync, fsyncSync, unlinkSync, readdirSync, rmdirSync, symlinkSync, readlinkSync, chmodSync, statSync, fstatSync } from 'node:fs';
 import path from 'node:path';
-import os from 'node:os';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock, type GlobalAssetLock } from './global-asset-lock';
@@ -10,6 +9,7 @@ import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
 import type { InstallManifest, ManifestFileEntry } from '../types';
 import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
+import { platform, PlatformOperationError, type FileMutationGuard } from '../platform';
 export class InstallationStateError extends Error {
     constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue) { super(message); this.name = 'InstallationStateError'; }
 }
@@ -30,6 +30,17 @@ interface Checkout {
     root_path: string;
     root_device: string;
     root_inode: string;
+    root_path_key: string | null;
+    verified_at: string | null;
+    verification_json: string | null;
+}
+
+interface CheckoutVerificationEvidence {
+    schemaVersion: 1;
+    projectId: string;
+    configDigest: string | null;
+    ledgerDigest: string | null;
+    managedContentDigest: string | null;
 }
 interface Operation {
     operation_id: string;
@@ -81,7 +92,7 @@ const now = () => new Date().toISOString();
 
 function isRetiredSkillPath(root: string, relative: string): boolean {
     const absolute = path.resolve(root, relative);
-    return [root, os.homedir()].some(base => inside(path.join(base, '.make-docs/agentics'), absolute));
+    return [root, platform.userHome()].some(base => inside(path.join(base, '.make-docs/agentics'), absolute));
 }
 
 /** New children are absent while their exact reviewed former exposure is still a link. */
@@ -197,8 +208,8 @@ function assertDetachedPaths(root: string, plan: DetachedInstallationPlan, check
     if ((plan.skillScope || plan.copyFallbacks) && operation !== 'setup.skills.adopt') fail('ownership-unverified', 'Skill path policy is only valid for reviewed Skill adoption.');
     if (operation === 'setup.skills.adopt' && !plan.skillScope) fail('ownership-unverified', 'Adoption requires its complete selected Skill roots.');
     const selected = plan.afterLedger?.selections;
-    const permittedDirectories = [path.join(root,'.agents/skills'),path.join(root,'.claude/skills'),path.join(root,'.codex/skills'),path.join(root,'.make-docs/agentics/skills'),path.join(os.homedir(),'.agents/skills'),path.join(os.homedir(),'.claude/skills'),path.join(os.homedir(),'.codex/skills'),path.join(os.homedir(),'.make-docs/agentics/skills'),getHarnessSkillDirectory('codex','global'),getHarnessSkillDirectory('claude-code','global')].map(p=>path.resolve(p));
-    const canonicalDirectory = selected ? path.resolve(selected.skillScope === 'project' ? root : os.homedir(),getCanonicalSkillDirectory(selected)) : '';
+    const permittedDirectories = [path.join(root,'.agents/skills'),path.join(root,'.claude/skills'),path.join(root,'.codex/skills'),path.join(root,'.make-docs/agentics/skills'),path.join(platform.userHome(),'.agents/skills'),path.join(platform.userHome(),'.claude/skills'),path.join(platform.userHome(),'.codex/skills'),path.join(platform.userHome(),'.make-docs/agentics/skills'),getHarnessSkillDirectory('codex','global'),getHarnessSkillDirectory('claude-code','global')].map(p=>path.resolve(p));
+    const canonicalDirectory = selected ? path.resolve(selected.skillScope === 'project' ? root : platform.userHome(),getCanonicalSkillDirectory(selected)) : '';
     const skillRoots = plan.skillScope?.roots.map(p => {
         const absolute = path.resolve(root, p);
         if (!permittedDirectories.includes(path.dirname(absolute)) || !/^[a-z0-9][a-z0-9-]*$/.test(path.basename(absolute))) fail('ownership-unverified', `Invalid selected Skill root: ${p}`);
@@ -221,7 +232,7 @@ function assertDetachedPaths(root: string, plan: DetachedInstallationPlan, check
         const backup = backups.some(p => inside(p, absolute));
         if (!backup && isRetiredSkillPath(root,change.path) && change.after.kind !== 'missing') fail('recovery-required','This saved plan would recreate retired .make-docs/agentics paths. Preserve its evidence; use a current reviewed Skill layout cutover.');
         const parentOnly = [...skillRoots, ...bootstrap, ...backups, path.join(root, '.make-docs/config.yaml')].some(p => inside(absolute, p)) && change.before.kind !== 'file' && change.after.kind !== 'file' && change.before.kind !== 'symlink' && change.after.kind !== 'symlink';
-        if (absolute === root || absolute === os.homedir() || (!identity && !parentOnly && !backup && !bootstrap.includes(absolute) && !skillRoots.some(p => inside(p, absolute)))) fail('ownership-unverified', `Path is outside the reviewed Skill roots: ${change.path}`);
+        if (absolute === root || absolute === platform.userHome() || (!identity && !parentOnly && !backup && !bootstrap.includes(absolute) && !skillRoots.some(p => inside(p, absolute)))) fail('ownership-unverified', `Path is outside the reviewed Skill roots: ${change.path}`);
         if (backup && (change.before.kind !== 'missing' || !['file', 'directory'].includes(change.after.kind))) fail('ownership-unverified', 'Adoption backups cannot replace existing content.');
         if (backup && change.after.kind === 'file' && !plan.changes.some(c => c.before.kind === 'file' && c.before.digest === change.after.digest && c.before.contentBase64 === change.after.contentBase64)) fail('ownership-unverified', 'Backup bytes do not match reviewed existing content.');
         if (identity && change.after.kind === 'file') {
@@ -317,22 +328,12 @@ export function readDetachedInstallationOperation(projectRoot: string, operation
 function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue): never { throw new InstallationStateError(code, message, issue); }
 /** Resolve absent leaves without trusting a symlink spelling of an external path. */
 export function canonicalInstallationPath(input: string): string {
-    if (process.platform !== 'win32' && (/^[A-Za-z]:/.test(input) || input.startsWith('\\\\')))
-        fail('store-unavailable', 'A Windows drive or UNC path cannot identify a Store on this host.');
-    let current = path.resolve(input);
-    const leaves: string[] = [];
-    while (!lstatSync(current, { throwIfNoEntry: false })) {
-        const parent = path.dirname(current);
-        if (parent === current)
-            break;
-        leaves.unshift(path.basename(current));
-        current = parent;
-    }
     try {
-        return path.join(realpathSync(current), ...leaves);
+        return platform.describePath(input).canonicalPath;
     }
-    catch {
-        return fail('store-unavailable', `Unresolved symbolic link in path: ${current}`);
+    catch (error) {
+        const message = error instanceof PlatformOperationError ? error.message : `The path cannot be resolved: ${input}`;
+        return fail('store-unavailable', message);
     }
 }
 function inside(root: string, candidate: string): boolean { const rel = path.relative(root, candidate); return rel === '' || (!rel.startsWith(`..${path.sep}`) && rel !== '..' && !path.isAbsolute(rel)); }
@@ -370,7 +371,7 @@ function acquireStorePreparationLease(storeRoot: string, lockPath: string, token
     let attempts = 0;
     while (true) {
         try {
-            const result = tryCreateExclusiveStoreLease(lockPath, { token, pid: process.pid, hostname: os.hostname(), startedAt: new Date().toISOString() });
+            const result = tryCreateExclusiveStoreLease(lockPath, { token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() });
             if (result.created)
                 return result.stat;
             throw Object.assign(new Error('The Store preparation lock exists.'), { code: 'EEXIST' });
@@ -393,15 +394,7 @@ function acquireStorePreparationLease(storeRoot: string, lockPath: string, token
     }
 }
 function isDead(pid: number, host: string): boolean {
-    if (host !== os.hostname() || !Number.isSafeInteger(pid) || pid <= 0)
-        return false;
-    try {
-        process.kill(pid, 0);
-        return false;
-    }
-    catch (e) {
-        return (e as NodeJS.ErrnoException).code === 'ESRCH';
-    }
+    return platform.processLiveness(pid, host) === 'dead';
 }
 function transaction<T>(db: StoreDatabase, fn: () => T): T { db.exec('BEGIN IMMEDIATE'); try {
     const result = fn();
@@ -460,6 +453,7 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
     const lockPath = path.join(storeRoot, 'installation-bootstrap.lock');
     const token = randomUUID();
     const lockStat = acquireStorePreparationLease(storeRoot, lockPath, token);
+    const lockGuard = platform.captureFileGuard(lockStat, 'file');
     try {
         validateInstallationStoreRoot(projectRoot, storeRoot);
         const beforeDrain = classifyStoreCheckpoint9State(storeRoot);
@@ -516,7 +510,7 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
     }
     finally {
         const current = lstatSync(lockPath, { throwIfNoEntry: false });
-        if (current?.isFile() && current.dev === lockStat.dev && current.ino === lockStat.ino) {
+        if (current?.isFile() && platform.matchesFileGuard(current, lockGuard)) {
             const value = JSON.parse(readFileSync(lockPath, 'utf8'));
             if (value.token === token)
                 unlinkSync(lockPath);
@@ -581,16 +575,94 @@ export function readDeclarativeProjectId(projectRoot: string): string | null {
         return fail('ownership-unverified', 'Project config has an invalid projectId.');
     return value;
 }
-function checkout(db: StoreDatabase, root: string): Checkout | null { return (db.prepare('SELECT * FROM installation_checkouts WHERE root_path=?').get(root) as unknown as Checkout) ?? null; }
+function checkout(db: StoreDatabase, root: string): Checkout | null {
+    const key = platform.comparisonKey(root);
+    const rows = db.prepare('SELECT * FROM installation_checkouts').all() as unknown as Checkout[];
+    const matches = rows.filter(row => row.root_path_key === key || row.root_path === root || platform.samePath(row.root_path, root));
+    if (matches.length > 1)
+        fail('ownership-unverified', 'More than one checkout claims this platform path. No Store identity changed.');
+    return matches[0] ?? null;
+}
+
+function managedContentDigest(root: string, ledgerJson: string | null, operationPaths: string[]): string | null {
+    const isCheckoutPath = (relative: string): boolean => {
+        if (relative === '.') return false;
+        const absolute = path.resolve(root, relative);
+        const relation = path.relative(root, absolute);
+        return relation !== '..' && !relation.startsWith(`..${path.sep}`) && !path.isAbsolute(relation);
+    };
+    const paths = new Set(operationPaths.filter(isCheckoutPath));
+    if (ledgerJson && ledgerJson !== 'null') {
+        const manifest = validateAndMigrateManifest(JSON.parse(ledgerJson), 'Make Docs Store checkout verification ledger');
+        for (const relative of Object.keys(manifest.files)) if (isCheckoutPath(relative)) paths.add(relative);
+    }
+    if (paths.size === 0) return null;
+    const facts = [...paths].sort().map(relative => {
+        const absolute = path.resolve(root, relative);
+        const relation = path.relative(root, absolute);
+        const stat = lstatSync(absolute, { throwIfNoEntry: false });
+        if (!stat) return [relative, 'missing'];
+        if (stat.isSymbolicLink()) return [relative, `link:${readlinkSync(absolute)}`];
+        if (stat.isFile()) return [relative, `file:${sha(readFileSync(absolute))}`];
+        if (stat.isDirectory()) return [relative, 'directory'];
+        return [relative, 'unsupported'];
+    });
+    return sha(canonicalJson(facts));
+}
+
+function checkoutVerificationEvidence(db: StoreDatabase, root: string, projectId: string, checkoutId: string, ledgerJson: string | null): CheckoutVerificationEvidence {
+    const config = path.join(root, '.make-docs', 'config.yaml');
+    const configStat = lstatSync(config, { throwIfNoEntry: false });
+    if (configStat && (!configStat.isFile() || configStat.isSymbolicLink()))
+        fail('ownership-unverified', 'The checkout identity file is not a safe regular file.');
+    const operationPaths = (db.prepare(`
+        SELECT DISTINCT step.relative_path
+        FROM installation_steps step
+        JOIN installation_operations operation ON operation.operation_id=step.operation_id
+        WHERE operation.checkout_id=? AND step.applied=1
+    `).all(checkoutId) as Array<{ relative_path: string }>).map(row => row.relative_path);
+    return {
+        schemaVersion: 1,
+        projectId,
+        configDigest: configStat ? sha(readFileSync(config)) : null,
+        ledgerDigest: ledgerJson && ledgerJson !== 'null' ? sha(ledgerJson) : null,
+        managedContentDigest: managedContentDigest(root, ledgerJson, operationPaths),
+    };
+}
+
+function parseCheckoutVerification(row: Checkout): CheckoutVerificationEvidence | null {
+    if (!row.verification_json) return null;
+    try {
+        const value = JSON.parse(row.verification_json) as Partial<CheckoutVerificationEvidence>;
+        return value.schemaVersion === 1 && typeof value.projectId === 'string' &&
+            (typeof value.configDigest === 'string' || value.configDigest === null) &&
+            (typeof value.ledgerDigest === 'string' || value.ledgerDigest === null) &&
+            (typeof value.managedContentDigest === 'string' || value.managedContentDigest === null)
+            ? value as CheckoutVerificationEvidence
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function sameCheckoutEvidence(left: CheckoutVerificationEvidence, right: CheckoutVerificationEvidence): boolean {
+    return left.projectId === right.projectId && left.configDigest === right.configDigest &&
+        left.ledgerDigest === right.ledgerDigest && left.managedContentDigest === right.managedContentDigest;
+}
+
+function legacyObjectNumbers(root: string): { root_device: string; root_inode: string } {
+    if (!existsSync(root)) return { root_device: 'uncreated', root_inode: 'uncreated' };
+    const stat = statSync(root);
+    // Schema 4 keeps these bridge columns for P5 compatibility. Current identity does not read them.
+    return { root_device: String(stat.dev), root_inode: String(stat.ino) };
+}
+
 function assertCheckoutIdentity(row: Checkout, root: string): void {
     const id = readDeclarativeProjectId(root);
     if (id && id !== row.project_id)
         fail('ownership-unverified', 'The config project identity conflicts with the checkout binding.');
-    if (existsSync(root)) {
-        const st = statSync(root);
-        if (String(st.dev) !== row.root_device || String(st.ino) !== row.root_inode)
-            fail('ownership-unverified', 'The directory identity changed. Review this checkout before adoption.');
-    }
+    if (!platform.samePath(row.root_path, root))
+        fail('ownership-unverified', 'The checkout path does not match this Store binding.');
 }
 function bindCheckout(db: StoreDatabase, root: string, projectId?: string): Checkout {
     const prior = checkout(db, root);
@@ -600,21 +672,39 @@ function bindCheckout(db: StoreDatabase, root: string, projectId?: string): Chec
             fail('ownership-unverified', 'Conflicting project identity.');
         return prior;
     }
-    const id = readDeclarativeProjectId(root) ?? projectId ?? randomUUID();
-    const st = existsSync(root) ? statSync(root) : { dev: 'uncreated', ino: 'uncreated' };
-    const moved = db.prepare('SELECT * FROM installation_checkouts WHERE root_device=? AND root_inode=?').all(String(st.dev), String(st.ino)) as unknown as Checkout[];
-    if (moved.length) {
-        const row = moved[0];
-        if (moved.length !== 1 || row.project_id !== id || existsSync(row.root_path))
-            fail('ownership-unverified', 'Ambiguous checkout move.');
+    const declarativeId = readDeclarativeProjectId(root);
+    if (declarativeId && projectId && declarativeId !== projectId)
+        fail('ownership-unverified', 'The requested project identity conflicts with the checkout config.');
+    const id = declarativeId ?? projectId ?? randomUUID();
+    const sameProject = db.prepare('SELECT * FROM installation_checkouts WHERE project_id=?').all(id) as unknown as Checkout[];
+    const absent = sameProject.filter(row => !existsSync(row.root_path));
+    if (absent.length && declarativeId) {
+        if (absent.length !== 1)
+            fail('ownership-unverified', 'More than one absent checkout can claim this project path. No Store identity changed.');
+        const row = absent[0];
         const busy = db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id);
         if (busy || db.prepare('SELECT 1 FROM installation_locks WHERE root_path=?').get(row.root_path))
             fail('recovery-required', 'Resolve the old checkout operation before rebinding its path.');
-        db.prepare('UPDATE installation_checkouts SET root_path=? WHERE checkout_id=?').run(root, row.checkout_id);
-        return { ...row, root_path: root };
+        const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as { manifest_json: string } | undefined)?.manifest_json ?? null;
+        const priorEvidence = parseCheckoutVerification(row);
+        const currentEvidence = checkoutVerificationEvidence(db, root, id, row.checkout_id, ledger);
+        if (!priorEvidence || !sameCheckoutEvidence(priorEvidence, currentEvidence))
+            fail('ownership-unverified', 'The moved checkout content does not match its last verified Store facts. No Store identity changed.');
+        const key = platform.comparisonKey(root);
+        const competing = (db.prepare('SELECT * FROM installation_checkouts WHERE checkout_id<>?').all(row.checkout_id) as unknown as Checkout[])
+            .some(candidate => candidate.root_path_key === key || platform.samePath(candidate.root_path, root));
+        if (competing)
+            fail('ownership-unverified', 'Another checkout already claims this platform path. No Store identity changed.');
+        const verifiedAt = now();
+        const verificationJson = JSON.stringify(currentEvidence);
+        db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
+            .run(root, key, verifiedAt, verificationJson, row.checkout_id);
+        return { ...row, root_path: root, root_path_key: key, verified_at: verifiedAt, verification_json: verificationJson };
     }
-    const row = { checkout_id: randomUUID(), project_id: id, root_path: root, root_device: String(st.dev), root_inode: String(st.ino) };
-    db.prepare('INSERT INTO installation_checkouts VALUES (?,?,?,?,?,?)').run(row.checkout_id, id, root, row.root_device, row.root_inode, now());
+    const bridge = legacyObjectNumbers(root);
+    const row: Checkout = { checkout_id: randomUUID(), project_id: id, root_path: root, ...bridge, root_path_key: platform.comparisonKey(root), verified_at: null, verification_json: null };
+    db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,root_device,root_inode,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?,?,?)')
+        .run(row.checkout_id, id, root, row.root_device, row.root_inode, now(), row.root_path_key, row.verified_at, row.verification_json);
     return row;
 }
 export function getInstallationCheckoutId(projectRoot: string, storeRoot?: string): string {
@@ -648,21 +738,16 @@ export function acquireInstallationLock(projectRoot: string, storeRoot?: string)
                     hostname: string;
                 } | undefined;
                 if (!owner)
-                    db.prepare('INSERT INTO installation_locks VALUES (?,?,?,?,?)').run(root, token, process.pid, os.hostname(), now());
+                    db.prepare('INSERT INTO installation_locks VALUES (?,?,?,?,?)').run(root, token, process.pid, platform.hostname, now());
                 return owner;
             }), { storeRoot: store });
             if (!previous)
                 break;
-            if (previous.hostname !== os.hostname())
-                fail('ownership-unverified', `The checkout writer belongs to another or unknown host (${previous.hostname}). No project files changed.`);
-            try {
-                process.kill(previous.pid, 0);
-            }
-            catch (error) {
-                if ((error as NodeJS.ErrnoException).code === 'ESRCH')
-                    fail('recovery-required', `Checkout writer ${previous.pid} stopped. Inspect project state status before recovery. No project files changed.`);
-                fail('ownership-unverified', `Make Docs cannot verify checkout writer ${previous.pid}. No project files changed.`);
-            }
+            const liveness = platform.processLiveness(previous.pid, previous.hostname);
+            if (liveness === 'dead')
+                fail('recovery-required', `Checkout writer ${previous.pid} stopped. Inspect project state status before recovery. No project files changed.`);
+            if (liveness === 'unknown')
+                fail('ownership-unverified', `Make Docs cannot verify checkout writer ${previous.pid} on ${previous.hostname}. No project files changed.`);
             if (Date.now() >= deadline)
                 fail('writer-active', `Make Docs waited ${Math.ceil((Date.now() - started) / 1000)} seconds for checkout writer ${previous.pid}. The writer is still active. No project files changed. Run the command after it finishes.`);
             waitForStoreRetry(attempt++, deadline);
@@ -759,7 +844,7 @@ export function removeInstallationManifest(projectRoot: string): void {
         return withInstallationOperation(root, 'setup.remove', () => removeInstallationManifest(root));
     withInstallationDatabase(root, db => { db.prepare('UPDATE installation_operations SET after_ledger=? WHERE operation_id=?').run('null', op.id); }, { storeRoot: op.storeRoot });
 }
-function commitOperation(db: StoreDatabase, id: string, rollback = false): void {
+function commitOperation(db: StoreDatabase, id: string, root: string, rollback = false): void {
     transaction(db, () => {
         const op = db.prepare('SELECT * FROM installation_operations WHERE operation_id=?').get(id) as unknown as Operation;
         const ledger = rollback ? op.before_ledger : op.after_ledger;
@@ -775,6 +860,10 @@ function commitOperation(db: StoreDatabase, id: string, rollback = false): void 
             db.prepare('INSERT INTO installation_ledgers VALUES (?,?,?) ON CONFLICT(checkout_id) DO UPDATE SET manifest_json=excluded.manifest_json,updated_at=excluded.updated_at').run(op.checkout_id, ledger, now());
         else
             db.prepare('DELETE FROM installation_ledgers WHERE checkout_id=?').run(op.checkout_id);
+        const owner = db.prepare('SELECT project_id FROM installation_checkouts WHERE checkout_id=?').get(op.checkout_id) as { project_id: string };
+        const evidence = checkoutVerificationEvidence(db, root, owner.project_id, op.checkout_id, ledger);
+        db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
+            .run(root, platform.comparisonKey(root), now(), JSON.stringify(evidence), op.checkout_id);
         db.prepare('UPDATE installation_operations SET status=?,finished_at=? WHERE operation_id=?').run(rollback ? 'rolled-back' : 'completed', now(), id);
     });
 }
@@ -816,8 +905,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
         if (!existsSync(root)) {
             withInstallationDatabase(root, db => db.prepare('INSERT INTO installation_steps VALUES (?,0,?,?,?,0)').run(bound.id, '.', JSON.stringify({ kind: 'missing' }), JSON.stringify({ kind: 'directory' })), { storeRoot: lock.storeRoot });
             mkdirSync(root, { recursive: true });
-            const st = statSync(root);
-            withInstallationDatabase(root, db => transaction(db, () => { db.prepare('UPDATE installation_checkouts SET root_device=?,root_inode=? WHERE root_path=?').run(String(st.dev), String(st.ino), root); db.prepare('UPDATE installation_steps SET applied=1 WHERE operation_id=? AND ordinal=0').run(bound.id); }), { storeRoot: lock.storeRoot });
+            withInstallationDatabase(root, db => transaction(db, () => { db.prepare('UPDATE installation_steps SET applied=1 WHERE operation_id=? AND ordinal=0').run(bound.id); }), { storeRoot: lock.storeRoot });
         }
         projectMutationStarted = true;
         ensureDeclarativeIdentity(root);
@@ -834,7 +922,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
             for (const step of last.values())
                 if (!subsumedByAncestor(root, step, last) && !matches(root, step.relative_path, JSON.parse(step.after_json)))
                     fail('snapshot-drift', `Output changed before final commit: ${step.relative_path}`);
-            commitOperation(db, bound.id);
+            commitOperation(db, bound.id, root);
         }, { storeRoot: lock.storeRoot });
         return result;
     }
@@ -858,7 +946,7 @@ function targetPath(root: string, relative: string): string {
     if (path.isAbsolute(relative)) {
         const target = path.join(canonicalInstallationPath(path.dirname(relative)),path.basename(relative));
         const nativeDirectories = [getHarnessSkillDirectory('codex','global'),getHarnessSkillDirectory('claude-code','global')];
-        const allowed = ['.agents', '.claude', '.codex'].some(p => canonicalInstallationPath(path.join(os.homedir(), p)) === target) || ['.agents/skills', '.codex/skills', '.claude/skills', '.make-docs/agentics'].some(p => inside(canonicalInstallationPath(path.join(os.homedir(), p)), target)) || nativeDirectories.some(p=>inside(canonicalInstallationPath(p),target) || canonicalInstallationPath(path.dirname(p)) === target) || inside(path.join(active.get(root)?.storeRoot ?? resolveStoreRoot(), 'agentics'), target);
+        const allowed = ['.agents', '.claude', '.codex'].some(p => canonicalInstallationPath(path.join(platform.userHome(), p)) === target) || ['.agents/skills', '.codex/skills', '.claude/skills', '.make-docs/agentics'].some(p => inside(canonicalInstallationPath(path.join(platform.userHome(), p)), target)) || nativeDirectories.some(p=>inside(canonicalInstallationPath(p),target) || canonicalInstallationPath(path.dirname(p)) === target) || inside(path.join(active.get(root)?.storeRoot ?? resolveStoreRoot(), 'agentics'), target);
         if (!allowed)
             fail('ownership-unverified', `External mutation path is not an approved skill location: ${relative}`);
         return path.join(canonicalInstallationPath(path.dirname(relative)), path.basename(relative));
@@ -871,7 +959,7 @@ function targetPath(root: string, relative: string): string {
 function assertSafeFilePath(root: string, relative: string): string {
     if (path.isAbsolute(relative)) {
         let lexicalParent = path.dirname(relative);
-        const home = os.homedir();
+        const home = platform.userHome();
         while (lexicalParent !== path.dirname(lexicalParent) && lexicalParent !== home) {
             if (lstatSync(lexicalParent, {throwIfNoEntry: false})?.isSymbolicLink()) fail('ownership-unverified', `Symbolic-link parent: ${lexicalParent}`);
             lexicalParent = path.dirname(lexicalParent);
@@ -989,6 +1077,7 @@ interface AtomicWriteRecord {
     mode: number;
     device?: string;
     inode?: string;
+    guard?: FileMutationGuard;
 }
 function atomicTemporaryPath(operationId: string, ordinal: number, target: string): string {
     return path.posix.join(path.posix.dirname(target), `.make-docs-${operationId}-${ordinal}.tmp`);
@@ -1010,7 +1099,9 @@ function atomicTemporaryStates(db: StoreDatabase, root: string, op: Operation, s
         const bytes = readFileSync(target), intended = Buffer.from(desired.contentBase64!, 'base64');
         const mode = stat.mode & 0o777;
         if (sha(intended) !== record.digest || bytes.length > intended.length || !bytes.equals(intended.subarray(0, bytes.length))) fail('snapshot-drift', `Temporary file was changed: ${record.temporary}`);
-        if (record.device !== undefined || record.inode !== undefined) {
+        if (record.guard) {
+            if (!platform.matchesFileGuard(stat, record.guard)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
+        } else if (record.device !== undefined || record.inode !== undefined) {
             if (record.device !== String(stat.dev) || record.inode !== String(stat.ino)) fail('snapshot-drift', `Temporary file identity changed: ${record.temporary}`);
         } else if (bytes.length !== 0 || mode !== 0o600) fail('snapshot-drift', `Unproved temporary file creation: ${record.temporary}`);
         if (mode !== 0o600 && !(bytes.length === intended.length && mode === record.mode)) fail('snapshot-drift', `Temporary file mode changed: ${record.temporary}`);
@@ -1039,7 +1130,7 @@ function writeAtomicDetachedFile(root: string, relative: string, state: FileStat
     try {
         fsyncSync(fd);
         const stat = fstatSync(fd);
-        record.device = String(stat.dev); record.inode = String(stat.ino);
+        record.guard = platform.captureFileGuard(stat, 'file');
         save(); // Inode proof precedes every payload byte.
         writeFileSync(fd, bytes);
         fsyncSync(fd);
@@ -1048,9 +1139,11 @@ function writeAtomicDetachedFile(root: string, relative: string, state: FileStat
     chmodSync(staged, state.mode ?? 0o644);
     assertInstallationLockActive(lock);
     if (!matches(root, relative, expected)) fail('snapshot-drift', `File changed before atomic replacement: ${relative}`);
-    renameSync(staged, target);
-    const directory = openSync(path.dirname(target), 'r');
-    try {fsyncSync(directory);} finally {closeSync(directory);}
+    try {
+        platform.atomicReplace(staged, target);
+    } catch (error) {
+        fail('snapshot-drift', error instanceof Error ? error.message : 'Atomic replacement failed.');
+    }
 }
 function restoreState(root: string, relative: string, state: FileState, atomic?: {op: Operation; step: Step; expected: FileState; lock: InstallationLock}): void {
     if (isRetiredSkillPath(root,relative) && state.kind !== 'missing') fail('recovery-required','Recovery cannot recreate retired .make-docs/agentics paths. Preserve the saved bytes and inspect forward resume.');
@@ -1245,7 +1338,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         fail('snapshot-drift', `Recovery preserves changed files: ${[...new Set(conflicts)].join(', ')}`);
     recoverDeadStoreLeases(store);
     if (state.steps.some(step => path.isAbsolute(step.relative_path)))
-        recoverDeadStoreLeases(canonicalInstallationPath(path.join(os.homedir(), '.make-docs')));
+        recoverDeadStoreLeases(canonicalInstallationPath(resolveStoreRoot()));
     // A crashed lock can be released only with same-host process death evidence.
     withInstallationDatabase(root, db => transaction(db, () => { const owner = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
         pid: number;
@@ -1322,7 +1415,7 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
             const recorded = entry?.skillExposure?.mode;
             if (!recorded || inspect(root, exposure).kind !== (recorded === 'symlink' ? 'symlink' : 'directory')) fail('snapshot-drift', 'Final native exposure and ownership mode disagree.');
         }
-        withInstallationDatabase(root, db => commitOperation(db, operationId, mode === 'rollback'), { storeRoot: store });
+        withInstallationDatabase(root, db => commitOperation(db, operationId, root, mode === 'rollback'), { storeRoot: store });
         return { ...result, changes: current.steps.map(s => ({path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind})), status: mode === 'resume' ? 'completed' : 'rolled-back' };
     }
     finally {

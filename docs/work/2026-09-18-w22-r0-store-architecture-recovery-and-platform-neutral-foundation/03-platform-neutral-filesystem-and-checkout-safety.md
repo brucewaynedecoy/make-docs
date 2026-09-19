@@ -59,12 +59,12 @@ Human Experience Review is separate. Inspect moved-checkout and blocked-state re
 
 ### Tasks
 
-- [ ] t1: Add one platform interface for user data roots, path normalization and comparison, atomic replacement, locking, process liveness, executable discovery, and short-lived file guards.
-- [ ] t2: Move direct operating-system branches out of Store, setup, harness, and resource business rules when the platform interface owns them.
-- [ ] t3: Replace durable checkout device and inode identity with project ID, Store checkout ID, current normalized path, and accepted last-verified content facts.
-- [ ] t4: Keep device and inode values only in bounded mutation guards where the platform supplies meaningful values. Define a safe alternate guard on platforms that do not.
-- [ ] t5: Add compatible schema changes and dual-read support needed before P5 migration.
-- [ ] t6: Add focused tests for path equality, case behavior, drive and UNC policy, separators, links or reparse points, absent leaves, and path moves.
+- [x] t1: Add one platform interface for user data roots, path normalization and comparison, atomic replacement, locking, process liveness, executable discovery, and short-lived file guards.
+- [x] t2: Move direct operating-system branches out of Store, setup, harness, and resource business rules when the platform interface owns them.
+- [x] t3: Replace durable checkout device and inode identity with project ID, Store checkout ID, current normalized path, and accepted last-verified content facts.
+- [x] t4: Keep device and inode values only in bounded mutation guards where the platform supplies meaningful values. Define a safe alternate guard on platforms that do not.
+- [x] t5: Add compatible schema changes and dual-read support needed before P5 migration.
+- [x] t6: Add focused tests for path equality, case behavior, drive and UNC policy, separators, links or reparse points, absent leaves, and path moves.
 
 ### Acceptance criteria
 
@@ -82,19 +82,19 @@ Human Experience Review is separate. Inspect moved-checkout and blocked-state re
 
 - Four testing decisions: Automated Implementation Testing required; all other testing types `not-needed-now` for this stage.
 - Human Experience Review: Prepare moved and blocked result observations for P6.
-- Evidence report: Retain schema, move, collision, and byte-preservation results.
+- Evidence report: Schema 3-to-4 migration, moved-checkout, changed-content, collision, and byte-preservation tests pass on the local macOS host.
 - Phase / capability status: P3 remains active.
 
 ## Stage 2 - Atomic Mutation, Locks, and Real-Platform Contract
 
 ### Tasks
 
-- [ ] t7: Implement platform-owned atomic replacement and parent or target guards with clear fallback and failure behavior.
-- [ ] t8: Implement platform-owned lock acquisition, stale-lock review, token verification, release, and process-liveness checks.
-- [ ] t9: Add interruption, restart, concurrent writer, stale lock, dead process, symlink or reparse-point, and atomic replace failure tests.
+- [x] t7: Implement platform-owned atomic replacement and parent or target guards with clear fallback and failure behavior.
+- [x] t8: Implement platform-owned lock acquisition, stale-lock review, token verification, release, and process-liveness checks.
+- [x] t9: Add interruption, restart, concurrent writer, stale lock, dead process, symlink or reparse-point, and atomic replace failure tests.
 - [ ] t10: Run the same platform contract suite on real Windows, macOS, and Linux runners.
 - [ ] t11: Compare public error class, safety result, and next action across platforms. Fix product-level differences or record an owner-approved limit.
-- [ ] t12: Run focused and full CLI tests plus default validation and diff checks.
+- [x] t12: Run focused and full CLI tests plus default validation and diff checks.
 
 ### Acceptance criteria
 
@@ -109,7 +109,7 @@ Human Experience Review is separate. Inspect moved-checkout and blocked-state re
 
 ### Closeout Notes
 
-- Four testing decisions: Record final automated results. Performance, Guided Progress, and Unassisted Goal Testing remain `not-needed-now`.
-- Human Experience Review: Record direct observations from the available result and the limits of runner evidence.
-- Evidence report: Link all real-platform contract results.
-- Phase / capability status: Close P3 only when all required platform families pass or the owner narrows product support in current authority.
+- Four testing decisions: Automated Implementation Testing is complete on the local macOS host. Performance, Guided Progress, and Unassisted Goal Testing remain `not-needed-now`.
+- Human Experience Review: Local results show that a verified move keeps the checkout link. A content change blocks the move and keeps prior bytes and Store evidence. This is agent-run evidence. It is not lived human review. Windows and Linux observations are still absent.
+- Evidence report: Type checks pass. The focused P3 and harness set passes 44 tests. The full CLI set passes 1,334 tests and skips 5 tests. One separate risk-list fixture fails because it expects R-001 through R-035 while the active register contains R-036 through R-038. Default validation has the same one failure. The build and diff check pass. The Windows, macOS, and Linux matrix is defined in `.github/workflows/platform-safety.yml`, but no remote run exists yet.
+- Phase / capability status: P3 remains active. Tasks t10 and t11 block closeout until real Windows, macOS, and Linux results exist and agree.

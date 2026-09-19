@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { platform } from "../platform";
 export type HarnessId = "codex" | "claude-code";
 export type HarnessScope = "machine" | "project";
 export type HarnessConnectionMethod = "mcp" | "command-rules" | "permission-rules";
@@ -415,7 +416,7 @@ function verifyExecutableAgainstPackage(
       "Repair the installed package and review setup again.",
     );
   }
-  if (process.platform !== "win32" && (stat.mode & 0o111) === 0) {
+  if (!platform.acceptsExecutableMode(stat.mode)) {
     throw verificationError(
       "executable-not-executable",
       "The resolved Make Docs package binary is not executable.",

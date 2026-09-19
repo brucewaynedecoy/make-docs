@@ -603,8 +603,8 @@ describe("system-resource determinism and evidence reuse", () => {
         size: stats.size,
         mtimeMs: stats.mtimeMs,
         ctimeMs: stats.ctimeMs,
-        device: stats.dev,
-        inode: stats.ino,
+        birthtimeMs: stats.birthtimeMs,
+        mode: stats.mode,
       },
       digest: entry.digest,
     };

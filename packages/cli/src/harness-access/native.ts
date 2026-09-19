@@ -7,14 +7,13 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
-  realpathSync,
-  renameSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { assertManagedPathHasNoSymlinks } from "../utils";
+import { platform, type FileMutationGuard } from "../platform";
 import {
   HARNESS_CALLER_IDENTITY_ARG,
   HARNESS_CALLER_IDENTITY_ENV,
@@ -164,24 +163,7 @@ function detectHarness(
 }
 
 function findExecutableOnPath(executableName: string, executablePath = process.env.PATH ?? ""): string | null {
-  const pathEntries = executablePath.split(path.delimiter).filter(Boolean);
-  const names = process.platform === "win32"
-    ? [executableName, `${executableName}.exe`, `${executableName}.cmd`]
-    : [executableName];
-  for (const entry of pathEntries) {
-    for (const name of names) {
-      const candidate = path.join(entry, name);
-      try {
-        const stat = lstatSync(candidate);
-        if (stat.isFile() && (process.platform === "win32" || (stat.mode & 0o111) !== 0)) {
-          return candidate;
-        }
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ENOENT") continue;
-      }
-    }
-  }
-  return null;
+  return platform.findExecutable(executableName, executablePath);
 }
 
 function planHarnessAccess(adapter: HarnessAdapter, input: HarnessPlanInput): HarnessAccessPlan {
@@ -673,9 +655,6 @@ function codexRuleLaunchPrefix(
   encodedCallerIdentity: string,
   executablePath: string,
 ): readonly string[] {
-  if (process.platform === "win32") {
-    throw new Error("Native rule launch identity is not implemented on Windows.");
-  }
   return Object.freeze([
     executablePath,
     HARNESS_CALLER_IDENTITY_ARG,
@@ -687,9 +666,6 @@ function claudePermissionRuleLaunchPrefix(
   callerReference: string,
   executablePath: string,
 ): readonly string[] {
-  if (process.platform === "win32") {
-    throw new Error("Native rule launch identity is not implemented on Windows.");
-  }
   return Object.freeze([
     executablePath,
     HARNESS_CALLER_REFERENCE_ARG,
@@ -711,7 +687,7 @@ function makeHarnessCallerIdentity(
     harnessId: adapter.harnessId,
     connectionMethod,
     scope: "machine",
-    root: realpathSync(root),
+    root: platform.describePath(root).canonicalPath,
     executable: { ...executable },
   };
 }
@@ -1776,7 +1752,7 @@ function writeNativeContent(
           relativePath,
         });
         assertNativeMutationBoundary(root, relativePath, guard, targetGuard);
-        renameSync(temporary, absolutePath);
+        platform.atomicReplace(temporary, absolutePath);
         assertParentGuard(root, relativePath, guard);
         if (fingerprintFile(readNativeContent(root, relativePath)) !== fingerprintFile(content)) {
           throw new Error(`Harness native file does not match the reviewed content: ${relativePath}.`);
@@ -1802,13 +1778,12 @@ function writeNativeContent(
 interface ParentGuard {
   fd: number;
   path: string;
-  dev: number;
-  ino: number;
+  guard: FileMutationGuard;
 }
 
 type TargetGuard =
   | { exists: false }
-  | { exists: true; fd: number; dev: number; ino: number };
+  | { exists: true; fd: number; guard: FileMutationGuard };
 
 function ensureNativeParent(root: string, relativePath: string): void {
   const parentRelative = path.dirname(relativePath);
@@ -1838,7 +1813,7 @@ function openParentGuard(parent: string): ParentGuard {
     closeSync(fd);
     throw new Error("Harness native parent is not a directory.");
   }
-  return { fd, path: parent, dev: stat.dev, ino: stat.ino };
+  return { fd, path: parent, guard: platform.captureFileGuard(stat, "directory") };
 }
 
 function assertParentGuard(root: string, relativePath: string, guard: ParentGuard): void {
@@ -1848,10 +1823,8 @@ function assertParentGuard(root: string, relativePath: string, guard: ParentGuar
   if (
     live.isSymbolicLink() ||
     !live.isDirectory() ||
-    live.dev !== guard.dev ||
-    live.ino !== guard.ino ||
-    descriptor.dev !== guard.dev ||
-    descriptor.ino !== guard.ino
+    !platform.matchesFileGuard(live, guard.guard) ||
+    !platform.matchesFileGuard(descriptor, guard.guard)
   ) {
     throw new Error(`Harness native parent changed after review: ${relativePath}.`);
   }
@@ -1876,12 +1849,11 @@ function openTargetGuard(absolutePath: string, relativePath: string): TargetGuar
       !descriptor.isFile() ||
       live.isSymbolicLink() ||
       !live.isFile() ||
-      live.dev !== descriptor.dev ||
-      live.ino !== descriptor.ino
+      !platform.sameFileObject(descriptor, live, "file")
     ) {
       throw new Error(`Harness native target changed after review: ${relativePath}.`);
     }
-    return { exists: true, fd, dev: descriptor.dev, ino: descriptor.ino };
+    return { exists: true, fd, guard: platform.captureFileGuard(descriptor, "file") };
   } catch (error) {
     closeSync(fd);
     throw error;
@@ -1924,12 +1896,10 @@ function assertNativeMutationBoundary(
   }
   if (
     !descriptor.isFile() ||
-    descriptor.dev !== targetGuard.dev ||
-    descriptor.ino !== targetGuard.ino ||
+    !platform.matchesFileGuard(descriptor, targetGuard.guard) ||
     live.isSymbolicLink() ||
     !live.isFile() ||
-    live.dev !== targetGuard.dev ||
-    live.ino !== targetGuard.ino
+    !platform.matchesFileGuard(live, targetGuard.guard)
   ) {
     throw new Error(`Harness native target changed after review: ${relativePath}.`);
   }

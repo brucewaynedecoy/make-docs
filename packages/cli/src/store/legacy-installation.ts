@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, rmdirSync, unlinkSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, rmdirSync, unlinkSync } from "node:fs";
 import path from "node:path";
 import { MANIFEST_RELATIVE_PATH, validateAndMigrateManifest } from "../manifest";
 import type { InstallManifest } from "../types";
 import { assertManagedPathHasNoSymlinks } from "../utils";
 import { acquireInstallationLock, releaseInstallationLock, assertInstallationLockActive, type InstallationLock, importInstallationState, readMigrationState, listMigrationState } from "./installation-state";
+import { platform } from "../platform";
 
 export interface LegacyInstallationSource { relativePath: string; digest: string }
 export interface LegacyInstallationRecord {
@@ -57,7 +58,7 @@ export function previewLegacyInstallationState(projectRoot: string): LegacyInsta
     minimumWriter: "Store installation contract 1 (W19 R3) or newer; obsolete CLI writers are unsupported after transfer.",
   };
   if (!existsSync(projectRoot)) return result;
-  const root = realpathSync(projectRoot);
+  const root = platform.describePath(projectRoot).canonicalPath;
   const read = (relativePath: string): Record<string, any> => {
     const bytes = safeFile(root, relativePath);
     const value = object(JSON.parse(bytes.toString("utf8")));

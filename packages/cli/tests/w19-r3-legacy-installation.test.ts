@@ -90,7 +90,7 @@ describe("bounded legacy installation transfer", () => {
     expect(()=>importLegacyInstallationState(f.root,f.store)).toThrow("Legacy source changed");
     expect(existsSync(path.join(f.root,".make-docs/backup/one/backup-manifest.json"))).toBe(true);
   });
-  it("preserves copied sources when another checkout replaces the bound directory", () => {
+  it("accepts a verified checkout move when device and inode identity change", () => {
     const f=fixture(); const preview=previewLegacyInstallationState(f.root);
     const copies=preview.sources.map(source=>({relativePath:source.relativePath,bytes:readFileSync(path.join(f.root,source.relativePath))}));
     importLegacyInstallationState(f.root,f.store);
@@ -99,8 +99,9 @@ describe("bounded legacy installation transfer", () => {
     mkdirSync(f.root);
     for(const copy of copies){mkdirSync(path.dirname(path.join(f.root,copy.relativePath)),{recursive:true});writeFileSync(path.join(f.root,copy.relativePath),copy.bytes);}
     writeFileSync(path.join(f.root,".make-docs/config.yaml"),priorConfig);
-    expect(()=>importLegacyInstallationState(f.root,f.store)).toThrow("directory identity changed");
-    for(const copy of copies)expect(readFileSync(path.join(f.root,copy.relativePath))).toEqual(copy.bytes);
+    expect(()=>importLegacyInstallationState(f.root,f.store)).not.toThrow();
+    for(const copy of copies)expect(existsSync(path.join(f.root,copy.relativePath))).toBe(false);
+    expect(existsSync(`${f.root}-old`)).toBe(true);
   });
   it("does not delete sources when the Store is inside the project", () => {
     const f=fixture(); expect(()=>importLegacyInstallationState(f.root,path.join(f.root,"store"))).toThrow();

@@ -1,5 +1,4 @@
 import { confirm, isCancel, select } from "@clack/prompts";
-import os from "node:os";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { ExecutableVerificationError, FIRST_PARTY_HARNESS_ADAPTERS, listBoundedHarnessCommandRules, requireFirstPartyHarnessAdapter, resolveHarnessMethodSupport, verifyMakeDocsExecutable, type HarnessAccessReceipt, type HarnessCommandRule, type HarnessCommandRuleAuthority, type HarnessMethodDefinition, type HarnessMethodSelection, type VerifiedExecutableIdentity } from "./harness-access/index.js";
@@ -11,6 +10,7 @@ import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt }
 import { completeHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
 import type { SetupHarnessState } from "./setup-state";
 import type { Harness } from "./types";
+import { platform } from "./platform";
 
 export const SYSTEM_COMMAND_RULE_AUTHORITY: HarnessCommandRuleAuthority = Object.freeze({
   list: listHarnessCommandRules,
@@ -85,14 +85,14 @@ export async function resumePendingSystemSetupCommand(
 ): Promise<SystemSetupResult | null> {
   return resumePendingSystemSetup(
     options,
-    options.machineRoot ?? os.homedir(),
+    options.machineRoot ?? platform.userHome(),
     options.targetRoot ?? process.cwd(),
     options.storeRoot ?? resolveStoreRoot(),
   );
 }
 
 export async function prepareSystemSetupCommand(options: RunSystemSetupOptions): Promise<PreparedSystemSetup> {
-  const machineRoot = options.machineRoot ?? os.homedir();
+  const machineRoot = options.machineRoot ?? platform.userHome();
   const targetRoot = options.targetRoot ?? process.cwd();
   const storeRoot = options.storeRoot ?? resolveStoreRoot();
   const executableAttempt: ExecutableVerificationAttempt = options.executable
@@ -131,7 +131,7 @@ export async function prepareSystemSetupCommand(options: RunSystemSetupOptions):
 export async function promptForSystemSetupMethods(
   options: RunSystemSetupOptions,
 ): Promise<Record<Harness, HarnessMethodSelection>> {
-  const machineRoot = options.machineRoot ?? os.homedir();
+  const machineRoot = options.machineRoot ?? platform.userHome();
   const storeRoot = options.storeRoot ?? resolveStoreRoot();
   return selectMethods(
     { ...options, promptForMethods: true, yes: false, dryRun: false },
@@ -489,5 +489,5 @@ export function renderSystemPlans(plans: SystemHarnessPlan[]): string {
     ];
   }).join("\n");
 }
-export function inspectSystemHarnesses(root = os.homedir()): SetupHarnessState[] { return FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => { const detection = adapter.detect({ scope: "machine", root }); return { harness: adapter.harnessId, state: detection.state, detail: detection.reason ?? (detection.evidence.length ? detection.evidence.join(", ") : "No native entry found"), ...(detection.state === "blocked" ? { nextAction: `Resolve access to the ${adapter.displayName} native files, then run \`make-docs setup system\` again.` } : {}) }; }); }
+export function inspectSystemHarnesses(root = platform.userHome()): SetupHarnessState[] { return FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => { const detection = adapter.detect({ scope: "machine", root }); return { harness: adapter.harnessId, state: detection.state, detail: detection.reason ?? (detection.evidence.length ? detection.evidence.join(", ") : "No native entry found"), ...(detection.state === "blocked" ? { nextAction: `Resolve access to the ${adapter.displayName} native files, then run \`make-docs setup system\` again.` } : {}) }; }); }
 function renderMethodSupport(root: string, selected: Record<Harness, boolean>, executableAttempt: ExecutableVerificationAttempt): string[] { return FIRST_PARTY_HARNESS_ADAPTERS.filter(adapter => selected[adapter.harnessId]).flatMap(adapter => adapter.methods.map(method => { const support = resolveHarnessMethodSupport(adapter, method.id); const state = support.selectable && executableAttempt.executable ? support.state : "blocked"; const detail = support.selectable && executableAttempt.error ? formatExecutableVerificationFailure(executableAttempt.error) : `${support.reason} Next: ${support.nextAction}`; return `${adapter.displayName} ${method.id}: ${state}; ${detail}; native file ${path.resolve(root, method.nativeFile("machine"))}; owned native entries ${method.ownedEntries.join(", ")}.`; })); }

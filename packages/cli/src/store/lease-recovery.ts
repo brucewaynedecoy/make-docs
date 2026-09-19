@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, unlinkSync, type Stats } from "node:fs";
-import { hostname } from "node:os";
 import path from "node:path";
 import { recoverDeadStoreAccessSessions, tryCreateExclusiveStoreLease } from "./database";
+import { platform } from "../platform";
 
 /** Writers and Store removal must check this marker before and after acquisition. */
 export const STORE_LEASE_RECOVERY_FILE = "installation-lease-recovery.lock";
@@ -27,7 +27,7 @@ function blocked(message: string): never {
 }
 
 function sameFile(left: Stats, right: Stats): boolean {
-  return left.dev === right.dev && left.ino === right.ino && right.isFile();
+  return platform.sameFileObject(left, right, "file");
 }
 
 function readLease(file: string): LeaseSnapshot | null {
@@ -50,13 +50,10 @@ function readLease(file: string): LeaseSnapshot | null {
 }
 
 function assertOwnerDead(lease: LeaseSnapshot): void {
-  if (lease.hostname !== hostname()) blocked(`The lease owner is on another or unknown host: ${path.basename(lease.file)}.`);
-  try { process.kill(lease.pid, 0); }
-  catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ESRCH") return;
-    blocked(`The lease owner's death cannot be verified: ${path.basename(lease.file)}.`);
-  }
-  blocked(`A live process owns ${path.basename(lease.file)} (${lease.pid}).`);
+  const state = platform.processLiveness(lease.pid, lease.hostname);
+  if (state === "dead") return;
+  if (state === "alive") blocked(`A live process owns ${path.basename(lease.file)} (${lease.pid}).`);
+  blocked(`The lease owner's death cannot be verified: ${path.basename(lease.file)}.`);
 }
 
 function assertUnchanged(lease: LeaseSnapshot): void {
@@ -72,14 +69,14 @@ function assertUnchanged(lease: LeaseSnapshot): void {
  * guard is preserved; its owner must finish before another recovery can enter.
  */
 export function recoverDeadStoreLeases(storeRoot: string): { removed: string[] } {
-  const root = path.resolve(storeRoot);
+  const root = platform.describePath(storeRoot).canonicalPath;
   const rootStat = lstatSync(root, { throwIfNoEntry: false });
   if (!rootStat) return { removed: [] };
   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) blocked("The Store root is unsafe.");
   if (lstatSync(path.join(root, "removal.lock"), { throwIfNoEntry: false })) blocked("Store removal is active or requires review.");
   const guard = path.join(root, STORE_LEASE_RECOVERY_FILE);
   const token = randomUUID();
-  const created = tryCreateExclusiveStoreLease(guard, { token, pid: process.pid, hostname: hostname(), startedAt: new Date().toISOString() });
+  const created = tryCreateExclusiveStoreLease(guard, { token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() });
   if (!created.created) return blocked("Another lease recovery owns the recovery guard. Inspect its owner before retrying.");
   const guardStat = created.stat;
   try {

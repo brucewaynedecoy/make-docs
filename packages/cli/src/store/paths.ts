@@ -1,5 +1,5 @@
-import os from "node:os";
 import path from "node:path";
+import { platform } from "../platform";
 
 /**
  * Environment variable that overrides the global store root. Tests and
@@ -35,14 +35,14 @@ export interface ResolveStoreRootOptions {
  */
 export function resolveStoreRoot(options: ResolveStoreRootOptions = {}): string {
   if (options.storeRoot) {
-    return path.resolve(options.storeRoot);
+    return platform.describePath(options.storeRoot).displayPath;
   }
   const env = options.env ?? process.env;
   const envRoot = env[STORE_ROOT_ENV_VAR];
   if (envRoot && envRoot.trim() !== "") {
-    return path.resolve(envRoot);
+    return platform.describePath(envRoot).displayPath;
   }
-  return path.join(options.homeDir ?? os.homedir(), STORE_DIR_NAME);
+  return path.join(platform.userDataRoot({ env, homeDir: options.homeDir }), STORE_DIR_NAME);
 }
 
 export function getGlobalConfigPath(storeRoot: string): string {
