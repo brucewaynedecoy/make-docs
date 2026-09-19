@@ -230,9 +230,9 @@ function isExecutable(value: unknown): boolean {
     !Number.isSafeInteger(value.size) ||
     Number(value.size) < 1
   ) return false;
-  return path.normalize(String(value.path)) === path.resolve(
-    String(value.packageRoot),
-    String(value.binRelativePath),
+  return platform.samePath(
+    String(value.path),
+    path.resolve(String(value.packageRoot), String(value.binRelativePath)),
   );
 }
 
@@ -249,15 +249,16 @@ function isReceiptEntry(value: unknown): value is HarnessReceiptEntry {
 
 function isSafeNativePath(value: unknown): value is string {
   if (typeof value !== "string" || value.length === 0 || /[\r\n\0]/.test(value)) return false;
-  if (path.isAbsolute(value)) return false;
-  const normalized = path.normalize(value);
-  return normalized !== "." && normalized === value && normalized !== ".." && !normalized.startsWith(`..${path.sep}`);
+  if (value.includes("\\") || path.posix.isAbsolute(value) || /^[A-Za-z]:/.test(value)) return false;
+  const normalized = path.posix.normalize(value);
+  return normalized !== "." && normalized === value && normalized !== ".." && !normalized.startsWith("../");
 }
 
 function isSafeRelativePath(value: unknown): value is string {
-  if (typeof value !== "string" || value.length === 0 || path.isAbsolute(value) || /[\r\n\0]/.test(value)) return false;
-  const normalized = path.normalize(value);
-  return normalized !== "." && normalized === value && normalized !== ".." && !normalized.startsWith(`..${path.sep}`);
+  if (typeof value !== "string" || value.length === 0 || /[\r\n\0]/.test(value)) return false;
+  if (value.includes("\\") || path.posix.isAbsolute(value) || /^[A-Za-z]:/.test(value)) return false;
+  const normalized = path.posix.normalize(value);
+  return normalized !== "." && normalized === value && normalized !== ".." && !normalized.startsWith("../");
 }
 
 function isNativeValueOrNull(value: unknown): value is NativeEntryValue | null {

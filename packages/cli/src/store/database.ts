@@ -765,7 +765,7 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
         active.push({ file, pid, hostname });
       } else if (remove) {
         if (removePendingSession(file, stat)) {
-          removed.push(path.relative(root, file));
+          removed.push(path.relative(root, file).split(path.sep).join(path.posix.sep));
         }
       }
       continue;
@@ -775,7 +775,7 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
     if (ownerState(lease) === "alive") {
       active.push({ file, pid: lease.pid, hostname: lease.hostname });
     } else if (remove && unlinkLeaseIfUnchanged(lease)) {
-      removed.push(path.relative(root, file));
+      removed.push(path.relative(root, file).split(path.sep).join(path.posix.sep));
     }
   }
   if (remove && stat.isDirectory() && active.length === 0) cleanupAccessDirectory(directory);

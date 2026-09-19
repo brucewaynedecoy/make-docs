@@ -127,7 +127,9 @@ describe('Store-owned installation safety',()=>{
   });
 
   it('refuses a read-only Store before touching project files',()=>{
-    if(process.getuid?.()===0)return;
+    // chmod cannot create a denied directory on Windows. The typed Windows
+    // EACCES and EPERM paths are covered by the Store issue contract below.
+    if(process.platform==='win32'||process.getuid?.()===0)return;
     operation(()=>{});const config=readFileSync(path.join(project,'.make-docs/config.yaml'));chmodSync(store,0o500);
     try{let error:unknown;try{operation(()=>replace('new.md','no'));}catch(value){error=value;}expect(error).toBeInstanceOf(StoreUnavailableError);expect((error as StoreUnavailableError).issue.code).toBe('access-denied');expect((error as Error).message).toContain('needs read and write access');expect((error as Error).message).toContain('No project files changed.');expect(existsSync(path.join(project,'new.md'))).toBe(false);expect(readFileSync(path.join(project,'.make-docs/config.yaml'))).toEqual(config);}finally{chmodSync(store,0o700);}
   });
