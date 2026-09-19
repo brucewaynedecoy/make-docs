@@ -434,8 +434,11 @@ async function buildRetiredDuplicatedSkillPayloadAssets(
 }
 
 function getInstallPath(...segments: string[]): string {
-  return segments.length > 1 && path.isAbsolute(segments[1])
+  const installPath = segments.length > 1 && path.isAbsolute(segments[1])
     ? path.join(...segments.slice(1)) : path.join(...segments);
+  return path.isAbsolute(installPath)
+    ? installPath
+    : installPath.split(path.sep).join(path.posix.sep);
 }
 
 function getSharedSkillSourceId(entry: SkillRegistryEntry): string {

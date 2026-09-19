@@ -76,6 +76,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Prepare the CLI test package
+        run: npm run prepack -w packages/cli
+
       - name: Run source and proof-harness tests
         run: |
           npm run test:smoke-harness
@@ -86,7 +89,6 @@ jobs:
         id: package
         run: |
           mkdir -p .p6-candidate
-          npm run prepack -w packages/cli
           cd packages/cli
           npm pack --json --ignore-scripts --pack-destination ../../.p6-candidate
           cd ../..

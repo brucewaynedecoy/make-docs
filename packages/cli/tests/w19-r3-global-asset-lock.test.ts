@@ -10,6 +10,8 @@ function fixture() {
   const home = path.join(parent, "home"), project = path.join(parent, "project");
   mkdirSync(home); mkdirSync(project);
   vi.spyOn(os, "homedir").mockReturnValue(home);
+  vi.stubEnv("LOCALAPPDATA", home);
+  vi.stubEnv("APPDATA", home);
   return { home, project, store: path.join(home, ".make-docs") };
 }
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });

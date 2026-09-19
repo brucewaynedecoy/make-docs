@@ -934,7 +934,18 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
     if (existing && !existing.isDirectory()) {
       throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "open Store session", new Error("The Store access path is not a directory.")));
     }
-    if (existing?.isDirectory()) recoverDeadStoreAccessSessions(storeRoot);
+    if (existing?.isDirectory()) {
+      try {
+        recoverDeadStoreAccessSessions(storeRoot);
+      } catch (error) {
+        const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
+        if (platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "") && Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        throw error;
+      }
+    }
     try {
       mkdirSync(directory, { mode: 0o700 });
     } catch (error) {

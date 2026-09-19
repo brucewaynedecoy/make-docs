@@ -236,9 +236,11 @@ describe("W19 R8 setup reachability", () => {
     const nonExecutable = path.join(root, "make-docs-copy");
     copyFileSync(packageBin, nonExecutable);
     chmodSync(nonExecutable, 0o644);
-    expect(() => verifyMakeDocsExecutable({ executablePath: nonExecutable })).toThrow(expect.objectContaining({
-      code: "executable-not-executable",
-    }));
+    if (process.platform !== "win32") {
+      expect(() => verifyMakeDocsExecutable({ executablePath: nonExecutable })).toThrow(expect.objectContaining({
+        code: "executable-not-executable",
+      }));
+    }
 
     const mismatch = path.join(root, "other-make-docs");
     writeFileSync(mismatch, "#!/bin/sh\nexit 0\n", { mode: 0o755 });

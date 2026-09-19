@@ -13,11 +13,15 @@ import { createTempDir, cleanupTempDir } from "./helpers";
 
 describe("W19 R5 standard native Skill layout", () => {
   let root: string;
+  let userDataRoot: string;
   beforeEach(() => {
     root = createTempDir();
+    userDataRoot = createTempDir();
+    vi.stubEnv("LOCALAPPDATA", userDataRoot);
+    vi.stubEnv("APPDATA", userDataRoot);
     vi.spyOn(resolver,"resolveSkillSource").mockResolvedValue({entryPointContent:"# Skill\n",assets:[]});
   });
-  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); cleanupTempDir(root); });
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); cleanupTempDir(root); cleanupTempDir(userDataRoot); });
 
   test.each(["codex", "claude-code", "both"] as const)("project %s creates only selected native folders", async tools => {
     const selections=defaultSelections();

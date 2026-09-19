@@ -446,10 +446,11 @@ export function acquireProjectMigrationLock(input: {
   storeRoot?: string;
   now?: string;
 }): ProjectMigrationLock {
-  const projectRoot = realpathSync(path.resolve(input.projectRoot));
-  assertNoActiveLegacyWriters(projectRoot);
-  if (activeLegacyLeases.has(projectRoot)) throw new MigrationSafetyError("active-writer", "Migration cannot start while legacy writers are active.");
-  const lease = acquireInstallationLock(projectRoot, input.storeRoot);
+  const requestedProjectRoot = realpathSync(path.resolve(input.projectRoot));
+  assertNoActiveLegacyWriters(requestedProjectRoot);
+  if (activeLegacyLeases.has(requestedProjectRoot)) throw new MigrationSafetyError("active-writer", "Migration cannot start while legacy writers are active.");
+  const lease = acquireInstallationLock(requestedProjectRoot, input.storeRoot);
+  const projectRoot = lease.projectRoot;
   const lock: ProjectMigrationLock = {
     ...lease,
     projectRoot,
@@ -459,6 +460,7 @@ export function acquireProjectMigrationLock(input: {
   };
   try {
     assertNoActiveLegacyWriters(projectRoot);
+    if (activeLegacyLeases.has(projectRoot)) throw new MigrationSafetyError("active-writer", "Migration cannot start while legacy writers are active.");
     writeQuiescence(projectRoot, {
       schemaVersion: 1,
       status: "active",

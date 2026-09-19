@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { classifyCompatibilityState } from "../src/compatibility";
 import { createExecutionContext } from "../src/operations/context";
@@ -20,7 +20,17 @@ import { resolveStoreRoot } from "../src/store/paths";
 
 const roots: string[] = [];
 
+beforeEach(() => {
+  const storeRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-store-"));
+  const userDataRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-user-data-"));
+  roots.push(storeRoot, userDataRoot);
+  vi.stubEnv("MAKE_DOCS_HOME", storeRoot);
+  vi.stubEnv("LOCALAPPDATA", userDataRoot);
+  vi.stubEnv("APPDATA", userDataRoot);
+});
+
 afterEach(() => {
+  vi.unstubAllEnvs();
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 

@@ -798,6 +798,9 @@ describe("risk register routing contract", () => {
       "R-033 Human Experience Structure Could Become Checklist Compliance",
       "R-034 Testing Proportionality, Gate, and Human-Burden Drift",
       "R-035 Deterministic and Agentic Performance Validation Could Drift or Overstate Proof",
+      "R-036 Compatibility Bridges Could Become Permanent Duplicate Authority",
+      "R-037 Minimal Store Migration Could Lose Recovery or Opaque Evidence",
+      "R-038 Platform Evidence Could Be Used to Excuse a Core Parity Gap",
     ]);
   });
 
