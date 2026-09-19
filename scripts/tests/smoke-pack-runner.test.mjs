@@ -16,7 +16,12 @@ import {
 } from "../lib/smoke-pack-runner.mjs";
 
 test("smoke-pack options default to the full release gate", () => {
-  assert.deepEqual(parseSmokePackOptions([]), { mode: "full", verifyDogfood: false });
+  assert.deepEqual(parseSmokePackOptions([]), {
+    mode: "full",
+    verifyDogfood: false,
+    tarballPath: null,
+    installedPackageRoot: null,
+  });
   assert.deepEqual(getSmokeModePlan("full"), {
     runLocalChecks: true,
     runPackageRunners: true,
@@ -27,10 +32,31 @@ test("smoke-pack options select local and runner-only work", () => {
   assert.deepEqual(parseSmokePackOptions(["--mode", "local", "--verify-dogfood"]), {
     mode: "local",
     verifyDogfood: true,
+    tarballPath: null,
+    installedPackageRoot: null,
   });
   assert.deepEqual(parseSmokePackOptions(["--mode=runners"]), {
     mode: "runners",
     verifyDogfood: false,
+    tarballPath: null,
+    installedPackageRoot: null,
+  });
+  assert.deepEqual(parseSmokePackOptions(["--mode=local", "--tarball", "candidate.tgz"]), {
+    mode: "local",
+    verifyDogfood: false,
+    tarballPath: "candidate.tgz",
+    installedPackageRoot: null,
+  });
+  assert.deepEqual(parseSmokePackOptions([
+    "--mode=local",
+    "--tarball=candidate.tgz",
+    "--installed-package-root",
+    "installed/package",
+  ]), {
+    mode: "local",
+    verifyDogfood: false,
+    tarballPath: "candidate.tgz",
+    installedPackageRoot: "installed/package",
   });
   assert.deepEqual(getSmokeModePlan("local"), {
     runLocalChecks: true,
@@ -46,6 +72,11 @@ test("smoke-pack options reject invalid input before work starts", () => {
   for (const args of [
     ["--mode"],
     ["--mode", "unknown"],
+    ["--tarball"],
+    ["--tarball="],
+    ["--installed-package-root"],
+    ["--installed-package-root="],
+    ["--installed-package-root", "installed/package"],
     ["--unexpected"],
     ["--mode", "runners", "--verify-dogfood"],
   ]) {

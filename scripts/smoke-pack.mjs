@@ -37,7 +37,12 @@ try {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(error && typeof error.exitCode === "number" ? error.exitCode : 2);
 }
-const { mode, verifyDogfood } = smokeOptions;
+const {
+  mode,
+  verifyDogfood,
+  tarballPath: suppliedTarballPath,
+  installedPackageRoot: suppliedInstalledPackageRoot,
+} = smokeOptions;
 const { runLocalChecks, runPackageRunners } = getSmokeModePlan(mode);
 const suiteStartedAt = performance.now();
 console.log(`[smoke:pack] mode=${mode}`);
@@ -394,23 +399,34 @@ async function runPackageRunnerSmoke(options) {
   }
 }
 
-execFileSync("npm", ["run", "prepack"], {
-  cwd: cliPackageDir,
-  stdio: "inherit",
-  env: npmEnv(),
-});
-
-const packOutput = execFileSync(
-  "npm",
-  ["pack", "--json", "--ignore-scripts", "--pack-destination", packOutputDir],
-  {
+let tarballPath;
+let ownsTarball = false;
+if (suppliedTarballPath) {
+  tarballPath = path.resolve(suppliedTarballPath);
+  if (!existsSync(tarballPath)) {
+    throw new Error(`Smoke-pack candidate does not exist: ${tarballPath}`);
+  }
+  console.log(`[smoke:pack] candidate=${tarballPath}`);
+} else {
+  execFileSync("npm", ["run", "prepack"], {
     cwd: cliPackageDir,
-    encoding: "utf8",
+    stdio: "inherit",
     env: npmEnv(),
-  },
-);
-const [{ filename }] = JSON.parse(packOutput);
-const tarballPath = path.join(packOutputDir, filename);
+  });
+
+  const packOutput = execFileSync(
+    "npm",
+    ["pack", "--json", "--ignore-scripts", "--pack-destination", packOutputDir],
+    {
+      cwd: cliPackageDir,
+      encoding: "utf8",
+      env: npmEnv(),
+    },
+  );
+  const [{ filename }] = JSON.parse(packOutput);
+  tarballPath = path.join(packOutputDir, filename);
+  ownsTarball = true;
+}
 
 const unpackDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-pack-"));
 const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-smoke-"));
@@ -428,8 +444,26 @@ function runLocalPackedSmoke() {
     path.join(packageRoot, "template/.make-docs/config.yaml"),
     "Packed template should not ship a default project config file.",
   );
-  const packedMakeDocs = path.join(packageRoot, packedPackage.bin["make-docs"]);
-  assertPackedCliIdentity(packageRoot, packedPackage, packedMakeDocs);
+  const executionPackageRoot = suppliedInstalledPackageRoot
+    ? path.resolve(suppliedInstalledPackageRoot)
+    : packageRoot;
+  const executionPackage = readPackedPackage(executionPackageRoot);
+  assertOnlyMakeDocsBin(executionPackage);
+  if (
+    executionPackage.name !== packedPackage.name ||
+    executionPackage.version !== packedPackage.version
+  ) {
+    throw new Error("Installed package identity does not match the recorded tarball identity.");
+  }
+  if (suppliedInstalledPackageRoot) {
+    const installedRoot = realpathSync(executionPackageRoot);
+    const sourceRoot = realpathSync(repoRoot);
+    if (installedRoot === sourceRoot || installedRoot.startsWith(`${sourceRoot}${path.sep}`)) {
+      throw new Error("P6 installed-package execution root is inside the source checkout.");
+    }
+  }
+  const packedMakeDocs = path.join(executionPackageRoot, executionPackage.bin["make-docs"]);
+  assertPackedCliIdentity(executionPackageRoot, executionPackage, packedMakeDocs);
   const skillsHelp = execFileSync("node", [packedMakeDocs, "setup", "skills", "--help"], {
     encoding: "utf8",
     env: packedCliEnv,
@@ -858,6 +892,8 @@ function runLocalPackedSmoke() {
   );
 }
 
+const originalWorkingDirectory = process.cwd();
+if (suppliedInstalledPackageRoot) process.chdir(npmHome);
 try {
   if (runLocalChecks) {
     const localStartedAt = performance.now();
@@ -868,6 +904,7 @@ try {
   if (runPackageRunners) await runPackageRunnerSmokes(tarballPath);
   console.log(`[smoke:pack] PASS mode=${mode} ${formatDuration(performance.now() - suiteStartedAt)}`);
 } finally {
+  if (process.cwd() !== originalWorkingDirectory) process.chdir(originalWorkingDirectory);
   for (const dir of auxSmokeDirs) {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -876,7 +913,7 @@ try {
   rmSync(packOutputDir, { recursive: true, force: true });
   rmSync(npmHome, { recursive: true, force: true });
   rmSync(storeRoot, { recursive: true, force: true });
-  rmSync(tarballPath, { force: true });
+  if (ownsTarball) rmSync(tarballPath, { force: true });
 }
 
 function readPackedPackage(packageRoot) {
@@ -1041,20 +1078,14 @@ function assertProviderOnlyDefaultInstall(targetDir, installation) {
   const provider = projection?.provider;
   if (
     !projection ||
-    !Array.isArray(projection.selectedTypes) ||
-    projection.selectedTypes.length !== 0 ||
+    projection.selectedTypes !== undefined ||
     !projection.resources ||
     Object.keys(projection.resources).length !== 0 ||
     !Array.isArray(manifest.selections?.resourceProjection) ||
     manifest.selections.resourceProjection.length !== 0 ||
-    provider?.ownershipClass !== "installed-provider" ||
-    provider?.provenanceState !== "verified" ||
-    provider?.packageName !== EXPECTED_PACKAGE_NAME ||
-    provider?.version !== manifest.packageVersion ||
-    provider?.immutableRef !== `package:${EXPECTED_PACKAGE_NAME}@${manifest.packageVersion}` ||
-    !/^[a-f0-9]{64}$/.test(provider?.inventoryDigest ?? "")
+    provider !== undefined
   ) {
-    throw new Error("Smoke pack provider-only manifest has invalid provider or projection evidence.");
+    throw new Error("Smoke pack provider-only manifest has invalid desired selection or applied projection evidence.");
   }
 
   assertDirectoryEntries(targetDir, [".make-docs", "AGENTS.md", "CLAUDE.md", "docs"]);

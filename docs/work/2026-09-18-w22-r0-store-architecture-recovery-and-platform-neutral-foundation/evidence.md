@@ -1042,3 +1042,40 @@ The W23 fixture does not exercise the P5 bridge, migration, setup, Store, or rec
 Tasks t1 through t16 are complete. Acceptance criteria A28 through A35 have source-level evidence within the recorded P6 and W23 limits.
 
 The owner authorized closeout on 2026-09-19. P5 is closed. P6 needs separate explicit authority.
+
+## P6 Real-Platform Package Proof and Closeout
+
+### Status
+
+P6 implementation is active. The local harness and macOS installed-package check pass. The final candidate and the real Windows, macOS, and Linux results still require a committed source revision and a remote workflow run.
+
+### Installed-Package Proof Route
+
+- The Platform safety workflow builds one package only after the source suite, proof-harness tests, and default validation pass.
+- The candidate record binds the source revision, package name, version, file name, SHA-256 digest, and byte size.
+- Each real-platform job downloads the same artifact and verifies its digest and size before use.
+- Each job installs the package into an isolated npm prefix. It runs the installed package entry with isolated home and Store roots.
+- Each platform record includes the installed case name, public state, safety result, next action, file result, Store result, and native-entry result.
+- The comparison job requires one passing result from Windows, macOS, and Linux. It rejects a missing platform, a repeated platform, a different candidate, source-checkout product execution, or an extract-only package check.
+- The comparison job also rejects a missing source safety matrix or a different installed public contract.
+- The workflow keeps the P3 platform contract. The installed-package route adds package-manager and packaged-output proof. It does not reduce the core parity target.
+
+### Local Implementation Evidence
+
+| Check | Result |
+| --- | --- |
+| Proof-harness tests | Passed: 15 of 15. |
+| Focused safety matrix | Passed: 224 of 224 on macOS. The workflow runs this same matrix on Windows, macOS, and Linux. |
+| Exact package install and smoke on macOS | Passed from an isolated `npm install`: `@brucewaynedecoy/make-docs@2.0.0-rc`, SHA-256 `b4f491a01e81dac6b3746cbe44a749dced3c90333c9fadf51380b85ce3333940`, 1,535,435 bytes. |
+| Full CLI suite | 1,346 passed and 5 skipped. One consistency test failed because the separate W23 draft adds R-036 through R-038 while its test update is not in this P6 change. |
+| Default validation | 52 passed. The same separate W23 risk-list test failed. |
+| Diff whitespace check | Passed. |
+
+The local package uses the P5 commit as its recorded source revision. It is only a harness check. It is not the final P6 candidate because the P6 workflow changes are not committed.
+
+### Remaining Gate
+
+- Build the final package from the committed P6 source revision.
+- Run and compare the exact installed package on Windows, macOS, and Linux.
+- Complete t7 through t13 only after the real-platform matrix passes.
+- Do not close P6, publish, or release from the local result alone.

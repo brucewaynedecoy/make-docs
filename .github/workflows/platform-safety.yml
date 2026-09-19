@@ -3,8 +3,11 @@ name: Platform safety
 on:
   pull_request:
     paths:
-      - "packages/cli/src/**"
-      - "packages/cli/tests/**"
+      - "packages/cli/**"
+      - "packages/docs/template/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/platform-safety.yml"
   workflow_dispatch:
 
@@ -46,3 +49,164 @@ jobs:
           tests/resource-resolver.test.ts
           tests/w19-r6-harness-adapters.test.ts
           tests/w19-r6-harness-system-operations.test.ts
+          tests/w19-r8-store-access-remediation.test.ts
+          tests/w19-r3-callers.test.ts
+          tests/w19-r3-lease-recovery.test.ts
+          tests/w19-r3-global-asset-lock.test.ts
+          tests/w19-r5-standard-skill-layout.test.ts
+          tests/p4-projection-lifecycle.test.ts
+          tests/w22-r0-p5-compatibility-bridge.test.ts
+          tests/store.test.ts
+
+  package-candidate:
+    name: Build one installed-package candidate
+    runs-on: ubuntu-latest
+    outputs:
+      tarball_name: ${{ steps.package.outputs.tarball_name }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run source and proof-harness tests
+        run: |
+          npm run test:smoke-harness
+          npm test -w packages/cli
+          npm run validate:defaults
+
+      - name: Build the package candidate
+        id: package
+        run: |
+          mkdir -p .p6-candidate
+          npm run prepack -w packages/cli
+          cd packages/cli
+          npm pack --json --ignore-scripts --pack-destination ../../.p6-candidate
+          cd ../..
+          tarball_path="$(find .p6-candidate -maxdepth 1 -type f -name '*.tgz' -print -quit)"
+          test -n "$tarball_path"
+          echo "tarball_path=$tarball_path" >> "$GITHUB_OUTPUT"
+          echo "tarball_name=$(basename "$tarball_path")" >> "$GITHUB_OUTPUT"
+
+      - name: Record candidate identity
+        run: >-
+          node scripts/w22-p6-package-proof.mjs candidate
+          --tarball ${{ steps.package.outputs.tarball_path }}
+          --package-json packages/cli/package.json
+          --source-revision ${{ github.sha }}
+          --output .p6-candidate/candidate.json
+
+      - name: Upload the exact candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: w22-p6-package-candidate
+          path: .p6-candidate/
+          if-no-files-found: error
+
+  installed-package:
+    name: ${{ matrix.platform }} installed package
+    needs: [platform-contract, package-candidate]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: ubuntu-latest
+          - os: macos-latest
+            platform: macos-latest
+          - os: windows-latest
+            platform: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out proof harness
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked proof dependencies
+        run: npm ci
+
+      - name: Run required source safety matrix
+        run: >-
+          npm test -w packages/cli --
+          tests/w22-r0-p3-platform-safety.test.ts
+          tests/installation-state.test.ts
+          tests/resource-resolver.test.ts
+          tests/w19-r6-harness-adapters.test.ts
+          tests/w19-r6-harness-system-operations.test.ts
+          tests/w19-r8-store-access-remediation.test.ts
+          tests/w19-r3-callers.test.ts
+          tests/w19-r3-lease-recovery.test.ts
+          tests/w19-r3-global-asset-lock.test.ts
+          tests/w19-r5-standard-skill-layout.test.ts
+          tests/p4-projection-lifecycle.test.ts
+          tests/w22-r0-p5-compatibility-bridge.test.ts
+          tests/store.test.ts
+
+      - name: Download the exact candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: w22-p6-package-candidate
+          path: .p6-candidate
+
+      - name: Run installed-package proof
+        run: >-
+          node scripts/w22-p6-package-proof.mjs verify
+          --candidate .p6-candidate/candidate.json
+          --tarball .p6-candidate/${{ needs.package-candidate.outputs.tarball_name }}
+          --platform ${{ matrix.platform }}
+          --source-matrix passed
+          --output .p6-evidence/${{ matrix.platform }}.json
+
+      - name: Upload platform evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w22-p6-evidence-${{ matrix.platform }}
+          path: .p6-evidence/
+          if-no-files-found: error
+
+  compare-installed-package:
+    name: Compare installed-package evidence
+    needs: installed-package
+    if: ${{ always() && needs.installed-package.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proof harness
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download platform evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: w22-p6-evidence-*
+          path: .p6-evidence
+          merge-multiple: true
+
+      - name: Compare candidate and platform results
+        run: >-
+          node scripts/w22-p6-package-proof.mjs compare
+          --evidence-dir .p6-evidence
+          --output .p6-comparison/comparison.json
+
+      - name: Upload comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: w22-p6-platform-comparison
+          path: .p6-comparison/
+          if-no-files-found: error

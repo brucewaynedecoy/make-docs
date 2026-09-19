@@ -14,7 +14,7 @@
     "build": "npm run build -w packages/cli",
     "dev": "npm run dev -w packages/cli",
     "test": "npm run test:smoke-harness && npm test -w packages/cli",
-    "test:smoke-harness": "node --test scripts/tests/smoke-pack-runner.test.mjs",
+    "test:smoke-harness": "node --test scripts/tests/smoke-pack-runner.test.mjs scripts/tests/w22-p6-package-proof.test.mjs",
     "validate:defaults": "npm run validate:defaults -w packages/cli",
     "smoke:pack": "node scripts/smoke-pack.mjs",
     "smoke:pack:local": "node scripts/smoke-pack.mjs --mode local",

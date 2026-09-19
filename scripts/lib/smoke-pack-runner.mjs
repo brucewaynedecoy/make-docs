@@ -43,11 +43,49 @@ export class PackageRunnerEnvironmentError extends Error {
 export function parseSmokePackOptions(args) {
   let mode = "full";
   let verifyDogfood = false;
+  let tarballPath = null;
+  let installedPackageRoot = null;
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === "--verify-dogfood") {
       verifyDogfood = true;
+      continue;
+    }
+
+    if (arg === "--tarball") {
+      const value = args[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new SmokePackUsageError("Smoke-pack option --tarball requires a package file path.");
+      }
+      tarballPath = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--tarball=")) {
+      tarballPath = arg.slice("--tarball=".length);
+      if (!tarballPath) {
+        throw new SmokePackUsageError("Smoke-pack option --tarball requires a package file path.");
+      }
+      continue;
+    }
+
+    if (arg === "--installed-package-root") {
+      const value = args[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new SmokePackUsageError("Smoke-pack option --installed-package-root requires a directory path.");
+      }
+      installedPackageRoot = value;
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--installed-package-root=")) {
+      installedPackageRoot = arg.slice("--installed-package-root=".length);
+      if (!installedPackageRoot) {
+        throw new SmokePackUsageError("Smoke-pack option --installed-package-root requires a directory path.");
+      }
       continue;
     }
 
@@ -75,8 +113,11 @@ export function parseSmokePackOptions(args) {
   if (mode === "runners" && verifyDogfood) {
     throw new SmokePackUsageError("Smoke-pack option --verify-dogfood requires full or local mode.");
   }
+  if (installedPackageRoot && !tarballPath) {
+    throw new SmokePackUsageError("Smoke-pack option --installed-package-root requires --tarball.");
+  }
 
-  return { mode, verifyDogfood };
+  return { mode, verifyDogfood, tarballPath, installedPackageRoot };
 }
 
 export function getSmokeModePlan(mode) {
