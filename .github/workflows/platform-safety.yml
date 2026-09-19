@@ -35,6 +35,9 @@ jobs:
       - name: Check TypeScript
         run: npm exec -- tsc --noEmit -p packages/cli/tsconfig.json
 
+      - name: Build CLI package
+        run: npm run build -w packages/cli
+
       - name: Run platform safety contracts
         run: >-
           npm test -w packages/cli --

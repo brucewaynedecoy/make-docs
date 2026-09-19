@@ -1,6 +1,7 @@
 import {
   closeSync,
   constants,
+  fchmodSync,
   fstatSync,
   fsyncSync,
   lstatSync,
@@ -43,8 +44,10 @@ export interface PlatformService {
   describePath(input: string): PlatformPath;
   comparisonKey(input: string): string;
   samePath(left: string, right: string): boolean;
+  isPathInside(root: string, candidate: string): boolean;
   assertPathInside(root: string, candidate: string): void;
   acceptsExecutableMode(mode: number): boolean;
+  applyPrivateMode(fd: number, mode: number): void;
   findExecutable(executableName: string, executablePath?: string): string | null;
   processLiveness(pid: number, ownerHostname?: string): ProcessLiveness;
   captureFileGuard(stats: Stats, kind?: GuardedFileKind): FileMutationGuard;
@@ -186,7 +189,14 @@ export function createPlatformService(
   hostname = os.hostname(),
 ): PlatformService {
   const kind = corePlatform(platformValue);
-  const caseSensitiveComparison = volumeUsesCaseSensitiveNames(canonicalNativePath(process.cwd(), kind), kind);
+  const nativeKind = corePlatform(process.platform);
+  const caseSensitiveComparison = kind === "win32"
+    ? false
+    : kind === "linux"
+      ? true
+      : kind === nativeKind
+        ? volumeUsesCaseSensitiveNames(canonicalNativePath(process.cwd(), kind), kind)
+        : true;
 
   const describePath = (input: string): PlatformPath => {
     const canonicalPath = canonicalNativePath(input, kind);
@@ -251,21 +261,26 @@ export function createPlatformService(
     samePath(left, right) {
       return service.comparisonKey(left) === service.comparisonKey(right);
     },
-    assertPathInside(root, candidate) {
+    isPathInside(root, candidate) {
       const rootPath = describePath(root);
       const candidatePath = describePath(candidate);
       const api = pathApi(kind);
       const relative = api.relative(rootPath.canonicalPath, candidatePath.canonicalPath);
-      if (relative === "" || (!relative.startsWith(`..${api.sep}`) && relative !== ".." && !api.isAbsolute(relative))) {
-        return;
-      }
+      return relative === "" ||
+        (!relative.startsWith(`..${api.sep}`) && relative !== ".." && !api.isAbsolute(relative));
+    },
+    assertPathInside(root, candidate) {
+      if (service.isPathInside(root, candidate)) return;
       throw new PlatformOperationError(
         "unsafe-path",
-        `The path escapes its approved root: ${candidatePath.displayPath}`,
+        `The path escapes its approved root: ${path.resolve(candidate)}`,
       );
     },
     acceptsExecutableMode(mode) {
       return kind === "win32" || (mode & 0o111) !== 0;
+    },
+    applyPrivateMode(fd, mode) {
+      if (kind !== "win32") fchmodSync(fd, mode);
     },
     findExecutable(executableName, executablePath = process.env.PATH ?? "") {
       const api = pathApi(kind);

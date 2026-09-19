@@ -1,7 +1,6 @@
 import {
   closeSync,
   constants,
-  fchmodSync,
   fstatSync,
   fsyncSync,
   lstatSync,
@@ -655,7 +654,7 @@ export function tryCreateExclusiveStoreLease(
   let stat: Stats | null = null;
   try {
     fd = openSync(pending, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
-    fchmodSync(fd, 0o600);
+    platform.applyPrivateMode(fd, 0o600);
     stat = fstatSync(fd);
     writeFileSync(fd, JSON.stringify(owner));
     fsyncSync(fd);
@@ -883,7 +882,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
         }
         throw new StoreUnavailableError(makeStoreIssue("owner-unverified", directory, "verify session directory", new Error("The Store session directory changed during admission.")));
       }
-      fchmodSync(directoryFd, 0o700);
+      platform.applyPrivateMode(directoryFd, 0o700);
     } catch (error) {
       if (error instanceof StoreUnavailableError) throw error;
       const code = systemCode(error);
@@ -905,7 +904,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       // O_EXCL makes an existing file or link fail. macOS rejects O_NOFOLLOW
       // when O_CREAT creates a new file, so it must not be used here.
       fd = openSync(pendingFile, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
-      fchmodSync(fd, 0o600);
+      platform.applyPrivateMode(fd, 0o600);
       leaseStat = fstatSync(fd);
       writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() }));
       fsyncSync(fd);

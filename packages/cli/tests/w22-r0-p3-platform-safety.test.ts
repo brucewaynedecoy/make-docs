@@ -63,6 +63,8 @@ describe("W22 R0 P3 platform safety contract", () => {
     const described = platform.describePath(path.join(alias, "absent", "leaf"));
     expect(described.canonicalPath).toBe(path.join(platform.describePath(real).canonicalPath, "absent", "leaf"));
     expect(described.comparisonKey).toBe(platform.comparisonKey(path.join(real, "absent", "leaf")));
+    expect(platform.isPathInside(real, path.join(real, "absent", "leaf"))).toBe(true);
+    expect(platform.isPathInside(real, root)).toBe(false);
   });
 
   it("uses native object numbers only for a short guard and has a metadata fallback", () => {
@@ -127,6 +129,7 @@ describe("W22 R0 P3 platform safety contract", () => {
     expect(win.userDataRoot({ env: { APPDATA: "C:\\Roaming" }, homeDir: "C:\\Home" })).toBe("C:\\Roaming");
     expect(createPlatformService("linux").userDataRoot({ env: {}, homeDir: "/home/test" })).toBe("/home/test");
     expect(createPlatformService("darwin").userDataRoot({ env: {}, homeDir: "/Users/test" })).toBe("/Users/test");
+    expect(() => win.applyPrivateMode(-1, 0o600)).not.toThrow();
   });
 
   it("upgrades schema 3 checkout rows without treating legacy object numbers as identity", () => {

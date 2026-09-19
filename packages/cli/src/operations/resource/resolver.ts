@@ -1217,8 +1217,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function isWithinRoot(root: string, candidate: string): boolean {
-  const relative = path.relative(root, candidate);
-  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
+  return platform.isPathInside(root, candidate);
 }
 
 function compareCodeUnits(left: string, right: string): number {
