@@ -1,0 +1,98 @@
+{
+  "preflight": [
+    {
+      "path": "SKILL.md",
+      "kind": "file",
+      "sha256": "1ffb3e09905389074ea6586b423144bd2b29b5da100f54ad4eefe93f33c13f08",
+      "bytes": 3792
+    },
+    {
+      "path": "agents",
+      "kind": "directory"
+    },
+    {
+      "path": "references",
+      "kind": "directory"
+    },
+    {
+      "path": "references/decisions.md",
+      "kind": "file",
+      "sha256": "89b6c5ad3a00f21e3f9c785d417d9ca9168e57843c50beb39b0cb6f475615a36",
+      "bytes": 1941
+    },
+    {
+      "path": "agents/openai.yaml",
+      "kind": "file",
+      "sha256": "8459feb9790ba9a8dca3c70a1c0f9c56f5af646058679eda4149fff94136083d",
+      "bytes": 244
+    }
+  ],
+  "software-factory": [
+    {
+      "path": "SKILL.md",
+      "kind": "file",
+      "sha256": "33d447fc922244cf0d2a9b55b1b3968a795dea6962038024cdf95dc4898da0ce",
+      "bytes": 4532
+    },
+    {
+      "path": "agents",
+      "kind": "directory"
+    },
+    {
+      "path": "references",
+      "kind": "directory"
+    },
+    {
+      "path": "references/profiles.md",
+      "kind": "file",
+      "sha256": "425bd58cc613b149164e715fac48415bcfcd1c3eba67b12a7b17cfde187fd3dd",
+      "bytes": 1690
+    },
+    {
+      "path": "references/store.md",
+      "kind": "file",
+      "sha256": "5be7f27aa44bba7229baac47b890de8e3770f28b4a9d9ea84bef3cb9e38c124e",
+      "bytes": 4741
+    },
+    {
+      "path": "references/work-methods.md",
+      "kind": "file",
+      "sha256": "7b6d823c1c95fca497f493d9ed8178a23d9842b409af7ec5cf5982d179a1a442",
+      "bytes": 2961
+    },
+    {
+      "path": "agents/openai.yaml",
+      "kind": "file",
+      "sha256": "386e25dd869edc49fbad8a0e51193f7c49776e373627f5c094b3826580c513d4",
+      "bytes": 256
+    }
+  ],
+  "human-experience": [
+    {
+      "path": "SKILL.md",
+      "kind": "file",
+      "sha256": "0465b2608156ed50a56034905837b34b0c6d3adf390d3825788c9730aad528df",
+      "bytes": 3067
+    },
+    {
+      "path": "agents",
+      "kind": "directory"
+    },
+    {
+      "path": "references",
+      "kind": "directory"
+    },
+    {
+      "path": "references/surfaces.md",
+      "kind": "file",
+      "sha256": "b0159fcd25a27b7c69bde45dd5a6b95ae7903e034e97f4abe97f156f98349acd",
+      "bytes": 1910
+    },
+    {
+      "path": "agents/openai.yaml",
+      "kind": "file",
+      "sha256": "a01e36bf9f435bc10acc137d2fc3680f88d99c2e6fbcd7347c99f36a54b9fb24",
+      "bytes": 244
+    }
+  ]
+}

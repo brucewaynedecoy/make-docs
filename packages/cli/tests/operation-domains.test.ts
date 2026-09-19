@@ -1,0 +1,233 @@
+import { execFileSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { afterEach, describe, expect, test } from "vitest";
+import {
+  gatePhase,
+  guardPhaseScope,
+  listOperationDomains,
+  probeCloseout,
+  readWorkPhaseState,
+} from "../src/operations/index";
+import { loadSqliteDriver } from "../src/store";
+import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
+
+const sqliteAvailable = loadSqliteDriver().available;
+
+function writeFile(root: string, relativePath: string, content: string): string {
+  const absolutePath = path.join(root, relativePath);
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, content, "utf8");
+  return absolutePath;
+}
+
+describe("operation domain modules", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    for (const root of tempRoots.splice(0)) {
+      cleanupTempDir(root);
+    }
+  });
+
+  test("derives the operation-domain map from the operation registry (R-REG-2, R-RUN-2)", () => {
+    const domains = listOperationDomains();
+
+    expect(domains.map((domain) => domain.name)).toEqual([
+      "prd",
+      "performance",
+      "project",
+      "work",
+      "resource",
+      "lifecycle",
+      "uat",
+    ]);
+
+    const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
+    expect(identifiers).toEqual([
+      // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
+      "prd.authority.validate",
+      "performance.evidence.validate",
+      "project.state.status",
+      "project.state.recover",
+      "project.surface.ensure",
+      "project.path-hygiene.validate",
+      "project.path-hygiene.repair",
+      "project.persona.list",
+      "project.layout.preview",
+      "project.layout.prepare",
+      "project.layout.apply",
+      "project.layout.verify",
+      "work.item.resolve",
+      "work.evidence.record",
+      "work.evidence.read",
+      "resource.list",
+      "resource.read",
+      "resource.ensure",
+      "lifecycle.start",
+      "lifecycle.show",
+      "lifecycle.list",
+      "lifecycle.checkpoint",
+      "lifecycle.pause",
+      "lifecycle.resume",
+      "lifecycle.attach-evidence",
+      "lifecycle.complete",
+      "lifecycle.fail",
+      "lifecycle.abandon",
+      "uat.scenario.validate",
+      "uat.persona.resolve",
+      "uat.target.validate",
+      "uat.evidence-reference.validate",
+      "uat.finding.validate",
+      "uat.result.validate",
+    ]);
+    expect(new Set(identifiers).size).toBe(identifiers.length);
+
+    for (const domain of domains) {
+      for (const command of domain.commands) {
+        expect(command).toEqual(
+          expect.objectContaining({
+            id: expect.stringMatching(/^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*){1,2}$/),
+            summary: expect.any(String),
+            mutates: expect.any(Boolean),
+            status: expect.stringMatching(/^(active|pending)$/),
+          }),
+        );
+      }
+    }
+    expect(
+      domains
+        .flatMap((domain) => domain.commands)
+        .filter((command) => command.mutates)
+        .map((command) => command.id),
+    ).toEqual([
+      "project.state.recover",
+      "project.surface.ensure",
+      "project.path-hygiene.repair",
+      "project.layout.prepare",
+      "project.layout.apply",
+      "project.layout.verify",
+      "work.evidence.record",
+      "resource.ensure",
+      "lifecycle.start",
+      "lifecycle.checkpoint",
+      "lifecycle.pause",
+      "lifecycle.resume",
+      "lifecycle.attach-evidence",
+      "lifecycle.complete",
+      "lifecycle.fail",
+      "lifecycle.abandon",
+    ]);
+
+    const prunedNames = [
+      "wave-resolve",
+      "wave-status",
+      "work-phase-state",
+      "phase-plan",
+      "phase-gate",
+      "scope-guard",
+      "closeout-probe",
+      "closeout-validate",
+      "closeout-history",
+    ];
+    const serialized = JSON.stringify(identifiers);
+    for (const pruned of prunedNames) {
+      expect(serialized).not.toContain(pruned);
+    }
+    expect(domains.map((domain) => domain.name)).not.toContain("closeout");
+  });
+
+  test("runs a work-domain operation without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-operation-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    const phasePath = writeFile(
+      root,
+      "docs/work/2026-06-26-w10-r8-example/01-domain.md",
+      [
+        "# Phase 01: Domain",
+        "",
+        "## Tasks",
+        "",
+        "- [x] t1: Define folders.",
+        "- [ ] t2: Add direct tests.",
+        "",
+        "## Acceptance Criteria",
+        "",
+        "- Domain tests can run without CLI parser setup.",
+        "",
+      ].join("\n"),
+    );
+
+    const result = readWorkPhaseState(phasePath);
+
+    expect(result.provenance).toEqual({
+      domain: "work",
+      operation: "work-phase-state",
+      source: "shared",
+      target: phasePath,
+    });
+    expect(result.value.coordinate).toEqual({ w: 10, r: 8, p: 1 });
+    expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["t2"]);
+  });
+
+  test("runs lifecycle domain operations without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-lifecycle-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    const phasePath = writeFile(
+      root,
+      "docs/work/2026-06-26-w10-r8-example/01-domain.md",
+      [
+        "# Phase 01: Domain",
+        "",
+        "## Tasks",
+        "",
+        "- [x] t1: Define folders.",
+        "- [ ] t2: Add direct tests.",
+        "",
+        "## Scope",
+        "",
+        "- Touch `packages/cli/src/operations/`.",
+        "",
+      ].join("\n"),
+    );
+
+    const scope = guardPhaseScope({
+      target: path.dirname(phasePath),
+      changed: [
+        "packages/cli/src/operations/work/index.ts",
+        "package-lock.json",
+        "unrelated.txt",
+      ],
+    });
+    const gate = gatePhase({ target: path.dirname(phasePath) });
+
+    expect(scope.provenance.operation).toBe("scope-guard");
+    expect(scope.value.status).toBe("warning");
+    expect(scope.value.outOfScope).toEqual(["package-lock.json", "unrelated.txt"]);
+    expect(gate.provenance.operation).toBe("phase-gate");
+    expect(gate.value.status).toBe("blocked");
+    expect(gate.value.blockers).toContain("1 unchecked task(s) remain in the phase doc");
+  });
+
+  test("runs closeout domain probe without CLI parser or MCP transport setup", () => {
+    const root = createTempDir("make-docs-closeout-domain-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    writeFile(root, "package.json", JSON.stringify({ name: "make-docs" }));
+
+    const result = probeCloseout({ repoRoot: root, scope: "full" });
+
+    expect(result.provenance).toEqual({
+      domain: "closeout",
+      operation: "closeout-probe",
+      source: "shared",
+      target: root,
+    });
+    expect(result.value.files).toEqual([
+      expect.objectContaining({ path: "package.json", category: "config" }),
+    ]);
+    expect(result.value.validationHints).toContain("git diff --check");
+  });
+});

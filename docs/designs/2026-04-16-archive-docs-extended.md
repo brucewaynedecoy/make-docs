@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Extend the `archive-docs` plugin (designed in [2026-04-16-archive-docs-skill.md](../assets/archive/designs/2026-04-16-archive-docs-skill.md)) with lifecycle automation, archive search/recall, wave-scoped archival, PRD active-set rotation, provenance tracking, and template-level distribution. These capabilities build on the core archival, staleness detection, deprecation, and impact analysis skills already designed, and are scoped as separate skills or enhancements within the same plugin.
+Extend the `archive-docs` plugin (designed in [2026-04-16-archive-docs-skill.md](../../.make-docs/archive/designs/2026-04-16-archive-docs-skill.md)) with lifecycle automation, archive search/recall, wave-scoped archival, PRD active-set rotation, provenance tracking, and template-level distribution. These capabilities build on the core archival, staleness detection, deprecation, and impact analysis skills already designed, and are scoped as separate skills or enhancements within the same plugin.
 
 ## Context
 
@@ -14,7 +14,7 @@ This follow-on design addresses the capabilities that were deferred from the bas
 
 ### Relationship to the agentics ecosystem
 
-The [agentics ecosystem design](2026-04-15-w2-r0-agentics-ecosystem.md) proposes a registry, gateway skill, and module system for distributing skills, hooks, agents, and workflows as installable units. Several capabilities in this design — particularly completion hooks, template-level distribution, and workflow integration — depend on that infrastructure. Where dependencies exist, this design notes them and proposes interim solutions that work without the full ecosystem.
+The [agentics ecosystem design](2026-04-15-agentics-ecosystem.md) proposes a registry, gateway skill, and module system for distributing skills, hooks, agents, and workflows as installable units. Several capabilities in this design — particularly completion hooks, template-level distribution, and workflow integration — depend on that infrastructure. Where dependencies exist, this design notes them and proposes interim solutions that work without the full ecosystem.
 
 ## Decision
 
@@ -228,11 +228,11 @@ packages/skills/archive-docs/
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-16-archive-docs-skill.md](../assets/archive/designs/2026-04-16-archive-docs-skill.md)
+- Prior Design Docs: [2026-04-16-archive-docs-skill.md](../../.make-docs/archive/designs/2026-04-16-archive-docs-skill.md)
 - Reason: This design extends the base archive plugin with lifecycle automation, search, wave management, PRD rotation, provenance, and distribution capabilities that were explicitly deferred from the base design.
 
 ## Intended Follow-On
 
 - Route: `baseline-plan`
-- Next Prompt: [designs-to-plan.prompt.md](../.prompts/designs-to-plan.prompt.md)
+- Next Prompt: [designs-to-plan.prompt.md](../../.make-docs/system/prompts/designs-to-plan.prompt.md)
 - Why: The extended capabilities should be planned after the base plugin is implemented and validated. The plan should sequence the skills by dependency (provenance first since other skills write to it, then search, then wave/PRD/completion in any order, then template distribution last since it depends on the agentics ecosystem).

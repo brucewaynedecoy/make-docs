@@ -1,11 +1,23 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { writeRawStoreLedger } from "./store-ledger-fixture";
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { applyInstallPlan, planInstall } from "../src/install";
+import { createAuditReport } from "../src/audit";
+import {
+  applyInstallPlan,
+  applySkillsOnlyInstallPlan,
+  planInstall,
+  planSkillsOnlyInstall,
+} from "../src/install";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
-import { readPackageFile } from "../src/utils";
+import type {
+  AuditReport,
+  InstallManifest,
+  SystemAssetMaterializationMode,
+} from "../src/types";
+import { hashText, readPackageFile } from "../src/utils";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
 type UnknownRecord = Record<string, unknown>;
@@ -17,14 +29,6 @@ type AuditEntryView = {
   reason?: string;
   scope?: string;
 };
-
-const AUDIT_FUNCTION_NAMES = [
-  "createAuditReport",
-  "createSharedAuditReport",
-  "runAudit",
-  "auditMakeDocs",
-  "auditLifecyclePaths",
-] as const;
 
 const REMOVABLE_BUCKETS = [
   "removableFiles",
@@ -105,6 +109,7 @@ const CLASSIFICATION_KEYS = ["classification", "kind", "category", "status", "ty
 async function installWithSelections(
   targetDir: string,
   configure: (selections: ReturnType<typeof defaultSelections>) => void,
+  systemAssetMaterializationMode?: SystemAssetMaterializationMode,
 ) {
   const selections = defaultSelections();
   configure(selections);
@@ -114,6 +119,7 @@ async function installWithSelections(
     targetDir,
     selections,
     existingManifest,
+    systemAssetMaterializationMode,
   });
 
   applyInstallPlan({
@@ -140,6 +146,17 @@ function mockHomeDirectory(homeDir: string): () => void {
 
     process.env.HOME = previousHome;
   };
+}
+
+function readSkillSourceFile(skillName: string, sourcePath: string): string {
+  return readFileSync(
+    new URL(`../../skills/${skillName}/${sourcePath}`, import.meta.url),
+    "utf8",
+  );
+}
+
+function writeManifestJson(targetDir: string, manifest: NonNullable<ReturnType<typeof loadManifest>>): void {
+  writeRawStoreLedger(targetDir, manifest);
 }
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -346,7 +363,10 @@ function collectAllEntries(report: unknown): AuditEntryView[] {
   return entries;
 }
 
-function findEntry(entries: AuditEntryView[], expectedPath: string): AuditEntryView | undefined {
+function findEntry<T extends { path: string }>(
+  entries: readonly T[],
+  expectedPath: string,
+): T | undefined {
   const normalizedExpectedPath = normalizePath(expectedPath);
   return entries.find((entry) => entry.path === normalizedExpectedPath);
 }
@@ -395,35 +415,14 @@ function expectAuditMode(report: unknown, expectedMode: "manifest-present" | "ma
   expect(actualMode?.toLowerCase()).toContain(expectedMode);
 }
 
-async function runAudit(options: { targetDir: string; manifest?: unknown | null }): Promise<unknown> {
-  const modulePath = "../src/audit";
-  const auditModule = (await import(modulePath)) as UnknownRecord;
-  const auditFn = AUDIT_FUNCTION_NAMES.map((name) => auditModule[name]).find(
-    (candidate): candidate is (...args: unknown[]) => unknown => typeof candidate === "function",
-  );
-
-  expect(
-    auditFn,
-    `expected ${modulePath} to export one of ${AUDIT_FUNCTION_NAMES.join(", ")}`,
-  ).toBeTypeOf("function");
-
-  const attempts = [
-    () => auditFn!({ targetDir: options.targetDir, manifest: options.manifest ?? null }),
-    () => auditFn!({ targetDir: options.targetDir }),
-    () => auditFn!(options.targetDir, options.manifest ?? null),
-    () => auditFn!(options.targetDir),
-  ];
-
-  let lastError: unknown;
-  for (const attempt of attempts) {
-    try {
-      return await attempt();
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError;
+async function runAudit(options: {
+  targetDir: string;
+  manifest?: InstallManifest | null;
+}): Promise<AuditReport> {
+  return createAuditReport({
+    targetDir: options.targetDir,
+    manifest: options.manifest ?? null,
+  });
 }
 
 describe("shared audit engine", () => {
@@ -433,7 +432,14 @@ describe("shared audit engine", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+  });
+
+  test("rejects a missing target directory before path resolution", async () => {
+    await expect(
+      createAuditReport({ targetDir: undefined } as unknown as { targetDir: string }),
+    ).rejects.toThrow("Audit targetDir must be a non-empty string.");
   });
 
   test("covers manifest-present audit with managed docs files, skill files, and exact-match root instructions", async () => {
@@ -450,18 +456,360 @@ describe("shared audit engine", () => {
 
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
       const docsEntry = findEntry(removableEntries, "docs/AGENTS.md");
-      const skillEntry = findEntry(removableEntries, ".agents/skills/archive-docs/SKILL.md");
+      const sharedPayloadEntry = findEntry(
+        removableEntries,
+        ".agents/skills/archive-docs/SKILL.md",
+      );
+      const skillEntry = findEntry(removableEntries, ".claude/skills/archive-docs");
       const rootAgentsEntry = findEntry(removableEntries, "AGENTS.md");
       const rootClaudeEntry = findEntry(removableEntries, "CLAUDE.md");
 
       expect(docsEntry, summarizeAudit(report)).toBeDefined();
+      expect(sharedPayloadEntry, summarizeAudit(report)).toBeDefined();
       expect(skillEntry, summarizeAudit(report)).toBeDefined();
       expect(rootAgentsEntry, summarizeAudit(report)).toBeDefined();
       expect(rootClaudeEntry, summarizeAudit(report)).toBeDefined();
       expect(docsEntry?.backupRelativePath ?? docsEntry?.path).toBe("docs/AGENTS.md");
-      expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
+      expect(sharedPayloadEntry?.backupRelativePath ?? sharedPayloadEntry?.path).toBe(
         ".agents/skills/archive-docs/SKILL.md",
       );
+      expect(skillEntry?.backupRelativePath ?? skillEntry?.path).toBe(
+        ".claude/skills/archive-docs",
+      );
+
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; agenticRole?: string }>;
+      };
+      const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, [
+        "prunable",
+      ]);
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".agents/skills/archive-docs/SKILL.md",
+            agenticRole: "shared-payload",
+          }),
+          expect.objectContaining({
+            path: ".claude/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
+          }),
+        ]),
+      );
+      expect(
+        findEntry(prunableDirectories, ".agents/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".agents/skills"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".agents"),
+        summarizeAudit(report),
+      ).toBeDefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("covers skills-only native exposure metadata during audit", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const selections = defaultSelections();
+      selections.skills = true;
+      selections.selectedSkills = ["archive-docs"];
+
+      const plan = await planSkillsOnlyInstall({
+        targetDir,
+        selections,
+        existingManifest: null,
+        remove: false,
+      });
+      applySkillsOnlyInstallPlan({
+        targetDir,
+        plan,
+        existingManifest: null,
+      });
+
+      const manifest = loadManifest(targetDir)!;
+      const report = await runAudit({ targetDir, manifest });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; agenticRole?: string; kind?: string }>;
+      };
+
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".claude/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
+          }),
+          expect.objectContaining({
+            path: ".claude/skills/archive-docs",
+            agenticRole: "native-exposure",
+            kind: "directory",
+          }),
+          expect.objectContaining({
+            path: ".agents/skills/archive-docs/SKILL.md",
+            agenticRole: "shared-payload",
+          }),
+          expect.objectContaining({
+            path: ".agents/skills/archive-docs/references/archive-workflow.md",
+            agenticRole: "shared-payload",
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test.skipIf(process.platform === "win32")(
+    "preserves wrong-target native skill exposure symlinks for review",
+    async () => {
+      const targetDir = createTempDir();
+
+      try {
+        const manifest = await installWithSelections(targetDir, (selections) => {
+          selections.skills = true;
+          selections.selectedSkills = ["archive-docs"];
+        });
+        const exposurePath = ".claude/skills/archive-docs";
+        const absoluteExposurePath = path.join(targetDir, exposurePath);
+        const wrongTargetPath = path.join(targetDir, ".claude/wrong-archive-docs");
+
+        rmSync(absoluteExposurePath, { force: true, recursive: true });
+        mkdirSync(wrongTargetPath, { recursive: true });
+        symlinkSync("../wrong-archive-docs", absoluteExposurePath, "dir");
+
+        const report = await runAudit({ targetDir, manifest });
+        const auditReport = report as {
+          removableFiles: Array<{ path: string }>;
+          preservedPaths: Array<{ path: string; reasonCode: string }>;
+        };
+
+        expect(auditReport.removableFiles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: exposurePath,
+            }),
+          ]),
+        );
+        expect(auditReport.preservedPaths).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: exposurePath,
+              reasonCode: "manifest-skill-exposure-mismatch",
+            }),
+          ]),
+        );
+      } finally {
+        cleanupTempDir(targetDir);
+      }
+    },
+  );
+
+  test("preserves modified copy-mirror native skill exposures for review", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      vi.stubEnv("MAKE_DOCS_DISABLE_SKILL_SYMLINKS", "1");
+
+      const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+      const exposurePath = ".claude/skills/archive-docs";
+      const modifiedPath = path.join(
+        targetDir,
+        exposurePath,
+        "references/archive-workflow.md",
+      );
+
+      writeFileSync(
+        modifiedPath,
+        `${readSkillSourceFile("archive-docs", "references/archive-workflow.md")}\n# local edit\n`,
+        "utf8",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string }>;
+        preservedPaths: Array<{ path: string; reasonCode: string }>;
+      };
+
+      expect(auditReport.removableFiles).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: exposurePath,
+          }),
+        ]),
+      );
+      expect(auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: exposurePath,
+            reasonCode: "manifest-skill-exposure-mismatch",
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves selected-agentics directories with unmanaged descendants", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+      const unmanagedDescendant = path.join(
+        targetDir,
+        ".agents/skills/archive-docs/local-notes.md",
+      );
+      writeFileSync(unmanagedDescendant, "keep this local note\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest });
+      const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
+      const preservedEntries = collectEntries(report, PRESERVED_BUCKETS, [
+        "preserved",
+        "retained",
+      ]);
+      const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, [
+        "prunable",
+      ]);
+
+      expect(
+        findEntry(removableEntries, ".agents/skills/archive-docs/SKILL.md"),
+        summarizeAudit(report),
+      ).toBeDefined();
+      expect(
+        findEntry(prunableDirectories, ".agents/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeUndefined();
+      expect(
+        findEntry(preservedEntries, ".agents/skills/archive-docs"),
+        summarizeAudit(report),
+      ).toBeDefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("classifies withdrawn lifecycle skill files left by prior installs", async () => {
+    // The four D-020 lifecycle skills no longer exist in the shipped
+    // registry, so canonical content for them is unresolvable. Files from a
+    // prior install stay auditable: manifest-tracked copies whose hash still
+    // matches are removable, and skill-list-only leftovers are preserved
+    // conservatively because nothing canonical can prove them removable.
+    const targetDir = createTempDir();
+
+    try {
+      await installWithSelections(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      const trackedPayload = ".make-docs/agentics/skills/closeout-commit/SKILL.md";
+      const orphanedScript = ".claude/skills/work-on-wave/scripts/checkpoint.py";
+      const trackedPayloadContent = "# Close out commit\n\nWithdrawn skill payload.\n";
+      const orphanedScriptContent = "print('withdrawn helper')\n";
+      const trackedPayloadPath = path.join(targetDir, trackedPayload);
+      const orphanedScriptPath = path.join(targetDir, orphanedScript);
+
+      mkdirSync(path.dirname(trackedPayloadPath), { recursive: true });
+      mkdirSync(path.dirname(orphanedScriptPath), { recursive: true });
+      writeFileSync(trackedPayloadPath, trackedPayloadContent, "utf8");
+      writeFileSync(orphanedScriptPath, orphanedScriptContent, "utf8");
+
+      const manifest = loadManifest(targetDir)!;
+      manifest.files[trackedPayload] = {
+        hash: hashText(trackedPayloadContent),
+        sourceId: "skill:shared:closeout-commit",
+      };
+      manifest.skillFiles = Array.from(
+        new Set([...manifest.skillFiles, trackedPayload, orphanedScript]),
+      ).sort();
+      writeManifestJson(targetDir, manifest);
+
+      const report = await runAudit({ targetDir, manifest: loadManifest(targetDir) });
+      const auditReport = report as {
+        removableFiles: Array<{ path: string; reasonCode: string }>;
+        preservedPaths: Array<{ path: string; reasonCode: string }>;
+      };
+
+      expect(auditReport.removableFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: trackedPayload,
+            reasonCode: "managed-file-hash-match",
+          }),
+        ]),
+      );
+      expect(auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: orphanedScript,
+            reasonCode: "manifest-skill-file-without-metadata",
+          }),
+        ]),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not infer provider-backed deferred assets as removable without local files", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {}, "provider-backed");
+      expect(manifest.systemAssetMaterialization.mode).toBe("provider-backed");
+      expect(manifest.systemAssetMaterialization.deferredSystemAssetPaths).toContain(
+        ".make-docs/system/references/path-and-link-hygiene.md",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+      expectAuditMode(report, "manifest-present");
+
+      const allEntries = collectAllEntries(report);
+      expect(findEntry(allEntries, ".make-docs/system/references/path-and-link-hygiene.md"))
+        .toBeUndefined();
+
+      const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
+      expect(findEntry(removableEntries, "docs/AGENTS.md"), summarizeAudit(report)).toBeDefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("classifies project config as preserved local configuration", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {});
+      const configPath = path.join(targetDir, ".make-docs/config.yaml");
+      writeFileSync(configPath, "labels:\n  documentKinds:\n    design: Idea\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest });
+      expectAuditMode(report, "manifest-present");
+
+      const configEntry = report.preservedPaths.find(
+        (entry) => entry.path === ".make-docs/config.yaml",
+      );
+      expect(configEntry, summarizeAudit(report)).toMatchObject({
+        ownershipSource: "project-config",
+        reasonCode: "project-config-preserved",
+      });
+      expect(findEntry(report.removableFiles, ".make-docs/config.yaml")).toBeUndefined();
+      expect(findEntry(report.skippedPaths, ".make-docs/config.yaml")).toBeUndefined();
+      expect(manifest.files[".make-docs/config.yaml"]).toBeUndefined();
+      expect(manifest.systemAssetMaterialization.assets[".make-docs/config.yaml"]).toBeUndefined();
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -493,15 +841,49 @@ describe("shared audit engine", () => {
     }
   });
 
-  test("covers .backup exclusion for removable files and prunable directories", async () => {
+  test("preserves manifest-missing shared agentics roots as ambiguous", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const sharedSkillRoot = path.join(
+        targetDir,
+        ".agents/skills/archive-docs",
+      );
+      mkdirSync(sharedSkillRoot, { recursive: true });
+      writeFileSync(path.join(sharedSkillRoot, "SKILL.md"), "# Local skill\n", "utf8");
+
+      const report = await runAudit({ targetDir, manifest: null });
+
+      expectAuditMode(report, "manifest-missing");
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".agents/skills",
+            ownershipSource: "fallback",
+            reasonCode: "fallback-ambiguous",
+          }),
+        ]),
+      );
+      expect(findEntry(report.removableFiles, ".agents/skills/archive-docs/SKILL.md")).toBeUndefined();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("covers backup-state exclusion for removable files and prunable directories", async () => {
     const targetDir = createTempDir();
 
     try {
       const manifest = await installWithSelections(targetDir, () => {});
 
-      const backupFile = path.join(targetDir, ".backup/2026-04-18/docs/AGENTS.md");
-      mkdirSync(path.dirname(backupFile), { recursive: true });
-      writeFileSync(backupFile, readPackageFile("AGENTS.md"), "utf8");
+      const backupFiles = [
+        path.join(targetDir, ".make-docs/backup/2026-04-18/docs/AGENTS.md"),
+        path.join(targetDir, ".backup/2026-04-17/docs/AGENTS.md"),
+      ];
+      for (const backupFile of backupFiles) {
+        mkdirSync(path.dirname(backupFile), { recursive: true });
+        writeFileSync(backupFile, readPackageFile("AGENTS.md"), "utf8");
+      }
 
       const report = await runAudit({ targetDir, manifest });
 
@@ -509,7 +891,15 @@ describe("shared audit engine", () => {
       const prunableDirectories = collectEntries(report, PRUNABLE_DIRECTORY_BUCKETS, ["prunable"]);
 
       expect(
+        removableEntries.some((entry) => entry.path.startsWith(".make-docs/backup/")),
+        summarizeAudit(report),
+      ).toBe(false);
+      expect(
         removableEntries.some((entry) => entry.path.startsWith(".backup/")),
+        summarizeAudit(report),
+      ).toBe(false);
+      expect(
+        prunableDirectories.some((entry) => entry.path.startsWith(".make-docs/backup/")),
         summarizeAudit(report),
       ).toBe(false);
       expect(
@@ -543,6 +933,39 @@ describe("shared audit engine", () => {
       expect(preservedClaude, summarizeAudit(report)).toBeDefined();
       expect(typeof preservedAgents?.reason, summarizeAudit(report)).toBe("string");
       expect(typeof preservedClaude?.reason, summarizeAudit(report)).toBe("string");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves user text outside a matching instruction managed block without a mismatch", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      const manifest = await installWithSelections(targetDir, () => {});
+      const agentsPath = path.join(targetDir, "AGENTS.md");
+      writeFileSync(
+        agentsPath,
+        `${readFileSync(agentsPath, "utf8")}\n# Project Instructions\n\nKeep this text.\n`,
+        "utf8",
+      );
+
+      const report = await runAudit({ targetDir, manifest });
+
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: "AGENTS.md",
+            reasonCode: "instruction-user-content-preserved",
+          }),
+        ]),
+      );
+      expect(
+        report.preservedPaths.some(
+          (entry) =>
+            entry.path === "AGENTS.md" && entry.reasonCode === "instruction-content-mismatch",
+        ),
+      ).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -589,12 +1012,21 @@ describe("shared audit engine", () => {
 
       const report = await runAudit({ targetDir, manifest });
       const removableEntries = collectEntries(report, REMOVABLE_BUCKETS, ["removable"]);
-      const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs/SKILL.md");
+      const globalSkillPath = path.join(fakeHome, ".claude/skills/archive-docs");
+      const sharedGlobalSkillPath = path.join(
+        fakeHome,
+        ".agents/skills/archive-docs/SKILL.md",
+      );
+      const sharedGlobalSkillEntry = findEntry(removableEntries, sharedGlobalSkillPath);
       const globalSkillEntry = findEntry(removableEntries, globalSkillPath);
 
+      expect(sharedGlobalSkillEntry, summarizeAudit(report)).toBeDefined();
       expect(globalSkillEntry, summarizeAudit(report)).toBeDefined();
+      expect(sharedGlobalSkillEntry?.backupRelativePath?.endsWith(
+        "_home/.agents/skills/archive-docs/SKILL.md",
+      )).toBe(true);
       expect(globalSkillEntry?.backupRelativePath, summarizeAudit(report)).toBeDefined();
-      expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs/SKILL.md")).toBe(
+      expect(globalSkillEntry?.backupRelativePath?.endsWith("_home/.claude/skills/archive-docs")).toBe(
         true,
       );
 

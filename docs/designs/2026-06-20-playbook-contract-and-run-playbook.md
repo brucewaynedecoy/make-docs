@@ -6,13 +6,13 @@ Define the v2 contract for make-docs playbooks and the generic "Run Playbook" ex
 
 ## Context
 
-The [v2 roadmap](../artifacts/v2-proposed-design-and-roadmap.md) places this design first in "Batch 4 - Playbooks and Plugins." It follows the docs asset substrate, configuration overlay, metadata model, shared agentics install, and harness-redirection decisions, and it must keep build-stack and run-stack playbooks distinct before later plugin behavior is designed.
+The [v2 roadmap](../assets/project/v2-proposed-design-and-roadmap.md) places this design first in "Batch 4 - Playbooks and Plugins." It follows the docs asset substrate, configuration overlay, metadata model, shared agentics install, and harness-redirection decisions, and it must keep build-stack and run-stack playbooks distinct before later plugin behavior is designed.
 
-This design intentionally starts from artifact roadmap inputs instead of from an already accepted design. That is a lifecycle departure under the [documentation lifecycle](../assets/references/lifecycle.md): v2 planning is using artifact proposals as a source-to-design straddle, then returning to the default design -> plan -> PRD -> work -> implementation sequence for downstream work.
+This design intentionally starts from artifact roadmap inputs instead of from an already accepted design. That is a lifecycle departure under the [documentation lifecycle](../../.make-docs/system/references/lifecycle.md): v2 planning is using artifact proposals as a source-to-design straddle, then returning to the default design -> plan -> PRD -> work -> implementation sequence for downstream work.
 
-The current repository has a transitional dogfood playbook at [docs/library/playbooks/agent/make-docs-lifecycle.md](../library/playbooks/agent/make-docs-lifecycle.md) and a coverage-pass contract at [docs/assets/references/coverage-pass-contract.md](../assets/references/coverage-pass-contract.md). Those files prove the need for persona-scoped procedural content, but they are not the v2 placement or complete contract.
+The current repository has a dogfooded lifecycle playbook at [docs/assets/playbooks/agent/make-docs-lifecycle.playbook.md](../../.make-docs/archive/legacy-playbooks/agent/make-docs-lifecycle.playbook.md) and a coverage-pass contract at [.make-docs/contracts/system/coverage-pass-contract.md](../../.make-docs/system/contracts/coverage-pass-contract.md). The prior transitional playbook location was migration evidence only; W9 R5 moved the active dogfood copy under the v2 playbook surface.
 
-No existing design owns this exact decision area. This is a new v2 design, not an update to a prior design. It must, however, stay compatible with the accepted intent in [2026-06-19 New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [2026-06-17 Make-Docs Lifecycle Foundation](../assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md), [2026-05-28 Make-Docs Lifecycle Playbook](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md), [2026-06-20 Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md), and [2026-06-20 Shared Agentics Installation and Harness Redirection](2026-06-20-shared-agentics-installation-and-harness-redirection.md).
+No existing design owns this exact decision area. This is a new v2 design, not an update to a prior design. It must, however, stay compatible with the accepted intent in [2026-06-19 New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [2026-06-17 Make-Docs Lifecycle Foundation](../../.make-docs/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md), [2026-05-28 Make-Docs Lifecycle Playbook](../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md), [2026-06-20 Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md), and [2026-06-20 Shared Agentics Installation and Harness Redirection](2026-06-20-shared-agentics-installation-and-harness-redirection.md).
 
 Risk and open-question context remains in the existing PRD/risk register, including R-012, Q-009, Q-012, Q-013, R-011, and R-014 in [docs/prd/03-open-questions-and-risk-register.md](../prd/03-open-questions-and-risk-register.md). This design references those risks and questions but does not mutate PRD or risk-register state.
 
@@ -87,7 +87,7 @@ This decision creates a blocker removal for later designs: plugin substrate, pro
 
 Update Mode: new-doc-related.
 
-Prior Design Docs: [2026-06-19 New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md); [2026-06-17 Make-Docs Lifecycle Foundation](../assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md); [2026-05-28 Make-Docs Lifecycle Playbook](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md); [2026-06-20 Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md); [2026-06-20 Shared Agentics Installation and Harness Redirection](2026-06-20-shared-agentics-installation-and-harness-redirection.md).
+Prior Design Docs: [2026-06-19 New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md); [2026-06-17 Make-Docs Lifecycle Foundation](../../.make-docs/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md); [2026-05-28 Make-Docs Lifecycle Playbook](../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md); [2026-06-20 Configuration and Convention Overlay](2026-06-20-configuration-and-convention-overlay.md); [2026-06-20 Shared Agentics Installation and Harness Redirection](2026-06-20-shared-agentics-installation-and-harness-redirection.md).
 
 Reason: This design extends prior playbook and lifecycle intent into a v2 content contract and run model. It supersedes only artifact-level assumptions that treated the current `docs/library/playbooks/**` location or plugin packaging as sufficient; it does not supersede prior accepted design docs.
 
@@ -95,8 +95,8 @@ Reason: This design extends prior playbook and lifecycle intent into a v2 conten
 
 Route: change-plan.
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md).
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md).
 
 Why: The implementation will revise existing docs asset, template, manifest, audit, backup, uninstall, installer, and catalog behavior rather than create a brand-new repository baseline. Planning must preserve the lifecycle departure noted above by returning from this v2 design to the normal design -> plan -> PRD -> work -> implementation sequence.
 
-Coordinate Handoff: W16 R0 P3 is the related completed lifecycle-playbook coordinate; recommended downstream coordinate unresolved; planner must resolve before writing.
+Coordinate Handoff: W16 R0 P3 is the related completed lifecycle-playbook coordinate; superseded by [Playbook Contract and Model](2026-06-30-playbook-contract-and-model.md) at W18 R6 ([PRD 34](../prd/34-playbook-authoring-contract-and-model.md)) and completed by [Run Playbook State Machine](2026-07-01-run-playbook-state-machine.md) at W18 R7 ([PRD 35](../prd/35-run-playbook-state-machine-and-portability.md)).

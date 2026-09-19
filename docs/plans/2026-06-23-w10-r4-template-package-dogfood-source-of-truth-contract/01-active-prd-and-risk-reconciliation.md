@@ -6,7 +6,7 @@ Register the template/package/dogfood source-of-truth contract in the active PRD
 
 ## Required PRD Changes
 
-- Add `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`.
+- Add `docs/prd/06-template-contracts-and-generated-assets.md`.
 - Update `docs/prd/00-index.md` reading order, document map, source anchors, audience paths, and intended follow-on.
 - Annotate `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/09-dogfood-and-maintainer-operations.md`, and `docs/prd/10-packaging-validation-and-release-reference.md`.
 - Update `docs/prd/03-open-questions-and-risk-register.md` entries D-006, D-007, D-014, Q-005, R-003, R-004, and R-007 rather than adding duplicate items.

@@ -1,15 +1,19 @@
 # Generated Metadata Lifecycle Handoffs - Work Backlog
 
+## W9 R5 Prerequisite
+
+Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W16 R1 metadata and handoff fields must describe `.make-docs/**` system resources, `docs/assets/{archive,artifacts,library,playbooks}/**` project assets, and on-demand `docs/assets/archive/history/**` records, not W9 R4's superseded `docs/assets/guides/**` or `docs/assets/breadcrumbs/**` assumptions.
+
 ## Purpose
 
-Implement the requirements planned in [../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md](../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md) and captured in [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md).
+Implement the requirements planned in [../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md](../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md) and captured in [../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md).
 
 ## Source Inputs
 
 - Design: [../../designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md](../../designs/2026-06-20-generated-metadata-and-lifecycle-handoffs.md)
 - Plan: [../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md](../../plans/2026-06-23-w16-r1-generated-metadata-lifecycle-handoffs/00-overview.md)
-- Primary PRD: [../../prd/23-revise-generated-metadata-lifecycle-handoffs.md](../../prd/23-revise-generated-metadata-lifecycle-handoffs.md)
-- Dependency PRDs: [../../prd/14-add-lifecycle-workflow-foundation.md](../../prd/14-add-lifecycle-workflow-foundation.md), [../../prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md)
+- Primary PRD: [../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md](../../prd/23-generated-document-metadata-and-lifecycle-handoffs.md)
+- Dependency PRDs: [../../prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md), [../../prd/47-persona-model.md](../../prd/47-persona-model.md#frontmatter-authority)
 
 ## Phase Map
 

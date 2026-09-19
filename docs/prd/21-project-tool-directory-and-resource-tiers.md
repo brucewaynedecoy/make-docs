@@ -1,0 +1,181 @@
+# 21 Project Tool Directory and Resource Tiers
+
+## Purpose
+
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
+
+This document defines the current product contract for the project tool directory, system resources, custom overlays, and resource tiers. Normative requirements are stated in the sections below; Requirement History is provenance only.
+## Scope
+
+This authority owns the project tool directory, system resources, custom overlays, and resource tiers. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
+## Component and Capability Map
+
+The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
+## Requirements
+
+Directory model:
+
+```text
+.make-docs/
+  config.yaml
+  conflicts/              # approved content copies only; no live state
+  <configured harness routers>
+  archive/                # on-demand managed history/provenance
+  system/                 # always-local configured-harness router
+    contracts/
+    prompts/
+    references/
+    templates/
+  agentics/
+    skills/               # optional selected payloads
+```
+
+The unconditional instruction-router foundation remains at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/` for each configured supported harness. These routers are bootstrap assets, not content-resource types. The typed system directories remain present even when they contain no resource bodies. The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. The on-demand `docs/assets/` surface has configured-harness root routers and no managed child routers. PRD 28 makes `agentics/skills/` the canonical shared payload home for selected Skill artifacts and uses native Skill exposure under supported harness roots, with symlinks preferred and managed copy mirrors as fallback. No general plugin payload namespace, plugin store, or native plugin exposure is reserved or implied; PRD 30 owns only the admission and legacy-artifact boundary for any future integration.
+
+PRD 24 defines `config.yaml` as optional project-owned convention configuration. It belongs in `.make-docs/` because it configures the tool's presentation behavior for the project, but it is not make-docs-owned runtime state and must not be overwritten by install, reconfigure, provider refresh, package sync, or cache recovery without an explicit user-approved replacement flow.
+
+Resource tiers and identity:
+
+- `contract`, `prompt`, `reference`, and `template` are peer system-resource types. A resource is identified as `make-docs://system/<type>/<posix-relative-path>` independent of provider or projection origin.
+- The installed package provider is the ordinary runtime tier. It exposes the complete selected resource inventory without requiring repository copies.
+- `.make-docs/system/**` is the sole current local resource tree. Its router skeleton is always local. Resource bodies are an optional managed projection tier. Its plural directory families map to the singular URI types; projected files retain provider/version/hash/ownership provenance in the Store-owned installation record.
+- Project-authored config, documents, overlays, and Skills are not system resources and do not receive `make-docs://system/...` identity. Legacy or user-authored plugin artifacts are migration and ownership inputs only and likewise receive no system-resource identity.
+- Playbooks and Protocols are not resource types, directory families, or project-tool authorities.
+
+Resolution and materialization:
+
+- One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider.
+- CLI `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>` are canonical resource surfaces. Resource ensure creates or refreshes exactly one selected local projection through the managed-file conflict and approval path. Each operation projects to an MCP tool. Native MCP resources expose the same URI set and bytes as resource list/read where supported.
+- Local resource-body projection is explicit and selection-scoped. Empty typed directories are normal and do not reduce runtime resource availability. The router skeleton remains present.
+- Divergent, stale, unowned, or provenance-free local files never silently shadow the provider. Refresh and overwrite use the managed-file conflict and approval path.
+- `project.surface.ensure <archive|artifacts|assets>` remains valid. `archive` creates its on-demand root. `assets` creates or safely adopts the on-demand assets root and configured-harness root routers. The compatibility `artifacts` value ensures only the assets root and configured root routers, then reports `docs/assets/project/` as the shared-content destination. It creates neither an empty `project` child nor old `docs/artifacts/`. Help and results distinguish the ensured root from the destination that content will create. No value creates empty project, Persona, or testing children or changes system-resource selection.
+
+Runtime state and bootstrap:
+
+- Approved local backup or export files are content copies. Their readable descriptions are not live operation state or automatic restoration authority. Project history and work-specific tracking remain local knowledge.
+
+- R-LOCAL-STATE-1 (MUST): `.make-docs/` contains no current Make Docs operational state. Installation manifests, applied selections, conflict decisions, provider/projection metadata, audit state, locks, receipts, and recovery journals live in the global Store. `.make-docs/state/` and `.make-docs/manifest.json` are supported legacy transfer inputs only. No renamed local directory or mirror may replace them.
+- Bootstrap includes configured-harness routers, declarative project identity/config, project-owned overlays, and readable guidance for CLI Store status, resource selection, provenance, and recovery.
+- Managed instruction routers continue to use managed blocks.
+- Router text must not send agents into hidden provider-only state without a local explanation.
+- The manifest records router ownership separately from resource-body projection selection and ownership.
+- The `docs/` router keeps the exact heading `# Documentation Router` and its full lifecycle, design, planning, PRD, work, risk, artifact, Persona, UAT, coverage, history, link, and formatting duties.
+- Routers do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
+
+Canonical and legacy boundaries:
+
+- `.make-docs/system/{contracts,prompts,references,templates}/` is the only current local resource namespace. Content found under legacy `.make-docs/{contracts,prompts,references,templates}/system/`, `.make-docs/scripts/system/`, or `docs/assets/{prompts,references,templates}/` paths is migration input classified by function and provenance rather than preserved as another current tier. Ordinary managed-resource migration may move or remove a legacy file only when the accepted snapshot proves managed ownership and matching bytes. The separate reviewed layout operation in PRD 18 may relocate explicitly approved project-owned content without changing ownership. Unknown, modified, mixed, unowned, or conflicting content is preserved for explicit review.
+- Make Docs-managed archival and provenance records belong under on-demand `.make-docs/archive/**`; non-authoritative source and analysis inputs belong under on-demand `docs/assets/project/**`; and Persona-scoped reader assets plus testing evidence belong under on-demand `docs/assets/<persona-slug>/**` children. Those children do not have managed routers. [22-project-documentation-asset-model.md](./22-project-documentation-asset-model.md) owns their detailed document contracts. Old `docs/assets/archive/`, `docs/assets/artifacts/`, `docs/assets/library/`, and workflow-shaped families are noncanonical migration inputs.
+- `agentics/skills` is the selected-Skill shared payload home under PRD 28. No current general plugin payload namespace or native plugin exposure contract exists; PRD 30 owns future-integration admission and legacy-artifact treatment rather than a plugin store.
+- [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) constrains agentics compatibility work: deterministic behavior belongs in CLI/shared-core operations before MCP exposure, and selected Skills or any later admitted agentic integration call that boundary instead of carrying independent filesystem or routing logic. First-party helper scripts are migrated to package code rather than retained as a fifth system-resource family; project scripts remain project-owned and outside this authority.
+- Shipped defaults start in `packages/docs/template/`, project through `packages/cli/template/` copy/prepack, and only then dogfood selected files under review at the repository root. [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md), [09-dogfood-and-maintainer-operations.md](./09-dogfood-and-maintainer-operations.md), and [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md) own that upstream -> package -> root dogfood -> representative installed-project proof sequence.
+## Contracts and Data
+
+The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
+## Integrations
+
+This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
+## Rebuild Notes
+
+A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### Project Asset Discovery and Recovery
+
+R-ASSET-PATH-1 (MUST): shared project material has one home at `docs/assets/project/**`; audience assets use `docs/assets/<persona-slug>/**`; current archives remain `.make-docs/archive/**`. The reserved `project` segment is not a Persona. Both asset branches are content-driven and have no managed child routers.
+
+R-ASSET-PATH-2 (MUST): `project persona list` resolves the two shipped defaults plus custom configuration without Store access or mutation. `project layout preview`, `prepare`, `apply`, and `verify` use the shared registry and PRD 18 recovery rules. Local config and ordinary content remain usable without the CLI. Required layout records use the R3 Store service only. Legacy system, artifact, archive, Library, and Playbook trees, including empty parents, receive explicit reviewed dispositions; their names do not create current product tiers.
+
+## Requirement History
+
+### 2026-08-08 — W9 R2
+
+- Affected requirement or section: `Document identity and current authority`
+- Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
+- Replacement contract: This document now states the current project tool directory, system resources, custom overlays, and resource-tier requirements inline as product authority.
+- Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
+- Source: [Tool directory and resource tiers design](../designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `Directory model`, `Resource tiers and identity`, `Resolution and materialization`, `Runtime state and bootstrap`, and `Canonical and legacy boundaries`
+- Previous contract: System and custom content lived in parallel per-type local directories, full snapshots were a current mode, scripts were a system-resource family, shared agentics could imply both Skill and plugin payload homes, and archive/artifact/library/Playbook project assets lived beneath `docs/assets/**`.
+- Replacement contract: Contracts, prompts, references, and templates are peer installed-provider resources with stable URIs; `.make-docs/system/**` is an optional provenance-aware projection; `.make-docs/archive/**`, `docs/artifacts/**`, and `docs/assets/<persona-slug>/**` are created on demand; CLI and native MCP share one resolver; selected Skills retain the traced PRD 28 store and exposure boundary while no general plugin payload namespace, store, or native exposure is reserved; scripts remain package or project code; and Playbooks and Protocols are absent.
+- Rationale: The project tool directory must distinguish optional resource projection from runtime state and project-authored content while preserving migration evidence for old layouts.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-02 — W19 R1 authority correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Directory model`, `Resource tiers and identity`, `Resolution and materialization`, `Runtime state and bootstrap`, and `Canonical and legacy boundaries`
+- Previous contract: `.make-docs/system/**` could be absent when no resource bodies were selected, and typed-directory routers were not required.
+- Replacement contract: `.make-docs/system/<type>/` is the sole current tree. The configured-harness router skeleton is always local from the project root through each typed directory. Resource selection controls bodies only. Legacy per-type `system/` paths are guarded migration inputs.
+- Rationale: The corrected authority restores local routing and preserves machine-served resource access without a repository snapshot.
+- Source: Owner-approved Make Docs Authority and Router Recovery Plan and [D-029](./03-open-questions-and-risk-register.md#d-029-w19-r1-resource-topology-and-router-authority-drift)
+
+### 2026-09-02 — W19 R1 documentation-surface correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Directory model`, `Resolution and materialization`, `Runtime state and bootstrap`, and `Canonical and legacy boundaries`
+- Previous contract: The corrected project-tool model still omitted the `docs/assets/` foundation router and the profile-controlled document routers.
+- Replacement contract: Each configured harness has the full unconditional foundation, while the resolved effective profile and its dependencies control the four capability-local document routers. The `docs/assets/` router is root-only. Archive and artifact surfaces and Persona testing children remain on demand. `project.surface.ensure assets` remains supported and cannot create a Persona child.
+- Rationale: The project-tool contract must match the separate documentation-surface correction without changing the closed system-resource correction.
+- Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Directory model; Runtime state and bootstrap
+- Previous contract: The directory model required a local manifest and described conflicts, audit state, and migration journals as project-local runtime state.
+- Replacement contract: No current operational state belongs in the project. Local settings, content, and inert backup copies remain allowed. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Project Asset Discovery and Recovery` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: The assets root was unconditional, shared inputs used docs/artifacts/, and legacy path handling lacked a complete reviewed content-relocation path. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+## Source Anchors
+
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+- `docs/designs/2026-06-19-tool-directory-system-and-custom-resource-tiers.md`
+- `docs/designs/2026-06-25-v2-documentation-asset-ia-hard-move.md`
+- `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-overview.md`
+- `docs/plans/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-overview.md`
+- `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/00-index.md`
+- `docs/work/2026-06-25-w9-r4-v2-documentation-asset-ia-hard-move/00-index.md`
+- `docs/prd/02-architecture-overview.md`
+- `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
+- `docs/prd/09-dogfood-and-maintainer-operations.md`
+- `docs/prd/10-packaging-validation-and-release-reference.md`
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
+- `docs/prd/18-compatibility-classification-and-migration-safety.md`
+- `docs/prd/22-project-documentation-asset-model.md`
+- `docs/prd/24-project-configuration-and-convention-overlay.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/prd/28-shared-agentics-installation-and-harness-exposure.md`
+- `docs/prd/30-plugin-substrate-and-workflow-bundles.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
+- `packages/cli/src/rules.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/planner.ts`
+- `packages/cli/src/manifest.ts`
+- `packages/cli/src/audit.ts`
+- `packages/cli/src/backup.ts`
+- `packages/cli/src/install.ts`
+- `packages/cli/src/managed-block.ts`

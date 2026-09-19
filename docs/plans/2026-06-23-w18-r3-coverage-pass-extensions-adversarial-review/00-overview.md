@@ -1,5 +1,13 @@
 # W18 R3 Coverage Pass Extensions Adversarial Review
 
+## W18 R4 Run Playbook Prerequisite
+
+Before executing any adversarial-review surface that uses a playbook, plugin workflow bundle, CLI action, MCP tool, or harness-assisted long-running execution, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md). W18 R3 remains optional coverage-pass work, but any runner-like exposure must consume W18 R4 resolver, capability, run-state, nested-run, and concurrency behavior.
+
+## W18 R5 Playbook Packaging Prerequisite
+
+Before executing any adversarial-review surface that is packaged as a plugin, skills bundle, or generated harness entry, apply [W18 R5 Playbook Packaging and Harness Adapter Registry](../2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md). W18 R3 remains optional coverage-pass work, but packaged adversarial-review outputs must use reviewed package plans, source/generated provenance, harness adapters, and evidence-bound support claims.
+
 ## Purpose
 
 Define the implementation plan for adversarial review as an optional coverage-pass extension.
@@ -12,17 +20,17 @@ This plan is derived from [Coverage-Pass Extensions and Adversarial Review](../.
 - Revision: R3
 - Route: change-plan
 - Source design: [docs/designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md](../../designs/2026-06-20-coverage-pass-extensions-and-adversarial-review.md)
-- New PRD: [docs/prd/31-revise-coverage-pass-extensions-adversarial-review.md](../../prd/31-revise-coverage-pass-extensions-adversarial-review.md)
+- New PRD: [docs/prd/14-lifecycle-workflow-and-coverage-passes.md](../../prd/14-lifecycle-workflow-and-coverage-passes.md)
 - Work backlog: [docs/work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md](../../work/2026-06-23-w18-r3-coverage-pass-extensions-adversarial-review/00-index.md)
 
 ## Current Implementation Grounding
 
-- [docs/assets/references/coverage-pass-contract.md](../../assets/references/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
-- `packages/docs/template/docs/assets/references/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
-- `docs/assets/prompts/coverage-pass-developer-guide.prompt.md`, `coverage-pass-user-guide.prompt.md`, `coverage-pass-prd-reconciliation.prompt.md`, and `coverage-pass-testing-uat.prompt.md` exist in the dogfood prompt tree and are mirrored in `packages/docs/template/docs/assets/prompts/`.
+- [.make-docs/contracts/system/coverage-pass-contract.md](../../../.make-docs/system/contracts/coverage-pass-contract.md) already owns the seven-step pass skeleton, base verdict spine, persona-target axis, history idempotency, verdict-and-reason rule, validation checklist, and rules for defining new coverage passes.
+- `packages/docs/template/.make-docs/contracts/system/coverage-pass-contract.md` mirrors the shipped template source for the same contract.
+- The four coverage-pass prompt resources use the stable `make-docs://system/prompt/<file>` identity and resolve through the provider inventory. They do not require a project-local snapshot.
 - `packages/cli/src/rules.ts` registers those four coverage-pass prompts in `PROMPT_RULES`.
 - There is no current adversarial-review prompt, playbook, plugin, CLI command, MCP operation, manifest field, or conformance scenario.
-- [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) keeps playbooks valid without plugins, and [PRD 30](../../prd/30-revise-harness-plugin-substrate-workflow-bundles.md) keeps plugins explicit-selection only and evidence-gated.
+- [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) (historical section: `playbook-boundary`) keeps playbooks valid without plugins, and [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) keeps plugins explicit-selection only and evidence-gated.
 
 ## Plan Shape
 

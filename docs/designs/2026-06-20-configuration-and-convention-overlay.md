@@ -8,15 +8,15 @@ This design decides what `.make-docs/config.yaml` may influence, what remains ca
 
 ## Context
 
-The Batch 2 roadmap names this design as the boundary for configuration and conventions. It says config should be a presentation overlay, not a structural rewrite, and that repo paths, frontmatter field names, skill names, and contract names stay canonical unless a later design explicitly changes that boundary. See [v2-proposed-design-and-roadmap.md](../artifacts/v2-proposed-design-and-roadmap.md).
+The Batch 2 roadmap names this design as the boundary for configuration and conventions. It says config should be a presentation overlay, not a structural rewrite, and that repo paths, frontmatter field names, skill names, and contract names stay canonical unless a later design explicitly changes that boundary. See [v2-proposed-design-and-roadmap.md](../assets/project/v2-proposed-design-and-roadmap.md).
 
 The accepted Batch 2 designs already constrain this decision. [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md) makes `.make-docs/` the in-project tool directory and includes future local config in the required bootstrap. [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md) defines the default persona schema and says config overlays may relabel presentation vocabulary but must not rename canonical paths, field names, primitive names, or schema keys. [Generated Metadata and Lifecycle Handoffs](2026-06-20-generated-metadata-and-lifecycle-handoffs.md) makes YAML frontmatter canonical for generated metadata and explicitly says configuration overlays may change generated prose labels, not metadata names, `kind` values, `persona`, route identifiers, prompt paths, or lifecycle departure slugs.
 
-The evidence pass found no existing active design that should be updated in place. The closest same-area prior design is [Make Docs Lifecycle Playbook and Terminology Overlay](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md), but that design captured broader terminology-overlay intent before the accepted v2 Batch 2 model narrowed configuration to presentation behavior. This v2 planning pass therefore creates a new dated design rather than mutating the older document.
+The evidence pass found no existing active design that should be updated in place. The closest same-area prior design is [Make Docs Lifecycle Playbook and Terminology Overlay](../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md), but that design captured broader terminology-overlay intent before the accepted v2 Batch 2 model narrowed configuration to presentation behavior. This v2 planning pass therefore creates a new dated design rather than mutating the older document.
 
 Current source surfaces have no `.make-docs/config.yaml` loader. Existing `make-docs reconfigure` behavior is installer/profile selection, not convention overlay configuration. Later implementation planning must audit `packages/cli/src/cli.ts`, `packages/cli/src/profile.ts`, `packages/cli/src/types.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/install.ts`, `packages/cli/src/catalog.ts`, `packages/cli/src/rules.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skills-ui.ts`, package template copy paths, smoke-pack validation, and skill scripts that currently hard-code coordinates, date prefixes, output paths, or selected YAML fields.
 
-This design is a lifecycle departure by direction: it is generated from artifact roadmap inputs before the workflow returns to design -> plan -> PRD -> work -> implementation. The departure is the accepted `source-to-design-straddle` described by [lifecycle.md](../assets/references/lifecycle.md); it is explicit here so the later plan can resume the normal lifecycle instead of silently treating artifact proposals as implementation authority.
+This design is a lifecycle departure by direction: it is generated from artifact roadmap inputs before the workflow returns to design -> plan -> PRD -> work -> implementation. The departure is the accepted `source-to-design-straddle` described by [lifecycle.md](../../.make-docs/system/references/lifecycle.md); it is explicit here so the later plan can resume the normal lifecycle instead of silently treating artifact proposals as implementation authority.
 
 ## Decision
 
@@ -32,7 +32,7 @@ The configuration overlay may affect presentation:
 
 The configuration overlay must not rename structure:
 
-- Repository paths such as `docs/designs/`, `docs/assets/guides/`, `docs/assets/playbooks/`, or `.make-docs/`.
+- Repository paths such as `docs/designs/`, `docs/assets/library/`, `docs/assets/playbooks/`, or `.make-docs/`.
 - Frontmatter fields such as `title`, `kind`, `status`, `coordinate`, `persona`, `source`, `lifecycle`, or `follow_on`.
 - `kind` values, lifecycle departure slugs, source type values, route identifiers, prompt paths, skill names, contract names, harness names, or manifest keys.
 - Persona schema keys or primitive values. `agent`, `maintainer`, and `user` remain canonical primitives.
@@ -72,7 +72,7 @@ Batch reconciliation must verify that the four Batch 2 designs agree on one mode
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Generated Metadata and Lifecycle Handoffs](2026-06-20-generated-metadata-and-lifecycle-handoffs.md), [Make Docs Lifecycle Playbook and Terminology Overlay](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
+Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [New Docs Assets, Playbooks, and Persona Model](2026-06-19-new-docs-assets-playbooks-and-persona-model.md), [Generated Metadata and Lifecycle Handoffs](2026-06-20-generated-metadata-and-lifecycle-handoffs.md), [Make Docs Lifecycle Playbook and Terminology Overlay](../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
 
 Reason: This design is a new v2 Batch 2 decision that extends the accepted tool-directory, persona, and metadata designs while narrowing older terminology-overlay intent to presentation behavior. It does not update the prior docs in place because the active v2 model needs a distinct configuration-boundary decision.
 
@@ -80,7 +80,7 @@ Reason: This design is a new v2 Batch 2 decision that extends the accepted tool-
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design changes future CLI, MCP, template, manifest, package, validation, plugin, skill, and dogfood behavior while preserving canonical paths and metadata. It should become additive change planning against the active make-docs PRD/risk namespace after Batch 2 reconciliation.
 

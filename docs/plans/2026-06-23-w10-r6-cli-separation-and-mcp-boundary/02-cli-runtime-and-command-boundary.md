@@ -2,7 +2,7 @@
 
 ## Installer-Maintainer Role
 
-The TypeScript npm CLI keeps ownership of:
+The TypeScript package CLI keeps ownership of:
 
 - project install and sync;
 - reconfigure;
@@ -10,11 +10,13 @@ The TypeScript npm CLI keeps ownership of:
 - backup and uninstall;
 - audit review and compatibility classification;
 - package/template validation;
-- future migration flows until Rust parity is explicitly planned and validated.
+- migration flows;
+- deterministic operation domains;
+- required MCP behavior.
 
 ## Agent Automation Role
 
-The Rust CLI/MCP destination owns:
+The TypeScript CLI/MCP operation-domain destination owns:
 
 - deterministic inspection;
 - validation;
@@ -28,8 +30,8 @@ The Rust CLI/MCP destination owns:
 - Keep the no-command workflow meaningful.
 - Do not reintroduce `init`, `update`, `--reconfigure`, or `--skills` as accepted public paths.
 - Do not make `npx` command-router-first.
-- Ensure dual-runtime environments expose clear version/runtime output before public support.
+- Ensure package-runner and persistent-install environments expose clear package/runtime output before public support.
 
 ## Transition Rule
 
-TypeScript may bridge setup for Rust or MCP during transition, but bridge behavior must not become a separate long-term behavior model.
+CLI and MCP dispatch may be thin, but deterministic behavior must live in shared TypeScript operation domains and must not become separate behavior models.

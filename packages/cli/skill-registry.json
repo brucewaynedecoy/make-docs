@@ -1,12 +1,125 @@
 {
   "$schema": "./skill-registry.schema.json",
+  "schemaVersion": 1,
+  "manifestId": "make-docs.first-party",
+  "displayName": "make-docs first-party skills",
+  "description": "First-party make-docs skills grouped by stable purpose ids.",
+  "sourcePolicy": {
+    "kind": "first-party",
+    "label": "First-party make-docs registry",
+    "allowRemoteSkillSources": false
+  },
+  "purposes": [
+    {
+      "id": "archive-management",
+      "label": "Archive management",
+      "description": "Archive, relationship tracing, staleness, and deprecation workflows.",
+      "order": 10,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "codebase-decomposition",
+      "label": "Codebase decomposition",
+      "description": "Repository analysis and implementation-planning inputs.",
+      "order": 20,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "documentation-maintenance",
+      "label": "Documentation maintenance",
+      "description": "Cleanup, style, path, link, and documentation hygiene workflows.",
+      "order": 30,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "lifecycle-closeout",
+      "label": "Lifecycle closeout",
+      "description": "Validation, history, PRD/risk reconciliation, and commit-message preparation.",
+      "order": 40,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "workflow-execution",
+      "label": "Workflow execution",
+      "description": "Wave and phase execution support.",
+      "order": 50,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "plan-creation",
+      "label": "Plan creation",
+      "description": "Design-to-plan and planning-prep workflows.",
+      "order": 60,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "migration-support",
+      "label": "Migration support",
+      "description": "Compatibility, audit, migration, and package-transition support.",
+      "order": 70,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
+      "id": "naive-uat",
+      "label": "Unassisted Goal Testing",
+      "description": "Access the shared Unassisted Goal Testing workflow.",
+      "order": 55,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    }
+  ],
   "skills": [
     {
       "name": "archive-docs",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/archive-docs",
+      "displayName": "Archive docs",
+      "source": "embedded:archive-docs",
       "entryPoint": "SKILL.md",
       "installName": "archive-docs",
       "description": "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      "purposes": [
+        "archive-management"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -23,77 +136,25 @@
       ]
     },
     {
-      "name": "closeout-commit",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-commit",
-      "entryPoint": "SKILL.md",
-      "installName": "closeout-commit",
-      "description": "Capture gaps, write history, and draft commit messages for uncommitted changes.",
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/closeout-commit-workflow.md",
-          "installPath": "references/closeout-commit-workflow.md"
-        },
-        {
-          "source": "scripts/closeout_probe.py",
-          "installPath": "scripts/closeout_probe.py"
-        },
-        {
-          "source": "scripts/closeout_validate.py",
-          "installPath": "scripts/closeout_validate.py"
-        },
-        {
-          "source": "scripts/closeout_history.py",
-          "installPath": "scripts/closeout_history.py"
-        }
-      ]
-    },
-    {
-      "name": "closeout-phase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/closeout-phase",
-      "entryPoint": "SKILL.md",
-      "installName": "closeout-phase",
-      "description": "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/closeout-workflow.md",
-          "installPath": "references/closeout-workflow.md"
-        },
-        {
-          "source": "scripts/closeout_probe.py",
-          "installPath": "scripts/closeout_probe.py"
-        },
-        {
-          "source": "scripts/closeout_validate.py",
-          "installPath": "scripts/closeout_validate.py"
-        },
-        {
-          "source": "scripts/closeout_history.py",
-          "installPath": "scripts/closeout_history.py"
-        },
-        {
-          "source": "scripts/work_phase_state.py",
-          "installPath": "scripts/work_phase_state.py"
-        },
-        {
-          "source": "scripts/guide_coverage_probe.py",
-          "installPath": "scripts/guide_coverage_probe.py"
-        }
-      ]
-    },
-    {
       "name": "cleanup-docs",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/cleanup-docs",
+      "displayName": "Clean up docs",
+      "source": "embedded:cleanup-docs",
       "entryPoint": "SKILL.md",
       "installName": "cleanup-docs",
       "description": "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
+      "purposes": [
+        "documentation-maintenance"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -106,97 +167,26 @@
       ]
     },
     {
-      "name": "work-on-wave",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-wave",
-      "entryPoint": "SKILL.md",
-      "installName": "work-on-wave",
-      "description": "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/wave-implementation-workflow.md",
-          "installPath": "references/wave-implementation-workflow.md"
-        },
-        {
-          "source": "scripts/work_on_wave_common.py",
-          "installPath": "scripts/work_on_wave_common.py"
-        },
-        {
-          "source": "scripts/resolve_wave.py",
-          "installPath": "scripts/resolve_wave.py"
-        },
-        {
-          "source": "scripts/wave_status.py",
-          "installPath": "scripts/wave_status.py"
-        },
-        {
-          "source": "scripts/phase_plan.py",
-          "installPath": "scripts/phase_plan.py"
-        },
-        {
-          "source": "scripts/checkpoint.py",
-          "installPath": "scripts/checkpoint.py"
-        },
-        {
-          "source": "scripts/scope_guard.py",
-          "installPath": "scripts/scope_guard.py"
-        },
-        {
-          "source": "scripts/phase_gate.py",
-          "installPath": "scripts/phase_gate.py"
-        }
-      ]
-    },
-    {
-      "name": "work-on-phase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/work-on-phase",
-      "entryPoint": "SKILL.md",
-      "installName": "work-on-phase",
-      "description": "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
-      "assets": [
-        {
-          "source": "agents/openai.yaml",
-          "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "references/phase-implementation-workflow.md",
-          "installPath": "references/phase-implementation-workflow.md"
-        },
-        {
-          "source": "scripts/work_on_wave_common.py",
-          "installPath": "scripts/work_on_wave_common.py"
-        },
-        {
-          "source": "scripts/resolve_wave.py",
-          "installPath": "scripts/resolve_wave.py"
-        },
-        {
-          "source": "scripts/phase_plan.py",
-          "installPath": "scripts/phase_plan.py"
-        },
-        {
-          "source": "scripts/checkpoint.py",
-          "installPath": "scripts/checkpoint.py"
-        },
-        {
-          "source": "scripts/scope_guard.py",
-          "installPath": "scripts/scope_guard.py"
-        },
-        {
-          "source": "scripts/phase_gate.py",
-          "installPath": "scripts/phase_gate.py"
-        }
-      ]
-    },
-    {
       "name": "decompose-codebase",
-      "source": "https://github.com/brucewaynedecoy/make-docs/tree/main/packages/skills/decompose-codebase",
+      "displayName": "Decompose codebase",
+      "source": "embedded:decompose-codebase",
       "entryPoint": "SKILL.md",
       "installName": "decompose-codebase",
       "description": "Plan and reverse-engineer repos into structured PRDs.",
+      "purposes": [
+        "codebase-decomposition",
+        "plan-creation"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
       "assets": [
         {
           "source": "agents/openai.yaml",
@@ -269,6 +259,133 @@
         {
           "source": "assets/templates/rebuild-backlog-phase.md",
           "installPath": "assets/templates/rebuild-backlog-phase.md"
+        }
+      ]
+    },
+    {
+      "name": "naive-uat",
+      "displayName": "Unassisted Goal Testing",
+      "source": "embedded:naive-uat",
+      "entryPoint": "SKILL.md",
+      "installName": "naive-uat",
+      "description": "Thin CLI access to the shared Unassisted Goal Testing workflow.",
+      "purposes": [
+        "naive-uat"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": []
+    },
+    {
+      "name": "preflight",
+      "displayName": "Preflight",
+      "source": "embedded:preflight",
+      "entryPoint": "SKILL.md",
+      "installName": "preflight",
+      "description": "Review a named phase and settle needed owner choices. Explicit use only.",
+      "purposes": [
+        "plan-creation"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/decisions.md",
+          "installPath": "references/decisions.md"
+        },
+        {
+          "source": "references/store.md",
+          "installPath": "references/store.md"
+        }
+      ]
+    },
+    {
+      "name": "factory",
+      "displayName": "Factory",
+      "source": "embedded:factory",
+      "entryPoint": "SKILL.md",
+      "installName": "factory",
+      "description": "Coordinate approved backlog work, review, and correction. Explicit use only.",
+      "purposes": [
+        "workflow-execution"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/profiles.md",
+          "installPath": "references/profiles.md"
+        },
+        {
+          "source": "references/store.md",
+          "installPath": "references/store.md"
+        },
+        {
+          "source": "references/work-methods.md",
+          "installPath": "references/work-methods.md"
+        }
+      ]
+    },
+    {
+      "name": "human-experience",
+      "displayName": "Human Experience",
+      "source": "embedded:human-experience",
+      "entryPoint": "SKILL.md",
+      "installName": "human-experience",
+      "description": "Shape or review a clear, usable human interaction. Explicit use only.",
+      "purposes": [
+        "documentation-maintenance"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/surfaces.md",
+          "installPath": "references/surfaces.md"
         }
       ]
     }

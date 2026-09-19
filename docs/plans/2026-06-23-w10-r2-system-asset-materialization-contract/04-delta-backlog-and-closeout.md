@@ -18,8 +18,8 @@ Generate the paired implementation backlog and close the planning round with val
 
 Every work phase must cite:
 
-- [17-revise-system-asset-materialization-contract.md](../../prd/17-revise-system-asset-materialization-contract.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [17-system-asset-materialization-and-local-bootstrap.md](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md)
 - [03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)

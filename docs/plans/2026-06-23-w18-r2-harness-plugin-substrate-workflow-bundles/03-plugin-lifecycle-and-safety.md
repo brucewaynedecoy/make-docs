@@ -10,9 +10,9 @@ Define plugin selection, install, update, sync, reconfigure, backup, audit, unin
 - Preserve no-default plugin behavior for bare install and default sync.
 - Keep existing skill selection semantics separate; `--selected-skills all` must not imply any plugin selection.
 - Reconcile selected plugins against effective plugin manifests and manifest-owned state during update, sync, and reconfigure.
-- Preserve modified managed payloads, modified generated exposures, malformed manifest states, missing-manifest ambiguous states, and user-authored harness plugins through review, backup, skip, or manual-resolution paths.
+- Preserve modified managed payloads, modified copy mirrors, modified generated adapters, malformed manifest states, missing-manifest ambiguous states, and user-authored harness plugins through review, backup, skip, or manual-resolution paths.
 - Require audit and backup/uninstall flows to consume one reviewed audit snapshot before destructive removal.
-- Keep deterministic lifecycle behavior owned by TypeScript CLI/shared-core contracts until a later Rust/MCP parity plan lands.
+- Keep deterministic lifecycle behavior owned by TypeScript CLI/shared-core contracts and required MCP operation boundaries.
 
 ## Dependencies
 
@@ -20,13 +20,13 @@ Define plugin selection, install, update, sync, reconfigure, backup, audit, unin
 - PRD 25 for CLI/MCP operation contracts.
 - PRD 26 for no-scripts migration sequencing.
 - PRD 27 for purpose-led skills manifests and canonical ids.
-- PRD 28 for generated selected-agentics exposure.
+- PRD 28 for W17 R3 native selected-agentics exposure.
 
 ## Acceptance Criteria
 
 - Bare install and default sync write no plugin payloads or exposure files.
 - Explicit plugin install can be planned without treating skill-selection flags as plugin-selection flags.
-- Audit output classifies plugin payloads and generated exposures separately.
+- Audit output classifies plugin payloads, symlink exposures, copy mirrors, generated adapters, and user-authored harness files separately.
 - Backup/uninstall never removes a user-authored harness plugin because its name matches a make-docs plugin id.
 - Plugin code does not carry independent implementations of manifest, config, audit, backup, uninstall, generation, validation, or lifecycle routing behavior.
 

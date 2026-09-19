@@ -1,9 +1,13 @@
 # W16 R2 Configuration Convention Overlay Work Backlog
 
+## W9 R5 Prerequisite
+
+Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W16 R2 configuration overlays must preserve `.make-docs/**` system-resource ownership and `docs/assets/{archive,artifacts,library,playbooks}/**` plus on-demand `docs/assets/archive/history/**` project-asset ownership instead of creating path aliases for superseded guide, breadcrumb, history, or library roots.
+
 ## Source Plan
 
 - [Plan Overview](../../plans/2026-06-23-w16-r2-configuration-convention-overlay/00-overview.md)
-- [PRD 24](../../prd/24-revise-configuration-convention-overlay.md)
+- [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md)
 
 ## Work Phases
 

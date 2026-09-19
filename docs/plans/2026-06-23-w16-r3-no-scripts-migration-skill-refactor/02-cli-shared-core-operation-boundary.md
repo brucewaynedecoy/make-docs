@@ -19,14 +19,14 @@ Core deterministic operations move behind CLI/shared-core APIs:
 Each operation needs:
 
 - deterministic input arguments;
-- structured output suitable for CLI text, CLI JSON, and future MCP tool responses;
+- structured output suitable for CLI text, CLI JSON, and MCP tool responses;
 - dry-run or read-only behavior where mutation would otherwise occur;
 - stable exit/error semantics;
 - provenance that identifies repo root, target files, selected phase or skill, and relevant manifest/audit state.
 
 ## TypeScript First
 
-The TypeScript CLI is the first implementation target because it owns the current install, skills, manifest, audit, backup, uninstall, and package validation behavior. Rust and MCP inherit the operation contract later.
+The TypeScript CLI is the implementation target because it owns the current install, skills, manifest, audit, backup, uninstall, package validation, deterministic operation, and required MCP behavior. W16 R3 proved the first boundary; W10 R8 modularizes that boundary and adds the TypeScript MCP surface.
 
 ## Wrapper Rule
 
@@ -34,4 +34,4 @@ Existing system scripts may remain only as compatibility wrappers after the equi
 
 ## MCP Consequence
 
-No immediate MCP implementation is required. The operation boundary must still be shaped so an MCP tool can expose it later without duplicating behavior or inventing a separate permission model.
+W16 R3 did not implement MCP, but MCP is required for v2 under W10 R7. The operation boundary must be shaped so W10 R8 MCP tools expose it without duplicating behavior or inventing a separate permission model.

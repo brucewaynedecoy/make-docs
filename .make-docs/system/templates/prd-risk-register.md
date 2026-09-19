@@ -1,0 +1,70 @@
+---
+title: "03 Open Questions and Risk Register"
+kind: "prd"
+status: "active"
+# source:
+#   type: "plan"
+#   path: "{{SOURCE_PATH}}"
+---
+
+# 03 Open Questions and Risk Register
+
+## Purpose
+
+Capture drift, ambiguities, unresolved behavior, decisions, and rebuild risks that should remain visible instead of being buried inside subsystem docs.
+
+Use this as the active PRD namespace's living register. When agents discover or resolve gaps, drift, open questions, risks, decisions, or closeout findings, update this document directly instead of creating a separate questions, decisions, risks, gaps, or architecture-decision file unless the user explicitly asks.
+
+Each item under `## Confirmed Drift`, `## Open Questions`, and `## Rebuild Risks` should use one numbered `###` heading, a state table, and the body fields below. Use `D-001`, `D-002`, etc. under `## Confirmed Drift`; `Q-001`, `Q-002`, etc. under `## Open Questions`; and `R-001`, `R-002`, etc. under `## Rebuild Risks`. Assign the next available number inside the section and never renumber existing items, even when an item moves to `Closed`. Use `Open`, `Confirming`, `Deferred`, or `Closed` for `Status`. Add `Resolution` only when the item is closed.
+
+Do not use `## Requirement History` as a substitute for unresolved register state. This register tracks lineage through item IDs, `Decision`, `Follow-Up`, `Recommendation`, `To close`, and optional `Resolution`.
+
+```markdown
+### D-001 <Gap, Question, Drift, or Risk Title>
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet | <next action or owner/path> |
+
+**Question** or **Issue**: <what needs to be answered, corrected, or tracked>
+
+**Why it matters**: <impact on rebuild, maintenance, users, release, or future work>
+
+**Recommendation**: <current recommendation or "None yet">
+
+**To close**: <evidence, decision, or implementation needed to close the item>
+```
+
+## Confirmed Drift
+
+List code-versus-doc or code-versus-behavior mismatches that are verified.
+
+Code anchors:
+
+- `{{DRIFT_PATHS}}`
+
+## Open Questions
+
+List unanswered questions and unresolved decisions that matter for a faithful rebuild or future maintenance.
+
+Code anchors:
+
+- `{{QUESTION_PATHS}}`
+
+## Rebuild Risks
+
+List the places where a clean-room rebuild is likely to go wrong without careful constraints.
+
+Code anchors:
+
+- `{{RISK_PATHS}}`
+
+## Deferred Obligations
+
+Use this fixed section only when accepted required future outcomes are active.
+Each record uses a stable heading `### O-### <title>` and includes status, source authority, owner, target coordinate, future trigger, dependencies, and acceptance exit criteria.
+If no obligations are active, state `None currently.`
+
+## Source Anchors
+
+- `{{PRIMARY_FILES}}`

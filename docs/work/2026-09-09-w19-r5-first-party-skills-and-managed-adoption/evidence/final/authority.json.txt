@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "targetRoot": ".",
+  "targetRootStatus": "valid",
+  "prdRoot": "./docs/prd",
+  "prdSetStatus": "present",
+  "prdFilesScanned": 39,
+  "markdownFilesScanned": 535,
+  "structuredFilesScanned": 199,
+  "linksScanned": 1034,
+  "diagnostics": []
+}

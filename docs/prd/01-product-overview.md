@@ -2,53 +2,128 @@
 
 ## Purpose
 
-`make-docs` is a Node-based installer and lifecycle CLI that turns a target repository into an AI-friendly documentation workspace with opinionated structure, templates, references, router instructions, and optional agent skills. The public contract in `README.md:1-46` and `packages/cli/README.md:1-29` is implemented by `packages/cli/src/cli.ts:77-265`, which chooses between first install, manifest-backed sync, explicit reconfigure, skills-only management, backup, and uninstall, then routes the run into the matching planning and apply flow.
+Make Docs preserves technical rigor and also requires coherent human outcomes. A result is not complete only because its contracts and operations are correct. People must be able to understand and use the result for a real goal.
 
-The product is not only a file copier. Profile resolution in `packages/cli/src/profile.ts:10-93` and shared types in `packages/cli/src/types.ts:38-97` convert user selections into a dependency-aware `InstallProfile`; asset selection in `packages/cli/src/rules.ts:8-194` and `packages/cli/src/catalog.ts:64-85` decides which contracts, templates, prompts, and router files belong to that profile; and the planner/apply path in `packages/cli/src/planner.ts:19-202`, `packages/cli/src/install.ts:26-157`, and `packages/cli/src/manifest.ts:17-101` preserves that managed footprint over time through `.make-docs/manifest.json`.
+`make-docs` is a TypeScript/Node installer, lifecycle CLI, and MCP server that turns a target repository into an AI-friendly documentation workspace with opinionated structure, stable system-resource identities, router instructions, and optional agent skills. Contracts, prompts, references, and templates are peer system-resource types identified as `make-docs://system/<type>/<posix-relative-path>` and served by the installed CLI without requiring a project-local resource snapshot.
 
-The product also treats maintainer and dogfood workflows as first-class capabilities. The repo-root `docs/` tree is an active dogfood instance of the shipped template rather than an unrelated internal wiki, as described in `README.md:7-20` and `packages/docs/README.md:62-121`, and the full subsystem map now lives across `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/09-dogfood-and-maintainer-operations.md`, and `docs/prd/10-packaging-validation-and-release-reference.md`.
+The product is not only a file copier. A shared TypeScript operation registry owns deterministic resource resolution, list/read behavior, lifecycle operations, and typed receipts for CLI and MCP projections. `resolveInstallProfile` in `packages/cli/src/profile.ts` converts `InstallSelections` into the dependency-aware `InstallProfile` defined in `packages/cli/src/types.ts`; planning and apply behavior preserve manifest-backed ownership and provenance; `.make-docs/system/{contracts,prompts,references,templates}/` always keeps configured-harness routers; and optional resource bodies are selected explicitly rather than required for core operation.
+
+The product also treats maintainer and dogfood workflows as first-class capabilities. The repo-root `docs/` tree is an active dogfood instance of the shipped template rather than an unrelated internal wiki, as described in `README.md` and `packages/docs/README.md`, and the full subsystem map now lives across `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/09-dogfood-and-maintainer-operations.md`, and `docs/prd/10-packaging-validation-and-release-reference.md`.
 
 ## Users
 
-- Project maintainers and technical leads install `make-docs` into an existing repo to standardize `docs/`, root harness instructions, and the runtime state under `.make-docs/`, either interactively or through non-interactive flags such as `--yes`, `--no-work`, and `reconfigure` in `README.md:48-107` and `packages/cli/src/cli.ts:455-723`.
-- AI agent operators use the routed instruction surface that `packages/cli/src/catalog.ts` installs for the enabled harnesses and capabilities. The Codex and Claude mappings in `packages/cli/src/types.ts` and static managed-block router files in `packages/docs/template/**` make the installed tree legible to the selected agent environments.
-- Documentation authors use the shipped contract and template set under `packages/docs/template/docs/assets/references/` and `packages/docs/template/docs/assets/templates/`, including the fixed PRD core described in `README.md:182-194` and the output contract enforced by `packages/docs/template/docs/assets/references/output-contract.md`.
-- Internal maintainers and release engineers use the same system to validate the product against itself. `packages/docs/README.md:62-121` defines manual dogfood re-seeding, `packages/cli/src/README.md:47-52` maps code changes to the right validation commands, and `scripts/smoke-pack.mjs:60-246` exercises the packaged CLI end to end before release.
+- Project maintainers and technical leads install `make-docs` into an existing repo to standardize `docs/`, root harness instructions, and the runtime state under `.make-docs/`, either interactively or through non-interactive flags such as `--yes`, `--no-work`, and `reconfigure` in `README.md` and the `ParsedArgs`, `parseArgs`, and `validateParsedArgs` command boundary in `packages/cli/src/cli.ts`.
+- AI agent operators use the routed instruction surface that `getDesiredAssets` in `packages/cli/src/catalog.ts` installs for the enabled harnesses and capabilities. `Harness`, `InstructionKind`, and `HARNESS_TO_INSTRUCTION` in `packages/cli/src/types.ts` plus the static managed-block router files in `packages/docs/template/**` make the installed tree legible to the selected agent environments.
+- Documentation authors use the peer contract, prompt, reference, and template resource set authored upstream under `packages/docs/template/`, including the fixed PRD core described in `README.md` and the output contract enforced by `packages/docs/template/.make-docs/system/contracts/output-contract.md`.
+- Internal maintainers and release engineers use the same system to validate the product against itself. `packages/docs/README.md` defines manual dogfood re-seeding, `packages/cli/src/README.md` maps code changes to the right validation commands, and `scripts/smoke-pack.mjs` exercises the packaged CLI end to end before release.
 
 ## Key Capabilities
 
-- Profile-scoped scaffold installation: the default selections in `packages/cli/src/profile.ts:17-35` enable `designs`, `plans`, `prd`, and `work`, while the dependency graph in `packages/cli/src/profile.ts:10-15` ensures `prd` depends on `plans` and `work` depends on both `plans` and `prd`. This gives the product a single install model for both full and partial documentation systems.
-- Contract-aware asset delivery: `packages/docs/template/` is the authoring source of truth, while `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts` choose and materialize the profile-valid subset of prompts, references, templates, and router instructions that should land in the consumer repo without rewriting template file contents.
-- Non-destructive sync and reconfigure: `packages/cli/src/cli.ts:119-219` infers whether the user is syncing saved selections or explicitly reconfiguring; `packages/cli/src/planner.ts:51-189` classifies create, update, generate, remove-managed, and conflict actions; and `packages/cli/src/install.ts:177-223` writes managed files while staging unresolved replacements under `.make-docs/conflicts/<run-id>/`.
-- Harness and skill distribution: `make-docs skills` is a first-class surface in `packages/cli/src/cli.ts:104-116` and `packages/cli/src/skills-command.ts:32-103`, while `packages/cli/skill-registry.json`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/skill-resolver.ts` install explicitly selected optional skills into `.claude/skills`, `.agents/skills`, or the user home directory.
-- Managed lifecycle operations: `packages/cli/src/backup.ts:49-158`, `packages/cli/src/uninstall.ts:52-177`, and `packages/cli/src/audit.ts:41-87` give the product a safety-first story for backup and uninstall that is separate from install/sync but still driven by manifest and canonical-content auditing.
-- Packaging and dogfood validation: `packages/cli/package.json:9-25` defines the publishable surface, `scripts/copy-template-to-cli.mjs:24-32` prepares the bundled template, `packages/cli/tests/consistency.test.ts` proves desired scaffold assets match static template bytes, and `scripts/check-instruction-routers.sh` plus `scripts/smoke-pack.mjs` enforce dogfood and tarball integrity.
+- **Human Experience Standard and Intent**: Make Docs provides one product-wide standard for human quality. Governed work classifies its human impact, states the intended human outcome, and carries observable experience promises into evidence and acceptance. See [PRD 49](49-human-experience-standard-and-intent.md).
+- **Proportionate testing and human-centered validation**: Make Docs selects only the testing that can change a current decision. It separates Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing; applies explicit effort, stop, evidence, and gate rules; and makes every request to a person short, goal-led, and non-redundant. See [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
+
+- Profile-scoped scaffold installation: `defaultSelections` in `packages/cli/src/profile.ts` enables `designs`, `plans`, `prd`, and `work`, while `CAPABILITY_DEPENDENCIES` ensures `prd` depends on `plans` and `work` depends on both `plans` and `prd`. This gives the product a single install model for both full and partial documentation systems.
+- Contract-aware resource delivery: `packages/docs/template/` is the upstream authoring source of truth for contracts, prompts, references, templates, routers, and default structure. The installed CLI exposes deterministic `resource list` and `resource read` behavior over stable `make-docs://system/...` identities, native MCP resources expose the same effective URI set and bytes where supported, the configured-harness router skeleton is always local, and optional local resource bodies preserve explicit ownership and provenance without rewriting source content.
+- Non-destructive sync and reconfigure: `inferInstallIntent` and `resolveSelections` in `packages/cli/src/cli.ts` distinguish saved-selection sync from explicit reconfiguration; `createInstallPlan` in `packages/cli/src/planner.ts` classifies create, update, generate, remove-managed, and conflict actions; and `applyInstallPlan` in `packages/cli/src/install.ts` writes managed files while staging unresolved replacements under `.make-docs/conflicts/<run-id>/`.
+- Harness and skill distribution: `make-docs setup skills` is the project-lifecycle surface defined by [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md), while `packages/cli/skill-registry.json`, `packages/cli/src/skill-catalog.ts`, and `packages/cli/src/skill-resolver.ts` install explicitly selected Skills at the standard scope/harness paths in [PRD 28](28-shared-agentics-installation-and-harness-exposure.md): project Claude-only `.claude/skills/<name>`, project Codex-only or both `.agents/skills/<name>`, and global `~/.agents/skills/<name>` with selected additional native links or supported copies.
+- Managed lifecycle operations: `runBackupCommand`, `runUninstallCommand`, and `createAuditReport` in `packages/cli/src/backup.ts`, `packages/cli/src/uninstall.ts`, and `packages/cli/src/audit.ts` give the product a safety-first story for backup and uninstall that is separate from install/sync but still driven by manifest and canonical-content auditing.
+- Deferred-obligation governance: [R-OBL-ID](45-deferred-obligation-governance.md#r-obl-id-canonical-register-and-identity) and [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) give every accepted incomplete outcome a durable owner, trigger, target coordinate, exit criteria, lifecycle status, and phase-close orphan audit so later work cannot silently lose it.
+- Conditional Unassisted Goal Testing: [R-NUAT-ACTIVATE](46-naive-end-user-acceptance-testing.md#r-nuat-activate-user-observable-slices-and-valid-none) activates a qualified, anti-coached human attempt only when it can reveal a material current uncertainty or explicit authority requires it. The result is advisory by default, preserves existing `NUAT-###` compatibility, and permits `not-needed-now` without a false obligation.
+- General lifecycle run capture: bounded `lifecycle` runs and `run_evidence` references may record stages from design through retrospective. Typed Store receipts prove only the requested mutation, and a visible `run-capture-unavailable` outcome never weakens repository authority or implies a background retry.
+- Packaging and dogfood validation: `packages/cli/package.json` defines the publishable surface, `scripts/copy-template-to-cli.mjs` prepares the bundled template, and validation preserves the order `packages/docs/template/` upstream -> package projection -> root dogfood -> representative installed project.
 
 ## System Boundaries
 
-In scope, `make-docs` owns the publishable CLI at `packages/cli/`, the template authoring tree at `packages/docs/template/`, the shipped skill source tree at `packages/skills/`, the packaged registry at `packages/cli/skill-registry.json`, the repo-level packaging and validation scripts under `scripts/`, and the consumer-facing managed footprint consisting of `docs/**`, root `AGENTS.md` / `CLAUDE.md`, `.make-docs/manifest.json`, `.make-docs/conflicts/`, and optional skill installs under project or home directories (`README.md:24-46`, `packages/cli/src/types.ts:38-97`, `packages/cli/src/skill-catalog.ts:18-127`).
+Correct machine contracts do not define the default human presentation. A human surface and a machine surface can use different forms and information density. Both must preserve the same meaning, truth, safety, and auditability. The normal human path must preserve context, reveal meaning and relationships, show state and useful next actions, and keep internal detail out of the way until it is useful. See [PRD 49](49-human-experience-standard-and-intent.md).
 
-The product deliberately separates authoring assets from installed runtime state. Template-owned contracts and templates live under `packages/docs/template/docs/assets/**`, consumer-facing runtime state lives under root `.make-docs/` rather than `docs/assets/` (`README.md:46`, `packages/docs/README.md:48`, `packages/cli/src/manifest.ts:17-20`), and user-authored plans, PRDs, guides, and work items are not treated as template source even when the repo is dogfooding the system (`packages/docs/README.md:70-76`).
+In scope, `make-docs` owns the publishable CLI at `packages/cli/`, the template authoring tree at `packages/docs/template/`, the shipped skill source tree at `packages/skills/`, the packaged registry at `packages/cli/skill-registry.json`, the repo-level packaging and validation scripts under `scripts/`, and the consumer-facing managed footprint. Each configured harness has an unconditional router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`. The resolved effective profile and its dependencies control the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. The `docs/assets/` root and its configured-harness routers are on demand, with no managed child routers or eager empty children. The always-present docs router exposes the `user` and `maintainer` defaults and the shared-input path before assets exist. The footprint also includes declarative `.make-docs/config.yaml`; `.make-docs/conflicts/`; optional system-resource bodies; on-demand `.make-docs/archive/**`, shared inputs under `docs/assets/project/**`, and audience asset or testing children under `docs/assets/<persona-slug>/**`; selected Skill files at standard scope/harness locations, with direct native access or exact additional links/copies; no private Make Docs Skill layer or newly generated forwarding stubs.
 
-Out of scope, the product does not currently publish `packages/docs`, `packages/skills`, or `packages/content` as standalone packages (`packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`, `packages/content/package.json:2-5`), does not automate dogfood re-seeding (`packages/docs/README.md:103-121`), does not define a live rendered-fragment pipeline for `packages/content/` despite reserving it in `README.md:10-17`, and does not guarantee offline skill installs because skill payload resolution currently depends on remote URLs in `packages/cli/src/skill-registry.ts:79-84` and `packages/cli/src/skill-resolver.ts:118-244`.
+The product deliberately separates authoring authority, packaged provider content, optional project resource bodies, project documentation, and runtime state. Template-owned contracts, prompts, references, and templates are authored under `packages/docs/template/.make-docs/system/{contracts,prompts,references,templates}/**`; package preparation projects those bytes into the CLI provider; selected clean managed bodies or explicit project-owned overrides may live under `.make-docs/system/{contracts,prompts,references,templates}/`; the router skeleton remains local without those bodies; consumer runtime and provenance state stays under root `.make-docs/`; and user-authored designs, plans, PRDs, guides, evidence, and work items are not template source even when this repository dogfoods the system.
 
-### Change Notes
+Installation ownership, applied versions, receipts, locks, and recovery records belong only to the global Store. A local manifest or state directory is a bounded legacy input, never a current fallback. Persona discovery reads defaults and declarative config without Store access; ordinary asset authoring remains possible without the CLI. PRDs [22](22-project-documentation-asset-model.md), [24](24-project-configuration-and-convention-overlay.md), [38](38-global-store-and-project-state.md), and [47](47-persona-model.md) own these boundaries.
 
-- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for v2 product/package identity and deployment ownership: `make-docs`, `Make Docs`, and `MakeDocs` remain the active names; the root workspace remains private; TypeScript npm and future Rust distributions expose one `make-docs` command.
+Out of scope, Make Docs v2 owns neither Playbooks nor Protocols as document kinds, workflow engines, run models, package/compiler surfaces, default assets, interoperability promises, or Store APIs. Historical Playbook and Protocol designs, plans, work, evidence, and opaque legacy Store rows remain provenance, while a future standalone-product integration requires new owner-approved design and PRD authority. The product also does not currently publish `packages/docs` or `packages/skills` as standalone packages. Rendered Markdown built from JSON content fragments is a current non-goal and has no reserved package.
 
 ## Current Limitations
 
-- The UI and CLI expose `required` versus `all` modes for templates and references in `packages/cli/src/wizard.ts:93-104` and `packages/cli/src/wizard.ts:838-888`, but the current selector logic in `packages/cli/src/rules.ts:130-182` only adds one extra reference for `referencesMode === "all"` and does not branch on `templatesMode` at all. The product surface promises more granularity than the live asset selector currently enforces.
-- Skills are distributed through a packaged registry plus remote fetches, not through bundled local skill payloads. The registry loader in `packages/cli/src/skill-registry.ts:25-84` requires remote-style sources, and the resolver in `packages/cli/src/skill-resolver.ts:226-244` fetches content over the network, so skill installation is more fragile than the base docs scaffold.
-- Dogfood freshness is manual by design. `packages/docs/README.md:86-121` requires contributors to copy updated template-owned files back into repo-root `docs/`, but there is no automated freshness check that proves `docs/assets/**` still mirrors `packages/docs/template/docs/assets/**` after template edits.
-- Package-surface documentation is currently inconsistent with the actual tarball allowlist. The live `files` set in `packages/cli/package.json:9-15` ships `dist`, `template`, the registry files, and `README.md`, while the maintainer and packaged READMEs still describe older package contents in `packages/cli/src/README.md:179-204` and `packages/cli/README.md:91-120`.
-- `packages/content/` remains a reserved future capability rather than an active subsystem. It is described in `README.md:10-17` and `packages/content/package.json:2-5`, but the current template resolver in `packages/cli/src/utils.ts` and static asset catalog in `packages/cli/src/catalog.ts` do not consume it.
+- Human Experience adoption is prospective. Existing authority remains valid until substantial work changes its human path. Structural checks can prove that required intent exists and uses the correct form. They cannot prove beauty, intuition, usefulness, or joy.
+- Testing governance is documentation-first in its first release. It can standardize selection, explanation, evidence, and gates before a future typed helper exists. It cannot remove the need for judgment about current decisions, maturity, qualified human execution, or material findings.
 
-### Change Notes
+- The installed provider inventory is complete for the selected product capabilities even when no local resource bodies are projected. Local `none`, per-resource-type, or `all` resource-body selection is separate from provider availability and never removes the router skeleton; legacy prompt-inclusion or template/reference-mode fields are stale migration inputs rather than current selectors.
+- Built-in skills are distributed through a packaged registry plus remote fetches, not through bundled local skill payloads. `loadSkillRegistry` and `validateSkillRegistryManifest` in `packages/cli/src/skill-registry.ts` also support explicit local or pinned alternate-manifest policies, but the built-in entries still resolve through `resolveSkillSource` and `fetchRemote` in `packages/cli/src/skill-resolver.ts`; built-in skill installation is therefore more network-dependent than the base docs scaffold.
+- Dogfood freshness is manual by design. `packages/docs/README.md` requires contributors to copy updated template-owned files back into repo-root `docs/`, but there is no automated freshness check that proves template-owned root copies still mirror `packages/docs/template/` after upstream edits.
+- The unused `packages/content/` placeholder is approved for retirement. Any future content-fragment capability requires a new accepted design and owning PRD authority before implementation.
 
-- Superseded by [16-revise-package-and-deployment-boundaries.md](./16-revise-package-and-deployment-boundaries.md) for stale rename limitations: no broad v2 product rename or default command alias work is active, and Q-008 is closed in favor of the stable `make-docs` / `Make Docs` / `MakeDocs` identity.
+## Requirement History
+
+### 2026-09-09 — W19 R5 Standard Skill Locations
+
+- Prior requirement: a private Make Docs Skill installation layer.
+- Replacement: standard scope/harness directories and reviewed legacy upgrade under [PRD 28](28-shared-agentics-installation-and-harness-exposure.md).
+- Rationale: correct the coordinator's repeated installation-layer error; source, installed files and Store state remain distinct.
+- Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md#standard-layout-correction).
+
+
+### 2026-08-08 — Not assigned
+
+- Affected requirement or section: `Cross-cutting capability annotations`
+- Previous contract: Later capability decisions were recorded as nested Change Notes that pointed to standalone editorial PRDs.
+- Replacement contract: Current requirements remain inline in this owning PRD and related product authorities are linked by product subject.
+- Rationale: The active PRD set must describe current product authority rather than the editorial operation that produced it.
+- Source: [PRD Authority Maintenance](../../.make-docs/system/references/prd-change-management.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `Purpose`, `Key Capabilities`, `System Boundaries`, and `Current Limitations`
+- Previous contract: The product overview treated Playbooks and Playbook assets as current capability surfaces, treated local snapshots as the ordinary resource path, and did not state a stable peer-resource or general lifecycle-run contract.
+- Replacement contract: Make Docs owns no Playbook or Protocol product capability; contracts, prompts, references, and templates are peer resources with stable URI identity and CLI/native-MCP read parity through one resolver; local projection is optional and provenance-aware; upstream/package/dogfood boundaries remain ordered; bounded lifecycle runs return typed receipts; and Naive UAT uses persona-scoped system workflow resources, a thin optional Skill, and persona testing evidence.
+- Rationale: Current product authority must match the accepted v2 boundary and missing-migration recovery direction before downstream work is derived.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-08-28 — W20 R0
+
+- Affected requirement or section: `Key Capabilities`, `Human Experience Product and Quality Boundary`, and `Current Limitations`.
+- Previous contract: Make Docs required correct lifecycle and product artifacts but did not define one product-wide standard for human understanding and experience.
+- Replacement contract: Make Docs now owns a canonical Human Experience Standard, conditional impact and intent, semantic alignment between human and machine surfaces, proportionate evidence, and prospective adoption through [PRD 49](49-human-experience-standard-and-intent.md).
+- Rationale: Technically correct artifacts can still expose internal models, lose continuity, hide relationships, and impose needless effort on people.
+- Source: [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: `Key Capabilities` and `Current Limitations`.
+- Previous contract: The overview treated naive UAT as the main human testing capability and did not name one product-wide proportional testing model.
+- Replacement contract: The product exposes exactly four core testing types, current-decision selection, explicit gate effects, a humane testing experience, and conditional Unassisted Goal Testing.
+- Rationale: Make Docs must protect correctness without producing excess, early, duplicate, or needlessly difficult testing.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: Current product scope, command footprint, and package state boundary.
+- Previous contract: The current body retained eager assets-root or local-manifest footprint language and, where applicable, the separate docs/artifacts destination.
+- Replacement contract: Installation state is Store-owned. Assets and their configured-harness root routers are on demand; shared inputs use docs/assets/project and audience assets use effective Persona slugs. Always-present documentation exposes defaults without the CLI.
+- Rationale: Keep overview, command, and package consumers aligned with their current asset, config, Persona, and Store owners.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md), [Store ownership](38-global-store-and-project-state.md). Runtime R4 implementation has not started.
 
 ## Source Anchors
+
+- [Proportionate Testing and Human-Centered Validation design](../designs/2026-08-28-proportionate-testing-and-human-centered-validation.md)
+- [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+- [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)
+
+- [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
+- [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+- [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
+
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+- `docs/prd/45-deferred-obligation-governance.md`
+- `docs/prd/46-naive-end-user-acceptance-testing.md`
+- `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
+- `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
 
 - `README.md`
 - `package.json`
@@ -59,7 +134,6 @@ Out of scope, the product does not currently publish `packages/docs`, `packages/
 - `packages/docs/README.md`
 - `packages/skills/package.json`
 - `packages/skills/README.md`
-- `packages/content/package.json`
 - `packages/cli/src/cli.ts`
 - `packages/cli/src/profile.ts`
 - `packages/cli/src/types.ts`

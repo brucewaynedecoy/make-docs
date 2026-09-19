@@ -26,8 +26,8 @@ The implementation backlog must carry forward:
 
 - The accepted distinction between `.make-docs/**` tool resources and `docs/assets/**` reader-facing assets.
 - Template-first authoring and dogfood reseeding from PRD 19.
-- W16 `docs/library/playbooks/**` as transitional, not canonical.
-- `docs/assets/archive/**` as current/historical, with `docs/archive/**` as the future archive surface.
+- W16 `docs/library/playbooks/**` as migrated transitional evidence, not canonical.
+- `docs/assets/archive/**` as the managed archive surface after W9 R4; earlier top-level `docs/archive/**` language is superseded.
 - `persona` frontmatter as authoritative over directory placement.
 - Playbooks as content, not plugins or executors.
 

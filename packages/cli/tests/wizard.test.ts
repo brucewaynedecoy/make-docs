@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { defaultSelections } from "../src/profile";
+import { createDefaultMakeDocsConfig } from "../src/config";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
+import type { WizardSkillChoice } from "../src/skill-catalog";
 import type {
   Capability,
   Harness,
@@ -102,6 +104,30 @@ function managedFileConflict(
   };
 }
 
+function wizardSkillChoice(
+  name: string,
+  description: string,
+  displayName = name,
+): WizardSkillChoice {
+  return {
+    name,
+    displayName,
+    description,
+    purposes: [
+      {
+        id: "test-purpose",
+        label: "Test purpose",
+        description: "Test purpose.",
+      },
+    ],
+    source: `local:${name}`,
+    sourcePolicyKind: "local",
+    supportedHarnesses: ["codex"],
+    provenanceLabel: "Test fixture",
+    provenanceKind: "local",
+  };
+}
+
 beforeEach(() => {
   clackMocks.note.mockReset();
   clackMocks.select.mockReset();
@@ -110,6 +136,37 @@ beforeEach(() => {
 });
 
 describe("selection wizard", () => {
+  test("locks saved Skills while other existing-install options remain editable", async () => {
+    const selections = defaultSelections();
+    selections.skills = true;
+    selections.skillScope = "global";
+    selections.selectedSkills = ["preflight"];
+    const renderer = new MockWizardRenderer(
+      [],
+      [["codex"]],
+      [{
+        skills: false,
+        skillScope: "project",
+        selectedSkills: [],
+        resourceProjection: ["contract"],
+      }],
+      [],
+    );
+    const result = await runSelectionWizardWithRenderer(renderer, {
+      initialSelections: selections,
+      introTitle: "Review",
+      projectState: "partial",
+      lockSkills: true,
+    });
+    expect(renderer.seenOptionStates[0]?.skillsLocked).toBe(true);
+    expect(result).toMatchObject({
+      skills: true,
+      skillScope: "global",
+      selectedSkills: ["preflight"],
+      resourceProjection: ["contract"],
+    });
+  });
+
   test("derives disabled capability rows from unmet prerequisites", () => {
     const selections = defaultSelections();
     selections.capabilities.plans = false;
@@ -145,6 +202,23 @@ describe("selection wizard", () => {
     expect(selections.capabilities.work).toBe(false);
   });
 
+  test("keeps work selected when setup also keeps its plans and prd prerequisites", () => {
+    const selections = applyCapabilitySelections(defaultSelections(), [
+      "plans",
+      "prd",
+      "work",
+    ]);
+    const profile = resolveInstallProfile(selections);
+
+    expect(selections.capabilities).toEqual({
+      designs: false,
+      plans: true,
+      prd: true,
+      work: true,
+    });
+    expect(profile.effectiveCapabilities).toEqual(["plans", "prd", "work"]);
+  });
+
   test("maps grouped option answers back into install selections without mutating harnesses", () => {
     const initialSelections = defaultSelections();
     initialSelections.harnesses["claude-code"] = false;
@@ -153,12 +227,14 @@ describe("selection wizard", () => {
       skills: true,
       skillScope: "global",
       selectedSkills: ["decompose-codebase"],
+      resourceProjection: [],
     });
 
     expect(getWizardOptionSelections(selections)).toEqual({
       skills: true,
       skillScope: "global",
       selectedSkills: ["decompose-codebase"],
+      resourceProjection: [],
     });
     expect(selections.harnesses["claude-code"]).toBe(false);
     expect(selections.harnesses.codex).toBe(true);
@@ -172,90 +248,56 @@ describe("selection wizard", () => {
         selectedSkills: ["decompose-codebase"],
       },
       [
-        {
-          name: "archive-docs",
-          description: "Relationship-aware archival.",
-        },
-        {
-          name: "cleanup-docs",
-          description: "Clean Markdown docs formatting drift.",
-        },
-        {
-          name: "closeout-commit",
-          description: "Close out uncommitted changes.",
-        },
-        {
-          name: "closeout-phase",
-          description: "Close out completed phases.",
-        },
-        {
-          name: "decompose-codebase",
-          description:
-            "Plan and reverse-engineer repos into structured PRDs.",
-        },
-        {
-          name: "work-on-phase",
-          description: "Implement one docs/work phase.",
-        },
-        {
-          name: "work-on-wave",
-          description: "Implement docs/work waves.",
-        },
+        wizardSkillChoice(
+          "archive-docs",
+          "Relationship-aware archival.",
+          "Archive Docs",
+        ),
+        wizardSkillChoice(
+          "cleanup-docs",
+          "Clean Markdown docs formatting drift.",
+        ),
+        wizardSkillChoice(
+          "decompose-codebase",
+          "Plan and reverse-engineer repos into structured PRDs.",
+        ),
       ],
     );
 
     expect(skillSelection.selectedSkillNames).toEqual(["decompose-codebase"]);
-    expect(skillSelection.promptOptions).toEqual([
+    expect(
+      skillSelection.promptOptions.map((option) => ({
+        value: option.value,
+        disabled: option.disabled,
+        rowKind: option.rowKind,
+      })),
+    ).toEqual([
       {
         value: "archive-docs",
-        label: "archive-docs",
-        hint: "Relationship-aware archival.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "cleanup-docs",
-        label: "cleanup-docs",
-        hint: "Clean Markdown docs formatting drift.",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "closeout-commit",
-        label: "closeout-commit",
-        hint: "Close out uncommitted changes.",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "closeout-phase",
-        label: "closeout-phase",
-        hint: "Close out completed phases.",
         disabled: false,
         rowKind: "skill",
       },
       {
         value: "decompose-codebase",
-        label: "decompose-codebase",
-        hint: "Plan and reverse-engineer repos into structured PRDs.",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "work-on-phase",
-        label: "work-on-phase",
-        hint: "Implement one docs/work phase.",
-        disabled: false,
-        rowKind: "skill",
-      },
-      {
-        value: "work-on-wave",
-        label: "work-on-wave",
-        hint: "Implement docs/work waves.",
         disabled: false,
         rowKind: "skill",
       },
     ]);
+    expect(skillSelection.promptOptions[0]).toMatchObject({
+      label: "Archive Docs",
+      hint: "",
+      detailLines: [
+        "Relationship-aware archival.",
+        "",
+        "Purpose: Test purpose",
+        "Support: codex",
+      ],
+    });
   });
 
   test("skips the skill prompt when there are no recommended skills", () => {
@@ -285,6 +327,34 @@ describe("selection wizard", () => {
     expect(summary).toContain("- Selected skills: decompose-codebase");
     expect(summary).not.toContain("- Optional skills:");
     expect(summary).not.toContain("- Agents:");
+  });
+
+  test("renders configured document kind labels without changing capability values", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.design = "Idea";
+    config.labels.documentKinds.plan = "Roadmap";
+    config.labels.documentKinds.prd = "Requirement";
+    config.labels.documentKinds.work = "Task list";
+    const selections = defaultSelections();
+    selections.capabilities.work = false;
+
+    const checklist = buildCapabilityChecklistState(selections, config);
+    const summary = renderWizardReviewSummary(selections, config);
+
+    expect(checklist.options.map((option) => option.value)).toEqual([
+      "designs",
+      "plans",
+      "prd",
+      "work",
+    ]);
+    expect(checklist.options.map((option) => option.label)).toEqual([
+      "Idea",
+      "Roadmap",
+      "Requirement",
+      "Task list",
+    ]);
+    expect(summary).toContain("- Idea: selected");
+    expect(summary).toContain("- Task list: off");
   });
 
   test("renders harness options and applies harness selections", async () => {
@@ -355,11 +425,22 @@ describe("selection wizard", () => {
         hint: "Install skills into your home directory for reuse across projects.",
       },
     ]);
-    expect(renderer.seenOptionStates[0]?.skillSelection.skills).toEqual([
+    expect(
+      renderer.seenOptionStates[0]?.skillSelection.skills.map(
+        ({ name, description }) => ({
+          name,
+          description,
+        }),
+      ),
+    ).toEqual([
       {
         name: "archive-docs",
         description:
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
+      },
+      {
+        name: "decompose-codebase",
+        description: "Plan and reverse-engineer repos into structured PRDs.",
       },
       {
         name: "cleanup-docs",
@@ -367,28 +448,20 @@ describe("selection wizard", () => {
           "Audit and clean Markdown docs formatting drift, hard-wrapped prose, list spacing, and document-contract issues.",
       },
       {
-        name: "closeout-commit",
-        description:
-          "Capture gaps, write history, and draft commit messages for uncommitted changes.",
+        name: "human-experience",
+        description: "Shape or review a clear, usable human interaction. Explicit use only.",
       },
       {
-        name: "closeout-phase",
-        description:
-          "Close out completed work backlog phases with checked tasks, acceptance evidence, guides, gap capture, history, and commit-message drafts.",
+        name: "factory",
+        description: "Coordinate approved backlog work, review, and correction. Explicit use only.",
       },
       {
-        name: "decompose-codebase",
-        description: "Plan and reverse-engineer repos into structured PRDs.",
+        name: "naive-uat",
+        description: "Thin CLI access to the shared Unassisted Goal Testing workflow.",
       },
       {
-        name: "work-on-phase",
-        description:
-          "Implement one explicit docs/work phase through planning, validation, closeout, and optional commit.",
-      },
-      {
-        name: "work-on-wave",
-        description:
-          "Work on docs/work waves through implementation, validation, closeout, and phase commits.",
+        name: "preflight",
+        description: "Review a named phase and settle needed owner choices. Explicit use only.",
       },
     ]);
     expect(result?.skillScope).toBe("global");
@@ -447,28 +520,38 @@ describe("selection wizard", () => {
     });
   });
 
-  test("supports editing options from the review step before applying", async () => {
+  test("runs method screens after harness selection and before shared Skill options", async () => {
+    const order: string[] = [];
     const renderer = new MockWizardRenderer(
       [["designs", "plans", "prd", "work"]],
       [["claude-code", "codex"]],
       [
         {
           skills: true,
-          skillScope: "project",
-          selectedSkills: [],
-        },
-        {
-          skills: true,
           skillScope: "global",
           selectedSkills: ["decompose-codebase"],
         },
       ],
-      ["edit-options", "apply"],
+      [],
     );
+    const originalHarness = renderer.editHarnesses.bind(renderer);
+    renderer.editHarnesses = async (state) => {
+      order.push("harnesses");
+      return originalHarness(state);
+    };
+    const originalOptions = renderer.editOptions.bind(renderer);
+    renderer.editOptions = async (state) => {
+      order.push("shared-skills-and-resources");
+      return originalOptions(state);
+    };
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
       introTitle: "Configure make-docs",
+      afterHarnessSelection: async () => {
+        order.push("methods");
+        return true;
+      },
     });
 
     expect(result).toMatchObject({
@@ -477,7 +560,8 @@ describe("selection wizard", () => {
       selectedSkills: ["decompose-codebase"],
     });
     expect(renderer.introTitles).toEqual(["Configure make-docs"]);
-    expect(renderer.seenOptionStates).toHaveLength(2);
+    expect(renderer.seenOptionStates).toHaveLength(1);
+    expect(order).toEqual(["harnesses", "methods", "shared-skills-and-resources"]);
   });
 
   test("cancels when the renderer stops at the capability step", async () => {
@@ -494,9 +578,9 @@ describe("selection wizard", () => {
 
 describe("promptForManagedFileConflictResolutions", () => {
   const conflicts = [
-    managedFileConflict("docs/assets/templates/guide.md", "templates"),
+    managedFileConflict(".make-docs/system/templates/guide.md", "templates"),
     managedFileConflict("AGENTS.md", "agent-instructions"),
-    managedFileConflict("docs/assets/references/style.md", "references"),
+    managedFileConflict(".make-docs/system/references/style.md", "references"),
   ];
 
   test("returns an empty resolution map when there are no conflicts", async () => {
@@ -513,8 +597,8 @@ describe("promptForManagedFileConflictResolutions", () => {
 
     expect(result).toEqual({
       "AGENTS.md": "overwrite",
-      "docs/assets/references/style.md": "overwrite",
-      "docs/assets/templates/guide.md": "overwrite",
+      ".make-docs/system/references/style.md": "overwrite",
+      ".make-docs/system/templates/guide.md": "overwrite",
     });
   });
 
@@ -525,8 +609,8 @@ describe("promptForManagedFileConflictResolutions", () => {
 
     expect(result).toEqual({
       "AGENTS.md": "skip",
-      "docs/assets/references/style.md": "skip",
-      "docs/assets/templates/guide.md": "skip",
+      ".make-docs/system/references/style.md": "skip",
+      ".make-docs/system/templates/guide.md": "skip",
     });
   });
 
@@ -540,11 +624,11 @@ describe("promptForManagedFileConflictResolutions", () => {
       .mockResolvedValueOnce("skip");
 
     const result = await promptForManagedFileConflictResolutions([
-      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
-      managedFileConflict("docs/assets/references/bravo.md", "references"),
-      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict(".make-docs/system/templates/zeta.md", "templates"),
+      managedFileConflict(".make-docs/system/references/bravo.md", "references"),
+      managedFileConflict(".make-docs/system/templates/alpha.md", "templates"),
       managedFileConflict("AGENTS.md", "agent-instructions"),
-      managedFileConflict("docs/assets/references/alpha.md", "references"),
+      managedFileConflict(".make-docs/system/references/alpha.md", "references"),
     ]);
 
     expect(
@@ -552,17 +636,17 @@ describe("promptForManagedFileConflictResolutions", () => {
     ).toEqual([
       "How should make-docs handle these existing files?",
       "How should make-docs handle AGENTS.md?",
-      "How should make-docs handle docs/assets/references/alpha.md?",
-      "How should make-docs handle docs/assets/references/bravo.md?",
-      "How should make-docs handle docs/assets/templates/alpha.md?",
-      "How should make-docs handle docs/assets/templates/zeta.md?",
+      "How should make-docs handle .make-docs/system/references/alpha.md?",
+      "How should make-docs handle .make-docs/system/references/bravo.md?",
+      "How should make-docs handle .make-docs/system/templates/alpha.md?",
+      "How should make-docs handle .make-docs/system/templates/zeta.md?",
     ]);
     expect(result).toEqual({
       "AGENTS.md": "overwrite",
-      "docs/assets/references/alpha.md": "skip",
-      "docs/assets/references/bravo.md": "overwrite",
-      "docs/assets/templates/alpha.md": "skip",
-      "docs/assets/templates/zeta.md": "skip",
+      ".make-docs/system/references/alpha.md": "skip",
+      ".make-docs/system/references/bravo.md": "overwrite",
+      ".make-docs/system/templates/alpha.md": "skip",
+      ".make-docs/system/templates/zeta.md": "skip",
     });
   });
 
@@ -576,11 +660,11 @@ describe("promptForManagedFileConflictResolutions", () => {
       .mockResolvedValueOnce("skip");
 
     await promptForManagedFileConflictResolutions([
-      managedFileConflict("docs/assets/templates/zeta.md", "templates"),
-      managedFileConflict("docs/assets/references/bravo.md", "references"),
-      managedFileConflict("docs/assets/templates/alpha.md", "templates"),
+      managedFileConflict(".make-docs/system/templates/zeta.md", "templates"),
+      managedFileConflict(".make-docs/system/references/bravo.md", "references"),
+      managedFileConflict(".make-docs/system/templates/alpha.md", "templates"),
       managedFileConflict("AGENTS.md", "agent-instructions"),
-      managedFileConflict("docs/assets/references/alpha.md", "references"),
+      managedFileConflict(".make-docs/system/references/alpha.md", "references"),
     ]);
 
     const [summaryMessage, summaryTitle] = clackMocks.note.mock.calls[0] ?? [];
@@ -619,25 +703,25 @@ describe("promptForManagedFileConflictResolutions", () => {
       ].join("\n"),
       [
         "Group: References",
-        "Path: docs/assets/references/alpha.md",
+        "Path: .make-docs/system/references/alpha.md",
         "Conflict: local content differs",
         "File 2 of 5",
       ].join("\n"),
       [
         "Group: References",
-        "Path: docs/assets/references/bravo.md",
+        "Path: .make-docs/system/references/bravo.md",
         "Conflict: local content differs",
         "File 3 of 5",
       ].join("\n"),
       [
         "Group: Templates",
-        "Path: docs/assets/templates/alpha.md",
+        "Path: .make-docs/system/templates/alpha.md",
         "Conflict: local content differs",
         "File 4 of 5",
       ].join("\n"),
       [
         "Group: Templates",
-        "Path: docs/assets/templates/zeta.md",
+        "Path: .make-docs/system/templates/zeta.md",
         "Conflict: local content differs",
         "File 5 of 5",
       ].join("\n"),
@@ -695,7 +779,8 @@ describe("promptForManagedFileConflictResolutions", () => {
     ]);
     expect(
       clackMocks.select.mock.calls.flatMap(
-        ([options]) => options.options?.map((option) => option.label) ?? [],
+        ([options]) =>
+          options.options?.map((option: { label: string }) => option.label) ?? [],
       ),
     ).not.toContain("Update");
   });

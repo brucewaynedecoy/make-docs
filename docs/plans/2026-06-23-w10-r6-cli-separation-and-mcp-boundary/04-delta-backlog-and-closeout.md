@@ -16,7 +16,7 @@ The backlog should split implementation into:
 ## Acceptance Criteria
 
 - PRD 25 exists and is linked from the active PRD index.
-- Affected PRDs record TypeScript npm installer ownership and Rust long-term agent/MCP ownership.
+- Affected PRDs record TypeScript package CLI runtime ownership and required TypeScript MCP ownership.
 - MCP write behavior remains deferred behind explicit permission and parity planning.
 - The paired work backlog references PRD 25 and affected baseline PRDs.
 - Validation commands pass before local commit.
@@ -26,5 +26,5 @@ The backlog should split implementation into:
 ```text
 plan: [W10 R6] CLI Separation and MCP Boundary
 
-Define the v2 boundary between the current TypeScript npm installer-maintainer CLI, the future standalone Rust agent-facing CLI, and the first MCP surface before deterministic scripts and skills are rewired.
+Define the v2 boundary between the TypeScript package CLI, modular operation-domain behavior, and the required MCP surface before deterministic scripts and skills are rewired.
 ```

@@ -10,19 +10,32 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createAuditReport } from "../src/audit";
 import { resolveBackupDestinationPlan, runBackupCommand } from "../src/backup";
 import {
+  classifyCompatibilityState,
+  formatCompatibilityClassification,
+} from "../src/compatibility";
+import { applyInstallPlan, planInstall } from "../src/install";
+import {
   __setLifecycleRendererForTests,
   createClackLifecycleRenderer,
   type LifecycleRenderer,
 } from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
-import { runUninstallCommand } from "../src/uninstall";
+import { defaultSelections } from "../src/profile";
+import { applySkillRegistrySelectionMetadata } from "../src/skill-catalog";
+import { loadEffectiveSkillRegistry } from "../src/skill-registry";
+import {
+  runUninstallCommand,
+  type UninstallExecutionResult,
+} from "../src/uninstall";
 import type {
   AuditPreservedPath,
   AuditPrunableDirectory,
   AuditReport,
   AuditRemovableFile,
+  AuditSkillSelectionReview,
   AuditSkippedPath,
 } from "../src/types";
+import { PACKAGE_ROOT } from "../src/utils";
 import {
   cleanupTempDir,
   createTempDir,
@@ -79,8 +92,10 @@ describe("lifecycle validation", () => {
       await installMakeDocsTarget(targetDir, (selections) => {
         selections.skills = false;
       });
-      mkdirSync(path.join(targetDir, ".backup/2026-04-18/docs"), { recursive: true });
-      writeFileSync(path.join(targetDir, ".backup/2026-04-18/docs/AGENTS.md"), "old backup\n");
+      mkdirSync(path.join(targetDir, ".make-docs/backup/2026-04-18/docs"), { recursive: true });
+      writeFileSync(path.join(targetDir, ".make-docs/backup/2026-04-18/docs/AGENTS.md"), "old backup\n");
+      mkdirSync(path.join(targetDir, ".backup/2026-04-17/docs"), { recursive: true });
+      writeFileSync(path.join(targetDir, ".backup/2026-04-17/docs/AGENTS.md"), "legacy backup\n");
 
       const report = await createAuditReport({
         targetDir,
@@ -92,8 +107,18 @@ describe("lifecycle validation", () => {
       expect(report.mode).toBe("manifest-present");
       expect(removablePaths).toContain("AGENTS.md");
       expect(removablePaths).toContain("CLAUDE.md");
-      expect(removablePaths).toContain(".make-docs/manifest.json");
-      expect(prunablePaths).toContain(".make-docs");
+      expect(removablePaths).not.toContain(".make-docs/manifest.json");
+      expect(prunablePaths).not.toContain(".make-docs");
+      expect(report.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs",
+            reasonCode: "directory-contains-preserved-descendants",
+            preservedDescendantPaths: expect.arrayContaining([".make-docs/backup", ".make-docs/config.yaml"]),
+          }),
+        ]),
+      );
+      expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".make-docs/backup/"))).toBe(false);
       expect(allAuditPaths(report).some((entryPath) => entryPath.startsWith(".backup/"))).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
@@ -134,7 +159,7 @@ describe("lifecycle validation", () => {
         selections.skills = false;
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom agent instructions\n");
-      writeFileSync(path.join(targetDir, "docs/assets/templates/custom.md"), "keep this unmanaged file\n");
+      writeFileSync(path.join(targetDir, ".make-docs/system/templates/custom.md"), "keep this unmanaged file\n");
 
       const result = await captureStdout(() =>
         runUninstallCommand({
@@ -144,15 +169,15 @@ describe("lifecycle validation", () => {
         }),
       );
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(result.removedFiles).not.toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.prunedDirectories).not.toContain("docs/assets/templates");
+      expect(result.prunedDirectories).not.toContain(".make-docs/templates");
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(
         "custom agent instructions\n",
       );
-      expect(existsSync(path.join(targetDir, "docs/assets/templates/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/custom.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -164,15 +189,22 @@ describe("lifecycle validation", () => {
     try {
       const firstPlan = resolveBackupDestinationPlan(targetDir, NOW);
       expect(firstPlan.directoryName).toBe("2026-04-18");
+      expect(firstPlan.destinationDir).toBe(
+        path.join(targetDir, ".make-docs/backup/2026-04-18"),
+      );
 
       for (let ordinal = 1; ordinal <= 9; ordinal += 1) {
-        mkdirSync(path.join(targetDir, ".backup", `2026-04-18-${String(ordinal).padStart(2, "0")}`), {
+        mkdirSync(path.join(targetDir, ".make-docs/backup", `2026-04-18-${String(ordinal).padStart(2, "0")}`), {
           recursive: true,
         });
       }
+      mkdirSync(path.join(targetDir, ".backup/2026-04-18-99"), { recursive: true });
 
       const tenthOrdinalPlan = resolveBackupDestinationPlan(targetDir, NOW);
       expect(tenthOrdinalPlan.directoryName).toBe("2026-04-18-10");
+      expect(tenthOrdinalPlan.destinationDir).toBe(
+        path.join(targetDir, ".make-docs/backup/2026-04-18-10"),
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -185,7 +217,9 @@ describe("lifecycle validation", () => {
 
     try {
       await installMakeDocsTarget(targetDir, (selections) => {
+        selections.skills = true;
         selections.skillScope = "global";
+        selections.selectedSkills = ["archive-docs"];
       });
 
       const result = await captureStdout(() =>
@@ -197,16 +231,94 @@ describe("lifecycle validation", () => {
         }),
       );
 
-      const homeSkillPath = ".agents/skills/archive-docs/SKILL.md";
+      const homeSkillPath = ".agents/skills/archive-docs";
+      const sharedHomeSkillPath = ".agents/skills/archive-docs/SKILL.md";
       expect(result.status).toBe("completed");
-      expect(result.copiedFiles).toContain(`_home/${homeSkillPath}`);
-      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/_home", homeSkillPath))).toBe(true);
+      expect(result.copiedFiles).toContain(`_home/${sharedHomeSkillPath}`);
+      expect(result.materializedDirectories).toContain(`_home/${homeSkillPath}`);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home", sharedHomeSkillPath))).toBe(
+        true,
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home", homeSkillPath))).toBe(true);
+      expect(existsSync(path.join(fakeHome, sharedHomeSkillPath))).toBe(true);
       expect(existsSync(path.join(fakeHome, homeSkillPath))).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
     } finally {
       restoreHome();
       cleanupTempDir(targetDir);
       cleanupTempDir(fakeHome);
+    }
+  });
+
+  test("lifecycle audits preserve alternate skill manifest provenance without default expansion", async () => {
+    const targetDir = createTempDir();
+    const fixture = createLocalSkillManifestFixture();
+
+    try {
+      await installWithSkillManifest(targetDir, fixture.manifestPath);
+
+      const manifest = loadManifest(targetDir);
+      const report = await createAuditReport({
+        targetDir,
+        manifest,
+      });
+      const removablePaths = report.removableFiles.map((entry) => entry.path);
+      const compatibility = await classifyCompatibilityState({ targetDir });
+      const compatibilityEvidence = formatCompatibilityClassification(compatibility);
+
+      expect(report.skillSelectionReview).toMatchObject({
+        skillsEnabled: true,
+        skillScope: "project",
+        selectedSkills: ["acme-release"],
+        skillManifest: {
+          displayName: "Acme local skills",
+          source: "file",
+          sourcePolicyKind: "local",
+          path: fixture.manifestPath,
+        },
+        skillSelectionProvenance: [
+          expect.objectContaining({
+            skillName: "acme-release",
+            provenanceKind: "local",
+            provenanceLabel: "Local Acme skill",
+          }),
+        ],
+      });
+      expect(removablePaths).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(removablePaths).not.toContain(".agents/skills/acme-release");
+      expect(existsSync(path.join(targetDir,".claude/skills/acme-release"))).toBe(false);
+      expect(removablePaths).not.toContain(".agents/skills/archive-docs");
+      expect(compatibilityEvidence).toContain(
+        "selection: skills project; manifest Acme local skills (local); selected acme-release; provenance acme-release:local",
+      );
+
+      const backupResult = await captureStdout(() =>
+        runBackupCommand({
+          targetDir,
+          permissions: "allow-all",
+          now: NOW,
+        }),
+      );
+      expect(backupResult.copiedFiles).toContain(".agents/skills/acme-release/SKILL.md");
+      expect(backupResult.materializedDirectories).toContain(".agents/skills/acme-release");
+      expect(backupResult.copiedFiles).not.toContain(".agents/skills/archive-docs/SKILL.md");
+
+      const uninstallResult = await captureStdout(() =>
+        runUninstallCommand({
+          targetDir,
+          backup: false,
+          permissions: "allow-all",
+        }),
+      );
+      expectCompletedUninstall(uninstallResult);
+      expect(uninstallResult.removedFiles).toContain(
+        ".agents/skills/acme-release/SKILL.md",
+      );
+      expect(uninstallResult.prunedDirectories).toContain(".agents/skills/acme-release");
+      expect(uninstallResult.removedFiles).not.toContain(".agents/skills/archive-docs");
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(fixture.rootDir);
     }
   });
 
@@ -250,7 +362,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
-        "workflow:make-docs backup",
+        "workflow:make-docs setup backup",
         "backup:audit-summary",
         "backup:noop-summary",
       ]);
@@ -264,7 +376,7 @@ describe("lifecycle validation", () => {
         now: NOW,
       });
       expect(events).toEqual([
-        "workflow:make-docs uninstall",
+        "workflow:make-docs setup remove",
         "uninstall:warning",
         "uninstall:warning-confirmation",
         "uninstall:audit-summary",
@@ -285,7 +397,7 @@ describe("lifecycle validation", () => {
     try {
       const renderer = createClackLifecycleRenderer();
       const auditReport = createRendererAuditReport(targetDir);
-      const backupDestinationDir = path.join(targetDir, ".backup/2026-04-18");
+      const backupDestinationDir = path.join(targetDir, ".make-docs/backup/2026-04-18");
 
       renderer.beginWorkflow("make-docs lifecycle");
       renderer.renderBackupAuditSummary({
@@ -334,9 +446,17 @@ describe("lifecycle validation", () => {
       expect(clackMocks.intro).toHaveBeenCalledWith("make-docs lifecycle");
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to copy: 1"),
-        "make-docs backup",
+        "make-docs setup backup",
       );
-      expect(getClackNoteBody("make-docs backup")).toContain(
+      expect(getClackNoteBody("make-docs setup backup")).toContain(
+        [
+          "Skills: enabled (project)",
+          "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
+          "Selected skills: acme-release",
+          "Skill provenance: acme-release: Local Acme skill (local)",
+        ].join("\n"),
+      );
+      expect(getClackNoteBody("make-docs setup backup")).toContain(
         [
           "Files to copy:",
           "- managed-file.md (Synthetic backup failure fixture.)",
@@ -356,7 +476,7 @@ describe("lifecycle validation", () => {
         "Backup complete",
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
-        expect.stringContaining("Safer destructive flow: make-docs uninstall --backup"),
+        expect.stringContaining("Safer destructive flow: make-docs setup remove --backup"),
         "WARNING",
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
@@ -365,9 +485,17 @@ describe("lifecycle validation", () => {
       );
       expect(clackMocks.note).toHaveBeenCalledWith(
         expect.stringContaining("Files to remove: 1"),
-        "make-docs uninstall",
+        "make-docs setup remove",
       );
-      expect(getClackNoteBody("make-docs uninstall")).toContain(
+      expect(getClackNoteBody("make-docs setup remove")).toContain(
+        [
+          "Skills: enabled (project)",
+          "Skills manifest: Acme local skills (local file: /tmp/acme-skills.json)",
+          "Selected skills: acme-release",
+          "Skill provenance: acme-release: Local Acme skill (local)",
+        ].join("\n"),
+      );
+      expect(getClackNoteBody("make-docs setup remove")).toContain(
         [
           "Files to remove:",
           "- managed-file.md (Synthetic backup failure fixture.)",
@@ -458,7 +586,7 @@ describe("lifecycle validation", () => {
     const promptCount = clackMocks.confirm.mock.calls.length;
     setTTY(false);
     await expect(renderer.confirmBackupRun("confirm")).rejects.toThrow(
-      "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+      "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
     );
     await expect(
       renderer.confirmUninstallRun({
@@ -466,7 +594,7 @@ describe("lifecycle validation", () => {
         backupRequested: false,
       }),
     ).rejects.toThrow(
-      "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+      "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
     );
     expect(clackMocks.confirm).toHaveBeenCalledTimes(promptCount);
   });
@@ -503,6 +631,122 @@ function allAuditPaths(report: AuditReport): string[] {
   ].map((entry) => entry.path);
 }
 
+async function installWithSkillManifest(
+  targetDir: string,
+  manifestPath: string,
+): Promise<void> {
+  const effectiveRegistry = loadEffectiveSkillRegistry({
+    packageRoot: PACKAGE_ROOT,
+    manifestReference: manifestPath,
+  });
+  const baseSelections = defaultSelections();
+  baseSelections.skills = true;
+  baseSelections.selectedSkills = ["acme-release"];
+  const selections = applySkillRegistrySelectionMetadata(
+    baseSelections,
+    effectiveRegistry,
+  );
+  const existingManifest = loadManifest(targetDir);
+  const plan = await planInstall({
+    targetDir,
+    selections,
+    existingManifest,
+    skillRegistry: effectiveRegistry.registry,
+  });
+
+  applyInstallPlan({
+    targetDir,
+    plan,
+    existingManifest,
+  });
+}
+
+function createLocalSkillManifestFixture(): {
+  rootDir: string;
+  manifestPath: string;
+} {
+  const rootDir = createTempDir("make-docs-skill-manifest-");
+  const skillDir = path.join(rootDir, "skills/acme-release");
+  mkdirSync(skillDir, { recursive: true });
+  writeFileSync(
+    path.join(skillDir, "SKILL.md"),
+    "# Acme release\n\nPrepare Acme release docs.\n",
+    "utf8",
+  );
+
+  const manifestPath = path.join(rootDir, "acme-skills.json");
+  const manifest = {
+    schemaVersion: 1,
+    manifestId: "acme.local",
+    displayName: "Acme local skills",
+    sourcePolicy: {
+      kind: "local",
+      label: "Local Acme registry",
+    },
+    purposes: [
+      {
+        id: "acme.release-readiness",
+        label: "Release readiness",
+        description: "Prepare releases.",
+        provenance: {
+          kind: "local",
+          label: "Local purpose",
+        },
+      },
+    ],
+    skills: [
+      {
+        name: "acme-release",
+        displayName: "Acme release",
+        source: "local:skills/acme-release",
+        entryPoint: "SKILL.md",
+        installName: "acme-release",
+        description: "Prepare Acme release docs.",
+        purposes: ["acme.release-readiness"],
+        supportedHarnesses: ["codex"],
+        provenance: {
+          kind: "local",
+          label: "Local Acme skill",
+        },
+        assets: [],
+      },
+    ],
+  };
+
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return { rootDir, manifestPath };
+}
+
+function createSyntheticSkillSelectionReview(): AuditSkillSelectionReview {
+  return {
+    skillsEnabled: true,
+    skillScope: "project",
+    selectedSkills: ["acme-release"],
+    skillManifest: {
+      manifestId: "acme.local",
+      displayName: "Acme local skills",
+      sourcePolicyKind: "local",
+      source: "file",
+      path: "/tmp/acme-skills.json",
+    },
+    skillSelectionProvenance: [
+      {
+        skillName: "acme-release",
+        displayName: "Acme release",
+        manifestId: "acme.local",
+        manifestDisplayName: "Acme local skills",
+        sourcePolicyKind: "local",
+        purposeIds: ["acme.release-readiness"],
+        purposeLabels: ["Release readiness"],
+        supportedHarnesses: ["codex"],
+        skillSource: "file:///tmp/skills/acme-release",
+        provenanceKind: "local",
+        provenanceLabel: "Local Acme skill",
+      },
+    ],
+  };
+}
+
 function createSyntheticAuditReport(targetDir: string, absolutePath: string): AuditReport {
   const removableFile: AuditRemovableFile = {
     path: "managed-file.md",
@@ -530,6 +774,7 @@ function createSyntheticAuditReport(targetDir: string, absolutePath: string): Au
     mode: "manifest-present",
     targetDir,
     manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
+    skillSelectionReview: createSyntheticSkillSelectionReview(),
     removableFiles: [removableFile],
     prunableDirectories: [],
     preservedPaths: [],
@@ -615,6 +860,7 @@ function createRendererAuditReport(targetDir: string): AuditReport {
     mode: "manifest-present",
     targetDir,
     manifestPath: path.join(targetDir, ".make-docs/manifest.json"),
+    skillSelectionReview: createSyntheticSkillSelectionReview(),
     removableFiles: [removableFile],
     prunableDirectories: [prunableDirectory],
     preservedPaths: [preservedPath],
@@ -667,4 +913,13 @@ function createRecordingLifecycleRenderer(events: string[]): LifecycleRenderer {
       events.push("uninstall:failure-summary");
     },
   };
+}
+
+function expectCompletedUninstall(
+  result: UninstallExecutionResult,
+): asserts result is Extract<UninstallExecutionResult, { status: "completed" }> {
+  expect(result.status).toBe("completed");
+  if (result.status !== "completed") {
+    throw new Error(`Expected completed uninstall, received ${result.status}.`);
+  }
 }

@@ -8,9 +8,13 @@
 
 **Purpose:** Produce a reviewable active-set evolution plan for system asset delivery, materialization modes, provider-backed resolution, and manifest provenance.
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's future-facing Rust provider and TypeScript/Rust split assumptions. Future provider/cache work must treat TypeScript CLI/MCP as the v2 runtime authority, MCP as required, and W10 R8 as the implementation backlog for modular operation domains and MCP runtime behavior.
+
 ## Objective
 
-Revise the active PRD namespace so Make Docs has one explicit system asset materialization contract across the current TypeScript npm installer, the future Rust CLI/MCP provider surface, and later provider or cache-backed asset sources. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without reopening the W10 R1 package identity and deployment ownership decisions.
+Revise the active PRD namespace so Make Docs has one explicit system asset materialization contract across the TypeScript package CLI, required TypeScript MCP provider surface, and later provider or cache-backed asset sources. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without reopening the W10 R1 package identity and deployment ownership decisions.
 
 This plan follows the default lifecycle arc after the upstream roadmap-driven design batch: accepted design -> plan -> PRD reconciliation -> work backlog. The upstream departure was the batch design generation from roadmap artifacts; this plan resumes the normal artifact sequence.
 
@@ -32,19 +36,19 @@ This change revises the active asset, manifest, packaging, and lifecycle contrac
 - `provider-backed`
 - `hybrid-pinned-cache`
 
-It enhances the manifest contract with asset-set provenance and preserves TypeScript npm as the full-snapshot source of truth until provider-backed behavior has implementation evidence across npm and future Rust-installed environments.
+It enhances the manifest contract with asset-set provenance and preserves the TypeScript package as the full-snapshot source of truth until provider-backed behavior has implementation evidence across package-runner and TypeScript MCP environments.
 
 ## Change Inputs
 
 - [2026-06-19-system-asset-delivery-and-materialization-contract.md](../../designs/2026-06-19-system-asset-delivery-and-materialization-contract.md)
 - [2026-06-19-package-and-deployment-boundaries.md](../../designs/2026-06-19-package-and-deployment-boundaries.md)
-- [2026-04-16-asset-pipeline-completeness.md](../../assets/archive/designs/2026-04-16-asset-pipeline-completeness.md)
-- [2026-04-20-docs-assets-state-and-history.md](../../assets/archive/designs/2026-04-20-docs-assets-state-and-history.md)
-- [2026-04-22-docs-assets-resource-namespace.md](../../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md)
-- [2026-04-28-cli-skill-selection-simplification.md](../../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
-- [2026-06-18-w17-r0-static-template-router-skill-correction.md](../../assets/history/2026-06-18-w17-r0-static-template-router-skill-correction.md)
-- [2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md](../../assets/history/2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md)
-- [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../../assets/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md)
+- [2026-04-16-asset-pipeline-completeness.md](../../../.make-docs/archive/designs/2026-04-16-asset-pipeline-completeness.md)
+- [2026-04-20-docs-assets-state-and-history.md](../../../.make-docs/archive/designs/2026-04-20-docs-assets-state-and-history.md)
+- [2026-04-22-docs-assets-resource-namespace.md](../../../.make-docs/archive/designs/2026-04-22-docs-assets-resource-namespace.md)
+- [2026-04-28-cli-skill-selection-simplification.md](../../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
+- [2026-06-18-w17-r0-static-template-router-skill-correction.md](../../../.make-docs/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md)
+- [2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md](../../../.make-docs/archive/history/2026-04-28-w14-r0-p3-cli-asset-selection-model-and-manifest.md)
+- [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../../../.make-docs/archive/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md)
 - Current implementation surfaces: `packages/cli/src/rules.ts`, `packages/cli/src/catalog.ts`, `packages/cli/src/utils.ts`, `packages/cli/src/planner.ts`, `packages/cli/src/install.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, `packages/cli/src/uninstall.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-resolver.ts`, `packages/cli/tests/consistency.test.ts`, and `scripts/smoke-pack.mjs`.
 
 ## Baseline Context
@@ -55,19 +59,19 @@ The current manifest records package metadata, selections, effective capabilitie
 
 The PRD set already contains adjacent revisions:
 
-- [11-revise-cli-asset-selection-simplification.md](../../prd/11-revise-cli-asset-selection-simplification.md)
-- [12-revise-cli-skill-selection-simplification.md](../../prd/12-revise-cli-skill-selection-simplification.md)
-- [13-revise-cli-conflict-resolution.md](../../prd/13-revise-cli-conflict-resolution.md)
-- [15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [06-template-contracts-and-generated-assets.md](../../prd/06-template-contracts-and-generated-assets.md#component-and-capability-map)
+- [08-skills-catalog-and-distribution.md](../../prd/08-skills-catalog-and-distribution.md#component-and-capability-map)
+- [07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md#plan-review-confirmation-and-apply-orchestration)
+- [15-agent-instruction-ownership-and-managed-blocks.md](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 
 This plan does not replace those docs. It appends the next revision and annotates only the affected sections.
 
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/` (this directory).
-- New change doc: `docs/prd/17-revise-system-asset-materialization-contract.md`.
-- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-revise-package-and-deployment-boundaries.md`.
+- New change doc: `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
+- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, and `docs/prd/16-package-runtime-and-deployment-boundaries.md`.
 - Risk register updates: `docs/prd/03-open-questions-and-risk-register.md`.
 - Delta backlog: `docs/work/2026-06-23-w10-r2-system-asset-materialization-contract/`.
 
@@ -87,7 +91,7 @@ Do not create separate PRDs for provider-backed mode, hybrid cache mode, manifes
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | User-visible mode selection, outage messaging, dry-run/review behavior, and managed-file safety for on-demand writes. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Skills remain selected agentic assets and are not folded into system asset materialization modes. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Full-snapshot package validation baseline plus future provider/cache validation checks. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | Future Rust provider role must preserve the same manifest, audit, backup, uninstall, and command contracts. |
+| `docs/prd/16-package-runtime-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP provider behavior must preserve the same manifest, audit, backup, uninstall, and command contracts. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.
 
@@ -113,7 +117,7 @@ Delegation is available in this harness, but this round is intentionally single-
 - `git diff --check`
 - Reindex `jdocmunch` after edits.
 - Verify no duplicate W/R directory in `docs/plans/` or `docs/work/`.
-- Verify PRD index includes `17-revise-system-asset-materialization-contract.md`.
+- Verify PRD index includes `17-system-asset-materialization-and-local-bootstrap.md`.
 - Verify all work phase files include `## Source PRD Docs`, stage-local `### Tasks`, plain-bullet `### Acceptance criteria`, and `### Dependencies`.
 - Source tests are not required for this round because it writes docs only; the generated backlog names the implementation tests that future source work must run.
 

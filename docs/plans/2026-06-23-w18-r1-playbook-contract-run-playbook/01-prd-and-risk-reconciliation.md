@@ -2,7 +2,7 @@
 
 ## PRD Additions
 
-Create [PRD 29](../../prd/29-revise-playbook-contract-run-playbook.md) as the active owner of the v2 playbook content contract and generic Run Playbook execution model.
+Create [PRD 34](../../prd/34-playbook-authoring-contract-and-model.md#requirements) as the active owner of the v2 playbook content contract and generic Run Playbook execution model.
 
 PRD 29 should sit after PRD 28 in the active change-doc sequence because it depends on the persona/playbook namespace, metadata, configuration, and shared agentics substrate decisions already captured in PRDs 22, 23, 24, and 28.
 
@@ -17,14 +17,14 @@ PRD 29 should sit after PRD 28 in the active change-doc sequence because it depe
 - PRD 23 must add playbook minimum frontmatter and stack validation as generated metadata consumers.
 - PRD 24 must keep configuration overlays presentation-only for playbook labels and selection messages.
 - PRD 25 must treat CLI/MCP Run Playbook exposure as a shared-operation consumer, not a second behavior model.
-- PRD 28 must keep generated stubs and plugin payloads separate from the Run Playbook content contract.
+- PRD 28 must keep shared-agentics harness exposure and plugin payloads separate from the Run Playbook content contract.
 
 ## Risk Register Updates
 
 - Q-013 remains open for public plugin flow and exposure boundaries.
 - R-011 remains open until persona config implementation proves path/frontmatter and generated metadata behavior.
 - R-012 should narrow from confirming to a settled content-vs-invocation boundary: playbooks are persona-scoped content; Run Playbook is the generic invocation model; plugins are optional exposure.
-- R-013 should include the `docs/library/playbooks/**` to `docs/assets/playbooks/**` migration and metadata path updates.
+- R-013 should include W9 R5's completed `docs/library/playbooks/**` to `docs/assets/playbooks/**` migration and metadata path updates.
 - R-014 remains open because shared stubs, scripts, MCP, and Run Playbook surfaces must not cite missing CLI/shared-core deterministic behavior.
 
 ## Acceptance

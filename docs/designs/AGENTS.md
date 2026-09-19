@@ -13,11 +13,14 @@ Pattern: `YYYY-MM-DD-<slug>.md`
 
 ## Agent Instructions
 
-- Before writing, read `docs/assets/references/design-workflow.md`, `docs/assets/references/design-contract.md`, and `docs/assets/templates/design.md`.
-- Use `docs/assets/references/design-contract.md` as the authority for lineage, required headings, and follow-on links.
+- Before writing, use a valid local `.make-docs/system/references/design-workflow.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/design-workflow.md`; use a valid local `.make-docs/system/contracts/design-contract.md` body or run `make-docs resource read make-docs://system/contract/design-contract.md`; and use a valid local `.make-docs/system/templates/design.md` body or run `make-docs resource read make-docs://system/template/design.md`.
+- For a new or materially updated governed design, also read `.make-docs/system/contracts/human-experience-contract.md`, `.make-docs/system/references/human-experience.md`, and `.make-docs/system/references/lifecycle.md`. When a valid local body is absent, use its matching `make-docs://system/contract/human-experience-contract.md`, `make-docs://system/reference/human-experience.md`, or `make-docs://system/reference/lifecycle.md` URI.
+- When a performance candidate exists, use the `performance-evidence` catalog workflow. Load `.make-docs/system/contracts/performance-evidence-governance.md`, or read `make-docs://system/contract/performance-evidence-governance.md` when the local body is absent. Under the same condition, load `.make-docs/system/prompts/performance-coverage.prompt.md` and `.make-docs/system/templates/performance-evidence-profile.md`, or read `make-docs://system/prompt/performance-coverage.prompt.md` and `make-docs://system/template/performance-evidence-profile.md` when a local body is absent. Do not load the prompt or template otherwise.
+- Use `.make-docs/system/contracts/design-contract.md` or its `make-docs://system/contract/design-contract.md` fallback as the authority for lineage, required headings, and follow-on links.
 - Always apply date-slug naming.
 - Do not backdate designs — use today's date.
 - Designs are living documents — update them when decisions change.
+- Use `docs/designs/2026-06-25-v2-documentation-asset-ia-hard-move.md` as the superseding authority for v2 asset-IA path assumptions in earlier designs. Preserve old path text only when it is explicitly historical lineage.
 - Link to related plans, PRD docs, or work items where relevant.
-- Archived designs live in `docs/assets/archive/designs/`; never archive unless the user explicitly asks. See `docs/assets/archive/AGENTS.md`.
+- Archived designs live in `.make-docs/archive/designs/`. Before first use, run `make-docs project surface ensure archive`. Never archive unless the user explicitly asks.
 <!-- make-docs:end -->

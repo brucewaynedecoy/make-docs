@@ -29,6 +29,9 @@ export function defaultSelections(): InstallSelections {
     skills: false,
     skillScope: "project",
     selectedSkills: [],
+    plugins: false,
+    pluginScope: "project",
+    selectedPlugins: [],
   };
 }
 
@@ -77,9 +80,18 @@ export function resolveInstallProfile(
     JSON.stringify({
       capabilities: capabilityState,
       harnesses: selections.harnesses,
+      ...(selections.skillHarnesses ? {skillHarnesses:selections.skillHarnesses} : {}),
       skills: selections.skills,
       skillScope: selections.skillScope,
       selectedSkills: [...selections.selectedSkills].sort(),
+      skillManifest: selections.skillManifest,
+      skillSelectionProvenance: selections.skillSelectionProvenance ?? [],
+      plugins: selections.plugins,
+      pluginScope: selections.pluginScope,
+      selectedPlugins: [...selections.selectedPlugins].sort(),
+      pluginManifest: selections.pluginManifest,
+      pluginSelectionProvenance: selections.pluginSelectionProvenance ?? [],
+      resourceProjection: [...(selections.resourceProjection ?? [])].sort(),
     }),
   ).slice(0, 16);
 

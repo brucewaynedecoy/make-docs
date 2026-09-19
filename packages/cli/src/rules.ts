@@ -7,135 +7,161 @@ export interface PromptRule {
 
 export const PROMPT_RULES: PromptRule[] = [
   {
-    relativePath: "docs/assets/prompts/docs-path-hygiene-cleanup.prompt.md",
+    relativePath: ".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md",
     requires: [],
   },
   {
-    relativePath: "docs/assets/prompts/request-to-design.prompt.md",
+    relativePath: ".make-docs/system/prompts/performance-coverage.prompt.md",
+    requires: [],
+  },
+  {
+    relativePath: ".make-docs/system/prompts/request-to-design.prompt.md",
     requires: ["designs"],
   },
   {
-    relativePath: "docs/assets/prompts/designs-to-plan.prompt.md",
+    relativePath: ".make-docs/system/prompts/designs-to-plan.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/assets/prompts/designs-to-plan-change.prompt.md",
+    relativePath: ".make-docs/system/prompts/designs-to-plan-change.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/assets/prompts/plan-to-prd-change.prompt.md",
+    relativePath: ".make-docs/system/prompts/plan-to-prd-change.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: "docs/assets/prompts/plan-to-prd-green-field.prompt.md",
+    relativePath: ".make-docs/system/prompts/plan-to-prd-green-field.prompt.md",
     requires: ["plans", "prd"],
   },
   {
-    relativePath: "docs/assets/prompts/prd-change-to-work.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-change-to-work.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/assets/prompts/prd-to-work-full-prd.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-to-work-full-prd.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/assets/prompts/prd-to-work-prd-feature.prompt.md",
+    relativePath: ".make-docs/system/prompts/prd-to-work-prd-feature.prompt.md",
     requires: ["prd", "work"],
   },
   {
-    relativePath: "docs/assets/prompts/coverage-pass-developer-guide.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-maintainer-guide.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: "docs/assets/prompts/coverage-pass-user-guide.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-user-guide.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: "docs/assets/prompts/coverage-pass-prd-reconciliation.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-prd-reconciliation.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: "docs/assets/prompts/coverage-pass-testing-uat.prompt.md",
+    relativePath: ".make-docs/system/prompts/coverage-pass-testing-uat.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: "docs/assets/prompts/work-to-guides.prompt.md",
+    relativePath: ".make-docs/system/prompts/naive-uat-facilitator.prompt.md",
     requires: ["work"],
   },
   {
-    relativePath: "docs/assets/prompts/update-readme-green-field.prompt.md",
+    relativePath: ".make-docs/system/prompts/naive-uat-tester.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: ".make-docs/system/prompts/work-to-guides.prompt.md",
+    requires: ["work"],
+  },
+  {
+    relativePath: ".make-docs/system/prompts/update-readme-green-field.prompt.md",
     requires: ["designs", "plans"],
   },
   {
-    relativePath: "docs/assets/prompts/session-to-history-record.prompt.md",
+    relativePath: ".make-docs/system/prompts/session-to-history-record.prompt.md",
     requires: [],
   },
   {
-    relativePath: "docs/assets/prompts/work-to-commit-message.prompt.md",
+    relativePath: ".make-docs/system/prompts/work-to-commit-message.prompt.md",
     requires: [],
   },
 ];
 
 const PLAN_TEMPLATE_PATHS = [
-  "docs/assets/templates/plan-overview.md",
-  "docs/assets/templates/plan-prd.md",
-  "docs/assets/templates/plan-prd-decompose.md",
-  "docs/assets/templates/plan-prd-change.md",
+  ".make-docs/system/templates/plan-overview.md",
+  ".make-docs/system/templates/plan-prd.md",
+  ".make-docs/system/templates/plan-prd-decompose.md",
+  ".make-docs/system/templates/plan-prd-change.md",
 ];
 
 const PRD_TEMPLATE_PATHS = [
-  "docs/assets/templates/prd-architecture.md",
-  "docs/assets/templates/prd-change-addition.md",
-  "docs/assets/templates/prd-change-revision.md",
-  "docs/assets/templates/prd-glossary.md",
-  "docs/assets/templates/prd-index.md",
-  "docs/assets/templates/prd-overview.md",
-  "docs/assets/templates/prd-reference.md",
-  "docs/assets/templates/prd-risk-register.md",
-  "docs/assets/templates/prd-subsystem.md",
+  ".make-docs/system/templates/prd-architecture.md",
+  ".make-docs/system/templates/prd-glossary.md",
+  ".make-docs/system/templates/prd-index.md",
+  ".make-docs/system/templates/prd-overview.md",
+  ".make-docs/system/templates/prd-reference.md",
+  ".make-docs/system/templates/prd-risk-register.md",
+  ".make-docs/system/templates/prd-subsystem.md",
 ];
 
 const WORK_TEMPLATE_PATHS = [
-  "docs/assets/templates/work-index.md",
-  "docs/assets/templates/work-phase.md",
+  ".make-docs/system/templates/work-index.md",
+  ".make-docs/system/templates/work-phase.md",
 ];
 
 const ALWAYS_TEMPLATE_PATHS = [
-  "docs/assets/templates/guide-developer.md",
-  "docs/assets/templates/guide-user.md",
-  "docs/assets/templates/history-record.md",
+  ".make-docs/system/templates/guide-maintainer.md",
+  ".make-docs/system/templates/guide-user.md",
+  ".make-docs/system/templates/history-record.md",
+  ".make-docs/system/templates/naive-uat-scenario.md",
+  ".make-docs/system/templates/performance-evidence-profile.md",
 ];
 
 const REQUIRED_REFERENCE_PATHS = {
-  designs: ["docs/assets/references/design-workflow.md", "docs/assets/references/design-contract.md"],
+  designs: [
+    ".make-docs/system/references/design-workflow.md",
+    ".make-docs/system/contracts/design-contract.md",
+  ],
   plans: [
-    "docs/assets/references/planning-workflow.md",
-    "docs/assets/references/output-contract.md",
-    "docs/assets/references/prd-change-management.md",
+    ".make-docs/system/references/planning-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
   prd: [
-    "docs/assets/references/execution-workflow.md",
-    "docs/assets/references/output-contract.md",
-    "docs/assets/references/prd-change-management.md",
+    ".make-docs/system/references/execution-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
   work: [
-    "docs/assets/references/execution-workflow.md",
-    "docs/assets/references/output-contract.md",
-    "docs/assets/references/prd-change-management.md",
+    ".make-docs/system/references/execution-workflow.md",
+    ".make-docs/system/contracts/output-contract.md",
+    ".make-docs/system/references/prd-change-management.md",
   ],
 } as const;
 
 const ALWAYS_REFERENCE_PATHS = [
-  "docs/assets/references/guide-contract.md",
-  "docs/assets/references/wave-model.md",
-  "docs/assets/references/lifecycle.md",
-  "docs/assets/references/coverage-pass-contract.md",
-  "docs/assets/references/history-record-contract.md",
-  "docs/assets/references/commit-message-convention.md",
-  "docs/assets/references/path-and-link-hygiene.md",
+  ".make-docs/system/contracts/human-experience-contract.md",
+  ".make-docs/system/references/human-experience.md",
+  ".make-docs/system/contracts/performance-evidence-governance.md",
+  ".make-docs/system/references/performance-evidence.md",
+  ".make-docs/system/contracts/guide-contract.md",
+  ".make-docs/system/contracts/deferred-obligation-contract.md",
+  ".make-docs/system/contracts/naive-uat-contract.md",
+  ".make-docs/system/references/wave-model.md",
+  ".make-docs/system/references/lifecycle.md",
+  ".make-docs/system/contracts/coverage-pass-contract.md",
+  ".make-docs/system/contracts/history-record-contract.md",
+  ".make-docs/system/contracts/commit-message-convention.md",
+  ".make-docs/system/contracts/system-resource-contract.md",
+  ".make-docs/system/references/path-and-link-hygiene.md",
+  ".make-docs/system/references/naive-uat-workflow.md",
+  ".make-docs/system/references/naive-uat-validation.md",
+  ".make-docs/system-resources.catalog.json",
+  ".make-docs/system-resources.schema.json",
 ];
 
-const ALWAYS_SCRIPT_PATHS = [".make-docs/scripts/check_path_hygiene.py"];
+const ALWAYS_SCRIPT_PATHS: string[] = [];
 
 export function profileHasCapabilities(
   profile: InstallProfile,
@@ -164,7 +190,7 @@ export function getTemplatePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.capabilityState.designs.effectiveSelection) {
-    paths.add("docs/assets/templates/design.md");
+    paths.add(".make-docs/system/templates/design.md");
   }
 
   if (profile.capabilityState.plans.effectiveSelection) {
@@ -204,7 +230,7 @@ export function getReferencePaths(profile: InstallProfile): string[] {
   }
 
   if (profile.effectiveCapabilities.length > 0) {
-    paths.add("docs/assets/references/harness-capability-matrix.md");
+    paths.add(".make-docs/system/references/harness-capability-matrix.md");
   }
 
   return Array.from(paths).sort();

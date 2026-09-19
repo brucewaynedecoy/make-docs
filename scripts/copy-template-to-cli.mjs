@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +19,16 @@ function syncDir(source, target, { required = true } = {}) {
   rmSync(target, { recursive: true, force: true });
   cpSync(source, target, { recursive: true });
   console.error(`Copied ${source} -> ${target}`);
+}
+
+const templateRoot = path.join(repoRoot, "packages", "docs", "template");
+// Fail before replacing the build copy if retired upstream paths return, even empty.
+for (const retired of [
+  "docs/assets/archive", "docs/assets/artifacts", "docs/assets/library", "docs/assets/playbooks",
+  "docs/artifacts", "docs/archive", "docs/library",
+  ...["contracts", "prompts", "references", "templates", "scripts"].map((type) => `.make-docs/${type}/system`),
+]) {
+  if (existsSync(path.join(templateRoot, retired))) throw new Error(`Retired template directory: ${retired}`);
 }
 
 syncDir(

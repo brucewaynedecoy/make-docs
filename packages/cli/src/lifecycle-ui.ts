@@ -2,13 +2,17 @@ import { stdin as input, stdout as output } from "node:process";
 import { confirm, intro, isCancel, note, outro } from "@clack/prompts";
 import type {
   AuditPathMetadata,
+  AuditPluginSelectionReview,
   AuditPreservedPath,
   AuditPrunableDirectory,
   AuditRemovableFile,
   AuditReport,
+  AuditSkillSelectionReview,
   AuditSkippedPath,
   BackupExecutionResult,
   LifecyclePermissionsMode,
+  PluginManifestSelectionSource,
+  SkillManifestSelectionSource,
 } from "./types";
 
 type LifecycleRenderableEntry =
@@ -86,7 +90,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
     },
     renderBackupAuditSummary(options) {
       renderAuditNote({
-        title: "make-docs backup",
+        title: "make-docs setup backup",
         lines: buildBackupAuditSummaryLines(options),
         groups: [
           formatEntryGroup(
@@ -116,7 +120,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions,
         message: "Create this backup?",
         ttyError:
-          "Backup confirmation requires a TTY. Re-run with `make-docs backup --yes`.",
+          "Backup confirmation requires a TTY. Re-run with `make-docs setup backup --yes`.",
       });
     },
     renderBackupNoopSummary() {
@@ -150,8 +154,8 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         lines.push("A backup will be created before removal begins.");
         lines.push(`Backup destination: ${options.backupDestinationDir}`);
       } else {
-        lines.push("Safer alternative: make-docs backup");
-        lines.push("Safer destructive flow: make-docs uninstall --backup");
+        lines.push("Safer alternative: make-docs setup backup");
+        lines.push("Safer destructive flow: make-docs setup remove --backup");
       }
 
       note(lines.join("\n"), "WARNING");
@@ -161,12 +165,12 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions,
         message: "Continue with uninstall review?",
         ttyError:
-          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
       });
     },
     renderUninstallAuditSummary(options) {
       renderAuditNote({
-        title: "make-docs uninstall",
+        title: "make-docs setup remove",
         lines: buildUninstallAuditSummaryLines(options),
         groups: [
           formatEntryGroup(
@@ -201,7 +205,7 @@ export function createClackLifecycleRenderer(): LifecycleRenderer {
         permissions: options.permissions,
         message,
         ttyError:
-          "Uninstall confirmation requires a TTY. Re-run with `make-docs uninstall --yes`.",
+          "Uninstall confirmation requires a TTY. Re-run with `make-docs setup remove --yes`.",
       });
     },
     renderUninstallCancelled() {
@@ -320,6 +324,8 @@ function buildBackupAuditSummaryLines(options: LifecycleAuditSummaryOptions): st
   return [
     `Target: ${auditReport.targetDir}`,
     `Destination: ${destinationDir ?? "(no backup directory will be created)"}`,
+    ...formatSkillSelectionReview(auditReport.skillSelectionReview),
+    ...formatPluginSelectionReview(auditReport.pluginSelectionReview),
     `Files to copy: ${options.copyableFiles.length}`,
     `Directories to materialize: ${options.materializableDirectories.length}`,
     `Retained: ${auditReport.preservedPaths.length}`,
@@ -334,6 +340,8 @@ function buildUninstallAuditSummaryLines(
   return [
     `Target: ${auditReport.targetDir}`,
     `Backup before removal: ${backupDestinationDir ?? "not requested"}`,
+    ...formatSkillSelectionReview(auditReport.skillSelectionReview),
+    ...formatPluginSelectionReview(auditReport.pluginSelectionReview),
     `Files to remove: ${auditReport.removableFiles.length}`,
     `Directories to prune: ${auditReport.prunableDirectories.length}`,
     `Preserved: ${auditReport.preservedPaths.length}`,
@@ -388,6 +396,108 @@ function formatBackupStatus(result: BackupExecutionResult | null): string {
   }
 
   return "requested";
+}
+
+function formatSkillSelectionReview(
+  review: AuditSkillSelectionReview | undefined,
+): string[] {
+  if (!review) {
+    return [];
+  }
+
+  if (!review.skillsEnabled) {
+    return ["Skills: disabled"];
+  }
+
+  const provenance =
+    review.skillSelectionProvenance.length === 0
+      ? "(no saved provenance metadata)"
+      : review.skillSelectionProvenance
+          .map(
+            (entry) =>
+              `${entry.skillName}: ${entry.provenanceLabel} (${entry.provenanceKind})`,
+          )
+          .join("; ");
+
+  return [
+    `Skills: enabled (${review.skillScope})`,
+    `Skills manifest: ${formatSkillManifestSource(review.skillManifest)}`,
+    `Selected skills: ${formatSelectedSkills(review.selectedSkills)}`,
+    `Skill provenance: ${provenance}`,
+  ];
+}
+
+function formatSkillManifestSource(
+  source: SkillManifestSelectionSource | undefined,
+): string {
+  if (!source) {
+    return "(legacy selections; no manifest provenance)";
+  }
+
+  if (source.source === "file") {
+    return `${source.displayName} (local file: ${source.path ?? "unknown path"})`;
+  }
+
+  if (source.source === "remote-pinned") {
+    return `${source.displayName} (remote pinned: ${source.digest ?? "missing digest"})`;
+  }
+
+  return `${source.displayName} (built-in)`;
+}
+
+function formatSelectedSkills(selectedSkills: string[]): string {
+  return selectedSkills.length === 0 ? "(none)" : selectedSkills.join(", ");
+}
+
+function formatPluginSelectionReview(
+  review: AuditPluginSelectionReview | undefined,
+): string[] {
+  if (!review) {
+    return [];
+  }
+
+  if (!review.pluginsEnabled) {
+    return ["Plugins: disabled"];
+  }
+
+  const provenance =
+    review.pluginSelectionProvenance.length === 0
+      ? "(no saved provenance metadata)"
+      : review.pluginSelectionProvenance
+          .map(
+            (entry) =>
+              `${entry.pluginId}: ${entry.provenanceLabel} (${entry.provenanceKind})`,
+          )
+          .join("; ");
+
+  return [
+    `Plugins: enabled (${review.pluginScope})`,
+    `Plugin manifest: ${formatPluginManifestSource(review.pluginManifest)}`,
+    `Selected plugins: ${formatSelectedPlugins(review.selectedPlugins)}`,
+    `Plugin provenance: ${provenance}`,
+  ];
+}
+
+function formatPluginManifestSource(
+  source: PluginManifestSelectionSource | undefined,
+): string {
+  if (!source) {
+    return "(legacy selections; no manifest provenance)";
+  }
+
+  if (source.source === "file") {
+    return `${source.displayName} (local file: ${source.path ?? "unknown path"})`;
+  }
+
+  if (source.source === "remote-pinned") {
+    return `${source.displayName} (remote pinned: ${source.digest ?? "missing digest"})`;
+  }
+
+  return `${source.displayName} (built-in)`;
+}
+
+function formatSelectedPlugins(selectedPlugins: string[]): string {
+  return selectedPlugins.length === 0 ? "(none)" : selectedPlugins.join(", ");
 }
 
 async function confirmLifecycleCheckpoint(options: {

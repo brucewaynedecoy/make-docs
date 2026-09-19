@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Plan the safety requirements for migration, backup-and-reinstall, rollback, and TypeScript/Rust compatibility.
+Plan the safety requirements for migration, backup-and-reinstall, rollback, and TypeScript CLI/MCP compatibility.
 
 ## Migration Boundary
 
@@ -21,11 +21,11 @@ Plan the safety requirements for migration, backup-and-reinstall, rollback, and 
 - It must never re-audit between approval, backup, removal, and reinstall.
 - Rollback is restore-from-backup unless later automation consumes the same backup manifest and path metadata.
 
-## Rust Coexistence Boundary
+## TypeScript CLI/MCP Compatibility Boundary
 
-- The TypeScript npm implementation remains the current executable source of truth.
-- A future Rust CLI must preserve the same taxonomy, manifest compatibility, and single-audit safety model before it classifies, syncs, migrates, backs up, uninstalls, or provider-resolves.
-- PATH order may choose a runtime, but the selected runtime must not fork installed-project compatibility semantics.
+- The TypeScript package implementation remains the executable source of truth.
+- CLI and MCP paths must preserve the same taxonomy, manifest compatibility, and single-audit safety model before they classify, sync, migrate, back up, uninstall, or provider-resolve.
+- Package-runner and persistent-install execution must not fork installed-project compatibility semantics.
 
 ## Validation
 

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+  "targetRootStatus": "valid",
+  "prdRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/docs/prd",
+  "prdSetStatus": "present",
+  "prdFilesScanned": 39,
+  "markdownFilesScanned": 534,
+  "structuredFilesScanned": 191,
+  "linksScanned": 1034,
+  "diagnostics": []
+}

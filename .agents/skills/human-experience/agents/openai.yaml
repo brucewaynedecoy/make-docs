@@ -1,0 +1,6 @@
+interface:
+  display_name: "Human Experience"
+  short_description: "Make results clear and useful for people"
+  default_prompt: "Use $human-experience to review this result against the person's goal."
+policy:
+  allow_implicit_invocation: false

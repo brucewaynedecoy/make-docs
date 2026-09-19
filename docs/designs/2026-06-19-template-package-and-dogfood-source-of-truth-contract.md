@@ -1,6 +1,6 @@
 # Template, Package, and Dogfood Source-of-Truth Contract
 
-> Filename: `2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-19-template-package-and-dogfood-source-of-truth-contract.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -10,13 +10,13 @@ This design decides where template-owned assets are authored, when root `docs/` 
 
 ## Context
 
-This is the fourth design in Batch 1 of the [v2 proposed design and roadmap](../artifacts/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle because roadmap artifacts are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
+This is the fourth design in Batch 1 of the [v2 proposed design and roadmap](../assets/project/v2-proposed-design-and-roadmap.md). It intentionally straddles the normal lifecycle because roadmap artifacts are being promoted into design docs before the repo returns to the default design -> plan -> PRD -> work -> implementation arc.
 
 The three accepted Batch 1 designs are stronger authority than the roadmap where they overlap. [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md) keeps the TypeScript npm package as the current npm and `npx` installer owner. [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md) keeps full local materialization as the safe default and states that root `docs/` is not the source of truth for shipped template-owned assets. [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md) classifies root dogfood as validation with a narrower managed-product boundary than the shipped template.
 
-Current maintainer docs already describe a three-layer relationship. `packages/docs/template/` is the source of truth for shipped template-owned files, repo-root `docs/` is a dogfood copy used by this repo to exercise the shipped docs system, and `packages/cli/template/` is the bundled copy produced during `prepack` for tarball and publish flows. [packages/docs/README.md](../../packages/docs/README.md), [maintainer-dogfood-and-maintainer-operations.md](../guides/developer/maintainer-dogfood-and-maintainer-operations.md), and [maintainer-docs-assets-and-runtime-state-boundaries.md](../guides/developer/maintainer-docs-assets-and-runtime-state-boundaries.md) all point in this direction.
+Current maintainer docs already describe a three-layer relationship. `packages/docs/template/` is the source of truth for shipped template-owned files, repo-root `docs/` is a dogfood copy used by this repo to exercise the shipped docs system, and `packages/cli/template/` is the bundled copy produced during `prepack` for tarball and publish flows. [packages/docs/README.md](../../packages/docs/README.md), [maintainer-dogfood-and-maintainer-operations.md](../assets/maintainer/maintainer-dogfood-and-maintainer-operations.md), and [maintainer-docs-assets-and-runtime-state-boundaries.md](../assets/maintainer/maintainer-docs-assets-and-runtime-state-boundaries.md) all point in this direction.
 
-Prior design and history show why this needs to become a v2 contract instead of remaining maintainer convention. The archived [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md) established "template first, dogfood second." D-014 in the [risk register](../prd/03-open-questions-and-risk-register.md) records that W16 product assets were authored in dogfood first and then reverse-seeded into the template. [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../assets/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md) and [2026-06-18-w17-r0-static-template-router-skill-correction.md](../assets/history/2026-06-18-w17-r0-static-template-router-skill-correction.md) record the corrective direction: installed docs, routers, and instruction content come from static template bytes, while root dogfood remains a consumer with local project artifacts.
+Prior design and history show why this needs to become a v2 contract instead of remaining maintainer convention. The archived [Docs Assets Resource Namespace Overhaul](../../.make-docs/archive/designs/2026-04-22-docs-assets-resource-namespace.md) established "template first, dogfood second." D-014 in the [risk register](../prd/03-open-questions-and-risk-register.md) records that W16 product assets were authored in dogfood first and then reverse-seeded into the template. [2026-06-18-w16-r0-template-dogfood-reconciliation.md](../../.make-docs/archive/history/2026-06-18-w16-r0-template-dogfood-reconciliation.md) and [2026-06-18-w17-r0-static-template-router-skill-correction.md](../../.make-docs/archive/history/2026-06-18-w17-r0-static-template-router-skill-correction.md) record the corrective direction: installed docs, routers, and instruction content come from static template bytes, while root dogfood remains a consumer with local project artifacts.
 
 The implementation surfaces that enforce this boundary today are `resolveTemplateRoot` and `readPackageFile` in [utils.ts](../../packages/cli/src/utils.ts), asset path selection in [rules.ts](../../packages/cli/src/rules.ts), desired asset assembly in [catalog.ts](../../packages/cli/src/catalog.ts), manifest ownership in [manifest.ts](../../packages/cli/src/manifest.ts), managed-file conflict planning in [planner.ts](../../packages/cli/src/planner.ts), apply behavior in [install.ts](../../packages/cli/src/install.ts), managed-block markers in [managed-block.ts](../../packages/cli/src/managed-block.ts), package scripts in [packages/cli/package.json](../../packages/cli/package.json), and package validation through `scripts/copy-template-to-cli.mjs`, `scripts/smoke-pack.mjs`, `npm run validate:defaults -w packages/cli`, and `npm run smoke:pack`.
 
@@ -34,7 +34,7 @@ Template ownership is file-level unless a later design defines a richer ownershi
 
 - Template-owned files include root and docs instruction routers, docs asset routers, shipped workflow references, shipped templates, shipped prompt starters, starter docs structure, and any static helper files the installer records as managed assets.
 - Dogfood/project-owned files include this repo's generated designs, plans, PRDs, work backlogs, local guide content, local history/archive records, artifact review content, and any local custom overlay or config.
-- Mixed directories, such as `docs/assets/history/` and `docs/assets/archive/`, are directory-contract surfaces. Their routers and starter structure may be template-owned, but this repo's individual records inside them remain dogfood/project-owned unless deliberately shipped as starter content.
+- Mixed directories, such as `docs/assets/archive/` and its on-demand `docs/assets/archive/history/` records, are directory-contract surfaces. Their routers and starter structure may be template-owned, but this repo's individual records inside them remain dogfood/project-owned unless deliberately shipped as starter content.
 - `.make-docs/` remains mutable installer runtime state and is not reseeded through `docs/`.
 
 The required mutation order is:
@@ -87,7 +87,7 @@ This design does not change package contents, template files, dogfood files, sou
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md), [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md), [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Agent Instruction File Ownership](../assets/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
+Prior Design Docs: [Package and Deployment Boundaries](2026-06-19-package-and-deployment-boundaries.md), [System Asset Delivery and Materialization Contract](2026-06-19-system-asset-delivery-and-materialization-contract.md), [Compatibility, Audit, and Migration Disposition](2026-06-19-compatibility-audit-and-migration-disposition.md), [Docs Assets Resource Namespace Overhaul](../../.make-docs/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Agent Instruction File Ownership](../../.make-docs/archive/designs/2026-06-18-agent-instruction-file-ownership.md)
 
 Reason: This design is a new v2 Batch 1 contract that formalizes the template-first, dogfood-second direction already present in prior design, maintainer guidance, and W16/W17 corrective history. It does not edit or supersede those docs; it narrows their shared intent into the v2 ownership rule later plans should implement.
 
@@ -95,8 +95,8 @@ Reason: This design is a new v2 Batch 1 contract that formalizes the template-fi
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: The design revises and standardizes existing package/template/dogfood behavior rather than starting a fresh baseline. It should feed a change plan that updates validation, maintainer docs, and implementation surfaces against the active make-docs PRD/risk namespace after Batch 1 is accepted.
 
-Coordinate Handoff: prior related work includes W9 R1 resource namespace, W16 R0 lifecycle/template reconciliation, and W17 R0 static template/router correction; recommended downstream coordinate unresolved until the Batch 1 reconciliation plan assigns the next W/R slot.
+Coordinate Handoff: prior related work includes W9 R1 resource namespace, W16 R0 lifecycle/template reconciliation, and W17 R0 static template/router correction; reconciled into the active PRD namespace as [PRD 06](../prd/06-template-contracts-and-generated-assets.md#template-source-authority) and treated as an accepted v2 source-of-truth contract.

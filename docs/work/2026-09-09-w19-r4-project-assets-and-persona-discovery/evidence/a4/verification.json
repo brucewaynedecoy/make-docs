@@ -1,0 +1,31 @@
+{
+  "status": "observed-pass",
+  "childExitCode": 0,
+  "created": [
+    "docs/assets/AGENTS.md",
+    "docs/assets/maintainer/maintainer-guide.md",
+    "docs/assets/operators/operator-guide.md",
+    "docs/assets/project/project-note.md"
+  ],
+  "preexistingFilesChanged": [],
+  "exactAssetsRouter": "AGENTS.md",
+  "claudeRouters": false,
+  "childRouters": false,
+  "localOperationalState": false,
+  "emptyUserDirectory": false,
+  "checks": [
+    "Public setup with Codex only, no skills, no optional resource bodies, no assets directory.",
+    "Custom operators config added with existing projectId preserved.",
+    "Exact unseeded prompt; isolated HOME/CODEX_HOME; only auth symlink; requested disabled features.",
+    "Child transcript file reads and writes target the fixture only. No network source or Make Docs command invoked.",
+    "All four output paths match router/config; no extra output files or modifications.",
+    "Restricted shell PATH confirms make-docs unavailable."
+  ],
+  "limits": [
+    "One fresh automated agent run; this is not human experience review or phase acceptance.",
+    "The transcript proves visible tool calls, not an operating-system audit of every runtime read. Codex authentication and model transport necessarily use external runtime services.",
+    "Initial sandboxed model transport failed DNS and was stopped. Approved escalation enabled transport while the child retained workspace-write sandbox.",
+    "The fixture has no runnable project product; guides correctly state that limit.",
+    "The installed bootstrap bytes must be compared with final package after repacking."
+  ]
+}

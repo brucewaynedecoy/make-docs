@@ -1,5 +1,13 @@
 # W18 R1 Playbook Contract Run Playbook
 
+## W18 R4 Blocking Correction
+
+Before executing this plan, apply [W18 R4 Run Playbook Orchestration and Harness Capabilities](../2026-06-27-w18-r4-run-playbook-orchestration-and-harness-capabilities/00-overview.md). W18 R4 hardens this plan's runner model with resolver identity, stack disambiguation, reviewed harness capability records, Make Docs-owned run state, nested-playbook permission, and concurrency safety. W18 R1 should implement the playbook contract only after consuming those decisions.
+
+## W18 R5 Playbook Packaging Prerequisite
+
+Before executing this plan, apply [W18 R5 Playbook Packaging and Harness Adapter Registry](../2026-06-29-w18-r5-playbook-packaging-and-harness-adapter-registry/00-overview.md). W18 R1 should preserve packageable Playbook metadata, source digest inputs, output-surface claims, review gates, and source-versus-generated boundaries while leaving plugin and skills-bundle package writing to W18 R5-owned implementation.
+
 ## Purpose
 
 Define the implementation plan for the v2 playbook content contract and generic Run Playbook execution model.
@@ -12,13 +20,13 @@ This plan is derived from [Playbook Contract and Run Playbook](../../designs/202
 - Revision: R1
 - Route: change-plan
 - Source design: [docs/designs/2026-06-20-playbook-contract-and-run-playbook.md](../../designs/2026-06-20-playbook-contract-and-run-playbook.md)
-- New PRD: [docs/prd/29-revise-playbook-contract-run-playbook.md](../../prd/29-revise-playbook-contract-run-playbook.md)
+- Current PRD authority: [docs/prd/34-playbook-authoring-contract-and-model.md](../../prd/34-playbook-authoring-contract-and-model.md#requirements)
 - Work backlog: [docs/work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md](../../work/2026-06-23-w18-r1-playbook-contract-run-playbook/00-index.md)
 
 ## Current Implementation Grounding
 
-- `docs/library/playbooks/agent/make-docs-lifecycle.md` exists as transitional dogfood evidence, not the v2 home.
-- [docs/prd/22-revise-new-docs-assets-playbooks-persona-model.md](../../prd/22-revise-new-docs-assets-playbooks-persona-model.md) already makes `docs/assets/playbooks/**` the future persona-scoped playbook namespace but explicitly does not define Run Playbook execution.
+- `docs/assets/playbooks/agent/make-docs-lifecycle.md` is the v2 dogfood home; former `docs/library/playbooks/agent/make-docs-lifecycle.md` references are transitional historical evidence after W9 R5.
+- [docs/prd/22-project-documentation-asset-model.md](../../prd/22-project-documentation-asset-model.md#requirements) already makes `docs/assets/playbooks/**` the future persona-scoped playbook namespace but explicitly does not define Run Playbook execution.
 - `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts` currently enumerate prompts, references, templates, scripts, and instruction routers; they do not enumerate playbook assets or validate playbook frontmatter.
 - `packages/cli/src/manifest.ts` records generic files and `skillFiles`; it has no playbook catalog, stack, or run-support metadata.
 - `scripts/smoke-pack.mjs` validates packed template, skills, backup, and uninstall behavior, but it does not prove playbook metadata, path/persona consistency, build-stack versus run-stack selection, or Run Playbook invocation.

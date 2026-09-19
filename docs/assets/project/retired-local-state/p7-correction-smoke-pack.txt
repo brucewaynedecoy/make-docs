@@ -1,0 +1,714 @@
+
+> make-docs-monorepo@0.0.0 smoke:pack
+> node scripts/smoke-pack.mjs
+
+
+> @brucewaynedecoy/make-docs@2.0.0-rc prepack
+> node ../../scripts/copy-template-to-cli.mjs && npm run build
+
+Copied ./packages/docs/template -> ./packages/cli/template
+
+> @brucewaynedecoy/make-docs@2.0.0-rc build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: ./packages/cli/tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM dist/registry-BNLO7ZJH.js           850.00 B
+ESM dist/backup-ZDSQVELB.js             408.00 B
+ESM dist/index.js                       130.67 KB
+ESM dist/uninstall-UGSZ3FS4.js          6.93 KB
+ESM dist/self-ITUYKLAP.js               16.20 KB
+ESM dist/chunk-4XNKGMLF.js              50.61 KB
+ESM dist/chunk-I4RHKPKU.js              131.24 KB
+ESM dist/chunk-65EW3I2Y.js              21.17 KB
+ESM dist/chunk-ODWUKQR3.js              40.40 KB
+ESM dist/chunk-ALYHUG4X.js              3.93 KB
+ESM dist/chunk-6JEBYFB2.js              18.73 KB
+ESM dist/skills-command-N6JEPOVL.js     18.90 KB
+ESM dist/chunk-3TOVEWHJ.js              48.18 KB
+ESM dist/server-SJ3J5U53.js             13.87 KB
+ESM dist/chunk-SSWVXCUM.js              302.62 KB
+ESM dist/chunk-SXNDV5BJ.js              1.04 MB
+ESM dist/registry-BNLO7ZJH.js.map       71.00 B
+ESM dist/backup-ZDSQVELB.js.map         71.00 B
+ESM dist/index.js.map                   250.14 KB
+ESM dist/chunk-4XNKGMLF.js.map          121.88 KB
+ESM dist/chunk-65EW3I2Y.js.map          39.06 KB
+ESM dist/self-ITUYKLAP.js.map           39.09 KB
+ESM dist/chunk-ODWUKQR3.js.map          71.08 KB
+ESM dist/chunk-ALYHUG4X.js.map          7.37 KB
+ESM dist/skills-command-N6JEPOVL.js.map 37.31 KB
+ESM dist/chunk-6JEBYFB2.js.map          37.73 KB
+ESM dist/server-SJ3J5U53.js.map         80.41 KB
+ESM dist/uninstall-UGSZ3FS4.js.map      13.08 KB
+ESM dist/chunk-I4RHKPKU.js.map          269.25 KB
+ESM dist/chunk-3TOVEWHJ.js.map          220.28 KB
+ESM dist/chunk-SSWVXCUM.js.map          609.26 KB
+ESM dist/chunk-SXNDV5BJ.js.map          2.01 MB
+ESM ⚡️ Build success in 113ms
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice To update run: npm install -g npm@12.0.2
+npm notice
+Progress: resolved 0, reused 0, downloaded 1, added 0
+Packages: +100
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 100, reused 0, downloaded 100, added 9
+Progress: resolved 100, reused 0, downloaded 100, added 100, done
+Resolving dependencies
+Resolved, downloaded and extracted [395]
+Saved lockfile
+│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  <temp-dir>/make-docs-smoke-nPQGbL     │
+│  Mode: first install                                                         │
+│  Manifest: <temp-dir>/make-docs-smoke  │
+│  -nPQGbL/.make-docs/manifest.json (will be created)                          │
+│  Installed version: none detected                                            │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Selection source: default selections                                        │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide,                │
+│  playbook=playbook                                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Managed files evaluated: 26                                                 │
+│  Already current: 0                                                          │
+│  Changes planned: 26                                                         │
+│  Generate: 26                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Planned file operations ────────────────────────────╮
+│                                                      │
+│  - generate: .make-docs/AGENTS.md                    │
+│  - generate: .make-docs/CLAUDE.md                    │
+│  - generate: .make-docs/system/AGENTS.md             │
+│  - generate: .make-docs/system/CLAUDE.md             │
+│  - generate: .make-docs/system/contracts/AGENTS.md   │
+│  - generate: .make-docs/system/contracts/CLAUDE.md   │
+│  - generate: .make-docs/system/prompts/AGENTS.md     │
+│  - generate: .make-docs/system/prompts/CLAUDE.md     │
+│  - generate: .make-docs/system/references/AGENTS.md  │
+│  - generate: .make-docs/system/references/CLAUDE.md  │
+│  - generate: .make-docs/system/templates/AGENTS.md   │
+│  - generate: .make-docs/system/templates/CLAUDE.md   │
+│  - generate: AGENTS.md                               │
+│  - generate: CLAUDE.md                               │
+│  - generate: docs/AGENTS.md                          │
+│  - generate: docs/CLAUDE.md                          │
+│  - generate: docs/assets/AGENTS.md                   │
+│  - generate: docs/assets/CLAUDE.md                   │
+│  - generate: docs/designs/AGENTS.md                  │
+│  - generate: docs/designs/CLAUDE.md                  │
+│  - generate: docs/plans/AGENTS.md                    │
+│  - generate: docs/plans/CLAUDE.md                    │
+│  - generate: docs/prd/AGENTS.md                      │
+│  - generate: docs/prd/CLAUDE.md                      │
+│  - generate: docs/work/AGENTS.md                     │
+│  - generate: docs/work/CLAUDE.md                     │
+│                                                      │
+├──────────────────────────────────────────────────────╯
+
+Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-smoke-nPQGbL.
+│
+◇  Information ────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  <temp-dir>/make-docs-smoke-nPQGbL     │
+│  Mode: existing install sync                                                 │
+│  Manifest: <temp-dir>/make-docs-smoke  │
+│  -nPQGbL/.make-docs/manifest.json (found)                                    │
+│  Installed version: 2.0.0-rc                                                 │
+│  Package version: @brucewaynedecoy/make-docs 2.0.0-rc                        │
+│  Compatibility state: clean-v2-provider-backed                               │
+│  Disposition: sync                                                           │
+│  Selection source: saved manifest selections                                 │
+│  Local resource projection: none                                             │
+│  Safety stops: none                                                          │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Lifecycle labels: design=design, plan=plan, prd=PRD, work=work,             │
+│  implementation=implementation, history=history, guide=guide,                │
+│  playbook=playbook                                                           │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Managed files evaluated: 26                                                 │
+│  Already current: 26                                                         │
+│  Changes planned: 0                                                          │
+│  Generate: 0                                                                 │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Results ──────────────────────────────────────────────────────────────────╮
+│                                                                            │
+│  No managed file changes are needed.                                       │
+│  Every managed file already matched the desired content.                   │
+│                                                                            │
+│  Useful next steps:                                                        │
+│  - Run `make-docs setup reconfigure` to change which docs, harnesses, or   │
+│  project resources are managed.                                            │
+│  - Run `make-docs setup skills` to change managed skills.                  │
+│  - Run `make-docs --dry-run` after upgrading make-docs to preview future   │
+│  changes.                                                                  │
+│                                                                            │
+├────────────────────────────────────────────────────────────────────────────╯
+│
+◇  make-docs setup skills plan ────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  <temp-dir>/make-docs-smoke-nPQGbL     │
+│  Action: sync skills                                                         │
+│  Mode: apply                                                                 │
+│  Document kind labels: design=design, plan=plan, prd=PRD, work=work,         │
+│  history=history, guide=guide, playbook=playbook                             │
+│  Coordinate labels: wave=Wave, revision=Revision, phase=Phase                │
+│  Persona labels: agent=Agent, developer=Developer, user=User                 │
+│  Platforms: Claude Code and Codex                                            │
+│  Scope: project                                                              │
+│  Selected skills: archive-docs, cleanup-docs, decompose-codebase, and        │
+│  naive-uat                                                                   │
+│  Managed skill files evaluated: 35                                           │
+│  Already current: 0                                                          │
+│  Generate: 35                                                                │
+│  Update: 0                                                                   │
+│  Skip: 0                                                                     │
+│  Remove: 0                                                                   │
+│                                                                              │
+│  Planned skill file operations:                                              │
+│  - generate: native harness exposure: .agents/skills/archive-docs            │
+│  - generate: native harness exposure: .agents/skills/cleanup-docs            │
+│  - generate: native harness exposure: .agents/skills/decompose-codebase      │
+│  - generate: native harness exposure: .agents/skills/naive-uat               │
+│  - generate: native harness exposure: .claude/skills/archive-docs            │
+│  - generate: native harness exposure: .claude/skills/cleanup-docs            │
+│  - generate: native harness exposure: .claude/skills/decompose-codebase      │
+│  - generate: native harness exposure: .claude/skills/naive-uat               │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/archive-docs/SKILL.md                            │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/archive-docs/agents/openai.yaml                  │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/archive-docs/references/archive-workflow.md      │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py      │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/cleanup-docs/SKILL.md                            │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/cleanup-docs/agents/openai.yaml                  │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py     │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/SKILL.md                      │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/agents/openai.yaml            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/decomposition-plan.md                                      │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-architecture.md                                        │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-glossary.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-index.md                                               │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-overview.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-reference.md                                           │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-risk-register.md                                       │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/prd-subsystem.md                                           │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/rebuild-backlog-index.md                                   │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  assets/templates/rebuild-backlog-phase.md                                   │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/execution-workflow.md                                            │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/harness-capability-matrix.md                                     │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md    │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/output-contract.md                                               │
+│  - generate: shared payload: .make-docs/agentics/skills/decompose-codebase/  │
+│  references/planning-workflow.md                                             │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/probe_environment.py  │
+│  - generate: shared payload:                                                 │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/validate_output.py    │
+│  - generate: shared payload: .make-docs/agentics/skills/naive-uat/SKILL.md   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+Updated skills (35 changed). Manifest: <temp-dir>/make-docs-smoke-nPQGbL/.make-docs/manifest.json
+┌  make-docs setup backup
+│
+◇  make-docs setup backup ─────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  <temp-dir>/make-docs-smoke-nPQGbL     │
+│  Destination: <temp-dir>/make-docs-sm  │
+│  oke-nPQGbL/.make-docs/backup/2026-09-04                                     │
+│  Skills: enabled (project)                                                   │
+│  Skills manifest: make-docs first-party skills (built-in)                    │
+│  Selected skills: archive-docs, cleanup-docs, decompose-codebase, naive-uat  │
+│  Skill provenance: archive-docs: make-docs first-party skill (first-party);  │
+│   cleanup-docs: make-docs first-party skill (first-party);                   │
+│  decompose-codebase: make-docs first-party skill (first-party); naive-uat:   │
+│  make-docs bundled local Skill (first-party)                                 │
+│  Plugins: disabled                                                           │
+│  Files to copy: 54                                                           │
+│  Directories to materialize: 35                                              │
+│  Retained: 6                                                                 │
+│  Skipped: 0                                                                  │
+│                                                                              │
+│  Files to copy:                                                              │
+│  - .make-docs/agentics/skills/archive-docs/agents/openai.yaml (The file      │
+│  still matches the manifest-tracked make-docs content.)                      │
+│  - .make-docs/agentics/skills/archive-docs/references/archive-workflow.md    │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py    │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/archive-docs/SKILL.md (The file still matches  │
+│   the manifest-tracked make-docs content.)                                   │
+│  - .make-docs/agentics/skills/cleanup-docs/agents/openai.yaml (The file      │
+│  still matches the manifest-tracked make-docs content.)                      │
+│  - .make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py   │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/cleanup-docs/SKILL.md (The file still matches  │
+│   the manifest-tracked make-docs content.)                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/agents/openai.yaml (The     │
+│  file still matches the manifest-tracked make-docs content.)                 │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/decomposi  │
+│  tion-plan.md (The file still matches the manifest-tracked make-docs         │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-archi  │
+│  tecture.md (The file still matches the manifest-tracked make-docs           │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-gloss  │
+│  ary.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-index  │
+│  .md (The file still matches the manifest-tracked make-docs content.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-overv  │
+│  iew.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-refer  │
+│  ence.md (The file still matches the manifest-tracked make-docs content.)    │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-risk-  │
+│  register.md (The file still matches the manifest-tracked make-docs          │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-subsy  │
+│  stem.md (The file still matches the manifest-tracked make-docs content.)    │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/rebuild-b  │
+│  acklog-index.md (The file still matches the manifest-tracked make-docs      │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/rebuild-b  │
+│  acklog-phase.md (The file still matches the manifest-tracked make-docs      │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/references/execution-workf  │
+│  low.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/references/harness-capabil  │
+│  ity-matrix.md (The file still matches the manifest-tracked make-docs        │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/references/output-contract  │
+│  .md (The file still matches the manifest-tracked make-docs content.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/references/planning-workfl  │
+│  ow.md (The file still matches the manifest-tracked make-docs content.)      │
+│  -                                                                           │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/probe_environment.py  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/scripts/validate_output.py  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/SKILL.md (The file still    │
+│  matches the manifest-tracked make-docs content.)                            │
+│  - .make-docs/agentics/skills/naive-uat/SKILL.md (The file still matches     │
+│  the manifest-tracked make-docs content.)                                    │
+│  - .make-docs/AGENTS.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - .make-docs/CLAUDE.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - .make-docs/manifest.json (The make-docs manifest is CLI-managed state     │
+│  and is eligible for removal.)                                               │
+│  - .make-docs/system/AGENTS.md (The instruction file's managed block         │
+│  matches the manifest and no user content exists outside the block.)         │
+│  - .make-docs/system/CLAUDE.md (The instruction file's managed block         │
+│  matches the manifest and no user content exists outside the block.)         │
+│  - .make-docs/system/contracts/AGENTS.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/contracts/CLAUDE.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/prompts/AGENTS.md (The instruction file's managed       │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/prompts/CLAUDE.md (The instruction file's managed       │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/references/AGENTS.md (The instruction file's managed    │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/references/CLAUDE.md (The instruction file's managed    │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/templates/AGENTS.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/templates/CLAUDE.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - AGENTS.md (The instruction file's managed block matches the manifest and  │
+│   no user content exists outside the block.)                                 │
+│  - CLAUDE.md (The instruction file's managed block matches the manifest and  │
+│   no user content exists outside the block.)                                 │
+│  - docs/AGENTS.md (The instruction file's managed block matches the          │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/assets/AGENTS.md (The instruction file's managed block matches the   │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/assets/CLAUDE.md (The instruction file's managed block matches the   │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/CLAUDE.md (The instruction file's managed block matches the          │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/designs/AGENTS.md (The instruction file's managed block matches the  │
+│   manifest and no user content exists outside the block.)                    │
+│  - docs/designs/CLAUDE.md (The instruction file's managed block matches the  │
+│   manifest and no user content exists outside the block.)                    │
+│  - docs/plans/AGENTS.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/plans/CLAUDE.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/prd/AGENTS.md (The instruction file's managed block matches the      │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/prd/CLAUDE.md (The instruction file's managed block matches the      │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/work/AGENTS.md (The instruction file's managed block matches the     │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/work/CLAUDE.md (The instruction file's managed block matches the     │
+│  manifest and no user content exists outside the block.)                     │
+│                                                                              │
+│  Directories to materialize:                                                 │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates            │
+│  - .make-docs/agentics/skills/archive-docs/agents                            │
+│  - .make-docs/agentics/skills/archive-docs/references                        │
+│  - .make-docs/agentics/skills/archive-docs/scripts                           │
+│  - .make-docs/agentics/skills/cleanup-docs/agents                            │
+│  - .make-docs/agentics/skills/cleanup-docs/scripts                           │
+│  - .make-docs/agentics/skills/decompose-codebase/agents                      │
+│  - .make-docs/agentics/skills/decompose-codebase/assets                      │
+│  - .make-docs/agentics/skills/decompose-codebase/references                  │
+│  - .make-docs/agentics/skills/decompose-codebase/scripts                     │
+│  - .make-docs/agentics/skills/archive-docs                                   │
+│  - .make-docs/agentics/skills/cleanup-docs                                   │
+│  - .make-docs/agentics/skills/decompose-codebase                             │
+│  - .make-docs/agentics/skills/naive-uat                                      │
+│  - .make-docs/agentics/skills                                                │
+│  - .make-docs/system/contracts                                               │
+│  - .make-docs/system/prompts                                                 │
+│  - .make-docs/system/references                                              │
+│  - .agents/skills                                                            │
+│  - .claude/skills                                                            │
+│  - .make-docs/agentics                                                       │
+│  - docs/designs                                                              │
+│  - docs/plans                                                                │
+│  - docs/prd                                                                  │
+│  - docs/work                                                                 │
+│  - .agents                                                                   │
+│  - .claude                                                                   │
+│  - .agents/skills/archive-docs                                               │
+│  - .agents/skills/cleanup-docs                                               │
+│  - .agents/skills/decompose-codebase                                         │
+│  - .agents/skills/naive-uat                                                  │
+│  - .claude/skills/archive-docs                                               │
+│  - .claude/skills/cleanup-docs                                               │
+│  - .claude/skills/decompose-codebase                                         │
+│  - .claude/skills/naive-uat                                                  │
+│                                                                              │
+│  Retained paths:                                                             │
+│  - .make-docs (The directory still contains preserved descendants after      │
+│  subtracting removable make-docs paths.)                                     │
+│  - .make-docs/config.yaml (The make-docs config file is project-owned local  │
+│   configuration and is preserved separately from managed files, conflicts,   │
+│  provider state, and cache state.)                                           │
+│  - .make-docs/system (The directory still contains preserved descendants     │
+│  after subtracting removable make-docs paths.)                               │
+│  - .make-docs/system/templates (The directory still contains preserved       │
+│  descendants after subtracting removable make-docs paths.)                   │
+│  - docs (The directory still contains preserved descendants after            │
+│  subtracting removable make-docs paths.)                                     │
+│  - docs/assets (The directory still contains preserved descendants after     │
+│  subtracting removable make-docs paths.)                                     │
+│                                                                              │
+│  Skipped paths:                                                              │
+│  - none                                                                      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Backup complete ────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Destination: <temp-dir>/make-docs-sm  │
+│  oke-nPQGbL/.make-docs/backup/2026-09-04                                     │
+│  Copied files: 54                                                            │
+│  Materialized directories: 35                                                │
+│  Retained paths surfaced: 6                                                  │
+│  Skipped paths surfaced: 0                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+┌  make-docs setup remove
+│
+◇  WARNING ─────────────────────────────────────────────────╮
+│                                                           │
+│  This command removes audited make-docs-managed paths     │
+│                                                           │
+│  Safer alternative: make-docs setup backup                │
+│  Safer destructive flow: make-docs setup remove --backup  │
+│                                                           │
+├───────────────────────────────────────────────────────────╯
+│
+◇  make-docs setup remove ─────────────────────────────────────────────────────╮
+│                                                                              │
+│  Target:                                                                     │
+│  <temp-dir>/make-docs-smoke-nPQGbL     │
+│  Backup before removal: not requested                                        │
+│  Skills: enabled (project)                                                   │
+│  Skills manifest: make-docs first-party skills (built-in)                    │
+│  Selected skills: archive-docs, cleanup-docs, decompose-codebase, naive-uat  │
+│  Skill provenance: archive-docs: make-docs first-party skill (first-party);  │
+│   cleanup-docs: make-docs first-party skill (first-party);                   │
+│  decompose-codebase: make-docs first-party skill (first-party); naive-uat:   │
+│  make-docs bundled local Skill (first-party)                                 │
+│  Plugins: disabled                                                           │
+│  Files to remove: 62                                                         │
+│  Directories to prune: 27                                                    │
+│  Preserved: 6                                                                │
+│  Skipped: 0                                                                  │
+│                                                                              │
+│  Files to remove:                                                            │
+│  - .agents/skills/archive-docs (The managed native harness exposure symlink  │
+│   points at the recorded canonical skill payload.)                           │
+│  - .agents/skills/cleanup-docs (The managed native harness exposure symlink  │
+│   points at the recorded canonical skill payload.)                           │
+│  - .agents/skills/decompose-codebase (The managed native harness exposure    │
+│  symlink points at the recorded canonical skill payload.)                    │
+│  - .agents/skills/naive-uat (The managed native harness exposure symlink     │
+│  points at the recorded canonical skill payload.)                            │
+│  - .claude/skills/archive-docs (The managed native harness exposure symlink  │
+│   points at the recorded canonical skill payload.)                           │
+│  - .claude/skills/cleanup-docs (The managed native harness exposure symlink  │
+│   points at the recorded canonical skill payload.)                           │
+│  - .claude/skills/decompose-codebase (The managed native harness exposure    │
+│  symlink points at the recorded canonical skill payload.)                    │
+│  - .claude/skills/naive-uat (The managed native harness exposure symlink     │
+│  points at the recorded canonical skill payload.)                            │
+│  - .make-docs/agentics/skills/archive-docs/agents/openai.yaml (The file      │
+│  still matches the manifest-tracked make-docs content.)                      │
+│  - .make-docs/agentics/skills/archive-docs/references/archive-workflow.md    │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/archive-docs/scripts/trace_relationships.py    │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/archive-docs/SKILL.md (The file still matches  │
+│   the manifest-tracked make-docs content.)                                   │
+│  - .make-docs/agentics/skills/cleanup-docs/agents/openai.yaml (The file      │
+│  still matches the manifest-tracked make-docs content.)                      │
+│  - .make-docs/agentics/skills/cleanup-docs/scripts/check_markdown_style.py   │
+│  (The file still matches the manifest-tracked make-docs content.)            │
+│  - .make-docs/agentics/skills/cleanup-docs/SKILL.md (The file still matches  │
+│   the manifest-tracked make-docs content.)                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/agents/openai.yaml (The     │
+│  file still matches the manifest-tracked make-docs content.)                 │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/decomposi  │
+│  tion-plan.md (The file still matches the manifest-tracked make-docs         │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-archi  │
+│  tecture.md (The file still matches the manifest-tracked make-docs           │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-gloss  │
+│  ary.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-index  │
+│  .md (The file still matches the manifest-tracked make-docs content.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-overv  │
+│  iew.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-refer  │
+│  ence.md (The file still matches the manifest-tracked make-docs content.)    │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-risk-  │
+│  register.md (The file still matches the manifest-tracked make-docs          │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/prd-subsy  │
+│  stem.md (The file still matches the manifest-tracked make-docs content.)    │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/rebuild-b  │
+│  acklog-index.md (The file still matches the manifest-tracked make-docs      │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates/rebuild-b  │
+│  acklog-phase.md (The file still matches the manifest-tracked make-docs      │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/references/execution-workf  │
+│  low.md (The file still matches the manifest-tracked make-docs content.)     │
+│  - .make-docs/agentics/skills/decompose-codebase/references/harness-capabil  │
+│  ity-matrix.md (The file still matches the manifest-tracked make-docs        │
+│  content.)                                                                   │
+│  - .make-docs/agentics/skills/decompose-codebase/references/mcp-playbook.md  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/references/output-contract  │
+│  .md (The file still matches the manifest-tracked make-docs content.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/references/planning-workfl  │
+│  ow.md (The file still matches the manifest-tracked make-docs content.)      │
+│  -                                                                           │
+│  .make-docs/agentics/skills/decompose-codebase/scripts/probe_environment.py  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/scripts/validate_output.py  │
+│   (The file still matches the manifest-tracked make-docs content.)           │
+│  - .make-docs/agentics/skills/decompose-codebase/SKILL.md (The file still    │
+│  matches the manifest-tracked make-docs content.)                            │
+│  - .make-docs/agentics/skills/naive-uat/SKILL.md (The file still matches     │
+│  the manifest-tracked make-docs content.)                                    │
+│  - .make-docs/AGENTS.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - .make-docs/CLAUDE.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - .make-docs/manifest.json (The make-docs manifest is CLI-managed state     │
+│  and is eligible for removal.)                                               │
+│  - .make-docs/system/AGENTS.md (The instruction file's managed block         │
+│  matches the manifest and no user content exists outside the block.)         │
+│  - .make-docs/system/CLAUDE.md (The instruction file's managed block         │
+│  matches the manifest and no user content exists outside the block.)         │
+│  - .make-docs/system/contracts/AGENTS.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/contracts/CLAUDE.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/prompts/AGENTS.md (The instruction file's managed       │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/prompts/CLAUDE.md (The instruction file's managed       │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/references/AGENTS.md (The instruction file's managed    │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/references/CLAUDE.md (The instruction file's managed    │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/templates/AGENTS.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - .make-docs/system/templates/CLAUDE.md (The instruction file's managed     │
+│  block matches the manifest and no user content exists outside the block.)   │
+│  - AGENTS.md (The instruction file's managed block matches the manifest and  │
+│   no user content exists outside the block.)                                 │
+│  - CLAUDE.md (The instruction file's managed block matches the manifest and  │
+│   no user content exists outside the block.)                                 │
+│  - docs/AGENTS.md (The instruction file's managed block matches the          │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/assets/AGENTS.md (The instruction file's managed block matches the   │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/assets/CLAUDE.md (The instruction file's managed block matches the   │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/CLAUDE.md (The instruction file's managed block matches the          │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/designs/AGENTS.md (The instruction file's managed block matches the  │
+│   manifest and no user content exists outside the block.)                    │
+│  - docs/designs/CLAUDE.md (The instruction file's managed block matches the  │
+│   manifest and no user content exists outside the block.)                    │
+│  - docs/plans/AGENTS.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/plans/CLAUDE.md (The instruction file's managed block matches the    │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/prd/AGENTS.md (The instruction file's managed block matches the      │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/prd/CLAUDE.md (The instruction file's managed block matches the      │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/work/AGENTS.md (The instruction file's managed block matches the     │
+│  manifest and no user content exists outside the block.)                     │
+│  - docs/work/CLAUDE.md (The instruction file's managed block matches the     │
+│  manifest and no user content exists outside the block.)                     │
+│                                                                              │
+│  Directories to prune:                                                       │
+│  - .make-docs/agentics/skills/decompose-codebase/assets/templates (The       │
+│  directory becomes empty after removing audited make-docs-managed            │
+│  descendants.)                                                               │
+│  - .make-docs/agentics/skills/archive-docs/agents (The directory becomes     │
+│  empty after removing audited make-docs-managed descendants.)                │
+│  - .make-docs/agentics/skills/archive-docs/references (The directory         │
+│  becomes empty after removing audited make-docs-managed descendants.)        │
+│  - .make-docs/agentics/skills/archive-docs/scripts (The directory becomes    │
+│  empty after removing audited make-docs-managed descendants.)                │
+│  - .make-docs/agentics/skills/cleanup-docs/agents (The directory becomes     │
+│  empty after removing audited make-docs-managed descendants.)                │
+│  - .make-docs/agentics/skills/cleanup-docs/scripts (The directory becomes    │
+│  empty after removing audited make-docs-managed descendants.)                │
+│  - .make-docs/agentics/skills/decompose-codebase/agents (The directory       │
+│  becomes empty after removing audited make-docs-managed descendants.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/assets (The directory       │
+│  becomes empty after removing audited make-docs-managed descendants.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/references (The directory   │
+│  becomes empty after removing audited make-docs-managed descendants.)        │
+│  - .make-docs/agentics/skills/decompose-codebase/scripts (The directory      │
+│  becomes empty after removing audited make-docs-managed descendants.)        │
+│  - .make-docs/agentics/skills/archive-docs (The directory becomes empty      │
+│  after removing audited make-docs-managed descendants.)                      │
+│  - .make-docs/agentics/skills/cleanup-docs (The directory becomes empty      │
+│  after removing audited make-docs-managed descendants.)                      │
+│  - .make-docs/agentics/skills/decompose-codebase (The directory becomes      │
+│  empty after removing audited make-docs-managed descendants.)                │
+│  - .make-docs/agentics/skills/naive-uat (The directory becomes empty after   │
+│  removing audited make-docs-managed descendants.)                            │
+│  - .make-docs/agentics/skills (The directory becomes empty after removing    │
+│  audited make-docs-managed descendants.)                                     │
+│  - .make-docs/system/contracts (The directory becomes empty after removing   │
+│  audited make-docs-managed descendants.)                                     │
+│  - .make-docs/system/prompts (The directory becomes empty after removing     │
+│  audited make-docs-managed descendants.)                                     │
+│  - .make-docs/system/references (The directory becomes empty after removing  │
+│   audited make-docs-managed descendants.)                                    │
+│  - .agents/skills (The directory becomes empty after removing audited        │
+│  make-docs-managed descendants.)                                             │
+│  - .claude/skills (The directory becomes empty after removing audited        │
+│  make-docs-managed descendants.)                                             │
+│  - .make-docs/agentics (The directory becomes empty after removing audited   │
+│  make-docs-managed descendants.)                                             │
+│  - docs/designs (The directory becomes empty after removing audited          │
+│  make-docs-managed descendants.)                                             │
+│  - docs/plans (The directory becomes empty after removing audited            │
+│  make-docs-managed descendants.)                                             │
+│  - docs/prd (The directory becomes empty after removing audited              │
+│  make-docs-managed descendants.)                                             │
+│  - docs/work (The directory becomes empty after removing audited             │
+│  make-docs-managed descendants.)                                             │
+│  - .agents (The directory becomes empty after removing audited               │
+│  make-docs-managed descendants.)                                             │
+│  - .claude (The directory becomes empty after removing audited               │
+│  make-docs-managed descendants.)                                             │
+│                                                                              │
+│  Preserved paths:                                                            │
+│  - .make-docs (The directory still contains preserved descendants after      │
+│  subtracting removable make-docs paths.)                                     │
+│  - .make-docs/config.yaml (The make-docs config file is project-owned local  │
+│   configuration and is preserved separately from managed files, conflicts,   │
+│  provider state, and cache state.)                                           │
+│  - .make-docs/system (The directory still contains preserved descendants     │
+│  after subtracting removable make-docs paths.)                               │
+│  - .make-docs/system/templates (The directory still contains preserved       │
+│  descendants after subtracting removable make-docs paths.)                   │
+│  - docs (The directory still contains preserved descendants after            │
+│  subtracting removable make-docs paths.)                                     │
+│  - docs/assets (The directory still contains preserved descendants after     │
+│  subtracting removable make-docs paths.)                                     │
+│                                                                              │
+│  Skipped paths:                                                              │
+│  - none                                                                      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Uninstall complete ─────╮
+│                          │
+│  Files removed: 62       │
+│  Directories pruned: 27  │
+│  Preserved paths: 6      │
+│  Skipped paths: 0        │
+│  Backup: not requested   │
+│                          │
+├──────────────────────────╯
+{"ok":false,"code":"operation-error","message":"No Playbook run state found for run id `no-such-run`."}

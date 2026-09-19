@@ -53,4 +53,4 @@ Selection, validation, and handoff messages must surface the stack when ambiguit
 
 - Playbook path, metadata, body, and stack rules are specific enough for validators.
 - Build-stack and run-stack playbooks cannot silently substitute for each other.
-- The current `docs/library/playbooks/**` path remains migration evidence, not the v2 home.
+- Former `docs/library/playbooks/**` paths remain migration evidence, not the v2 home.

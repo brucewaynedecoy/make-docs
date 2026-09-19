@@ -14,11 +14,13 @@ import {
 } from "../src/lifecycle-ui";
 import { loadManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type { UninstallExecutionResult } from "../src/uninstall";
 import type {
   BackupExecutionResult,
   LifecyclePermissionsMode,
 } from "../src/types";
 import * as fileUtils from "../src/utils";
+import * as installationFiles from "../src/installation-files";
 import { cleanupTempDir, createTempDir, mockSkillFetches } from "./helpers";
 
 const { confirmMock, createAuditReportMock } = vi.hoisted(() => ({
@@ -166,24 +168,92 @@ describe("uninstall command", () => {
         permissions: "allow-all",
       });
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(result.removedFiles).toContain("AGENTS.md");
       expect(result.removedFiles).toContain("CLAUDE.md");
-      expect(result.removedFiles).toContain(".make-docs/manifest.json");
-      expect(result.prunedDirectories).toContain(".make-docs");
+      expect(result.removedFiles).not.toContain(".make-docs/manifest.json");
+      expect(result.prunedDirectories).not.toContain(".make-docs");
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("This command removes audited make-docs-managed paths");
-      expect(output).toContain("Safer alternative: make-docs backup");
-      expect(output).toContain("Safer destructive flow: make-docs uninstall --backup");
-      expect(output).toContain("make-docs uninstall");
+      expect(output).toContain("Safer alternative: make-docs setup backup");
+      expect(output).toContain("Safer destructive flow: make-docs setup remove --backup");
+      expect(output).toContain("make-docs setup remove");
       expect(output).toContain("Uninstall complete");
       expect(output).toContain("Files removed:");
       expect(confirmMock).not.toHaveBeenCalled();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("allow-all prunes empty project native Skill parents after uninstall", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = true;
+        selections.selectedSkills = ["archive-docs"];
+      });
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+      });
+
+      expectCompletedUninstall(result);
+      expect(result.prunedDirectories).toEqual(
+        expect.arrayContaining([
+          ".agents/skills/archive-docs",
+          ".agents/skills",
+          ".agents",
+        ]),
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/agentics"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("preserves project config during allow-all uninstall", async () => {
+    const targetDir = createTempDir();
+    let configContents = "labels:\n  documentKinds:\n    design: Idea\n";
+
+    try {
+      await installManifest(targetDir, (selections) => {
+        selections.skills = false;
+      });
+      configContents += `projectId: ${loadManifest(targetDir)!.projectId}\n`;
+      writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), configContents, "utf8");
+
+      const { result } = await captureUninstallRun({
+        targetDir,
+        backup: false,
+        permissions: "allow-all",
+      });
+
+      expectCompletedUninstall(result);
+      expect(result.removedFiles).not.toContain(".make-docs/manifest.json");
+      expect(result.removedFiles).not.toContain(".make-docs/config.yaml");
+      expect(result.prunedDirectories).not.toContain(".make-docs");
+      expect(result.plan.auditReport.preservedPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ".make-docs/config.yaml",
+            ownershipSource: "project-config",
+            reasonCode: "project-config-preserved",
+          }),
+        ]),
+      );
+      expect(existsSync(path.join(targetDir, ".make-docs/config.yaml"))).toBe(true);
+      expect(readFileSync(path.join(targetDir, ".make-docs/config.yaml"), "utf8")).toBe(
+        configContents,
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -207,7 +277,7 @@ describe("uninstall command", () => {
         permissions: "allow-all",
       });
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(result.backupResult?.status).toBe("completed");
       expect(events.map((event) => event.name)).toEqual([
         "workflow",
@@ -218,11 +288,11 @@ describe("uninstall command", () => {
         "uninstall:completion-summary",
       ]);
       expect(events[0]).toMatchObject({
-        title: "make-docs uninstall",
+        title: "make-docs setup remove",
       });
       expect(events[1]).toMatchObject({
         targetDir,
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         backupDestinationExistsAtWarning: false,
       });
       expect(events[2]).toMatchObject({
@@ -230,7 +300,7 @@ describe("uninstall command", () => {
       });
       expect(events[3]).toMatchObject({
         targetDir,
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
         filesToRemove: result.plan.auditReport.removableFiles.length,
         directoriesToPrune: result.plan.auditReport.prunableDirectories.length,
         preserved: result.plan.auditReport.preservedPaths.length,
@@ -247,7 +317,7 @@ describe("uninstall command", () => {
         preserved: result.plan.auditReport.preservedPaths.length,
         skipped: result.plan.auditReport.skippedPaths.length,
         backupStatus: "completed",
-        backupDestinationDir: path.join(targetDir, ".backup/2026-04-18"),
+        backupDestinationDir: path.join(targetDir, ".make-docs/backup/2026-04-18"),
       });
       expect(confirmMock).not.toHaveBeenCalled();
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
@@ -265,7 +335,7 @@ describe("uninstall command", () => {
       });
       writeFileSync(path.join(targetDir, "AGENTS.md"), "custom root agents\n", "utf8");
       writeFileSync(path.join(targetDir, "CLAUDE.md"), "custom root claude\n", "utf8");
-      writeFileSync(path.join(targetDir, "docs/assets/templates/custom.md"), "keep me\n", "utf8");
+      writeFileSync(path.join(targetDir, ".make-docs/system/templates/custom.md"), "keep me\n", "utf8");
 
       const { result, output } = await captureUninstallRun({
         targetDir,
@@ -273,11 +343,11 @@ describe("uninstall command", () => {
         permissions: "allow-all",
       });
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe("custom root agents\n");
       expect(readFileSync(path.join(targetDir, "CLAUDE.md"), "utf8")).toBe("custom root claude\n");
-      expect(existsSync(path.join(targetDir, "docs/assets/templates/custom.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/templates"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates/custom.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/system/templates"))).toBe(true);
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(output).toContain("Preserved paths");
     } finally {
@@ -292,7 +362,7 @@ describe("uninstall command", () => {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
-      const historyRecordPath = path.join(targetDir, "docs/assets/history/2026-04-20-phase-3.md");
+      const historyRecordPath = path.join(targetDir, "docs/assets/archive/history/2026-04-20-phase-3.md");
       mkdirSync(path.dirname(historyRecordPath), { recursive: true });
       writeFileSync(historyRecordPath, "# Phase 3 history\n", "utf8");
 
@@ -302,13 +372,13 @@ describe("uninstall command", () => {
         permissions: "allow-all",
       });
 
-      expect(result.status).toBe("completed");
-      expect(result.prunedDirectories).toContain(".make-docs");
-      expect(result.prunedDirectories).not.toContain("docs/assets/history");
+      expectCompletedUninstall(result);
+      expect(result.prunedDirectories).not.toContain(".make-docs");
+      expect(result.prunedDirectories).not.toContain("docs/assets/archive/history");
       expect(result.prunedDirectories).not.toContain("docs/assets");
-      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs"))).toBe(true);
       expect(existsSync(historyRecordPath)).toBe(true);
-      expect(existsSync(path.join(targetDir, "docs/assets/history"))).toBe(true);
+      expect(existsSync(path.join(targetDir, "docs/assets/archive/history"))).toBe(true);
       expect(existsSync(path.join(targetDir, "docs/assets"))).toBe(true);
     } finally {
       cleanupTempDir(targetDir);
@@ -330,12 +400,11 @@ describe("uninstall command", () => {
         permissions: "confirm",
       });
 
-      expect(result.status).toBe("cancelled");
-      expect(result.checkpoint).toBe("final");
+      expectCancelledUninstall(result, "final");
       expect(confirmMock).toHaveBeenCalledTimes(2);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(true);
-      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
       expect(output).toContain("Uninstall cancelled. No files were changed.");
     } finally {
       cleanupTempDir(targetDir);
@@ -362,8 +431,7 @@ describe("uninstall command", () => {
         permissions: "confirm",
       });
 
-      expect(result.status).toBe("cancelled");
-      expect(result.checkpoint).toBe("warning");
+      expectCancelledUninstall(result, "warning");
       expect(events.map((event) => event.name)).toEqual([
         "workflow",
         "uninstall:warning",
@@ -372,6 +440,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).not.toHaveBeenCalled();
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -399,8 +468,7 @@ describe("uninstall command", () => {
         permissions: "confirm",
       });
 
-      expect(result.status).toBe("cancelled");
-      expect(result.checkpoint).toBe("final");
+      expectCancelledUninstall(result, "final");
       expect(events.map((event) => event.name)).toEqual([
         "workflow",
         "uninstall:warning",
@@ -411,6 +479,7 @@ describe("uninstall command", () => {
       ]);
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18"))).toBe(false);
       expect(existsSync(path.join(targetDir, ".backup"))).toBe(false);
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -429,6 +498,9 @@ describe("uninstall command", () => {
         selections.selectedSkills = ["archive-docs"];
         selections.skillScope = "global";
       });
+      const legacyBackupFile = path.join(targetDir, ".backup/2026-04-17/AGENTS.md");
+      mkdirSync(path.dirname(legacyBackupFile), { recursive: true });
+      writeFileSync(legacyBackupFile, "legacy backup evidence\n", "utf8");
 
       const { result, output } = await captureUninstallRun({
         targetDir,
@@ -436,18 +508,27 @@ describe("uninstall command", () => {
         permissions: "allow-all",
       });
 
-      expect(result.status).toBe("completed");
+      expectCompletedUninstall(result);
       expect(createAuditReportMock).toHaveBeenCalledTimes(1);
-      expect(existsSync(path.join(targetDir, ".backup/2026-04-18/AGENTS.md"))).toBe(true);
+      expect(existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/AGENTS.md"))).toBe(true);
       expect(
-        existsSync(path.join(targetDir, ".backup/2026-04-18/_home/.agents/skills/archive-docs/SKILL.md")),
+        existsSync(
+          path.join(
+            targetDir,
+            ".make-docs/backup/2026-04-18/_home/.agents/skills/archive-docs/SKILL.md",
+          ),
+        ),
       ).toBe(true);
+      expect(
+        existsSync(path.join(targetDir, ".make-docs/backup/2026-04-18/_home/.agents/skills/archive-docs")),
+      ).toBe(true);
+      expect(existsSync(legacyBackupFile)).toBe(true);
       expect(existsSync(path.join(targetDir, "AGENTS.md"))).toBe(false);
       expect(existsSync(path.join(targetDir, "CLAUDE.md"))).toBe(false);
       expect(output).toContain("WARNING");
       expect(output).toContain("A backup will be created before removal begins.");
       expect(output).toContain("Backup destination: ");
-      expect(output).toContain(".backup/2026-04-18");
+      expect(output).toContain(".make-docs/backup/2026-04-18");
       expect(output).toContain("Uninstall complete");
       expect(confirmMock).not.toHaveBeenCalled();
     } finally {
@@ -464,14 +545,15 @@ describe("uninstall command", () => {
       await installManifest(targetDir, (selections) => {
         selections.skills = false;
       });
-      const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
-      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation(
-        (filePath) => {
+      const originalRemoveFileIfPresent = installationFiles.removeInstallationPath;
+      vi.spyOn(installationFiles, "removeInstallationPath").mockImplementation(
+        (root, relative) => {
+          const filePath = path.resolve(root, relative);
           if (filePath === path.join(targetDir, "CLAUDE.md")) {
             throw new Error("simulated delete failure");
           }
 
-          return originalRemoveFileIfPresent(filePath);
+          return originalRemoveFileIfPresent(root, relative);
         },
       );
 
@@ -496,6 +578,7 @@ describe("uninstall command", () => {
   test("routes partial failure through the renderer with partial mutation counts", async () => {
     const targetDir = createTempDir();
     const events: UninstallRendererEvent[] = [];
+    const simulatedFailurePaths = new Set([path.join(targetDir, "CLAUDE.md")]);
 
     try {
       await installManifest(targetDir, (selections) => {
@@ -504,13 +587,14 @@ describe("uninstall command", () => {
       __setLifecycleRendererForTests(
         createUninstallRecordingLifecycleRenderer(events),
       );
-      const originalRemoveFileIfPresent = fileUtils.removeFileIfPresent;
-      vi.spyOn(fileUtils, "removeFileIfPresent").mockImplementation((filePath) => {
-        if (filePath === path.join(targetDir, "CLAUDE.md")) {
+      const originalRemoveFileIfPresent = installationFiles.removeInstallationPath;
+      vi.spyOn(installationFiles, "removeInstallationPath").mockImplementation((root, relative) => {
+        const filePath = path.resolve(root, relative);
+        if (simulatedFailurePaths.has(filePath)) {
           throw new Error("simulated delete failure");
         }
 
-        return originalRemoveFileIfPresent(filePath);
+        return originalRemoveFileIfPresent(root, relative);
       });
 
       const { error } = await captureUninstallFailure({
@@ -528,8 +612,19 @@ describe("uninstall command", () => {
         "uninstall:run-confirmation",
         "uninstall:failure-summary",
       ]);
+      const auditSummary = events.find(
+        (event) => event.name === "uninstall:audit-summary",
+      );
+      expect(auditSummary).toBeDefined();
+      if (auditSummary?.name !== "uninstall:audit-summary") {
+        throw new Error("Expected the uninstall audit summary event.");
+      }
+      const firstFailedRemovalIndex = auditSummary.removableFiles.findIndex((filePath) =>
+        simulatedFailurePaths.has(filePath),
+      );
+      expect(firstFailedRemovalIndex).toBeGreaterThanOrEqual(0);
       expect(events[5]).toMatchObject({
-        removedFiles: 3,
+        removedFiles: firstFailedRemovalIndex,
         prunedDirectories: 0,
         backupStatus: "not-requested",
         errorMessage: "simulated delete failure",
@@ -563,6 +658,7 @@ type UninstallRendererEvent =
       targetDir: string;
       backupDestinationDir: string | null;
       filesToRemove: number;
+      removableFiles: string[];
       directoriesToPrune: number;
       preserved: number;
       skipped: number;
@@ -653,6 +749,9 @@ function createUninstallRecordingLifecycleRenderer(
         targetDir: summaryOptions.auditReport.targetDir,
         backupDestinationDir: summaryOptions.backupDestinationDir,
         filesToRemove: summaryOptions.auditReport.removableFiles.length,
+        removableFiles: summaryOptions.auditReport.removableFiles.map(
+          (entry) => entry.absolutePath,
+        ),
         directoriesToPrune:
           summaryOptions.auditReport.prunableDirectories.length,
         preserved: summaryOptions.auditReport.preservedPaths.length,
@@ -707,4 +806,24 @@ function createUninstallRecordingLifecycleRenderer(
 
 function getBackupStatus(result: BackupExecutionResult | null): BackupStatus {
   return result?.status ?? "not-requested";
+}
+
+function expectCompletedUninstall(
+  result: UninstallExecutionResult,
+): asserts result is Extract<UninstallExecutionResult, { status: "completed" }> {
+  expect(result.status).toBe("completed");
+  if (result.status !== "completed") {
+    throw new Error(`Expected completed uninstall, received ${result.status}.`);
+  }
+}
+
+function expectCancelledUninstall(
+  result: UninstallExecutionResult,
+  checkpoint: "warning" | "final",
+): asserts result is Extract<UninstallExecutionResult, { status: "cancelled" }> {
+  expect(result.status).toBe("cancelled");
+  if (result.status !== "cancelled") {
+    throw new Error(`Expected cancelled uninstall, received ${result.status}.`);
+  }
+  expect(result.checkpoint).toBe(checkpoint);
 }

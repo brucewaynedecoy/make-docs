@@ -7,7 +7,7 @@ Convert the approved PRD change into a scoped implementation backlog and closeou
 ## What to Build
 
 - Create `docs/work/2026-06-23-w10-r1-package-and-deployment-boundaries/` after PRD approval.
-- Add `00-index.md` plus phase files that trace to `docs/prd/16-revise-package-and-deployment-boundaries.md` and the affected baseline docs.
+- Add `00-index.md` plus phase files that trace to `docs/prd/16-package-runtime-and-deployment-boundaries.md` and the affected baseline docs.
 - Separate work for PRD/risk reconciliation, command/runtime disclosure, package validation, documentation updates, and closeout validation.
 - Include touched-file validation for docs, package metadata, package READMEs, CLI help/version behavior, and smoke-pack coverage.
 - Record final manual-test or UAT guidance for package and release-adjacent work.

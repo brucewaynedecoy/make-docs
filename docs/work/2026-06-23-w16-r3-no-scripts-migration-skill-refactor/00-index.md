@@ -1,14 +1,22 @@
 # W16 R3 No-Scripts Migration Skill Refactor Work Backlog
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes deferred MCP and Rust-parity framing in W16 R3. This completed backlog remains operation-boundary proof; W10 R8 must modularize the `operations.ts` boundary and add the required TypeScript MCP surface without reopening W16 R3.
+
+## W9 R5 Prerequisite
+
+Before executing this backlog, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-index.md). W16 R3 must treat deterministic helper scripts and prompt starters as `.make-docs/**` system resources, route guide discovery through `docs/assets/library/**`, and route history writes through `docs/assets/archive/history/**`.
+
 ## Purpose
 
-Implement the requirements captured in [26-revise-no-scripts-migration-skill-refactor.md](../../prd/26-revise-no-scripts-migration-skill-refactor.md) and planned in [W16 R3 No-Scripts Migration Skill Refactor Plan](../../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md).
+Implement the requirements captured in [25-typescript-runtime-cli-mcp-operation-boundaries.md](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency) and planned in [W16 R3 No-Scripts Migration Skill Refactor Plan](../../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md).
 
 ## Source Inputs
 
 - [No-Scripts Migration and Skill Refactor](../../designs/2026-06-20-no-scripts-migration-and-skill-refactor.md)
 - [W16 R3 plan overview](../../plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md)
-- [PRD 26](../../prd/26-revise-no-scripts-migration-skill-refactor.md)
+- former PRD 26; current authority: [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md#no-scripts-migration-dependency)
 - [Risk register](../../prd/03-open-questions-and-risk-register.md)
 
 ## Phase Map

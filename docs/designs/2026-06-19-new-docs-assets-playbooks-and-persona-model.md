@@ -1,6 +1,6 @@
 # New Docs Assets, Playbooks, and Persona Model
 
-> Filename: `2026-06-19-new-docs-assets-playbooks-and-persona-model.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-06-19-new-docs-assets-playbooks-and-persona-model.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -8,11 +8,15 @@ Define the v2 reader-facing documentation asset model for guides and playbooks, 
 
 This design is the second design in Batch 2, Canonical Information Architecture. It depends on [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), which reserves `.make-docs/**` for make-docs-owned tool resources and runtime state while leaving `docs/assets/**` available for future reader-facing reusable documentation assets.
 
+## W9 R5 Supersession
+
+[v2 Library and Archive History IA Correction](2026-06-25-v2-library-and-archive-history-ia-correction.md) supersedes this design's `docs/assets/guides/**` and history-placement assumptions. The active v2 guide/persona target is `docs/assets/library/**`, playbooks remain under `docs/assets/playbooks/**`, and history/breadcrumb records live under `docs/assets/archive/history/**`.
+
 ## Context
 
-The v2 roadmap identifies this design as the point where make-docs moves from the older `docs/guides/` plus temporary `docs/library/playbooks/` shape to the canonical `docs/assets/{guides,playbooks}/` model. The same roadmap leaves archive placement open and requires enough persona schema detail to close `Q-009` later. See [v2 Proposed Design and Roadmap](../artifacts/v2-proposed-design-and-roadmap.md).
+The v2 roadmap identifies this design as the point where make-docs moves from the older `docs/guides/` plus temporary `docs/library/playbooks/` shape to the canonical `docs/assets/{guides,playbooks}/` model. The same roadmap leaves archive placement open and requires enough persona schema detail to close `Q-009` later. See [v2 Proposed Design and Roadmap](../assets/project/v2-proposed-design-and-roadmap.md).
 
-This design is being produced from artifact roadmap inputs as an intentional source-to-design straddle. That departs from the normal lifecycle only at this design-generation step. After the v2 design set is accepted, work should return to the default arc described by [lifecycle.md](../assets/references/lifecycle.md): design -> plan -> PRD -> work -> implementation.
+This design is being produced from artifact roadmap inputs as an intentional source-to-design straddle. That departs from the normal lifecycle only at this design-generation step. After the v2 design set is accepted, work should return to the default arc described by [lifecycle.md](../../.make-docs/system/references/lifecycle.md): design -> plan -> PRD -> work -> implementation.
 
 Current repo state is mixed by design history. Active guide contracts still point to `docs/guides/developer/` and `docs/guides/user/`. The W16 lifecycle playbook created `docs/library/playbooks/agent/make-docs-lifecycle.md` as a temporary playbook home and uses `persona: "agent"` frontmatter. Older docs-assets work placed archive, history, prompts, references, and templates under `docs/assets/**`; the prior Batch 2 tool-directory design now moves product-owned prompts, references, templates, contracts, and scripts toward `.make-docs/**` instead of treating them as reader-facing docs assets.
 
@@ -104,7 +108,7 @@ Batch reconciliation must explicitly check that this design, the generated metad
 
 Update Mode: `new-doc-related`
 
-Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [Docs Assets Resource Namespace Overhaul](../assets/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Guide Structure Contract](../assets/archive/designs/2026-04-16-guide-structure-contract.md), [Coverage Pass Contract and Skill Evolution](../assets/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md), [Make Docs Lifecycle Playbook and Terminology Overlay](../assets/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
+Prior Design Docs: [Tool Directory System and Custom Resource Tiers](2026-06-19-tool-directory-system-and-custom-resource-tiers.md), [Docs Assets Resource Namespace Overhaul](../../.make-docs/archive/designs/2026-04-22-docs-assets-resource-namespace.md), [Guide Structure Contract](../../.make-docs/archive/designs/2026-04-16-guide-structure-contract.md), [Coverage Pass Contract and Skill Evolution](../../.make-docs/archive/designs/2026-05-28-coverage-pass-contract-and-skill-evolution.md), [Make Docs Lifecycle Playbook and Terminology Overlay](../../.make-docs/archive/designs/2026-05-28-make-docs-lifecycle-playbook.md)
 
 Reason: This design extends the accepted Batch 2 tool-directory decision into the reader-facing docs asset namespace. It also materially updates older docs-assets, guide, and temporary library/playbook intent by reserving `docs/assets/**` for guides and playbooks, moving archive intent to a separate lifecycle-storage surface, and making persona frontmatter the canonical targeting mechanism.
 
@@ -112,7 +116,7 @@ Reason: This design extends the accepted Batch 2 tool-directory decision into th
 
 Route: `change-plan`
 
-Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 
 Why: This design revises active path assumptions, guide/playbook routing, archive placement, coverage persona targeting, template/package/dogfood expectations, and future validation surfaces. It should become a change plan rather than a baseline plan.
 

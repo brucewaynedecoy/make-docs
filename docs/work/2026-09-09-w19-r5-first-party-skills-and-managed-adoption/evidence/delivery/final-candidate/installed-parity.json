@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "installed": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "packed": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/extracted/package",
+  "tarSha256": "6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade",
+  "checks": {
+    "dist": {
+      "equal": true,
+      "entries": 34
+    },
+    "template": {
+      "equal": true,
+      "entries": 105
+    },
+    "skill-registry.json": {
+      "equal": true,
+      "sha256": "49ca54af71c35052c427b6992d2fb001f10b7ec097d73e76734eb4397dd37318"
+    },
+    "skill-registry.schema.json": {
+      "equal": true,
+      "sha256": "44eb33fb2e605ad7783f84c1d550d242da849f36b8f6987d7b9ae406298a5962"
+    },
+    "package.json": {
+      "equal": true,
+      "sha256": "b6c00f563c0b34f1170decfbdd5b82ed31158ea30caa74b98cc59b8838d96e69"
+    }
+  }
+}

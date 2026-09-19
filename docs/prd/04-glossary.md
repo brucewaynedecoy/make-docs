@@ -2,47 +2,121 @@
 
 ## Purpose
 
-This glossary defines the typed and operational vocabulary used across the active `make-docs` PRD set. The most important terms come directly from the CLI contracts in `packages/cli/src/types.ts:1-271`, the profile and manifest logic in `packages/cli/src/profile.ts:10-99` and `packages/cli/src/manifest.ts:18-245`, the static asset pipeline in `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts`, and the lifecycle boundary in `packages/cli/src/audit.ts:41-940`.
+This glossary defines the typed and operational vocabulary used across the active `make-docs` PRD set. The most important terms come directly from the CLI contracts in `packages/cli/src/types.ts`, the profile and manifest logic in `packages/cli/src/profile.ts` and `packages/cli/src/manifest.ts`, the static asset pipeline in `packages/cli/src/rules.ts` and `packages/cli/src/catalog.ts`, and the lifecycle boundary in `packages/cli/src/audit.ts`.
 
 ## Terms
 
 | Term | Meaning | Key anchors |
 | --- | --- | --- |
-| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `docs/assets/references/output-contract.md`. | `docs/assets/references/output-contract.md`, `README.md:8068-8609` |
-| Capability | One of `designs`, `plans`, `prd`, or `work`. Capabilities are the top-level docs families the installer can enable or disable. | `packages/cli/src/types.ts:1-3` |
-| Effective capability | The runtime-enabled form of a capability after prerequisite enforcement. A capability can remain selected but ineffective when its dependencies are disabled. | `packages/cli/src/profile.ts:10-15`, `packages/cli/src/profile.ts:42-65` |
-| Harness | One of `claude-code` or `codex`. Harness selection controls which root instruction file is active and which skill install roots are used. | `packages/cli/src/types.ts:9-18`, `packages/cli/src/skill-catalog.ts:18-46` |
-| Instruction kind | The file-level harness marker, either `AGENTS.md` or `CLAUDE.md`. Active instruction kinds expand across root, docs, and asset routers. | `packages/cli/src/types.ts:5-18`, `packages/cli/src/catalog.ts:23-61` |
-| Install selections | The raw user intent captured before capability resolution, including harnesses, skills, selected skill names, prompt starters, and template/reference modes. | `packages/cli/src/types.ts:38-58`, `packages/cli/src/cli.ts:295-346` |
-| Install profile | The resolved installation state produced from selections, including `capabilityState`, `effectiveCapabilities`, and a stable `profileId`. | `packages/cli/src/types.ts:68-74`, `packages/cli/src/profile.ts:68-99` |
-| Profile ID | The deterministic hash of the resolved install profile. It lets later syncs compare precise profile state rather than a vague installed/not-installed flag. | `packages/cli/src/profile.ts:74-92` |
-| Install manifest | The persisted managed-state record written to `.make-docs/manifest.json`, including selections, effective capabilities, managed files, and managed skill files. | `packages/cli/src/types.ts:87-97`, `packages/cli/src/manifest.ts:18-101` |
-| Resolved asset | The normalized unit of desired installer output. Each asset carries `relativePath`, `assetClass`, `sourceId`, and final `content`. | `packages/cli/src/types.ts:75-80`, `packages/cli/src/catalog.ts:64-85` |
-| Scoped-static asset | A copied asset that still participates in profile-aware inclusion rules. Most references, templates, and prompts are installed this way. | `packages/cli/src/catalog.ts:7-20`, `packages/cli/src/utils.ts:49-55` |
-| Managed instruction block | The delimited make-docs-owned region inside any installed `AGENTS.md` or `CLAUDE.md`; manifest hashes and updates apply to the block body, while text outside the markers is user-owned. | `packages/cli/src/managed-block.ts`, `packages/cli/src/manifest.ts`, `packages/cli/src/planner.ts` |
-| Planned action | The unit of installer or skills-only work in an `InstallPlan`. Internal action types include `create`, `generate`, `update`, `update-conflict`, `noop`, `remove-managed`, `skip`, and `skip-conflict`; final user-facing plan output renders them as `generate`, `update`, `skip`, or `remove`. `skip` records an explicit preserve decision, while `skip-conflict` is an internal unresolved or preserved-conflict marker rather than a final operation label. | `packages/cli/src/types.ts:29-129`, `packages/cli/src/planner.ts:19-390`, `packages/cli/src/cli.ts:812-855`, `packages/cli/src/skills-ui.ts:501-539` |
-| Conflict staging | The non-destructive behavior where generated replacements for locally modified managed files are written under `.make-docs/conflicts/<run-id>/...` instead of overwriting the user’s copy. | `packages/cli/src/install.ts:166-240`, `packages/cli/src/utils.ts:87` |
-| Skill scope | Whether installed skills live in the target project or in the user’s home directory. Global installs later surface in audit and backup as `_home/...` paths. | `packages/cli/src/skill-catalog.ts:33-46`, `packages/cli/src/manifest.ts:135-183` |
-| Managed skill file | A skill asset tracked separately from ordinary scaffold files inside `manifest.skillFiles`. Skills-only operations depend on that split. | `packages/cli/src/types.ts:87-97`, `packages/cli/src/install.ts:96-163`, `packages/cli/src/planner.ts:204-390` |
-| Audit report | The shared lifecycle classification that partitions managed state into `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths`. | `packages/cli/src/types.ts:241-271`, `packages/cli/src/audit.ts:41-79` |
-| Prunable directory | A directory the audit engine can prove will be empty after approved removals, allowing uninstall to remove it safely. | `packages/cli/src/audit.ts:577-724` |
-| Dogfood surface | The repo-root `docs/` tree used by this project to exercise the same template contracts and workflows it ships to consumers. | `README.md:313-3056`, `packages/docs/README.md:50-121`, `packages/cli/src/utils.ts:33-55` |
-| Prepack bundle | The packaged CLI state after `prepack` copies `packages/docs/template/` into `packages/cli/template/` and builds the CLI output. | `packages/cli/package.json:19-25`, `scripts/copy-template-to-cli.mjs:24-32` |
-| Smoke-pack | The end-to-end packaged validation script that proves prepack, tarball creation, installer behavior, skills, backup, and uninstall still agree. | `scripts/smoke-pack.mjs:60-246` |
-| Reserved content package | The future-facing `packages/content/` workspace described in `README.md:10-17`, which still lacks a live selector or release contract. | `README.md:10-17`, `packages/cli/src/catalog.ts:64-85` |
+| System resource | A reusable Make Docs-owned `contract`, `prompt`, `reference`, or `template` with stable identity, typed content, provider provenance, and CLI/MCP availability independent of project-local projection. The four resource types are peers. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Contract | A normative system resource that defines reusable behavior, constraints, or validation rules. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
+| Prompt | A first-class system resource containing reusable workflow or agent instructions. A Prompt is not hidden inside a Reference, Skill, CLI implementation, plugin, or package. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
+| Reference | An explanatory system resource containing guidance or workflow context without becoming the normative Contract or executable behavior. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
+| Template | A reusable authored output shape delivered as a system resource. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
+| System-resource URI | The stable identity `make-docs://system/<type>/<posix-relative-path>`, where `<type>` is singular `contract`, `prompt`, `reference`, or `template`. It identifies logical content rather than an installation path. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Resource provider | The installed machine/package source that lists and reads immutable Make Docs system resources when a trustworthy project-local resource does not supply the selected identity. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Project projection | An optional local materialization of selected system-resource bodies under `.make-docs/system/{contracts,prompts,references,templates}/`. The configured-harness router skeleton and typed directories are always local. Resource list/read availability does not require projected bodies. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md) |
+| Resource provenance | Typed evidence identifying a resource's logical identity, origin/provider, package version or immutable reference, ownership class, local path when applicable, and content digest. A matching digest proves bytes, not trust or managed ownership. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 18](18-compatibility-classification-and-migration-safety.md) |
+| Router | A small harness-appropriate instruction surface that directs readers or agents to stable resource identities and typed CLI/MCP operations without duplicating policy or performing hidden mutation. | [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
+| Playbook | Not a current Make Docs v2 product capability, document kind, asset family, operation family, execution model, packaging surface, or support claim. Playbook-named project content and Store data are handled only through conservative legacy classification and compatibility rules. | [PRD 34](34-playbook-authoring-contract-and-model.md), [PRD 35](35-run-playbook-state-machine-and-portability.md), [PRD 38](38-global-store-and-project-state.md) |
+| Protocol | Not a current Make Docs v2 capability or compatibility promise and not a replacement name or placeholder for Playbooks. Protocol-named content is treated only as legacy or unknown input under current compatibility authority. | [PRD 34](34-playbook-authoring-contract-and-model.md), [PRD 18](18-compatibility-classification-and-migration-safety.md) |
+| General run | A lightweight current-state record in the Global Store's `runs` relation. Make Docs v2 admits only `lifecycle` as `run_type`; wave, phase, operation, UAT, and local labels remain bounded metadata. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Run evidence | A bounded, non-authoritative reference in `run_evidence` that points to project-relative or sanitized external evidence with stable identity, kind, optional digest, and timestamp. It does not store evidence payloads or prove the underlying lifecycle outcome. | [PRD 38](38-global-store-and-project-state.md) |
+| Persona | An audience identity with `slug`, `label`, `description`, and `primitive`. Fixed built-ins are `user` and `maintainer`; custom Personas map to one of those two primitives. Humans and agents can fill either role. Audience does not prove tester qualification. | [PRD 47](47-persona-model.md), [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Shared project assets | Non-authoritative material used across audiences under content-driven `docs/assets/project/`. The reserved `project` path is not a Persona. | [PRD 22](22-project-documentation-asset-model.md) |
+| Effective Persona set | The two shipped defaults merged by slug with valid configured display overrides and custom entries. Missing or empty configuration keeps both defaults. | [PRD 24](24-project-configuration-and-convention-overlay.md), [PRD 47](47-persona-model.md) |
+| Reviewed layout operation | A CLI-prepared Store record that binds the source inventory, destination map, expected content, link repairs, and recovery checks for CLI or manual execution. | [PRD 18](18-compatibility-classification-and-migration-safety.md) |
+| Automated Implementation Testing | Agent-run or automated proof that changed behavior satisfies focused assertions and has not caused a relevant regression. It uses focused, expanded, or release-grade scope under current authority. | [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Performance Testing | Agent-coordinated evidence that answers an accepted performance decision for the current maturity, risk, and support scope. | [PRD 48](48-performance-evidence-governance.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Guided Progress Review | A short prepared path that lets an owner, maintainer, or developer experience and understand meaningful progress with agent guidance. It is never a hard gate. | [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Unassisted Goal Test | A qualified human attempt to understand and complete a meaningful goal from allowed public or starting information without private coaching. It is advisory by default. | [PRD 46](46-naive-end-user-acceptance-testing.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Human Experience Review | A review lens that checks evidence and the built result against accepted experience promises. It can reuse evidence from suitable testing or expert review and is not a fifth core testing type. | [PRD 49](49-human-experience-standard-and-intent.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Gate effect | One explicit testing effect: `blocking-current-work`, `blocking-claim-only`, `advisory`, `informational`, or `not-applicable`. | [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Not needed now | A valid testing decision that evidence cannot change a current product, implementation, release, or human decision. It is not a failed test or a deferred obligation. | [PRD 45](45-deferred-obligation-governance.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Thin Skill | An explicitly selected optional access adapter whose shims only adapt arguments or format receipts while delegating to the same typed Make Docs CLI operations. It owns no policy, resource copies, state machine, evidence semantics, or correctness behavior. | [PRD 08](08-skills-catalog-and-distribution.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md), [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Active PRD set | The current live PRD namespace rooted at `docs/prd/`, with a fixed core of `00` through `04` plus adaptive subsystem/reference docs `05+` as required by `.make-docs/system/contracts/output-contract.md`. | `.make-docs/system/contracts/output-contract.md`, `README.md` |
+| Capability | One of `designs`, `plans`, `prd`, or `work`. Capabilities are the top-level docs families the installer can enable or disable. | `Capability` in `packages/cli/src/types.ts` |
+| Effective capability | The runtime-enabled form of a capability after prerequisite enforcement. A capability can remain selected but ineffective when its dependencies are disabled. | `CAPABILITY_DEPENDENCIES` and `resolveCapabilityState` in `packages/cli/src/profile.ts` |
+| Harness | One of `claude-code` or `codex`. Harness selection controls which root instruction file is active and which skill install roots are used. | `Harness` in `packages/cli/src/types.ts`; `getDesiredSkillAssets` in `packages/cli/src/skill-catalog.ts` |
+| Instruction kind | The file-level harness marker, either `AGENTS.md` or `CLAUDE.md`. Active instruction kinds expand across root, docs, and asset routers. | `InstructionKind` and `getActiveInstructionKinds` in `packages/cli/src/types.ts`; `getDesiredAssets` in `packages/cli/src/catalog.ts` |
+| Install selections | The raw user intent captured before capability resolution: capabilities, harnesses, skill enablement, skill scope, and explicitly selected skill names. Prompt starters, document templates, and references are invariant managed assets for their owning capabilities and are not selection fields. | [05-installation-profile-and-manifest-lifecycle.md](05-installation-profile-and-manifest-lifecycle.md), [08-skills-catalog-and-distribution.md](08-skills-catalog-and-distribution.md) |
+| Install profile | The resolved installation state produced from selections, including `capabilityState`, `effectiveCapabilities`, and a stable `profileId`. | `InstallProfile` in `packages/cli/src/types.ts`; `resolveInstallProfile` in `packages/cli/src/profile.ts` |
+| Profile ID | The deterministic hash of the resolved install profile. It lets later syncs compare precise profile state rather than a vague installed/not-installed flag. | `resolveInstallProfile` in `packages/cli/src/profile.ts` |
+| Install manifest | The Store-owned applied installation record, including selections, ownership, hashes, and managed files. `.make-docs/manifest.json` is legacy transfer input only. | [PRD 38](38-global-store-and-project-state.md), [PRD 05](05-installation-profile-and-manifest-lifecycle.md) |
+| Resolved asset | The normalized unit of desired installer output. Each asset carries `relativePath`, `assetClass`, `sourceId`, and final `content`. | `ResolvedAsset` in `packages/cli/src/types.ts`; `getDesiredAssets` in `packages/cli/src/catalog.ts` |
+| Scoped-static asset | A copied asset that still participates in profile-aware inclusion rules. Most references, templates, and prompts are installed this way. | `getDesiredAssets` in `packages/cli/src/catalog.ts`; `readPackageFile` in `packages/cli/src/utils.ts` |
+| Managed instruction block | The delimited make-docs-owned region inside any installed `AGENTS.md` or `CLAUDE.md`; manifest hashes and updates apply to the block body, while text outside the markers is user-owned. | `renderManagedBlock`, `parseManagedBlock`, and `upsertManagedBlock` in `packages/cli/src/managed-block.ts`; manifest records in `packages/cli/src/manifest.ts`; `createInstallPlan` in `packages/cli/src/planner.ts` |
+| Planned action | The unit of installer or skills-only work in an `InstallPlan`. Internal action types include `create`, `generate`, `update`, `update-conflict`, `noop`, `remove-managed`, `skip`, and `skip-conflict`; final user-facing plan output renders them as `generate`, `update`, `skip`, or `remove`. `skip` records an explicit preserve decision, while `skip-conflict` is an internal unresolved or preserved-conflict marker rather than a final operation label. | `PlannedAction` and `InstallPlan` in `packages/cli/src/types.ts`; `createInstallPlan` in `packages/cli/src/planner.ts`; `getRenderedActions` in `packages/cli/src/cli.ts`; `getRenderedSkillActions` in `packages/cli/src/skills-ui.ts` |
+| Conflict staging | The non-destructive behavior where generated replacements for locally modified managed files are written under `.make-docs/conflicts/<run-id>/...` instead of overwriting the user’s copy. | `applyInstallPlan` in `packages/cli/src/install.ts`; `createRunId` in `packages/cli/src/utils.ts` |
+| Skill scope | Whether installed skills live in the target project or in the user’s home directory. Global installs later surface in audit and backup as `_home/...` paths. | `getDesiredSkillAssets` in `packages/cli/src/skill-catalog.ts`; `createAuditPathMetadata` in `packages/cli/src/manifest.ts` |
+| Managed skill file | A skill asset tracked separately from ordinary scaffold files inside `manifest.skillFiles`. Skills-only operations depend on that split. | `InstallManifest` in `packages/cli/src/types.ts`; `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts`; `createSkillsOnlyInstallPlan` in `packages/cli/src/planner.ts` |
+| Audit report | The shared lifecycle classification that partitions managed state into `removableFiles`, `prunableDirectories`, `preservedPaths`, and `skippedPaths`. | `AuditReport` in `packages/cli/src/types.ts`; `createAuditReport` in `packages/cli/src/audit.ts` |
+| Prunable directory | A directory the audit engine can prove will be empty after approved removals, allowing uninstall to remove it safely. | `classifyPrunableDirectories` in `packages/cli/src/audit.ts` |
+| Dogfood surface | The repo-root `docs/` tree used by this project to exercise the same template contracts and workflows it ships to consumers. | `README.md`, `packages/docs/README.md`, `packages/cli/src/utils.ts` |
+| Prepack bundle | The packaged CLI state after `prepack` copies `packages/docs/template/` into `packages/cli/template/` and builds the CLI output. | `packages/cli/package.json`, `scripts/copy-template-to-cli.mjs` |
+| Smoke-pack | The end-to-end packaged validation script that proves prepack, tarball creation, installer behavior, skills, backup, and uninstall still agree. | `scripts/smoke-pack.mjs` |
+| Content-fragment feature | A possible future feature that could build Markdown from structured content fragments. It is a current non-goal, has no reserved package, and requires a new accepted design and owning PRD authority before implementation. | [PRD 01](01-product-overview.md), [PRD 03](03-open-questions-and-risk-register.md) |
+| Deferred obligation | An accepted required outcome that cannot be completed at its current work coordinate and therefore has an owner, trigger, target coordinate, dependencies, exit criteria, status, and durable `O-###` identity. | [PRD 45](45-deferred-obligation-governance.md) |
+| Orphan finding | An accepted incomplete outcome that is neither completed nor represented by a valid deferred obligation with a future consumption route. | [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) |
+| Orphan audit | The mandatory, non-persona-scoped phase-close classification of accepted incomplete outcomes as completed, obligated, rejected, superseded, or unresolved blockers. | [PRD 45](45-deferred-obligation-governance.md) |
+| Phase complete | The current phase passed its gate and has no orphaned accepted outcomes; this says nothing stronger about the whole capability. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability partial | Some accepted capability outcomes are delivered while other accepted outcomes remain represented by active or deferred obligations. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability complete | Every accepted outcome for the capability is fulfilled or intentionally terminated with authoritative rationale. | [PRD 45](45-deferred-obligation-governance.md) |
+| Capability status unverified | The available evidence is insufficient to classify the capability as partial or complete. | [PRD 45](45-deferred-obligation-governance.md) |
+| Naive tester | Compatibility term for a qualified human or isolated agent with no private path or answer knowledge. Current human-facing language uses the executor of an Unassisted Goal Test. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Naive end-user UAT | Historical and compatibility name for Unassisted Goal Testing. Existing `R-NUAT-*` and `NUAT-###` identities remain valid, but current activation and gate rules come from PRDs 46 and 50. | [PRD 46](46-naive-end-user-acceptance-testing.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md) |
+| Installed product | The product surface a real user would actually receive and use, including its supported setup path and user-facing instructions, rather than source code, internal fixtures, or a developer-only shortcut. | [R-NUAT-SCOPE](46-naive-end-user-acceptance-testing.md#r-nuat-scope-qualified-tester-and-installed-product) |
+| User-observable slice | A product increment that a real user can meaningfully perceive, attempt, understand, or complete through an installed product workflow. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Tester packet | The minimum installed-product access, user-facing instructions, scenario goal, setup, safety boundaries, and evidence-capture directions given to a naive tester. | [PRD 46](46-naive-end-user-acceptance-testing.md) |
+| Operator view | Facilitator/developer-only scenario information such as setup, teardown, safety intervention, evidence handling, and requirement traceability that must not leak expected steps or answers to the tester. | [R-NUAT-SCENARIO](46-naive-end-user-acceptance-testing.md#r-nuat-scenario-scenario-identity-and-artifact-contract) |
+| Anti-coaching | The rule that a tester packet cannot reveal internal terms, architecture, hidden steps, expected answers, or workaround instructions that compensate for product discoverability failures. | [R-NUAT-GOAL](46-naive-end-user-acceptance-testing.md#r-nuat-goal-real-world-goals-and-anti-coaching) |
+| Unassisted result: clear | The person understood and attempted the goal without material hidden help or material friction that changes the current decision. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Unassisted result: friction | The attempt exposed confusion, excess effort, a wrong mental model, weak recovery, or another material human-experience issue. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Unassisted result: blocked | The product or environment prevented a valid attempt. It does not by itself prove product acceptance or failure. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Unassisted result: invalid-run | Coaching, prior private knowledge, broken setup, evidence loss, or another validity failure prevents a human conclusion. | [R-NUAT-EVIDENCE](46-naive-end-user-acceptance-testing.md#r-nuat-evidence-setup-outcomes-findings-and-reproducibility) |
+| Support-scope cell | One specific product-surface and support-context combination—such as platform, interface, input mode, or accessibility basis—that needs its own evidence when Make Docs makes a support claim for it. | [R-NUAT-SCOPE-MATRIX](46-naive-end-user-acceptance-testing.md#r-nuat-scope-matrix-cross-platform-visual-and-accessibility-scope) |
+| Project State | The operational project-scoped state surface that may hold execution progress and evidence pointers while repository artifacts retain semantic authority. | [PRD 38](38-global-store-and-project-state.md) |
+| Project State evidence reference | A non-authoritative operational pointer, identifier, timestamp, or run record that helps locate execution evidence; repository requirements, scenarios, findings, and terminal rationales remain the product authority. | [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) |
+
+## Requirement History
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Terms` — Persona, Install manifest, Shared project assets, Effective Persona set, Reviewed layout operation.
+- Previous contract: Persona was described only as a configured identity, and Install manifest still named a project-local file.
+- Replacement contract: Two fixed audience defaults merge with custom entries; shared project material has a reserved path; reviewed layout progress and installation records live in the Store.
+- Rationale: Align stable vocabulary with current owners and remove stale local-state and asset-discovery guidance. This records the R4 draft target, not completed runtime work.
+- Source: [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
 
 ## Source Anchors
 
-- `docs/assets/references/output-contract.md`
-- `README.md:313-3056`
-- `packages/cli/src/types.ts:1-271`
-- `packages/cli/src/profile.ts:10-99`
-- `packages/cli/src/manifest.ts:18-245`
-- `packages/cli/src/catalog.ts:7-85`
-- `packages/cli/src/planner.ts:19-390`
-- `packages/cli/src/install.ts:96-240`
-- `packages/cli/src/skill-catalog.ts:18-138`
-- `packages/cli/src/audit.ts:41-940`
-- `packages/cli/package.json:19-25`
-- `scripts/copy-template-to-cli.mjs:24-32`
-- `scripts/smoke-pack.mjs:60-246`
+- [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)
+- [Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md)
+- [Performance Evidence Governance](48-performance-evidence-governance.md)
+- [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
+
+- `docs/prd/45-deferred-obligation-governance.md`
+- `docs/prd/46-naive-end-user-acceptance-testing.md`
+- `docs/designs/2026-07-27-deferred-obligations-and-anti-orphan-governance.md`
+- `docs/designs/2026-07-27-true-naive-end-user-acceptance-testing.md`
+
+- `.make-docs/system/contracts/output-contract.md`
+- `README.md`
+- `packages/cli/src/types.ts`
+- `packages/cli/src/profile.ts`
+- `packages/cli/src/manifest.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/planner.ts`
+- `packages/cli/src/install.ts`
+- `packages/cli/src/skill-catalog.ts`
+- `packages/cli/src/audit.ts`
+- `packages/cli/package.json`
+- `scripts/copy-template-to-cli.mjs`
+- `scripts/smoke-pack.mjs`
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
+- `docs/prd/21-project-tool-directory-and-resource-tiers.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/prd/38-global-store-and-project-state.md`
+- `docs/prd/47-persona-model.md`
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`

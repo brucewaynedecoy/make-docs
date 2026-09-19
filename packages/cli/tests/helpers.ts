@@ -1,23 +1,92 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { vi } from "vitest";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { loadManifest } from "../src/manifest";
+import { getManifestPath, loadManifest, mintProjectId, validateAndMigrateManifest, writeManifest } from "../src/manifest";
 import { defaultSelections } from "../src/profile";
+import type {
+  InstallManifest,
+  InstallProfile,
+  ManifestFileEntry,
+  PackageMeta,
+  SystemAssetManifestState,
+} from "../src/types";
+import { assertNoRepoRunState, trackTempDir, untrackTempDir } from "./run-state-boundary";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const RAW_REPO_PREFIX = "https://raw.githubusercontent.com/brucewaynedecoy/make-docs/main/";
 
 export type TestInstallSelections = ReturnType<typeof defaultSelections>;
 
+export function createLegacyTestManifest(
+  packageMeta: PackageMeta,
+  profile: InstallProfile,
+  files: Record<string, ManifestFileEntry>,
+  skillFiles: string[],
+  systemAssetMaterialization: SystemAssetManifestState,
+  projectId: string,
+): InstallManifest {
+  return {
+    schemaVersion: 3,
+    projectId,
+    packageName: packageMeta.name,
+    packageVersion: packageMeta.version,
+    updatedAt: new Date().toISOString(),
+    profileId: profile.profileId,
+    selections: profile.selections,
+    effectiveCapabilities: profile.effectiveCapabilities,
+    systemAssetMaterialization,
+    files,
+    skillFiles,
+  };
+}
+
+/**
+ * Renders one entry of the v2 fenced `playbook` dependencies block as builder
+ * lines (PRD 40 R-DEP-2). `usedBy` accepts comma-separated step ids; `probe`
+ * is optional and defaults to `id` at parse time.
+ */
+export function dependencyEntryLines(
+  id: string,
+  kind: string,
+  requirement: string,
+  source: string,
+  usedBy: string,
+  fallback: string,
+  options: { probe?: string } = {},
+): string[] {
+  const usedByList = usedBy
+    .split(",")
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .join(", ");
+  return [
+    `  - id: ${id}`,
+    `    kind: ${kind}`,
+    `    requirement: ${requirement}`,
+    ...(options.probe ? [`    probe: ${options.probe}`] : []),
+    `    source: ${source}`,
+    `    used_by: [${usedByList}]`,
+    `    fallback: ${fallback}`,
+  ];
+}
+
 export function createTempDir(prefix = "make-docs-test-"): string {
-  return mkdtempSync(path.join(os.tmpdir(), prefix));
+  const tempDir = mkdtempSync(path.join(os.tmpdir(), prefix));
+  // Registered for the suite-wide R-TEST-5 run-state boundary sweep; see
+  // tests/run-state-boundary.ts.
+  trackTempDir(tempDir);
+  return tempDir;
 }
 
 export function cleanupTempDir(targetDir: string): void {
+  // Suite-enforced R-TEST-5 boundary check: fail the owning test if any
+  // Playbook run state landed under `.make-docs/runs/` in this fixture.
+  assertNoRepoRunState(targetDir);
   rmSync(targetDir, { recursive: true, force: true });
+  untrackTempDir(targetDir);
 }
 
 export function collectFiles(rootDir: string): string[] {
@@ -60,6 +129,57 @@ export async function installMakeDocsTarget(
     plan,
     existingManifest,
   });
+}
+
+/**
+ * Writes a minimal but fully valid `.make-docs/manifest.json` carrying a
+ * manifest-minted project identifier, without running the full installer.
+ * Fixtures that exercise identity-keyed operations (lifecycle evidence,
+ * registry mirroring) use this to stay fast.
+ */
+export function writeLegacyMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
+  const manifestPath = getManifestPath(targetDir);
+  mkdirSync(path.dirname(manifestPath), { recursive: true });
+  writeFileSync(
+    manifestPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: 2,
+        projectId,
+        packageName: "make-docs-test",
+        packageVersion: "0.0.0-test",
+        updatedAt: new Date().toISOString(),
+        profileId: "test",
+        selections: {
+          capabilities: { designs: true, plans: true, prd: true, work: true },
+          harnesses: { "claude-code": true, codex: true },
+          skills: false,
+          skillScope: "project",
+          selectedSkills: [],
+          plugins: false,
+          pluginScope: "project",
+          selectedPlugins: [],
+        },
+        effectiveCapabilities: ["designs", "plans", "prd", "work"],
+        files: {},
+        skillFiles: [],
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+  return projectId;
+}
+
+/** Create current Store-owned fixture state and its portable config identity. */
+export function writeMinimalManifest(targetDir: string, projectId = mintProjectId()): string {
+  writeLegacyMinimalManifest(targetDir, projectId);
+  const legacyPath = getManifestPath(targetDir);
+  const manifest = validateAndMigrateManifest(JSON.parse(readFileSync(legacyPath, "utf8")), legacyPath);
+  rmSync(legacyPath);
+  writeManifest(targetDir, manifest);
+  return projectId;
 }
 
 export function mockHomeDirectory(homeDir: string): () => void {

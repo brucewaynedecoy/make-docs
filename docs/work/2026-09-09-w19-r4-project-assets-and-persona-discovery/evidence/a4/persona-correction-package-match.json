@@ -1,0 +1,147 @@
+{
+  "checkedAt": "2026-09-09T19:37:45.888333+00:00",
+  "tarball": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+  "tarballSha256": "8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e",
+  "requestedTarballSha256": "8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e",
+  "packageRoot": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "packageVersion": "2.0.0-rc",
+  "installedEntrypointSha256": "73d12deaa7130ca8f140d20b0fd4e58920c0a726a403fbbe1ea8f954ae803702",
+  "status": "match",
+  "routerCount": 12,
+  "routers": [
+    {
+      "path": ".make-docs/AGENTS.md",
+      "tarMember": "package/template/.make-docs/AGENTS.md",
+      "packedTemplateSha256": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",
+      "installedTemplateSha256": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",
+      "selectedRenderingSha256": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",
+      "fixtureSha256": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",
+      "originalFixtureSha256": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": ".make-docs/system/AGENTS.md",
+      "tarMember": "package/template/.make-docs/system/AGENTS.md",
+      "packedTemplateSha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6",
+      "installedTemplateSha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6",
+      "selectedRenderingSha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6",
+      "fixtureSha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6",
+      "originalFixtureSha256": "59de6dc2d2d9c03801683d94d48d662cf53e7c99a91b38231e105bcd07b7bad6",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": ".make-docs/system/contracts/AGENTS.md",
+      "tarMember": "package/template/.make-docs/system/contracts/AGENTS.md",
+      "packedTemplateSha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "installedTemplateSha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "selectedRenderingSha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "fixtureSha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "originalFixtureSha256": "3e14dba271a81d9c42a6bcf8c6314900243ee306d5b7f269f99dd454be930de7",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": ".make-docs/system/prompts/AGENTS.md",
+      "tarMember": "package/template/.make-docs/system/prompts/AGENTS.md",
+      "packedTemplateSha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92",
+      "installedTemplateSha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92",
+      "selectedRenderingSha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92",
+      "fixtureSha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92",
+      "originalFixtureSha256": "173d7a07da8cd2894e49fe462ab2f90174dec0fab2ebcc8acdbc7737d4cdcb92",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": ".make-docs/system/references/AGENTS.md",
+      "tarMember": "package/template/.make-docs/system/references/AGENTS.md",
+      "packedTemplateSha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da",
+      "installedTemplateSha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da",
+      "selectedRenderingSha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da",
+      "fixtureSha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da",
+      "originalFixtureSha256": "8ea88c24da7c533d1fc6160cf20908bc0eb45a7e14ad23af8005102c8cca01da",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": ".make-docs/system/templates/AGENTS.md",
+      "tarMember": "package/template/.make-docs/system/templates/AGENTS.md",
+      "packedTemplateSha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "installedTemplateSha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "selectedRenderingSha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "fixtureSha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "originalFixtureSha256": "60044955cda279eecab418431ba8a33ae1083b9f37bef0d19dee852078e6fde0",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": "AGENTS.md",
+      "tarMember": "package/template/AGENTS.md",
+      "packedTemplateSha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6",
+      "installedTemplateSha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6",
+      "selectedRenderingSha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6",
+      "fixtureSha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6",
+      "originalFixtureSha256": "57876063c220850d8a8e272b5dac1a68136b087eaaeb0c3595b786233a7fcff6",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": "docs/AGENTS.md",
+      "tarMember": "package/template/docs/AGENTS.md",
+      "packedTemplateSha256": "56663e271f6350967d9c1b9403b5f58624acc62d68ab6449bf9c5bcee170efcf",
+      "installedTemplateSha256": "56663e271f6350967d9c1b9403b5f58624acc62d68ab6449bf9c5bcee170efcf",
+      "selectedRenderingSha256": "13f4b386969083d15ec9a254d0520f7432288a99c41b052461b244042733ea27",
+      "fixtureSha256": "13f4b386969083d15ec9a254d0520f7432288a99c41b052461b244042733ea27",
+      "originalFixtureSha256": "13f4b386969083d15ec9a254d0520f7432288a99c41b052461b244042733ea27",
+      "matches": true,
+      "selectionRendering": "Exact Codex-only harness declaration substitution: AGENTS.md, CLAUDE.md -> AGENTS.md. No other bytes normalized."
+    },
+    {
+      "path": "docs/designs/AGENTS.md",
+      "tarMember": "package/template/docs/designs/AGENTS.md",
+      "packedTemplateSha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767",
+      "installedTemplateSha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767",
+      "selectedRenderingSha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767",
+      "fixtureSha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767",
+      "originalFixtureSha256": "2f5143c2e7203e29641f52bb06155a07eb05c1a4488485868f719f0f63c0a767",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": "docs/plans/AGENTS.md",
+      "tarMember": "package/template/docs/plans/AGENTS.md",
+      "packedTemplateSha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82",
+      "installedTemplateSha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82",
+      "selectedRenderingSha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82",
+      "fixtureSha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82",
+      "originalFixtureSha256": "34ba6850f6ce71bbd1e56de9c1520c6021e5c4279baef9cdf23dfd1334f25d82",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": "docs/prd/AGENTS.md",
+      "tarMember": "package/template/docs/prd/AGENTS.md",
+      "packedTemplateSha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656",
+      "installedTemplateSha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656",
+      "selectedRenderingSha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656",
+      "fixtureSha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656",
+      "originalFixtureSha256": "d6478dd18f3a3d7f7ea9ce408bebf514c47427549b8ac7a6235a7529b596f656",
+      "matches": true,
+      "selectionRendering": null
+    },
+    {
+      "path": "docs/work/AGENTS.md",
+      "tarMember": "package/template/docs/work/AGENTS.md",
+      "packedTemplateSha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243",
+      "installedTemplateSha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243",
+      "selectedRenderingSha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243",
+      "fixtureSha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243",
+      "originalFixtureSha256": "d20e7e06970adfa86dc45d9f81bff8849315fa63c1598b1fe276ab741534e243",
+      "matches": true,
+      "selectionRendering": null
+    }
+  ],
+  "priorComparison": "/tmp/w19-r4-a4-evidence-oa0zj4qs/prior-package-match-90aa7b8a.json",
+  "limits": "Read-only packed and installed template-byte comparison against the original A4 fixture for the exact Codex-only selection. No new installation, Store operation, or fresh agent run. The docs router has the one documented harness selection substitution."
+}
