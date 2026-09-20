@@ -46,6 +46,14 @@ export type PreparedBackupExecution = {
   materializableDirectories: MaterializableAuditDirectory[];
 };
 
+export function compareBackupRelativePathDepth(
+  left: string,
+  right: string,
+): number {
+  const depth = (value: string) => value.split(/[\\/]+/u).filter(Boolean).length;
+  return depth(left) - depth(right);
+}
+
 export async function runBackupCommand(
   options: BackupCommandOptions,
 ): Promise<BackupExecutionResult> {
@@ -166,7 +174,8 @@ export function executePreparedBackup(
     const changes: Array<() => void> = [preparePlannedFileChange(targetDir, path.relative(targetDir, destination), { kind: "directory" }, () => mkdirSync(destination, { recursive: true }))];
     const copiedFiles: string[] = [];
     const materializedDirectories: string[] = [];
-    for (const directory of [...preparedBackup.materializableDirectories].sort((a, b) => a.backupRelativePath.split(path.sep).length - b.backupRelativePath.split(path.sep).length)) {
+    for (const directory of [...preparedBackup.materializableDirectories].sort((a, b) =>
+      compareBackupRelativePathDepth(a.backupRelativePath, b.backupRelativePath))) {
       const relative = directory.backupRelativePath;
       if (!relative || relative === ".") continue;
       const absolute = path.join(destination, relative);

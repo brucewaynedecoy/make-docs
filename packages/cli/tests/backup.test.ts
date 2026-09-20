@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { compareBackupRelativePathDepth } from "../src/backup";
 import { applyInstallPlan, planInstall } from "../src/install";
 import {
   __setLifecycleRendererForTests,
@@ -122,6 +123,26 @@ describe("backup command", () => {
     vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  test("orders backup parents before children with either path separator", () => {
+    const portable = [
+      ".agents/skills/decompose-codebase/assets/templates",
+      ".agents/skills/decompose-codebase/assets",
+    ].sort(compareBackupRelativePathDepth);
+    const windows = [
+      ".agents\\skills\\decompose-codebase\\assets\\templates",
+      ".agents\\skills\\decompose-codebase\\assets",
+    ].sort(compareBackupRelativePathDepth);
+
+    expect(portable).toEqual([
+      ".agents/skills/decompose-codebase/assets",
+      ".agents/skills/decompose-codebase/assets/templates",
+    ]);
+    expect(windows).toEqual([
+      ".agents\\skills\\decompose-codebase\\assets",
+      ".agents\\skills\\decompose-codebase\\assets\\templates",
+    ]);
   });
 
   test("copies managed project files into a dated backup directory without modifying originals", async () => {
