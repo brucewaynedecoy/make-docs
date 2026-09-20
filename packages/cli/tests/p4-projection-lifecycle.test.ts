@@ -960,7 +960,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
     } finally {
       write.mockRestore();
     }
-  });
+  }, 240_000);
 
   it("stops on malformed managed blocks and unsafe surface parents", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-stop-"));

@@ -194,6 +194,7 @@ jobs:
         with:
           name: w22-p6-evidence-${{ matrix.platform }}
           path: .p6-evidence/
+          include-hidden-files: true
           if-no-files-found: error
 
   compare-installed-package:
@@ -228,4 +229,5 @@ jobs:
         with:
           name: w22-p6-platform-comparison
           path: .p6-comparison/
+          include-hidden-files: true
           if-no-files-found: error
