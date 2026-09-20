@@ -1065,6 +1065,7 @@ personas:
       manifest = loadManifest(allTargetDir);
       expect(manifest?.selections.selectedSkills).toEqual([
         "archive-docs",
+        "backlog-review",
         "cleanup-docs",
         "decompose-codebase",
         "factory",
@@ -1073,6 +1074,7 @@ personas:
         "preflight",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(manifest?.skillFiles).toContain(".claude/skills/backlog-review");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/decompose-codebase");
       expect(manifest?.skillFiles).toContain(".claude/skills/human-experience");
@@ -1584,7 +1586,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
       );
     } finally {
       cleanupTempDir(targetDir);

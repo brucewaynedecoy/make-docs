@@ -80,6 +80,7 @@ const FIRST_PARTY_MANIFEST_ID = "make-docs.first-party";
 const EMBEDDED_SOURCE_PREFIX = "embedded:";
 const FIRST_PARTY_PURPOSE_IDS = new Set([
   "archive-management",
+  "backlog-review",
   "codebase-decomposition",
   "documentation-maintenance",
   "lifecycle-closeout",

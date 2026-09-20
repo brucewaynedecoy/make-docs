@@ -154,6 +154,7 @@ describe("skills-only UI", () => {
     ]);
     expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "backlog-review",
       "decompose-codebase",
       "cleanup-docs",
       "human-experience",

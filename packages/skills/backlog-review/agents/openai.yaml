@@ -1,0 +1,6 @@
+interface:
+  display_name: "Backlog Review"
+  short_description: "Review backlog focus, risks, and next work"
+  default_prompt: "Use $backlog-review to review this project's full Make Docs backlog."
+policy:
+  allow_implicit_invocation: true

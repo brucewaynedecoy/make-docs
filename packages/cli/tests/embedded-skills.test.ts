@@ -13,7 +13,7 @@ import { PACKAGE_ROOT } from "../src/utils";
 vi.mock("node:fs", async (importOriginal) => ({ ...await importOriginal<typeof import("node:fs")>() }));
 
 const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
-const names = ["archive-docs", "cleanup-docs", "decompose-codebase", "factory", "human-experience", "naive-uat", "preflight"];
+const names = ["archive-docs", "backlog-review", "cleanup-docs", "decompose-codebase", "factory", "human-experience", "naive-uat", "preflight"];
 const roots: string[] = [];
 afterEach(() => { vi.restoreAllMocks(); for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
@@ -32,7 +32,7 @@ function fixture() {
 }
 
 describe("embedded first-party Skills", () => {
-  test("embeds the exact seven declared source byte inventories without writing a payload tree", () => {
+  test("embeds the exact eight declared source byte inventories without writing a payload tree", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
     const bundle = buildEmbeddedSkillBundle(PACKAGE_ROOT);
     expect(Object.keys(bundle.payloads).sort()).toEqual(names);

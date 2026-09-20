@@ -1,0 +1,30 @@
+[
+  {
+    "subject": "the selected backlog root",
+    "whatHappened": "The review stopped before reading work records.",
+    "context": "The requested root did not pass the path safety check.",
+    "effect": "No backlog snapshot was produced.",
+    "knownFacts": ["The safety rule rejected the selected path."],
+    "unknownOrLimited": ["No work record content was inspected."],
+    "nextAction": "Choose the intended project root and try again.",
+    "humanAction": {
+      "state": "required",
+      "action": "Select a safe project root."
+    },
+    "diagnosticCodes": ["BACKLOG-VAL-001"]
+  },
+  {
+    "subject": "Git update evidence",
+    "whatHappened": "Git history was not available.",
+    "context": "The review used scoped file times instead.",
+    "effect": "The backlog remains usable with less precise update evidence.",
+    "knownFacts": ["Repository work files were available."],
+    "unknownOrLimited": ["The latest commit time is not known."],
+    "nextAction": "Use the review now or restore Git access for stronger evidence.",
+    "humanAction": {
+      "state": "optional",
+      "action": "Restore Git access if commit evidence is needed."
+    },
+    "diagnosticCodes": ["BACKLOG-VAL-010"]
+  }
+]

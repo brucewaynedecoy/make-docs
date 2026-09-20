@@ -12,9 +12,9 @@ source:
 
 ## Current State
 
-P1 and P2 are complete. The private data contract and rule catalog satisfy A1-A9. The read-only deterministic operation and its CLI and MCP surfaces satisfy A10-A17. P3 and the report phases have not started. The backlog review capability remains incomplete until P5.
+P1, P2, and P3 are complete. The private data contract and rule catalog satisfy A1-A9. The read-only deterministic operation and its CLI and MCP surfaces satisfy A10-A17. The first-party Skill, deterministic-first routing, honest fallback, shared report meaning, and concise chat report satisfy A18-A25. P4 and P5 have not started. The backlog review capability remains incomplete until P5.
 
-The P2 tested base revision was `9e080b9b` on branch `make-docs-v2`. The P2 test run included the uncommitted P2 product and test changes in the local maintainer checkout.
+The P3 tested base revision was `ceb5cc5` on branch `make-docs-v2`. The P3 test run included the uncommitted P3 product, test, and closeout changes in the local maintainer checkout.
 
 ## P1 Data Contract and Rule Catalog
 
@@ -141,3 +141,75 @@ Optional human feedback remains welcome. No human acceptance gate applies to P2.
 ### Phase Boundary
 
 P2 can close on this evidence. P3 has not started. P2 adds no Skill, agent inference, recommendation, chat report, HTML report, Store integration, setup behavior, package publication, or release. The full backlog review capability remains incomplete until P5.
+
+## P3 Skill and Chat Report
+
+### Claim and Surface
+
+P3 adds the optional first-party `backlog-review` Skill. It uses the compatible MCP snapshot first, the JSON CLI snapshot second, and a portable agentic fallback only when neither deterministic surface is available. It reports the method that supplied the facts. It does not cross-certify another method.
+
+The Skill preserves the version 1 report model. It keeps all records, the four fixed tallies, the six fixed live statuses, archived null status, flexible evidence-backed reasons, distinct facts, inferences, recommendations, confidence, limits, attention findings, and recommended order. Its default chat pattern leads with current focus, Next, and needs attention.
+
+### Implementation Evidence
+
+| Area | Files | Result |
+| --- | --- | --- |
+| Skill source | [`packages/skills/backlog-review/`](../../../packages/skills/backlog-review/) | Adds the portable entrypoint, OpenAI metadata, deterministic-first method, report model, fallback, stable rule map, four chat-size patterns, and human error meaning. |
+| Catalog and package | [`skill-registry.json`](../../../packages/cli/skill-registry.json), [`skill-registry.ts`](../../../packages/cli/src/skill-registry.ts), and [`smoke-pack.mjs`](../../../scripts/smoke-pack.mjs) | Adds the eighth optional first-party Skill, declares every support file, keeps the fixed purpose list, and extends packed-package checks. |
+| Product authority | [PRD 08](../../prd/08-skills-catalog-and-distribution.md) | Records the eight-Skill catalog and the packaged `backlog-review` contract. |
+| Tests | [`backlog-review-skill.test.ts`](../../../packages/cli/tests/backlog-review-skill.test.ts) and existing catalog, setup, wizard, and Skill lifecycle suites | Checks support-file completeness, local links, metadata, rule parity, report fixtures, status and tally meaning, error meaning, chat scales, selection, installation, backup, and removal. |
+
+### Verification Evidence
+
+| Check | Result | Observation |
+| --- | --- | --- |
+| Focused P3 and shared Skill suite | Passed: 13 files and 290 tests | The Skill, report contract, registry, embedded payload, CLI selection, wizard, and Skills UI checks passed. |
+| Full CLI suite | Passed: 89 files and 1,423 tests; 1 file and 5 tests skipped | No detected CLI or Skill lifecycle regression remains. The skipped installed-upgrade matrix retains its existing gate. |
+| Full TypeScript check | Passed | The changed registry and all package tests type-check. |
+| CLI package build | Passed | The package build embeds the eighth Skill and all declared files. |
+| Skill validator | Passed | The Skill entrypoint and metadata satisfy the local Skill validator. |
+| Local packed-package smoke | Passed | A packed package installed, backed up, and removed all eight Skills. The extracted `backlog-review` payload retained every declared file without checkout-only dependencies. |
+| Full remote-runner smoke | Not run in this test area | The public npm registry was not reachable. The check stopped before package testing and directed the run to local mode. P5 still owns final installed candidate and runner parity. |
+| Diff check | Passed | `git diff --check` found no whitespace errors. |
+
+### Guided Progress Review
+
+The reviewer inspected and revised the small, medium, large, and conflict-heavy chat patterns.
+
+| Portfolio | Observation | Revision or conclusion |
+| --- | --- | --- |
+| Small | One current item and one next action fit without empty attention or state sections. | Keep the full four tallies, method, fact, inference, confidence, and limit. Omit empty sections. |
+| Medium | Current, conflict, and deferred records need visible order without turning the report into a task dump. | Show Current focus, Next, Needs attention, and only nonempty state groups. Keep one reason and one source link per displayed wave. |
+| Large | Full-portfolio meaning must remain clear while the first view stays short. | Keep all records in the report model. Show only decision-relevant records first. State the method, inventory-only count, and expansion path. |
+| Conflict-heavy | A status disagreement must appear before a later-work recommendation. | Lead with the conflict in normal words. Keep recorded facts separate. State what the review cannot decide and whether human action is required. |
+
+This review supports presentation changes without changing status, tally, evidence, or method meaning. It does not approve the P4 HTML layout.
+
+### Human Experience Review
+
+| Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
+| --- | --- | --- | --- | --- |
+| A maintainer sees current focus and next work before machine detail. | The Skill and all complete chat patterns place the method and tallies first, then Current focus, Next, and Needs attention. Empty sections are omitted. | `satisfied` for the P3 chat guidance. | Codex. This is an agent review of instructions and examples, not a person's lived response. | Preserve this order in P4. |
+| A maintainer can tell fact from agent judgment. | The review method defines fact, inference, and recommendation claims. Inferences include confidence and limits. Status reason stays separate from fixed status. | `satisfied` for P3 guidance and shared contract. | Codex. Future agent output can still vary in wording. | Keep semantic tests and review generated reports in P5. |
+| Errors and limits keep human context. | The Skill requires subject, context, effect, known and unknown facts, next action, and human action level. Structured examples keep raw codes secondary without changing severity. | `satisfied` for the instructed meaning. | Codex. Two semantic examples do not prove every future error explanation. | Add new semantic fixtures when new material errors appear. |
+| Exact evidence remains reachable. | Every displayed wave uses a repository-relative source link. The full report keeps every snapshot record and source evidence. | `satisfied` for P3 chat guidance. | Codex. P4 and P5 still own rendered link and installed-candidate proof. | Verify HTML navigation in P4 and installed parity in P5. |
+
+Optional owner feedback remains welcome. No human acceptance gate applies to P3.
+
+### Coverage Decisions
+
+| Surface | Verdict | Reason |
+| --- | --- | --- |
+| Guide and system resources | `none` | The shipped optional Skill owns the P3 agent guidance. P3 adds no system resource or project guide. |
+| PRD reconciliation | `update` | PRD 08 now records the eighth first-party Skill and its bundled portable boundary. PRD 51 already contains the accepted report and Skill contract. |
+| History | `create` | The [P3 history record](../../../.make-docs/archive/history/2026-09-20-w23-r0-p3-skill-and-chat-report.md) supplies the phase breadcrumb. |
+| Automated Implementation Testing | Required and passed | Focused, full-suite, type, build, Skill validation, local packed-package, and diff checks passed. |
+| Performance Testing | `not-needed-now` | P3 has no accepted latency, throughput, or resource target. |
+| Guided Progress Review | Required and passed | Small, medium, large, and conflict-heavy chat patterns were reviewed and revised. |
+| Unassisted Goal Testing | `not-needed-now` | Guided iteration remains the accepted P3 evidence path. No separate discoverability gate exists. |
+| Accessibility and visual review | `none` for P3 | P4 owns the HTML surface and its keyboard, responsive, contrast, and visual checks. |
+| Human Experience Review | `satisfied` within limits | The Skill leads with human meaning, separates judgment, states limits, and keeps exact evidence available. |
+
+### Phase Boundary
+
+P3 closes on this evidence. P4 has not started and needs separate owner authority. P3 adds no HTML report, Store integration, package publication, or release. The full backlog review capability remains incomplete until P5.

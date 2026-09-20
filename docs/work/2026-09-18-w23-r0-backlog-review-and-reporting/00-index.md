@@ -19,7 +19,7 @@ source:
 
 Provide the draft implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
 
-The owner authorized and accepted P1. The owner also authorized P2 after its W22 dependency preflight. P1 and P2 are complete. No later phase is authorized. Do not change the shipped Skill, report behavior, Store, installation, package, or release behavior until the owner gives separate authority for the applicable phase.
+The owner authorized P1, P2, and P3. These phases are complete. No later phase is authorized. Do not implement the HTML report or change Store, installation, publication, or release behavior until the owner gives separate authority for the applicable phase.
 
 ## Human Experience Trace
 
@@ -37,7 +37,7 @@ The owner authorized and accepted P1. The owner also authorized P2 after its W22
 | --- | --- | --- | --- |
 | P1 | Complete | [Data Contract and Rule Catalog](01-data-contract-and-rule-catalog.md) | Accepted schema, evidence classes, diagnostics, rule mapping, and fixture matrix. |
 | P2 | Complete | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
-| P3 | Not started | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
+| P3 | Complete | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
 | P4 | Not started | [Single-File Interactive Report](04-single-file-interactive-report.md) | Safe, offline, accessible, responsive HTML template owned by the Skill. |
 | P5 | Not started | [Package Parity and Acceptance](05-package-parity-and-acceptance.md) | One installed package candidate passes parity, offline, browser, and Human Experience review. |
 
@@ -45,9 +45,9 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Usage Notes
 
-- Review the completed P1 and P2 evidence before later implementation.
+- Review the completed P1, P2, and P3 evidence before later implementation.
 - Read phases in order.
-- Do not start P3, P4, or P5 without separate owner authority.
+- Do not start P4 or P5 without separate owner authority.
 - P2 passed its W22 preflight. The tested checkout contains W22 R0 P6 closeout commit `edd9d7e4` as an ancestor. Current PRD 38 and PRD 39 authority was reread. Project-read, Store-none, and host-configuration-none access was confirmed. Existing registry, access, CLI, and MCP tests passed before implementation.
 - Keep the core snapshot Store-free. Stop only an optional Store-backed enrichment if it is ever admitted and unavailable.
 - Keep one public snapshot operation. Private collectors do not receive public identities without a later product decision.
@@ -60,9 +60,9 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. P1 and P2 are complete. P3 has not started.
+This handoff is advisory-default-but-overridable. P1, P2, and P3 are complete. P4 has not started.
 
 - Route: `implementation-loop`
-- Next step: Review the P2 closeout. Give separate authority only if P3 Skill and chat-report implementation should begin.
-- Why: P3 is the first agentic and shipped Skill phase. It should begin only after the deterministic operation boundary is accepted.
-- Coordinate Handoff: Carry `W23 R0 P3` into the next implementation and history records. Preserve the fixed P1 contract and P2 operation boundary.
+- Next step: Review the P3 closeout. Give separate authority only if P4 single-file interactive report implementation should begin.
+- Why: P4 adds the human-facing HTML artifact and its responsive, accessible, offline behavior. It needs separate authority after the Skill and chat report are accepted.
+- Coordinate Handoff: Carry `W23 R0 P4` into the next implementation and history records. Preserve the fixed P1 contract, P2 operation boundary, and P3 report meaning.

@@ -236,6 +236,7 @@ const WITHDRAWN_SKILL_PATHS = [
 
 const EXPECTED_ALL_SKILLS = [
   "archive-docs",
+  "backlog-review",
   "cleanup-docs",
   "decompose-codebase",
   "preflight",
@@ -1657,7 +1658,7 @@ function readPackedSkillExpectations(packageRoot, scope = "project", tools = "bo
   const registry = JSON.parse(readFileSync(path.join(packageRoot, "skill-registry.json"), "utf8"));
   const names = registry.skills.map(skill => skill.name).sort();
   if (JSON.stringify(names) !== JSON.stringify([...EXPECTED_ALL_SKILLS].sort())) {
-    throw new Error(`Packed first-party registry must contain exactly the seven shipped Skills: ${names.join(", ")}`);
+    throw new Error(`Packed first-party registry must contain exactly the eight shipped Skills: ${names.join(", ")}`);
   }
   const expectedSkillPaths = [];
   const nativePayloadPaths = [];

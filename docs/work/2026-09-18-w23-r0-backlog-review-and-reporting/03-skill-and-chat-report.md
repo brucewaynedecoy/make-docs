@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Skill and Chat Report"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W23 R0 P3"
 source:
   type: "prd"
@@ -64,12 +64,12 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t1: Add the `backlog-review` first-party Skill source, entrypoint, references, examples, metadata, and declared support files.
-- [ ] t2: Implement MCP-first, CLI-second, and agentic-fallback routing with clear method reporting.
-- [ ] t3: Write the portable fallback that works without the maintainer checkout and does not claim a deterministic run.
-- [ ] t4: Map every fallback rule to the stable rule catalog and add twin-change checks.
-- [ ] t5: Add Skill instructions and examples that turn tool errors, warnings, and material limits into natural human explanations with context, effect, known limits, next action, and clear required or optional user action. Keep raw technical detail secondary and preserve exact meaning.
-- [ ] t6: Add build, package, and extracted-Skill independence tests.
+- [x] t1: Add the `backlog-review` first-party Skill source, entrypoint, references, examples, metadata, and declared support files.
+- [x] t2: Implement MCP-first, CLI-second, and agentic-fallback routing with clear method reporting.
+- [x] t3: Write the portable fallback that works without the maintainer checkout and does not claim a deterministic run.
+- [x] t4: Map every fallback rule to the stable rule catalog and add twin-change checks.
+- [x] t5: Add Skill instructions and examples that turn tool errors, warnings, and material limits into natural human explanations with context, effect, known limits, next action, and clear required or optional user action. Keep raw technical detail secondary and preserve exact meaning.
+- [x] t6: Add build, package, and extracted-Skill independence tests.
 
 ### Acceptance criteria
 
@@ -89,11 +89,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t6: Implement the shared report model with fact, inference, recommendation, confidence, limit, `waveStatus`, `statusReason`, and the four fixed portfolio tally fields.
-- [ ] t7: Assign exactly one fixed wave status and one evidence-backed status reason, then implement current-focus, attention, open, closeout-needed, blocked or conflicted, paused or superseded, historical, and recommended-order reasoning.
-- [ ] t8: Define the compact chat layout and omit empty sections without hiding material limits.
-- [ ] t9: Add repository-relative source links and compact drill-down detail.
-- [ ] t10: Run Guided Progress Review across small, medium, large, and conflict-heavy fixtures and revise the presentation.
+- [x] t6: Implement the shared report model with fact, inference, recommendation, confidence, limit, `waveStatus`, `statusReason`, and the four fixed portfolio tally fields.
+- [x] t7: Assign exactly one fixed wave status and one evidence-backed status reason, then implement current-focus, attention, open, closeout-needed, blocked or conflicted, paused or superseded, historical, and recommended-order reasoning.
+- [x] t8: Define the compact chat layout and omit empty sections without hiding material limits.
+- [x] t9: Add repository-relative source links and compact drill-down detail.
+- [x] t10: Run Guided Progress Review across small, medium, large, and conflict-heavy fixtures and revise the presentation.
 
 ### Acceptance criteria
 
@@ -110,8 +110,8 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 - Four testing decisions: Automated required; Performance not-needed-now; Guided required; Unassisted not-needed-now.
 - Performance evidence: none.
-- Human Experience Review: Record observations, conclusions, evidence, reviewer, and limits for the chat promises.
-- Optional experience handoff: Invite the owner to compare the concise report with expanded evidence; optional and non-blocking.
+- Human Experience Review: `satisfied` within P3 limits. The Skill leads with focus, next actions, and attention. It keeps fact method, claim type, source links, confidence, limits, and human action clear. This is an agent review, not a person's lived response.
+- Optional experience handoff: The owner can compare the concise report with expanded evidence. This review is optional and non-blocking.
 - Explicit human acceptance gate: none.
-- Evidence report: Add after evidence exists.
-- Phase / capability status: P3 can close after the chat report and packaged Skill pass; HTML and full installed acceptance remain open.
+- Evidence report: [P3 Skill and chat report evidence](evidence.md#p3-skill-and-chat-report).
+- Phase / capability status: P3 is complete. The HTML report and final installed package acceptance remain open in P4 and P5.
