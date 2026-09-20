@@ -863,7 +863,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W22 R0 D1 through D3 accept repository-owned project identity, Store-owned checkout identity, minimum last-applied state, and no durable device or inode identity. | W22 R0 P3 implements the platform and checkout model. P5 migrates old fields and broad ledger forms through accepted bridges. |
+| Closed | W22 R0 D1 through D3 accept repository-owned project identity, Store-owned checkout identity, minimum last-applied state, and no durable device or inode identity. | Keep the schema, migration, move, update, interruption, and platform cases as regression coverage. |
 
 **Issue**: Current checkout rows persist `root_device` and `root_inode`, and current installation ledgers mix desired selections, provenance, and applied ownership. Those forms exceed the accepted field-level authority and identity model.
 
@@ -873,11 +873,13 @@ Code anchors:
 
 **To close**: The target schema and writers pass move, clone, worktree, remount, path-case, package-update, conflict-stop, resume, rollback, and Store-loss tests on Windows, macOS, and Linux. No current writer persists device or inode as identity or writes a broad old-form ledger.
 
+**Resolution**: W22 R0 P3 removed durable device and inode identity from the target platform and checkout model. P5 schema 5 stopped active writes, preserved old values as bounded history, and proved conversion and rollback. P6 workflow 35483206273 passed the same required source safety matrix and one exact installed package on Windows, macOS, and Linux.
+
 ### D-040 Harness Receipt History Is Still Coupled to Current Access Proof
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W22 R0 D4 accepts receipts as history and current per-call proof across adapter, method, executable where applicable, owned native entry, operation, machine approval, and project approval. | W22 R0 P4 updates harness policy, setup, receipts, and resource operations. P5 migrates old receipt forms through bounded bridges. |
+| Closed | W22 R0 D4 accepts receipts as history and current per-call proof across adapter, method, executable where applicable, owned native entry, operation, machine approval, and project approval. | Keep current and stale receipt, per-operation admission, native-entry, Store-free, repair, and removal cases as regression coverage. |
 
 **Issue**: Current access checks and receipt records still carry exact package and executable facts in forms that can be mistaken for current caller authority. Generic MCP exposure can also be mistaken for admission of every server tool.
 
@@ -887,11 +889,13 @@ Code anchors:
 
 **To close**: Current and stale receipt cases, executable and native-entry drift, separate approval changes, generic MCP identity, per-operation admission, rotation, repair, removal, and scoped-stop behavior pass through one exact installed package. Store-free operations require no receipt or harness access.
 
+**Resolution**: W22 R0 P4 separated machine approval, project approval, live caller proof, native-entry ownership, and per-operation admission. P5 retained old receipts as history without using their package hashes as current authority. P6 workflow 35483206273 passed the required harness, MCP, Store-access, repair, removal, and resource source matrix on all three hosts, then passed the exact installed package for Store-free resource reads and the selected native Skill lifecycle.
+
 ### D-041 Core Platform Parity Is Broader Than Current Windows Proof
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W22 R0 D7 requires full Windows, macOS, and Linux parity for core Store, identity, setup, recovery, resource, CLI, machine-readable, and MCP capabilities. The support matrix records evidence and cannot narrow scope. | W22 R0 P3 creates the platform service. P6 runs the exact installed package matrix on all three hosts. |
+| Closed | W22 R0 D7 requires full Windows, macOS, and Linux parity for core Store, identity, setup, recovery, resource, CLI, machine-readable, and MCP capabilities. The support matrix records evidence and cannot narrow scope. | Keep the three-host source and installed-package matrix as the required regression gate. |
 
 **Issue**: Operating-system rules remain spread across Store, harness, resource, and file-mutation code. Windows native launch and several real-host recovery paths do not yet have the proof required by the accepted support target.
 
@@ -900,6 +904,8 @@ Code anchors:
 **Recommendation**: Route all host behavior through one typed platform service. Treat every missing core capability as a defect unless the owner approves a time-bounded exception with a repair phase and measurable end condition.
 
 **To close**: One exact package candidate passes the full core capability and recovery matrix on real Windows, macOS, and Linux hosts with the source repository unavailable. Public support text matches the same passing matrix and no unapproved parity gap remains.
+
+**Resolution**: P6 workflow 35483206273 installed the same package candidate into isolated Windows, macOS, and Linux environments. Each host passed the required source safety matrix and the same installed public contract. The final comparison passed with no platform exception or reduced parity claim.
 
 ## Open Questions
 
@@ -2155,7 +2161,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W22 R0 D8 requires versioned readers, one target writer, no old-form writes after cutover, and one owner and measurable exit contract per bridge. | W22 R0 P5 creates the bridge register, proves remaining-state checks, and requests separate approval before any removal. |
+| Closed | W22 R0 D8 requires versioned readers, one target writer, no old-form writes after cutover, and one owner and measurable exit contract per bridge. | Keep bridge exit checks and separate deletion approval. Remove a reader only after its named exit contract passes. |
 
 **Issue**: The Store contains checkpoint, transfer, broad manifest, migration, receipt, and opaque legacy forms that can remain readable for compatibility. Without a proved end condition, a temporary reader can become a second permanent authority or old writes can resume.
 
@@ -2165,11 +2171,13 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: The bridge register is complete, target readers and writers pass, no old-form writer remains, every old fact is migrated, exported, preserved as opaque history, or separately approved for deletion, and each removal meets its accepted exit contract.
 
+**Resolution**: W22 R0 P5 completed the bridge register, stopped old-form writes, converted supported state, preserved opaque and recovery history, and kept deletion behind separate approval. P6 passed the old-state bridge with one exact installed package on all three hosts. The remaining readers are bounded compatibility paths with recorded exit rules, not duplicate writers or temporary authority.
+
 ### R-037 Minimal Store Migration Could Lose Recovery or Opaque Evidence
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRD 38 now classifies every current durable field and separates live recovery, bounded history, rebuildable cache, and obsolete bridge state. | W22 R0 P5 must prove retention, export, backup, migration, rollback, and scoped deletion against all 15 current tables and non-table Store forms. |
+| Closed | PRD 38 classifies every current durable field and separates live recovery, bounded history, rebuildable cache, and obsolete bridge state. | Keep migration, backup, rollback, opaque-data, repeat, and scoped-removal fixtures as regression coverage. |
 
 **Issue**: Reducing broad ledgers and migration records to a minimal model can discard before/after evidence, failure detail, backup order, or opaque data that cannot be rebuilt.
 
@@ -2179,11 +2187,13 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **To close**: Migration fixtures prove current, old, interrupted, corrupt, newer, opaque, clone, worktree, move, edited-file, repeat, rollback, and removal cases. Before and after inventories show no unapproved data loss and no cross-checkout change.
 
+**Resolution**: W22 R0 P5 proved the required source migration and preservation cases with verified backup, one operation journal, rollback, quarantine, repeat safety, and bounded history. P6 repeated the required source matrix on Windows, macOS, and Linux. Its exact installed package converted supported old state, preserved user bytes, transferred the legacy ledger, and preserved custom and backup files during removal.
+
 ### R-038 Platform Evidence Could Be Used to Excuse a Core Parity Gap
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | PRDs 10 and 16 make the matrix evidence only and require an owner-approved time-bounded exception for any core gap. | W22 R0 P6 records host-by-capability proof and blocks closeout on every unapproved gap. |
+| Closed | PRDs 10 and 16 make the matrix evidence only and require an owner-approved time-bounded exception for any core gap. | Keep Windows, macOS, and Linux core parity as the fixed product target. Treat later missing proof as a defect or a separately approved time-bounded exception. |
 
 **Issue**: A missing host, unavailable harness, or hard-to-build capability can be marked unsupported or not applicable without an explicit product decision.
 
@@ -2192,6 +2202,8 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 **Recommendation**: Keep Windows, macOS, and Linux core parity as the fixed target. Use typed unsupported results only as temporary containment. Require each exception to name the human effect, reason, owner, repair phase, and end condition.
 
 **To close**: The real-host matrix is complete, all core gaps are fixed or covered by active accepted exceptions, expired exceptions fail the gate, and public support claims match the evidence without reducing target scope.
+
+**Resolution**: P6 workflow 35483206273 passed its required source and installed-package jobs on Windows, macOS, and Linux. The comparison accepted no missing host, repeated host, different candidate, source-checkout substitute, extract-only proof, or different public contract. W22 closes with no platform exception and no reduction of the parity target.
 
 ## Source Anchors
 
