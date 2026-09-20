@@ -1,0 +1,376 @@
+---
+title: "49 Human Experience Standard and Intent"
+kind: "prd"
+status: "active"
+source:
+  type: "plan"
+  path: "docs/plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md"
+---
+
+# 49 Human Experience Standard and Intent
+
+## Purpose
+
+Make Docs must help agents build results that are technically correct and fit for people. This PRD defines one product-wide Human Experience Standard. It also defines how governed work states its human effect, carries that intent through the lifecycle, and proves the result with suitable evidence.
+
+The standard is:
+
+> Every human-facing result must help a person complete a real goal without needless thought, effort, or doubt. The normal path must preserve context, reveal meaning and relationships, make state and next actions clear, and hide internal detail until it is useful. A person must not need to understand the system's internal model. Agents must shape a coherent experience, not merely expose correct capabilities. Work is not complete until proportionate evidence shows that the intended human remains oriented, capable, and in control.
+
+Correctness remains required. A clear human surface must not hide a failure, risk, limit, or material fact. A precise machine surface and a clear human surface can use different forms. They must preserve the same meaning.
+
+## Scope
+
+This capability applies when Make Docs creates or materially updates governed work. It also applies to material agent communication about task state, decisions, recommendations, errors, limits, and completion. It applies to people who use, read, operate, maintain, review, or recover the result.
+
+The capability includes:
+
+- one canonical, technology-neutral standard;
+- a required Human Experience Intent section in governed designs;
+- the impact values `direct`, `indirect`, and `none`;
+- lifecycle rules that carry intent into plans, PRDs, work, review, acceptance, and release claims;
+- proportionate evidence rules;
+- separate human and machine presentation rules;
+- adaptive agent-response guidance;
+- router discovery rules;
+- prospective adoption rules; and
+- upstream resource, package, dogfood, and conformance duties.
+
+The first release does not define one visual style. It does not make a Skill mandatory. It does not add a score for beauty, joy, or usability. It does not require a full update of existing project authority.
+
+## Terms
+
+- **Human Experience Standard:** The normative product rule quoted in Purpose.
+- **Human Experience Intent:** The design section that interprets the standard for one change.
+- **Affected human:** A person who uses, reads, operates, maintains, reviews, recovers, or relies on the result.
+- **Human surface:** The normal form that a person perceives or uses.
+- **Machine surface:** A form made for exact automation, data exchange, audit, or program use.
+- **Experience promise:** A clear statement of what the affected human must be able to understand, do, or trust.
+- **Human Experience Review:** Required agent review work that checks evidence and the built result against accepted experience promises. It is not a fifth core testing type and does not require duplicate evidence or a human response by default.
+- **Experience handoff:** Short completion communication that normally gives one to three normal-use steps, states what to notice, and invites optional feedback for completed direct human-facing work. It is not a test, sign-off request, or gate.
+- **Human acceptance gate:** An explicit requirement for a named human response that blocks only the scope named by the user, an accepted design or PRD, release authority, or safety authority.
+
+## Component and Capability Map
+
+- The Human Experience Contract owns the short standard, impact rules, required section shape, lifecycle duties, and acceptance boundary.
+- The Human Experience Reference explains the principles, impact choices, examples, evidence modes, adaptive agent-response guidance, and common errors.
+- The design template and design guidance require one conditional Human Experience Intent section.
+- Plan, PRD, work, review, coverage, UAT, and lifecycle authorities carry the accepted intent without copying the full policy.
+- Managed agent routers point to the governing authority.
+- Structural validators check form and allowed values. They do not certify human quality.
+- Package and dogfood checks prove that the installed resources match upstream authority.
+
+## Requirements
+
+### R-HX-01 Canonical Standard
+
+1. Make Docs must publish one canonical Human Experience Standard.
+2. The contract must keep the standard short, stable, and technology-neutral.
+3. The reference can explain the standard and show examples.
+4. Product-specific documents must link to the standard and interpret it for the current work. They must not create a competing standard.
+5. Correctness, safety, completeness, and truthful presentation remain required.
+
+### R-HX-02 Impact Classification
+
+1. Each new or materially updated governed design must state one impact value: `direct`, `indirect`, or `none`.
+2. `direct` means that the change affects a surface that a person perceives or uses. Examples include commands, help, prompts, output, user interfaces, documents, reports, configuration, public APIs or SDKs, file trees, installation, recovery, review, and handoff.
+3. `indirect` means that the normal interaction does not change, but the result can affect a person through performance, reliability, accuracy, data freshness, safety, privacy, security, recovery, diagnostics, maintenance effort, accessibility support, resource use, cost, or risk.
+4. `none` means that the change has no direct or indirect human effect.
+5. A design that selects `none` must name the preserved experience and provide boundary evidence.
+6. Agent-facing work does not become `none` only because an agent is the first consumer. The author must consider the people who author, review, operate, maintain, recover, or rely on the agent result.
+
+### R-HX-03 Human Experience Intent Section
+
+1. A design with `direct` or `indirect` impact must contain these stable fields after Context and before Decision:
+   - `Impact`;
+   - `Affected humans`;
+   - `Human goal or effect`;
+   - `Experience promises`;
+   - `Complexity kept out of the human path`; and
+   - `Evidence required`.
+2. A design with `none` impact must contain these stable fields in the same location:
+   - `Impact`;
+   - `Reason`;
+   - `Preserved experience`; and
+   - `Evidence required`.
+3. The section must use prose and bullets in the document body.
+4. The first release must not add Human Experience Intent fields to frontmatter.
+5. A document must contain only one Human Experience Intent section.
+6. Evidence named in the design is prospective. Later artifacts must record the actual evidence and verdict.
+
+### R-HX-04 Universal Principles
+
+Governed work must apply the principles that matter to its human goal:
+
+- **Goal before model:** Start with what the person wants to do. Do not make the internal model the starting point.
+- **Orientation and continuity:** Show what happened, what the result belongs to, how it relates to prior state, and where the person is now.
+- **Clear state and next action:** Make success, partial success, waiting, failure, and blocked states distinct. Name the next useful action when one exists.
+- **Expectation and action:** Make the likely effect, current state, and next useful action clear enough that a person can act without guessing. Keep uncertainty and limits visible.
+- **Progressive disclosure:** Use a clear human default. Keep exact machine detail available through a discoverable secondary path.
+- **Human language:** Use names that match the task and domain. Explain needed special terms. Do not use internal identifiers as the main label when stable human meaning exists.
+- **Visible meaning and relationships:** Show important ownership, parentage, sequence, membership, aliasing, dependency, and revision relationships in a form a person can understand.
+- **Proportionate information:** Show enough information for the current decision. Do not flood the normal path or hide a material caveat.
+- **Control and recovery:** Make effects, confirmation limits, and recovery paths clear at the useful time.
+- **Coherent structure:** Apply the standard to navigation, file trees, directory names, document structure, command grammar, and information structure.
+- **Accessibility and inclusion:** Design so suitable people can perceive, understand, operate, and complete the goal. Use separate accessibility review when required.
+- **Calm, confidence, and control:** Present a simple and truthful mental model for the current goal. Beauty and elegance are not limited to decoration.
+
+### R-HX-05 Human and Machine Surfaces
+
+1. A machine surface can expose stable identifiers, complete records, typed fields, revisions, receipts, and exact state.
+2. A human surface must present useful meaning first and expose machine detail when the person needs it.
+3. Human and machine surfaces can use different rendering and information density.
+4. Both surfaces must preserve the same semantic outcome.
+5. Context determines the default. A terminal, graphical interface, rendered document, or interactive review can favor human presentation. A pipe, export, API, or explicit machine flag can favor the machine contract.
+6. Hiding internal detail must not remove auditability.
+7. A material agent reply is a human surface. It must lead with the result, meaning, or current state and then provide exact machine detail when that detail helps the user decide, verify, or continue.
+
+### R-HX-06 Persona Boundary
+
+1. Persona and Human Experience Intent are separate product axes.
+2. Persona answers `for whom`.
+3. Human Experience Intent answers `to what end and with what experience`.
+4. `Affected humans` can use configured Persona slugs, clear human roles, or both.
+5. A project must not invent a Persona only to complete the Human Experience Intent section.
+6. `user` and `maintainer` are the two audience primitives under [PRD 47](47-persona-model.md). Either role may be filled by a human or an agent. There is no separate `agent` primitive.
+7. A Persona label does not prove that an affected actor is human. Work consumed by an agent must still identify the people who operate, maintain, recover, review, or rely on its result when human impact exists.
+8. Agent execution does not establish lived human understanding, satisfaction, or acceptance. Preserve the actual reviewer, evidence, and limits. Audience configuration cannot relax those requirements.
+
+### R-HX-07 Lifecycle Propagation
+
+1. Design must record the impact, affected humans, human goal or effect, promises, hidden complexity, and planned evidence.
+2. Planning must map each accepted promise to its owning PRD, affected surface or artifact, work phase, evidence source or selected testing type, and obligation route.
+3. PRD reconciliation must place observable human outcomes in the PRD that owns the affected capability.
+4. Work must trace tasks and acceptance criteria to the governing promise or preserved boundary.
+5. Acceptance text such as `UX is good` is invalid. Acceptance must name an observable result or evidence.
+6. Implementation and review must inspect the real human surface when direct impact exists and that surface is available.
+7. Coverage must explicitly apply Human Experience Review to every applicable experience promise. The agent must inspect the available real result and record a concise per-promise review from the accepted promises and suitable evidence. The review must record observations, conclusions, limits, and next actions. When evidence is insufficient for a current decision or an explicit gate, [PRD 50](50-proportionate-testing-and-human-centered-validation.md) selects the smallest additional testing activity that can answer the question. Human Experience Review is required agent review work, not a fifth testing type, and it must not create a duplicate test only to produce a separate verdict.
+8. Release and completion claims must stay within the accepted evidence.
+9. Retrospective findings can revise current authority through the normal change process.
+10. Completed direct human-facing work normally includes a short optional experience handoff. Silence, refusal, or no feedback must not block completion or create an obligation.
+11. A human response is required only when accepted authority explicitly defines a human acceptance gate and names its scope, human reviewer, surface, acceptance question, and gate effect.
+
+### R-HX-08 Proportionate Evidence
+
+1. Evidence must match the impact, risk, and experience promises.
+2. `direct` impact requires structural and functional evidence plus review of the real human-facing surface when it exists.
+3. `direct` impact does not activate a testing type by itself. Testing selection follows [PRD 50](50-proportionate-testing-and-human-centered-validation.md). Unassisted Goal Testing activates only under the current-decision rules in [PRD 46](46-naive-end-user-acceptance-testing.md).
+4. Private coaching is not proof of discoverability.
+5. `indirect` impact requires technical or operational evidence tied to the stated human effect. Include an experience handoff only when it gives the person useful information. Select human testing or an acceptance gate only through its current authority.
+6. `none` impact requires proof of the claimed boundary. Suitable proof can include interface compatibility, unchanged public output, invariant behavior, unchanged operating steps, or a focused regression test.
+7. The first release must include at least one realistic installed-product flow that proves an actual human-facing improvement.
+8. Human Experience Review applies orientation, continuity, meaning, information amount, next action, recovery, and control as a lens over suitable evidence. It must not require a duplicate activity when existing evidence answers the accepted promise.
+9. An agent can draft intent, find likely issues, inspect a result, compare it with promises, prepare evidence, and record the Human Experience Review. It can support an observable conclusion within the evidence. It cannot claim a person's lived reaction without evidence from that person.
+10. Any agent execution of an Unassisted Goal Test must satisfy PRD 46's separate qualification and isolation rules. It cannot replace evidence of lived human experience where that evidence is required. An agent cannot self-certify joy or human understanding.
+11. Data, metrics, and automated results inform Human Experience Review. They do not replace agent inspection of the real human-facing result when that surface exists. Human feedback adds evidence that the agent cannot create. One person's reaction does not prove every person's experience.
+12. For completed direct human-facing work, the agent normally gives one to three normal-use steps, states what is worth noticing, and invites optional feedback. This handoff is not a testing type, sign-off request, or gate.
+13. When accepted authority explicitly defines a human acceptance gate, the agent prepares the review and the human can correct it, add feedback, acknowledge it, or accept it. The response affects only the named scope.
+
+### R-HX-09 Completion and Obligations
+
+1. The standard is product authority. It is not optional advice.
+2. The first release must enforce the standard at artifact validity, planning completeness, capability status, and acceptance.
+3. The first release must not create an automatic ban on each local commit, branch update, push, or draft phase close.
+4. A phase can close with partial capability status when accepted later human evidence is still owed and a valid obligation preserves the outcome, owner, trigger, target, and exit criteria. `not-needed-now`, a declined Guided Progress Review, skipped advisory testing, and a declined or unanswered optional experience handoff are not obligations.
+5. A capability cannot make an unqualified human-outcome claim when evidence required by current authority is absent or an accepted material finding remains unresolved. Direct impact alone does not make every human path, testing type, or owner response a gate.
+6. A bounded caveat can be accepted only when the record names the affected promise, evidence limit, risk, owner, and follow-on route.
+7. Technical implementation can close with a bounded claim when the only missing evidence is optional lived-human feedback and no explicit human acceptance gate exists.
+8. Later human feedback becomes a finding. A material defect can reopen or narrow only the affected completion claim.
+
+### R-HX-10 Resource and Router Authority
+
+1. The Human Experience Contract must use the stable URI `make-docs://system/contract/human-experience-contract.md`.
+2. The Human Experience Reference must use the stable URI `make-docs://system/reference/human-experience.md`.
+3. Upstream source must live under `packages/docs/template/.make-docs/`.
+4. Packaging, installation, upgrade, reconfigure, and dogfood must preserve the resource contract and existing ownership rules.
+5. The resource must use the existing stable URI and optional projection model. The first release must not create a new resource type or a mandatory projection.
+6. Managed `AGENTS.md`, `CLAUDE.md`, and equivalent router blocks must point agents to lifecycle and Human Experience authority when governed work is created or materially updated, or when the agent produces a material task update, decision, recommendation, error or limit report, or completion reply.
+7. Routers must not copy the full standard, impact rules, or evidence model.
+8. The first release must not make a Human Experience Skill mandatory.
+9. An optional Skill must remain subordinate to the contract and reference. It can aid discovery, drafting, review, or evidence preparation. It must not copy the full policy or own product decisions.
+
+### R-HX-11 Validation Boundary
+
+1. Structural validation must check the required section, one allowed impact value, stable field names, section count, and conditional shape.
+2. Structural validation must not claim to prove beauty, elegance, intuition, usefulness, or joy.
+3. Conformance must include generated-artifact checks, installed-resource checks, and agent-behavior scenarios.
+4. Agent-behavior scenarios must show correct impact classification, lifecycle propagation, real-surface evidence selection, a valid `none` boundary, and adaptive material replies that preserve meaning, state, action, uncertainty, and useful proof.
+5. Reviewers must treat a complete section as necessary evidence, not as proof that the result is good for people.
+6. Validation must prove that the agent records the review and its evidence limits, that the normal path can close without a human response, and that an explicit human acceptance gate remains blocking for only its named scope.
+7. Validation must prove that an optional experience handoff gives short normal-use steps, what to notice, and an optional feedback route without creating a test, obligation, or close gate.
+
+### R-HX-12 Prospective Adoption
+
+1. Existing designs, PRDs, plans, work files, and archives remain valid when they predate the implemented contract.
+2. New agent-generated designs must use the section after implementation.
+3. A substantial agent-authored design update must add or reconcile the section.
+4. A minor edit must not cause an unrelated document rewrite.
+5. Active work must adopt the rule when a planned change affects its human path.
+6. Archived documents remain unchanged.
+7. Install, upgrade, and reconfigure must preserve project-owned changes under the existing ownership and conflict rules.
+8. The first release must not require a repository-wide backfill.
+
+## Contracts and Data
+
+The Human Experience Intent section is body authority. It does not add frontmatter keys or a new machine schema.
+
+For `direct` and `indirect` impact, the form is:
+
+```markdown
+## Human Experience Intent
+
+Impact: `direct`
+
+Affected humans: ...
+
+Human goal or effect: ...
+
+Experience promises:
+
+- ...
+
+Complexity kept out of the human path:
+
+- ...
+
+Evidence required:
+
+- ...
+```
+
+For `none` impact, the form is:
+
+```markdown
+## Human Experience Intent
+
+Impact: `none`
+
+Reason: ...
+
+Preserved experience: ...
+
+Evidence required:
+
+- ...
+```
+
+Downstream artifacts must link to the owning requirement and record their own mapping, work, evidence, or verdict. They must not copy the full intent section into every artifact.
+
+## Integrations
+
+- [PRD 01](01-product-overview.md) owns the product-wide capability and quality boundary.
+- [PRD 06](06-template-contracts-and-generated-assets.md) owns upstream resources, packaging, projection, dogfood, and installed parity.
+- [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) owns lifecycle propagation, testing selection consumption, obligations, and phase-close rules.
+- [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md) owns managed router discovery.
+- [PRD 23](23-generated-document-metadata-and-lifecycle-handoffs.md) owns the body-authority and no-new-frontmatter boundary.
+- [PRD 46](46-naive-end-user-acceptance-testing.md) owns conditional Unassisted Goal Testing, qualified-human execution, public paths, anti-coaching, and findings.
+- [PRD 47](47-persona-model.md) owns the Persona boundary and affected-human link.
+- [PRD 50](50-proportionate-testing-and-human-centered-validation.md) owns testing selection, the four-type taxonomy, human testing experience, evidence reuse, and gate effects. Human Experience Review remains a lens owned here.
+
+## Rebuild Notes
+
+A rebuild must preserve this authority in three layers:
+
+1. The contract states the normative rule and required form.
+2. The reference explains application and examples.
+3. Lifecycle resources carry the intent into owned requirements, work, evidence, review, and completion claims.
+
+The implementation must update upstream template authority first. It must then project the resources into the maintainer repository through the normal dogfood path. Installed-product evidence must use the real installed or linked Make Docs path.
+
+## Acceptance Scenarios
+
+1. A design for a public command selects `direct`, names the affected humans and goal, states observable promises, and requires review of the installed command output.
+2. A design for an internal performance change selects `indirect`, states the human effect, and requires performance evidence tied to that effect.
+3. A design for a refactor selects `none`, names the preserved public behavior, and proves the boundary without ceremonial UAT.
+4. A plan maps each accepted promise to an owning PRD, work phase, surface, and evidence source or selected testing type.
+5. A reconciled PRD makes the observable human outcome normative in the capability owner without copying the full contract.
+6. A backlog task names a testable human result. It does not use `UX is good` as acceptance.
+7. A coverage review applies Human Experience Review as a lens over suitable evidence. The agent records the review, conclusions, and limits. The review does not create a fifth testing type, duplicate run, or default human approval gate.
+8. A human-facing result presents useful meaning first and keeps exact machine detail available through a discoverable secondary path.
+9. A managed agent router points to the governing Human Experience authority and does not copy the full policy.
+10. A validator rejects a missing or malformed section but does not claim that a valid section proves a joyful experience.
+11. An installed-product flow shows that a person can remain oriented, understand relationships, see state, and find the next useful action without reading the internal model.
+12. A pre-existing design remains valid until substantial work changes its human path.
+13. A material agent reply restores needed context, states the result and exact work state, gives a recommendation or next action when one exists, keeps uncertainty visible, and places supporting machine detail after the human meaning. The agent inspects the actual reply and records observations and limits.
+14. Completed direct human-facing work gives the person a short optional path to experience the result. No response is needed for normal completion.
+15. Accepted authority explicitly requires a named human to answer one acceptance question for one surface. The human response blocks only that named scope, and the agent prepares the review so the human does not need to author a report.
+16. Later feedback identifies a material defect. The finding reopens or narrows the affected claim without turning unrelated completed work into incomplete work.
+
+## Non-Requirements
+
+- A universal visual style or aesthetic system.
+- Automatic rewriting of product interfaces.
+- A generic workflow engine.
+- A mandatory Human Experience Skill.
+- A numeric quality score.
+- Agent-only certification of human experience.
+- A recurring owner response or approval requirement.
+- A full migration of existing project documents.
+- A new resource type or mandatory resource projection.
+- New Human Experience frontmatter fields.
+- A replacement for correctness, security, privacy, accessibility, performance, visual, or Unassisted Goal Testing authority.
+
+## Requirement History
+
+### 2026-08-28 — W21 R0
+
+- Affected requirement or section: terms, `R-HX-07`, `R-HX-08`, `R-HX-09`, integrations, acceptance scenarios, and non-requirements.
+- Previous contract: Human Experience Review was a separate review verdict, and direct impact broadly activated naive UAT when a meaningful goal was ready.
+- Replacement contract: Human Experience Review is a required acceptance lens that records a conclusion against each applicable promise while reusing suitable evidence, and PRD 50 selects the smallest additional testing activity only when evidence is insufficient. Unassisted Goal Testing is conditional and advisory by default under PRD 46.
+- Rationale: The Human Experience Standard must govern the built result without creating a fifth testing type, duplicate evidence, ceremonial human work, or false phase gates.
+- Source: [W21 R0 Proportionate Testing and Human-Centered Validation plan](../plans/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-overview.md)
+
+### 2026-09-09 — W19 R4
+
+- Date: 2026-09-09
+- Coordinate: W19 R4
+- Affected requirement or section: R-HX-06 Persona Boundary; R-HX-08 Proportionate Evidence.
+- Previous contract: The boundary referred to an agent Persona and a first-release prohibition on schema changes.
+- Replacement contract: Two audience roles can be filled by either actor type. A role label does not establish human effect or lived human experience, and actual review evidence remains required.
+- Rationale: Keep the human standard intact while Persona authority changes its audience model.
+- Source: [Project Assets and Persona Discovery](../designs/2026-09-09-project-assets-and-persona-discovery.md), [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md). Delivery is tracked by the single-phase R4 backlog; runtime implementation has not started.
+
+### 2026-09-14 — W20 R1
+
+- Date: 2026-09-14
+- Coordinate: W20 R1
+- Affected requirement or section: scope; component and capability map; `R-HX-04`, `R-HX-05`, `R-HX-08`, `R-HX-10`, `R-HX-11`; and acceptance scenarios.
+- Previous contract: The standard governed generated and updated work, while the root router did not clearly apply it to an agent's own material replies. Evidence rules did not state that data and automated checks support rather than replace direct human review.
+- Replacement contract: Material agent replies are human-facing results. They must set an honest expectation, preserve state and useful proof, and adapt to the user's next need. Data supports the decision, while an accountable reviewer directly inspects or uses the result against its core idea and records observations and limits.
+- Rationale: A technically correct reply can still make the user reconstruct meaning and check the agent's work. Human judgment must guide the response and its review without discarding evidence or treating one person's reaction as universal proof.
+- Source: [Human-Centered Agent Responses design](../designs/2026-09-14-human-centered-agent-responses.md), [W20 R1 plan](../plans/2026-09-14-w20-r1-human-centered-agent-responses/00-overview.md).
+
+### 2026-09-15 — W20 R0
+
+- Date: 2026-09-15
+- Coordinate: W20 R0
+- Affected requirement or section: Human Experience Review term; `R-HX-07`; `R-HX-08`; `R-HX-11`; acceptance scenarios; contract, reference, lifecycle, coverage, template, and active work guidance.
+- Previous contract: The review had to record structured per-promise evidence, observations, conclusions, reviewers, and limits. The wording could make the owner think that they had to author the report or use a special response format.
+- Replacement contract: The agent prepares and presents the concise per-promise review. The owner corrects it, adds feedback, acknowledges it, or accepts it. The agent applies each correction and records the approved structured review. Agent preparation never counts as owner approval.
+- Rationale: Preserve the lived-human accountability gate without making the owner repeat the agent's work or learn process vocabulary.
+- Source: Owner product finding during [W20 R0 Phase 5](../work/2026-08-28-w20-r0-human-experience-standard-and-intent/05-delivery-conformance-and-delta-closeout.md).
+
+### 2026-09-15 — W20 R2
+
+- Date: 2026-09-15
+- Coordinate: W20 R2
+- Affected requirement or section: Human Experience Review, experience handoff, human acceptance gate, `R-HX-06`, `R-HX-07`, `R-HX-08`, `R-HX-09`, `R-HX-11`, acceptance scenarios, and non-requirements.
+- Previous contract: The agent prepared the review, but normal completion still required an owner response and an owner-approved structured result.
+- Replacement contract: The agent owns and records Human Experience Review. Completed direct human-facing work normally includes a short optional experience handoff. A human response blocks completion only when accepted authority explicitly defines a human acceptance gate with a named scope and gate effect.
+- Rationale: Keep agents responsible for human quality and preserve access to lived human feedback without turning routine closeout into ceremonial owner approval.
+- Source: [Human Experience Review and Feedback Boundary design](../designs/2026-09-15-human-experience-review-and-feedback-boundary.md) and [W20 R2 plan](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md).
+
+## Source Anchors
+
+- [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
+- [Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
+- [Human Experience Review and Feedback Boundary design](../designs/2026-09-15-human-experience-review-and-feedback-boundary.md)
+- [W20 R2 Human Experience Review and Feedback Boundary plan](../plans/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-overview.md)
+- [Product Overview](01-product-overview.md)
+- [Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md)
+- [Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md)
+- [Agent Instruction Ownership and Managed Blocks](15-agent-instruction-ownership-and-managed-blocks.md)
+- [Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md)
+- [Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md)
+- [Persona Model](47-persona-model.md)
+- [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md)

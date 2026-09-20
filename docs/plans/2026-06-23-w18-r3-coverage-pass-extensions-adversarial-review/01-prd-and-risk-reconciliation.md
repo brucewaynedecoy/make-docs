@@ -2,7 +2,7 @@
 
 ## PRD Additions
 
-Create [PRD 31](../../prd/31-revise-coverage-pass-extensions-adversarial-review.md) as the active owner of the adversarial-review coverage-pass extension.
+Create [PRD 14](../../prd/14-lifecycle-workflow-and-coverage-passes.md) as the active owner of the adversarial-review coverage-pass extension.
 
 PRD 31 should sit after PRD 30 because it depends on the plugin substrate and workflow-bundle boundary while keeping adversarial review outside plugin selection by default.
 

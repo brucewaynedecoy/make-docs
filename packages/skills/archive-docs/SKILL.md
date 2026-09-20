@@ -15,11 +15,11 @@ When spawning succeeds, the primary agent becomes coordinator only. Hand the wor
 
 - the user's request
 - the current working directory
-- the skill name and `packages/skills/archive-docs/SKILL.md` path
+- the skill name and the absolute path of this loaded `SKILL.md` file, as supplied by skill discovery in the current installation
 - the inferred mode if it is obvious from the request, or instructions to resolve mode ambiguity
 - the required output contract: mode, candidate or changed files, approvals needed, validation run, blockers, and concise summary
 
-The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
+Resolve the reference and script paths relative to that installed entry file. Do not substitute a maintainer source-tree path. The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
 
 When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
 
@@ -27,7 +27,7 @@ When spawning is unsupported or the spawn attempt fails, state that delegation i
 
 This skill consolidates four documentation-maintenance workflows into one entrypoint:
 
-- `archive` — move approved artifacts into `docs/assets/archive/`
+- `archive` — move approved artifacts into `.make-docs/archive/`
 - `staleness-check` — report archival candidates without changing files
 - `deprecate` — mark artifacts as superseded in place
 - `archive-impact` — produce a dry-run impact report
@@ -43,16 +43,16 @@ If more than one mode could apply, explain the ambiguity and ask before taking a
 
 ## Shared Rules
 
-- Operate only on artifacts under `docs/`.
+- Operate on project artifacts under `docs/` and approved archive content under `.make-docs/archive/`.
 - Treat [`references/archive-workflow.md`](./references/archive-workflow.md) as the shared authority for tracing, replacement detection, staleness signals, deprecation rules, impact reporting, and archive path mapping.
-- Treat `docs/assets/archive/AGENTS.md` as the structural authority for where archived artifacts belong.
+- Use `.make-docs/archive/` for approved history and archives. Follow its configured root router when present; its absence does not block authorized content work. Create no empty child directories.
 - Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when the doc tree is large enough that manual tracing would be noisy or error-prone.
 - Never archive without explicit user approval.
 - When the mode is mutating (`archive` or `deprecate`), confirm the final target set before writing anything.
 
 ## Mode: `archive`
 
-Use this mode when the user wants to move docs into `docs/assets/archive/`.
+Use this mode when the user wants to move docs into `.make-docs/archive/`.
 
 1. Resolve the target artifact(s) under `docs/`.
 2. Infer the archival submode:
@@ -61,17 +61,18 @@ Use this mode when the user wants to move docs into `docs/assets/archive/`.
    - `replacement` when a newer artifact supersedes an older one
    - `project` when the user wants the full initiative, slug, or wave archived
 3. State `Mode: archive (<submode>)` before continuing.
-4. Trace upstream, downstream, lateral, and slug-based relationships per [`references/archive-workflow.md`](./references/archive-workflow.md).
+4. Trace upstream, downstream, lateral, and slug-based relationships per [`references/archive-workflow.md`](./references/archive-workflow.md). In `direct` mode, use tracing to check link and dependency impact; do not add related artifacts to the archive candidates.
 5. Present a grouped candidate list, clearly separating:
    - `[requested]` user-specified targets
    - `[traced]` artifacts discovered by relationship analysis
+   Keep traced artifacts outside the chosen scope as impact notes, not archive candidates.
 6. Wait for explicit approval of the final archive set.
-7. Move approved artifacts into `docs/assets/archive/`, preserving filenames and directory structure.
+7. Move approved artifacts into `.make-docs/archive/`, preserving filenames and directory structure.
 8. After the move, scan active artifacts for broken links and propose rewrites for user approval.
 
 Archive-mode reminders:
 
-- `related` mode does not archive the named origin unless the user later adds it.
+- `related` mode does not archive the named origin unless the user explicitly includes it in the request or later adds it.
 - `replacement` mode archives the superseded artifact, never the replacement.
 - If the user expands scope mid-flow, restate the new submode and re-present the candidate set.
 
@@ -80,7 +81,7 @@ Archive-mode reminders:
 Use this mode when the user wants advisory analysis without moving or editing files.
 
 1. State `Mode: staleness-check`.
-2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, `docs/guides/developer/`, `docs/guides/user/`, and `docs/assets/history/`.
+2. Scan `docs/designs/`, `docs/plans/`, `docs/work/`, each effective `docs/assets/<persona-slug>/`, and `.make-docs/archive/history/`.
 3. Evaluate staleness signals from [`references/archive-workflow.md`](./references/archive-workflow.md), including:
    - downstream completion
    - deprecated status
@@ -100,13 +101,13 @@ Use this mode when the artifact should stay in place but be marked as no longer 
 3. Confirm the final set of artifacts to deprecate.
 4. For each target:
    - add a deprecation notice after any YAML frontmatter, or at the top if none exists
-   - set `status: deprecated` for developer and user guides that use frontmatter
+   - set `status: deprecated` for guides for any effective Persona that use frontmatter
    - link to the replacement artifact when one is known
 5. Report what changed.
 
 Deprecation-mode reminders:
 
-- Do not move files to `docs/assets/archive/`.
+- Do not move files to `.make-docs/archive/`.
 - Batch deprecation is allowed, but always confirm the full set first.
 - Deprecation is a precursor to archival; it is not archival itself.
 
@@ -135,3 +136,9 @@ This mode is strictly read-only. If the user wants to proceed afterward, switch 
 - [`references/archive-workflow.md`](./references/archive-workflow.md) — tracing rules, staleness signals, deprecation rules, impact-report contract, and archive target mapping
 - [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) — optional helper for large relationship scans
 - [`agents/openai.yaml`](./agents/openai.yaml) — harness metadata for environments that consume packaged agent config
+
+## Current Layout and Audience Discovery
+
+Use `docs/assets/project/` for shared material and `docs/assets/<persona-slug>/` for audience assets. Resolve the default `user` and `maintainer` Personas plus valid `.make-docs/config.yaml` overrides/custom entries. Either primitive can be human or agent. `make-docs project persona list` provides the effective set without Store access; without the CLI, use the defaults/config rules in the always-present docs router. Do not infer an audience from actor identity or silently remap old custom names. Old `docs/assets/archive/`, `docs/assets/library/`, and `docs/artifacts/` paths are migration inputs only.
+
+Ordinary project history/archive work can continue without CLI capture. Never create local Make Docs operational state, write directly to the Store, queue a later capture, or claim unavailable capture succeeded. CLI-managed installation and layout changes require their Store records. To repair an old layout, use the reviewed `project layout preview`, `prepare`, `apply`/`verify` flow; content breadcrumbs do not replace that operation.

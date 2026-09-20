@@ -2,11 +2,11 @@ import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
+  lstatSync,
   readFileSync,
   readdirSync,
   rmdirSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -30,7 +30,7 @@ export function findPackageRoot(fromUrl: string): string {
   return current;
 }
 
-function resolveTemplateRoot(packageRoot: string): string {
+export function resolveTemplateRoot(packageRoot: string): string {
   const sibling = path.resolve(packageRoot, "..", "docs", "template");
   if (existsSync(sibling)) {
     return sibling;
@@ -63,6 +63,15 @@ export function writeTextFile(filePath: string, content: string): void {
   writeFileSync(filePath, content, "utf8");
 }
 
+export function writeContentFile(filePath: string, content: string | Uint8Array): void {
+  ensureParentDir(filePath);
+  writeFileSync(filePath, content);
+}
+
+export function contentEquals(left: string | Uint8Array, right: string | Uint8Array): boolean {
+  return Buffer.from(left).equals(Buffer.from(right));
+}
+
 export function ensureParentDir(filePath: string): void {
   mkdirSync(path.dirname(filePath), { recursive: true });
 }
@@ -71,7 +80,7 @@ export function normalizeRelativePath(relativePath: string): string {
   return relativePath.split(path.sep).join("/");
 }
 
-export function hashText(content: string): string {
+export function hashText(content: string | Uint8Array): string {
   return createHash("sha256").update(content).digest("hex");
 }
 
@@ -109,16 +118,29 @@ export function pruneEmptyDirectories(startDir: string, stopDir: string): void {
 }
 
 export function removeFileIfPresent(filePath: string): boolean {
-  if (!existsSync(filePath)) {
-    return false;
+  let stats;
+  try {
+    stats = lstatSync(filePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
   }
-
-  const stats = statSync(filePath);
-  if (!stats.isFile()) {
+  if (!stats.isFile() && !stats.isSymbolicLink()) {
     throw new Error(`Expected a regular file at ${filePath}, but found a different entry type.`);
   }
 
   rmSync(filePath, { force: false });
+  return true;
+}
+
+export function removeManagedPathIfPresent(filePath: string): boolean {
+  try {
+    lstatSync(filePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
+  }
+  rmSync(filePath, { recursive: true, force: false });
   return true;
 }
 
@@ -127,7 +149,7 @@ export function pruneDirectoryIfEmpty(directoryPath: string): boolean {
     return false;
   }
 
-  const stats = statSync(directoryPath);
+  const stats = lstatSync(directoryPath);
   if (!stats.isDirectory()) {
     throw new Error(`Expected a directory at ${directoryPath}, but found a different entry type.`);
   }
@@ -158,6 +180,38 @@ export function formatInlineList(items: string[]): string {
 
 export function relativePathToTarget(targetDir: string, relativePath: string): string {
   return path.isAbsolute(relativePath) ? path.normalize(relativePath) : path.join(targetDir, relativePath);
+}
+
+export function assertManagedPathHasNoSymlinks(
+  targetDir: string,
+  relativePath: string,
+): void {
+  const boundary = path.resolve(targetDir);
+  const destination = path.resolve(boundary, relativePath);
+  const relativeDestination = path.relative(boundary, destination);
+  if (
+    relativeDestination === ".." ||
+    relativeDestination.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeDestination)
+  ) {
+    throw new Error(`Managed path escapes the project target: ${relativePath}.`);
+  }
+
+  let current = boundary;
+  for (const segment of ["", ...relativeDestination.split(path.sep).filter(Boolean)]) {
+    if (segment) current = path.join(current, segment);
+    try {
+      if (lstatSync(current).isSymbolicLink()) {
+        const displayedPath = segment ? path.relative(boundary, current) : ".";
+        throw new Error(
+          `Managed path uses a symbolic link at ${displayedPath}: ${relativePath}.`,
+        );
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+      throw error;
+    }
+  }
 }
 
 export function exists(filePath: string): boolean {

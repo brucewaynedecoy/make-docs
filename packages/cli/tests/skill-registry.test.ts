@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   getSkillRegistryNames,
   loadSkillRegistry,
+  type SkillRegistry,
 } from "../src/skill-registry";
 import { PACKAGE_ROOT } from "../src/utils";
 
@@ -30,80 +31,103 @@ describe("skill registry", () => {
       readFileSync(path.join(PACKAGE_ROOT, registry.$schema!), "utf8"),
     ) as {
       properties?: {
-        skills?: {
-          items?: {
-            properties?: Record<string, unknown>;
-          };
+        manifestId?: unknown;
+        purposes?: unknown;
+        sourcePolicy?: unknown;
+      };
+      $defs?: {
+        skill?: {
+          properties?: Record<string, unknown>;
         };
       };
     };
-    expect(schema.properties?.skills?.items?.properties).not.toHaveProperty(
-      "required",
-    );
+    expect(schema.properties?.manifestId).toBeDefined();
+    expect(schema.properties?.purposes).toBeDefined();
+    expect(schema.properties?.sourcePolicy).toBeDefined();
+    expect(schema.$defs?.skill?.properties).not.toHaveProperty("required");
   });
 
   test("loads the packaged registry with recommended skills only", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
 
+    expect(registry.schemaVersion).toBe(1);
+    expect(registry.manifestId).toBe("make-docs.first-party");
+    expect(registry.sourcePolicy.kind).toBe("first-party");
+    expect(registry.purposes.map((purpose) => purpose.id)).toEqual([
+      "archive-management",
+      "codebase-decomposition",
+      "documentation-maintenance",
+      "lifecycle-closeout",
+      "workflow-execution",
+      "plan-creation",
+      "migration-support",
+      "naive-uat",
+    ]);
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
-      "closeout-commit",
-      "closeout-phase",
       "cleanup-docs",
-      "work-on-wave",
-      "work-on-phase",
       "decompose-codebase",
+      "naive-uat",
+      "preflight",
+      "factory",
+      "human-experience",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
       "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
+      "factory",
+      "human-experience",
+      "naive-uat",
+      "preflight",
     ]);
     expect(
       registry.skills.every((skill) => !("required" in skill)),
     ).toBe(true);
+    expect(
+      registry.skills.every(
+        (skill) =>
+          skill.displayName &&
+          skill.purposes.length > 0 &&
+          skill.supportedHarnesses.includes("codex") &&
+          skill.supportedHarnesses.includes("claude-code") &&
+          skill.provenance.kind === "first-party",
+      ),
+    ).toBe(true);
   });
 
-  test("declares the closeout commit skill asset surface", () => {
+  test("withdraws the D-020 lifecycle skills from the shipped registry", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const closeoutSkill = registry.skills.find(
-      (skill) => skill.name === "closeout-commit",
-    );
+    const withdrawnSkills = [
+      "closeout-commit",
+      "closeout-phase",
+      "work-on-phase",
+      "work-on-wave",
+    ];
 
-    expect(closeoutSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/closeout-commit-workflow.md",
-        installPath: "references/closeout-commit-workflow.md",
-      },
-      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
-      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
-      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
-    ]);
+    for (const withdrawnSkill of withdrawnSkills) {
+      expect(
+        registry.skills.find((skill) => skill.name === withdrawnSkill),
+      ).toBeUndefined();
+    }
   });
 
-  test("declares the closeout skill asset surface", () => {
+  test("keeps the canonical purpose registry intact after the lifecycle skill withdrawal", () => {
     const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const closeoutSkill = registry.skills.find(
-      (skill) => skill.name === "closeout-phase",
+    const skillPurposeIds = new Set(
+      registry.skills.flatMap((skill) => skill.purposes),
     );
 
-    expect(closeoutSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/closeout-workflow.md",
-        installPath: "references/closeout-workflow.md",
-      },
-      { source: "scripts/closeout_probe.py", installPath: "scripts/closeout_probe.py" },
-      { source: "scripts/closeout_validate.py", installPath: "scripts/closeout_validate.py" },
-      { source: "scripts/closeout_history.py", installPath: "scripts/closeout_history.py" },
-      { source: "scripts/work_phase_state.py", installPath: "scripts/work_phase_state.py" },
-      { source: "scripts/guide_coverage_probe.py", installPath: "scripts/guide_coverage_probe.py" },
-    ]);
+    // Retired lifecycle Skills stay withdrawn. The explicit Factory
+    // now occupies workflow-execution without restoring those Skill names.
+    expect(registry.purposes.map((purpose) => purpose.id)).toContain(
+      "lifecycle-closeout",
+    );
+    expect(registry.purposes.map((purpose) => purpose.id)).toContain(
+      "workflow-execution",
+    );
+    expect(skillPurposeIds.has("lifecycle-closeout")).toBe(false);
+    expect(skillPurposeIds.has("workflow-execution")).toBe(true);
   });
 
   test("declares the cleanup docs skill asset surface", () => {
@@ -118,55 +142,6 @@ describe("skill registry", () => {
         source: "scripts/check_markdown_style.py",
         installPath: "scripts/check_markdown_style.py",
       },
-    ]);
-  });
-
-  test("declares the work on wave skill asset surface", () => {
-    const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const implementSkill = registry.skills.find(
-      (skill) => skill.name === "work-on-wave",
-    );
-
-    expect(implementSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/wave-implementation-workflow.md",
-        installPath: "references/wave-implementation-workflow.md",
-      },
-      {
-        source: "scripts/work_on_wave_common.py",
-        installPath: "scripts/work_on_wave_common.py",
-      },
-      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
-      { source: "scripts/wave_status.py", installPath: "scripts/wave_status.py" },
-      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
-      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
-      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
-      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
-    ]);
-  });
-
-  test("declares the work on phase skill asset surface", () => {
-    const registry = loadSkillRegistry(PACKAGE_ROOT);
-    const implementSkill = registry.skills.find(
-      (skill) => skill.name === "work-on-phase",
-    );
-
-    expect(implementSkill?.assets).toEqual([
-      { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "references/phase-implementation-workflow.md",
-        installPath: "references/phase-implementation-workflow.md",
-      },
-      {
-        source: "scripts/work_on_wave_common.py",
-        installPath: "scripts/work_on_wave_common.py",
-      },
-      { source: "scripts/resolve_wave.py", installPath: "scripts/resolve_wave.py" },
-      { source: "scripts/phase_plan.py", installPath: "scripts/phase_plan.py" },
-      { source: "scripts/checkpoint.py", installPath: "scripts/checkpoint.py" },
-      { source: "scripts/scope_guard.py", installPath: "scripts/scope_guard.py" },
-      { source: "scripts/phase_gate.py", installPath: "scripts/phase_gate.py" },
     ]);
   });
 
@@ -232,40 +207,219 @@ describe("skill registry", () => {
     ]);
   });
 
-  test("rejects local skill sources", () => {
+  test("rejects local skill sources in first-party manifests", () => {
     const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
     try {
       mkdirSync(packageRoot, { recursive: true });
       writeFileSync(
         path.join(packageRoot, "skill-registry.json"),
         JSON.stringify(
-          {
+          createManifest({
             skills: [
               {
                 name: "local-only",
+                displayName: "Local only",
                 source: "local:packages/skills/local-only",
                 entryPoint: "SKILL.md",
                 installName: "local-only",
                 description: "invalid",
+                purposes: ["documentation-maintenance"],
+                supportedHarnesses: ["codex"],
+                provenance: {
+                  kind: "first-party",
+                  label: "make-docs first-party skill",
+                },
                 assets: [],
               },
             ],
-          },
+          }),
           null,
           2,
         ),
         "utf8",
       );
 
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      const registry = loadSkillRegistry(packageRoot);
-
-      expect(registry.skills).toEqual([]);
-      expect(warnSpy).toHaveBeenCalledWith(
-        "Skill registry entry `local-only` must use a remote source URL; skipping.",
+      expect(() => loadSkillRegistry(packageRoot)).toThrow(
+        "must use its embedded first-party source",
       );
     } finally {
       rmSync(packageRoot, { recursive: true, force: true });
     }
   });
+
+  test("rejects duplicate purpose ids", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          purposes: [
+            createPurpose({ id: "documentation-maintenance" }),
+            createPurpose({ id: "documentation-maintenance" }),
+          ],
+        }),
+      ),
+    ).toThrow("duplicate purpose id `documentation-maintenance`");
+  });
+
+  test("rejects unnamespaced third-party purpose ids", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          sourcePolicy: {
+            kind: "local",
+            label: "Local test registry",
+          },
+          purposes: [
+            createPurpose({
+              id: "release-readiness",
+              provenance: {
+                kind: "local",
+                label: "Local test purpose",
+              },
+            }),
+          ],
+          skills: [
+            createSkill({
+              purposes: ["release-readiness"],
+              provenance: {
+                kind: "local",
+                label: "Local test skill",
+              },
+              source: "local:release-readiness",
+            }),
+          ],
+        }),
+      ),
+    ).toThrow("third-party purpose id `release-readiness` must be namespaced");
+  });
+
+  test("rejects first-party purpose collisions without first-party provenance", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          sourcePolicy: {
+            kind: "local",
+            label: "Local test registry",
+          },
+          purposes: [
+            createPurpose({
+              id: "documentation-maintenance",
+              provenance: {
+                kind: "local",
+                label: "Local test purpose",
+              },
+            }),
+          ],
+          skills: [
+            createSkill({
+              purposes: ["documentation-maintenance"],
+              provenance: {
+                kind: "local",
+                label: "Local test skill",
+              },
+              source: "local:docs-cleanup",
+            }),
+          ],
+        }),
+      ),
+    ).toThrow(
+      "purpose `documentation-maintenance` collides with a first-party purpose id without first-party provenance",
+    );
+  });
+
+  test("rejects skill entries that reference missing purposes", () => {
+    expect(() =>
+      loadRegistryFromManifest(
+        createManifest({
+          skills: [createSkill({ purposes: ["missing-purpose"] })],
+        }),
+      ),
+    ).toThrow("skill `test-skill` references missing purpose `missing-purpose`");
+  });
+
+  test("rejects missing source policy and provenance metadata", () => {
+    const manifest = createManifest();
+    delete (manifest as { sourcePolicy?: unknown }).sourcePolicy;
+    delete (manifest.skills[0] as { provenance?: unknown }).provenance;
+
+    expect(() => loadRegistryFromManifest(manifest)).toThrow(
+      "manifest is missing required `sourcePolicy` metadata",
+    );
+    expect(() => loadRegistryFromManifest(manifest)).toThrow(
+      "skill `test-skill` provenance is missing required provenance metadata",
+    );
+  });
 });
+
+function loadRegistryFromManifest(manifest: SkillRegistry): SkillRegistry {
+  const packageRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-skill-registry-"));
+  try {
+    mkdirSync(packageRoot, { recursive: true });
+    writeFileSync(
+      path.join(packageRoot, "skill-registry.json"),
+      JSON.stringify(manifest, null, 2),
+      "utf8",
+    );
+    return loadSkillRegistry(packageRoot);
+  } finally {
+    rmSync(packageRoot, { recursive: true, force: true });
+  }
+}
+
+function createManifest(
+  overrides: Partial<SkillRegistry> = {},
+): SkillRegistry {
+  return {
+    schemaVersion: 1,
+    manifestId: "make-docs.first-party",
+    displayName: "Test registry",
+    description: "Test manifest",
+    sourcePolicy: {
+      kind: "first-party",
+      label: "First-party test registry",
+      allowRemoteSkillSources: true,
+    },
+    purposes: [createPurpose()],
+    skills: [createSkill()],
+    ...overrides,
+  };
+}
+
+function createPurpose(
+  overrides: Partial<SkillRegistry["purposes"][number]> = {},
+): SkillRegistry["purposes"][number] {
+  return {
+    id: "documentation-maintenance",
+    label: "Documentation maintenance",
+    description: "Test documentation maintenance purpose.",
+    order: 10,
+    provenance: {
+      kind: "first-party",
+      label: "make-docs canonical purpose",
+      manifestId: "make-docs.first-party",
+    },
+    ...overrides,
+  };
+}
+
+function createSkill(
+  overrides: Partial<SkillRegistry["skills"][number]> = {},
+): SkillRegistry["skills"][number] {
+  return {
+    name: "test-skill",
+    displayName: "Test skill",
+    source: "embedded:test-skill",
+    entryPoint: "SKILL.md",
+    installName: "test-skill",
+    description: "Test skill.",
+    purposes: ["documentation-maintenance"],
+    supportedHarnesses: ["codex", "claude-code"],
+    provenance: {
+      kind: "first-party",
+      label: "make-docs first-party skill",
+      repository: "brucewaynedecoy/make-docs",
+      ref: "main",
+    },
+    assets: [],
+    ...overrides,
+  };
+}

@@ -6,7 +6,7 @@ Register the `.make-docs/` tool directory and system/custom tier contract in the
 
 ## Required PRD Changes
 
-- Add `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`.
+- Add `docs/prd/21-project-tool-directory-and-resource-tiers.md`.
 - Update the PRD index, architecture, installation/manifest, template, dogfood, packaging, W10 materialization, compatibility, source-of-truth, and conformance docs as needed.
 - Update existing risk-register entries D-008, D-007, D-014, Q-005, Q-007, Q-012, R-003, R-004, R-006, R-007, and R-014 without duplicating IDs.
 

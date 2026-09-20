@@ -92,9 +92,11 @@ Rebuild work belongs in `docs/work/`, not `docs/prd/`.
 
 ## Existing PRD Behavior
 
-`docs/prd/` is treated as the location for exactly one active PRD set.
+`docs/prd/` is treated as the location for exactly one active PRD set. That set describes the current authoritative product shape, never the editorial operation used to change it.
 
-If execution finds active content already present in `docs/prd/`, the skill should:
+For ordinary product changes, the skill should update an existing owning PRD surgically, create a new PRD only for a genuinely new capability, subsystem, or product boundary, or create no PRD when the active authority already covers the decision. Material prior contracts may be recorded in an optional, non-normative `## Requirement History` section. Plans, work backlogs, and history records—not active PRDs—describe revision or migration operations.
+
+If an explicitly authorized full-set decomposition or product-authority re-baseline finds active content already present in `docs/prd/`, the skill should:
 
 - inspect and summarize the existing root entries
 - ask for approval before archiving them
@@ -103,10 +105,10 @@ If execution finds active content already present in `docs/prd/`, the skill shou
 
 Archive paths follow this pattern:
 
-- `docs/assets/archive/prds/YYYY-MM-DD/`
-- `docs/assets/archive/prds/YYYY-MM-DD-XX/`
+- `.make-docs/archive/prds/YYYY-MM-DD/`
+- `.make-docs/archive/prds/YYYY-MM-DD-XX/`
 
-This keeps `docs/prd/` clean and ensures there is only one current PRD set at a time.
+This keeps `docs/prd/` clean and ensures there is only one current product-authority set at a time.
 
 ## Recommended Session Pattern
 
@@ -146,13 +148,13 @@ If you approve this plan, I can either save the plan only or save it and start e
 ```text
 Use `decompose-codebase` to execute the approved decomposition plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`.
 
-Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `docs/assets/archive/prds/...`.
+Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ### Stricter execution variant
 
 ```text
-Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. Re-check MCP availability in this session and use `jdocmunch` and `jcodemunch` if available. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `docs/assets/archive/prds/...`.
+Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. Re-check MCP availability in this session and use `jdocmunch` and `jcodemunch` if available. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ## Related Files

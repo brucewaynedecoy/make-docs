@@ -2,7 +2,11 @@
 
 ## Purpose
 
-Decide how make-docs v2 removes standalone deterministic script dependencies from shipped system resources and first-party skills without breaking installed workflows. The migration target is a CLI/shared-core operation boundary that ordinary CLI commands and future MCP tools can expose consistently, while skills become guidance and routing layers instead of carrying make-docs-owned deterministic logic.
+Decide how make-docs v2 removes standalone deterministic script dependencies from shipped system resources and first-party skills without breaking installed workflows. The migration target is a modular TypeScript CLI/shared-core operation boundary that ordinary CLI commands and required MCP tools expose consistently, while skills become guidance and routing layers instead of carrying make-docs-owned deterministic logic.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's deferred MCP and Rust-parity framing. W16 R3 remains completed operation-boundary evidence, but future work must treat MCP as required, TypeScript-owned, and implemented through modular operation domains in W10 R8.
 
 ## Source Design
 
@@ -32,7 +36,7 @@ The design leaves the coordinate unresolved but names W16 R0 coverage-pass work 
 - System wrapper scripts remain only as thin compatibility wrappers after equivalent CLI/shared-core operations exist.
 - The no-default-skills contract remains intact: bare installs still install no skills or skill scripts.
 - Old managed scripts, wrapper scripts, modified local files, and custom user scripts are classified through manifest, audit, backup, uninstall, and migration safety rules before mutation.
-- Each migrated operation has deterministic inputs, outputs, dry-run behavior, provenance, and error semantics that future MCP tools can expose without a second behavior model.
+- Each migrated operation has deterministic inputs, outputs, dry-run behavior, provenance, and error semantics that MCP tools can expose without a second behavior model.
 
 ## PRD Strategy
 

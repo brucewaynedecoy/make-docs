@@ -1,0 +1,9 @@
+<!-- make-docs:begin -->
+# Assets Router
+
+- Put shared project material in `docs/assets/project/`.
+- Put audience-specific material in `docs/assets/<persona-slug>/`; this project currently declares `user`, `maintainer`, and `operators` personas.
+- Create audience directories and documents only when they are needed.
+- Keep Make Docs installation and operation state only in the global Make Docs Store. Do not create project-local state or fallback records.
+- Keep instruction routing in this file rather than adding routers below the assets root.
+<!-- make-docs:end -->

@@ -1,0 +1,922 @@
+{
+  "full": {
+    "plugin": {
+      "pluginId": "product-development-review",
+      "title": "Product Development Review",
+      "summary": "Review product-development work through a supported harness plugin.",
+      "status": "provisional",
+      "sourceManifest": {
+        "manifestId": "first-party-plugins",
+        "displayName": "Make Docs first-party plugins",
+        "source": "built-in"
+      },
+      "ref": "package:first-party/product-development-review",
+      "version": "0.0.0-test",
+      "digest": "sha256:plugin-digest",
+      "provenance": "make-docs first-party plugin fixture",
+      "trustPolicy": {
+        "kind": "first-party",
+        "description": "Bundled make-docs fixture."
+      },
+      "supportedHarnesses": [
+        "codex",
+        "claude-code"
+      ],
+      "scope": "project",
+      "supportStatus": "provisional"
+    },
+    "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+    "payloadAssets": [
+      {
+        "kind": "plugin-payload",
+        "relativePath": ".make-docs/agentics/plugins/product-development-review/plugin.json",
+        "assetClass": "static",
+        "sourceId": "plugin-payload-asset:product-development-review:plugin.json",
+        "content": "{\"name\":\"product-development-review\"}\n",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex",
+            "claude-code"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-payload",
+          "id": "product-development-review",
+          "pathKind": "file",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        }
+      },
+      {
+        "kind": "plugin-payload",
+        "relativePath": ".make-docs/agentics/plugins/product-development-review/README.md",
+        "assetClass": "static",
+        "sourceId": "plugin-payload-asset:product-development-review:README.md",
+        "content": "# Product Development Review\n",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex",
+            "claude-code"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-payload",
+          "id": "product-development-review",
+          "pathKind": "file",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        }
+      }
+    ],
+    "exposureAssets": [
+      {
+        "kind": "plugin-exposure",
+        "relativePath": ".agents/plugins/product-development-review",
+        "assetClass": "static",
+        "sourceId": "plugin-exposure:codex:product-development-review",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex",
+            "claude-code"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-native-exposure",
+          "id": "product-development-review",
+          "pathKind": "directory",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".agents/plugins/product-development-review",
+          "exposureMode": "symlink",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        },
+        "pluginExposure": {
+          "pluginId": "product-development-review",
+          "harness": "codex",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".agents/plugins/product-development-review",
+          "preferredMode": "symlink",
+          "symlinkTarget": "../../.make-docs/agentics/plugins/product-development-review",
+          "copyMirrorSource": ".make-docs/agentics/plugins/product-development-review"
+        },
+        "copyMirrorAssets": [
+          {
+            "kind": "plugin-payload",
+            "relativePath": ".agents/plugins/product-development-review/plugin.json",
+            "assetClass": "static",
+            "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:plugin.json",
+            "content": "{\"name\":\"product-development-review\"}\n",
+            "pluginArtifact": {
+              "pluginId": "product-development-review",
+              "title": "Product Development Review",
+              "summary": "Review product-development work through a supported harness plugin.",
+              "status": "provisional",
+              "sourceManifest": {
+                "manifestId": "first-party-plugins",
+                "displayName": "Make Docs first-party plugins",
+                "source": "built-in"
+              },
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportedHarnesses": [
+                "codex",
+                "claude-code"
+              ],
+              "scope": "project",
+              "supportStatus": "provisional"
+            },
+            "agenticOwnership": {
+              "artifactKind": "plugin",
+              "role": "plugin-copy-mirror",
+              "id": "product-development-review",
+              "pathKind": "file",
+              "scope": "project",
+              "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+              "exposurePath": ".agents/plugins/product-development-review/plugin.json",
+              "exposureMode": "copy-mirror",
+              "sourceManifest": "first-party-plugins",
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportStatus": "provisional"
+            }
+          },
+          {
+            "kind": "plugin-payload",
+            "relativePath": ".agents/plugins/product-development-review/README.md",
+            "assetClass": "static",
+            "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:README.md",
+            "content": "# Product Development Review\n",
+            "pluginArtifact": {
+              "pluginId": "product-development-review",
+              "title": "Product Development Review",
+              "summary": "Review product-development work through a supported harness plugin.",
+              "status": "provisional",
+              "sourceManifest": {
+                "manifestId": "first-party-plugins",
+                "displayName": "Make Docs first-party plugins",
+                "source": "built-in"
+              },
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportedHarnesses": [
+                "codex",
+                "claude-code"
+              ],
+              "scope": "project",
+              "supportStatus": "provisional"
+            },
+            "agenticOwnership": {
+              "artifactKind": "plugin",
+              "role": "plugin-copy-mirror",
+              "id": "product-development-review",
+              "pathKind": "file",
+              "scope": "project",
+              "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+              "exposurePath": ".agents/plugins/product-development-review/README.md",
+              "exposureMode": "copy-mirror",
+              "sourceManifest": "first-party-plugins",
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportStatus": "provisional"
+            }
+          }
+        ]
+      },
+      {
+        "kind": "plugin-exposure",
+        "relativePath": ".claude/plugins/product-development-review/plugin.json",
+        "assetClass": "static",
+        "sourceId": "plugin-generated-adapter:claude-code:product-development-review",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex",
+            "claude-code"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-generated-adapter",
+          "id": "product-development-review",
+          "pathKind": "file",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".claude/plugins/product-development-review/plugin.json",
+          "exposureMode": "generated-adapter",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        },
+        "pluginExposure": {
+          "pluginId": "product-development-review",
+          "harness": "claude-code",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".claude/plugins/product-development-review/plugin.json",
+          "preferredMode": "symlink",
+          "mode": "generated-adapter",
+          "generatedAdapterSourceId": "plugin-generated-adapter:claude-code:product-development-review",
+          "generatedAdapterDigest": "sha256:adapter-digest"
+        },
+        "copyMirrorAssets": [],
+        "generatedAdapterAsset": {
+          "kind": "plugin-payload",
+          "relativePath": ".claude/plugins/product-development-review/plugin.json",
+          "assetClass": "static",
+          "sourceId": "plugin-generated-adapter:claude-code:product-development-review",
+          "content": "{\"adapter\":\"claude-code\"}\n",
+          "pluginArtifact": {
+            "pluginId": "product-development-review",
+            "title": "Product Development Review",
+            "summary": "Review product-development work through a supported harness plugin.",
+            "status": "provisional",
+            "sourceManifest": {
+              "manifestId": "first-party-plugins",
+              "displayName": "Make Docs first-party plugins",
+              "source": "built-in"
+            },
+            "ref": "package:first-party/product-development-review",
+            "version": "0.0.0-test",
+            "digest": "sha256:plugin-digest",
+            "provenance": "make-docs first-party plugin fixture",
+            "trustPolicy": {
+              "kind": "first-party",
+              "description": "Bundled make-docs fixture."
+            },
+            "supportedHarnesses": [
+              "codex",
+              "claude-code"
+            ],
+            "scope": "project",
+            "supportStatus": "provisional"
+          },
+          "agenticOwnership": {
+            "artifactKind": "plugin",
+            "role": "plugin-generated-adapter",
+            "id": "product-development-review",
+            "pathKind": "file",
+            "scope": "project",
+            "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+            "exposurePath": ".claude/plugins/product-development-review/plugin.json",
+            "exposureMode": "generated-adapter",
+            "sourceManifest": "first-party-plugins",
+            "ref": "package:first-party/product-development-review",
+            "version": "0.0.0-test",
+            "digest": "sha256:plugin-digest",
+            "provenance": "make-docs first-party plugin fixture",
+            "trustPolicy": {
+              "kind": "first-party",
+              "description": "Bundled make-docs fixture."
+            },
+            "supportStatus": "provisional"
+          }
+        }
+      }
+    ]
+  },
+  "fullFiles": {
+    ".make-docs/agentics/plugins/product-development-review/plugin.json": {
+      "hash": "fafae88c1e5226f02773d5fc269ff5d3a9eb63907f0a0f974b3e472e689e07a5",
+      "sourceId": "plugin-payload-asset:product-development-review:plugin.json",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-payload",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".make-docs/agentics/plugins/product-development-review/README.md": {
+      "hash": "255d3d6044b6537527611123a7ef354068d9b747425351f04c991343ad71ab7b",
+      "sourceId": "plugin-payload-asset:product-development-review:README.md",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-payload",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".agents/plugins/product-development-review": {
+      "hash": "1b1f0492ac609c4a9029934c30c58b64b95681937e2ee4691a200764a6c3f6fb",
+      "sourceId": "plugin-exposure:codex:product-development-review",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-native-exposure",
+        "id": "product-development-review",
+        "pathKind": "directory",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "exposurePath": ".agents/plugins/product-development-review",
+        "exposureMode": "symlink",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".claude/plugins/product-development-review/plugin.json": {
+      "hash": "2e5a4c1ae7c306e481046b74347a6760eeb3f83f55782f6a9ae987a2211b82ea",
+      "sourceId": "plugin-generated-adapter:claude-code:product-development-review",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-generated-adapter",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "exposurePath": ".claude/plugins/product-development-review/plugin.json",
+        "exposureMode": "generated-adapter",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    }
+  },
+  "mirror": {
+    "plugin": {
+      "pluginId": "product-development-review",
+      "title": "Product Development Review",
+      "summary": "Review product-development work through a supported harness plugin.",
+      "status": "provisional",
+      "sourceManifest": {
+        "manifestId": "first-party-plugins",
+        "displayName": "Make Docs first-party plugins",
+        "source": "built-in"
+      },
+      "ref": "package:first-party/product-development-review",
+      "version": "0.0.0-test",
+      "digest": "sha256:plugin-digest",
+      "provenance": "make-docs first-party plugin fixture",
+      "trustPolicy": {
+        "kind": "first-party",
+        "description": "Bundled make-docs fixture."
+      },
+      "supportedHarnesses": [
+        "codex"
+      ],
+      "scope": "project",
+      "supportStatus": "provisional"
+    },
+    "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+    "payloadAssets": [
+      {
+        "kind": "plugin-payload",
+        "relativePath": ".make-docs/agentics/plugins/product-development-review/plugin.json",
+        "assetClass": "static",
+        "sourceId": "plugin-payload-asset:product-development-review:plugin.json",
+        "content": "{\"name\":\"product-development-review\"}\n",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-payload",
+          "id": "product-development-review",
+          "pathKind": "file",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        }
+      },
+      {
+        "kind": "plugin-payload",
+        "relativePath": ".make-docs/agentics/plugins/product-development-review/README.md",
+        "assetClass": "static",
+        "sourceId": "plugin-payload-asset:product-development-review:README.md",
+        "content": "# Product Development Review\n",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-payload",
+          "id": "product-development-review",
+          "pathKind": "file",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        }
+      }
+    ],
+    "exposureAssets": [
+      {
+        "kind": "plugin-exposure",
+        "relativePath": ".agents/plugins/product-development-review",
+        "assetClass": "static",
+        "sourceId": "plugin-exposure:codex:product-development-review",
+        "pluginArtifact": {
+          "pluginId": "product-development-review",
+          "title": "Product Development Review",
+          "summary": "Review product-development work through a supported harness plugin.",
+          "status": "provisional",
+          "sourceManifest": {
+            "manifestId": "first-party-plugins",
+            "displayName": "Make Docs first-party plugins",
+            "source": "built-in"
+          },
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportedHarnesses": [
+            "codex"
+          ],
+          "scope": "project",
+          "supportStatus": "provisional"
+        },
+        "agenticOwnership": {
+          "artifactKind": "plugin",
+          "role": "plugin-native-exposure",
+          "id": "product-development-review",
+          "pathKind": "directory",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".agents/plugins/product-development-review",
+          "exposureMode": "copy-mirror",
+          "sourceManifest": "first-party-plugins",
+          "ref": "package:first-party/product-development-review",
+          "version": "0.0.0-test",
+          "digest": "sha256:plugin-digest",
+          "provenance": "make-docs first-party plugin fixture",
+          "trustPolicy": {
+            "kind": "first-party",
+            "description": "Bundled make-docs fixture."
+          },
+          "supportStatus": "provisional"
+        },
+        "pluginExposure": {
+          "pluginId": "product-development-review",
+          "harness": "codex",
+          "scope": "project",
+          "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+          "exposurePath": ".agents/plugins/product-development-review",
+          "preferredMode": "symlink",
+          "symlinkTarget": "../../.make-docs/agentics/plugins/product-development-review",
+          "copyMirrorSource": ".make-docs/agentics/plugins/product-development-review",
+          "mode": "copy-mirror"
+        },
+        "copyMirrorAssets": [
+          {
+            "kind": "plugin-payload",
+            "relativePath": ".agents/plugins/product-development-review/plugin.json",
+            "assetClass": "static",
+            "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:plugin.json",
+            "content": "{\"name\":\"product-development-review\"}\n",
+            "pluginArtifact": {
+              "pluginId": "product-development-review",
+              "title": "Product Development Review",
+              "summary": "Review product-development work through a supported harness plugin.",
+              "status": "provisional",
+              "sourceManifest": {
+                "manifestId": "first-party-plugins",
+                "displayName": "Make Docs first-party plugins",
+                "source": "built-in"
+              },
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportedHarnesses": [
+                "codex"
+              ],
+              "scope": "project",
+              "supportStatus": "provisional"
+            },
+            "agenticOwnership": {
+              "artifactKind": "plugin",
+              "role": "plugin-copy-mirror",
+              "id": "product-development-review",
+              "pathKind": "file",
+              "scope": "project",
+              "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+              "exposurePath": ".agents/plugins/product-development-review/plugin.json",
+              "exposureMode": "copy-mirror",
+              "sourceManifest": "first-party-plugins",
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportStatus": "provisional"
+            }
+          },
+          {
+            "kind": "plugin-payload",
+            "relativePath": ".agents/plugins/product-development-review/README.md",
+            "assetClass": "static",
+            "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:README.md",
+            "content": "# Product Development Review\n",
+            "pluginArtifact": {
+              "pluginId": "product-development-review",
+              "title": "Product Development Review",
+              "summary": "Review product-development work through a supported harness plugin.",
+              "status": "provisional",
+              "sourceManifest": {
+                "manifestId": "first-party-plugins",
+                "displayName": "Make Docs first-party plugins",
+                "source": "built-in"
+              },
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportedHarnesses": [
+                "codex"
+              ],
+              "scope": "project",
+              "supportStatus": "provisional"
+            },
+            "agenticOwnership": {
+              "artifactKind": "plugin",
+              "role": "plugin-copy-mirror",
+              "id": "product-development-review",
+              "pathKind": "file",
+              "scope": "project",
+              "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+              "exposurePath": ".agents/plugins/product-development-review/README.md",
+              "exposureMode": "copy-mirror",
+              "sourceManifest": "first-party-plugins",
+              "ref": "package:first-party/product-development-review",
+              "version": "0.0.0-test",
+              "digest": "sha256:plugin-digest",
+              "provenance": "make-docs first-party plugin fixture",
+              "trustPolicy": {
+                "kind": "first-party",
+                "description": "Bundled make-docs fixture."
+              },
+              "supportStatus": "provisional"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "mirrorFiles": {
+    ".make-docs/agentics/plugins/product-development-review/plugin.json": {
+      "hash": "fafae88c1e5226f02773d5fc269ff5d3a9eb63907f0a0f974b3e472e689e07a5",
+      "sourceId": "plugin-payload-asset:product-development-review:plugin.json",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-payload",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".make-docs/agentics/plugins/product-development-review/README.md": {
+      "hash": "255d3d6044b6537527611123a7ef354068d9b747425351f04c991343ad71ab7b",
+      "sourceId": "plugin-payload-asset:product-development-review:README.md",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-payload",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".agents/plugins/product-development-review": {
+      "hash": "2f2f28b5e38594c65f0608b1ae632303211b61d3fae4c5938076ab7360f02cf5",
+      "sourceId": "plugin-exposure:codex:product-development-review",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-native-exposure",
+        "id": "product-development-review",
+        "pathKind": "directory",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "exposurePath": ".agents/plugins/product-development-review",
+        "exposureMode": "copy-mirror",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".agents/plugins/product-development-review/plugin.json": {
+      "hash": "fafae88c1e5226f02773d5fc269ff5d3a9eb63907f0a0f974b3e472e689e07a5",
+      "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:plugin.json",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-copy-mirror",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "exposurePath": ".agents/plugins/product-development-review/plugin.json",
+        "exposureMode": "copy-mirror",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    },
+    ".agents/plugins/product-development-review/README.md": {
+      "hash": "255d3d6044b6537527611123a7ef354068d9b747425351f04c991343ad71ab7b",
+      "sourceId": "plugin-copy-mirror-asset:codex:product-development-review:README.md",
+      "agenticOwnership": {
+        "artifactKind": "plugin",
+        "role": "plugin-copy-mirror",
+        "id": "product-development-review",
+        "pathKind": "file",
+        "scope": "project",
+        "canonicalPayloadPath": ".make-docs/agentics/plugins/product-development-review",
+        "exposurePath": ".agents/plugins/product-development-review/README.md",
+        "exposureMode": "copy-mirror",
+        "sourceManifest": "first-party-plugins",
+        "ref": "package:first-party/product-development-review",
+        "version": "0.0.0-test",
+        "digest": "sha256:plugin-digest",
+        "provenance": "make-docs first-party plugin fixture",
+        "trustPolicy": {
+          "kind": "first-party",
+          "description": "Bundled make-docs fixture."
+        },
+        "supportStatus": "provisional"
+      }
+    }
+  }
+}

@@ -18,9 +18,9 @@ Generate the paired implementation backlog and close the planning round with val
 
 Every work phase must cite:
 
-- [18-revise-compatibility-audit-and-migration-disposition.md](../../prd/18-revise-compatibility-audit-and-migration-disposition.md)
-- [17-revise-system-asset-materialization-contract.md](../../prd/17-revise-system-asset-materialization-contract.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
+- [18-compatibility-classification-and-migration-safety.md](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [17-system-asset-materialization-and-local-bootstrap.md](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
 - [05-installation-profile-and-manifest-lifecycle.md](../../prd/05-installation-profile-and-manifest-lifecycle.md)
 - [07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md)
 - [03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md)

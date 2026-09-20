@@ -10,6 +10,15 @@ export const HARNESSES = ["claude-code", "codex"] as const;
 
 export type Harness = (typeof HARNESSES)[number];
 
+export const PROJECT_RESOURCE_TYPES = [
+  "contract",
+  "prompt",
+  "reference",
+  "template",
+] as const;
+
+export type ProjectResourceType = (typeof PROJECT_RESOURCE_TYPES)[number];
+
 export const INSTRUCTION_KIND_TO_HARNESS: Record<InstructionKind, Harness> = {
   "AGENTS.md": "codex",
   "CLAUDE.md": "claude-code",
@@ -38,15 +47,123 @@ export type ActionType =
   | "update"
   | "update-conflict"
   | "skip-conflict"
+  | "strip-managed-block"
   | "remove-managed"
   | "generate";
 
+export const SYSTEM_ASSET_MATERIALIZATION_MODES = [
+  "full-snapshot",
+  "provider-backed",
+  "hybrid-pinned-cache",
+] as const;
+
+export type SystemAssetMaterializationMode =
+  (typeof SYSTEM_ASSET_MATERIALIZATION_MODES)[number];
+
+export const DEFAULT_SYSTEM_ASSET_MATERIALIZATION_MODE =
+  "full-snapshot" satisfies SystemAssetMaterializationMode;
+
+export const SYSTEM_ASSET_MATERIALIZATION_CLASSES = [
+  "always-local-bootstrap",
+  "materialized-system-asset",
+  "deferred-system-asset",
+] as const;
+
+export type SystemAssetMaterializationClass =
+  (typeof SYSTEM_ASSET_MATERIALIZATION_CLASSES)[number];
+
+export type ManifestHashAlgorithm = "sha256";
+
+export type SystemAssetOfflineExpectation =
+  | "local"
+  | "cache-or-provider"
+  | "reviewed-full-snapshot-fallback";
+
+export type SystemAssetSelectionTrigger =
+  | "local-bootstrap"
+  | "profile-selection"
+  | "internal-materialization-mode";
+
+export interface SystemAssetMaterializationPlan {
+  mode: SystemAssetMaterializationMode;
+  localBootstrapPaths: string[];
+  deferredSystemAssetPaths: string[];
+  materializationClasses: Record<string, SystemAssetMaterializationClass>;
+}
+
+export interface ManifestSystemAssetEntry {
+  materializationMode: SystemAssetMaterializationMode;
+  sourcePackage?: string;
+  sourceProvider?: string;
+  sourceVersion?: string;
+  sourceImmutableRef?: string;
+  hashAlgorithm: ManifestHashAlgorithm;
+  expectedHashes: string[];
+  logicalAssetId: string;
+  localPath?: string;
+  materializationClass: SystemAssetMaterializationClass;
+  offlineExpectation: SystemAssetOfflineExpectation;
+  recoveryGuidance: string;
+  selectionTrigger: SystemAssetSelectionTrigger;
+}
+
+export interface SystemAssetManifestState extends SystemAssetMaterializationPlan {
+  sourcePackage?: string;
+  sourceProvider?: string;
+  sourceVersion?: string;
+  sourceImmutableRef?: string;
+  hashAlgorithm?: ManifestHashAlgorithm;
+  recoveryGuidance: string;
+  assets: Record<string, ManifestSystemAssetEntry>;
+}
+
 export interface InstallSelections {
+  /** Native Skill tools can differ from the project router tool set. */
+  skillHarnesses?: Record<Harness, boolean>;
   capabilities: Record<Capability, boolean>;
   harnesses: Record<Harness, boolean>;
   skills: boolean;
   skillScope: "project" | "global";
   selectedSkills: string[];
+  skillManifest?: SkillManifestSelectionSource;
+  skillSelectionProvenance?: SkillSelectionProvenanceEntry[];
+  plugins: boolean;
+  pluginScope: AgenticScope;
+  selectedPlugins: string[];
+  pluginManifest?: PluginManifestSelectionSource;
+  pluginSelectionProvenance?: PluginSelectionProvenanceEntry[];
+  /**
+   * Explicit project-local system-resource projection. An empty array means
+   * provider-only operation. Absence is reserved for pre-P4 manifests so
+   * compatibility code can fail closed instead of inventing past intent.
+   */
+  resourceProjection?: ProjectResourceType[];
+}
+
+export interface SkillManifestSelectionSource {
+  manifestId: string;
+  displayName: string;
+  sourcePolicyKind: "first-party" | "local" | "remote-pinned";
+  source: "built-in" | "file" | "remote-pinned";
+  path?: string;
+  digest?: string;
+}
+
+export interface SkillSelectionProvenanceEntry {
+  skillName: string;
+  displayName: string;
+  manifestId: string;
+  manifestDisplayName: string;
+  sourcePolicyKind: "first-party" | "local" | "remote-pinned";
+  purposeIds: string[];
+  purposeLabels: string[];
+  supportedHarnesses: Harness[];
+  skillSource: string;
+  provenanceKind: "first-party" | "local" | "remote-pinned" | "third-party";
+  provenanceLabel: string;
+  repository?: string;
+  ref?: string;
+  digest?: string;
 }
 
 export function getActiveInstructionKinds(
@@ -75,26 +192,394 @@ export interface InstallProfile {
   profileId: string;
 }
 
-export interface ResolvedAsset {
+export type FileContent = string | Buffer;
+
+export interface ResolvedAsset<Content extends FileContent = string> {
+  kind?: "file";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  content: Content;
+}
+
+export type ResolvedFileAsset = ResolvedAsset<FileContent>;
+
+export interface ResolvedSkillExposureAsset {
+  kind: "skill-exposure";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  skillExposure: SkillExposureMetadata;
+  copyMirrorAssets: ResolvedFileAsset[];
+}
+
+export interface ResolvedPluginPayloadAsset {
+  kind: "plugin-payload";
   relativePath: string;
   assetClass: "static" | "scoped-static";
   sourceId: string;
   content: string;
+  pluginArtifact: PluginArtifactMetadata;
+  agenticOwnership: AgenticOwnershipMetadata;
+}
+
+export interface ResolvedPluginExposureAsset {
+  kind: "plugin-exposure";
+  relativePath: string;
+  assetClass: "static" | "scoped-static";
+  sourceId: string;
+  pluginArtifact: PluginArtifactMetadata;
+  agenticOwnership: AgenticOwnershipMetadata;
+  pluginExposure: PluginExposureMetadata;
+  copyMirrorAssets: ResolvedPluginPayloadAsset[];
+  generatedAdapterAsset?: ResolvedPluginPayloadAsset;
+}
+
+export type ResolvedInstallAsset =
+  | ResolvedFileAsset
+  | ResolvedSkillExposureAsset;
+
+export type SkillExposureMode = "symlink" | "copy-mirror";
+
+export interface SkillExposureMetadata {
+  skillName: string;
+  installName: string;
+  harness: Harness;
+  scope: "project" | "global";
+  canonicalPayloadPath: string;
+  exposurePath: string;
+  symlinkTarget: string;
+  preferredMode: "symlink";
+  mode?: SkillExposureMode;
+  copyMirrorSource?: string;
+  fallbackReason?: string;
+  legacyStub?: boolean;
 }
 
 export interface ManifestFileEntry {
   hash: string;
   sourceId: string;
+  ownershipClass?: ManifestOwnershipClass;
+  systemAsset?: ManifestSystemAssetEntry;
+  skillExposure?: SkillExposureMetadata;
+  agenticOwnership?: AgenticOwnershipMetadata;
+}
+
+export type ManifestOwnershipClass =
+  | "installed-provider"
+  | "managed-projection"
+  | "project-override"
+  | "managed-snapshot"
+  | "managed-block"
+  | "project-owned"
+  | "runtime-state"
+  | "selected-skill";
+
+export type ManifestProvenanceState =
+  | "verified"
+  | "incomplete"
+  | "ambiguous"
+  | "contradictory";
+
+export interface ManifestProvenanceClaim {
+  sourcePackage: string;
+  sourceVersion: string;
+  sourceImmutableRef: string;
+  evidenceRefs: string[];
+}
+
+export interface ManifestAdoptionReceipt {
+  receiptId: string;
+  adoptedAt: string;
+  priorOwnershipClass: "managed-snapshot";
+  evidenceRefs: string[];
+}
+
+export type ManifestLifecycleDisposition =
+  | "active"
+  | "preserved-export"
+  | "superseded-managed"
+  | "conflict";
+
+export interface ManifestResourceProjectionEntry {
+  uri: string;
+  managedDestination: string;
+  ownershipClass: "managed-snapshot" | "project-owned";
+  installedDigest: string;
+  hashAlgorithm: "sha256";
+  lastVerifiedAt: string;
+  lifecycleDisposition: ManifestLifecycleDisposition;
+  /** Legacy schema-4 mirrors. New manifests do not write these provider facts. */
+  type?: ProjectResourceType;
+  resourcePath?: string;
+  provenanceState?: ManifestProvenanceState;
+  providerPackage?: string;
+  providerVersion?: string;
+  providerImmutableRef?: string;
+  materializationMode?: "provider-backed-copy";
+  sourceDigest?: string;
+  adoptionReceipt?: ManifestAdoptionReceipt | null;
+  selectionTrigger?: "setup-selection" | "reconfigure-selection";
+  operationLineage?: "W19 R1 P4";
+  provenanceEvidence?: string[];
+  competingClaims?: ManifestProvenanceClaim[];
+}
+
+export interface ResourceProjectionManifestState {
+  /** Legacy schema-4 mirrors. Desired selection now comes only from config. */
+  selectedTypes?: ProjectResourceType[];
+  /** Legacy schema-4 mirror. Provider identity now comes only from the provider. */
+  provider?: {
+    ownershipClass: "installed-provider";
+    provenanceState: "verified";
+    packageName: string;
+    version: string;
+    immutableRef: string;
+    inventoryDigest: string;
+  };
+  resources: Record<string, ManifestResourceProjectionEntry>;
+}
+
+export interface ManifestRouterOwnershipEntry {
+  relativePath: string;
+  harness: Harness;
+  instructionKind: InstructionKind;
+  ownershipClass: "managed-snapshot" | "project-owned";
+  routerClass: "bootstrap" | "on-demand-surface";
+  sourceId: string;
+  sourcePackage: string;
+  sourceVersion: string;
+  sourceImmutableRef: string;
+  materializationMode: "managed-block";
+  provenanceState: ManifestProvenanceState;
+  provenanceEvidence: string[];
+  competingClaims: ManifestProvenanceClaim[];
+  hashAlgorithm: "sha256";
+  expectedSourceHash: string;
+  installedHash: string;
+  lastVerifiedAt: string;
+  lifecycleDisposition: ManifestLifecycleDisposition;
+  adoptionReceipt: ManifestAdoptionReceipt | null;
+}
+
+export interface RouterOwnershipManifestState {
+  configuredHarnesses: Harness[];
+  operationLineage: "W19 R1 P4";
+  routers: Record<string, ManifestRouterOwnershipEntry>;
+}
+
+export type LifecyclePlanDisposition =
+  | "create"
+  | "update"
+  | "preserve"
+  | "conflict"
+  | "skip"
+  | "remove"
+  | "stop";
+
+export interface LifecyclePlanSnapshotEntry {
+  relativePath: string;
+  state: "missing" | "file" | "directory" | "symlink" | "other";
+  digest?: string;
+}
+
+export interface LifecyclePlanSnapshot {
+  id: string;
+  entries: LifecyclePlanSnapshotEntry[];
+}
+
+export interface LifecycleMutationReceipt {
+  schemaVersion: 1;
+  receiptId: string;
+  operation: string;
+  projectId: string;
+  manifestSchemaVersion: number;
+  profileId: string;
+  selectedResourceTypes: ProjectResourceType[];
+  outcomes: Record<LifecyclePlanDisposition, number>;
+  conflicts: string[];
+  backupReferences: string[];
+  committedAt: string;
+  claims: {
+    validated: false;
+    accepted: false;
+    published: false;
+    released: false;
+  };
+}
+
+export type AgenticSkillFileRole =
+  | "shared-payload"
+  | "native-exposure"
+  | "copy-mirror"
+  | "generated-stub"
+  | "legacy-duplicated-payload";
+
+export type AgenticPluginFileRole =
+  | "plugin-payload"
+  | "plugin-native-exposure"
+  | "plugin-copy-mirror"
+  | "plugin-generated-adapter"
+  | "plugin-legacy-generated-output";
+
+export type AgenticFileRole = AgenticSkillFileRole | AgenticPluginFileRole;
+
+export type AgenticArtifactKind = "skill" | "plugin";
+export type AgenticPathKind = "file" | "directory";
+export type AgenticScope = "project" | "global";
+export type AgenticExposureMode = "symlink" | "copy-mirror" | "generated-adapter";
+
+export type PluginArtifactStatus = "provisional" | "active" | "deprecated";
+export type PluginSupportStatus =
+  | "provisional"
+  | "implementation-validated"
+  | "conformance-validated"
+  | "unsupported";
+export type PluginTrustPolicyKind =
+  | "first-party"
+  | "local-reviewed"
+  | "remote-pinned"
+  | "manual-review-required";
+export type PluginSourceKind = "built-in" | "file" | "remote-pinned";
+
+export interface PluginTrustPolicy {
+  kind: PluginTrustPolicyKind;
+  description?: string;
+}
+
+export interface PluginManifestSelectionSource {
+  manifestId: string;
+  displayName: string;
+  sourcePolicyKind: PluginTrustPolicyKind;
+  source: PluginSourceKind;
+  path?: string;
+  digest?: string;
+}
+
+export interface PluginSelectionProvenanceEntry {
+  pluginId: string;
+  title: string;
+  manifestId: string;
+  manifestDisplayName: string;
+  sourcePolicyKind: PluginTrustPolicyKind;
+  supportedHarnesses: Harness[];
+  pluginSource: PluginSourceKind;
+  provenanceKind: PluginTrustPolicyKind;
+  provenanceLabel: string;
+  supportStatus: PluginSupportStatus;
+  repository?: string;
+  ref?: string;
+  digest?: string;
+}
+
+export interface PluginSourceManifestMetadata {
+  manifestId: string;
+  displayName: string;
+  source: PluginSourceKind;
+  path?: string;
+}
+
+export interface PluginArtifactMetadata {
+  pluginId: string;
+  title: string;
+  summary: string;
+  status: PluginArtifactStatus;
+  sourceManifest: PluginSourceManifestMetadata;
+  ref?: string;
+  version?: string;
+  digest: string;
+  provenance: string;
+  trustPolicy: PluginTrustPolicy;
+  supportedHarnesses: Harness[];
+  scope: AgenticScope;
+  supportStatus: PluginSupportStatus;
+  /** Opaque historical metadata. Current code does not interpret these fields. */
+  workflowBundles?: unknown[];
+  packageBoundary?: unknown;
+}
+
+export interface PluginExposureMetadata {
+  pluginId: string;
+  harness: Harness;
+  scope: AgenticScope;
+  canonicalPayloadPath: string;
+  exposurePath: string;
+  preferredMode: "symlink";
+  mode?: AgenticExposureMode;
+  symlinkTarget?: string;
+  copyMirrorSource?: string;
+  generatedAdapterSourceId?: string;
+  generatedAdapterDigest?: string;
+  fallbackReason?: string;
+}
+
+/**
+ * Playbook-packaging provenance carried on manifest ownership records (W18 R8
+ * P4, R-PROV-1): every generated artifact stays traceable to its source
+ * Playbook refs and digests, package profile, adapter id, output kind, and
+ * the concrete generated file — queryable through the manifest and the audit
+ * records that embed it, not only through the in-tree
+ * `.make-docs/provenance.json`. `adapterId` is the free-form harness adapter
+ * identifier, so provenance survives adapters (like `pi`) that are not
+ * first-class {@link Harness} values.
+ */
+export interface AgenticPackagingProvenance {
+  packageId: string;
+  profile: "native" | "portable";
+  adapterId: string;
+  outputKind: "plugin" | "skills-bundle";
+  sourceRefs: string[];
+  sourceDigests: string[];
+  /** Container-relative generated file this entry tracks; "." for the exposure root. */
+  generatedFile: string;
+  /** Compiler inventory category (skill, harness-manifest, ...); "exposure" for exposure entries. */
+  category: string;
+  /** R-GEN-1 generation tier of the file's semantic content; absent on exposure entries. */
+  generationTier?: "deterministic" | "agent-proposed";
+  ownershipStatus: "make-docs-managed";
+}
+
+export interface AgenticOwnershipMetadata {
+  artifactKind: AgenticArtifactKind;
+  role: AgenticFileRole;
+  id: string;
+  pathKind: AgenticPathKind;
+  scope?: AgenticScope;
+  harness?: Harness;
+  canonicalPayloadPath?: string;
+  exposurePath?: string;
+  exposureMode?: AgenticExposureMode;
+  sourceManifest?: string;
+  ref?: string;
+  version?: string;
+  digest?: string;
+  provenance?: string;
+  trustPolicy?: PluginTrustPolicy;
+  supportStatus?: PluginSupportStatus;
+  /** Per-artifact Playbook-packaging provenance (W18 R8 P4, R-PROV-1). */
+  packaging?: AgenticPackagingProvenance;
 }
 
 export interface InstallManifest {
   schemaVersion: number;
+  /**
+   * Stable project identifier minted once at setup (W18 R10; PRD 38 R-ID-1).
+   * Keys every project-scoped row in the machine-level global store and never
+   * changes for the lifetime of the install — clones, moves, and worktrees
+   * carry it with the manifest. Absent on pre-identifier manifests (installs
+   * written before W18 R10); such manifests remain fully valid and the
+   * identifier is minted on the next `make-docs` apply.
+   */
+  projectId?: string;
   packageName: string;
   packageVersion: string;
   updatedAt: string;
   profileId: string;
   selections: InstallSelections;
   effectiveCapabilities: Capability[];
+  systemAssetMaterialization: SystemAssetManifestState;
+  routerOwnership?: RouterOwnershipManifestState;
+  resourceProjection?: ResourceProjectionManifestState;
   files: Record<string, ManifestFileEntry>;
   skillFiles: string[];
 }
@@ -112,19 +597,32 @@ export interface PlannedAction {
   type: ActionType;
   relativePath: string;
   sourceId?: string;
-  content?: string;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
+  skillExposure?: SkillExposureMetadata;
+  copyMirrorAssets?: ResolvedFileAsset[];
+  content?: FileContent;
   contentHash?: string;
   reason?: string;
+  disposition?: LifecyclePlanDisposition;
 }
 
 export interface InstallPlan {
   packageName: string;
   packageVersion: string;
   profile: InstallProfile;
+  systemAssetMaterialization: SystemAssetManifestState;
   actions: PlannedAction[];
   desiredFiles: Record<string, ManifestFileEntry>;
   desiredSkillFiles: string[];
   conflictsRunId?: string;
+  operation?: "setup" | "setup.reconfigure" | "setup.sync";
+  routerOwnership?: RouterOwnershipManifestState;
+  resourceProjection?: ResourceProjectionManifestState;
+  classificationSnapshot?: LifecyclePlanSnapshot;
+  stops?: string[];
+  /** Internal staged-migration control. It never comes from CLI or MCP input. */
+  forceManifestWrite?: boolean;
 }
 
 export interface PackageMeta {
@@ -136,21 +634,45 @@ export interface ApplyResult {
   manifest: InstallManifest;
   appliedActions: PlannedAction[];
   conflictFiles: string[];
+  receipt?: LifecycleMutationReceipt;
+  mutationApplied: boolean;
 }
 
 export type AuditMode = "manifest-present" | "manifest-missing";
+export type CompatibilitySourceState =
+  | "clean-v1"
+  | "clean-v2-full-snapshot"
+  | "clean-v2-provider-backed"
+  | "clean-v2-hybrid-pinned-cache"
+  | "modified-v1"
+  | "partial-install"
+  | "malformed-manifest"
+  | "missing-manifest-recognizable"
+  | "unknown-shape";
+export type CompatibilityDisposition =
+  | "sync"
+  | "migrate"
+  | "migrate-with-review"
+  | "backup-and-reinstall"
+  | "manual-review-required";
 export type AuditPathKind = "file" | "directory";
 export type AuditPathScope = "project" | "home" | "external";
 export type AuditOwnershipSource =
   | "manifest-file"
   | "manifest-skill-file"
   | "managed-state"
+  | "project-config"
   | "fallback";
 export type AuditSkippedStatus = "already-absent" | "excluded";
 export type AuditReasonCode =
   | "instruction-content-match"
   | "managed-file-hash-match"
   | "managed-skill-file-content-match"
+  | "managed-skill-exposure-symlink-match"
+  | "managed-skill-exposure-copy-mirror-match"
+  | "managed-plugin-file-content-match"
+  | "managed-plugin-exposure-symlink-match"
+  | "managed-plugin-exposure-copy-mirror-match"
   | "managed-state-file"
   | "fallback-canonical-content-match"
   | "fallback-root-fingerprint-match"
@@ -158,12 +680,17 @@ export type AuditReasonCode =
   | "already-absent"
   | "inside-backup-root"
   | "outside-supported-roots"
+  | "instruction-user-content-preserved"
   | "instruction-content-mismatch"
   | "managed-file-modified"
   | "manifest-skill-file-without-metadata"
   | "manifest-skill-file-content-mismatch"
+  | "manifest-skill-exposure-mismatch"
+  | "manifest-plugin-file-content-mismatch"
+  | "manifest-plugin-exposure-mismatch"
   | "fallback-root-fingerprint-mismatch"
   | "fallback-ambiguous"
+  | "project-config-preserved"
   | "directory-contains-unmanaged-descendants"
   | "directory-contains-preserved-descendants";
 
@@ -198,11 +725,17 @@ export interface AuditPathMetadata {
 export interface AuditManagedPathMetadata extends AuditPathMetadata {
   ownershipSource: AuditOwnershipSource;
   sourceId?: string;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
+  skillExposure?: SkillExposureMetadata;
 }
 
 export interface AuditCandidateMetadata extends AuditPathMetadata {
   ownershipSource?: AuditOwnershipSource;
   sourceId?: string;
+  agenticRole?: AgenticFileRole;
+  agenticOwnership?: AgenticOwnershipMetadata;
+  skillExposure?: SkillExposureMetadata;
 }
 
 export interface ManifestAuditRecord extends AuditManagedPathMetadata {
@@ -217,7 +750,7 @@ export interface ManifestAuditContext {
 }
 
 export interface AuditRemovableFile extends AuditManagedPathMetadata {
-  kind: "file";
+  kind: "file" | "directory";
   reason: string;
   reasonCode: AuditReasonCode;
   expectedHash?: string;
@@ -244,10 +777,28 @@ export interface AuditSkippedPath extends AuditCandidateMetadata {
   status: AuditSkippedStatus;
 }
 
+export interface AuditSkillSelectionReview {
+  skillsEnabled: boolean;
+  skillScope: InstallSelections["skillScope"];
+  selectedSkills: string[];
+  skillManifest?: SkillManifestSelectionSource;
+  skillSelectionProvenance: SkillSelectionProvenanceEntry[];
+}
+
+export interface AuditPluginSelectionReview {
+  pluginsEnabled: boolean;
+  pluginScope: InstallSelections["pluginScope"];
+  selectedPlugins: string[];
+  pluginManifest?: PluginManifestSelectionSource;
+  pluginSelectionProvenance: PluginSelectionProvenanceEntry[];
+}
+
 export interface AuditReport {
   mode: AuditMode;
   targetDir: string;
   manifestPath: string;
+  skillSelectionReview?: AuditSkillSelectionReview;
+  pluginSelectionReview?: AuditPluginSelectionReview;
   removableFiles: AuditRemovableFile[];
   prunableDirectories: AuditPrunableDirectory[];
   preservedPaths: AuditPreservedPath[];

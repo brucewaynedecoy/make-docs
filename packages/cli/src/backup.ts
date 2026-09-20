@@ -3,16 +3,18 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
-  renameSync,
+  readFileSync,
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "./store/installation-state";
 import { createAuditReport } from "./audit";
+import { getProjectBackupRoot } from "./backup-paths";
 import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
-  AuditPrunableDirectory,
   AuditReport,
+  AuditPrunableDirectory,
   AuditRemovableFile,
   BackupCommandOptions,
   BackupDestinationPlan,
@@ -20,13 +22,11 @@ import type {
 } from "./types";
 import { ensureParentDir } from "./utils";
 
-const PROJECT_BACKUP_DIRNAME = ".backup";
-
 type CopyableAuditRemovableFile = AuditRemovableFile & {
   backupRelativePath: string;
 };
 
-type MaterializableAuditPrunableDirectory = AuditPrunableDirectory & {
+type MaterializableAuditDirectory = AuditPrunableDirectory & {
   backupRelativePath: string;
 };
 
@@ -43,14 +43,22 @@ export type PreparedBackupExecution = {
   auditReport: AuditReport;
   destinationPlan: BackupDestinationPlan | null;
   copyableFiles: CopyableAuditRemovableFile[];
-  materializableDirectories: MaterializableAuditPrunableDirectory[];
+  materializableDirectories: MaterializableAuditDirectory[];
 };
+
+export function compareBackupRelativePathDepth(
+  left: string,
+  right: string,
+): number {
+  const depth = (value: string) => value.split(/[\\/]+/u).filter(Boolean).length;
+  return depth(left) - depth(right);
+}
 
 export async function runBackupCommand(
   options: BackupCommandOptions,
 ): Promise<BackupExecutionResult> {
   const renderer = getLifecycleRenderer();
-  renderer.beginWorkflow("make-docs backup");
+  renderer.beginWorkflow("make-docs setup backup");
   const preparedBackup = await prepareBackupExecution(options);
 
   renderer.renderBackupAuditSummary({
@@ -65,13 +73,20 @@ export async function runBackupCommand(
     return createNoopBackupResult(preparedBackup);
   }
 
+  const destinationPlan = preparedBackup.destinationPlan;
+  if (!destinationPlan) {
+    throw new Error(
+      "Backup destination plan is required when audited entries are copyable.",
+    );
+  }
+
   const shouldProceed = await renderer.confirmBackupRun(options.permissions);
   if (!shouldProceed) {
     renderer.renderBackupCancelled();
     return {
       status: "cancelled",
       targetDir: preparedBackup.targetDir,
-      destinationDir: preparedBackup.destinationPlan.destinationDir,
+      destinationDir: destinationPlan.destinationDir,
       auditReport: preparedBackup.auditReport,
       copiedFiles: [],
       materializedDirectories: [],
@@ -100,8 +115,19 @@ export async function prepareBackupExecution(
   const materializableDirectories = auditReport.prunableDirectories.filter(
     hasBackupRelativePath,
   );
+  const materializableManagedDirectories = auditReport.removableFiles
+    .filter((entry) => entry.kind === "directory")
+    .filter(hasBackupRelativePath)
+    .map((entry): MaterializableAuditDirectory => ({
+      ...entry,
+      kind: "directory",
+      removableDescendantPaths: [],
+      preservedDescendantPaths: [],
+    }));
   const hasCopyableEntries =
-    copyableFiles.length > 0 || materializableDirectories.length > 0;
+    copyableFiles.length > 0 ||
+    materializableDirectories.length > 0 ||
+    materializableManagedDirectories.length > 0;
   const hasProvidedDestinationPlan = Object.hasOwn(options, "destinationPlan");
   const destinationPlan = hasCopyableEntries
     ? hasProvidedDestinationPlan
@@ -119,8 +145,11 @@ export async function prepareBackupExecution(
     targetDir,
     auditReport,
     destinationPlan,
-    copyableFiles,
-    materializableDirectories,
+    copyableFiles: copyableFiles.filter((entry) => entry.kind === "file"),
+    materializableDirectories: [
+      ...materializableDirectories,
+      ...materializableManagedDirectories,
+    ],
   };
 }
 
@@ -137,31 +166,50 @@ export function executePreparedBackup(
     );
   }
 
-  ensureBackupDestination(preparedBackup.destinationPlan);
-  const copiedFiles = copyAuditedFiles(
-    preparedBackup.copyableFiles,
-    preparedBackup.destinationPlan.destinationDir,
-  );
-  const materializedDirectories = materializePrunableDirectories(
-    preparedBackup.materializableDirectories,
-    preparedBackup.destinationPlan.destinationDir,
-  );
+  return withInstallationOperation(preparedBackup.targetDir, "setup.backup", () => {
+    const targetDir = preparedBackup.targetDir;
+    const destination = preparedBackup.destinationPlan!.destinationDir;
+    if (preparedBackup.destinationPlan!.promotion) throw new Error("Create a fresh backup plan. Existing backup paths must remain stable.");
+    if (existsSync(destination)) throw new Error(`Backup destination already exists: ${destination}. Re-run the command to resolve a fresh destination.`);
+    const changes: Array<() => void> = [preparePlannedFileChange(targetDir, path.relative(targetDir, destination), { kind: "directory" }, () => mkdirSync(destination, { recursive: true }))];
+    const copiedFiles: string[] = [];
+    const materializedDirectories: string[] = [];
+    for (const directory of [...preparedBackup.materializableDirectories].sort((a, b) =>
+      compareBackupRelativePathDepth(a.backupRelativePath, b.backupRelativePath))) {
+      const relative = directory.backupRelativePath;
+      if (!relative || relative === ".") continue;
+      const absolute = path.join(destination, relative);
+      changes.push(preparePlannedFileChange(targetDir, path.relative(targetDir, absolute), { kind: "directory" }, () => mkdirSync(absolute, { recursive: true })));
+      materializedDirectories.push(relative);
+    }
+    for (const file of preparedBackup.copyableFiles) {
+      const destinationPath = path.join(destination, file.backupRelativePath);
+      const content = readFileSync(file.absolutePath);
+      changes.push(preparePlannedFileChange(targetDir, path.relative(targetDir, destinationPath), { kind: "file", content }, () => {
+        ensureParentDir(destinationPath);
+        copyFileSync(file.absolutePath, destinationPath);
+      }));
+      copiedFiles.push(file.backupRelativePath);
+    }
+    sealInstallationOperation(targetDir);
+    for (const change of changes) change();
 
-  return {
-    status: "completed",
-    targetDir: preparedBackup.targetDir,
-    destinationDir: preparedBackup.destinationPlan.destinationDir,
-    auditReport: preparedBackup.auditReport,
-    copiedFiles,
-    materializedDirectories,
-  };
+    return {
+      status: "completed",
+      targetDir: preparedBackup.targetDir,
+      destinationDir: preparedBackup.destinationPlan!.destinationDir,
+      auditReport: preparedBackup.auditReport,
+      copiedFiles,
+      materializedDirectories,
+    };
+  });
 }
 
 export function resolveBackupDestinationPlan(
   targetDir: string,
   now: Date,
 ): BackupDestinationPlan {
-  const backupRoot = path.join(targetDir, PROJECT_BACKUP_DIRNAME);
+  const backupRoot = getProjectBackupRoot(targetDir);
   const dateStamp = formatDateStamp(now);
   const plainDirectory = path.join(backupRoot, dateStamp);
   const existingOrdinals = collectExistingOrdinals(backupRoot, dateStamp);
@@ -179,15 +227,8 @@ export function resolveBackupDestinationPlan(
   const usedOrdinals = new Set(existingOrdinals);
   let promotion: BackupDestinationPlan["promotion"];
 
-  if (hasPlainDirectory) {
-    const promotionOrdinal = findLowestAvailableOrdinal(usedOrdinals);
-    const promotedName = `${dateStamp}-${formatOrdinal(promotionOrdinal)}`;
-    promotion = {
-      from: plainDirectory,
-      to: path.join(backupRoot, promotedName),
-    };
-    usedOrdinals.add(promotionOrdinal);
-  }
+  // A completed backup path is a durable payload reference. Never rename it.
+  if (hasPlainDirectory) usedOrdinals.add(0);
 
   const nextOrdinal = Math.max(...usedOrdinals, 0) + 1;
   const directoryName = `${dateStamp}-${formatOrdinal(nextOrdinal)}`;
@@ -226,69 +267,6 @@ function findLowestAvailableOrdinal(usedOrdinals: Set<number>): number {
     ordinal += 1;
   }
   return ordinal;
-}
-
-function ensureBackupDestination(plan: BackupDestinationPlan): void {
-  mkdirSync(plan.backupRoot, { recursive: true });
-
-  if (plan.promotion) {
-    if (existsSync(plan.promotion.to)) {
-      throw new Error(
-        `Cannot promote existing backup to ${plan.promotion.to} because that destination already exists.`,
-      );
-    }
-    renameSync(plan.promotion.from, plan.promotion.to);
-  }
-
-  if (existsSync(plan.destinationDir)) {
-    throw new Error(
-      `Backup destination already exists: ${plan.destinationDir}. Re-run the command to resolve a fresh destination.`,
-    );
-  }
-
-  mkdirSync(plan.destinationDir, { recursive: true });
-}
-
-function copyAuditedFiles(
-  removableFiles: AuditRemovableFile[],
-  destinationDir: string,
-): string[] {
-  const copiedFiles: string[] = [];
-
-  for (const removableFile of removableFiles) {
-    if (!removableFile.backupRelativePath) {
-      continue;
-    }
-
-    const destinationPath = path.join(
-      destinationDir,
-      removableFile.backupRelativePath,
-    );
-    ensureParentDir(destinationPath);
-    copyFileSync(removableFile.absolutePath, destinationPath);
-    copiedFiles.push(removableFile.backupRelativePath);
-  }
-
-  return copiedFiles;
-}
-
-function materializePrunableDirectories(
-  prunableDirectories: AuditPrunableDirectory[],
-  destinationDir: string,
-): string[] {
-  const materializedDirectories = new Set<string>();
-
-  for (const directory of prunableDirectories) {
-    const relativePath = directory.backupRelativePath;
-    if (!relativePath || relativePath === ".") {
-      continue;
-    }
-
-    mkdirSync(path.join(destinationDir, relativePath), { recursive: true });
-    materializedDirectories.add(relativePath);
-  }
-
-  return [...materializedDirectories].sort();
 }
 
 function hasBackupRelativePath<T extends { backupRelativePath: string | null }>(

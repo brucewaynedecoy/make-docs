@@ -1,0 +1,6 @@
+{
+  "command": "/bin/zsh -lc command -v make-docs",
+  "exitCode": 0,
+  "stdout": "make-docs unavailable\n",
+  "stderr": ""
+}

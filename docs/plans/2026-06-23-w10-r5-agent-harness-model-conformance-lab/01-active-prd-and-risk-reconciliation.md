@@ -6,7 +6,7 @@ Register the maintainer-only conformance lab in the active PRD set without turni
 
 ## Required PRD Changes
 
-- Add `docs/prd/20-revise-agent-harness-model-conformance-lab.md`.
+- Add `docs/prd/20-agent-harness-conformance-and-support-claims.md`.
 - Update `docs/prd/00-index.md` routing, source anchors, audience paths, and intended follow-on.
 - Annotate active PRDs for CLI/harness behavior, skills/harness scope, packaging validation, and W10 shared contracts.
 - Update existing risk-register entries Q-007, Q-009, Q-012, Q-013, D-007, R-003, R-004, R-006, R-007, and R-014 without creating duplicate IDs.

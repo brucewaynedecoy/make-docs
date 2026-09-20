@@ -5,8 +5,14 @@ import {
   note,
   select,
 } from "@clack/prompts";
+import { formatAgenticSkillFileRole } from "./agentic-skill-roles";
 import { getRecommendedSkillChoices } from "./skill-catalog";
 import type { WizardSkillChoice } from "./skill-catalog";
+import {
+  createDefaultMakeDocsConfig,
+  getConfigRenderingLabels,
+  type MakeDocsConfig,
+} from "./config";
 import {
   HARNESSES,
   type Harness,
@@ -90,6 +96,8 @@ export interface RunSkillsUiOptions {
   initialState: SkillsUiState;
   introTitle: string;
   startStep?: SkillsUiStep;
+  config?: MakeDocsConfig;
+  skillChoices?: WizardSkillChoice[];
   buildReviewState?: (
     state: SkillsUiState,
   ) => Promise<SkillsReviewStepState> | SkillsReviewStepState;
@@ -156,7 +164,7 @@ export async function runSkillsUiWithRenderer(
 
     if (step === "skills") {
       const selectedSkills = await renderer.chooseSelectedSkills(
-        buildSkillsSelectionStepState(state),
+        buildSkillsSelectionStepState(state, options.skillChoices),
       );
       if (!selectedSkills) {
         return null;
@@ -242,8 +250,8 @@ export function createClackSkillsUiRenderer(): SkillsUiRenderer {
         initialValues: state.selectedSkills,
         options: state.skills.map((skill) => ({
           value: skill.name,
-          label: skill.name,
-          hint: skill.description,
+          label: `${formatSkillPurposeLabels(skill)} / ${skill.name}`,
+          hint: formatSkillChoiceHint(skill),
         })),
       });
 
@@ -271,7 +279,7 @@ export function stateFromSkillsSelections(options: {
   return {
     action: options.action,
     targetDir: options.targetDir,
-    harnesses: getSelectedHarnesses(options.selections),
+    harnesses: getSelectedHarnesses({...options.selections,harnesses:options.selections.skillHarnesses ?? options.selections.harnesses}),
     skillScope: options.selections.skillScope,
     selectedSkills: [...options.selections.selectedSkills],
   };
@@ -290,6 +298,7 @@ export function applySkillsUiStateToSelections(
   selections.harnesses = Object.fromEntries(
     HARNESSES.map((harness) => [harness, state.harnesses.includes(harness)]),
   ) as Record<Harness, boolean>;
+  selections.skillHarnesses = {...selections.harnesses};
   selections.skillScope = state.skillScope;
   selections.selectedSkills = [...state.selectedSkills];
   return selections;
@@ -299,12 +308,19 @@ export function renderSkillsPlanSummary(options: {
   state: SkillsUiState;
   actions: PlannedAction[];
   dryRun: boolean;
+  config?: MakeDocsConfig;
 }): string {
   const counts = countSkillActions(options.actions);
+  const labels = getConfigRenderingLabels(
+    options.config ?? createDefaultMakeDocsConfig(),
+  );
   const lines = [
     `Target: ${options.state.targetDir}`,
     `Action: ${options.state.action === "remove" ? "remove managed skills" : "sync skills"}`,
     `Mode: ${options.dryRun ? "dry run" : "apply"}`,
+    `Document kind labels: ${labels.documentKinds}`,
+    `Coordinate labels: ${labels.coordinates}`,
+    `Persona labels: ${labels.personas}`,
   ];
 
   if (options.state.action === "sync") {
@@ -321,7 +337,7 @@ export function renderSkillsPlanSummary(options: {
     `Managed skill files evaluated: ${options.actions.length}`,
     `Already current: ${counts.noop}`,
     `Generate: ${counts.create + counts.generate}`,
-    `Update: ${counts.update + counts["update-conflict"]}`,
+    `Update: ${counts.update + counts["update-conflict"] + counts["strip-managed-block"]}`,
     `Skip: ${counts.skip + counts["skip-conflict"]}`,
     `Remove: ${counts["remove-managed"]}`,
     "",
@@ -350,6 +366,7 @@ export function countSkillActions(
     "remove-managed": actions.filter((action) => action.type === "remove-managed").length,
     skip: actions.filter((action) => action.type === "skip").length,
     "skip-conflict": actions.filter((action) => action.type === "skip-conflict").length,
+    "strip-managed-block": actions.filter((action) => action.type === "strip-managed-block").length,
     update: actions.filter((action) => action.type === "update").length,
     "update-conflict": actions.filter((action) => action.type === "update-conflict").length,
   };
@@ -432,6 +449,7 @@ async function buildReviewState(
       state,
       actions: [],
       dryRun: false,
+      config: options.config,
     }),
     actions: reviewActionsForState(state),
   };
@@ -489,13 +507,29 @@ function formatSelectedSkills(selectedSkills: string[]): string {
   return selectedSkills.length > 0 ? formatInlineList(selectedSkills) : "none";
 }
 
+function formatSkillPurposeLabels(skill: WizardSkillChoice): string {
+  return skill.purposes.length > 0
+    ? skill.purposes.map((purpose) => purpose.label).join(", ")
+    : "Uncategorized";
+}
+
+function formatSkillChoiceHint(skill: WizardSkillChoice): string {
+  return [
+    skill.description,
+    `Source: ${skill.sourcePolicyKind}`,
+    `Harnesses: ${formatInlineList(skill.supportedHarnesses)}`,
+    `Provenance: ${skill.provenanceLabel}`,
+  ].join(" | ");
+}
+
 function formatSkillActionLine(action: PlannedAction): string {
   const kind = getRenderedSkillActionKind(action);
   if (!kind) {
     throw new Error(`Cannot render no-op action for ${action.relativePath}.`);
   }
 
-  return `${kind}: ${action.relativePath}`;
+  const agenticRole = formatAgenticSkillFileRole(action.agenticRole);
+  return `${kind}: ${agenticRole ? `${agenticRole}: ` : ""}${action.relativePath}`;
 }
 
 function getRenderedSkillActions(actions: PlannedAction[]): PlannedAction[] {
@@ -527,6 +561,7 @@ function getRenderedSkillActionKind(
       return "generate";
     case "update":
     case "update-conflict":
+    case "strip-managed-block":
       return "update";
     case "skip":
     case "skip-conflict":

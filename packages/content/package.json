@@ -1,6 +1,0 @@
-{
-  "name": "@make-docs/content",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Content fragments used by the CLI renderers."
-}

@@ -1,0 +1,39 @@
+{
+  "arguments": [
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@openai/codex/bin/codex.js",
+    "exec",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--disable",
+    "memories",
+    "--disable",
+    "plugins",
+    "--disable",
+    "apps",
+    "--disable",
+    "multi_agent",
+    "--sandbox",
+    "workspace-write",
+    "--skip-git-repo-check",
+    "--cd",
+    "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project",
+    "--json",
+    "--output-last-message",
+    "/tmp/w19-r4-a4-evidence-oa0zj4qs/last-message.txt",
+    "-"
+  ],
+  "environment": {
+    "HOME": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/home",
+    "CODEX_HOME": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/codex-home",
+    "PATH": "/usr/bin:/bin",
+    "TMPDIR": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs",
+    "LANG": "en_US.UTF-8",
+    "TERM": "dumb"
+  },
+  "authBoundary": "Only auth.json symlink is present in isolated CODEX_HOME. No user config, instructions, memory, plugins, or prior sessions copied.",
+  "promptFile": "prompt.txt",
+  "network": "Only Codex model transport; child task forbids network sources.",
+  "makeDocsAbsentFromPath": true
+}

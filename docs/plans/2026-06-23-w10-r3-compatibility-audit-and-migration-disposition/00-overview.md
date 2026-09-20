@@ -6,11 +6,15 @@
 
 **Repository:** `make-docs`
 
-**Purpose:** Produce a reviewable active-set evolution plan for v2 compatibility classification, audit-backed migration dispositions, backup-and-reinstall safety, rollback expectations, and TypeScript/Rust coexistence.
+**Purpose:** Produce a reviewable active-set evolution plan for v2 compatibility classification, audit-backed migration dispositions, backup-and-reinstall safety, rollback expectations, and TypeScript CLI/MCP compatibility.
+
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes this plan's TypeScript/Rust coexistence and PATH-order assumptions. Future compatibility and migration work must classify TypeScript CLI/MCP paths against one shared taxonomy, with no Rust prerequisite for v2.
 
 ## Objective
 
-Revise the active PRD namespace so Make Docs has one compatibility classifier and one disposition model for existing installs while package, asset materialization, dogfood, and future Rust work are in flight. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without weakening the W10 R1 package-boundary or W10 R2 system asset contracts.
+Revise the active PRD namespace so Make Docs has one compatibility classifier and one disposition model for existing installs while package, asset materialization, dogfood, TypeScript CLI, and MCP work are in flight. Completion means the follow-on PRD pass can add one numbered revision doc, annotate affected baseline docs, update the living risk register, and generate a scoped delta backlog without weakening the W10 R1 package-boundary or W10 R2 system asset contracts.
 
 This plan resumes the normal lifecycle arc after the upstream roadmap-driven design batch: accepted design -> plan -> PRD reconciliation -> work backlog.
 
@@ -26,7 +30,7 @@ This plan resumes the normal lifecycle arc after the upstream roadmap-driven des
 
 Revision and enhancement.
 
-This change revises install, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and future Rust compatibility requirements by making state classification mandatory before mutation and by naming allowed dispositions for each source state.
+This change revises install, manifest, audit, backup, uninstall, conflict-review, package, dogfood, and TypeScript CLI/MCP compatibility requirements by making state classification mandatory before mutation and by naming allowed dispositions for each source state.
 
 ## Change Inputs
 
@@ -34,9 +38,9 @@ This change revises install, manifest, audit, backup, uninstall, conflict-review
 - [2026-06-19-package-and-deployment-boundaries.md](../../designs/2026-06-19-package-and-deployment-boundaries.md)
 - [2026-06-19-system-asset-delivery-and-materialization-contract.md](../../designs/2026-06-19-system-asset-delivery-and-materialization-contract.md)
 - [2026-05-06-cli-conflict-resolution.md](../../designs/2026-05-06-cli-conflict-resolution.md)
-- [2026-04-18-cli-help-backup-and-uninstall.md](../../assets/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md)
-- [2026-04-28-cli-asset-selection-simplification.md](../../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md)
-- [2026-04-28-cli-skill-selection-simplification.md](../../assets/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
+- [2026-04-18-cli-help-backup-and-uninstall.md](../../../.make-docs/archive/designs/2026-04-18-cli-help-backup-and-uninstall.md)
+- [2026-04-28-cli-asset-selection-simplification.md](../../../.make-docs/archive/designs/2026-04-28-cli-asset-selection-simplification.md)
+- [2026-04-28-cli-skill-selection-simplification.md](../../../.make-docs/archive/designs/2026-04-28-cli-skill-selection-simplification.md)
 - Current implementation surfaces: `packages/cli/src/manifest.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/backup.ts`, `packages/cli/src/uninstall.ts`, `packages/cli/src/install.ts`, `packages/cli/src/planner.ts`, `packages/cli/src/managed-block.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/skill-resolver.ts`, lifecycle tests, install tests, and smoke-pack.
 
 ## Baseline Context
@@ -45,22 +49,22 @@ The current code already distinguishes manifest-present from manifest-missing au
 
 This plan depends on the active revisions that already define the adjacent contracts:
 
-- [13-revise-cli-conflict-resolution.md](../../prd/13-revise-cli-conflict-resolution.md)
-- [15-revise-agent-instruction-file-ownership.md](../../prd/15-revise-agent-instruction-file-ownership.md)
-- [16-revise-package-and-deployment-boundaries.md](../../prd/16-revise-package-and-deployment-boundaries.md)
-- [17-revise-system-asset-materialization-contract.md](../../prd/17-revise-system-asset-materialization-contract.md)
+- [07-cli-command-surface-and-lifecycle.md](../../prd/07-cli-command-surface-and-lifecycle.md#plan-review-confirmation-and-apply-orchestration)
+- [15-agent-instruction-ownership-and-managed-blocks.md](../../prd/15-agent-instruction-ownership-and-managed-blocks.md)
+- [16-package-runtime-and-deployment-boundaries.md](../../prd/16-package-runtime-and-deployment-boundaries.md)
+- [17-system-asset-materialization-and-local-bootstrap.md](../../prd/17-system-asset-materialization-and-local-bootstrap.md)
 
 ## Output Contract
 
 - Plan directory: `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/` (this directory).
-- New change doc: `docs/prd/18-revise-compatibility-audit-and-migration-disposition.md`.
-- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-revise-package-and-deployment-boundaries.md`, and `docs/prd/17-revise-system-asset-materialization-contract.md`.
+- New change doc: `docs/prd/18-compatibility-classification-and-migration-safety.md`.
+- Baseline docs to annotate: `docs/prd/02-architecture-overview.md`, `docs/prd/05-installation-profile-and-manifest-lifecycle.md`, `docs/prd/06-template-contracts-and-generated-assets.md`, `docs/prd/07-cli-command-surface-and-lifecycle.md`, `docs/prd/08-skills-catalog-and-distribution.md`, `docs/prd/10-packaging-validation-and-release-reference.md`, `docs/prd/16-package-runtime-and-deployment-boundaries.md`, and `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`.
 - Risk register updates: `docs/prd/03-open-questions-and-risk-register.md`.
 - Delta backlog: `docs/work/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/`.
 
 ## Change Doc Strategy
 
-Create one revision doc because the classifier and disposition model are one safety contract. The classifier states, disposition meanings, backup-and-reinstall rules, rollback expectations, and TypeScript/Rust compatibility requirements must be read together.
+Create one revision doc because the classifier and disposition model are one safety contract. The classifier states, disposition meanings, backup-and-reinstall rules, rollback expectations, and TypeScript CLI/MCP compatibility requirements must be read together.
 
 Do not split clean states, malformed manifest handling, missing-manifest fallback, or backup-and-reinstall into separate PRDs.
 
@@ -74,8 +78,8 @@ Do not split clean states, malformed manifest handling, missing-manifest fallbac
 | `docs/prd/07-cli-command-surface-and-lifecycle.md` | Enhanced by | Dedicated migration flow, no implicit destructive migration in ordinary install/reconfigure, and review-first disposition UX. |
 | `docs/prd/08-skills-catalog-and-distribution.md` | Enhanced by | Preserve prior selected skills only when manifest and file evidence are trustworthy; no default skill expansion during migration. |
 | `docs/prd/10-packaging-validation-and-release-reference.md` | Enhanced by | Fixture matrix for every source-state and disposition pair. |
-| `docs/prd/16-revise-package-and-deployment-boundaries.md` | Enhanced by | TypeScript/Rust runtime coexistence must share the classifier and disposition taxonomy. |
-| `docs/prd/17-revise-system-asset-materialization-contract.md` | Enhanced by | Clean v2 full-snapshot, provider-backed, and hybrid pinned-cache states depend on materialization provenance. |
+| `docs/prd/16-package-runtime-and-deployment-boundaries.md` | Enhanced by | TypeScript CLI/MCP runtime paths must share the classifier and disposition taxonomy. |
+| `docs/prd/17-system-asset-materialization-and-local-bootstrap.md` | Enhanced by | Clean v2 full-snapshot, provider-backed, and hybrid pinned-cache states depend on materialization provenance. |
 
 Update `docs/prd/03-open-questions-and-risk-register.md` directly for existing D/Q/R entries. Do not add `Change Notes` inside the register.
 
@@ -100,7 +104,7 @@ Delegation is available in this harness, but this round is a single-design activ
 - `git diff --check`
 - Reindex `jdocmunch` after edits.
 - Verify no duplicate W/R directory in `docs/plans/` or `docs/work/`.
-- Verify PRD index includes `18-revise-compatibility-audit-and-migration-disposition.md`.
+- Verify PRD index includes `18-compatibility-classification-and-migration-safety.md`.
 - Verify all work phase files include source PRD links, phase-local task IDs, plain-bullet acceptance criteria, and dependencies.
 - Source tests are not required for this planning round because it writes docs only; the generated backlog names the implementation tests.
 

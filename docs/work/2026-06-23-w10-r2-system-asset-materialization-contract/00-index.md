@@ -6,6 +6,10 @@
 
 This backlog implements the W10 R2 system asset materialization contract. It turns the accepted design, W10 R2 plan, and PRD 17 revision into dependency-ordered work for materialization mode modeling, local bootstrap guarantees, manifest provenance, provider/cache safety, and validation.
 
+## W10 R7 Runtime Pivot
+
+W10 R7 supersedes future-facing Rust provider and TypeScript/Rust split assumptions in this completed backlog. Treat W10 R2 as system-asset materialization evidence; future provider implementation must use TypeScript CLI/MCP ownership and W10 R8 operation-domain/MCP work.
+
 Implementation must keep full-snapshot behavior as the default until provider-backed and hybrid pinned-cache behavior have explicit implementation evidence.
 
 ## Phase Map
@@ -23,7 +27,7 @@ Implementation must keep full-snapshot behavior as the default until provider-ba
 - Do not make provider-backed mode the default in this backlog.
 - Do not move runtime state into `docs/assets/`.
 - Do not fold skills or plugins into system asset materialization.
-- Treat TypeScript npm behavior as the implementation source of truth until a Rust parity plan lands.
+- Treat TypeScript package behavior as the v2 implementation source of truth for CLI and MCP paths.
 - Preserve existing manifest, audit, backup, uninstall, and conflict-review safety behavior.
 
 ## Intended Follow-On

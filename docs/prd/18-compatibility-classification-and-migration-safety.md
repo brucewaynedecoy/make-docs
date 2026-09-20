@@ -1,0 +1,300 @@
+# 18 Compatibility Classification and Migration Safety
+
+## Purpose
+
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
+
+This document defines the current product contract for compatibility classification, conservative migration, and failure-safe adoption. Normative requirements are stated in the sections below; Requirement History is provenance only.
+## Scope
+
+This authority owns compatibility classification, conservative migration, and failure-safe adoption. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
+## Component and Capability Map
+
+The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
+## Requirements
+
+Classification priority:
+
+1. Resolve the external Store and declarative project identity. Classify Store safety and the checkout binding. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
+2. Validate the Store installation record or supported legacy input: schema, package identity, project and checkout identity, saved selections, ownership, hashes, resource provenance, and competing claims. A clone or missing Store cannot inherit ownership from project identity alone.
+3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the filesystem without following links outside the approved project or machine root.
+4. If the manifest is absent or unusable, use only conservative fallback recognition for known make-docs-managed paths and canonical content.
+5. If fallback recognition is ambiguous, stop before mutation.
+
+Source states:
+
+| State | Meaning | Default disposition |
+| --- | --- | --- |
+| `clean-v1` | Schema version 1 TypeScript/npm full-snapshot install with valid package metadata, no removed asset-selection fields, trusted selections, and managed files that match manifest hashes or valid managed blocks. | `migrate` |
+| `clean-v2-full-snapshot` | v2 manifest with full local materialization provenance, required local bootstrap, and matching managed files. | `sync` |
+| `clean-v2-provider-backed` | v2 manifest with provider-backed provenance, required local bootstrap, reachable approved provider, and matching provider hash set. | `sync` |
+| `clean-v2-hybrid-pinned-cache` | v2 manifest with pinned cache provenance, required local bootstrap, reachable cache or rehydratable provider, and matching hash set. | `sync` |
+| `modified-v1` | Supported v1 manifest, but one or more managed files, managed blocks, or skill outputs differ from recorded ownership. | `migrate-with-review` |
+| `partial-install` | Some recognizable make-docs outputs exist, but manifest records, managed files, bootstrap files, or selected skill outputs are incomplete. | `migrate-with-review` when ownership is reviewable; otherwise `backup-and-reinstall` |
+| `malformed-manifest` | Manifest JSON, schema version, required fields, removed asset fields, or materialization provenance cannot be trusted. | `backup-and-reinstall` when fallback recognition is sufficient; otherwise `manual-review-required` |
+| `missing-manifest-recognizable` | No manifest exists, but known make-docs-managed paths or canonical fingerprints are present. | `migrate-with-review` when every mutation is reviewable; otherwise `backup-and-reinstall` |
+| `unknown-shape` | The tree does not have enough trusted make-docs evidence to classify ownership. | `manual-review-required` |
+
+Disposition meanings:
+
+- `sync` allows ordinary idempotent install or reconfigure behavior only after the audit report shows no unreviewed ownership ambiguity.
+- `migrate` is allowed only when prior state is clean and fully trusted. It may rewrite manifest shape, add v2 provenance, and update records for files that still match known ownership.
+- `migrate-with-review` must show classification, show the relevant audit summary, and route file changes through managed-file conflict review.
+- `backup-and-reinstall` is the fallback for unsupported but recognizable shapes and belongs to a dedicated migration flow or equivalent explicit future confirmation path.
+- `manual-review-required` stops before writing, explains which evidence failed, preserves the tree, and suggests manual backup or a fresh install into a clean tree.
+
+Classification is multidimensional. The top-level state and disposition above summarize, but never erase, these orthogonal facets:
+
+- resource layout, prompt layout, archive layout, artifact layout, persona-testing assets, legacy Playbook/Protocol assets, path-hygiene scripts, router/bootstrap state, manifest ownership, Store schema, and optional agentics state;
+- filesystem ownership for every affected path as `absent`, `managed-clean`, `managed-modified`, `project-owned`, `mixed`, or `unknown`;
+- manifest provenance as `absent`, `verified`, `incomplete`, `ambiguous`, or `contradictory`, retaining the evidence and competing claims behind any non-verified result; and
+- Store compatibility as `absent`, `supported-current`, `supported-legacy`, `newer-unknown`, or `corrupt`, without letting recoverable machine state weaken repository preservation.
+
+Classification is monotonic and fail-closed: incomplete, ambiguous, contradictory, newer-unknown, or corrupt evidence can only retain or strengthen safety constraints. One frozen classification snapshot drives the reviewed plan, backup, transformation, validation, rollback receipt, update, and uninstall disposition; a command must not silently reclassify between approval and mutation.
+
+### Quiescence and Mutation Barrier
+
+- R-MIG-STORE-1 (MUST): before project mutation, classify and safely initialize or migrate the external Store under its bootstrap lock. Then acquire the Store-owned checkout lock and establish the writer exclusion barrier. No lock, marker, or writer record is written in the project. An old CLI or helper that cannot obey this lock must be stopped before transfer.
+- The Store barrier remains held through backup, transformation, validation, final installation-record commit, and receipt publication. Migration stops before mutation when a supported writer bypasses it, a known legacy writer remains active, or supported-writer exclusion cannot be proved. An unsupported old binary launched later is outside this guarantee under PRD 38 R-XFER-6.
+- Quiescence does not authorize interpretation or conversion of legacy Playbook/Protocol content or `playbook_runs`; those remain opaque and preserved unless a separate accepted authority explicitly adopts them.
+
+### Ordered Migration
+
+The order below retains the legacy resource transformation sequence after the Store safety prerequisite. Store classification, bootstrap locking, schema readiness, checkout binding, and durable operation intent now precede every project write. This replaces the former checkpoint-9 timing for creating Store state. It does not remove any content-preservation checkpoint:
+
+1. Classify once and freeze the reviewed evidence snapshot.
+2. Back up every path that may be transformed or removed and record preserved or exported user content.
+3. Preserve or establish declarative project identity and bind verified installation provenance in the Store without claiming ambiguous ownership.
+4. Save the pending installation plan in the Store and install configured routers through the recorded operation. Commit final installed ownership and the completion receipt only after all planned outputs are verified.
+5. Establish top-level prompt identity and machine resource list/read operations before changing router fallbacks.
+6. Move or install only selected clean local resources under `.make-docs/system/**`.
+7. Establish on-demand archive, artifact, and persona-testing routing, then transform clean managed legacy paths or exact project-content moves separately approved under the reviewed layout contract below.
+8. Install TypeScript path-hygiene operations, update references, and remove only a hash-proven managed Python helper.
+9. Confirm general Store run tables are ready from the prerequisite transaction. Leave `playbook_runs` opaque and untouched. Do not create a project-local receipt.
+10. Rehome naive-UAT system resources, add the thin first-party Skill adapter, reconcile `user` and `maintainer` execution with the `user` default, and establish `docs/assets/<persona-slug>/testing/**`.
+11. Retire traced Playbook and Protocol runtime, packaging, tests, conformance, and support surfaces while preserving the quiescence barrier through validation.
+12. Install only explicitly selected, evidence-backed optional agentics.
+13. Validate fresh install, representative legacy migrations, package projection, and dogfood parity before any release recommendation.
+
+A proposed reorder must cite this authority, explain how every earlier safety invariant remains preserved, and receive owner approval before implementation planning or mutation.
+
+Migration safety:
+
+- R-MIG-STORE-3 (MUST): supported legacy operational files are imported and read back from the Store before exact verified source cleanup. Preserve unknown, malformed, changed, symlinked, or actively written files. Record partial cleanup in the Store so a repeat resumes safely. Do not delete `.make-docs/state/` merely because its name is known.
+- R-MIG-REENTRY-1 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each has a reachable next action. Input rejection before mutation creates no blocking operation. A saved incomplete operation uses the verified recovery rules below. The CLI never requires a successful prior setup to repair setup.
+- R-MIG-REENTRY-2 (MUST): machine, project, Skills, and resource setup are independent reviewed subplans. A later subplan failure preserves every earlier verified result and its recovery evidence. Repeat setup resumes only incomplete work and does not replay or roll back an independent completed subplan.
+- R-MIG-REENTRY-3 (MUST): remediation of the CLI, Store bootstrap, migration, or harness access can proceed from repository and package authority with no usable Store or MCP connection in the maintainer checkout. Isolated temporary Store roots remain required for Store behavior tests. No project-local fallback state is permitted.
+
+- Migration must not silently overwrite user-modified content.
+- Migration must not broaden skill selection or install skill files by default.
+- Migration must not move runtime state into `docs/**` or move project knowledge into the machine Store.
+- Each affected file receives an explicit disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop. Append-merge is not ownership evidence, and a batch choice must still resolve to a file-scoped plan.
+- Migration must not reintroduce append-merge ownership for instruction files.
+- Migration may change only the selected facets in the reviewed plan. It preserves unselected content and all user-owned bytes; a reviewed layout operation may relocate explicitly selected project-owned files without adopting their ownership. Protected material includes legacy Library, Playbook, Protocol, archive, history, breadcrumb, guide, artifact, persona, script, config, and agentics material.
+- Repository and manifest paths are normalized as project-relative POSIX paths. Classification and mutation reject traversal, absolute-path substitution, unsafe Windows drive or UNC forms, case-folding collisions, symlink escape, and reads or writes outside explicit project and machine roots.
+
+Backup-and-reinstall safety:
+
+- Run one audit/classification pass.
+- Show the exact files that will be backed up, removed, preserved, and skipped.
+- Create and verify dated content copies before destructive action. Record source, destination, ownership, digest, and restoration order in the Store. A local backup description may explain the copies but is not automatic restoration authority.
+- Remove only files the same reviewed audit result marks removable.
+- Install fresh from the selected v2 mode after removal.
+- Never re-audit between user approval, backup, removal, and reinstall.
+
+Rollback:
+
+- R-MIG-RECOVERY-1 (MUST): recovery derives its permitted action from the saved plan, step rows, before and after ledgers, lock state, and current file evidence. Resume is permitted only when the complete saved plan and every remaining step can be verified. An incomplete plan never offers or attempts resume.
+- R-MIG-RECOVERY-2 (MUST): an incomplete pending operation with zero step rows, equal before and after ledgers, and no active lock has no project effect to restore. Its rollback dry-run reports no project or ledger change. Apply changes only that operation to `rolled-back` with a final time in one Store transaction. The record is not deleted, and a different checkout or operation is not changed.
+- R-MIG-RECOVERY-3 (MUST): changed, unknown, conflicting, missing, or active-writer evidence blocks recovery mutation. Human and machine output state the blocker and do not name a destructive command as safe. Completed, failed, and rolled-back operations do not block a new setup operation.
+- R-MIG-STORE-2 (MUST): rollback restores verified content copies and the affected checkout's installation record through the same Store-owned operation. The Store owns restoration order and progress. Recheck expected bytes before each restore and stop on later user changes. Never restore the whole Store to repair one project.
+- Rollback automation must consume the Store's verified backup index and path metadata, use the held Store checkout lock, and emit a typed restoration receipt. Partial failure preserves the journal and remaining backup, reports restored and unrestored paths, and stops rather than declaring success.
+- `update`, project removal, and machine uninstall use the same fail-closed classification and reviewed-snapshot boundary. They remove only verified clean managed assets or managed blocks, preserve project-owned, modified, mixed, unknown, archive, project-documentation, and opaque legacy state, and prune directories only when the approved snapshot proves them empty and safe.
+
+TypeScript CLI/MCP compatibility:
+
+- The TypeScript package implementation remains the executable source of truth.
+- TypeScript CLI and MCP paths may classify, sync, migrate, backup, uninstall, or provider-resolve only through this taxonomy, manifest compatibility model, and single-audit safety model.
+- Package-runner and persistent-install execution must not fork installed-project compatibility semantics.
+- [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) applies the same requirement to MCP and no-scripts replacement paths: every install, reconfigure, migration, backup, uninstall, CLI, or MCP write path must classify source state before mutation and reuse the same disposition and audit-snapshot contract.
+
+Dogfood and skills:
+
+- Root dogfood follows the same safety rules but has a narrower managed-product boundary.
+- Repo-root authored docs, history, plans, PRDs, guides, and artifact content are not inferred as product-owned just because they live near managed assets.
+- Shipped template and packed npm template are package validation surfaces; root `docs/` is dogfood validation.
+- Skills remain opt-in. Migration may preserve explicitly selected prior skills only when manifest and file evidence are trustworthy.
+- Bare installs and clean v1-to-v2 migration must not silently expand `selectedSkills` or install skill files by default.
+- [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md) extends that migration gate to first-party helper scripts: managed old skill scripts, managed wrapper scripts, modified local files, and custom user scripts must be classified before removal, and no accepted state may leave a selected first-party skill missing both a script and a CLI/shared-core replacement.
+- [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md) extends selected-skill evidence with optional purpose and manifest provenance. Audit, backup, uninstall, and migration may explain why a skill was selected, but they must still act from resolved `selectedSkills`, `skillFiles`, trusted manifest evidence, and one reviewed audit snapshot.
+- [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md) extends selected-skill migration with shared payload, symlink exposure, copy-mirror, legacy generated-stub, and duplicated-payload classification. Migration must distinguish canonical shared payloads, native harness exposures, legacy generated harness stubs, old duplicated per-harness payloads, modified/custom harness files, missing ownership records, and ambiguous missing-manifest state before mutation.
+- [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) extends migration with selected-plugin payload and generated-exposure classification. Migration must distinguish canonical plugin payloads, generated plugin exposures, modified managed plugin files, user-authored harness plugins, missing ownership records, and ambiguous plugin-shaped files before mutation.
+
+Validation boundary:
+
+- Implementation planning must add explicit fixtures for every state/disposition pair.
+- Minimum coverage includes clean v1, clean v2 full-snapshot, provider-backed v2 with provider unavailable, hybrid pinned-cache with stale hashes, modified v1 managed files, malformed managed blocks, malformed manifest, missing manifest with canonical files, missing manifest with ambiguous files, and unknown/non-make-docs shape.
+- Validation extends current lifecycle coverage through `npm test -w packages/cli`, targeted audit/backup/uninstall/install/managed-block tests, `npm run validate:defaults`, `npm run smoke:pack`, package dry-run checks when package contents change, and the dogfood/template parity rules owned by [06-template-contracts-and-generated-assets.md](./06-template-contracts-and-generated-assets.md), [09-dogfood-and-maintainer-operations.md](./09-dogfood-and-maintainer-operations.md), and [10-packaging-validation-and-release-reference.md](./10-packaging-validation-and-release-reference.md).
+- Final recovery validation must cover fresh installation, representative legacy migrations across the state/disposition and facet matrix, generated package projection, root dogfood parity, path and symlink safety, privacy-preserving Store behavior, and Windows/macOS/Linux fixtures before any release recommendation.
+## Compatibility Bridge Contract
+
+- R-BRIDGE-1 (MUST): every changed or retired Store field, table, receipt, manifest, ledger, or local operational form uses a versioned reader and a bounded bridge before removal. After cutover, only the accepted target form receives new writes. Dual writes to old and new authority forms are forbidden.
+- R-BRIDGE-2 (MUST): before migration, verify source schema, exact package, checkout binding, active locks, pending operations, and backup space. Create and verify a recoverable Store backup before the first destructive schema action. Record intent before writes and use the shared operation journal when database and file changes cross one transaction boundary.
+- R-BRIDGE-3 (MUST): preserve verified checkout identifiers. Old device and inode values are legacy evidence only. Unknown or opaque data remains preserved outside the new authority model until an explicit export or deletion action is approved. Project content is never deleted as a schema side effect.
+- R-BRIDGE-4 (MUST): every bridge register entry contains a stable bridge id, old form, target form, first bridge version, owner, proof that old-form writes stopped, deterministic remaining-state check, last supported old version or other measurable end condition, removal phase or release, required tests, retention and export rule, and separate deletion approval.
+- R-BRIDGE-5 (MUST): a bridge without an owner and measurable exit is not temporary and cannot be introduced. A bridge can be removed only after target reader, writer, verifier, repair, and recovery pass; every old fact is migrated, exported, preserved as opaque history, or separately approved for deletion; affected core capabilities pass the exact installed package on Windows, macOS, and Linux; and the owner separately approves the removal action.
+- R-BRIDGE-6 (MUST): a newer unknown, corrupt, or unclear schema fails closed for Store-backed mutation while Store-free work continues. Older packages fail closed on a newer schema and never rewrite it. A pre-project failure restores the verified Store backup. A post-project failure uses the recorded resume or rollback path.
+
+## Existing-Project Adoption Boundaries
+
+Under [R-OBL-COMPAT](45-deferred-obligation-governance.md#r-obl-compat-existing-project-adoption) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption), existing Make Docs projects adopt the new contracts conservatively at the first qualifying lifecycle, coverage, reconciliation, or phase-close event after upgrade. Historical phases are not retroactively failed, archived artifacts are not rewritten, and existing UAT/manual-test artifacts remain valid evidence unless a later qualifying slice requires them to be supplemented.
+
+Performance Evidence Governance is adopted only at the first qualifying design, change-plan, PRD-maintenance, work-generation, coverage, or phase-close event after adoption. That event inventories active current PRDs and work and routes each performance candidate through its existing owner; it does not retroactively fail a completed phase, relabel historical evidence, invent or tighten a target, promote an observed baseline, fabricate a missing run or pass, broaden supported scope, rerun an existing benchmark, or certify prior green output. Existing benchmark scripts and results remain implementation or evidence assets according to their actual ownership and are not deleted, moved, rewritten, or treated as current proof merely because [PRD 48](./48-performance-evidence-governance.md) exists.
+
+Modified managed resources continue to follow the fail-closed classification and explicit-disposition rules. PRD maintenance itself performs no Store rewrite; implementation of the general `runs` and `run_evidence` contract follows the separately reviewed Store migration boundary, and opaque legacy `playbook_runs` is never converted automatically.
+
+## Contracts and Data
+
+The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
+
+## Integrations
+
+This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
+
+Performance adoption integrates with [PRD 48](./48-performance-evidence-governance.md), the [accepted guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), and the [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md); this compatibility PRD owns conservative adoption and migration safety, not performance profile semantics.
+
+## Rebuild Notes
+
+A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### Reviewed Project Layout Recovery
+
+R-ASSET-MIG-1 (MUST): `project layout preview` inventories every selected legacy file and empty directory, its ownership or provenance, expected bytes or empty state, destination, planned link edits, and blockers. Its review digest binds the full inventory, map, config-derived audience resolution, and links. The read-only preview writes neither Store nor project.
+
+R-ASSET-MIG-2 (MUST): `project layout prepare --review <digest> --mode cli|manual` recomputes that snapshot and stops on drift. It records the complete reviewed intent, byte identities, recovery copies, and explicit conflicts in the R3 Store service before any project mutation. Repeated `--map <source>=<destination>` values are project-relative, bounded, and included in the digest. A missing or unsafe Store stops this required operation without local fallback.
+
+R-ASSET-MIG-3 (MUST): `project layout apply <operation-id>` executes a CLI-mode plan. `project layout verify <operation-id>` validates a manual-mode plan after a person or agent follows its exact instructions. Both use the same byte, source, destination, and link expectations. Preparation releases the live process lock, while the pending Store operation blocks conflicting supported writes. Apply and verify reacquire the normal lock. Existing `project state status` and `project state recover` expose pending work and recovery; no separate migration engine or local journal is allowed.
+
+R-ASSET-MIG-4 (MUST): remove inventoried obsolete empty system directories only after an empty-state recheck; never prune current required system-router directories. Map shared `docs/artifacts/**` and `docs/assets/artifacts/**` into `docs/assets/project/**`; adopted legacy archives into `.make-docs/archive/**`; proved legacy Library audiences into their effective Persona paths; and retired Playbooks into `.make-docs/archive/legacy-playbooks/**`. Preserve relative content structure. A former default `developer` maps to `maintainer` only with proof; a custom `developer` or any `agent` slug needs an explicit reviewed decision. Unknown source purpose, ambiguous audience, changed content, collision, link escape, or conflicting metadata blocks the affected move.
+
+R-ASSET-MIG-5 (MUST): an explicit reviewed move may relocate project-owned or modified content without transferring ownership to the product. Copy and verify expected destination bytes and planned links before exact source removal. An identical destination needs byte and provenance checks; a differing one requires a new reviewed map. Preserve substantive historical bytes and past claims. Record only the exact mechanical link repairs and verify their targets. Manual verification must detect new source entries, unexpected leftovers, changed destinations, and unresolved links. It keeps the operation pending on any mismatch and cannot infer completion from a successful command exit.
+
+R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, concurrent writer exclusion, changed inputs, unsafe paths, conflicting destinations, real project content, and empty-directory cleanup. Completion permits only named, verified archival or backup exclusions outside active legacy routing. Ordinary work without the CLI remains valid; it does not authorize unreviewed legacy cleanup.
+
+## Requirement History
+
+### 2026-09-18 — W22 R0
+
+- Affected requirement or section: `Quiescence and Mutation Barrier`, `Ordered Migration`, and `Compatibility Bridge Contract`
+- Previous contract: Migration required classification, backup, journals, and preservation, but each temporary reader or legacy form did not require one measurable exit contract and old-write stop.
+- Replacement contract: Each old form uses a versioned reader, one target writer, a complete bridge register entry, a measurable exit, and separate removal approval.
+- Rationale: A compatibility layer without an owner and exit condition becomes a second permanent authority.
+- Source: [W22 recovery design](../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [W22 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
+
+### 2026-09-15 — W19 R7
+
+- Affected requirement or section: `Ordered Migration` rollback rules
+- Previous contract: Resume and rollback used one saved operation and verified evidence, but the contract did not define how plan completeness controls the offered action or how to close a proved zero-effect incomplete operation.
+- Replacement contract: An incomplete plan cannot resume. A zero-step, equal-ledger, unlocked operation can finish through an explicit no-effect rollback. Ambiguous or changed evidence offers no destructive action.
+- Rationale: The installed CLI recommended resume for a pending operation that the recovery command correctly refused because its plan was incomplete.
+- Source: [W19 R7 design](../designs/2026-09-15-setup-interview-and-recovery-correction.md) and [plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
+
+### 2026-08-08 — W10 R3
+
+- Affected requirement or section: `Document identity and current authority`
+- Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
+- Replacement contract: This document now states the current compatibility classification, conservative migration, and failure-safe adoption requirements inline as product authority.
+- Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
+- Source: [Compatibility and migration design](../designs/2026-06-19-compatibility-audit-and-migration-disposition.md)
+
+### 2026-08-14 — W19 R1
+
+- Affected requirement or section: `Classification priority`, `Source states`, `Disposition meanings`, `Quiescence and Mutation Barrier`, `Ordered Migration`, `Migration safety`, `Backup-and-reinstall safety`, `Rollback`, and `Validation boundary`
+- Previous contract: Compatibility used a mostly one-dimensional state/disposition table, allowed overwrite-or-skip review, treated rollback as a future restore concept, and did not require a verified quiescence barrier or bounded facet plan before migration.
+- Replacement contract: Classification is fail-closed across top-level states plus resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets; one locked snapshot governs explicit file dispositions, backup, transform, rollback, update, uninstall, and cross-platform release validation while opaque legacy state and user-owned content remain preserved.
+- Rationale: Recovery must make ownership uncertainty non-destructive and make every migration repeatable, reviewable, restorable, and unable to race a legacy writer.
+- Source: [Accepted W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Classification priority; Quiescence and Mutation Barrier; Ordered Migration; Rollback
+- Previous contract: The legacy order installed a local manifest before Store checkpoint 9. Rollback used the project manifest and local backup metadata.
+- Replacement contract: The Store is ready before project mutation. Import and cleanup are verified. Scoped rollback uses Store authority and preserves later user edits. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `Reviewed Project Layout Recovery` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Legacy transformations allowed only clean managed moves and had no reviewed, resumable path for relocation of real project content. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-09-16 — W19 R8
+
+- Affected requirement or section: `Ordered Migration`, migration reentry, and rollback
+- Previous contract: Store classification and recovery were fail-closed, but invalid input or a later setup-subplan failure could leave no reachable setup path or could hide an independent valid result.
+- Replacement contract: Every supported prior state has a reachable repeat or recovery action. Input refusal before mutation creates no blocker. Independent verified subplans remain complete. CLI and Store-access remediation does not require working Store or MCP access in the maintainer checkout.
+- Rationale: The observed upgrade and setup paths could stop before Store access was installed and then require the same broken setup path to continue.
+- Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+## Source Anchors
+
+- [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
+- [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+- [W19 R7 setup interview and recovery correction](../designs/2026-09-15-setup-interview-and-recovery-correction.md)
+- [W19 R7 plan](../plans/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-overview.md)
+
+- `docs/designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md`
+- `docs/plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md`
+- [Accepted Performance Testing Guardrails design](../designs/2026-08-12-performance-testing-guardrails.md)
+- [W19 R2 Performance Evidence Governance plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md)
+- [PRD 48 — Performance Evidence Governance](./48-performance-evidence-governance.md)
+- `docs/designs/2026-06-19-compatibility-audit-and-migration-disposition.md`
+- `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/plans/2026-06-23-w10-r3-compatibility-audit-and-migration-disposition/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/prd/02-architecture-overview.md`
+- `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
+- `docs/prd/07-cli-command-surface-and-lifecycle.md`
+- `docs/prd/08-skills-catalog-and-distribution.md`
+- `docs/prd/10-packaging-validation-and-release-reference.md`
+- `docs/prd/16-package-runtime-and-deployment-boundaries.md`
+- `docs/prd/17-system-asset-materialization-and-local-bootstrap.md`
+- `docs/prd/03-open-questions-and-risk-register.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/prd/28-shared-agentics-installation-and-harness-exposure.md`
+- `docs/prd/30-plugin-substrate-and-workflow-bundles.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/designs/2026-06-20-skill-purpose-registry-and-alternate-skills-manifest.md`
+- `docs/designs/2026-06-20-shared-agentics-installation-and-harness-redirection.md`
+- `docs/designs/2026-06-20-harness-plugin-substrate-and-workflow-bundles.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `docs/plans/2026-06-23-w17-r1-skill-purpose-registry-alternate-skills-manifest/00-overview.md`
+- `docs/plans/2026-06-23-w17-r2-shared-agentics-installation-harness-redirection/00-overview.md`
+- `docs/plans/2026-06-23-w18-r2-harness-plugin-substrate-workflow-bundles/00-overview.md`
+- `packages/cli/src/manifest.ts`
+- `packages/cli/src/audit.ts`
+- `packages/cli/src/backup.ts`
+- `packages/cli/src/uninstall.ts`
+- `packages/cli/src/install.ts`
+- `packages/cli/src/planner.ts`
+- `packages/cli/src/cli.ts`
+- `packages/cli/src/compatibility.ts`
+- `packages/cli/src/managed-block.ts`
+- `packages/cli/src/skill-catalog.ts`
+- `packages/cli/src/skill-resolver.ts`
+- `packages/cli/src/types.ts`
+- `packages/cli/tests/cli.test.ts`
+- `packages/cli/tests/compatibility-fixtures.ts`
+- `packages/cli/tests/compatibility-fixtures.test.ts`
+- `packages/cli/tests/compatibility.test.ts`
+- `packages/cli/tests/install.test.ts`
+- `packages/cli/tests/audit.test.ts`
+- `packages/cli/tests/backup.test.ts`
+- `packages/cli/tests/uninstall.test.ts`
+- `packages/cli/tests/lifecycle.test.ts`
+- `scripts/smoke-pack.mjs`

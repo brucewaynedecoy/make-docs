@@ -1,0 +1,21 @@
+{
+  "args": [
+    "codex",
+    "exec",
+    "--ephemeral",
+    "--sandbox",
+    "read-only",
+    "--skip-git-repo-check",
+    "--cd",
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review",
+    "--json",
+    "--output-last-message",
+    "/tmp/w19-r5-approved-fresh-review-v154-report.md",
+    "-"
+  ],
+  "exitCode": 0,
+  "codexVersion": "0.154.0",
+  "packageSha256": "6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade",
+  "prompt": "/tmp/w19-r5-fresh-review-final-candidate-prompt.txt",
+  "inputSnapshot": "/tmp/w19-r5-fresh-review-final-candidate-inputs.json"
+}

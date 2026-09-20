@@ -6,14 +6,14 @@ Implement the generic Run Playbook execution model without making playbook valid
 
 ## Tasks
 
-- [ ] Support selecting one playbook by explicit path, slug, or indexed catalog entry.
-- [ ] Load authority sources according to the playbook's stated authority order.
-- [ ] Resolve configuration overlays only for labels, defaults, and presentation.
-- [ ] Execute playbook steps in order.
-- [ ] Stop at gates and user-decision points unless the playbook explicitly permits unattended continuation.
-- [ ] Treat assists as optional unless the playbook marks them required.
-- [ ] Route outputs only to the surface named by the playbook or explicit caller instruction.
-- [ ] Label CLI, MCP, plugin, skill, template-sync, or unattended support claims as provisional until validation exists.
+- [x] Support selecting one playbook by explicit path, slug, or indexed catalog entry.
+- [x] Load authority sources according to the playbook's stated authority order.
+- [x] Resolve configuration overlays only for labels, defaults, and presentation.
+- [x] Execute playbook steps in order.
+- [x] Stop at gates and user-decision points unless the playbook explicitly permits unattended continuation.
+- [x] Treat assists as optional unless the playbook marks them required.
+- [x] Route outputs only to the surface named by the playbook or explicit caller instruction.
+- [x] Label CLI, MCP, plugin, skill, template-sync, or unattended support claims as provisional until validation exists.
 
 ## Acceptance Criteria
 
@@ -24,3 +24,5 @@ Implement the generic Run Playbook execution model without making playbook valid
 ## Validation Notes
 
 Add focused tests for selection ambiguity, invalid metadata, gate handling, required assists, output routing, and build/run stack messaging.
+
+Completed in this phase. Validation covered focused Playbook operation tests, MCP tool registration and write-gate tests, the full package test suite, and package build.

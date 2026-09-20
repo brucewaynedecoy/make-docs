@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { createDefaultMakeDocsConfig } from "../src/config";
 import type { Harness, PlannedAction } from "../src/types";
 import type {
   SkillsReviewAction,
@@ -71,26 +72,25 @@ const initialState: SkillsUiState = {
   selectedSkills: [
     "archive-docs",
     "cleanup-docs",
-    "closeout-commit",
-    "closeout-phase",
     "decompose-codebase",
-    "work-on-phase",
-    "work-on-wave",
   ],
 };
 
 const sampleActions: PlannedAction[] = [
   {
     type: "create",
-    relativePath: ".agents/skills/archive-docs/SKILL.md",
+    relativePath: ".agents/skills/archive-docs",
+    agenticRole: "native-exposure",
   },
   {
     type: "update",
-    relativePath: ".claude/skills/decompose-codebase/SKILL.md",
+    relativePath: ".agents/skills/decompose-codebase/SKILL.md",
+    agenticRole: "shared-payload",
   },
   {
     type: "noop",
-    relativePath: ".claude/skills/archive-docs/SKILL.md",
+    relativePath: ".claude/skills/archive-docs",
+    agenticRole: "native-exposure",
   },
 ];
 
@@ -154,21 +154,17 @@ describe("skills-only UI", () => {
     ]);
     expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
-      "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
       "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
+      "cleanup-docs",
+      "human-experience",
+      "factory",
+      "naive-uat",
+      "preflight",
     ]);
     expect(renderer.seenSkillStates[0]?.selectedSkills).toEqual([
       "archive-docs",
       "cleanup-docs",
-      "closeout-commit",
-      "closeout-phase",
       "decompose-codebase",
-      "work-on-phase",
-      "work-on-wave",
     ]);
   });
 
@@ -251,10 +247,40 @@ describe("skills-only UI", () => {
     expect(summary).toContain("Selected skills: decompose-codebase");
     expect(summary).not.toContain("Optional skills");
     expect(summary).toContain("Planned skill file operations:");
-    expect(summary).toContain(".agents/skills/archive-docs/SKILL.md");
-    expect(summary).toContain(".claude/skills/decompose-codebase/SKILL.md");
+    expect(summary).toContain("generate: native harness exposure: .agents/skills/archive-docs");
+    expect(summary).toContain(
+      "update: Skill files: .agents/skills/decompose-codebase/SKILL.md",
+    );
     expect(summary).not.toContain("docs/assets/prompts");
     expect(summary).not.toContain("templates");
     expect(summary).not.toContain("references");
+  });
+
+  test("renders configured labels in skills summaries without changing canonical ids", () => {
+    const config = createDefaultMakeDocsConfig();
+    config.labels.documentKinds.guide = "Handbook";
+    config.labels.coordinates.wave = "Batch";
+    config.personas = config.personas.map((persona) =>
+      persona.slug === "maintainer" ? { ...persona, label: "Automation" } : persona,
+    );
+
+    const summary = renderSkillsPlanSummary({
+      state: {
+        ...initialState,
+        selectedSkills: ["decompose-codebase"],
+      },
+      actions: sampleActions,
+      dryRun: true,
+      config,
+    });
+
+    expect(summary).toContain("Document kind labels:");
+    expect(summary).toContain("guide=Handbook");
+    expect(summary).toContain("Coordinate labels:");
+    expect(summary).toContain("wave=Batch");
+    expect(summary).toContain("Persona labels:");
+    expect(summary).toContain("maintainer=Automation");
+    expect(summary).toContain("Selected skills: decompose-codebase");
+    expect(summary).toContain(".agents/skills/archive-docs");
   });
 });

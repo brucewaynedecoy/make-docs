@@ -10,13 +10,13 @@ Turn the accepted conformance-lab design into an active PRD and work backlog for
 - Route: `change-plan`
 - Reason: this plan extends the W10 v2 package/deployment sequence after the Batch 1 package, materialization, compatibility, and source-of-truth contracts.
 - Plan directory: `docs/plans/2026-06-23-w10-r5-agent-harness-model-conformance-lab/`
-- PRD change doc: `docs/prd/20-revise-agent-harness-model-conformance-lab.md`
+- PRD change doc: `docs/prd/20-agent-harness-conformance-and-support-claims.md`
 - Work backlog: `docs/work/2026-06-23-w10-r5-agent-harness-model-conformance-lab/`
 
 ## Change Inputs
 
 - Design: `docs/designs/2026-06-19-agent-harness-and-model-conformance-lab.md`
-- Prior PRDs: `docs/prd/16-revise-package-and-deployment-boundaries.md` through `docs/prd/19-revise-template-package-dogfood-source-of-truth-contract.md`
+- Prior PRDs: `docs/prd/16-package-runtime-and-deployment-boundaries.md` through `docs/prd/06-template-contracts-and-generated-assets.md`
 - Current code anchors: `packages/cli/src/types.ts`, `packages/cli/src/wizard.ts`, `packages/cli/src/skill-catalog.ts`, `packages/cli/src/audit.ts`, `packages/cli/src/manifest.ts`, and existing validation commands.
 
 ## Output Contract

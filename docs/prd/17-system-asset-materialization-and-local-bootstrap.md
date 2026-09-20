@@ -1,0 +1,217 @@
+# 17 System Asset Materialization and Local Bootstrap
+
+## Purpose
+
+Accepted result: the owner accepted the implemented W19 R3 Store-state boundary on 2026-09-09. The [closed phase and evidence](../work/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) record package proof, reviewed live transfer, preservation checks, final fault checks, and installed CLI status. This acceptance does not close unrelated W19 R1 work.
+
+This document defines the current product contract for system-resource provenance, optional local projection, cache safety, and local bootstrap. Normative requirements are stated in the sections below; Requirement History is provenance only.
+## Scope
+
+This authority owns system-resource provenance, optional local projection, cache safety, and local bootstrap. Related PRDs own adjacent capabilities and are linked where a cross-boundary contract is required.
+## Component and Capability Map
+
+The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
+## Requirements
+
+Projection and compatibility modes:
+
+- The default is machine-served resolution from the installed package provider with no repository snapshot of system resources.
+- Local resource-body projection is optional and explicit. A selection may project none, one or more resource types, or the full system-resource inventory into `.make-docs/system/{contracts,prompts,references,templates}/`. The router skeleton and typed directories are not part of this selection.
+- A local projection is not a competing source of truth. The manifest records its provider origin, immutable provider version or ref, resource URI, expected hash, local path, and ownership state.
+- Existing `full-snapshot`, provider-backed, or pinned-cache installs are compatibility inputs, not alternate current authority. Migration classifies their provenance and either adopts a trustworthy projection, refreshes it through the managed-file safety path, or leaves divergent local content for review.
+- Remote providers and shared caches remain deferred until their trust, pinning, caching, confirmation, and recovery policy is authoritatively accepted.
+
+Local bootstrap:
+
+- Every install must materialize the unconditional router foundation for each configured supported harness at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and `.make-docs/system/{contracts,prompts,references,templates}/`.
+- A fresh install materializes the capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` without asking for document-type selection. An existing partial project keeps only its current document routers until the user reviews an expansion.
+- The on-demand `docs/assets/` surface has configured-harness root routers and no managed child routers. `.make-docs/archive/**`, `docs/assets/project/**`, and Persona asset or testing children beneath `docs/assets/` remain on-demand surfaces.
+- Every installed checkout must have a Store-owned installation record and declarative project identity under PRD 24. `.make-docs/manifest.json` is legacy transfer input only.
+- Every install must keep local config once v2 config exists.
+- Every install must keep local custom overlays and project-owned overrides.
+- The local bootstrap must include readable declarative identity/config and CLI guidance for Store installation status and router guidance that explains local-first resolution, installed-provider CLI fallback, selected resource bodies, provenance, and unavailable-provider recovery.
+- The local bootstrap is always repository-readable; the four content-resource families do not need local projection for CLI or MCP access.
+- Resource selection controls resource bodies only. It must never remove a configured-harness router or a typed router directory.
+- `project.surface.ensure <archive|artifacts|assets>` remains valid. `archive` creates its on-demand root. `assets` creates or safely adopts the on-demand assets root and configured-harness root routers. The compatibility `artifacts` value ensures only the assets root and configured root routers, then reports `docs/assets/project/` as the shared-content destination. It creates neither an empty `project` child nor old `docs/artifacts/`. Help and results distinguish the ensured root from the destination that content will create. No value creates empty project, Persona, or testing children or changes system-resource selection.
+- The `docs/` router uses the exact heading `# Documentation Router`. It gives short entry routes to lifecycle, design, planning, PRD, work, risk, assets, Persona, testing, history, links, and formatting authority. It states CLI-free audience defaults and configured asset-router filenames under PRD 15 without copying full policy bodies.
+- Routers must not infer Skills, plugins, Playbooks, Protocols, or any policy or capability that current product authority does not provide.
+
+System asset boundary:
+
+- System resources are immutable product-owned contracts, prompts, references, and templates. Their stable identities are `make-docs://system/<type>/<posix-relative-path>` where `<type>` is singular `contract`, `prompt`, `reference`, or `template` and the remaining path uses POSIX separators.
+- Instruction routers are installed bootstrap assets rather than a fifth content-resource type. Deterministic runtime helpers are package code, not content resources.
+- Mutable project artifacts are not provider-resolved system assets. This includes designs, plans, PRDs, work backlogs, authored guides, history records, local custom overlays, and local config.
+- Skills and plugins are not system assets for this contract. They remain selected agentic assets with their own delivery, selection, trust, and audit decisions.
+- Dynamic support registries, lab scenarios, result records, raw transcripts, provider logs, bootstrap assets, and temporary lab artifacts are not provider-resolved system assets and do not ship. [PRDs 10](./10-packaging-validation-and-release-reference.md) and [16](./16-package-runtime-and-deployment-boundaries.md) own this package boundary.
+- `.make-docs/` holds project-owned identity/config, bootstrap routers, optional resource bodies, and approved content copies. The Store owns manifests, conflict decisions, cache metadata, provider/projection metadata, audit state, and migration/recovery records. Cache payloads remain under the existing provider/content contract and are separate from the operational Store. Operational records never move into `docs/assets/` or another project directory.
+- [21-project-tool-directory-and-resource-tiers.md](./21-project-tool-directory-and-resource-tiers.md) extends this boundary by defining the always-local `.make-docs/system/**` router skeleton, optional resource bodies, and project-owned overlays while preserving local bootstrap and keeping runtime state out of `docs/assets/**`.
+- Playbooks and Protocols are not system-resource types, projection families, provider content kinds, or runtime authorities.
+
+- The machine-level Store is separate from the installed resource provider. It holds required installation ownership, provenance, operation progress, and bounded lifecycle records under PRD 38. Missing Store evidence prevents trusting a local managed projection or mutating it. Packaged-provider reads and repository knowledge remain available. Ancillary `run-capture-unavailable` applies only to optional lifecycle capture.
+
+Provider and cache provenance:
+
+- `packages/docs/template/` is upstream authoring authority; package preparation builds the installed provider from it, and the provider is the default runtime source.
+- The canonical resolver applies one precedence rule for both CLI and MCP: a trustworthy selected local projection first, then the installed provider, otherwise a typed unavailable or integrity error. Divergent, untrusted, or stale local files do not silently shadow the provider.
+- CLI `resource list`, `resource read`, and `resource ensure` are canonical. `resource list` and `resource read` resolve the installed provider without opening the Store and require no harness rule, MCP server, extension, or Store permission. Resource ensure creates or refreshes exactly one selected local projection through the reviewed managed-file path and therefore uses the normal Store and project-write boundary. Each resource operation projects to an MCP tool only where that surface is admitted. Native MCP discovery/read expose the same URI inventory and bytes as resource list/read where the SDK supports native resources.
+- A global cache is allowed only as a cache, not as an unpinned source of truth.
+- A cached or projected resource set must be pinned by provider identity, provider version or immutable ref, hash algorithm, and hash set.
+- If cached or projected hashes do not match, the CLI must resolve from the installed provider or require a reviewed refresh path.
+- The CLI must not silently use a different asset version.
+- Remote sources are deferred as a provider class until their pinning, caching, trust, confirmation, and recovery policy is resolved.
+
+Manifest provenance:
+
+- R-RESOURCE-STATE-1 (MUST): all resource and router provenance is held in the Store-owned installation record. Reads never import a local operational manifest silently. A local resource can shadow the provider only when current Store evidence verifies its selected identity and bytes. Missing or unsafe Store evidence uses the packaged provider or returns a typed unavailable result. It does not create local state.
+- R-RESOURCE-STATE-2 (MUST): `resource.list` and `resource.read` have `store: none` and do not create a Store session. If a local projection cannot be trusted without Store evidence, the resolver skips that projection and reads the installed provider. A missing or invalid installed provider returns its real typed error.
+- R-RESOURCE-STATE-3 (MUST): the setup resource choice states that local copies improve portability and direct file access. It must not describe local copies as Store access, harness permission, or a replacement for machine-level integration.
+
+- The manifest records router ownership separately from resource-body projection selection and provenance. A resource selection must not imply router removal.
+- The manifest records resource provenance before any local projection is treated as trustworthy.
+- For each projected or provider-resolved resource set, the manifest records provider, provider version or immutable ref, hash algorithm, expected hash set, stable resource URI, local path when projected, projection/ownership state, offline expectation, recovery guidance, and selection trigger.
+- Selection provenance must distinguish default machine-served access, explicit setup or reconfiguration choice, saved manifest reuse, and reviewed migration or adoption.
+- Manifest schema evolution must include compatibility handling for existing schema version 1 installs.
+- [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md) makes this provenance evidence part of clean v2 classification: an existing snapshot or cache is clean only when provider and hash evidence is trustworthy enough to choose `sync` or adopt it as a current projection.
+
+On-demand safety:
+
+- On-demand materialization must go through the same safety path as ordinary install.
+- `resource.ensure` must not create a broader projection than the selected resource URI.
+- If an on-demand write would overwrite local changes, it must be handled as a managed-file conflict or migration disposition.
+- Provider refreshes must not overwrite local content invisibly.
+- Backup and uninstall must continue to operate from a reviewed audit snapshot and must not infer removability from provider availability alone.
+
+Legacy resource-tree migration:
+
+- `.make-docs/system/{contracts,prompts,references,templates}/` is the sole current local resource tree.
+- Legacy `.make-docs/{contracts,prompts,references,templates}/system/` content is migration input only.
+- Ordinary managed-resource migration may move or remove a legacy file only when the accepted snapshot proves managed ownership and matching bytes. The separate reviewed layout operation in PRD 18 may relocate explicitly approved project-owned content without changing ownership.
+- Unknown, modified, mixed, unowned, or conflicting legacy content is preserved for explicit review.
+- A legacy move completes before its source is removed, and a conflict stops the affected move without weakening the always-local router skeleton.
+
+Validation boundary:
+
+- Current package validation remains the baseline: `npm test -w packages/cli`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, `npm run smoke:pack`, template/package parity checks, bare-install checks proving no default skill files, and explicit selected-skill checks through `make-docs setup skills --selected-skills all`.
+- Resource validation must cover installed-provider availability without projection, all four peer resource types, URI normalization and traversal rejection, trustworthy local-first precedence, stale projection hashes, `resource.ensure` selection limits, on-demand conflict handling, CLI/MCP-tool parity, native MCP list/read parity where supported, and manifest compatibility.
+- Install and reconfigure validation must cover no resource bodies, one selected type, all selected types, selection removal, effective-profile document-router changes, legacy-tree migration, modified routers, malformed or duplicated managed blocks, AGENTS-only, Claude-only, combined harnesses, and uninstall with mixed managed and project-owned files. Every case must keep the unconditional configured-harness foundation. Validation must also cover absent fresh assets roots, CLI-free discovery, first-use and idempotent `project.surface.ensure assets`, configured root routers, and no empty project, Persona, or testing child.
+## Contracts and Data
+
+The named paths, schemas, state records, metadata fields, and evidence shapes in Requirements are normative contracts for this capability.
+## Integrations
+
+This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
+## Rebuild Notes
+
+A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
+
+### CLI-Free Asset Discovery
+
+R-ASSET-BOOT-1 (MUST): short, always-present documentation routing carries the two defaults, shared-material destination, config path, and exact configured asset-router filenames under PRD 15. This supports ordinary asset work without the CLI, Store, local system-resource bodies, assets directory, or prior memory. Required CLI installation and layout state remains mandatory in the Store; optional capture failure does not block ordinary work.
+
+R-ASSET-BOOT-2 (MUST): `project.surface.ensure assets` creates or safely adopts only the assets root and configured-harness root routers. Child directories appear only for actual content. The current typed system-router skeleton is unaffected. Review and remove obsolete empty system directories separately from this required skeleton; handle nonempty legacy resources through PRD 18.
+
+## Requirement History
+
+### 2026-09-14 — W19 R6 P3
+
+- Affected requirement or section: system asset and provider boundary.
+- Previous contract: Dynamic support registries, lab scenarios, results, transcripts, provider logs, and bootstrap files could be treated as system resources or shipped assets.
+- Replacement contract: These lab and conformance records are not provider-resolved system assets and do not ship.
+- Rationale: Store-free system resources must stay distinct from harness permission and support evidence.
+- Source: [P3 design](../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md) and [P3 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/03-static-harness-adapters-and-conformance-retirement.md)
+
+### 2026-09-12 — W19 R6
+
+- Affected requirement or section: `Local bootstrap`, `Provider and cache provenance`, and `Manifest provenance`
+- Previous contract: provider reads remained available when Store evidence was missing, but the contract did not state that list and read must avoid the Store or separate local portability from harness permission.
+- Replacement contract: resource list and read are Store-free operations, while local projection remains an optional project portability choice with no permission effect.
+- Rationale: users and agents need an exact boundary between reading product resources and performing Store-backed project or system work.
+- Source: [Unified Setup and Harness Access](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/00-overview.md)
+
+### 2026-08-08 — W10 R2
+
+- Affected requirement or section: `Document identity and current authority`
+- Previous contract: The capability was represented as a standalone editorial change record whose title and structure described how the PRD set was modified.
+- Replacement contract: This document now states the current system-asset provenance, materialization modes, cache safety, and local bootstrap requirements inline as product authority.
+- Rationale: Active PRDs describe the current product shape; editorial operations belong in plans, work, and history.
+- Source: [System asset materialization design](../designs/2026-06-19-system-asset-delivery-and-materialization-contract.md)
+
+### 2026-08-14 — W19 R1
+
+- Date: 2026-08-14
+- Coordinate: W19 R1
+- Affected requirement or section: `Purpose`, `Scope`, `Projection and compatibility modes`, `Local bootstrap`, `System asset boundary`, `Provider and cache provenance`, `Manifest provenance`, `On-demand safety`, and `Validation boundary`
+- Previous contract: Full repository snapshots were the safe default, provider access was opt-in, local system paths were mandatory, and mutable Store state included Playbook runs.
+- Replacement contract: The installed package provider is the default; contracts, prompts, references, and templates share stable URIs and one CLI/MCP resolver; local `.make-docs/system/**` projection is optional and provenance-aware; Playbooks and Protocols are absent; and the Store records bounded lifecycle runs and evidence while preserving legacy rows opaquely.
+- Rationale: Materialization authority must separate runtime availability from optional project projection and preserve recovery safety across existing installs.
+- Source: [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-09-02 — W19 R1 authority correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Projection and compatibility modes`, `Local bootstrap`, `Manifest provenance`, `Legacy resource-tree migration`, and `Validation boundary`
+- Previous contract: Resource selection could be read as controlling the whole `.make-docs/system/` tree, and bootstrap required only root, `.make-docs/`, and docs routers.
+- Replacement contract: Resource selection controls bodies only. Every configured harness keeps routers at the root, `docs/`, `.make-docs/`, `.make-docs/system/`, and all four typed directories. The manifest tracks router ownership separately. Legacy per-type `system/` paths are guarded migration inputs only.
+- Rationale: Commit `02002ba23` changed accepted authority without owner approval, and commit `efebfa29` implemented a reduced router model. The correction restores the approved local routing system while keeping resource bodies optional and stable URIs unchanged.
+- Source: Owner-approved Make Docs Authority and Router Recovery Plan and [D-029](./03-open-questions-and-risk-register.md#d-029-w19-r1-resource-topology-and-router-authority-drift)
+
+### 2026-09-02 — W19 R1 documentation-surface correction
+
+- Date: 2026-09-02
+- Coordinate: W19 R1 P4 corrective work
+- Affected requirement or section: `Local bootstrap`, `On-demand safety`, and `Validation boundary`
+- Previous contract: The corrected bootstrap still omitted the `docs/assets/` foundation router and the profile-controlled document routers.
+- Replacement contract: Each configured harness has the full unconditional foundation, while the resolved effective profile and its dependencies control the four capability-local document routers. The `docs/assets/` router is root-only, and archive, artifact, and Persona testing children remain on demand.
+- Rationale: The runtime contract must match the separate documentation-surface correction without changing the closed system-resource correction.
+- Source: [D-030](./03-open-questions-and-risk-register.md#d-030-w19-r1-documentation-surface-router-topology-was-omitted)
+
+### 2026-09-09 — W19 R3
+
+- Affected requirement or section: Requirements
+- Previous contract: Every install kept a local manifest. Store capture failure was ancillary without a required-state exception.
+- Replacement contract: The local bootstrap keeps identity/config and routers. Store evidence owns projection trust, installation state, and required write safety. At package acceptance on 2026-09-09, implementation had not started. The owner later accepted the delivered result recorded in the W19 R3 phase closeout.
+- Rationale: Make Docs tool state needs one Store authority. Project knowledge remains local.
+- Source: [Store-owned installation and migration state design](../designs/2026-09-09-store-owned-installation-and-migration-state.md) and [W19 R3 plan](../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md).
+
+### 2026-09-09 — W19 R4 Asset and Persona Recovery
+
+- Affected requirement or section: `CLI-Free Asset Discovery` and current asset, bootstrap, migration, or storage statements in this owner.
+- Previous contract: Bootstrap always created docs/assets/; artifacts had a separate destination; assets ensure assumed that root already existed. Prior dated records retain their historical claims.
+- Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
+- Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
+- Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+## Source Anchors
+
+- [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)
+- [W19 R1 recovery plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+- `docs/designs/2026-06-19-system-asset-delivery-and-materialization-contract.md`
+- `docs/designs/2026-06-19-package-and-deployment-boundaries.md`
+- `docs/designs/2026-06-20-cli-separation-and-mcp-boundary.md`
+- `docs/plans/2026-06-23-w10-r2-system-asset-materialization-contract/00-overview.md`
+- `docs/plans/2026-06-23-w10-r6-cli-separation-and-mcp-boundary/00-overview.md`
+- `docs/prd/02-architecture-overview.md`
+- `docs/prd/05-installation-profile-and-manifest-lifecycle.md`
+- `docs/prd/06-template-contracts-and-generated-assets.md`
+- `docs/prd/07-cli-command-surface-and-lifecycle.md`
+- `docs/prd/08-skills-catalog-and-distribution.md`
+- `docs/prd/10-packaging-validation-and-release-reference.md`
+- `docs/prd/16-package-runtime-and-deployment-boundaries.md`
+- `docs/prd/03-open-questions-and-risk-register.md`
+- `docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md`
+- `docs/designs/2026-06-20-no-scripts-migration-and-skill-refactor.md`
+- `docs/plans/2026-06-23-w16-r3-no-scripts-migration-skill-refactor/00-overview.md`
+- `packages/cli/src/rules.ts`
+- `packages/cli/src/catalog.ts`
+- `packages/cli/src/utils.ts`
+- `packages/cli/src/planner.ts`
+- `packages/cli/src/install.ts`
+- `packages/cli/src/manifest.ts`
+- `packages/cli/src/audit.ts`
+- `packages/cli/src/backup.ts`
+- `packages/cli/src/uninstall.ts`
+- `packages/cli/src/skill-catalog.ts`
+- `packages/cli/src/skill-resolver.ts`
+- `packages/cli/tests/consistency.test.ts`
+- `scripts/smoke-pack.mjs`

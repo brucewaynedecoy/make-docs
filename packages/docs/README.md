@@ -11,16 +11,15 @@ packages/docs/
 └── template/          # the tree that ships to consumers
     ├── AGENTS.md      # consumer's ./AGENTS.md (root agent instructions)
     ├── CLAUDE.md      # consumer's ./CLAUDE.md (mirror)
+    ├── .make-docs/    # system machinery: contracts, references, scripts, templates
     └── docs/          # consumer's ./docs/
         ├── AGENTS.md + CLAUDE.md     # docs router
-        ├── assets/                   # document resources
+        ├── assets/                   # managed project document assets
         │   ├── archive/              # consolidated archive (v2)
-        │   ├── history/              # session history records
-        │   ├── prompts/              # reusable prompt starters
-        │   ├── references/           # authoritative rules and workflows
-        │   └── templates/            # structural starters for generated docs
+        │   ├── artifacts/            # optional pre-design input material
+        │   ├── library/              # persona-based guide documentation
+        │   ├── playbooks/            # persona-based procedural docs
         ├── designs/                  # architectural decisions (ADRs)
-        ├── guides/                   # user and developer guides
         ├── plans/                    # approach + rationale (always directories in v2)
         ├── prd/                      # product requirements
         └── work/                     # work backlogs (always directories in v2)
@@ -38,12 +37,12 @@ In dev, the CLI reads directly from `packages/docs/template/` via a sibling-firs
 
 ## Key Conventions
 
-Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read per-directory routers as they go. For the authoritative rules and output contract, see the `template/docs/assets/references/` files — especially:
+Consumers should start at `template/docs/AGENTS.md` (or `CLAUDE.md`) and read per-directory routers as they go. For the authoritative rules and output contract, see the `template/.make-docs/` system files — especially:
 
 - `wave-model.md` — Wave/Revision/Phase (W/R/P) encoding authority
 - `output-contract.md` — required paths, section contracts, lifecycle rules
 - `design-contract.md`, `planning-workflow.md`, `execution-workflow.md` — per-artifact authority
-- `history-record-contract.md` — session history record contract for `docs/assets/history/`
+- `history-record-contract.md` — session history record contract for `docs/assets/archive/history/`
 
 CLI runtime state is intentionally not part of this template package. The installer creates root `.make-docs/manifest.json` and `.make-docs/conflicts/` in the target project when needed.
 
@@ -69,11 +68,12 @@ When you edit files in the template package, the repo-root `docs/` may become st
 
 Only template-owned files are re-seeded — never project-specific content:
 
-- **Router files** — `AGENTS.md` / `CLAUDE.md` in `docs/`, `docs/guides/`, `docs/assets/`, `docs/assets/archive/`, `docs/assets/history/`, `docs/assets/prompts/`, `docs/assets/references/`, `docs/assets/templates/`, and capability directories
-- **Reference files** — `docs/assets/references/*.md` (contracts, workflows, wave model)
-- **Template files** — `docs/assets/templates/*.md` (structural starters)
+- **Router files** — `AGENTS.md` / `CLAUDE.md` at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, the four typed system directories, and effective capability directories
+- **System reference files** — `.make-docs/system/contracts/*.md` and `.make-docs/system/references/*.md` (contracts, workflows, wave model)
+- **System template files** — `.make-docs/system/templates/*.md` (structural starters)
+- **System helper scripts** — selected files under `.make-docs/scripts/**`
 
-Project-specific content in `docs/` (designs, plans, work backlogs, guides, PRDs) is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables.
+Project-specific content in `docs/` is **never overwritten** by re-seeding — those are authored artifacts, not template deliverables. That exclusion includes generated designs, plans, PRDs, work backlogs, local library guide bodies, local playbooks, archive history records, artifact review material, overlays, and project config unless a later accepted plan deliberately promotes a specific file into starter content.
 
 ### When to re-seed
 
@@ -81,35 +81,37 @@ Re-seed after any change to template-owned files:
 
 - Adding or updating a reference file (e.g., `guide-contract.md`)
 - Adding or updating a template file (e.g., `guide-developer.md`)
-- Changing router content (e.g., updating `docs/guides/AGENTS.md` to reference a new contract)
+- Changing router content (for example, updating `docs/assets/AGENTS.md` to route a new Persona asset rule)
 
 ### How to re-seed
 
 Copy the changed files from `packages/docs/template/` to `docs/`:
 
 ```bash
-# Example: re-seed a new reference and updated routers
-cp packages/docs/template/docs/assets/references/guide-contract.md docs/assets/references/guide-contract.md
-cp packages/docs/template/docs/guides/AGENTS.md docs/guides/AGENTS.md
-cp packages/docs/template/docs/guides/CLAUDE.md docs/guides/CLAUDE.md
+# Example: re-seed a new contract and updated routers
+cp packages/docs/template/.make-docs/system/contracts/guide-contract.md .make-docs/system/contracts/guide-contract.md
+cp packages/docs/template/docs/assets/AGENTS.md docs/assets/AGENTS.md
+cp packages/docs/template/docs/assets/CLAUDE.md docs/assets/CLAUDE.md
 ```
 
 Verify the copies match:
 
 ```bash
-diff packages/docs/template/docs/assets/references/guide-contract.md docs/assets/references/guide-contract.md
+diff packages/docs/template/.make-docs/system/contracts/guide-contract.md .make-docs/system/contracts/guide-contract.md
 ```
 
-There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. If the set of changed files is large, a bulk copy with verification works:
+There is no automated re-seed script — it is intentionally manual so contributors review what they are propagating. Do not run a blind recursive copy from `packages/docs/template/docs/` into repo-root `docs/`; that would overwrite project-authored dogfood records. If the set of changed files is large, a bulk copy with verification works only when it stays limited to the template-owned surfaces below:
 
 ```bash
-# Bulk re-seed all routers and references (use with care)
+# Bulk re-seed all routers and system resources (use with care)
 for f in $(find packages/docs/template/docs -name 'AGENTS.md' -o -name 'CLAUDE.md'); do
   target="docs/${f#packages/docs/template/docs/}"
   cp "$f" "$target"
 done
-cp packages/docs/template/docs/assets/references/*.md docs/assets/references/
-cp packages/docs/template/docs/assets/templates/*.md docs/assets/templates/
+cp packages/docs/template/.make-docs/system/contracts/*.md .make-docs/system/contracts/
+cp packages/docs/template/.make-docs/system/references/*.md .make-docs/system/references/
+cp packages/docs/template/.make-docs/system/templates/*.md .make-docs/system/templates/
+cp packages/docs/template/.make-docs/scripts/*.py .make-docs/scripts/
 ```
 
 ### Why not automate it?

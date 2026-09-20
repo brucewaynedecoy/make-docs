@@ -1,0 +1,348 @@
+import { existsSync, lstatSync, mkdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { registerSkillAdoptionRecovery } from "../../skills-adoption";
+import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "../../store/installation-state";
+import { z } from "zod";
+import {
+  PROJECT_READ_ACCESS,
+  PROJECT_WRITE_ACCESS,
+  STORE_READ_PROJECT_READ_ACCESS,
+  STORE_WRITE_PROJECT_WRITE_ACCESS,
+} from "../access";
+import {
+  getManifestFileHash,
+  loadManifest,
+  MANIFEST_RELATIVE_PATH,
+  writeManifest,
+} from "../../manifest";
+import {
+  assertLifecyclePlanSnapshotCurrent,
+  createLifecycleMutationReceipt,
+  createLifecyclePlanSnapshot,
+} from "../../lifecycle-plan";
+import { parseManagedBlock, upsertManagedBlock } from "../../managed-block";
+import {
+  createProjectSurfaceRouterAssets,
+  createRouterOwnershipManifestEntry,
+  getThinRouterManagedBody,
+} from "../../project-projection";
+import { resolveInstallProfile } from "../../profile";
+import { getConfiguredRouterPaths } from "../../router-paths";
+import type { LifecycleMutationReceipt, PlannedAction } from "../../types";
+import { HARNESS_TO_INSTRUCTION } from "../../types";
+import { assertManagedPathHasNoSymlinks, relativePathToTarget, writeTextFile } from "../../utils";
+import {
+  planMigrationRoutingSurface,
+} from "../../migration";
+import {
+  validateProjectPathHygiene,
+  repairProjectPathHygiene,
+  type PathHygieneValidationResult,
+} from "../../path-hygiene";
+import type { OperationDefinition } from "../registry";
+import { OperationError } from "../types";
+
+const inputSchema = z.object({
+  surface: z.enum(["archive", "artifacts", "assets"]),
+  targetRoot: z.string().min(1).optional(),
+}).strict();
+
+const pathHygieneInputSchema = z.object({
+  scope: z.enum(["content", "managed"]).optional(),
+  paths: z.array(z.string().min(1)).min(1).optional(),
+  targetRoot: z.string().min(1).optional(),
+  manifest: z.string().min(1).optional(),
+  includeSkills: z.boolean().optional(),
+  allowCommentToken: z.string().min(1).optional(),
+}).strict();
+
+export interface ProjectSurfaceEnsureOutput {
+  schemaVersion: 1;
+  targetRoot: string;
+  surface: "archive" | "artifacts" | "assets";
+  ensuredPath: string;
+  contentDestination: string;
+  contentDestinationExists: boolean;
+  dryRun: boolean;
+  plan: { snapshotId: string; actions: PlannedAction[] };
+  receipt: LifecycleMutationReceipt | null;
+}
+
+export type ProjectPathHygieneValidateOutput = PathHygieneValidationResult;
+
+const stateStatusInput = z.object({ targetRoot: z.string().min(1).optional() }).strict();
+const stateRecoverInput = z.object({
+  targetRoot: z.string().min(1).optional(),
+  operationId: z.string().min(1),
+  mode: z.enum(["resume", "rollback"]),
+}).strict();
+
+export const projectOperations: OperationDefinition[] = [{
+  id: "project.state.status",
+  summary: "Read installation state and the next safe action from the global Store.",
+  mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: stateStatusInput,
+  handler(rawInput, context) {
+    const input = stateStatusInput.parse(rawInput);
+    registerSkillAdoptionRecovery();
+    return readInstallationStatus(path.resolve(input.targetRoot ?? context.cwd));
+  },
+}, {
+  id: "project.state.recover",
+  summary: "Resume or roll back one verified pending installation operation.",
+  mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
+  status: "active",
+  inputSchema: stateRecoverInput,
+  handler(rawInput, context) {
+    const input = stateRecoverInput.parse(rawInput);
+    registerSkillAdoptionRecovery();
+    return recoverInstallationOperation(path.resolve(input.targetRoot ?? context.cwd), input.operationId, input.mode, context.dryRun);
+  },
+}, {
+  id: "project.surface.ensure",
+  summary: "Ensure one selected project support surface and its configured routers.",
+  mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
+  status: "active",
+  inputSchema,
+  handler(rawInput, context) {
+    const input = inputSchema.parse(rawInput);
+    const targetRoot = path.resolve(input.targetRoot ?? context.cwd);
+    const manifest = loadManifest(targetRoot);
+    if (!manifest?.projectId || !manifest.resourceProjection || !manifest.routerOwnership) {
+      throw new OperationError(
+        "This project does not have verified installation evidence in the Store. Run `make-docs setup reconfigure` before you ensure a project surface.",
+      );
+    }
+    const profile = resolveInstallProfile(manifest.selections);
+    const missingConfiguredRouters = manifest.routerOwnership.configuredHarnesses
+      .flatMap((harness) => {
+        const instructionKind = HARNESS_TO_INSTRUCTION[harness];
+        return getConfiguredRouterPaths(profile, instructionKind);
+      })
+      .filter((relativePath) =>
+        manifest.routerOwnership!.routers[relativePath]?.routerClass !== "bootstrap"
+      );
+    if (missingConfiguredRouters.length > 0) {
+      throw new OperationError(
+        `Configured router repair is required before a project surface can be ensured: ${missingConfiguredRouters.join(", ")}. Run \`make-docs setup reconfigure\` first.`,
+      );
+    }
+    const actions: PlannedAction[] = [];
+    const surfaceAction = planMigrationRoutingSurface(targetRoot, input.surface);
+    const surfaceRouterAssets = createProjectSurfaceRouterAssets(
+      profile,
+      input.surface,
+    );
+    const surfaceRouterPaths = new Set(
+      surfaceRouterAssets.map((asset) => asset.relativePath),
+    );
+    actions.push(surfaceAction);
+    for (const entry of Object.values(manifest.routerOwnership!.routers)) {
+      if (entry.routerClass !== "bootstrap") continue;
+      const relativePath = entry.relativePath;
+      if (surfaceRouterPaths.has(relativePath)) continue;
+      assertManagedPathHasNoSymlinks(targetRoot, relativePath);
+      const fileEntry = manifest.files[relativePath];
+      if (
+        fileEntry?.ownershipClass !== "managed-block" ||
+        fileEntry.sourceId !== entry.sourceId ||
+        entry.ownershipClass !== "managed-snapshot" ||
+        entry.provenanceState !== "verified" ||
+        entry.lifecycleDisposition !== "active" ||
+        entry.installedHash !== fileEntry.hash
+      ) {
+        throw new OperationError(`Router ownership is not trusted for ${relativePath}. Run setup reconfigure and review the conflict.`);
+      }
+      const absolutePath = relativePathToTarget(targetRoot, relativePath);
+      if (!existsSync(absolutePath) || lstatSync(absolutePath).isSymbolicLink()) {
+        throw new OperationError(`Router evidence is missing or unsafe at ${relativePath}. Run setup reconfigure and review the plan.`);
+      }
+      const parsed = parseManagedBlock(readFileSync(absolutePath, "utf8"));
+      if (parsed.state !== "valid" || parsed.body !== getThinRouterManagedBody(relativePath, profile)) {
+        throw new OperationError(`Router evidence changed or is malformed at ${relativePath}. Run setup reconfigure and review the conflict.`);
+      }
+      actions.push({ type: "noop", disposition: "preserve", relativePath, reason: "Configured router is valid and unchanged." });
+    }
+    const surfaceRouterActions: PlannedAction[] = [];
+    const expectedRouterClass = "on-demand-surface";
+    for (const asset of surfaceRouterAssets) {
+      assertManagedPathHasNoSymlinks(targetRoot, asset.relativePath);
+      const absolutePath = relativePathToTarget(targetRoot, asset.relativePath);
+      const contentHash = getManifestFileHash(asset.relativePath, asset.content);
+      if (!contentHash) {
+        throw new OperationError(`Generated project surface router is malformed: ${asset.relativePath}.`);
+      }
+      if (!existsSync(absolutePath)) {
+        const action: PlannedAction = {
+          type: "create",
+          disposition: "create",
+          relativePath: asset.relativePath,
+          sourceId: asset.sourceId,
+          content: asset.content,
+          contentHash,
+          reason: "Configured project surface router is absent.",
+        };
+        actions.push(action);
+        surfaceRouterActions.push(action);
+        continue;
+      }
+      if (!lstatSync(absolutePath).isFile() || lstatSync(absolutePath).isSymbolicLink()) {
+        throw new OperationError(`Project surface router is not a safe file: ${asset.relativePath}.`);
+      }
+      const currentContent = readFileSync(absolutePath, "utf8");
+      const currentHash = getManifestFileHash(asset.relativePath, currentContent);
+      const fileEntry = manifest.files[asset.relativePath];
+      const ownershipEntry = manifest.routerOwnership!.routers[asset.relativePath];
+      const unclaimedMatchingBlock = !fileEntry && !ownershipEntry && currentHash === contentHash;
+      const unclaimedPlainRouter = !fileEntry && !ownershipEntry && parseManagedBlock(currentContent).state === "absent";
+      const adoptUnclaimed = unclaimedMatchingBlock || unclaimedPlainRouter;
+      const adoptedContent = unclaimedPlainRouter
+        ? upsertManagedBlock(currentContent, parseManagedBlock(asset.content).body!).content
+        : currentContent;
+      if (!adoptUnclaimed && (
+        currentHash !== contentHash ||
+        fileEntry?.hash !== contentHash ||
+        fileEntry.sourceId !== asset.sourceId ||
+        fileEntry.ownershipClass !== "managed-block" ||
+        ownershipEntry?.sourceId !== asset.sourceId ||
+        (ownershipEntry.routerClass !== expectedRouterClass && ownershipEntry.routerClass !== "bootstrap") ||
+        ownershipEntry.ownershipClass !== "managed-snapshot" ||
+        ownershipEntry.provenanceState !== "verified" ||
+        ownershipEntry.lifecycleDisposition !== "active" ||
+        ownershipEntry.installedHash !== contentHash
+      )) {
+        throw new OperationError(
+          `Project surface router ownership or content requires explicit review: ${asset.relativePath}.`,
+        );
+      }
+      const action: PlannedAction = {
+        type: adoptUnclaimed ? "update" : "noop",
+        disposition: "preserve",
+        content: adoptUnclaimed ? adoptedContent : undefined,
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        contentHash,
+        reason: adoptUnclaimed ? "Explicit ensure adopts the root managed block and preserves project text." : "Configured project surface router is valid and unchanged.",
+      };
+      actions.push(action);
+      surfaceRouterActions.push(action);
+    }
+    const snapshot = createLifecyclePlanSnapshot(targetRoot, actions);
+    if (!context.dryRun && actions.every(action => action.type === "noop")) {
+      const state = readInstallationStatus(targetRoot);
+      if (state.status !== "ready") throw new OperationError(`Installation requires review: ${state.status}. ${state.nextAction}`);
+    }
+    if (!context.dryRun && actions.some(action => action.type !== "noop")) {
+      withInstallationOperation(targetRoot, "project.surface.ensure", () => {
+        if (JSON.stringify(loadManifest(targetRoot)) !== JSON.stringify(manifest)) throw new OperationError("Installation state changed after review. Create a fresh surface plan.");
+        assertLifecyclePlanSnapshotCurrent(targetRoot, snapshot);
+        assertManagedPathHasNoSymlinks(targetRoot, MANIFEST_RELATIVE_PATH);
+        for (const action of actions) {
+          assertManagedPathHasNoSymlinks(targetRoot, action.relativePath);
+        }
+        const updatedAt = context.now();
+        const nextFiles = { ...manifest.files };
+        const nextRouters = { ...manifest.routerOwnership!.routers };
+        for (const asset of surfaceRouterAssets) {
+          const contentHash = getManifestFileHash(asset.relativePath, asset.content)!;
+          nextFiles[asset.relativePath] = {
+            hash: contentHash,
+            sourceId: asset.sourceId,
+            ownershipClass: "managed-block",
+          };
+          const harness = asset.sourceId.split(":")[1] as keyof typeof HARNESS_TO_INSTRUCTION;
+          nextRouters[asset.relativePath] = createRouterOwnershipManifestEntry({
+            asset,
+            harness,
+            instructionKind: HARNESS_TO_INSTRUCTION[harness],
+            profile,
+            packageMeta: { name: manifest.packageName, version: manifest.packageVersion },
+            verifiedAt: updatedAt,
+            previous: manifest.routerOwnership!.routers[asset.relativePath],
+          });
+        }
+        writeManifest(targetRoot, {
+          ...manifest,
+          updatedAt,
+          files: nextFiles,
+          routerOwnership: {
+            ...manifest.routerOwnership!,
+            routers: nextRouters,
+          },
+        });
+        const changes: Array<() => void> = [];
+        if (surfaceAction.type !== "noop") changes.push(preparePlannedFileChange(targetRoot, surfaceAction.relativePath, { kind: "directory" }, () => mkdirSync(relativePathToTarget(targetRoot, surfaceAction.relativePath), { recursive: true })));
+        for (const action of surfaceRouterActions) {
+          const content = action.content;
+          if (action.type !== "noop" && typeof content === "string") changes.push(preparePlannedFileChange(targetRoot, action.relativePath, { kind: "file", content }, () => writeTextFile(relativePathToTarget(targetRoot, action.relativePath), content)));
+        }
+        sealInstallationOperation(targetRoot);
+        for (const change of changes) change();
+      });
+    }
+    const receipt = context.dryRun || actions.every((action) => action.type === "noop")
+      ? null
+      : createLifecycleMutationReceipt({
+          operation: "project.surface.ensure",
+          projectId: manifest.projectId,
+          manifestSchemaVersion: manifest.schemaVersion,
+          profileId: manifest.profileId,
+          selectedResourceTypes: manifest.selections.resourceProjection ?? [],
+          actions,
+          committedAt: context.now(),
+        });
+    return {
+      schemaVersion: 1,
+      targetRoot,
+      surface: input.surface,
+      ensuredPath: surfaceAction.relativePath,
+      contentDestination: input.surface === "artifacts" ? "docs/assets/project" : surfaceAction.relativePath,
+      contentDestinationExists: existsSync(path.join(targetRoot, input.surface === "artifacts" ? "docs/assets/project" : surfaceAction.relativePath)),
+      dryRun: context.dryRun,
+      plan: { snapshotId: snapshot.id, actions },
+      receipt,
+    } satisfies ProjectSurfaceEnsureOutput;
+  },
+}, {
+  id: "project.path-hygiene.validate",
+  summary: "Check local documentation paths.",
+  mutates: "read",
+  access: PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: pathHygieneInputSchema,
+  handler(rawInput, context) {
+    const input = pathHygieneInputSchema.parse(rawInput);
+    const targetRoot = path.resolve(input.targetRoot ?? context.cwd);
+    return validateProjectPathHygiene({
+      projectRoot: targetRoot,
+      scope: input.scope,
+      paths: input.paths,
+      ...(input.manifest ? { manifestPath: input.manifest } : {}),
+      ...(input.includeSkills !== undefined ? { includeSkills: input.includeSkills } : {}),
+      ...(input.allowCommentToken ? { allowToken: input.allowCommentToken } : {}),
+    });
+  },
+}, {
+  id: "project.path-hygiene.repair",
+  summary: "Preview or apply repairs to current-project paths in documentation.",
+  mutates: "write",
+  access: PROJECT_WRITE_ACCESS,
+  status: "active",
+  inputSchema: pathHygieneInputSchema.extend({ apply: z.boolean().optional() }),
+  handler(rawInput, context) {
+    const input = pathHygieneInputSchema.extend({ apply: z.boolean().optional() }).parse(rawInput);
+    return repairProjectPathHygiene({
+      projectRoot: path.resolve(input.targetRoot ?? context.cwd),
+      scope: input.scope,
+      paths: input.paths,
+      manifestPath: input.manifest,
+      includeSkills: input.includeSkills,
+      allowToken: input.allowCommentToken,
+      apply: input.apply === true && !context.dryRun,
+    });
+  },
+}];

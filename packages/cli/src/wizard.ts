@@ -20,12 +20,20 @@ import {
   resolveInstallProfile,
 } from "./profile";
 import {
+  createDefaultMakeDocsConfig,
+  getDocumentKindLabel,
+  type DocumentKindLabelKey,
+  type MakeDocsConfig,
+} from "./config";
+import {
   getRecommendedSkillChoices,
   type WizardSkillChoice,
 } from "./skill-catalog";
+import type { SkillRegistry } from "./skill-registry";
 import {
   CAPABILITIES,
   HARNESSES,
+  PROJECT_RESOURCE_TYPES,
   type Capability,
   type Harness,
   type InstallProfile,
@@ -34,8 +42,16 @@ import {
   type ManagedFileConflictResolution,
   type ManagedFileConflictResolutions,
   type ReviewableManagedFileConflict,
+  type ProjectResourceType,
 } from "./types";
 import { formatInlineList } from "./utils";
+import {
+  COMPLETE_PROJECT_CAPABILITIES,
+  describeHarnessSupport,
+  resolveUnifiedSetupState,
+  type SetupHarnessState,
+  type SetupProjectState,
+} from "./setup-state";
 
 const CAPABILITY_METADATA: Record<
   Capability,
@@ -126,6 +142,13 @@ const MANAGED_FILE_CONFLICT_GROUP_LABELS: Record<string, string> = {
   other: "Other managed files",
 };
 
+const CAPABILITY_DOCUMENT_KIND_LABELS: Record<Capability, DocumentKindLabelKey> = {
+  designs: "design",
+  plans: "plan",
+  prd: "prd",
+  work: "work",
+};
+
 export type WizardStep = "capabilities" | "harnesses" | "options" | "review";
 export type WizardReviewAction =
   | "apply"
@@ -138,6 +161,15 @@ export interface RunSelectionWizardOptions {
   initialSelections: InstallSelections;
   introTitle: string;
   startStep?: WizardStep;
+  config?: MakeDocsConfig;
+  skillRegistry?: SkillRegistry;
+  projectState?: SetupProjectState;
+  allowCapabilityExpansion?: boolean;
+  harnessSupport?: SetupHarnessState[];
+  /** Runs the harness method screens after harness selection and before shared Skills. */
+  afterHarnessSelection?: (selections: InstallSelections) => Promise<boolean>;
+  /** Existing installs change Skills only through `make-docs setup skills`. */
+  lockSkills?: boolean;
 }
 
 export interface CapabilityChecklistOption {
@@ -161,17 +193,20 @@ export interface WizardOptionSelections {
   skills: boolean;
   skillScope: InstallSelections["skillScope"];
   selectedSkills: string[];
+  resourceProjection?: ProjectResourceType[];
 }
 
 export interface CapabilityStepState {
   selections: InstallSelections;
   checklist: CapabilityChecklistState;
+  config: MakeDocsConfig;
 }
 
 export interface HarnessSelectionOption {
   value: Harness;
   label: string;
   hint: string;
+  status?: SetupHarnessState["state"];
 }
 
 export interface HarnessStepState {
@@ -189,16 +224,19 @@ export interface OptionsStepState {
     label: string;
     hint: string;
   }>;
+  skillsLocked: boolean;
 }
 
 export interface ReviewStepState {
   selections: InstallSelections;
   profile: InstallProfile;
   summary: string;
+  allowCapabilityExpansion: boolean;
 }
 
 export interface WizardRenderer {
   beginSession?(title: string): Promise<void> | void;
+  showProjectState?(state: SetupProjectState): Promise<void> | void;
   editCapabilities(state: CapabilityStepState): Promise<Capability[] | null>;
   editHarnesses(state: HarnessStepState): Promise<Harness[] | null>;
   editOptions(state: OptionsStepState): Promise<WizardOptionSelections | null>;
@@ -211,6 +249,7 @@ export interface SkillSelectionPromptOption {
   hint: string;
   disabled: boolean;
   rowKind: "skill";
+  detailLines: string[];
 }
 
 export interface SkillSelectionState {
@@ -258,6 +297,7 @@ export function getWizardOptionSelections(
     skills: selections.skills,
     skillScope: selections.skillScope,
     selectedSkills: [...selections.selectedSkills].sort(),
+    resourceProjection: [...(selections.resourceProjection ?? [])].sort(),
   };
 }
 
@@ -271,10 +311,16 @@ export function buildSkillSelectionState(
     .map((skill) => skill.name);
   const promptOptions = skillChoices.map((skill) => ({
     value: skill.name,
-    label: skill.name,
-    hint: skill.description,
+    label: toTitleCase(skill.displayName),
+    hint: "",
     disabled: false,
     rowKind: "skill" as const,
+    detailLines: [
+      skill.description,
+      "",
+      `Purpose: ${formatSkillPurposeLabels(skill)}`,
+      `Support: ${formatInlineList(skill.supportedHarnesses)}`,
+    ],
   }));
 
   return {
@@ -312,14 +358,17 @@ export function applyHarnessSelections(
 
 function buildOptionsStepState(
   selections: InstallSelections,
+  skillRegistry?: SkillRegistry,
+  skillsLocked = false,
 ): OptionsStepState {
   const options = getWizardOptionSelections(selections);
-  const skillChoices = getRecommendedSkillChoices();
+  const skillChoices = getRecommendedSkillChoices(skillRegistry);
 
   return {
     selections,
     options,
     skillSelection: buildSkillSelectionState(options, skillChoices),
+    skillsLocked,
     skillScopeOptions: [
       {
         value: "project",
@@ -345,18 +394,21 @@ export function applyWizardOptionSelections(
   next.selectedSkills = options.skills
     ? Array.from(new Set(options.selectedSkills)).sort()
     : [];
+  next.resourceProjection = Array.from(new Set(options.resourceProjection ?? [])).sort();
 
   return next;
 }
 
 export function buildCapabilityChecklistState(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
 ): CapabilityChecklistState {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
 
   const options = CAPABILITIES.map((capability) => {
     const metadata = CAPABILITY_METADATA[capability];
+    const label = getCapabilityLabel(config, capability);
     const state = profile.capabilityState[capability];
     const disabled = state.missingPrerequisites.length > 0;
     const dependencyText =
@@ -371,7 +423,7 @@ export function buildCapabilityChecklistState(
 
     return {
       value: capability,
-      label: metadata.label,
+      label,
       hint: disabled ? (state.disabledReason ?? metadata.hint) : metadata.hint,
       disabled,
       description: metadata.description,
@@ -392,6 +444,8 @@ export function buildCapabilityChecklistState(
 
 export function renderWizardReviewSummary(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
+  harnessSupport: SetupHarnessState[] = [],
 ): string {
   const normalizedSelections = normalizeWizardSelections(selections);
   const profile = resolveInstallProfile(normalizedSelections);
@@ -411,10 +465,20 @@ export function renderWizardReviewSummary(
     : "No";
 
   return [
-    "Document types",
+    "Selection preview. No file change is approved here.",
+    "Continue to build the exact computer and project review.",
+    "",
+    "This computer",
+    ...(harnessSupport.length > 0
+      ? harnessSupport.map((state) => `- ${describeHarnessSupport(state)}`)
+      : ["- No machine changes selected"]),
+    "- Store-backed connection methods need separate machine approval",
+    "",
+    "This project",
+    "Project surface",
     ...CAPABILITIES.map((capability) => {
       const state = profile.capabilityState[capability];
-      const label = CAPABILITY_METADATA[capability].label;
+      const label = getCapabilityLabel(config, capability);
       const value = state.effectiveSelection
         ? "selected"
         : state.disabledReason
@@ -424,10 +488,12 @@ export function renderWizardReviewSummary(
       return `- ${label}: ${value}`;
     }),
     "",
-    "Options",
     `- Harnesses: ${harnessSummary}`,
     `- ${OPTION_METADATA.skills.label}: ${skillsSummary}`,
     `- Selected skills: ${normalizedSelections.skills ? selectedSkillSummary : "n/a"}`,
+    `- Local resource projection: ${(normalizedSelections.resourceProjection ?? []).join(", ") || "none"}`,
+    "- Resource provider reads need no Store access",
+    "- Local copies reduce CLI dependence. They do not grant harness or Store access",
   ].join("\n");
 }
 
@@ -441,16 +507,36 @@ export async function runSelectionWizardWithRenderer(
   renderer: WizardRenderer,
   options: RunSelectionWizardOptions,
 ): Promise<InstallSelections | null> {
-  let selections = normalizeWizardSelections(options.initialSelections);
-  let step = options.startStep ?? "capabilities";
+  const state = resolveUnifiedSetupState({
+    entry: options.projectState === "fresh" ? "setup" : "reconfigure",
+    projectState: options.projectState ?? "current",
+    selections: options.initialSelections,
+    harnesses: options.harnessSupport,
+    allowCapabilityExpansion: options.allowCapabilityExpansion,
+  });
+  let selections = normalizeWizardSelections(state.selections);
+  let step =
+    options.startStep ?? (options.projectState === undefined ? "capabilities" : "harnesses");
+  const config = options.config ?? createDefaultMakeDocsConfig();
 
   await renderer.beginSession?.(options.introTitle);
+  await renderer.showProjectState?.(options.projectState ?? "current");
 
   while (true) {
     if (step === "capabilities") {
+      if (options.projectState === "fresh") {
+        selections = applyCapabilitySelections(
+          selections,
+          COMPLETE_PROJECT_CAPABILITIES,
+        );
+        step = "harnesses";
+        continue;
+      }
+
       const selectedCapabilities = await renderer.editCapabilities({
         selections,
-        checklist: buildCapabilityChecklistState(selections),
+        checklist: buildCapabilityChecklistState(selections, config),
+        config,
       });
 
       if (!selectedCapabilities) {
@@ -468,7 +554,23 @@ export async function runSelectionWizardWithRenderer(
         options: HARNESSES.map((harness) => ({
           value: harness,
           label: HARNESS_METADATA[harness].label,
-          hint: HARNESS_METADATA[harness].hint,
+          hint: [
+            HARNESS_METADATA[harness].hint,
+            options.harnessSupport?.find((state) => state.harness === harness)
+              ? describeHarnessSupport(
+                  options.harnessSupport.find((state) => state.harness === harness)!,
+                )
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join(" — "),
+          ...(options.harnessSupport?.find((state) => state.harness === harness)
+            ? {
+                status: options.harnessSupport.find(
+                  (state) => state.harness === harness,
+                )!.state,
+              }
+            : {}),
         })),
         selectedHarnesses: getSelectedHarnesses(selections),
       });
@@ -482,28 +584,45 @@ export async function runSelectionWizardWithRenderer(
       }
 
       selections = applyHarnessSelections(selections, selectedHarnesses);
+      if (options.afterHarnessSelection && !(await options.afterHarnessSelection(selections))) {
+        return null;
+      }
       step = "options";
       continue;
     }
 
     if (step === "options") {
       const nextOptions = await renderer.editOptions(
-        buildOptionsStepState(selections),
+        buildOptionsStepState(selections, options.skillRegistry, options.lockSkills),
       );
 
       if (!nextOptions) {
         return null;
       }
 
-      selections = applyWizardOptionSelections(selections, nextOptions);
-      step = "review";
-      continue;
+      selections = applyWizardOptionSelections(
+        selections,
+        options.lockSkills
+          ? {
+              ...nextOptions,
+              skills: selections.skills,
+              skillScope: selections.skillScope,
+              selectedSkills: [...selections.selectedSkills],
+            }
+          : nextOptions,
+      );
+      return normalizeWizardSelections(selections);
     }
 
     const reviewAction = await renderer.review({
       selections,
       profile: resolveInstallProfile(selections),
-      summary: renderWizardReviewSummary(selections),
+      summary: renderWizardReviewSummary(
+        selections,
+        config,
+        options.harnessSupport,
+      ),
+      allowCapabilityExpansion: state.allowCapabilityExpansion,
     });
 
     if (reviewAction === "apply") {
@@ -511,6 +630,10 @@ export async function runSelectionWizardWithRenderer(
     }
 
     if (reviewAction === "edit-capabilities") {
+      if (!state.allowCapabilityExpansion) {
+        step = "review";
+        continue;
+      }
       step = "capabilities";
       continue;
     }
@@ -740,6 +863,13 @@ function getManagedFileConflictGroupLabel(
   return MANAGED_FILE_CONFLICT_GROUP_LABELS[group] ?? toTitleCase(group);
 }
 
+function getCapabilityLabel(
+  config: MakeDocsConfig,
+  capability: Capability,
+): string {
+  return getDocumentKindLabel(config, CAPABILITY_DOCUMENT_KIND_LABELS[capability]);
+}
+
 function toTitleCase(value: string): string {
   return value
     .split(/[-_\s]+/)
@@ -753,8 +883,11 @@ function createClackWizardRenderer(): WizardRenderer {
     beginSession(title) {
       intro(title);
     },
+    showProjectState(state) {
+      note(`Project state: ${state}.`, "Project state");
+    },
     async editCapabilities(state) {
-      return promptForCapabilities(state.selections);
+      return promptForCapabilities(state.selections, state.config);
     },
     async editHarnesses(state) {
       return promptForHarnesses(state.selections);
@@ -769,12 +902,20 @@ function createClackWizardRenderer(): WizardRenderer {
         message: "What would you like to do next?",
         withGuide: true,
         options: [
-          { value: "apply", label: "Apply", hint: "Use this configuration" },
           {
-            value: "edit-capabilities",
-            label: "Edit document types",
-            hint: "Adjust managed document types",
+            value: "apply",
+            label: "Continue",
+            hint: "Build the exact computer and project review. No files change yet.",
           },
+          ...(state.allowCapabilityExpansion
+            ? [
+                {
+                  value: "edit-capabilities" as const,
+                  label: "Review project expansion",
+                  hint: "Change the current project document surface",
+                },
+              ]
+            : []),
           {
             value: "edit-harnesses",
             label: "Edit harnesses",
@@ -804,14 +945,15 @@ function createClackWizardRenderer(): WizardRenderer {
 
 async function promptForCapabilities(
   selections: InstallSelections,
+  config: MakeDocsConfig = createDefaultMakeDocsConfig(),
 ): Promise<Capability[] | null> {
   const promptState = {
     selections: normalizeWizardSelections(selections),
   };
 
   const prompt = new MultiSelectPrompt<CapabilityChecklistOption>({
-    options: buildCapabilityChecklistState(promptState.selections).options,
-    initialValues: buildCapabilityChecklistState(promptState.selections)
+    options: buildCapabilityChecklistState(promptState.selections, config).options,
+    initialValues: buildCapabilityChecklistState(promptState.selections, config)
       .selectedCapabilities,
     required: true,
     render(this: MultiSelectPrompt<CapabilityChecklistOption>) {
@@ -830,7 +972,7 @@ async function promptForCapabilities(
       prompt.value ?? [],
     );
 
-    const checklist = buildCapabilityChecklistState(promptState.selections);
+    const checklist = buildCapabilityChecklistState(promptState.selections, config);
     prompt.options = checklist.options;
     prompt.value = checklist.selectedCapabilities;
 
@@ -849,7 +991,7 @@ async function promptForCapabilities(
     return null;
   }
 
-  return buildCapabilityChecklistState(promptState.selections)
+  return buildCapabilityChecklistState(promptState.selections, config)
     .selectedCapabilities;
 }
 
@@ -879,23 +1021,33 @@ async function promptForOptions(
   state: OptionsStepState,
 ): Promise<WizardOptionSelections | null> {
   const { options, skillSelection, skillScopeOptions } = state;
+  const harnessLabels = getSelectedHarnesses(state.selections).map(
+    (harness) => HARNESS_METADATA[harness].label,
+  );
 
-  const skillsResult = await confirm({
-    message: "Install agent skills?",
-    withGuide: true,
-    initialValue: options.skills,
-    active: "Yes",
-    inactive: "No",
-  });
-
-  if (isCancel(skillsResult)) {
-    return null;
+  if (state.skillsLocked) {
+    note(
+      "This setup keeps the saved Skill selection. Use `make-docs setup skills` to change the enabled state, scope, source, or selected names.",
+      "Skills",
+    );
   }
+
+  const skillsResult = state.skillsLocked
+    ? options.skills
+    : await confirm({
+        message: `Install optional Skills for ${formatInlineList(harnessLabels)}? Skills guide agents. They do not grant Store access.`,
+        withGuide: true,
+        initialValue: options.skills,
+        active: "Yes",
+        inactive: "No",
+      });
+
+  if (isCancel(skillsResult)) return null;
 
   let skillScope: InstallSelections["skillScope"] = options.skillScope;
   let selectedSkills = options.selectedSkills;
 
-  if (skillsResult) {
+  if (skillsResult && !state.skillsLocked) {
     const scopeResult = await select<InstallSelections["skillScope"]>({
       message: "Where should skills be installed?",
       withGuide: true,
@@ -931,14 +1083,32 @@ async function promptForOptions(
     } else {
       selectedSkills = [];
     }
-  } else {
+  } else if (!skillsResult) {
     selectedSkills = [];
+  }
+
+  const resourceProjection = await multiselect<ProjectResourceType>({
+    message:
+      "Which system resources should also be copied into this project? Provider reads need no Store access.",
+    withGuide: true,
+    initialValues: options.resourceProjection ?? [],
+    required: false,
+    options: PROJECT_RESOURCE_TYPES.map((resourceType) => ({
+      value: resourceType,
+      label: resourceType,
+      hint:
+        "Optional local copy for portability. It does not grant harness or Store access.",
+    })),
+  });
+  if (isCancel(resourceProjection)) {
+    return null;
   }
 
   return {
     skills: skillsResult,
     skillScope,
     selectedSkills,
+    resourceProjection,
   };
 }
 
@@ -983,14 +1153,10 @@ function renderSkillSelectionFrame(
     selectedSkillNames,
   );
   const detailLines = renderDetailBox(
-    focusedOption.label,
-    [
-      focusedOption.hint || "No additional description available.",
-      "",
-      `Status: ${
-        selectedSkillNames.has(focusedOption.value) ? "Selected" : "Available"
-      }`,
-    ],
+    focusedOption.value,
+    focusedOption.detailLines.length > 0
+      ? focusedOption.detailLines
+      : [focusedOption.hint || "No additional description available."],
     process.stdout.columns,
   );
   const hintLines = [
@@ -1097,6 +1263,12 @@ function renderSkillSelectionLines(
   });
 
   return lines;
+}
+
+function formatSkillPurposeLabels(skill: WizardSkillChoice): string {
+  return skill.purposes.length > 0
+    ? skill.purposes.map((purpose) => purpose.label).join(", ")
+    : "Uncategorized";
 }
 
 function renderCapabilitiesFrame(

@@ -4,13 +4,17 @@
 
 Turn the accepted tool-directory design into the active PRD and work backlog contract for `.make-docs/` tool resources, system/custom resource tiers, runtime state boundaries, and the migration path away from product-owned tool assets in `docs/assets/**`.
 
+## W9 R5 Supersession Note
+
+W9 R2 has already been implemented and remains historical evidence for the first `.make-docs/**` split. Before extending or reimplementing any W9 R2 work, apply [W9 R5 v2 Library and Archive History IA Correction](../2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/00-overview.md) as the blocking pivot. W9 R4 remains historical evidence for top-level artifact/archive moves; W9 R5 supersedes older future-facing guide, breadcrumb, and history assumptions. The current targets are `docs/assets/{archive,artifacts,library,playbooks}/**`, on-demand `docs/assets/archive/history/**`, and `.make-docs/{contracts,references,scripts,templates,agentics}/**`.
+
 ## Coordinate Decision
 
 - Coordinate: `W9 R2`
 - Route: `change-plan`
 - Reason: this design materially revises the archived W9 R1 docs-assets resource namespace while depending on the accepted W10 Batch 1 package, materialization, compatibility, and source-of-truth contracts.
 - Plan directory: `docs/plans/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`
-- PRD change doc: `docs/prd/21-revise-tool-directory-system-custom-resource-tiers.md`
+- PRD change doc: `docs/prd/21-project-tool-directory-and-resource-tiers.md`
 - Work backlog: `docs/work/2026-06-23-w9-r2-tool-directory-system-custom-resource-tiers/`
 
 ## Change Inputs

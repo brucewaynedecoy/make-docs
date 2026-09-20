@@ -1,6 +1,6 @@
 # CLI Conflict Resolution
 
-> Filename: `2026-05-06-cli-conflict-resolution.md`. See `docs/assets/references/design-contract.md` for naming and structural rules.
+> Filename: `2026-05-06-cli-conflict-resolution.md`. See `.make-docs/contracts/system/design-contract.md` for naming and structural rules.
 
 ## Purpose
 
@@ -168,12 +168,12 @@ Downstream docs and tests should use the term `diff` or `conflict` consistently.
 ## Design Lineage
 
 - Update Mode: `new-doc-related`
-- Prior Design Docs: [2026-04-28-cli-asset-selection-simplification.md](../assets/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-22-cli-lifecycle-clack-standardization.md](../assets/archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md)
+- Prior Design Docs: [2026-04-28-cli-asset-selection-simplification.md](../../.make-docs/archive/designs/2026-04-28-cli-asset-selection-simplification.md), [2026-04-22-cli-lifecycle-clack-standardization.md](../../.make-docs/archive/designs/2026-04-22-cli-lifecycle-clack-standardization.md)
 - Reason: this design builds on the always-managed asset model from asset-selection simplification and applies the Clack interaction standard to the remaining install-time conflict workflow.
 
 ## Intended Follow-On
 
 - Route: `change-plan`
-- Next Prompt: [designs-to-plan-change.prompt.md](../assets/prompts/designs-to-plan-change.prompt.md)
+- Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md)
 - Why: this is a targeted correction to existing CLI planning and interactive install behavior, not a new baseline planning track.
 - Coordinate Handoff: related completed coordinates include `W7 R1` for CLI lifecycle Clack standardization and `W14 R0` for CLI asset-selection simplification. Recommended downstream coordinate is unresolved; planner must confirm the next active W/R coordinate before writing.

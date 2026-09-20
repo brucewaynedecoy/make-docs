@@ -1,0 +1,19 @@
+{
+  "status": "passed-file-inventory",
+  "candidateSha256": "6e46d754c4edb9a3ff7c2de16838bd52608894be5add8451c12c4d9af4d1fade",
+  "roots": [
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review",
+    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/all-project-codex-copy/project/.make-docs/agentics/skills"
+  ],
+  "beforeFiles": 84,
+  "afterFiles": 84,
+  "changedFiles": [],
+  "missingFiles": [],
+  "unexpectedFiles": [],
+  "observedSymlinks": [],
+  "observedDirectoryCount": 52,
+  "directoriesWithoutBeforeFileAncestor": [],
+  "directoryProofLimit": "The preparation snapshot recorded files, not a full empty-directory inventory. Current directories were enumerated, but an empty-directory creation/removal claim cannot be derived from that snapshot. No unexpected file or link exists in either review-input root.",
+  "completedReadOnlyCommands": 25,
+  "method": "Read-only SHA-256 and full current file/link enumeration against the pre-review file snapshot; no CLI or Store operation."
+}

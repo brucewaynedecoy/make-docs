@@ -1,0 +1,14 @@
+Retained tool-output excerpt, reported by the guidance test owner.
+This is not a redirected raw log. No test was rerun to create this capture.
+Command: npm run validate:defaults
+Working directory: packages/cli
+Exec session: 48364
+Final write_stdin chunk: 91ad30
+Exit code: 0
+
+✓ tests/template-links.test.ts (12 tests) 14ms
+✓ tests/consistency.test.ts (38 tests) 114ms
+Test Files 2 passed (2)
+Tests 50 passed (50)
+Start at 16:29:49
+Duration 998ms (transform585ms, setup58ms, collect1.00s, tests127ms, environment0ms, prepare114ms)
