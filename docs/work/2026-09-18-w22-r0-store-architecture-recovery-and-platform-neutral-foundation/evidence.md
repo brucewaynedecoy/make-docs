@@ -220,6 +220,13 @@ Do not edit an old row to change its meaning. Add a new row that supersedes it.
 | S-014 | Supersedes S-005. The earlier recovery loop came from making setup depend on the Store or access path that setup had to repair. Setup now previews the Store directly, applies the reviewed bridge through the shared journal, keeps Store-free work available, and returns one next action for blocked state. | High | All | `cli.ts`; `setup-system.ts`; `installation-state.ts`; `w19-r8-store-access-remediation.test.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | Setup and Store recovery | A person must be able to repair setup without a successful prior Store or MCP call. | Source absent, legacy, blocked, repeat, and recovery cases pass. P6 owns final installed output review. |
 | S-015 | Supersedes S-007 for resource projection. The cause was projection records that repeated desired selection and provider facts beside applied ownership. P4 target writers keep only URI, target path, digest, algorithm, applied time, lifecycle result, and ownership in the projection record. P5 converts legacy mirrors and saves the exact old ledger in private migration history. | High | All | `manifest.ts`; `project-projection.ts`; `store/database.ts`; `p4-projection-lifecycle.test.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | Resource projection and Store architecture | Status and repair must not choose between duplicate desired and applied facts. | Source conversion and target-writer proof is complete. Separate approval is still required before old history is deleted. |
 | S-016 | Supersedes S-008. The cause was authority text that let a local installation manifest appear to own both project intent and machine-applied facts. PRDs 24 and 38 now separate repository intent from Store-applied proof. P5 enforces the physical bridge rules for checkout identity, receipts, transfers, projection mirrors, and pending operations. | High | Documentation and all hosts | PRDs 24 and 38; `store/compatibility-bridge.ts`; `w22-r0-p5-compatibility-bridge.test.ts` | PRD and Store authority | A user must know what travels with the project and what stays local to one checkout. | Normative authority and source bridge proof are complete. P6 owns the final installed explanation. |
+| S-017 | Supersedes S-003. Resource identity facts remain inside one verified read window. The final package read installed resources as raw and JSON bytes without creating a Store or project state. | High | Windows, macOS, and Linux | `operations/resource/resolver.ts`; `resource-resolver.test.ts`; `smoke-pack.mjs`; workflow 35483206273 | Resource resolver | A read must return verified current bytes without turning low-level file facts into durable identity. | Closed. The three-host source matrix and exact installed-package resource case passed. |
+| S-018 | Supersedes S-004 and completes S-016. The final package read installed resources with an absent Store and wrote no project state. Repository intent and local applied proof remained separate. | High | Windows, macOS, and Linux | `smoke-pack.mjs`; PRDs 24, 25, and 38; workflow 35483206273 | Operation access and PRD authority | Store loss must stop only the operation that needs the Store. | Closed. Every host returned the same `available` and `store-not-opened` result. |
+| S-019 | Supersedes S-006 and completes S-013. Static adapter declarations and reviewed native entries replaced dynamic conformance. The selected native Skill lifecycle passed with the exact installed package. | High | Windows, macOS, and Linux | `harness-access/native.ts`; `w19-r6-harness-adapters.test.ts`; `w19-r6-harness-system-operations.test.ts`; workflow 35483206273 | Harness adapter and platform layer | Setup must show real supported choices and preserve the same safe result on every host. | Closed. The three-host source matrix and installed native lifecycle passed without a platform exception. |
+| S-020 | Supersedes S-009 and completes S-015. PRD 38 defines live recovery, bounded history, rebuildable cache, bridge state, and deletion authority. The final removal case pruned ownership, retained history, and preserved custom and backup files. | High | Windows, macOS, and Linux | PRD 38; `store/database.ts`; `smoke-pack.mjs`; workflow 35483206273 | Store architecture | A user must be able to understand and remove local tool data without unapproved loss. | Closed. The required migration, retention, rollback, and removal proof passed. Old-history deletion still needs separate approval. |
+| S-021 | Supersedes S-010 and completes S-014. Setup now coordinates reviewed subplans while the Store, platform, harness, and resource owners keep their own mutation and recovery rules. | High | Windows, macOS, and Linux | `setup-state.ts`; `setup-system.ts`; `w19-r8-store-access-remediation.test.ts`; `smoke-pack.mjs`; workflow 35483206273 | Setup | Setup must remain understandable and recoverable through one open path. | Closed. Fresh, repeat, old-state, blocked-removal, and recovery cases passed with one public state and next action. |
+| S-022 | Completes S-011. The exact installed package converted supported old checkout state, preserved user bytes, and returned the same result on all three hosts. | High | Windows, macOS, and Linux | `store/compatibility-bridge.ts`; `smoke-pack.mjs`; workflow 35483206273 | Store identity | A safe move or conversion must keep the right checkout without durable file-object identity. | Closed. Required move, update, interruption, rollback, and installed bridge evidence passed. |
+| S-023 | Completes S-012. Current caller proof remained separate from receipt history. The candidate source passed live MCP and native-route cases on all three hosts. The exact installed package then passed the native lifecycle after package installation. | High | Windows, macOS, and Linux | `harness-policy.ts`; `w19-r6-harness-adapters.test.ts`; `w19-r6-harness-system-operations.test.ts`; workflow 35483206273 | Harness trust | A valid package update must not lose access only because old executable bytes changed. | Closed. Current and stale receipt, route, update, repair, and removal evidence passed. |
 
 ## Mechanism Disposition Ledger
 
@@ -1047,7 +1054,9 @@ The owner authorized closeout on 2026-09-19. P5 is closed. P6 needs separate exp
 
 ### Status
 
-P6 implementation is active. The local harness and macOS installed-package check pass. The final candidate and the real Windows, macOS, and Linux results still require a committed source revision and a remote workflow run.
+P6 implementation and closeout are complete. The owner authorized closeout, staging, and commit on 2026-09-19. P6 and W22 R0 are closed.
+
+Pull request [#12](https://github.com/brucewaynedecoy/make-docs/pull/12) merged the proved implementation into `main` as `b0840efaea1368c32526ae2d2a15b4a94ef49c4d`. Concurrent W23 files remain outside the P6 closeout change set.
 
 ### Installed-Package Proof Route
 
@@ -1073,9 +1082,84 @@ P6 implementation is active. The local harness and macOS installed-package check
 
 The local package uses the P5 commit as its recorded source revision. It is only a harness check. It is not the final P6 candidate because the P6 workflow changes are not committed.
 
-### Remaining Gate
+### Final Package and Workflow Evidence
 
-- Build the final package from the committed P6 source revision.
-- Run and compare the exact installed package on Windows, macOS, and Linux.
-- Complete t7 through t13 only after the real-platform matrix passes.
-- Do not close P6, publish, or release from the local result alone.
+Workflow [35483206273](https://github.com/brucewaynedecoy/make-docs/actions/runs/35483206273) completed successfully for pull request #12.
+
+| Fact | Result |
+| --- | --- |
+| PR head revision | `6222f1f409ccd2ac84a1b106654b13149a56b072` |
+| GitHub Actions tested revision | `ce8052f719d5d85f25e10dc5d866de3e7646c490`, the pull-request test merge revision recorded by the candidate |
+| Package | `@brucewaynedecoy/make-docs@2.0.0-rc` |
+| File | `brucewaynedecoy-make-docs-2.0.0-rc.tgz` |
+| Package SHA-256 | `d45eab81fe825206a62e997d10a5a47331f49741ebfb62adc00fd172c9d25d15` |
+| Package size | 1,538,348 bytes |
+| Build and source gate | Passed the full CLI suite, proof-harness tests, and default validation before packaging. |
+| Real-platform source gate | Passed the same required 13-file safety matrix on `ubuntu-latest`, `macos-latest`, and `windows-latest`. |
+| Installed-package gate | Passed from an isolated package installation, home, and Store root on all three hosts. Product execution did not use the source checkout. |
+| Comparison gate | Passed. It found one result per required host, one candidate identity, one installed public contract, and no source-checkout or extract-only substitute. |
+
+The installed contract matched on every host:
+
+| Case | Public state | Safety result | Preservation or next action |
+| --- | --- | --- | --- |
+| Fresh setup | `ready` | `applied` | Managed files created; Store schema 5 verified. |
+| Current repeat | `ready` | `unchanged` | Managed files and native entries unchanged. |
+| Supported old-state bridge | `ready` | `converted-and-preserved` | User bytes preserved; legacy ledger transferred. |
+| Store-free resource read | `available` | `store-not-opened` | No project state written. |
+| Selected native Skill lifecycle | `ready` | `applied-and-reviewed-removal` | Owned Skill files and Codex and Claude Code entries managed. |
+| Project removal | `unregistered` | `managed-removed-unmanaged-preserved` | Custom and backup files preserved; ownership pruned and history retained. |
+| Ambiguous tool removal | `blocked` | `safe-stop` | Project files, Store state, and native entries preserved; use the owning install manager. |
+
+### Authority, Risk, and Symptom Reconciliation
+
+- PRDs 10, 16, 24, 25, 28, 38, and 39 keep the accepted platform, authority, Store, setup, resource, output, and recovery rules. No P6 result reduced core parity or changed the approved MCP operation boundary.
+- D-039 through D-041 and R-036 through R-038 now record exact close evidence in PRD 03. No other risk item changed.
+- S-017 through S-023 append the final P6 results without rewriting the earlier symptom evidence.
+- Every P1 `keep`, `rework`, or `remove` decision has an implemented owner, proof path, and rebuild or retention rule through P2 through P5. No accepted W22 obligation remains open.
+- Compatibility readers remain only where retained old history still has an accepted purpose and exit rule. They are not writable authority. Old-history deletion still needs separate approval.
+- The proved package is not published or released by this closeout. Publication and release still need separate authority.
+
+### P6 Human Experience Review
+
+Reviewer: Codex agent.
+
+Review surface: the exact candidate record, the three installed-package result files, the final comparison record, and the passing source and installed workflow jobs. The review inspected the actual recorded CLI states, safety results, preservation results, and next actions. It did not use source-checkout product execution as installed proof.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-1: equal action meaning and recovery on Windows, macOS, and Linux | Ubuntu, macOS, and Windows used the same package and returned the same installed contract. The required source matrix also passed on every host. | Satisfied for the proved candidate. | Rerun the gate for each later candidate. A missing host remains a defect unless the owner approves a time-bounded exception. |
+| HX-2: clear state and one next safe action | Success, unchanged, converted, unavailable-Store, removed, and blocked results use distinct public states and safety results. The blocked removal case gives one action and preserves all state. | Satisfied for the reviewed CLI and machine-readable results. | This is an agent evidence review. It does not claim a person's lived ease or confidence. |
+| HX-3: independent work continues without Store access | Each installed host read shipped resources with an absent Store, created no Store, and wrote no project state. The source access matrix also passed. | Satisfied for the proved Store-free and scoped-stop boundary. | Keep Store-free resource and independent-work cases in the matrix. |
+| HX-4: checkout moves and valid package updates do not fail only because low-level identity changed | The source matrix passed move, update, path, identity, conversion, interruption, and rollback cases on each host. The installed old-state bridge preserved user bytes and transferred the ledger. | Satisfied for the approved source-plus-installed proof model. | Detailed adversarial cases run from the same tested source on each host. The installed contract uses the seven named end-to-end cases rather than repeating every source fixture through the package entry. |
+| HX-5: setup and repair use one open recovery path | Fresh setup, repeat, bridge, blocked removal, and removal passed through the installed package. Source failure and recovery cases passed on every host. | Satisfied for the proved setup and recovery contract. | Keep failure injection in source tests and normal installed outcomes in the package gate. |
+| HX-6: every retained mechanism has a clear purpose and authority class | The mechanism ledger, PRD field authority, bridge register, final risk closures, and final symptom rows agree. Retained compatibility readers have exit rules and no old-form writer remains. | Satisfied for W22 R0. | Deleting retained old history remains a separate approval. Later architecture changes must update the owning PRD and proof. |
+
+This review supports only the stated observable conclusions. No lived-human feedback was requested or recorded. Current authority makes that feedback optional and non-blocking.
+
+### Testing Decisions
+
+- Automated Implementation Testing: complete and passed. The blocking source, package, real-platform, and comparison gates passed.
+- Performance Testing: `not-needed-now`. No accepted P6 performance target exists.
+- Guided Progress Review: optional and non-blocking. No owner feedback was recorded.
+- Unassisted Goal Testing: `not-needed-now`. The current decision concerned architecture parity, safety, and preservation, which the accepted automated and agent review evidence answers.
+
+The workflow emitted maintenance warnings about older action runtimes. Those warnings did not change the package, platform, or comparison results. CodeRabbit skipped its review because the pull request exceeded its file limit. CodeRabbit review was not a P6 acceptance gate.
+
+### Optional Experience Handoff
+
+If the owner wants later feedback, use a disposable project:
+
+1. Run setup or status. Notice the public state and next safe action before technical detail.
+2. Move the checkout and run status again. Notice that the checkout remains valid without durable device or inode identity.
+3. Apply a valid package update and repeat status or repair. Notice that current proof, not an old executable hash, controls access.
+
+This handoff is optional. Silence or no feedback does not reopen P6.
+
+### P6 Gate
+
+Tasks t1 through t13 are complete. Acceptance criteria A36 through A44 are satisfied within the recorded evidence and limits.
+
+One exact package passed the required source and installed-package gates on Windows, macOS, and Linux. The final comparison passed. The six W22 PRD risk records and all known W22 symptom chains have exact close evidence. No W22 deferred obligation or platform exception remains open.
+
+The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publication, release, old-history deletion, and any push of this closeout commit remain separate actions.

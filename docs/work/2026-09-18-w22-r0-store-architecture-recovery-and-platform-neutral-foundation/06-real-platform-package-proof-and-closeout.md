@@ -68,12 +68,12 @@ Human Experience Review is separate and required. The agent inspects real instal
 
 ### Tasks
 
-- [ ] t1: Run focused tests, the full CLI suite, default validation, PRD authority validation, links, path hygiene, and `git diff --check` before packaging.
-- [ ] t2: Build one package. Record the source revision, package name, version, and digest. Use that exact package in every installed case.
-- [ ] t3: Install the package with the repository unavailable in isolated Windows, macOS, and Linux homes and Store roots.
-- [ ] t4: Run fresh, current, old-state bridge, moved checkout, valid package update, changed native entry, Store failure, interrupted apply, stale lock, concurrent writer, projection, repeat, repair, removal, and all symptom cases.
-- [ ] t5: Compare public state, safety result, next action, files, Store evidence, and native entries across platforms.
-- [ ] t6: Fix bounded defects and rerun only affected cases plus required regression cases. Build a new identified package after code changes.
+- [x] t1: Run focused tests, the full CLI suite, default validation, PRD authority validation, links, path hygiene, and `git diff --check` before packaging.
+- [x] t2: Build one package. Record the source revision, package name, version, and digest. Use that exact package in every installed case.
+- [x] t3: Install the package with the repository unavailable in isolated Windows, macOS, and Linux homes and Store roots.
+- [x] t4: Run fresh, current, old-state bridge, moved checkout, valid package update, changed native entry, Store failure, interrupted apply, stale lock, concurrent writer, projection, repeat, repair, removal, and all symptom cases.
+- [x] t5: Compare public state, safety result, next action, files, Store evidence, and native entries across platforms.
+- [x] t6: Fix bounded defects and rerun only affected cases plus required regression cases. Build a new identified package after code changes.
 
 ### Acceptance criteria
 
@@ -90,22 +90,22 @@ Human Experience Review is separate and required. The agent inspects real instal
 
 ### Closeout Notes
 
-- Four testing decisions: Automated Implementation Testing required; Performance Testing `not-needed-now`; Guided Progress Review optional after Stage 2 assembly; Unassisted Goal Testing `not-needed-now`.
-- Human Experience Review: Prepare per-promise installed observations and limits.
-- Evidence report: Retain package identity, environment facts, case results, and comparable platform summary.
-- Phase / capability status: P6 remains active.
+- Four testing decisions: Automated Implementation Testing passed; Performance Testing remains `not-needed-now`; Guided Progress Review remains optional; Unassisted Goal Testing remains `not-needed-now`.
+- Human Experience Review: The [P6 evidence](evidence.md#p6-real-platform-package-proof-and-closeout) records installed observations and limits for HX-1 through HX-6.
+- Evidence report: Workflow [35483206273](https://github.com/brucewaynedecoy/make-docs/actions/runs/35483206273) records one candidate and comparable Windows, macOS, and Linux results.
+- Phase / capability status: Stage 1 is complete. One exact package passed the required source and installed-package matrix on all three hosts.
 
 ## Stage 2 - Authority, Human Experience, and Recovery Closeout
 
 ### Tasks
 
-- [ ] t7: Reconcile current PRDs, risk items, public guides, help, release claims, and architecture docs with the proved candidate.
-- [ ] t8: Dogfood the candidate only through the normal installed path after Stage 1 passes. Record any maintainer-only limit.
-- [ ] t9: Complete the Human Experience Review for HX-1 through HX-6 with evidence, observations, conclusions, reviewer, limits, and next actions.
-- [ ] t10: Prepare one to three optional normal-use steps for owner feedback. Do not make a response a gate unless later authority explicitly requires it.
-- [ ] t11: Close only risk and symptom items whose exact close evidence passes. Keep other items open with a next action.
-- [ ] t12: Confirm every P1 mechanism decision is implemented or has an explicit accepted obligation. Remove temporary migration authority that no longer applies.
-- [ ] t13: Run final full validation and prepare the phase closeout for separate staging and commit decisions.
+- [x] t7: Reconcile current PRDs, risk items, public guides, help, release claims, and architecture docs with the proved candidate.
+- [x] t8: Dogfood the candidate only through the normal installed path after Stage 1 passes. Record any maintainer-only limit.
+- [x] t9: Complete the Human Experience Review for HX-1 through HX-6 with evidence, observations, conclusions, reviewer, limits, and next actions.
+- [x] t10: Prepare one to three optional normal-use steps for owner feedback. Do not make a response a gate unless later authority explicitly requires it.
+- [x] t11: Close only risk and symptom items whose exact close evidence passes. Keep other items open with a next action.
+- [x] t12: Confirm every P1 mechanism decision is implemented or has an explicit accepted obligation. Remove temporary migration authority that no longer applies.
+- [x] t13: Run final full validation and prepare the phase closeout for separate staging and commit decisions.
 
 ### Acceptance criteria
 
@@ -121,9 +121,9 @@ Human Experience Review is separate and required. The agent inspects real instal
 
 ### Closeout Notes
 
-- Four testing decisions: Record final Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing decisions without changing their meanings.
-- Human Experience Review: Record per-promise evidence and limits. Record optional owner feedback if provided.
-- Optional experience handoff: Try setup or status, move a disposable checkout, and repeat after a valid package update. Notice the state and next action before technical detail. Feedback is optional.
+- Four testing decisions: Automated Implementation Testing passed. Performance Testing remains `not-needed-now`. Guided Progress Review remains optional and non-blocking. Unassisted Goal Testing remains `not-needed-now`.
+- Human Experience Review: The [P6 evidence](evidence.md#p6-human-experience-review) records the promised surface, evidence, observations, conclusions, reviewer, limits, and next actions for HX-1 through HX-6. No owner feedback was required or recorded.
+- Optional experience handoff: In a disposable project, try setup or status, move the checkout and repeat status, then repeat after a valid package update. Notice the public state, preservation result, and next safe action. Feedback remains optional.
 - Explicit human acceptance gate: None under current authority.
-- Evidence report: Link A36-A44 and all required platform results.
-- Phase / capability status: Close P6 only when all required evidence passes. Publication and release still need separate authority.
+- Evidence report: The [P6 gate](evidence.md#p6-gate) links A36 through A44, the package identity, and every required platform result.
+- Phase / capability status: The owner authorized closeout, staging, and commit on 2026-09-19. P6 is closed. Publication and release still need separate authority.
