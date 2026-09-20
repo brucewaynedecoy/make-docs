@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Data Contract and Rule Catalog"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W23 R0 P1"
 source:
   type: "prd"
@@ -63,10 +63,10 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t1: Define valid current-frontmatter work-index and phase shapes, partial current-format handling, inventory-only unsupported handling, phase-map authority, and the private source-reader adapter boundary. Inventory supported task, dependency, blocker, closeout, source-link, and Git evidence shapes without adding a legacy body parser.
-- [ ] t2: Complete the accepted version 1 snapshot schema with raw values, sourced facts, provenance, the fixed capability map, record counts, repository-relative record identity, required-key rules, and partial-result states.
-- [ ] t3: Define the separate report model with fact, inference, and recommendation claim classes, one exclusive `waveStatus` per live record, one flexible `statusReason` per displayed wave, four fixed portfolio tallies, archive scope, creation date, and the accepted Git and file-time hierarchy for last-updated evidence.
-- [ ] t4: Define stable one-to-one rule and diagnostic identities, fixed default severity, human message and remediation fields, and how duplicate coordinates, broken links, malformed records, open-task conflicts, and missing closeout evidence remain visible without controlling report status.
+- [x] t1: Define valid current-frontmatter work-index and phase shapes, partial current-format handling, inventory-only unsupported handling, phase-map authority, and the private source-reader adapter boundary. Inventory supported task, dependency, blocker, closeout, source-link, and Git evidence shapes without adding a legacy body parser.
+- [x] t2: Complete the accepted version 1 snapshot schema with raw values, sourced facts, provenance, the fixed capability map, record counts, repository-relative record identity, required-key rules, and partial-result states.
+- [x] t3: Define the separate report model with fact, inference, and recommendation claim classes, one exclusive `waveStatus` per live record, one flexible `statusReason` per displayed wave, four fixed portfolio tallies, archive scope, creation date, and the accepted Git and file-time hierarchy for last-updated evidence.
+- [x] t4: Define stable one-to-one rule and diagnostic identities, fixed default severity, human message and remediation fields, and how duplicate coordinates, broken links, malformed records, open-task conflicts, and missing closeout evidence remain visible without controlling report status.
 
 ### Acceptance criteria
 
@@ -84,11 +84,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t5: Define stable diagnostics with trigger, evidence class, human meaning, and safe next action.
-- [ ] t6: Create the deterministic-agentic rule catalog with parity mappings and explicit one-sided reasons.
-- [ ] t7: Create six synthetic fixture groups: canonical current record, mixed portfolio, source-shape limits, conflicts and links, dates and capabilities, and safety and human errors. Use fixed dates and expected structured results for static fixtures. Use test-created temporary repositories or directories for Git, file-time, and path-safety state.
-- [ ] t8: Draft expected compact chat and HTML report models with status reasons for each fixture class. Define semantic agent-response checks that preserve diagnostic meaning but do not freeze exact prose.
-- [ ] t9: Review the schema and examples for source traceability, honest uncertainty, and useful default detail.
+- [x] t5: Define stable diagnostics with trigger, evidence class, human meaning, and safe next action.
+- [x] t6: Create the deterministic-agentic rule catalog with parity mappings and explicit one-sided reasons.
+- [x] t7: Create six synthetic fixture groups: canonical current record, mixed portfolio, source-shape limits, conflicts and links, dates and capabilities, and safety and human errors. Use fixed dates and expected structured results for static fixtures. Use test-created temporary repositories or directories for Git, file-time, and path-safety state.
+- [x] t8: Draft expected compact chat and HTML report models with status reasons for each fixture class. Define semantic agent-response checks that preserve diagnostic meaning but do not freeze exact prose.
+- [x] t9: Review the schema and examples for source traceability, honest uncertainty, and useful default detail.
 
 ### Acceptance criteria
 
@@ -104,10 +104,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Closeout Notes
 
-- Four testing decisions: Automated required; Performance not-needed-now; Guided required; Unassisted not-needed-now.
-- Performance evidence: none.
-- Human Experience Review: Record per-promise observations, conclusions, evidence, reviewer, and limits after examples exist.
-- Optional experience handoff: Invite the owner to compare two or three report-density examples; optional and non-blocking.
-- Explicit human acceptance gate: none.
-- Evidence report: Add only after evidence exists.
-- Phase / capability status: P1 can close independently; the capability remains incomplete until P5.
+- Result: P1 is complete. It defines the private version 1 snapshot and report schemas, stable diagnostic and rule identities, and six synthetic fixture groups.
+- Verification: 53 of 53 focused P1 tests passed. The full CLI suite passed 87 files and 1,401 tests, with 1 file and 5 tests skipped. TypeScript, the CLI package build, and `git diff --check` passed. Independent review found no issues.
+- Guided Progress Review: The synthetic compact chat and HTML expected models preserve fixed statuses, flexible reasons, separate claim classes, source links, and stable tally meaning.
+- Human Experience Review: `satisfied` for the P1 contract surface. The fixtures show why a wave received a status or recommendation and how a reader can reach source evidence. The reviewer was Codex. The review does not claim a lived human reaction or a rendered report experience.
+- Coverage: Guide and system-resource edits are `none`. PRD edits are `none` because this private contract matches PRD 51. Performance Testing and Unassisted Goal Testing are `not-needed-now`. Accessibility and visual review stay with P4.
+- Evidence: [Central evidence report](evidence.md).
+- History: [P1 closeout record](../../../.make-docs/archive/history/2026-09-19-w23-r0-p1-data-contract-and-rule-catalog.md).
+- Boundary: P2 has not started. No public operation, CLI, MCP, Store, setup, or Skill surface exists. The backlog review capability remains incomplete until P5.

@@ -33,13 +33,15 @@ The owner authorized package drafting and a report prototype. The owner has not 
 
 ## Phase Map
 
-| Phase | File | Required result |
-| --- | --- | --- |
-| P1 | [Data Contract and Rule Catalog](01-data-contract-and-rule-catalog.md) | Accepted schema, evidence classes, diagnostics, rule mapping, and fixture matrix. |
-| P2 | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
-| P3 | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
-| P4 | [Single-File Interactive Report](04-single-file-interactive-report.md) | Safe, offline, accessible, responsive HTML template owned by the Skill. |
-| P5 | [Package Parity and Acceptance](05-package-parity-and-acceptance.md) | One installed package candidate passes parity, offline, browser, and Human Experience review. |
+| Phase | Status | File | Required result |
+| --- | --- | --- | --- |
+| P1 | Complete | [Data Contract and Rule Catalog](01-data-contract-and-rule-catalog.md) | Accepted schema, evidence classes, diagnostics, rule mapping, and fixture matrix. |
+| P2 | Not started | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
+| P3 | Not started | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
+| P4 | Not started | [Single-File Interactive Report](04-single-file-interactive-report.md) | Safe, offline, accessible, responsive HTML template owned by the Skill. |
+| P5 | Not started | [Package Parity and Acceptance](05-package-parity-and-acceptance.md) | One installed package candidate passes parity, offline, browser, and Human Experience review. |
+
+Evidence: [Central evidence report](evidence.md).
 
 ## Usage Notes
 
