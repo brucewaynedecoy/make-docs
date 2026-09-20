@@ -9,6 +9,10 @@ export const FORCE_KILL_DELAY_MS = 2_000;
 export const OUTPUT_CAPTURE_LIMIT_BYTES = 1_048_576;
 export const PREFLIGHT_TIMEOUT_MS = 5_000;
 
+export function normalizeTextLineEndings(value) {
+  return value.replace(/\r\n?/gu, "\n");
+}
+
 const SMOKE_MODES = new Set(["full", "local", "runners"]);
 const REQUIRED_COMMANDS = [
   { command: "npm", label: "npm", envKind: "npm" },

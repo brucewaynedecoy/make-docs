@@ -22,6 +22,7 @@ import {
   createPackageRunnerEnv,
   formatDuration,
   getSmokeModePlan,
+  normalizeTextLineEndings,
   parseSmokePackOptions,
   preflightPackageRunners,
   runObservedCommand,
@@ -1177,13 +1178,17 @@ function assertPackedRouterGuidanceParity(packageRoot) {
   for (const name of ["AGENTS.md", "CLAUDE.md"]) {
     const packedPath = path.join(packageRoot, "template/.make-docs", name);
     const upstreamPath = path.join(repoRoot, "packages/docs/template/.make-docs", name);
-    const packed = readFileSync(packedPath, "utf8");
-    if (packed !== readFileSync(upstreamPath, "utf8")) {
+    const packed = normalizeTextLineEndings(readFileSync(packedPath, "utf8"));
+    const upstream = normalizeTextLineEndings(readFileSync(upstreamPath, "utf8"));
+    if (packed !== upstream) {
       throw new Error(
         `Packed template/.make-docs/${name} does not match its upstream source.`,
       );
     }
-    if (verifyDogfood && packed !== readFileSync(path.join(repoRoot, ".make-docs", name), "utf8")) {
+    const dogfood = verifyDogfood
+      ? normalizeTextLineEndings(readFileSync(path.join(repoRoot, ".make-docs", name), "utf8"))
+      : null;
+    if (verifyDogfood && packed !== dogfood) {
       throw new Error(`Packed template/.make-docs/${name} does not match the dogfood .make-docs/${name}.`);
     }
     assertOutputContains(

@@ -9,11 +9,20 @@ import {
   createPackageRunnerEnv,
   formatDuration,
   getSmokeModePlan,
+  normalizeTextLineEndings,
   parseSmokePackOptions,
   preflightPackageRunners,
   runObservedCommand,
   sanitizeRegistryUrl,
 } from "../lib/smoke-pack-runner.mjs";
+
+test("smoke-pack text parity ignores only platform line-ending differences", () => {
+  assert.equal(normalizeTextLineEndings("first\r\nsecond\rthird"), "first\nsecond\nthird");
+  assert.notEqual(
+    normalizeTextLineEndings("first\r\nsecond"),
+    normalizeTextLineEndings("first\r\nchanged"),
+  );
+});
 
 test("smoke-pack options default to the full release gate", () => {
   assert.deepEqual(parseSmokePackOptions([]), {
