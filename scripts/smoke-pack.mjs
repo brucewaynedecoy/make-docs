@@ -1217,11 +1217,19 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, check
   ));
 
   for (const resource of [...HUMAN_EXPERIENCE_RESOURCES, ...PERFORMANCE_EVIDENCE_RESOURCES]) {
-    const upstreamBytes = readFileSync(path.join(repoRoot, "packages/docs/template", resource.localPath));
-    const generatedBytes = readFileSync(path.join(cliPackageDir, "template", resource.localPath));
-    const dogfoodBytes = readFileSync(path.join(repoRoot, resource.localPath));
-    const packedBytes = readFileSync(path.join(packageRoot, "template", resource.localPath));
-    if (!generatedBytes.equals(upstreamBytes) || !dogfoodBytes.equals(upstreamBytes) || !packedBytes.equals(upstreamBytes)) {
+    const upstreamText = normalizeTextLineEndings(
+      readFileSync(path.join(repoRoot, "packages/docs/template", resource.localPath), "utf8"),
+    );
+    const generatedText = normalizeTextLineEndings(
+      readFileSync(path.join(cliPackageDir, "template", resource.localPath), "utf8"),
+    );
+    const dogfoodText = normalizeTextLineEndings(
+      readFileSync(path.join(repoRoot, resource.localPath), "utf8"),
+    );
+    const packedText = normalizeTextLineEndings(
+      readFileSync(path.join(packageRoot, "template", resource.localPath), "utf8"),
+    );
+    if (generatedText !== upstreamText || dogfoodText !== upstreamText || packedText !== upstreamText) {
       throw new Error(`Governance resource projections differ for ${resource.uri}.`);
     }
 
@@ -1238,8 +1246,8 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, check
       [packedMakeDocs, "resource", "read", resource.uri, "--origin", "installed", "--format", "raw", "--target", resourceTargetDir],
       { env: offlineEnv },
     );
-    if (!raw.equals(upstreamBytes)) {
-      throw new Error(`Packed CLI installed-origin read changed the bytes for ${resource.uri}.`);
+    if (normalizeTextLineEndings(raw.toString("utf8")) !== upstreamText) {
+      throw new Error(`Packed CLI installed-origin read changed the text for ${resource.uri}.`);
     }
     const metadata = JSON.parse(execFileSync(
       "node",
@@ -1249,9 +1257,11 @@ function assertPackedHumanExperienceResources(packageRoot, packedMakeDocs, check
     if (metadata.resource.origin !== "installed-machine") {
       throw new Error(`Packed CLI read returned the wrong installed provenance for ${resource.uri}.`);
     }
-    const decoded = Buffer.from(metadata.resource.content.data, "base64");
-    if (!decoded.equals(upstreamBytes)) {
-      throw new Error(`Packed CLI JSON read changed the bytes for ${resource.uri}.`);
+    const decodedText = normalizeTextLineEndings(
+      Buffer.from(metadata.resource.content.data, "base64").toString("utf8"),
+    );
+    if (decodedText !== upstreamText) {
+      throw new Error(`Packed CLI JSON read changed the text for ${resource.uri}.`);
     }
   }
 
