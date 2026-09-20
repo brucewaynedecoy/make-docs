@@ -1402,7 +1402,7 @@ function inspectStore(installation, inspect) {
   const db = new DatabaseSync(databasePath, { readOnly: true });
   try {
     const checkout = db.prepare("SELECT * FROM installation_checkouts WHERE root_path = ?")
-      .get(realpathSync(installation.targetDir));
+      .get(realpathSync.native(installation.targetDir));
     if (!checkout) throw new Error("Smoke pack Store has no binding for this checkout.");
     return inspect(db, checkout);
   } finally {
