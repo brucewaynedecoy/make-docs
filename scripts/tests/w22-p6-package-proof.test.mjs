@@ -8,6 +8,7 @@ import {
   comparePlatformEvidence,
   createCandidateRecord,
   createPlatformEvidence,
+  resolveNpmLaunch,
   verifyCandidateRecord,
 } from "../lib/w22-p6-package-proof.mjs";
 
@@ -73,4 +74,49 @@ test("P6 comparison requires one passing result for each real platform", () => {
   } finally {
     rmSync(value.root, { recursive: true, force: true });
   }
+});
+
+test("P6 npm launch keeps direct execution on non-Windows platforms", () => {
+  assert.deepEqual(resolveNpmLaunch({ platform: "linux" }), { file: "npm", prefixArgs: [] });
+});
+
+test("P6 npm launch runs npm-cli.js through Node on Windows", () => {
+  const execPath = String.raw`C:\node\node.exe`;
+  const adjacentCli = String.raw`C:\node\node_modules\npm\bin\npm-cli.js`;
+  assert.deepEqual(
+    resolveNpmLaunch({
+      platform: "win32",
+      execPath,
+      npmExecPath: null,
+      npmCommandPaths: [],
+      isFile: (candidate) => candidate === adjacentCli,
+    }),
+    { file: execPath, prefixArgs: [adjacentCli] },
+  );
+
+  const wrapper = String.raw`C:\Program Files\nodejs\npm.cmd`;
+  const wrapperCli = String.raw`C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js`;
+  assert.deepEqual(
+    resolveNpmLaunch({
+      platform: "win32",
+      execPath: String.raw`D:\tools\node.exe`,
+      npmExecPath: null,
+      npmCommandPaths: [wrapper],
+      isFile: (candidate) => candidate === wrapperCli,
+    }),
+    { file: String.raw`D:\tools\node.exe`, prefixArgs: [wrapperCli] },
+  );
+});
+
+test("P6 npm launch fails closed when Windows npm-cli.js is absent", () => {
+  assert.throws(
+    () => resolveNpmLaunch({
+      platform: "win32",
+      execPath: String.raw`C:\node\node.exe`,
+      npmExecPath: null,
+      npmCommandPaths: [],
+      isFile: () => false,
+    }),
+    /could not find npm-cli\.js/,
+  );
 });

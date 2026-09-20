@@ -8,6 +8,7 @@ import {
   createCandidateRecord,
   createPlatformEvidence,
   readJsonFiles,
+  resolveNpmLaunch,
   verifyCandidateRecord,
   writeJson,
 } from "./lib/w22-p6-package-proof.mjs";
@@ -35,6 +36,18 @@ function parseOptions(args) {
 function requireOptions(options, names) {
   for (const name of names) {
     if (!options[name]) throw new Error(`P6 proof requires --${name}.`);
+  }
+}
+
+function findWindowsNpmCommands() {
+  if (process.platform !== "win32") return [];
+  try {
+    return execFileSync("where.exe", ["npm.cmd"], { encoding: "utf8" })
+      .split(/\r?\n/u)
+      .map((value) => value.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
   }
 }
 
@@ -70,9 +83,11 @@ if (command === "verify") {
       "node_modules",
       ...candidate.package.name.split("/"),
     );
+    const npmLaunch = resolveNpmLaunch({ npmCommandPaths: findWindowsNpmCommands() });
     execFileSync(
-      process.platform === "win32" ? "npm.cmd" : "npm",
+      npmLaunch.file,
       [
+        ...npmLaunch.prefixArgs,
         "install",
         "--prefix",
         installRoot,

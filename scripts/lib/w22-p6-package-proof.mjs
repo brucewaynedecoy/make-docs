@@ -5,6 +5,38 @@ import path from "node:path";
 
 export const P6_REQUIRED_PLATFORMS = ["ubuntu-latest", "macos-latest", "windows-latest"];
 
+export function resolveNpmLaunch(options = {}) {
+  const platform = options.platform ?? process.platform;
+  if (platform !== "win32") return { file: "npm", prefixArgs: [] };
+
+  const pathApi = path.win32;
+  const execPath = options.execPath ?? process.execPath;
+  const npmExecPath = options.npmExecPath ?? process.env.npm_execpath;
+  const candidates = [];
+  if (npmExecPath && pathApi.basename(npmExecPath).toLowerCase() === "npm-cli.js") {
+    candidates.push(npmExecPath);
+  }
+  candidates.push(pathApi.join(pathApi.dirname(execPath), "node_modules", "npm", "bin", "npm-cli.js"));
+  for (const commandPath of options.npmCommandPaths ?? []) {
+    candidates.push(
+      pathApi.join(pathApi.dirname(commandPath), "node_modules", "npm", "bin", "npm-cli.js"),
+    );
+  }
+
+  const isFile = options.isFile ?? ((candidate) => {
+    try {
+      return statSync(candidate).isFile();
+    } catch {
+      return false;
+    }
+  });
+  const npmCliPath = candidates.find((candidate) => isFile(candidate));
+  if (!npmCliPath) {
+    throw new Error("P6 proof could not find npm-cli.js for the active Windows Node installation.");
+  }
+  return { file: execPath, prefixArgs: [npmCliPath] };
+}
+
 export const P6_INSTALLED_SMOKE_CONTRACT = [
   {
     case: "fresh-setup",
