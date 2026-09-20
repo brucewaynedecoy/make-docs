@@ -1479,7 +1479,7 @@ function assertStoredOperation(installation, operation, relativePath) {
     if (!row) throw new Error(`Smoke pack has no completed Store record for ${operation}.`);
     if (relativePath) {
       const step = db.prepare("SELECT after_json FROM installation_steps WHERE operation_id = ? AND relative_path = ?")
-        .get(row.operation_id, relativePath.split(path.sep).join("/"));
+        .get(row.operation_id, relativePath);
       if (!step || JSON.parse(step.after_json).kind !== "file") {
         throw new Error(`Smoke pack ${operation} has no durable file evidence for ${relativePath}.`);
       }
