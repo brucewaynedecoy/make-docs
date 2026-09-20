@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Make Docs backlog review — W23 R0 prototype</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #15213c;
+      --muted: #5d6b82;
+      --faint: #8490a4;
+      --paper: #f5f7fb;
+      --panel: #ffffff;
+      --copy: #34415a;
+      --detail: #eef3ff;
+      --detail-copy: #42506a;
+      --line: #d7deea;
+      --line-strong: #aeb9ca;
+      --blue: #3159d8;
+      --blue-soft: #e9efff;
+      --amber: #b65f08;
+      --amber-soft: #fff1dc;
+      --red: #a6333d;
+      --red-soft: #fdebee;
+      --green: #246b58;
+      --green-soft: #e4f4ee;
+      --violet: #6750a4;
+      --violet-soft: #f0ebff;
+      --unknown: #e8ecf3;
+      --red-stripe: #f5cdd2;
+      --amber-stripe: #f8d8a7;
+      --gray-stripe: #d9dee7;
+      --phase-complete: #70ad9a;
+      --phase-open: #829de0;
+      --phase-blocked: #d77d87;
+      --phase-conflict: #d5a158;
+      --phase-superseded: #a7afbc;
+      --phase-unknown: #dfe4ec;
+      --wave-current: #3159d8;
+      --wave-current-soft: #e9efff;
+      --wave-attention: #9a5a10;
+      --wave-attention-soft: #fff0db;
+      --wave-conflict: #a6333d;
+      --wave-conflict-soft: #fdebee;
+      --wave-deferred: #6750a4;
+      --wave-deferred-soft: #f0ebff;
+      --wave-complete: #246b58;
+      --wave-complete-soft: #e4f4ee;
+      --wave-history: #5f6b7e;
+      --wave-history-soft: #edf0f5;
+      --button-text: #ffffff;
+      --focus: #005fcc;
+      --radius: 5px;
+      --measure: 72ch;
+      font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-synthesis: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --ink: #f8fafc;
+        --muted: #b8bec9;
+        --faint: #858e9d;
+        --paper: #090c11;
+        --panel: #11161f;
+        --copy: #e3e7ed;
+        --detail: #171e2a;
+        --detail-copy: #dce1e8;
+        --line: #29313f;
+        --line-strong: #4a566a;
+        --blue: #75adff;
+        --blue-soft: #13243d;
+        --amber: #f2b65f;
+        --amber-soft: #352510;
+        --red: #ff7888;
+        --red-soft: #3a171e;
+        --green: #68d4aa;
+        --green-soft: #113126;
+        --violet: #b9a2ff;
+        --violet-soft: #271f40;
+        --unknown: #202733;
+        --red-stripe: #74303a;
+        --amber-stripe: #704919;
+        --gray-stripe: #3e4755;
+        --phase-complete: #469c7e;
+        --phase-open: #527fca;
+        --phase-blocked: #ca5362;
+        --phase-conflict: #bd873e;
+        --phase-superseded: #687282;
+        --phase-unknown: #202733;
+        --wave-current: #75adff;
+        --wave-current-soft: #13243d;
+        --wave-attention: #f2b65f;
+        --wave-attention-soft: #352510;
+        --wave-conflict: #ff7888;
+        --wave-conflict-soft: #3a171e;
+        --wave-deferred: #b9a2ff;
+        --wave-deferred-soft: #271f40;
+        --wave-complete: #68d4aa;
+        --wave-complete-soft: #113126;
+        --wave-history: #c1c7d0;
+        --wave-history-soft: #252c37;
+        --button-text: #090c11;
+        --focus: #91bdff;
+      }
+    }
+
+    :root[data-theme="light"] { color-scheme: light; }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --ink: #f8fafc;
+      --muted: #b8bec9;
+      --faint: #858e9d;
+      --paper: #090c11;
+      --panel: #11161f;
+      --copy: #e3e7ed;
+      --detail: #171e2a;
+      --detail-copy: #dce1e8;
+      --line: #29313f;
+      --line-strong: #4a566a;
+      --blue: #75adff;
+      --blue-soft: #13243d;
+      --amber: #f2b65f;
+      --amber-soft: #352510;
+      --red: #ff7888;
+      --red-soft: #3a171e;
+      --green: #68d4aa;
+      --green-soft: #113126;
+      --violet: #b9a2ff;
+      --violet-soft: #271f40;
+      --unknown: #202733;
+      --red-stripe: #74303a;
+      --amber-stripe: #704919;
+      --gray-stripe: #3e4755;
+      --phase-complete: #469c7e;
+      --phase-open: #527fca;
+      --phase-blocked: #ca5362;
+      --phase-conflict: #bd873e;
+      --phase-superseded: #687282;
+      --phase-unknown: #202733;
+      --wave-current: #75adff;
+      --wave-current-soft: #13243d;
+      --wave-attention: #f2b65f;
+      --wave-attention-soft: #352510;
+      --wave-conflict: #ff7888;
+      --wave-conflict-soft: #3a171e;
+      --wave-deferred: #b9a2ff;
+      --wave-deferred-soft: #271f40;
+      --wave-complete: #68d4aa;
+      --wave-complete-soft: #113126;
+      --wave-history: #c1c7d0;
+      --wave-history-soft: #252c37;
+      --button-text: #090c11;
+      --focus: #91bdff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--paper); }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    button, a, input { -webkit-tap-highlight-color: transparent; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus) 32%, transparent);
+      outline-offset: 2px;
+    }
+
+    a { color: var(--blue); text-underline-offset: .16em; }
+
+    .shell {
+      width: min(1480px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 32px;
+      align-items: start;
+      border-top: 7px solid var(--ink);
+      border-bottom: 1px solid var(--line-strong);
+      padding: 24px 0 28px;
+    }
+
+    h1 {
+      max-width: 18ch;
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 5.4rem);
+      font-weight: 650;
+      letter-spacing: -.055em;
+      line-height: .98;
+    }
+
+    .lead {
+      max-width: var(--measure);
+      margin: 22px 0 0;
+      color: var(--copy);
+      font-size: clamp(1.03rem, 1.6vw, 1.3rem);
+      line-height: 1.55;
+    }
+
+    .report-meta {
+      min-width: 230px;
+      margin: 4px 0 0;
+      border-left: 1px solid var(--line);
+      padding-left: 24px;
+    }
+
+    .report-meta div + div { margin-top: 15px; }
+    .report-meta dt { color: var(--muted); font-size: .76rem; }
+    .report-meta dd { margin: 2px 0 0; font-weight: 650; }
+
+    .project-link {
+      color: var(--ink);
+      text-decoration-color: var(--line-strong);
+    }
+
+    .meta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 8px;
+    }
+
+    .meta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 33px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--ink);
+      padding: 7px 10px;
+      font-size: .78rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .theme-button::before {
+      width: 12px;
+      height: 12px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+      content: "";
+    }
+
+    .print-button svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+    }
+
+    .snapshot-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 18px 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .metric:last-child { border-right: 0; }
+    .metric strong { display: block; font-size: 1.65rem; line-height: 1; }
+    .metric span { color: var(--muted); font-size: .82rem; }
+
+    #attention-heading,
+    #order-heading,
+    #ledger-heading,
+    #legend-heading,
+    #evidence-boundary { scroll-margin-top: 24px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(250px, 340px) minmax(0, 1fr);
+      gap: 42px;
+      padding-top: 42px;
+    }
+
+    .attention {
+      align-self: start;
+      position: sticky;
+      top: 18px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin: 0 0 14px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 9px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
+    }
+
+    .attention-list,
+    .order-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .attention-item {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .attention-icon {
+      width: 28px;
+      height: 23px;
+      display: grid;
+      place-items: center;
+      align-self: start;
+    }
+
+    .attention-icon svg {
+      width: 15px;
+      height: 15px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.8;
+    }
+
+    .attention-item p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+    .attention-item strong { font-size: .9rem; }
+
+    .attention-item.info .attention-icon svg { stroke: var(--wave-current); fill: var(--wave-current-soft) }
+    .attention-item.warning .attention-icon svg { stroke: var(--wave-attention); fill: var(--wave-attention-soft) }
+    .attention-item.danger .attention-icon svg { stroke: var(--wave-conflict); fill: var(--wave-conflict-soft) }
+
+    .order-block { margin-top: 0; }
+    .attention-block { margin-top: 42px; }
+
+    .order-item {
+      display: grid;
+      align-items: start;
+      grid-template-columns: 32px 1fr;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .order-number {
+      width: 28px;
+      padding: 3px;
+      display: grid;
+      place-items: center;
+      font-size: .70rem;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    .order-item strong { display: block; font-size: .9rem; }
+    .order-item p { margin: 3px 0 0; color: var(--muted); font-size: .82rem; }
+
+    .ledger { min-width: 0; }
+
+    .controls {
+      margin-bottom: 28px;
+    }
+
+    .search-wrap { position: relative; }
+    .search-wrap::before {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--muted);
+      border-radius: 50%;
+      content: "";
+      transform: translateY(-58%);
+      pointer-events: none;
+    }
+    .search-wrap::after {
+      position: absolute;
+      left: 25px;
+      top: 57%;
+      width: 7px;
+      height: 2px;
+      background: var(--muted);
+      content: "";
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      min-height: 43px;
+      border: 1px solid var(--line-strong);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 9px 12px 9px 42px;
+    }
+
+    .ledger-tools {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      /*margin-bottom: 9px;*/
+      /*padding-bottom: 28px;*/
+      padding-bottom: 13px;
+    }
+
+    .filter-button {
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--ink);
+      padding: 6px 12px;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+
+    .filter-button:hover,
+    .filter-button:focus-visible,
+    .filter-button[aria-pressed="true"] {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--button-text);
+    }
+
+    .filter-button[data-filter="attention"] { --filter-color: var(--wave-attention); --filter-soft: var(--wave-attention-soft); }
+    .filter-button[data-filter="current"] { --filter-color: var(--wave-current); --filter-soft: var(--wave-current-soft); }
+    .filter-button[data-filter="conflict"] { --filter-color: var(--wave-conflict); --filter-soft: var(--wave-conflict-soft); }
+    .filter-button[data-filter="deferred"] { --filter-color: var(--wave-deferred); --filter-soft: var(--wave-deferred-soft); }
+    .filter-button[data-filter="complete"] { --filter-color: var(--wave-complete); --filter-soft: var(--wave-complete-soft); }
+    .filter-button[data-filter="history"] { --filter-color: var(--wave-history); --filter-soft: var(--wave-history-soft); }
+    .filter-button[data-filter="archived"] { --filter-color: var(--wave-history); --filter-soft: var(--wave-history-soft); }
+
+    .filter-button[data-semantic]:hover,
+    .filter-button[data-semantic]:focus-visible,
+    .filter-button[data-semantic][aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--filter-color) 55%, var(--line));
+      background: var(--filter-soft);
+      color: var(--filter-color);
+    }
+
+    .sort-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      padding-bottom: 14px;
+    }
+
+    .sort-controls label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+
+    .sort-controls span { display: none; }
+
+    #sortBy,
+    #sortDirection {
+      min-height: 32px;
+      border: 1px solid var(--line-strong);
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      font-size: .78rem;
+    }
+
+    #sortBy { padding: 5px 28px 5px 9px; }
+
+    #sortDirection {
+      width: 32px;
+      min-width: 32px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .sort-direction-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.6;
+    }
+
+    .sort-direction-icon.ascending { display: none; }
+    #sortDirection[data-direction="asc"] .sort-direction-icon.ascending { display: block; }
+    #sortDirection[data-direction="asc"] .sort-direction-icon.descending { display: none; }
+
+    #sortDirection:hover,
+    #sortDirection:focus-visible {
+      border-color: var(--ink);
+    }
+
+    .result-note {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .wave-list {
+      border-top: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel) 82%, transparent);
+    }
+
+    .wave {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wave[hidden] { display: none; }
+
+    .wave-overview {
+      display: grid;
+      grid-template-columns: minmax(150px, .8fr) minmax(240px, 1.35fr) minmax(250px, 1.8fr);
+      gap: 22px;
+      align-items: start;
+      padding: 22px 4px 14px;
+      cursor: pointer;
+    }
+
+    .wave-overview:hover {
+      background: color-mix(in srgb, var(--blue-soft) 20%, transparent);
+    }
+
+    .wave-overview:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+    }
+
+    .wave-title { padding-bottom: 8px; }
+    .wave-title a {
+      color: var(--ink);
+      font-size: 1.05rem;
+      font-weight: 760;
+      text-decoration: none;
+    }
+
+    .wave-title a:hover { text-decoration: underline; }
+    .wave-title p { margin: 4px 0 0; color: var(--muted); font-size: .78rem; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--muted);
+      padding: 3px 8px;
+      font-size: .7rem;
+      font-weight: 650;
+    }
+
+    .badge.current { border-color: color-mix(in srgb, var(--wave-current) 55%, var(--line)); background: var(--wave-current-soft); color: var(--wave-current); }
+    .badge.attention { border-color: color-mix(in srgb, var(--wave-attention) 55%, var(--line)); background: var(--wave-attention-soft); color: var(--wave-attention); }
+    .badge.conflict { border-color: color-mix(in srgb, var(--wave-conflict) 55%, var(--line)); background: var(--wave-conflict-soft); color: var(--wave-conflict); }
+    .badge.deferred { border-color: color-mix(in srgb, var(--wave-deferred) 55%, var(--line)); background: var(--wave-deferred-soft); color: var(--wave-deferred); }
+    .badge.complete { border-color: color-mix(in srgb, var(--wave-complete) 55%, var(--line)); background: var(--wave-complete-soft); color: var(--wave-complete); }
+    .badge.history { border-color: color-mix(in srgb, var(--wave-history) 55%, var(--line)); background: var(--wave-history-soft); color: var(--wave-history); }
+
+    .wave-summary { padding-bottom: 8px; color: var(--copy); font-size: .88rem; }
+    .wave-summary p { margin: 4px 0 0; padding-bottom: 4px; color: var(--muted); }
+
+    .track-wrap { min-width: 0; }
+
+    .wave-status { margin-bottom: 9px; }
+
+    .track {
+      display: grid;
+      grid-template-columns: repeat(var(--phase-count), minmax(18px, 1fr));
+      gap: 2px;
+      min-height: 10px;
+    }
+
+    .phase {
+      position: relative;
+      min-height: 10px;
+      border: 1px solid var(--line-strong);
+      background: var(--phase-unknown);
+    }
+
+    .phase.complete { border-color: var(--phase-complete); background: var(--phase-complete); }
+    .phase.open { border-color: var(--phase-open); background: var(--phase-open); }
+    .phase.blocked { border-color: var(--phase-blocked); background: var(--phase-blocked); }
+    .phase.conflict { border-color: var(--phase-conflict); background: var(--phase-conflict); }
+    .phase.superseded { border-color: var(--phase-superseded); background: var(--phase-superseded); }
+
+    .track-stats { margin-top: 7px; color: var(--muted); font-size: .73rem; }
+
+    .detail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      margin: 0 4px 2px;
+      border-left: 3px solid var(--blue);
+      background: var(--detail);
+      padding: 18px 20px;
+      font-size: .82rem;
+    }
+
+    .detail[hidden] { display: none; }
+
+    .detail h3 { margin: 0 0 6px; font-size: .8rem; }
+    .detail p { margin: 0; color: var(--detail-copy); }
+    .detail ul { margin: 0; padding-left: 18px; color: var(--detail-copy); }
+    .detail li + li { margin-top: 4px; }
+
+    .empty {
+      border-bottom: 1px solid var(--line);
+      padding: 48px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .legends {
+      margin-top: 24px;
+    }
+
+    .legend-block { min-width: 0; }
+
+    .legend-block h2 {
+      margin: 0 0 12px;
+      font-size: .88rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+
+    .legend span { display: inline-flex; gap: 7px; align-items: center; }
+    .legend i { width: 30px; height: 14px; flex: 0 0 auto; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--phase-unknown); }
+    .legend .l-complete { border-color: var(--phase-complete); background: var(--phase-complete); }
+    .legend .l-open { border-color: var(--phase-open); background: var(--phase-open); }
+    .legend .l-blocked { border-color: var(--phase-blocked); background: var(--phase-blocked); }
+    .legend .l-conflict { border-color: var(--phase-conflict); background: var(--phase-conflict); }
+    .legend .l-superseded { border-color: var(--phase-superseded); background: var(--phase-superseded); }
+
+    footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 30px;
+      margin-top: 48px;
+      border-top: 1px solid var(--line-strong);
+      padding-top: 20px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    footer p { max-width: var(--measure); margin: 0; }
+
+    @media (max-width: 1080px) {
+      .workspace { grid-template-columns: 1fr; }
+      .attention { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+      .attention-block { margin-top: 0; }
+      .wave-overview { grid-template-columns: minmax(140px, .8fr) minmax(220px, 1.2fr) minmax(220px, 1.4fr); gap: 16px; }
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 680px); padding-top: 16px; }
+      .masthead { grid-template-columns: 1fr; gap: 18px; }
+      .report-meta { border-left: 0; border-top: 1px solid var(--line); padding: 15px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .report-meta div + div { margin-top: 0; }
+      .meta-actions { grid-column: 1 / -1; margin-top: 2px; }
+      .attention { display: block; }
+      .attention-block { margin-top: 42px; }
+      .ledger-tools { flex-direction: column; align-items: stretch; }
+      .sort-controls { justify-content: flex-start; }
+      .wave-overview { grid-template-columns: 1fr; gap: 10px; padding: 20px 2px 12px; }
+      .detail { grid-template-columns: 1fr; margin-inline: 2px; }
+      footer { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .snapshot-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { border-bottom: 1px solid var(--line); }
+      .metric:nth-child(even) { border-right: 0; }
+      .metric:nth-last-child(-n + 2) { border-bottom: 0; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      html { scroll-behavior: smooth; }
+      .wave { transition: opacity 120ms ease; }
+    }
+
+    @media print {
+      :root,
+      :root[data-theme="light"],
+      :root[data-theme="dark"] {
+        color-scheme: light;
+        --ink: #15213c;
+        --muted: #5d6b82;
+        --faint: #8490a4;
+        --paper: #ffffff;
+        --panel: #ffffff;
+        --copy: #34415a;
+        --detail: #eef3ff;
+        --detail-copy: #42506a;
+        --line: #d7deea;
+        --line-strong: #aeb9ca;
+        --blue: #3159d8;
+        --blue-soft: #e9efff;
+        --amber: #b65f08;
+        --amber-soft: #fff1dc;
+        --red: #a6333d;
+        --red-soft: #fdebee;
+        --green: #246b58;
+        --unknown: #e8ecf3;
+        --red-stripe: #f5cdd2;
+        --amber-stripe: #f8d8a7;
+        --gray-stripe: #d9dee7;
+        --phase-complete: #70ad9a;
+        --phase-open: #829de0;
+        --phase-blocked: #d77d87;
+        --phase-conflict: #d5a158;
+        --phase-superseded: #a7afbc;
+        --phase-unknown: #dfe4ec;
+        --wave-current: #3159d8;
+        --wave-current-soft: #e9efff;
+        --wave-attention: #9a5a10;
+        --wave-attention-soft: #fff0db;
+        --wave-conflict: #a6333d;
+        --wave-conflict-soft: #fdebee;
+        --wave-deferred: #6750a4;
+        --wave-deferred-soft: #f0ebff;
+        --wave-complete: #246b58;
+        --wave-complete-soft: #e4f4ee;
+        --wave-history: #5f6b7e;
+        --wave-history-soft: #edf0f5;
+        --button-text: #ffffff;
+      }
+      body { background: white; }
+      .shell { width: 100%; padding: 0; }
+      .controls, .filters, .sort-controls, .meta-actions { display: none !important; }
+      .workspace { display: block; }
+      .attention { position: static; margin-bottom: 28px; }
+      .wave[hidden] { display: none; }
+      .wave { break-inside: avoid; }
+      .detail[hidden] { display: grid !important; }
+      footer { break-before: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <h1>Backlog review</h1>
+        <p class="lead">W22 R0 is the current architecture track. W23 R0 can be reviewed and refined now, but implementation waits for the W22 Store, registry, CLI, and MCP decisions. Two retained records need reconciliation before their status can be trusted at face value.</p>
+      </div>
+      <dl class="report-meta">
+        <div><dt>Project</dt><dd><a class="project-link" href="file:///Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/" target="_blank" rel="noopener" title="Open the Make Docs project folder">Make Docs</a></dd></div>
+        <div><dt>Date</dt><dd>18 Sep 2026</dd></div>
+        <div class="meta-actions">
+          <button class="meta-button theme-button" type="button" id="themeToggle" aria-pressed="false">Dark mode</button>
+          <button class="meta-button print-button" type="button" id="printReport">
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="M4 6V2h8v4M4 11H2.5A1.5 1.5 0 0 1 1 9.5v-2A1.5 1.5 0 0 1 2.5 6h11A1.5 1.5 0 0 1 15 7.5v2a1.5 1.5 0 0 1-1.5 1.5H12M4 9h8v5H4z" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            <span>Print</span>
+          </button>
+        </div>
+      </dl>
+    </header>
+
+    <section class="snapshot-strip" aria-label="Portfolio totals">
+      <div class="metric"><strong id="recordsFound">70</strong><span>work records found</span></div>
+      <div class="metric"><strong id="recordsInScope">9</strong><span>records in scope</span></div>
+      <div class="metric"><strong id="historicalRecords">37</strong><span>historical records</span></div>
+      <div class="metric"><strong id="archivedRecords">24</strong><span>archived records</span></div>
+    </section>
+
+    <div class="workspace">
+      <aside class="attention" aria-label="Attention and recommended order">
+        <section class="order-block">
+          <div class="section-heading"><h2 id="order-heading">Next</h2></div>
+          <ol class="order-list">
+            <li class="order-item"><span class="order-number">1</span><div><strong>Let W19 R2 closeout finish</strong><p>Do not overlap with its current edits.</p></div></li>
+            <li class="order-item"><span class="order-number">2</span><div><strong>Review W22 R0 P1 decisions</strong><p>They control the architecture recovery and additive-growth freeze.</p></div></li>
+            <li class="order-item"><span class="order-number">3</span><div><strong>Iterate on W23 now</strong><p>Refine the contract and report without starting product implementation.</p></div></li>
+            <li class="order-item"><span class="order-number">4</span><div><strong>Start W23 after the W22 gate</strong><p>Use the accepted shared operation and MCP boundary.</p></div></li>
+          </ol>
+        </section>
+
+        <section class="attention-block">
+          <div class="section-heading"><h2 id="attention-heading">Needs attention</h2></div>
+          <ul class="attention-list">
+            <li class="attention-item info"><span class="attention-icon" role="img" aria-label="Information"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 10.5v6"></path><path d="M12 7.5h.01"></path></svg></span><div><strong>W23 depends on W22</strong><p>The package can change now. CLI, MCP, Store, and Skill implementation must wait for the shared W22 boundary.</p></div></li>
+            <li class="attention-item danger"><span class="attention-icon" role="img" aria-label="Danger"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 2.5h9.6l4.7 4.7v9.6l-4.7 4.7H7.2l-4.7-4.7V7.2z"></path><path d="M12 7.5v6"></path><path d="M12 16.5h.01"></path></svg></span><div><strong>W19 R6 conflicts with itself</strong><p>The index says complete, but 11 task checkboxes remain open. Treat the record as unresolved evidence, not current work.</p></div></li>
+            <li class="attention-item warning"><span class="attention-icon" role="img" aria-label="Warning"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 4.2 2.5 18a2 2 0 0 0 1.8 3h15.4a2 2 0 0 0 1.8-3L13.8 4.2a2.1 2.1 0 0 0-3.6 0z"></path><path d="M12 9v5"></path><path d="M12 17h.01"></path></svg></span><div><strong>W19 R2 has live closeout edits</strong><p>All 129 recorded tasks are done, but the working tree has related uncommitted files. Another task appears to own that work.</p></div></li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="ledger" aria-labelledby="ledger-heading">
+        <div class="section-heading"><h2 id="ledger-heading">Waves</h2></div>
+
+        <div class="controls">
+          <label class="search-wrap"><span hidden>Search waves</span><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"></label>
+        </div>
+
+        <div class="ledger-tools">
+          <div class="filters" role="group" aria-label="Filter waves">
+            <button class="filter-button" type="button" data-filter="in-scope" aria-pressed="true">Scope</button>
+            <button class="filter-button" type="button" data-filter="attention" data-semantic aria-pressed="false">Attention</button>
+            <button class="filter-button" type="button" data-filter="current" data-semantic aria-pressed="false">Current</button>
+            <button class="filter-button" type="button" data-filter="conflict" data-semantic aria-pressed="false">Conflict</button>
+            <button class="filter-button" type="button" data-filter="deferred" data-semantic aria-pressed="false">Deferred</button>
+            <button class="filter-button" type="button" data-filter="complete" data-semantic aria-pressed="false">Complete</button>
+            <button class="filter-button" type="button" data-filter="history" data-semantic aria-pressed="false">History</button>
+            <button class="filter-button" type="button" data-filter="archived" data-semantic aria-pressed="false">Archived</button>
+            <button class="filter-button" type="button" data-filter="all" aria-pressed="false">All</button>
+          </div>
+
+          <div class="sort-controls">
+            <label for="sortBy"><span>Sort</span>
+              <select id="sortBy">
+                <option value="created">Created date</option>
+                <option value="coordinate">Wave coordinate</option>
+                <option value="updated" selected>Last updated</option>
+              </select>
+            </label>
+            <button id="sortDirection" type="button" data-direction="desc" aria-label="Sort direction: newest first. Change to oldest first." title="Newest first">
+              <svg class="sort-direction-icon descending" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 4v16m-3-3 3 3 3-3"></path>
+                <path d="M12 6h9M12 10h7M12 14h5M12 18h3"></path>
+              </svg>
+              <svg class="sort-direction-icon ascending" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 20V4M3 7l3-3 3 3"></path>
+                <path d="M12 6h3M12 10h5M12 14h7M12 18h9"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p class="result-note" id="resultNote" aria-live="polite">Showing 9 of 11 records.</p>
+        <div class="wave-list" id="waveList"></div>
+        <div class="legends">
+          <section class="legend-block" aria-labelledby="legend-heading">
+            <h2 id="legend-heading">Phase state legend</h2>
+            <div class="legend">
+              <span><i class="l-complete"></i>Complete</span>
+              <span><i class="l-open"></i>Open or planned</span>
+              <span><i class="l-blocked"></i>Blocked</span>
+              <span><i class="l-conflict"></i>Conflicting evidence</span>
+              <span><i class="l-superseded"></i>Superseded</span>
+              <span><i></i>Not started or unknown</span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <footer id="evidence-boundary">
+      <p><strong>Evidence boundary.</strong> This is a hand-built W23 R0 prototype from repository records and current Git state. It did not run the proposed <code>work.backlog.snapshot</code> operation. Recorded facts, agent inferences, and recommendations remain separate in each expanded wave.</p>
+      <p><a href="../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md">Open the W23 plan</a></p>
+    </footer>
+  </main>
+
+  <script>
+    const waves = [
+      {
+        coordinate: "W23 R0",
+        title: "Backlog Review and Reporting",
+        updatedAt: "2026-09-19T09:30:00-05:00",
+        waveStatus: "current",
+        statusReason: "Draft package",
+        summary: "New package created for review. Five implementation phases and 49 tasks are open.",
+        phaseStates: ["open", "blocked", "blocked", "blocked", "blocked"],
+        phaseLabels: ["P1 Contract", "P2 Operation", "P3 Skill", "P4 HTML", "P5 Proof"],
+        stats: "0 of 49 tasks complete · P2–P5 depend on accepted contracts and shared W22 boundaries",
+        facts: ["Recorded status: draft", "Five phase files", "49 open task checkboxes", "Store-free core required"],
+        inference: "The package is current design work. Product implementation is blocked by missing authority and W22 shared-surface decisions.",
+        next: "Iterate on the package and prototype. Start implementation only after separate authority and the W22 gate.",
+        href: "../../work/2026-09-18-w23-r0-backlog-review-and-reporting/00-index.md"
+      },
+      {
+        coordinate: "W22 R0",
+        title: "Store Architecture Recovery",
+        updatedAt: "2026-09-19T08:45:00-05:00",
+        waveStatus: "current",
+        statusReason: "Current architecture track",
+        summary: "Draft six-phase recovery package. P1 must inventory and settle mechanisms before additive work.",
+        phaseStates: ["open", "blocked", "blocked", "blocked", "blocked", "blocked"],
+        phaseLabels: ["P1 Inventory", "P2 Authority", "P3 Platform", "P4 Setup", "P5 Bridge", "P6 Proof"],
+        stats: "0 of 78 tasks complete · P2 waits for owner-accepted P1 decisions",
+        facts: ["Recorded status: draft", "Six phase files", "78 open task checkboxes", "P1 freezes additive growth"],
+        inference: "W22 is the best current priority because it settles the Store, CLI, MCP, and setup boundaries used by later work.",
+        next: "Review and accept the P1 decision package before P2 or later implementation.",
+        href: "../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md"
+      },
+      {
+        coordinate: "W19 R2",
+        title: "Performance Evidence Governance",
+        updatedAt: "2026-09-18T17:00:00-05:00",
+        waveStatus: "attention",
+        statusReason: "Closeout activity",
+        summary: "All recorded tasks are complete. Related work files and operation tests have current uncommitted edits.",
+        phaseStates: ["complete", "complete", "complete", "complete", "conflict"],
+        phaseLabels: ["P1 Authority", "P2 Resources", "P3 Lifecycle", "P4 Validator", "P5 Handoff"],
+        stats: "129 of 129 tasks complete · local edits affect closeout and validator files",
+        facts: ["Recorded status: complete", "All task checkboxes complete", "Current related files are modified", "Concurrent work is present"],
+        inference: "Implementation appears complete, but the current editing task should finish its review and commit decision before other work overlaps.",
+        next: "Preserve the current edits and let their owning task finish.",
+        href: "../../work/2026-08-14-w19-r2-performance-evidence-governance/00-index.md"
+      },
+      {
+        coordinate: "W19 R6",
+        title: "Unified Setup and Harness Access",
+        updatedAt: "2026-09-12T16:30:00-05:00",
+        waveStatus: "conflict",
+        statusReason: "Status conflict",
+        summary: "The work index says complete, but 11 task checkboxes remain open across three phase files.",
+        phaseStates: ["complete", "conflict", "conflict"],
+        phaseLabels: ["P1", "P2", "P3"],
+        stats: "72 of 83 tasks complete · 11 open tasks conflict with recorded complete status",
+        facts: ["Recorded status: complete", "Three phase files", "72 checked tasks", "11 open task checkboxes"],
+        inference: "This is likely retained history or incomplete closeout, but the conflict needs authority review before either conclusion is trusted.",
+        next: "Classify the 11 tasks as obsolete, superseded, or still owed. Then correct the record or preserve the conflict as history.",
+        href: "../../work/2026-09-12-w19-r6-unified-setup-and-harness-access/00-index.md"
+      },
+      {
+        coordinate: "W21 R0",
+        title: "Proportionate Testing and Human-Centered Validation",
+        updatedAt: "2026-08-28T15:00:00-05:00",
+        waveStatus: "deferred",
+        statusReason: "Paused",
+        summary: "The record is active with 199 open tasks, but the PRD index states that W21 remains paused.",
+        phaseStates: ["open", "open", "open", "open", "open"],
+        phaseLabels: ["P1", "P2", "P3", "P4", "P5"],
+        stats: "0 of 199 tasks complete · explicit pause instruction remains current",
+        facts: ["Recorded status: active", "199 open tasks", "Five phase files", "PRD index says W21 remains paused"],
+        inference: "The pause is stronger priority evidence than the active frontmatter. Keep the record visible but out of the current queue.",
+        next: "Do not resume without separate owner direction.",
+        href: "../../work/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation/00-index.md"
+      },
+      {
+        coordinate: "W19 R7",
+        title: "Setup Interview and Recovery Correction",
+        updatedAt: "2026-09-15T12:30:00-05:00",
+        waveStatus: "deferred",
+        statusReason: "Superseded",
+        summary: "The record is explicitly superseded. Its 16 unchecked tasks should not be treated as current remaining work.",
+        phaseStates: ["superseded"],
+        phaseLabels: ["P1 Superseded"],
+        stats: "0 of 16 tasks complete · explicit supersession controls current priority",
+        facts: ["Recorded status: superseded", "One phase file", "16 open task checkboxes"],
+        inference: "The open boxes describe abandoned or replaced work, not an active queue.",
+        next: "Keep for provenance. Do not implement from this record.",
+        href: "../../work/2026-09-15-w19-r7-setup-interview-and-recovery-correction/00-index.md"
+      },
+      {
+        coordinate: "W20 R2",
+        title: "Human Experience Review and Feedback Boundary",
+        updatedAt: "2026-09-15T16:10:00-05:00",
+        waveStatus: "complete",
+        statusReason: "Complete",
+        summary: "All 18 tasks are complete across three phases. No current work signal appears in this snapshot.",
+        phaseStates: ["complete", "complete", "complete"],
+        phaseLabels: ["P1", "P2", "P3"],
+        stats: "18 of 18 tasks complete",
+        facts: ["Recorded status: complete", "Three phase files", "All 18 tasks checked"],
+        inference: "Likely complete history unless a separate closeout record says otherwise.",
+        next: "No implementation action recommended.",
+        href: "../../work/2026-09-15-w20-r2-human-experience-review-and-feedback-boundary/00-index.md"
+      },
+      {
+        coordinate: "W20 R1",
+        title: "Human-Centered Agent Responses",
+        updatedAt: "2026-09-14T18:20:00-05:00",
+        waveStatus: "complete",
+        statusReason: "Complete",
+        summary: "All 39 tasks are complete across two phases. The record appears to be completed history.",
+        phaseStates: ["complete", "complete"],
+        phaseLabels: ["P1", "P2"],
+        stats: "39 of 39 tasks complete",
+        facts: ["Recorded status: complete", "Two phase files", "All 39 tasks checked"],
+        inference: "Likely complete history. It is not part of the current queue.",
+        next: "No implementation action recommended.",
+        href: "../../work/2026-09-14-w20-r1-human-centered-agent-responses/00-index.md"
+      },
+      {
+        coordinate: "W19 R8",
+        title: "Store Access Bootstrap and Remediation",
+        updatedAt: "2026-09-16T14:15:00-05:00",
+        waveStatus: "complete",
+        statusReason: "Complete",
+        summary: "All 32 tasks are complete in one phase. W22 now owns the wider Store architecture recovery.",
+        phaseStates: ["complete"],
+        phaseLabels: ["P1"],
+        stats: "32 of 32 tasks complete",
+        facts: ["Recorded status: completed", "One phase file", "All 32 tasks checked", "W22 is the later Store recovery package"],
+        inference: "Completed history and useful evidence for W22, not a separate current implementation track.",
+        next: "Use as evidence when W22 reviews Store access and recovery.",
+        href: "../../work/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-index.md"
+      },
+      {
+        coordinate: "W20 R0",
+        title: "Human Experience Standard and Intent",
+        updatedAt: "2026-08-28T18:00:00-05:00",
+        waveStatus: "history",
+        statusReason: "Completed history",
+        summary: "All 178 tasks are complete. Later W20 revisions refine parts of this area.",
+        phaseStates: ["complete", "complete", "complete", "complete", "complete"],
+        phaseLabels: ["P1", "P2", "P3", "P4", "P5"],
+        stats: "178 of 178 tasks complete",
+        facts: ["Recorded status: completed", "Five phase files", "All 178 tasks checked", "Later W20 revisions exist"],
+        inference: "Retain as completed lineage. Use current PRDs and later revisions for authority.",
+        next: "No implementation action recommended.",
+        href: "../../work/2026-08-28-w20-r0-human-experience-standard-and-intent/00-index.md"
+      },
+      {
+        coordinate: "W7 R0",
+        title: "CLI Help, Backup, and Uninstall",
+        updatedAt: "2026-04-18T17:00:00-05:00",
+        archived: true,
+        waveStatus: "history",
+        statusReason: "Archived record",
+        summary: "Archived work record retained for reference after the CLI lifecycle wave.",
+        phaseStates: ["unknown", "unknown", "unknown", "unknown", "unknown"],
+        phaseLabels: ["P1 Help", "P2 Audit", "P3 Backup", "P4 Uninstall", "P5 Validation"],
+        stats: "Archived record · five recorded phases",
+        facts: ["Record is in the archive work namespace", "Five phase files", "Created 18 Apr 2026"],
+        inference: "This record is retained provenance, not current work.",
+        next: "Use it only when current work needs historical CLI lifecycle evidence.",
+        href: "../../../.make-docs/archive/work/2026-04-18-w7-r0-cli-help-backup-and-uninstall/00-index.md"
+      }
+    ];
+
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const waveList = document.querySelector("#waveList");
+    const search = document.querySelector("#search");
+    const resultNote = document.querySelector("#resultNote");
+    const filterButtons = [...document.querySelectorAll(".filter-button")];
+    const sortBy = document.querySelector("#sortBy");
+    const sortDirection = document.querySelector("#sortDirection");
+    let activeFilter = "in-scope";
+
+    const recordInventory = {
+      liveRecords: 46,
+      archivedRecords: 24,
+      summarizedHistoricalRecords: 36
+    };
+    const detailedHistoricalRecords = waves.filter((wave) => !wave.archived && wave.waveStatus === "history").length;
+    const historicalRecords = recordInventory.summarizedHistoricalRecords + detailedHistoricalRecords;
+    const recordsInScope = recordInventory.liveRecords - historicalRecords;
+    const recordsFound = recordInventory.liveRecords + recordInventory.archivedRecords;
+
+    document.querySelector("#recordsFound").textContent = recordsFound;
+    document.querySelector("#recordsInScope").textContent = recordsInScope;
+    document.querySelector("#historicalRecords").textContent = historicalRecords;
+    document.querySelector("#archivedRecords").textContent = recordInventory.archivedRecords;
+
+    function matchesFilter(wave, filter = activeFilter) {
+      if (filter === "all") return true;
+      if (filter === "in-scope") return !wave.archived && wave.waveStatus !== "history";
+      if (filter === "archived") return Boolean(wave.archived);
+      if (filter === "history") return !wave.archived && wave.waveStatus === "history";
+      return !wave.archived && wave.waveStatus === filter;
+    }
+
+    filterButtons.forEach((button) => {
+      const filter = button.dataset.filter;
+      button.hidden = !["all", "in-scope"].includes(filter) && !waves.some((wave) => matchesFilter(wave, filter));
+    });
+
+    const createdAt = (wave) => wave.href.match(/(\d{4}-\d{2}-\d{2})-/)?.[1] || "";
+
+    function compareWaves(a, b) {
+      const direction = sortDirection.dataset.direction === "asc" ? 1 : -1;
+      let comparison = 0;
+
+      if (sortBy.value === "coordinate") {
+        comparison = a.coordinate.localeCompare(b.coordinate, undefined, { numeric: true, sensitivity: "base" });
+      } else if (sortBy.value === "created") {
+        comparison = createdAt(a).localeCompare(createdAt(b));
+      } else {
+        comparison = a.updatedAt.localeCompare(b.updatedAt);
+      }
+
+      return comparison * direction || a.coordinate.localeCompare(b.coordinate, undefined, { numeric: true, sensitivity: "base" });
+    }
+
+    function updateSortDirectionLabel() {
+      const ascending = sortDirection.dataset.direction === "asc";
+      const coordinateSort = sortBy.value === "coordinate";
+      const currentOrder = coordinateSort
+        ? (ascending ? "A to Z" : "Z to A")
+        : (ascending ? "Oldest first" : "Newest first");
+      const nextOrder = coordinateSort
+        ? (ascending ? "Z to A" : "A to Z")
+        : (ascending ? "Newest first" : "Oldest first");
+      sortDirection.title = currentOrder;
+      sortDirection.setAttribute("aria-label", `Sort direction: ${currentOrder.toLowerCase()}. Change to ${nextOrder.toLowerCase()}.`);
+    }
+
+    function setWaveExpanded(waveElement, willOpen) {
+      const surface = waveElement.querySelector("[data-disclosure-surface]");
+      const detail = waveElement.querySelector(".detail");
+      const coordinate = waveElement.querySelector(".wave-title a").textContent;
+      surface.setAttribute("aria-expanded", String(willOpen));
+      surface.setAttribute("aria-label", `${willOpen ? "Hide" : "Show"} details for ${coordinate}`);
+      detail.hidden = !willOpen;
+    }
+
+    function renderWaves() {
+      const query = search.value.trim().toLowerCase();
+      const visible = waves.filter((wave) => {
+        const haystack = [wave.coordinate, wave.title, wave.waveStatus, wave.statusReason, wave.archived ? "archived" : "", wave.summary, wave.stats, wave.inference, wave.next, ...wave.facts].join(" ").toLowerCase();
+        return matchesFilter(wave) && (!query || haystack.includes(query));
+      }).sort(compareWaves);
+
+      resultNote.textContent = `Showing ${visible.length} of ${waves.length} records.`;
+
+      if (!visible.length) {
+        waveList.innerHTML = '<div class="empty">No waves match. Clear the search or choose another filter.</div>';
+        return;
+      }
+
+      waveList.innerHTML = visible.map((wave) => {
+        const phases = wave.phaseStates.map((state, index) => `<span class="phase ${escapeHtml(state)}" title="${escapeHtml(wave.phaseLabels[index])}: ${escapeHtml(state)}"></span>`).join("");
+        const facts = wave.facts.map((fact) => `<li>${escapeHtml(fact)}</li>`).join("");
+        const waveId = wave.coordinate.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return `
+          <article class="wave" data-status="${escapeHtml(wave.waveStatus)}" data-archived="${String(Boolean(wave.archived))}">
+            <div class="wave-overview" data-disclosure-surface role="button" tabindex="0" aria-expanded="false" aria-controls="details-${waveId}" aria-label="Show details for ${escapeHtml(wave.coordinate)}">
+              <div class="wave-title">
+                <div><a href="${escapeHtml(wave.href)}">${escapeHtml(wave.coordinate)}</a></div>
+                <p>${escapeHtml(wave.title)}</p>
+              </div>
+              <div class="wave-summary">
+                <p>${escapeHtml(wave.summary)}</p>
+              </div>
+              <div class="track-wrap">
+                <div class="wave-status"><span class="badge ${escapeHtml(wave.waveStatus)}" aria-label="${escapeHtml(wave.waveStatus)} status: ${escapeHtml(wave.statusReason)}">${escapeHtml(wave.statusReason)}</span></div>
+                <div class="track" style="--phase-count:${wave.phaseStates.length}" aria-label="${escapeHtml(wave.phaseLabels.map((label, index) => `${label} ${wave.phaseStates[index]}`).join(", "))}">${phases}</div>
+                <div class="track-stats">${escapeHtml(wave.stats)}</div>
+              </div>
+            </div>
+            <div class="detail" id="details-${waveId}" hidden>
+              <div><h3>Facts</h3><ul>${facts}</ul></div>
+              <div><h3>Inference</h3><p>${escapeHtml(wave.inference)}</p></div>
+              <div><h3>Recommended action</h3><p>${escapeHtml(wave.next)}</p></div>
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    waveList.addEventListener("click", (event) => {
+      const surface = event.target.closest("[data-disclosure-surface]");
+      if (!surface) return;
+      if (event.target.closest("a, button, input, select, textarea, label")) return;
+      if (!window.getSelection().isCollapsed) return;
+      const waveElement = surface.closest(".wave");
+      setWaveExpanded(waveElement, surface.getAttribute("aria-expanded") !== "true");
+    });
+
+    waveList.addEventListener("keydown", (event) => {
+      const surface = event.target.closest("[data-disclosure-surface]");
+      if (!surface || event.target !== surface || !["Enter", " "].includes(event.key)) return;
+      event.preventDefault();
+      const waveElement = surface.closest(".wave");
+      setWaveExpanded(waveElement, surface.getAttribute("aria-expanded") !== "true");
+    });
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+        renderWaves();
+      });
+    });
+
+    search.addEventListener("input", renderWaves);
+    sortBy.addEventListener("change", () => {
+      updateSortDirectionLabel();
+      renderWaves();
+    });
+    sortDirection.addEventListener("click", () => {
+      sortDirection.dataset.direction = sortDirection.dataset.direction === "asc" ? "desc" : "asc";
+      updateSortDirectionLabel();
+      renderWaves();
+    });
+    document.querySelector("#printReport").addEventListener("click", () => window.print());
+
+    const themeButton = document.querySelector("#themeToggle");
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function activeTheme() {
+      return document.documentElement.dataset.theme || (systemTheme.matches ? "dark" : "light");
+    }
+
+    function updateThemeButton() {
+      const isDark = activeTheme() === "dark";
+      themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+      themeButton.setAttribute("aria-pressed", String(isDark));
+    }
+
+    themeButton.addEventListener("click", () => {
+      document.documentElement.dataset.theme = activeTheme() === "dark" ? "light" : "dark";
+      updateThemeButton();
+    });
+
+    systemTheme.addEventListener?.("change", updateThemeButton);
+    updateThemeButton();
+    updateSortDirectionLabel();
+    renderWaves();
+  </script>
+</body>
+</html>
