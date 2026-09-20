@@ -19,7 +19,7 @@ source:
 
 Provide the draft implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
 
-The owner authorized package drafting and a report prototype. The owner has not authorized product implementation. Do not change CLI, MCP, shipped Skill, Store, installation, package, or release behavior from this backlog until the owner gives separate implementation authority and the W22 dependency gate is satisfied.
+The owner authorized and accepted P1. The owner also authorized P2 after its W22 dependency preflight. P1 and P2 are complete. No later phase is authorized. Do not change the shipped Skill, report behavior, Store, installation, package, or release behavior until the owner gives separate authority for the applicable phase.
 
 ## Human Experience Trace
 
@@ -36,7 +36,7 @@ The owner authorized package drafting and a report prototype. The owner has not 
 | Phase | Status | File | Required result |
 | --- | --- | --- | --- |
 | P1 | Complete | [Data Contract and Rule Catalog](01-data-contract-and-rule-catalog.md) | Accepted schema, evidence classes, diagnostics, rule mapping, and fixture matrix. |
-| P2 | Not started | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
+| P2 | Complete | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
 | P3 | Not started | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
 | P4 | Not started | [Single-File Interactive Report](04-single-file-interactive-report.md) | Safe, offline, accessible, responsive HTML template owned by the Skill. |
 | P5 | Not started | [Package Parity and Acceptance](05-package-parity-and-acceptance.md) | One installed package candidate passes parity, offline, browser, and Human Experience review. |
@@ -45,11 +45,10 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Usage Notes
 
-- Review and iterate on this draft package before implementation.
+- Review the completed P1 and P2 evidence before later implementation.
 - Read phases in order.
-- Do not start any implementation phase without separate owner authority.
-- Do not start P2 until P1 is accepted and the W22 preflight passes. The preflight confirms W22 R0 P6 closeout commit `edd9d7e4` or later accepted authority, rereads current PRD 38 and PRD 39 authority, confirms project-read, Store-none, and host-configuration-none access, and passes existing registry, access, CLI, and MCP contract tests.
-- A failed W22 preflight blocks P2 and must report the drift. It does not permit a temporary workaround. W22 publication or release is not required.
+- Do not start P3, P4, or P5 without separate owner authority.
+- P2 passed its W22 preflight. The tested checkout contains W22 R0 P6 closeout commit `edd9d7e4` as an ancestor. Current PRD 38 and PRD 39 authority was reread. Project-read, Store-none, and host-configuration-none access was confirmed. Existing registry, access, CLI, and MCP tests passed before implementation.
 - Keep the core snapshot Store-free. Stop only an optional Store-backed enrichment if it is ever admitted and unavailable.
 - Keep one public snapshot operation. Private collectors do not receive public identities without a later product decision.
 - Keep deterministic facts, agent inferences, and recommendations separate in code, fixtures, and reports.
@@ -61,9 +60,9 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. The current next step is package and prototype review, not implementation.
+This handoff is advisory-default-but-overridable. P1 and P2 are complete. P3 has not started.
 
 - Route: `implementation-loop`
-- Next step: Review and iterate on this package and the linked prototype. After W22 settles the shared boundary, give separate authority if W23 implementation should begin with P1.
-- Why: The product contract and information design should settle before the operation and shipped Skill are built.
-- Coordinate Handoff: Carry `W23 R0` into phase history and commits, adding the active P coordinate. Preserve the W22 dependency in P2.
+- Next step: Review the P2 closeout. Give separate authority only if P3 Skill and chat-report implementation should begin.
+- Why: P3 is the first agentic and shipped Skill phase. It should begin only after the deterministic operation boundary is accepted.
+- Coordinate Handoff: Carry `W23 R0 P3` into the next implementation and history records. Preserve the fixed P1 contract and P2 operation boundary.

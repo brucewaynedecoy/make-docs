@@ -94,9 +94,36 @@ function renderPerformanceEvidenceValidation(value: JsonValue): string[] | null 
   return lines;
 }
 
+function renderBacklogSnapshot(value: JsonValue): string[] | null {
+  const snapshot = asRecord(value);
+  const counts = asRecord(snapshot?.recordCounts);
+  const capabilities = asRecord(snapshot?.capabilities);
+  if (!snapshot || !counts || !capabilities) return null;
+  const records = recordEntries(snapshot.records);
+  const diagnostics = recordEntries(snapshot.diagnostics);
+  const partial = records.filter((record) => text(asRecord(record.sourceShape), "state") === "partial").length;
+  const unsupported = records.filter((record) => text(asRecord(record.sourceShape), "state") === "unsupported").length;
+  const git = asRecord(capabilities.git);
+  const lines = [
+    `Backlog snapshot: ${String(counts.found ?? "?")} records found (${String(counts.live ?? "?")} live, ${String(counts.archived ?? "?")} archived).`,
+    `Detail: ${records.length - partial - unsupported} supported, ${partial} partial, ${unsupported} inventory only.`,
+  ];
+  const gitState = text(git, "state") ?? "unknown";
+  if (gitState !== "available") {
+    lines.push(`Limit: Git evidence is ${gitState}. Record facts remain available. Last-updated values use the stated fallback.`);
+  }
+  if (diagnostics.length > 0) {
+    lines.push(`${diagnostics.length} diagnostic${diagnostics.length === 1 ? "" : "s"} need review. Use --json for exact evidence and safe next actions.`);
+  } else {
+    lines.push("No snapshot diagnostics need review. Use --json for exact evidence.");
+  }
+  return lines;
+}
+
 const TEXT_RENDERERS: Record<string, (value: JsonValue) => string[] | null> = {
   "prd.authority.validate": renderPrdAuthorityValidation,
   "performance.evidence.validate": renderPerformanceEvidenceValidation,
+  "work.backlog.snapshot": renderBacklogSnapshot,
 };
 
 /**

@@ -302,6 +302,13 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       ...optionalPathValue(options, "store-root", "storeRoot"),
     },
   }),
+  "work.backlog.snapshot": (options) => ({
+    input: {
+      targetRoot: path.resolve(
+        requiredValue(options, "target-root", operationPath("work.backlog.snapshot")),
+      ),
+    },
+  }),
 };
 
 function parseUatPayload(raw: string): Record<string, unknown> {

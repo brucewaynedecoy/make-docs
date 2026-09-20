@@ -61,7 +61,8 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       "project.layout.apply",
       "project.layout.verify",
     ];
-    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("project.path-hygiene.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id));
+    const w23R0P2Ids = ["work.backlog.snapshot"];
+    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("project.path-hygiene.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id));
     expect(admitted.filter(entry => r2P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "performance.evidence.validate", status: "active" },
     ]);
@@ -72,6 +73,9 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(admitted.filter(entry => r4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
       r4Ids.map(id => ({ id, status: "active" })),
     );
+    expect(admitted.filter(entry => w23R0P2Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
+      { id: "work.backlog.snapshot", status: "active" },
+    ]);
     const p5Admitted = admitted.filter((entry) => entry.id.startsWith("project.path-hygiene."));
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
     expect(p3Admitted).toHaveLength(24);

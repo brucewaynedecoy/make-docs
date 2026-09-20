@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Deterministic Snapshot Operation"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W23 R0 P2"
 source:
   type: "prd"
@@ -64,11 +64,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t1: Run the W22 preflight. Confirm that the checkout contains W22 R0 P6 closeout commit `edd9d7e4` or later accepted authority. Reread current PRD 38 and PRD 39 authority. Confirm project-read, Store-none, and host-configuration-none access. Run the existing registry, access, CLI, and MCP contract tests. Stop P2 and report drift if any check fails. Do not create a temporary workaround. W22 publication or release is not required.
-- [ ] t2: Implement safe target-root resolution and bounded discovery of every live and archived backlog record, including directory-derived creation date and the accepted scoped Git and file-time hierarchy for deterministic last-updated evidence.
-- [ ] t3: Implement the private source-reader adapter, current-frontmatter reader, unsupported inventory reader, phase-map handling, unlinked-current-phase diagnostics, supported semantic collectors, discovered-file inventory, and optional Git facts. Do not implement legacy body parsing.
-- [ ] t4: Implement the accepted version 1 snapshot schema, rule catalog, fixed capability map, required-key rules, partial results, and diagnostics.
-- [ ] t5: Prove the operation core makes no project, Git, Store, or installation write.
+- [x] t1: Run the W22 preflight. Confirm that the checkout contains W22 R0 P6 closeout commit `edd9d7e4` or later accepted authority. Reread current PRD 38 and PRD 39 authority. Confirm project-read, Store-none, and host-configuration-none access. Run the existing registry, access, CLI, and MCP contract tests. Stop P2 and report drift if any check fails. Do not create a temporary workaround. W22 publication or release is not required.
+- [x] t2: Implement safe target-root resolution and bounded discovery of every live and archived backlog record, including directory-derived creation date and the accepted scoped Git and file-time hierarchy for deterministic last-updated evidence.
+- [x] t3: Implement the private source-reader adapter, current-frontmatter reader, unsupported inventory reader, phase-map handling, unlinked-current-phase diagnostics, supported semantic collectors, discovered-file inventory, and optional Git facts. Do not implement legacy body parsing.
+- [x] t4: Implement the accepted version 1 snapshot schema, rule catalog, fixed capability map, required-key rules, partial results, and diagnostics.
+- [x] t5: Prove the operation core makes no project, Git, Store, or installation write.
 
 ### Acceptance criteria
 
@@ -88,11 +88,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t6: Register `work.backlog.snapshot` through the shared post-W22 registry path.
-- [ ] t7: Add the canonical CLI projection and human rendering without operation logic in the parser or renderer.
-- [ ] t8: Derive the MCP tool from the registry and preserve matching typed errors.
-- [ ] t9: Add CLI JSON, MCP, registry inventory, and bidirectional parity tests.
-- [ ] t10: Add package-boundary checks for the operation and all required runtime files.
+- [x] t6: Register `work.backlog.snapshot` through the shared post-W22 registry path.
+- [x] t7: Add the canonical CLI projection and human rendering without operation logic in the parser or renderer.
+- [x] t8: Derive the MCP tool from the registry and preserve matching typed errors.
+- [x] t9: Add CLI JSON, MCP, registry inventory, and bidirectional parity tests.
+- [x] t10: Add package-boundary checks for the operation and all required runtime files.
 
 ### Acceptance criteria
 
@@ -107,10 +107,12 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Closeout Notes
 
-- Four testing decisions: Automated required; Performance not-needed-now; Guided not-needed-now; Unassisted not-needed-now.
-- Performance evidence: none.
-- Human Experience Review: Review CLI human meaning and limit statements. Final report review remains in P5.
-- Optional experience handoff: not-applicable for this internal phase.
-- Explicit human acceptance gate: none.
-- Evidence report: Add after evidence exists.
-- Phase / capability status: P2 can close after parity proof; the capability remains incomplete until the Skill and reports pass P5.
+- Result: P2 is complete. It adds the read-only, Store-free `work.backlog.snapshot` operation, its canonical CLI path, its registry-derived MCP tool, and private repository collectors.
+- Preflight: W22 R0 P6 closeout commit `edd9d7e4` is an ancestor of the tested checkout. Current PRD 38 and PRD 39 authority was reread. The operation declares project-read, Store-none, and host-configuration-none access. The existing six-file registry, access, CLI, and MCP set passed 74 of 74 tests before implementation.
+- Verification: 87 of 87 focused P2 and shared-surface tests passed. The full CLI suite passed 88 files and 1,417 tests, with 1 file and 5 tests skipped. TypeScript, the CLI package build, and `git diff --check` passed.
+- Repository proof: The built CLI found 70 records: 46 live and 24 archived. It interpreted 22 current-frontmatter records, kept 48 no-frontmatter records as inventory only, read 88 linked phases and 1,504 tasks, kept Store at `not-used`, and reported stable conflict, source-link, and unsupported-shape diagnostics.
+- Human Experience Review: `satisfied` for the P2 CLI surface. Human text leads with record counts and the live/archive split. It then states detail limits and directs the reader to JSON for exact evidence and safe next actions. The reviewer was Codex. This agent review does not claim a person's lived response or the final report experience.
+- Coverage: Guide and system-resource edits are `none`; P3 owns the shipped Skill and agent guidance. PRD edits are `none` because the implementation matches PRD 51. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for P2.
+- Evidence: [Central evidence report](evidence.md).
+- History: [P2 closeout record](../../../.make-docs/archive/history/2026-09-20-w23-r0-p2-deterministic-snapshot-operation.md).
+- Boundary: P3 has not started. P2 adds no Skill, report model execution, HTML report, Store integration, setup behavior, package publication, or release. The backlog review capability remains incomplete until P5.

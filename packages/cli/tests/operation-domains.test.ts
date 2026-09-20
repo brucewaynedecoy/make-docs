@@ -61,6 +61,7 @@ describe("operation domain modules", () => {
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
+      "work.backlog.snapshot",
       "resource.list",
       "resource.read",
       "resource.ensure",
