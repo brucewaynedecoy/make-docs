@@ -12,9 +12,9 @@ source:
 
 ## Current State
 
-P1, P2, and P3 are complete. The private data contract and rule catalog satisfy A1-A9. The read-only deterministic operation and its CLI and MCP surfaces satisfy A10-A17. The first-party Skill, deterministic-first routing, honest fallback, shared report meaning, and concise chat report satisfy A18-A25. P4 and P5 have not started. The backlog review capability remains incomplete until P5.
+P1, P2, P3, and P4 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. The correction is implemented. The owner reviewed the corrected real report and accepted P4 on 2026-09-21. The owner accepted the new P5 cache and data-access scope. P5 and P6 have not started. The backlog review capability remains incomplete until P6.
 
-The P3 tested base revision was `ceb5cc5` on branch `make-docs-v2`. The P3 test run included the uncommitted P3 product, test, and closeout changes in the local maintainer checkout.
+The P4 tested base revision was `a976404` on branch `make-docs-v2`. This revision contains the committed P3 closeout. The P4 checks included the uncommitted P4 product, test, and closeout changes in the local maintainer checkout.
 
 ## P1 Data Contract and Rule Catalog
 
@@ -76,7 +76,7 @@ Optional human feedback is welcome after a public report surface exists. No huma
 
 ### Phase Boundary
 
-P1 closed on this evidence. P2 is now complete. The full backlog review capability remains incomplete until P5.
+P1 closed on this evidence. P2 is now complete. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
 
 ## P2 Deterministic Snapshot Operation
 
@@ -120,7 +120,7 @@ The public surfaces are `work.backlog.snapshot`, `make-docs run work backlog sna
 | Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
 | --- | --- | --- | --- | --- |
 | A reviewer receives useful status before machine detail. | Human CLI output starts with all-record, live, and archived counts. It then states supported, partial, and inventory-only detail. | `satisfied` for the P2 CLI surface. | Codex. This is an agent review of emitted text, not a person's lived response. | Preserve count-first meaning in P3 and P4. |
-| A reviewer can understand limits and reach exact evidence. | Human output states Git limits when present. It directs the reviewer to JSON for exact evidence and safe next actions. JSON and MCP retain diagnostics, evidence paths, raw values, and capability states. | `satisfied` for the P2 CLI, JSON, and MCP surfaces. | Codex. P2 does not prove the final chat or HTML report experience. | Prove normal-use report meaning in P3-P5. |
+| A reviewer can understand limits and reach exact evidence. | Human output states Git limits when present. It directs the reviewer to JSON for exact evidence and safe next actions. JSON and MCP retain diagnostics, evidence paths, raw values, and capability states. | `satisfied` for the P2 CLI, JSON, and MCP surfaces. | Codex. P2 does not prove the final chat or HTML report experience. | Prove normal-use report meaning in P3-P6. |
 | Repository facts remain useful without Store access. | The real repository run kept Store at `not-used`. Tests retain repository facts for unavailable, denied, and non-repository Git cases. | `satisfied` within P2 scope. | Codex. Optional future enrichment is outside P2. | Keep Store optional in later phases. |
 
 Optional human feedback remains welcome. No human acceptance gate applies to P2.
@@ -140,7 +140,7 @@ Optional human feedback remains welcome. No human acceptance gate applies to P2.
 
 ### Phase Boundary
 
-P2 can close on this evidence. P3 has not started. P2 adds no Skill, agent inference, recommendation, chat report, HTML report, Store integration, setup behavior, package publication, or release. The full backlog review capability remains incomplete until P5.
+P2 can close on this evidence. P3 had not started at P2 closeout. P2 adds no Skill, agent inference, recommendation, chat report, HTML report, Store integration, setup behavior, package publication, or release. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
 
 ## P3 Skill and Chat Report
 
@@ -169,7 +169,7 @@ The Skill preserves the version 1 report model. It keeps all records, the four f
 | CLI package build | Passed | The package build embeds the eighth Skill and all declared files. |
 | Skill validator | Passed | The Skill entrypoint and metadata satisfy the local Skill validator. |
 | Local packed-package smoke | Passed | A packed package installed, backed up, and removed all eight Skills. The extracted `backlog-review` payload retained every declared file without checkout-only dependencies. |
-| Full remote-runner smoke | Not run in this test area | The public npm registry was not reachable. The check stopped before package testing and directed the run to local mode. P5 still owns final installed candidate and runner parity. |
+| Full remote-runner smoke | Not run in this test area | The public npm registry was not reachable. The check stopped before package testing and directed the run to local mode. P6 owns final installed candidate and runner parity. |
 | Diff check | Passed | `git diff --check` found no whitespace errors. |
 
 ### Guided Progress Review
@@ -190,9 +190,9 @@ This review supports presentation changes without changing status, tally, eviden
 | Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
 | --- | --- | --- | --- | --- |
 | A maintainer sees current focus and next work before machine detail. | The Skill and all complete chat patterns place the method and tallies first, then Current focus, Next, and Needs attention. Empty sections are omitted. | `satisfied` for the P3 chat guidance. | Codex. This is an agent review of instructions and examples, not a person's lived response. | Preserve this order in P4. |
-| A maintainer can tell fact from agent judgment. | The review method defines fact, inference, and recommendation claims. Inferences include confidence and limits. Status reason stays separate from fixed status. | `satisfied` for P3 guidance and shared contract. | Codex. Future agent output can still vary in wording. | Keep semantic tests and review generated reports in P5. |
+| A maintainer can tell fact from agent judgment. | The review method defines fact, inference, and recommendation claims. Inferences include confidence and limits. Status reason stays separate from fixed status. | `satisfied` for P3 guidance and shared contract. | Codex. Future agent output can still vary in wording. | Keep semantic tests and review generated reports in P6. |
 | Errors and limits keep human context. | The Skill requires subject, context, effect, known and unknown facts, next action, and human action level. Structured examples keep raw codes secondary without changing severity. | `satisfied` for the instructed meaning. | Codex. Two semantic examples do not prove every future error explanation. | Add new semantic fixtures when new material errors appear. |
-| Exact evidence remains reachable. | Every displayed wave uses a repository-relative source link. The full report keeps every snapshot record and source evidence. | `satisfied` for P3 chat guidance. | Codex. P4 and P5 still own rendered link and installed-candidate proof. | Verify HTML navigation in P4 and installed parity in P5. |
+| Exact evidence remains reachable. | Every displayed wave uses a repository-relative source link. The full report keeps every snapshot record and source evidence. | `satisfied` for P3 chat guidance. | Codex. P4 and P6 still own rendered link and installed-candidate proof. | Verify HTML navigation in P4 and installed parity in P6. |
 
 Optional owner feedback remains welcome. No human acceptance gate applies to P3.
 
@@ -212,4 +212,78 @@ Optional owner feedback remains welcome. No human acceptance gate applies to P3.
 
 ### Phase Boundary
 
-P3 closes on this evidence. P4 has not started and needs separate owner authority. P3 adds no HTML report, Store integration, package publication, or release. The full backlog review capability remains incomplete until P5.
+P3 closed on this evidence. At that boundary, P4 had not started and needed separate owner authority. P3 added no HTML report, Store integration, package publication, or release. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
+
+## P4 Single-File Interactive Report
+
+### Claim and Surface
+
+P4 adds the optional saved HTML report to the first-party `backlog-review` Skill. One file contains the full report, CSS, JavaScript, icons, and safely embedded report data. It works without Store access, remote assets, or network requests.
+
+The report keeps the accepted operations-ledger layout. It shows fixed portfolio tallies, the attention queue, all live and archived waves, phase tracks, fixed wave status colors, exact status filters, search, three two-way sort methods, hybrid whole-row disclosure, independent source links, light and dark themes, and print output.
+
+### Implementation Evidence
+
+- `packages/skills/backlog-review/assets/backlog-review-report.html` contains the offline report shell and all interaction code.
+- `packages/skills/backlog-review/scripts/render-report.mjs` validates the shared report model, safely serializes project text, refuses accidental overwrite, and writes one selected `.html` file.
+- `packages/skills/backlog-review/scripts/collect-project-lead-context.mjs` selects bounded project-purpose and current-objective excerpts through a fixed source order and returns paths, headings, lines, and content hashes.
+- `packages/skills/backlog-review/references/html-report.md` tells the agent how to make and verify the optional report without hidden copies.
+- `packages/skills/backlog-review/SKILL.md` routes the optional HTML request to that guide.
+- `packages/cli/skill-registry.json` packages the template, renderer, and guide with the Skill.
+- `packages/cli/tests/backlog-review-skill.test.ts` verifies packaging, offline policy, inert hostile text, single-file output, and overwrite refusal.
+- The corrected template derives display names from sourced coordinates and titles, restores the fixed three-column detail, keeps evidence in embedded data instead of visible link dumps, fixes the attention-icon stroke, and removes the obsolete evidence-boundary copy.
+- The shared template now contains the owner-approved fixed-report palette. Dark mode uses `#111111` paper, neutral panels, and `#484850` strong rules. The title and headings continue to use `--ink`. The two project links use the retained `--accent` token. The migration does not change spacing, layout, or the light-mode base palette.
+- The Skill guidance now fixes the renderer-owned layout and title rules. It also limits status reasons to compact text and defines the deterministic attention-icon mapping.
+- The shared report schema now carries a nullable role-ordered project lead. Each sentence cites supplied context for its own purpose, current-status, or current-objective role. The template displays the normalized sentences or hides the lead. It no longer writes record totals or filter instructions into that space.
+
+### Verification Evidence
+
+- Focused package checks passed: 7 files and 196 tests.
+- TypeScript checking, the CLI build, Skill validation, local packed-package smoke, and `git diff --check` passed.
+- The renderer accepted complete, reduced, empty, and conflict-heavy reports. It rejected an overwrite without `--force`.
+- Browser checks found no external resource request and no console warning or error in a fresh session.
+- The default view showed 5 of 7 records with `In Scope`, `Last updated`, and `Newest first` selected.
+- Exact status filtering, search plus filter behavior, all three sort methods in both directions, and coordinate and path tie order passed.
+- Empty non-aggregate status filters were hidden. `In Scope` and `All` remained available for an empty report.
+- The wave-name link did not expand the row. Pointer and keyboard actions on the summary row did expand and close it.
+- Print media kept the active filter, showed one filtered wave with its full detail, and hid interactive controls.
+- Reduced-motion media removed transitions and smooth scrolling.
+- Desktop and 480-pixel screenshots were inspected in light and dark modes. No critical text was clipped. The 480-pixel page had no horizontal overflow.
+- Owner review of the first real 70-record report found regressions that the synthetic browser checks did not find. Those earlier checks no longer close P4.
+- The project-lead correction passed 62 focused contract and Skill tests. TypeScript checking and the CLI package build passed. The full CLI suite passed 1,427 tests with five expected skips.
+- After the owner's final status-badge border refinement, the full CLI suite again passed 1,427 tests with five expected skips. TypeScript checking and the CLI package build also passed.
+- Final closeout checks passed 53 default-consistency, template-link, and package-safety tests. `git diff --check` also passed.
+- The corrected renderer accepted the retained 70-record report data after adding context from the product overview and W23 work index. After the style migration, it wrote `/private/tmp/make-docs-backlog-report-p4-project-lead.html`, 4,547,835 bytes, with SHA-256 `c045310130ea24feb84c3abe908a65f114d167824ebc3640162b2710ce84261e`. Static inspection found the two source-backed project sentences and no prior `Review of 70 work records` fallback.
+- The fixed report and the shared template have byte-for-byte equal style blocks. The style migration kept the embedded report-data hash unchanged. Eight focused backlog-review Skill tests passed, including the light and dark theme token checks.
+- A fresh automated visual check could not run in this session. The terminal browser package was not cached and network access was unavailable. The built-in browser also blocks local `/private/tmp` file URLs. Owner review of the corrected output remains required.
+- Performance isolation found that the deterministic 70-record snapshot took 1.191 seconds and returned 5,777,895 bytes. Rendering took 0.080 seconds. The 4,503,721-byte reviewed report model contained 5,278 report-layer evidence references. The owner accepted this evidence as the basis for P5 exact per-record review reuse, not a project-local cache or a required two-file report.
+
+### Guided Progress Review
+
+The owner reviewed the report prototype and real generated reports through several focused annotation rounds. Those rounds fixed the sidebar, tally meanings, filter names and colors, sort controls, dark theme, attention icons, whole-row disclosure, print control, responsive spacing, deterministic wave names, expanded detail, evidence display, and the source-backed project lead. The owner's gaps and padding stayed unchanged.
+
+The owner reviewed the corrected real-report output. The owner then said P4 was ready to close on 2026-09-21. This completed the explicit human acceptance gate for the P4 correction. The owner's direct review applies to this maintainer and this report. It does not prove universal usability.
+
+### Human Experience Review
+
+| Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
+| --- | --- | --- | --- | --- |
+| A maintainer can understand the project before reading report detail. | Owner review found that the fixed lead repeated backlog counts and filter instructions. The correction collects bounded purpose and current-objective context, validates two or three role-ordered source-backed sentences, and removes renderer fallback prose. The owner reviewed the new introduction and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed one real report for this project. This does not prove every future project summary. | Keep the source-backed lead contract and recheck the installed candidate in P6. |
+| A maintainer can scan current focus without losing the full portfolio. | The correction restored deterministic wave names, visible attention icons, the accepted detail panel, bounded evidence display, and the final approved styles. The owner reviewed the corrected report and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed this project and dataset. Other portfolio shapes can expose new issues. | Repeat the installed-candidate review in P6. |
+| A maintainer can use the report on a narrow screen. | At 480 pixels, the same content stacked in a useful order. No horizontal overflow or clipped critical text appeared. | `satisfied` for the tested viewport. | Codex. Device and assistive-technology coverage is not exhaustive. | Repeat installed-candidate checks in P6. |
+| A maintainer can tell status from status reason and can reach the source. | The correction keeps fixed status colors, short reasons, independent wave links, and visible deterministic severity icons. The owner removed the badge borders as a final small refinement and accepted P4. | `satisfied` for the reviewed report. | This review did not include full assistive-technology coverage. | Repeat installed accessibility and source-link checks in P6. |
+| The report remains usable without sighted pointer-only interaction. | Controls have accessible names and state. Row disclosure works by pointer and keyboard. Visible focus, reduced motion, print detail, and non-color text cues are present. | `satisfied` within browser automation limits. | Codex. This is not a full screen-reader or high-zoom human session. | Keep optional owner feedback open and run final package review in P6. |
+| The saved file stays private and offline. | The content policy blocks remote sources. The browser loaded no resource request. Project text was inserted as inert text. | `satisfied` for the generated single file. | Codex. Browser checks used local synthetic data. | Repeat from the installed Skill in P6. |
+
+### Coverage Decisions
+
+- Automated Testing: `required` and passed.
+- Performance Testing: `not-needed-now` for P4. P5 owns the accepted bounded repeat-review characterization. P6 retains installed-candidate size and use checks.
+- Guided Progress Review: `required` and passed after correction and owner review of the real report.
+- Unassisted Goal Testing: `not-needed-now`. The Skill and report remain maintainer-led.
+- Human Experience Review: `satisfied` within the owner-reviewed P4 report. P6 still owns installed-candidate review.
+- Explicit human acceptance gate: satisfied by the owner's P4 closeout direction on 2026-09-21.
+
+### Phase Boundary
+
+P4 is complete. P5 and P6 have not started. P5 still requires separate phase-start authority. P5 owns the accepted cache, data-access, and repeat-review characterization work. P6 owns installed-package parity, installed Skill rendering, final browser and offline checks, and capability acceptance. P4 does not publish or release the package.

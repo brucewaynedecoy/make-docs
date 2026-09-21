@@ -115,4 +115,4 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - Coverage: Guide and system-resource edits are `none`; P3 owns the shipped Skill and agent guidance. PRD edits are `none` because the implementation matches PRD 51. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for P2.
 - Evidence: [Central evidence report](evidence.md).
 - History: [P2 closeout record](../../../.make-docs/archive/history/2026-09-20-w23-r0-p2-deterministic-snapshot-operation.md).
-- Boundary: P3 has not started. P2 adds no Skill, report model execution, HTML report, Store integration, setup behavior, package publication, or release. The backlog review capability remains incomplete until P5.
+- Boundary: P3 had not started at P2 closeout. P2 adds no Skill, report model execution, HTML report, Store integration, setup behavior, package publication, or release. After the accepted phase insertion, final capability acceptance is P6.

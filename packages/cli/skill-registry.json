@@ -194,6 +194,22 @@
         {
           "source": "examples/human-errors.json",
           "installPath": "examples/human-errors.json"
+        },
+        {
+          "source": "references/html-report.md",
+          "installPath": "references/html-report.md"
+        },
+        {
+          "source": "scripts/render-report.mjs",
+          "installPath": "scripts/render-report.mjs"
+        },
+        {
+          "source": "scripts/collect-project-lead-context.mjs",
+          "installPath": "scripts/collect-project-lead-context.mjs"
+        },
+        {
+          "source": "assets/backlog-review-report.html",
+          "installPath": "assets/backlog-review-report.html"
         }
       ]
     },

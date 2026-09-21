@@ -114,4 +114,4 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - Optional experience handoff: The owner can compare the concise report with expanded evidence. This review is optional and non-blocking.
 - Explicit human acceptance gate: none.
 - Evidence report: [P3 Skill and chat report evidence](evidence.md#p3-skill-and-chat-report).
-- Phase / capability status: P3 is complete. The HTML report and final installed package acceptance remain open in P4 and P5.
+- Phase / capability status: P3 is complete. The HTML report, incremental cache and data access, and final installed package acceptance remain open in P4, P5, and P6.

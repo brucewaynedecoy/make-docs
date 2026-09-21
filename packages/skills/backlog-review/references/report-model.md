@@ -7,6 +7,7 @@ Use report schema version `1`. Preserve the complete source snapshot in the repo
 The report contains:
 
 - `schemaVersion`, `generatedAt`, `targetRoot`, and `project`;
+- `projectLead`, or an explicit null value when supported project-summary context is not available;
 - the unchanged source `snapshot`;
 - `tallies`;
 - one report `records` item for every snapshot record;
@@ -24,7 +25,39 @@ Each report record contains:
 - `inferences`; and
 - `recommendations`.
 
-Use repository-relative paths. Preserve line, field, and commit evidence when available.
+Use repository-relative paths. Preserve line, field, and commit evidence when available. Keep report-layer evidence selective because the unchanged snapshot already preserves the full source record. Use one to three decisive references for `statusEvidence` and each fact. Use no more than five decisive references for an inference or recommendation. Remove duplicate references. Never copy a whole record's evidence catalog into one claim.
+
+The wave display name is deterministic. Remove the exact wave coordinate prefix and the standard `Work Backlog` or `Work` document-type suffix from the sourced index title. Preserve the remaining recorded words and case. If a supported title is not available, derive the display name from the dated work-directory slug. Do not invent, expand, or summarize a wave name.
+
+## Project lead
+
+The project lead is a short project description. It is not a report summary or help text.
+
+Before writing it, run:
+
+```text
+node <skill-root>/scripts/collect-project-lead-context.mjs --target-root <project-root> [--current-record <record-path>]...
+```
+
+Use one to three current-focus record paths from the normalized report. The collector uses a fixed source order. It prefers the product overview, then the root README, then the package description for project purpose. It uses an explicit current-status section in the PRD index when present. It uses `Purpose`, `Objective`, or `Overview` sections from the supplied current-focus records for the current objective. It returns bounded excerpts, repository-relative paths, headings, line locations, and file hashes.
+
+`projectLead.sources` contains only those returned context items. `projectLead.sentences` contains exactly two or three items:
+
+1. `purpose` states what the project is or does.
+2. `currentStatus` or `currentObjective` states the present state or goal.
+3. The optional final item uses the remaining current role.
+
+Each sentence cites one to three source ids from its own role. Keep each sentence on one line and under 320 characters. Use only claims supported by the cited excerpts. Keep the language at the project level. Do not include backlog counts, report metrics, filter or sorting instructions, report-use help, or low-level implementation detail.
+
+Good pattern:
+
+> Make Docs gives software projects a structured documentation system and shared guidance for product work. Its current objective is to finish a reliable backlog-review experience that helps maintainers understand the project's present state and next work.
+
+Bad pattern:
+
+> Review of 70 work records. Use In Scope to focus on current work and All to review the full portfolio.
+
+Set `projectLead` to null when the context packet lacks either purpose or current status or objective. Tell the user which supported context was missing. Do not invent replacement text. The HTML template hides the lead when this value is null.
 
 ## Fixed tallies
 
@@ -56,8 +89,14 @@ Only these live status values are valid:
 
 Status controls filtering and semantic color. Reason supplies the visible explanation. A finding does not change status.
 
+Keep `statusReason` compact. Use two to eight words when the evidence permits it. Do not write a sentence, repeat the wave name, or include evidence links in the reason.
+
+Attention severity is deterministic presentation data. A finding for a `conflict` wave uses `error`. A finding for an `attention` wave uses `warning`. Every other record or portfolio finding uses `info`. The severity changes the icon and its color. It does not change wave status.
+
 ## Claim rules
 
 A fact needs evidence. An inference needs evidence, confidence, and limits. A recommendation needs rationale and limits. A recommendation can have no direct source only when its rationale names the supporting report facts.
+
+Evidence stays in the normalized report data. The compact wave detail displays claim text only. It does not print evidence-link lists, confidence labels, rationale labels, or limit labels in the visual panel.
 
 Recommendation ranks are unique and contiguous from one.

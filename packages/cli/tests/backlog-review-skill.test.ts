@@ -1,5 +1,15 @@
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { runInNewContext } from "node:vm";
 
 import { describe, expect, test } from "vitest";
 import { parse } from "yaml";
@@ -40,6 +50,10 @@ describe("backlog-review first-party Skill", () => {
       "references/rule-map.md",
       "examples/chat-reports.md",
       "examples/human-errors.json",
+      "references/html-report.md",
+      "scripts/render-report.mjs",
+      "scripts/collect-project-lead-context.mjs",
+      "assets/backlog-review-report.html",
     ]);
     for (const source of [entry!.entryPoint, ...entry!.assets.map((asset) => asset.source)]) {
       expect(existsSync(path.join(SKILL_ROOT, source))).toBe(true);
@@ -105,6 +119,10 @@ describe("backlog-review first-party Skill", () => {
     ]) {
       expect(model).toContain(label);
     }
+    expect(model).toContain("one to three decisive references");
+    expect(model).toContain("Never copy a whole record's evidence catalog");
+    expect(model).toContain("The project lead is a short project description");
+    expect(model).toContain("Do not include backlog counts, report metrics");
   });
 
   test("keeps response meaning structured without freezing report prose", () => {
@@ -126,5 +144,149 @@ describe("backlog-review first-party Skill", () => {
     }
     expect(examples).toContain("Source method:");
     expect(examples).toContain("### Next");
+  });
+
+  test("renders one offline HTML file with inert project text", () => {
+    const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-backlog-report-"));
+    try {
+      const inputPath = path.join(temporaryRoot, "report.json");
+      const outputPath = path.join(temporaryRoot, "report.html");
+      const report = structuredClone(mixedPortfolioFixture.report);
+      const hostileProject = '<img src=x onerror="globalThis.injected=true">';
+      const hostileReason = "</script><script>globalThis.injected=true</script>";
+      const hostileLead = '<svg onload="globalThis.injected=true"> describes the project.';
+      report.project.name = hostileProject;
+      report.snapshot.project.name = hostileProject;
+      report.records[0].statusReason = hostileReason;
+      if (!report.projectLead) throw new Error("Synthetic report needs a project lead.");
+      report.projectLead.sentences[0].text = hostileLead;
+      writeFileSync(inputPath, JSON.stringify(report), "utf8");
+
+      execFileSync(process.execPath, [
+        path.join(SKILL_ROOT, "scripts/render-report.mjs"),
+        "--input",
+        inputPath,
+        "--output",
+        outputPath,
+      ]);
+
+      const html = readFileSync(outputPath, "utf8");
+      expect(html).toContain("default-src 'none'");
+      expect(html).toContain("connect-src 'none'");
+      expect(html).toContain("In Scope");
+      expect(html).toContain("Showing ${visible.length} of ${report.records.length} records.");
+      expect(html).toContain("stroke: currentColor");
+      expect(html).toContain("--paper: #f5f7fb;");
+      expect(html).toContain("--accent: #3159d8;");
+      expect(html).toContain("--accent-line: #7187b6;");
+      expect(html).toContain("--paper: #111111;");
+      expect(html).toContain("--line-strong: #484850;");
+      expect(html).toContain("--accent: #75adff;");
+      expect(html).toContain("--accent-line: #3e5f8a;");
+      expect(html).toContain(
+        ':root[data-theme="dark"] .masthead { border-top-color: var(--line-strong); }',
+      );
+      expect(html).toContain("#projectLink, #projectFooterLink { color: var(--accent); }");
+      expect(html).toContain("Work Backlog|Work");
+      expect(html).toContain('kind === "error" ? "Error"');
+      expect(html).not.toContain("function appendEvidence");
+      expect(html).not.toContain("<strong>Evidence boundary.</strong>");
+      expect(html).not.toContain("__MAKE_DOCS_BACKLOG_REPORT_DATA__");
+      expect(html).not.toContain(hostileProject);
+      expect(html).not.toContain(hostileReason);
+      expect(html).not.toContain(hostileLead);
+      expect(html).toContain("\\u003cimg src=x onerror");
+      expect(html).toContain("\\u003c/script\\u003e\\u003cscript\\u003e");
+      expect(html).toContain("\\u003csvg onload");
+      expect(html).not.toContain("Review of ${report.tallies.workRecordsFound}");
+      expect(html).toContain("report.projectLead.sentences.map");
+      expect(html).not.toMatch(/(?:src|href)=["']https?:/i);
+      const overwriteAttempt = spawnSync(process.execPath, [
+        path.join(SKILL_ROOT, "scripts/render-report.mjs"),
+        "--input",
+        inputPath,
+        "--output",
+        outputPath,
+      ]);
+      expect(overwriteAttempt.status).not.toBe(0);
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("collects bounded project-purpose and current-objective context", () => {
+    const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-project-lead-"));
+    const currentRecord = "docs/work/2042-06-01-w1-r1-current-review";
+    try {
+      mkdirSync(path.join(temporaryRoot, "docs/prd"), { recursive: true });
+      mkdirSync(path.join(temporaryRoot, currentRecord), { recursive: true });
+      writeFileSync(
+        path.join(temporaryRoot, "docs/prd/01-product-overview.md"),
+        "# Product overview\n\n## Purpose\n\nAurora Notes helps teams preserve shared project knowledge.\n",
+        "utf8",
+      );
+      writeFileSync(
+        path.join(temporaryRoot, currentRecord, "00-index.md"),
+        "---\nstatus: active\n---\n\n# Current review\n\n## Purpose\n\nComplete the active review and prepare the next accepted package.\n",
+        "utf8",
+      );
+      writeFileSync(
+        path.join(temporaryRoot, "README.md"),
+        "# Wrong fallback\n\nThis fallback must not replace the product overview.\n",
+        "utf8",
+      );
+
+      const output = execFileSync(
+        process.execPath,
+        [
+          path.join(SKILL_ROOT, "scripts/collect-project-lead-context.mjs"),
+          "--target-root",
+          temporaryRoot,
+          "--current-record",
+          currentRecord,
+        ],
+        { encoding: "utf8" },
+      );
+      const packet = JSON.parse(output);
+      expect(packet.sources.map((source: { role: string }) => source.role)).toEqual([
+        "purpose",
+        "currentObjective",
+      ]);
+      expect(packet.sources[0]).toMatchObject({
+        id: "purpose-product-overview",
+        path: "docs/prd/01-product-overview.md",
+        heading: "Purpose",
+      });
+      expect(packet.sources[0].excerpt).not.toContain("Wrong fallback");
+      expect(packet.sources[1]).toMatchObject({
+        id: "current-objective-1",
+        path: `${currentRecord}/00-index.md`,
+        heading: "Purpose",
+      });
+      expect(packet.sources[0].contentHash).toMatch(/^[a-f0-9]{64}$/);
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("derives the wave display name without agent-written document labels", () => {
+    const template = read("assets/backlog-review-report.html");
+    const titleLogic = template.match(
+      /const snapshotByPath = [\s\S]*?(?=    const fileHref =)/,
+    )?.[0];
+    expect(titleLogic).toBeDefined();
+
+    const report = structuredClone(mixedPortfolioFixture.report);
+    const record = report.records[0];
+    const snapshotRecord = report.snapshot.records.find(
+      (candidate) => candidate.recordPath === record.recordPath,
+    );
+    if (!snapshotRecord || !snapshotRecord.coordinate.value) {
+      throw new Error("Synthetic report record is missing its coordinate.");
+    }
+    snapshotRecord.title.value = `${snapshotRecord.coordinate.value} Backlog Review and Reporting Work Backlog`;
+    const context = { report } as { report: typeof report; recordTitle?: (value: typeof record) => string };
+    runInNewContext(`${titleLogic}; globalThis.recordTitle = recordTitle;`, context);
+    expect(context.recordTitle?.(record)).toBe("Backlog Review and Reporting");
   });
 });

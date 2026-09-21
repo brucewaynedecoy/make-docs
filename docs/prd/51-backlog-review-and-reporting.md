@@ -11,7 +11,7 @@ source:
 
 ## Purpose
 
-Own the Make Docs capability that converts repository backlog records into a source-backed status snapshot and a clear human review. This PRD owns the backlog-review data contract, the deterministic snapshot boundary, the first-party review Skill, and the chat and single-file HTML report outcomes.
+Own the Make Docs capability that converts repository backlog records into a source-backed status snapshot and a clear human review. This PRD owns the backlog-review data contract, the deterministic snapshot boundary, the first-party review Skill, optional exact-match review reuse, and the chat and single-file HTML report outcomes.
 
 ## Scope
 
@@ -22,8 +22,10 @@ This capability covers:
 - conflict and availability diagnostics;
 - source-backed agent conclusions about likely current versus historical work;
 - recommended implementation order;
-- a concise in-chat report; and
-- an optional self-contained interactive HTML report.
+- a concise in-chat report;
+- an optional self-contained interactive HTML report;
+- an optional rebuildable per-record review cache in the Global Store; and
+- an in-report data view with a user-started JSON download.
 
 This capability does not own the general operation registry, MCP naming rules, Store model, Skill installation model, lifecycle semantics, testing policy, or Human Experience standard. Those boundaries remain with [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 38](38-global-store-and-project-state.md), [PRD 08](08-skills-catalog-and-distribution.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md), and [PRD 49](49-human-experience-standard-and-intent.md).
 
@@ -78,6 +80,17 @@ Code anchors:
 - R-BACKLOG-RULES-9 (MUST): static deterministic fixtures use fixed dates and expected structured results. Git state, working-tree changes, file-time fallbacks, and unsafe path conditions use isolated temporary repositories or directories created by tests.
 - R-BACKLOG-RULES-10 (MUST): agent-response fixtures verify required meaning rather than exact prose. An acceptable response preserves the diagnostic meaning and includes the subject, context, effect, known limit, next useful action, and required or optional human action.
 
+### Backlog review cache operations
+
+- R-BACKLOG-CACHE-1 (MUST): P5 must activate two public operations for the optional review cache: `work.backlog-cache.lookup` and `work.backlog-cache.write`. Their canonical CLI projections are `make-docs run work backlog-cache lookup` and `make-docs run work backlog-cache write`. Their MCP tools derive from the shared registry. They are not active before their handlers and required validation land.
+- R-BACKLOG-CACHE-2 (MUST): `work.backlog-cache.lookup` is read-only and declares Store-read, project-read, and host-configuration-none access. `work.backlog-cache.write` is mutating and declares Store-write, project-read, and host-configuration-none access. A lookup never requires a write grant.
+- R-BACKLOG-CACHE-3 (MUST): both operations use one shared internal backlog-cache service. CLI and MCP surfaces contain no cache logic. Lookup uses one admitted Store session for Store classification, cache validation, checkout binding, and one bulk exact-key lookup.
+- R-BACKLOG-CACHE-4 (MUST): every review runs `work.backlog.snapshot` before cache lookup. For each cache operation, the Skill uses the compatible derived MCP tool first and the canonical CLI command second. When neither deterministic surface is available, the agentic fallback performs a full stateless review and does not emulate Store access.
+- R-BACKLOG-CACHE-5 (MUST): the shared Store session gate checks configured access, reachability, safety, and policy before cache code runs. `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied` route the Skill to the full stateless review. The Skill does not need a separate Store-status probe before lookup.
+- R-BACKLOG-CACHE-6 (MUST): the lookup result distinguishes cache-service availability from per-record results and reports exact hits, misses, and rejected entries. An available cache can return any mix of these record results. Only exact hits supply review fragments.
+- R-BACKLOG-CACHE-7 (MUST): Store schema creation and migration use the existing Store migration path. The lookup operation never creates or migrates the Store. A missing, older, newer, corrupt, or otherwise unusable cache schema routes to safe stateless review through the existing typed Store or cache result.
+- R-BACKLOG-CACHE-8 (MUST): the write operation stores only validated bounded review fragments in one shared Store write transaction. A denied or failed write does not invalidate the current snapshot, fresh review, or report. It affects only later reuse and receives the natural explanation required by `R-BACKLOG-SKILL-11` through `R-BACKLOG-SKILL-13` when material.
+
 ### First-party backlog-review Skill
 
 - R-BACKLOG-SKILL-1 (MUST): `packages/skills/backlog-review/` is the source of truth for one explicitly selected first-party Skill. It follows the packaging, independence, trust, and installed-output rules in PRD 08.
@@ -94,6 +107,13 @@ Code anchors:
 - R-BACKLOG-SKILL-12 (MUST NOT): an agent does not use a raw diagnostic, stack trace, internal identifier, or lightly reworded tool error as the primary human explanation. It keeps exact codes and technical details available as secondary evidence. It does not assume that the human knows the internal model or has technical project context.
 - R-BACKLOG-SKILL-13 (MUST): a natural explanation never hides, softens, or changes a material failure, risk, limit, or required action. Human language and machine output preserve the same meaning.
 - R-BACKLOG-SKILL-14 (MUST): tests do not freeze one agent sentence as the only correct response. They verify the required human meaning, evidence limit, and next action while allowing natural wording.
+- R-BACKLOG-SKILL-15 (MUST): every review starts with a current deterministic snapshot before it considers cache reuse. The snapshot operation remains Store-free. The review rebuilds portfolio tallies, attention findings, recommendation order, and all other cross-record conclusions from the current full snapshot.
+- R-BACKLOG-SKILL-16 (MUST): the optional per-record review cache is `Store-cached and rebuildable`. Its exact identity contains checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version. Only an exact identity match can supply a reusable review fragment.
+- R-BACKLOG-SKILL-17 (MUST): a missing, stale, invalid, unreadable, or nonmatching cache entry is a cache miss. The Skill performs fresh review for that record. A cache entry and its write receipt are never product authority, source evidence, a current snapshot, or proof that a conclusion remains valid.
+- R-BACKLOG-SKILL-18 (MUST): when the Store is not configured, unavailable, unsafe, or denied, the Skill completes the full stateless review. It reports the cache limit to the human in natural language only when the limit matters to the request. Cache failure does not block independent repository facts or report creation.
+- R-BACKLOG-SKILL-19 (MUST): the cache uses the Global Store boundary in PRD 38. It creates no project-local operational file, hidden report copy, or required companion file. Cached values exclude repository document bodies, prompts, secrets, and absolute local paths.
+- R-BACKLOG-SKILL-20 (MUST): cache diagnostics report exact hits, misses, invalidations, rejected entries, and fallback use for validation. Normal human output stays concise and does not present cache mechanics as project status.
+- R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead.
 
 ### Chat report
 
@@ -115,6 +135,9 @@ Code anchors:
 - R-BACKLOG-HTML-9 (MUST): the summary strip shows the four fixed tally labels: `work records found`, `records in scope`, `historical records`, and `archived records`. The values cover the full portfolio even when the detailed wave list is summarized.
 - R-BACKLOG-HTML-10 (MUST): the wave list contains every discovered live and archived record and supports created-date, coordinate, and last-updated sorting in both ascending and descending directions. It defaults to last updated, newest first. Equal primary sort values use wave coordinate, then record path, in ascending order.
 - R-BACKLOG-HTML-11 (MUST): the collapsed wave summary toggles detail when a user activates a non-interactive part of it. The wave-name source link remains independent. Expanded detail is not a toggle surface. The summary surface exposes `aria-expanded`, `aria-controls`, an accessible name, and the same open or closed state to keyboard and assistive-technology users.
+- R-BACKLOG-HTML-12 (MUST): the self-contained report provides an accessible view of its normalized embedded report model and a user-started JSON download of that same model. These controls preserve inert project text and current filtering does not alter the exported full model.
+- R-BACKLOG-HTML-13 (MUST): the normal saved result remains one `.html` file. Raw-data access does not require a JSON companion, does not create an automatic hidden copy, and does not turn exported data into product authority or operational state.
+- R-BACKLOG-HTML-14 (MUST): the report lead contains exactly two or three source-backed sentences. It starts with project purpose, then states current status or objective, and can add the remaining current role. It contains no backlog totals, report metrics, report-control instructions, or unsupported project claims. The renderer displays normalized lead text but does not create it. When supported context is incomplete, the normalized value is null and the renderer hides the lead.
 
 ### Human outcomes
 
@@ -127,6 +150,9 @@ The capability follows the [Human Experience Contract](../../.make-docs/system/c
 - R-BACKLOG-HX-5 (MUST): the report preserves the difference between complete implementation, complete phase tasks, accepted closeout, and closed wave history.
 - R-BACKLOG-HX-6 (MUST): a reader can use one stable set of wave statuses while still seeing the specific reason for each classification.
 - R-BACKLOG-HX-7 (MUST): a person who receives an error or material limit can understand its context, effect on the requested work, and next useful action without first understanding Make Docs internals.
+- R-BACKLOG-HX-8 (MUST): a repeat review can reuse unchanged per-record analysis without hiding current repository changes or requiring Store access.
+- R-BACKLOG-HX-9 (MUST): a maintainer can inspect and save the normalized report data from the report without managing a second required file.
+- R-BACKLOG-HX-10 (MUST): the report introduction tells a reader what the project is and its current status or objective before report detail. It does not use that space for metrics, technical proof, or report-use instructions.
 
 Code anchors:
 
@@ -173,10 +199,15 @@ The Skill adds a report layer to the snapshot. It contains:
 - recommendation order with rationale;
 - claim evidence class: `fact`, `inference`, or `recommendation`;
 - confidence and evidence limits for non-facts;
-- display labels and compact explanatory copy; and
+- display labels and compact explanatory copy;
+- a nullable `projectLead` with bounded context sources and exactly two or three role-ordered, source-backed sentences; and
 - one normalized model consumed by chat and HTML rendering.
 
 The report model does not modify the snapshot or project records. A saved HTML file is a report artifact, not product authority or operational state.
+
+`projectLead` separates context from prose. Its sources use the deterministic collector and carry a role, repository-relative path, heading, line, bounded excerpt, and content hash. Its sentences use `purpose`, `currentStatus`, or `currentObjective` roles and cite only supplied source ids for the same role. Purpose is first. Current status or objective is second. The optional third sentence uses the remaining current role. When the collector cannot supply purpose plus one current role, `projectLead` is null and the agent explains the omission instead of fabricating text.
+
+The optional cache stores bounded per-record report fragments only. It does not cache or replace the current deterministic snapshot. A review always recomputes cross-record values from the current full snapshot. The cache key is exact and includes checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version.
 
 `waveStatus` is the only field that controls exact status filtering and semantic color. `statusReason` supplies the visible badge text. Archive location controls archived scope. An attention finding can refer to any wave and does not change that wave's `waveStatus`.
 
@@ -187,7 +218,7 @@ The four fixed tallies use these formulas:
 - `historicalRecords = liveRecords where waveStatus == history`; and
 - `archivedRecords = records in the archive work namespace`.
 
-The report validates that `workRecordsFound` equals the sum of the other three values. The interactive wave list has no record-count limit. Chat summary choices do not change the totals or shared record set.
+The report validates that `workRecordsFound` equals the sum of the other three values. The interactive wave list has no record-count limit. Chat summary choices do not change the totals or shared record set. The in-report data view and user-started JSON download expose this same normalized model. They do not export a filter-reduced substitute.
 
 Code anchors:
 
@@ -200,6 +231,7 @@ Code anchors:
 - [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) owns lifecycle meaning and phase-close behavior.
 - [PRD 23](23-generated-document-metadata-and-lifecycle-handoffs.md) owns generated document metadata and lifecycle handoffs.
 - [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) owns the deterministic-versus-agentic boundary and shared TypeScript core.
+- [PRD 38](38-global-store-and-project-state.md) owns the Global Store location, safety, lifecycle, privacy, migration, and rebuildable-cache boundary. PRD 51 owns the review-cache meaning and exact identity.
 - [PRD 39](39-cli-command-model-and-operation-registry.md) owns registry admission, CLI projection, MCP derivation, JSON parity, and shared error meaning.
 - [PRD 49](49-human-experience-standard-and-intent.md) owns the Human Experience standard and review lens.
 - [PRD 50](50-proportionate-testing-and-human-centered-validation.md) owns testing selection and evidence use.
@@ -209,10 +241,14 @@ Code anchors:
 
 - Preserve the separation between deterministic facts and agent judgment. Do not move recommendation logic into the operation to make report generation easier.
 - Keep repository facts available without the Store. Do not add a local state file as a fallback.
+- Always collect the current snapshot before cache lookup. Keep the cache optional, exact-match only, rebuildable, privacy-bounded, and outside the project.
+- Rebuild portfolio-level conclusions from the current full snapshot. Never reuse a cached portfolio summary or recommendation order.
 - Keep one public snapshot operation until a separate reusable need justifies more registry entries.
 - Preserve raw recorded statuses and source conflicts. Do not create one synthetic status that hides why records disagree.
 - Render chat and HTML from the same report model so visual changes cannot change product meaning.
 - Keep the HTML template self-contained and treat all project content as untrusted text.
+- Build project-lead context through the bounded deterministic collector. Keep agent freedom limited to concise wording supported by the supplied excerpts. Never replace missing context with report metrics or generic project prose.
+- Expose raw report data from the embedded model only through an accessible view and a user-started download. Do not make a companion file part of the default output.
 - Preserve the agentic fallback and twin review even when deterministic tooling is available in the maintainer repository.
 - Apply the W22 R0 gate before P2 changes a shared surface. Do not add a temporary dispatcher, Store adapter, setup path, trust path, or MCP-only implementation.
 
@@ -222,6 +258,32 @@ Code anchors:
 - `docs/plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/`
 - `packages/cli/src/operations/`
 - `packages/skills/`
+
+## Requirement History
+
+### 2026-09-21 — W23 R0 P4 project-lead correction
+
+- Affected requirement or section: First-party backlog-review Skill; Single-file interactive report; Human outcomes; Report model; Rebuild Notes.
+- Previous contract: The template wrote a fixed lead from the total record count and filter instructions. The report model carried no project-summary context or lead text.
+- Replacement contract: One deterministic bounded collector supplies project-purpose and current-context excerpts. The normalized report carries a nullable, role-ordered, source-backed two-to-three-sentence project lead. The agent summarizes only supplied context, and the renderer displays or hides the normalized value without inventing fallback prose.
+- Rationale: The report introduction must help a person understand the project and its present goal. Backlog metrics and report instructions already have dedicated surfaces and do not describe the project.
+- Source: Owner review of the corrected P4 report and the [P4 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/04-single-file-interactive-report.md).
+
+### 2026-09-20 — W23 R0 P5 authority reconciliation
+
+- Affected requirement or section: Scope; First-party backlog-review Skill; Single-file interactive report; Human outcomes; Report model; Integrations; Rebuild Notes.
+- Previous contract: Every run performed full agent review. The report had no direct raw-data view or user-started JSON download. The core snapshot and the complete report flow were Store-free.
+- Replacement contract: The snapshot remains Store-free and always runs. The Skill can reuse only exact per-record review matches from an optional rebuildable Global Store cache, rebuilds every portfolio-level conclusion from the current full snapshot, completes a full stateless review when Store use fails, and exposes its embedded normalized report model through an accessible data view and user-started JSON download.
+- Rationale: The first real 70-record report isolated most elapsed time to agent review and report-model assembly. Exact per-record reuse can reduce repeated work without weakening repository authority, current change detection, portability, privacy, or the one-file report.
+- Source: [W23 R0 plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md), [P5 plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md), and [P5 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md).
+
+### 2026-09-21 — W23 R0 P5 cache-operation preflight
+
+- Affected requirement or section: Component and Capability Map; Backlog review cache operations.
+- Previous contract: PRD 51 required exact cache lookup and writing through the Global Store boundary but did not define the public operation count, stable operation identifiers, access split, or Store-and-cache routing sequence.
+- Replacement contract: One read-only bulk lookup operation and one separate write operation derive through the shared registry. The common Store session gate classifies Store access before cache code runs. Lookup then distinguishes cache availability and exact per-record results. Store or cache limits route to the full stateless review.
+- Rationale: Separate read and write operations preserve least access. They let a review reuse readable cache entries without requiring permission to write later results.
+- Source: Owner-accepted P5 preflight decision in the [P5 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md).
 
 ## Source Anchors
 

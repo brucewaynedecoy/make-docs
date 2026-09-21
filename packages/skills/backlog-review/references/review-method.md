@@ -27,7 +27,7 @@ Classify each live record with judgment over accepted authority, recorded status
 
 Historical classification is an inference. Cite the complete or closed facts and state the limit. Completed tasks alone do not prove accepted closeout, a commit, closed history, release, or archive.
 
-Write a short `statusReason` that explains the decisive evidence. The reason is flexible text. It never changes filter membership or color.
+Write a short `statusReason` that explains the decisive evidence. Use two to eight words when possible. Do not write a sentence, repeat the wave name, or include evidence links. The reason is flexible text. It never changes filter membership or color.
 
 ## Build claims
 
@@ -37,7 +37,11 @@ Use these claim classes:
 - `inference`: a conclusion from facts. Include evidence, `low`, `medium`, or `high` confidence, and material limits.
 - `recommendation`: a proposed action. Include its facts, rationale, and limits.
 
+Use only decisive evidence in report-layer claims. The source snapshot already retains the full record. Use one to three references for a status reason or fact and no more than five for an inference or recommendation. Remove duplicate references. Do not attach every source line that mentions the subject.
+
 Keep a report-level attention finding separate from wave status. A current or complete wave can still have a finding.
+
+Do not choose an attention icon or severity. The fixed renderer maps a `conflict` wave to `error`, an `attention` wave to `warning`, and every other record or portfolio finding to `info`.
 
 ## Recommend order
 

@@ -1,14 +1,14 @@
 ---
-title: "W23 R0 P5 Package Parity and Acceptance"
+title: "W23 R0 P6 Package Parity and Acceptance"
 kind: "plan"
 status: "draft"
-coordinate: "W23 R0 P5"
+coordinate: "W23 R0 P6"
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
 ---
 
-# W23 R0 P5 Package Parity and Acceptance
+# W23 R0 P6 Package Parity and Acceptance
 
 ## Purpose
 
@@ -24,6 +24,7 @@ One identified package candidate passes source, build, package, installed CLI, M
 - Verify registry, CLI, MCP, and operation-core parity.
 - Verify extracted-package use without the maintainer checkout or network.
 - Exercise repository-only use with absent, denied, unsafe, and unavailable Store states.
+- Verify exact cache reuse and invalidation, the full stateless fallback, and the user-requested raw-data surface from the installed package.
 - Exercise Git available and unavailable cases.
 - Compare chat and HTML results from one report model.
 - Exercise all six accepted fixture groups across their applicable deterministic, agentic, chat, HTML, and human-error surfaces.

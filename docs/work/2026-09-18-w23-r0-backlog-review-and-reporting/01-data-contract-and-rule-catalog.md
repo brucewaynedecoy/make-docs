@@ -111,4 +111,4 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - Coverage: Guide and system-resource edits are `none`. PRD edits are `none` because this private contract matches PRD 51. Performance Testing and Unassisted Goal Testing are `not-needed-now`. Accessibility and visual review stay with P4.
 - Evidence: [Central evidence report](evidence.md).
 - History: [P1 closeout record](../../../.make-docs/archive/history/2026-09-19-w23-r0-p1-data-contract-and-rule-catalog.md).
-- Boundary: P2 has not started. No public operation, CLI, MCP, Store, setup, or Skill surface exists. The backlog review capability remains incomplete until P5.
+- Boundary: P2 had not started at P1 closeout. No public operation, CLI, MCP, Store, setup, or Skill surface existed. After the accepted phase insertion, final capability acceptance is P6.

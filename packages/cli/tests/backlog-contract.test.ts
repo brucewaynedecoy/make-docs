@@ -447,6 +447,27 @@ describe("version 1 snapshot schema", () => {
 });
 
 describe("version 1 report schema", () => {
+  it("requires a short role-ordered and source-backed project lead", () => {
+    const parsed = BacklogReportV1Schema.parse(mixedPortfolioFixture.report);
+    expect(parsed.projectLead?.sentences.map((sentence) => sentence.role)).toEqual([
+      "purpose",
+      "currentObjective",
+    ]);
+
+    const wrongOrder = clone(mixedPortfolioFixture.report);
+    if (!wrongOrder.projectLead) throw new Error("Synthetic report needs a project lead.");
+    wrongOrder.projectLead.sentences.reverse();
+    expect(BacklogReportV1Schema.safeParse(wrongOrder).success).toBe(false);
+
+    const unknownEvidence = clone(mixedPortfolioFixture.report);
+    if (!unknownEvidence.projectLead) throw new Error("Synthetic report needs a project lead.");
+    unknownEvidence.projectLead.sentences[0].evidenceSourceIds = ["missing-source"];
+    expect(BacklogReportV1Schema.safeParse(unknownEvidence).success).toBe(false);
+
+    const omitted = { ...clone(mixedPortfolioFixture.report), projectLead: null };
+    expect(BacklogReportV1Schema.safeParse(omitted).success).toBe(true);
+  });
+
   it("covers every fixed wave status and permits flexible evidence-backed reasons", () => {
     const parsed = BacklogReportV1Schema.parse(mixedPortfolioFixture.report);
     const liveRecords = parsed.records.filter((record) => record.scope === "live");

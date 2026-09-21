@@ -1,14 +1,14 @@
 ---
-title: "Phase 5: Package Parity and Acceptance"
+title: "Phase 6: Package Parity and Acceptance"
 kind: "work"
 status: "draft"
-coordinate: "W23 R0 P5"
+coordinate: "W23 R0 P6"
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
 ---
 
-# Phase 5: Package Parity and Acceptance
+# Phase 6: Package Parity and Acceptance
 
 ## Purpose
 
@@ -16,7 +16,7 @@ Prove the complete capability from one identified extracted package and close on
 
 ## Overview
 
-This phase validates source and package parity, installed CLI and MCP meaning, Skill independence, offline HTML use, accessibility, and the accepted human outcomes.
+This phase validates source and package parity, installed CLI and MCP meaning, Skill independence, optional cache behavior, raw-data access, offline HTML use, accessibility, and the accepted human outcomes.
 
 ## Human Experience Outcome
 
@@ -72,39 +72,40 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - [ ] t3: Exercise installed CLI and MCP success, partial, conflict, unavailable, and failure cases.
 - [ ] t4: Exercise the installed Skill through MCP, CLI fallback, and agentic fallback with correct method reporting.
 - [ ] t5: Exercise Store absent, denied, unsafe, and unavailable cases plus Git available and unavailable cases.
+- [ ] t6: Exercise exact cache hits, misses, invalidation, pruning, and full stateless fallback from the installed package.
 
 ### Acceptance criteria
 
-- A37: The identified package contains the operation, registry metadata, Skill, references, examples, and HTML template required by PRD 51.
-- A38: Installed CLI JSON and MCP results preserve matching values, diagnostics, and capability availability.
-- A39: The installed Skill works without the maintainer checkout, network, sibling Skill, or Store access.
-- A40: Optional evidence failure narrows the result and does not erase independent repository facts.
+- A45: The identified package contains the operation, registry metadata, Skill, references, examples, HTML template, cache integration, and raw-data support required by PRD 51.
+- A46: Installed CLI JSON and MCP results preserve matching values, diagnostics, and capability availability.
+- A47: The installed Skill works without the maintainer checkout, network, sibling Skill, or Store access.
+- A48: Optional evidence or cache failure narrows the result and does not erase independent repository facts or prevent full stateless review.
 
 ### Dependencies
 
-- P2-P4 complete.
+- P2-P5 complete.
 - One reviewed package candidate.
 
 ## Stage 2 - Report parity and Human Experience closeout
 
 ### Tasks
 
-- [ ] t6: Compare chat and HTML output for the same report model across the fixture matrix.
-- [ ] t7: Repeat desktop, mobile, keyboard, reduced-motion, print, offline, and hostile-content browser checks from the package.
-- [ ] t8: Complete the per-promise Human Experience Review with observations, conclusions, evidence, limits, and next actions.
-- [ ] t9: Resolve each material finding or narrow the affected completion claim with an accepted bounded caveat.
-- [ ] t10: Prepare the optional owner experience handoff and the release-readiness recommendation.
+- [ ] t7: Compare chat, HTML, data view, and JSON download meaning for the same report model across the fixture matrix.
+- [ ] t8: Repeat desktop, mobile, keyboard, reduced-motion, print, offline, and hostile-content browser checks from the package.
+- [ ] t9: Complete the per-promise Human Experience Review with observations, conclusions, evidence, limits, and next actions.
+- [ ] t10: Resolve each material finding or narrow the affected completion claim with an accepted bounded caveat.
+- [ ] t11: Prepare the optional owner experience handoff and the release-readiness recommendation.
 
 ### Acceptance criteria
 
-- A41: Chat and HTML preserve the same fixed wave statuses, status reasons, four portfolio tallies, conflicts, evidence classes, recommendation rationale, and limits.
-- A42: A reviewer can reach source evidence for every material fact, inference, and recommendation in the selected acceptance cases.
-- A43: Human Experience Review records a supported conclusion for every accepted promise and does not claim the owner's lived reaction.
-- A44: Final status names the exact supported scope, remaining limits, W22 compatibility basis, and whether release requires more authority or evidence.
+- A49: Chat, HTML, the data view, and JSON download preserve the same fixed wave statuses, status reasons, four portfolio tallies, conflicts, evidence classes, recommendation rationale, and limits.
+- A50: A reviewer can reach source evidence for every material fact, inference, and recommendation in the selected acceptance cases.
+- A51: Human Experience Review records a supported conclusion for every accepted promise and does not claim the owner's lived reaction.
+- A52: Final status names the exact supported scope, remaining limits, W22 compatibility basis, and whether release requires more authority or evidence.
 
 ### Dependencies
 
-- A37-A40 complete.
+- A45-A48 complete.
 
 ### Closeout Notes
 
@@ -114,4 +115,4 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - Optional experience handoff: Open the chat report, open the saved HTML file, filter to Attention, expand one wave, and optionally report any unclear state or source path.
 - Explicit human acceptance gate: none.
 - Evidence report: Create and link the central report after evidence exists.
-- Phase / capability status: P5 closes only the scope supported by package, installed, browser, parity, and Human Experience evidence.
+- Phase / capability status: P6 closes only the scope supported by package, installed, browser, parity, cache, raw-data, and Human Experience evidence.

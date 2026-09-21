@@ -8,6 +8,7 @@ const utcTimestamp = z
   .datetime({ offset: true })
   .refine((value) => value.endsWith("Z"), "Expected an ISO 8601 UTC time.");
 const gitCommit = z.string().regex(/^[a-f0-9]{7,64}$/).nullable();
+const sha256Digest = z.string().regex(/^[a-f0-9]{64}$/);
 const waveCoordinate = z.string().regex(/^W[1-9]\d* R(?:0|[1-9]\d*)$/);
 const phaseCoordinate = z
   .string()
@@ -851,12 +852,97 @@ export const BacklogRecommendationOrderItemSchema = z
   })
   .strict();
 
+export const ProjectLeadSourceRoleSchema = z.enum([
+  "purpose",
+  "currentStatus",
+  "currentObjective",
+]);
+
+export const ProjectLeadSourceSchema = z
+  .object({
+    id: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+    role: ProjectLeadSourceRoleSchema,
+    path: repositoryRelativePath,
+    heading: nullableText,
+    line: z.number().int().positive().nullable(),
+    excerpt: text.max(2_000),
+    contentHash: sha256Digest,
+  })
+  .strict();
+
+export const ProjectLeadSentenceSchema = z
+  .object({
+    role: ProjectLeadSourceRoleSchema,
+    text: text
+      .max(320)
+      .refine((value) => !/[\r\n]/.test(value), "A project lead sentence must stay on one line."),
+    evidenceSourceIds: z
+      .array(z.string().regex(/^[a-z][a-z0-9-]{0,63}$/))
+      .min(1)
+      .max(3),
+  })
+  .strict();
+
+export const ProjectLeadSchema = z
+  .object({
+    sources: z.array(ProjectLeadSourceSchema).min(2).max(6),
+    sentences: z.array(ProjectLeadSentenceSchema).min(2).max(3),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const sourceIds = value.sources.map((source) => source.id);
+    if (new Set(sourceIds).size !== sourceIds.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sources"],
+        message: "Project lead source ids must be unique.",
+      });
+    }
+
+    const sentenceRoles = value.sentences.map((sentence) => sentence.role);
+    if (
+      sentenceRoles[0] !== "purpose" ||
+      !["currentStatus", "currentObjective"].includes(sentenceRoles[1]) ||
+      new Set(sentenceRoles).size !== sentenceRoles.length
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sentences"],
+        message:
+          "The project lead must start with purpose, then use current status or objective, without repeating a role.",
+      });
+    }
+
+    const sourcesById = new Map(value.sources.map((source) => [source.id, source]));
+    for (const [index, sentence] of value.sentences.entries()) {
+      if (new Set(sentence.evidenceSourceIds).size !== sentence.evidenceSourceIds.length) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["sentences", index, "evidenceSourceIds"],
+          message: "Project lead evidence source ids must not repeat.",
+        });
+      }
+      if (
+        sentence.evidenceSourceIds.some(
+          (sourceId) => sourcesById.get(sourceId)?.role !== sentence.role,
+        )
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["sentences", index, "evidenceSourceIds"],
+          message: "Each project lead sentence must cite supplied context for its own role.",
+        });
+      }
+    }
+  });
+
 export const BacklogReportV1Schema = z
   .object({
     schemaVersion: z.literal(1),
     generatedAt: utcTimestamp,
     targetRoot: text,
     project: BacklogProjectSchema,
+    projectLead: ProjectLeadSchema.nullable(),
     snapshot: BacklogSnapshotV1Schema,
     tallies: BacklogReportTalliesSchema,
     records: z.array(BacklogReportRecordV1Schema),
@@ -1051,6 +1137,10 @@ export type BacklogAttentionFinding = z.infer<typeof BacklogAttentionFindingSche
 export type BacklogRecommendationOrderItem = z.infer<
   typeof BacklogRecommendationOrderItemSchema
 >;
+export type ProjectLeadSourceRole = z.infer<typeof ProjectLeadSourceRoleSchema>;
+export type ProjectLeadSource = z.infer<typeof ProjectLeadSourceSchema>;
+export type ProjectLeadSentence = z.infer<typeof ProjectLeadSentenceSchema>;
+export type ProjectLead = z.infer<typeof ProjectLeadSchema>;
 export type BacklogReportV1 = z.infer<typeof BacklogReportV1Schema>;
 export type AgentResponseSemanticExpectation = z.infer<
   typeof AgentResponseSemanticExpectationSchema

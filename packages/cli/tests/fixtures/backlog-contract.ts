@@ -269,6 +269,40 @@ export const mixedPortfolioFixture = {
     generatedAt: FIXED_GENERATED_AT,
     targetRoot: FIXED_TARGET_ROOT,
     project: mixedSnapshot.project,
+    projectLead: {
+      sources: [
+        {
+          id: "project-purpose",
+          role: "purpose" as const,
+          path: "docs/prd/01-product-overview.md",
+          heading: "Purpose",
+          line: 3,
+          excerpt: "Aurora Notes helps teams preserve and understand shared project knowledge.",
+          contentHash: "a".repeat(64),
+        },
+        {
+          id: "current-objective",
+          role: "currentObjective" as const,
+          path: `${mixedRecords[1].recordPath}/00-index.md`,
+          heading: "Purpose",
+          line: 12,
+          excerpt: "Complete the current review and prepare the next accepted package.",
+          contentHash: "b".repeat(64),
+        },
+      ],
+      sentences: [
+        {
+          role: "purpose" as const,
+          text: "Aurora Notes helps teams preserve and understand shared project knowledge.",
+          evidenceSourceIds: ["project-purpose"],
+        },
+        {
+          role: "currentObjective" as const,
+          text: "Its current objective is to complete the active review and prepare the next accepted package.",
+          evidenceSourceIds: ["current-objective"],
+        },
+      ],
+    },
     snapshot: mixedSnapshot,
     tallies: {
       workRecordsFound: 7,
