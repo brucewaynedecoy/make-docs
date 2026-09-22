@@ -123,6 +123,9 @@ export const ADMITTED_OPERATION_IDS = [
   "work.item.resolve",
   "work.evidence.record",
   "work.evidence.read",
+  "work.backlog.snapshot",
+  "work.backlog-cache.lookup",
+  "work.backlog-cache.write",
   "resource.list",
   "resource.read",
   "resource.ensure",
@@ -160,6 +163,9 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "work.item.resolve": ["run", "work item resolve"],
   "work.evidence.record": ["run", "work evidence record"],
   "work.evidence.read": ["run", "work evidence read"],
+  "work.backlog.snapshot": ["run", "work backlog snapshot"],
+  "work.backlog-cache.lookup": ["run", "work backlog-cache lookup"],
+  "work.backlog-cache.write": ["run", "work backlog-cache write"],
   "resource.list": ["resource", "list"],
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
@@ -192,6 +198,12 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "work.backlog.snapshot":
+    "make-docs run work backlog snapshot --target-root <project> [--json]",
+  "work.backlog-cache.lookup":
+    "make-docs run work backlog-cache lookup --target-root <project> --snapshot-json <file-or-json> [--json]",
+  "work.backlog-cache.write":
+    "make-docs run work backlog-cache write --target-root <project> --snapshot-json <file-or-json> --records-json <file-or-json> [--json]",
   "performance.evidence.validate":
     "make-docs run performance evidence validate [--target-root <project>] [--json]",
   "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",

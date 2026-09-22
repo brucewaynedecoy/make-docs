@@ -225,7 +225,7 @@ npm publish --dry-run --access public --tag next
 
 The package is scoped, so public publish validation and any separately authorized real publish must include `--access public`. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
 
-First-party Skill source lives only under `packages/skills/`. Compare the registry allowlist and source bytes with the compiled payload and extracted-package installs, including independent offline installs of all seven Skills. Never create a separate generated Skill tree as package input.
+First-party Skill source lives only under `packages/skills/`. Compare the registry allowlist and source bytes with the compiled payload and extracted-package installs, including independent offline installs of all eight Skills. Never create a separate generated Skill tree as package input.
 
 `packages/cli/template/` is generated package input. Do not hand-edit it as a source change; edit `packages/docs/template/` or the copy/prepack path, then regenerate the package copy with `npm run prepack -w packages/cli` or let `npm run smoke:pack` exercise the same path.
 

@@ -439,6 +439,11 @@ describe("selection wizard", () => {
           "Relationship-aware archival, staleness detection, deprecation, and impact analysis for docs/ artifacts.",
       },
       {
+        name: "backlog-review",
+        description:
+          "Review the full Make Docs work portfolio and explain focus, attention, and recommended order.",
+      },
+      {
         name: "decompose-codebase",
         description: "Plan and reverse-engineer repos into structured PRDs.",
       },

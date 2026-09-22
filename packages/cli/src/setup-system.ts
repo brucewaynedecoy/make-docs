@@ -154,26 +154,33 @@ export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): P
   const configured: Harness[] = [];
   let recoveryAction: string | null = null;
   for (const plan of runnable) {
-    if (options.persistIntent !== false) {
-      persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness);
-    }
     if (!plan.changed) {
+      if (options.persistIntent !== false) {
+        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness);
+      }
       configured.push(plan.harness);
       continue;
     }
     try {
       await plan.apply();
       if (!(await plan.verify())) {
-        const recovery = `Run \`make-docs setup system\` to review and resume the ${label(plan.harness)} machine change.`;
+        const recovery = recoveryActionForPlanFailure(
+          plan,
+          "The applied native entry did not verify.",
+        );
         blocked.push({ harness: plan.harness, reason: "The applied native entry did not verify.", nextAction: recovery });
         recoveryAction ??= recovery;
         if (plan.pendingOperation?.()) break;
         continue;
       }
+      if (options.persistIntent !== false) {
+        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness);
+      }
       configured.push(plan.harness);
     } catch (error) {
-      const recovery = `Run \`make-docs setup system\` to review and resume the ${label(plan.harness)} machine change.`;
-      blocked.push({ harness: plan.harness, reason: error instanceof Error ? error.message : String(error), nextAction: recovery });
+      const reason = error instanceof Error ? error.message : String(error);
+      const recovery = recoveryActionForPlanFailure(plan, reason);
+      blocked.push({ harness: plan.harness, reason, nextAction: recovery });
       recoveryAction ??= recovery;
       if (plan.pendingOperation?.()) break;
     }
@@ -225,6 +232,19 @@ function persistReviewedDisabledIntents(
       persistReviewedHarnessIntent(storeRoot, projected, harness);
     }
   }
+}
+
+function recoveryActionForPlanFailure(plan: SystemHarnessPlan, reason: string): string {
+  if (reason.includes("Run make-docs setup to review and apply the compatibility bridge")) {
+    return "Run `make-docs setup` to review and apply the Store compatibility bridge. Full setup will retry the approved machine work after that prerequisite verifies.";
+  }
+  if (reason.includes("Store operation is already pending")) {
+    return "Run `make-docs project state status` to inspect and resolve the pending Store operation. Then run `make-docs setup system` again.";
+  }
+  if (plan.pendingOperation?.()) {
+    return `Run \`make-docs setup system\` to resume the recorded ${label(plan.harness)} machine change.`;
+  }
+  return `Correct the reported ${label(plan.harness)} prerequisite, then run \`make-docs setup system\` to review a new machine plan.`;
 }
 
 async function selectMethods(
@@ -345,10 +365,26 @@ async function resumePendingSystemSetup(
     }
     recordHarnessIntegrationReceipt(targetRoot, storeRoot, applied.receipt);
     completeHarnessSystemOperation(targetRoot, storeRoot, pending, applied.receipt);
+    if (options.persistIntent !== false) {
+      persistRecoveredHarnessIntent(storeRoot, pending);
+    }
     return makeResult("configured", selections, [pending.harnessId], [], null);
   } catch (error) {
     return makeResult("recovery", selections, [], [{ harness: pending.harnessId, reason: error instanceof Error ? error.message : String(error), nextAction: recoveryAction }], recoveryAction);
   }
+}
+
+function persistRecoveredHarnessIntent(
+  storeRoot: string,
+  pending: PendingHarnessSystemOperation,
+): void {
+  const current = loadGlobalConfig(storeRoot).config;
+  current.settings.harnesses[pending.harnessId] = {
+    selected: true,
+    maximumMethod: pending.connectionMethod,
+    accessCeiling: deriveHarnessAccessCeiling(pending.connectionMethod),
+  };
+  writeGlobalConfig(storeRoot, current);
 }
 
 function buildIntentProjection(
@@ -397,7 +433,7 @@ function renderIntentChanges(storeRoot: string, changes: readonly SystemIntentCh
   return [
     `Global intent file: ${configPath}`,
     ...changes.map(change => `- ${label(change.harness)} intent: ${change.before} -> ${change.after}`),
-    "- Effect: saves the reviewed machine access ceiling before any native harness change.",
+    "- Effect: saves the reviewed machine access ceiling only after its native harness state verifies.",
   ].join("\n");
 }
 

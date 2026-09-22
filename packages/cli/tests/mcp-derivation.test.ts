@@ -29,6 +29,9 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "work.item.resolve": "make_docs_work_item_resolve",
   "work.evidence.record": "make_docs_work_evidence_record",
   "work.evidence.read": "make_docs_work_evidence_read",
+  "work.backlog.snapshot": "make_docs_work_backlog_snapshot",
+  "work.backlog-cache.lookup": "make_docs_work_backlog_cache_lookup",
+  "work.backlog-cache.write": "make_docs_work_backlog_cache_write",
   "resource.list": "make_docs_resource_list",
   "resource.read": "make_docs_resource_read",
   "resource.ensure": "make_docs_resource_ensure",
@@ -194,6 +197,12 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     expect(Object.keys(readTool.inputSchema)).toEqual(
       expect.arrayContaining(["repoRoot", "dryRun", "approvals"]),
     );
+
+    const backlogTool = descriptors.get("make_docs_work_backlog_snapshot")!;
+    expect(Object.keys(backlogTool.inputSchema)).toEqual(
+      expect.arrayContaining(["targetRoot", "dryRun", "approvals"]),
+    );
+    expect(Object.keys(backlogTool.inputSchema)).not.toContain("allowWrite");
   });
 
   test("derived descriptors publish exact registry access and MCP readiness", () => {

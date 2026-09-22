@@ -1,11 +1,30 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import { fileURLToPath } from "node:url";
 import { applyInstallPlan, planInstall } from "../src/install";
 import { loadMakeDocsConfig } from "../src/config";
+import { CODEX_HARNESS_ADAPTER, fingerprintEntry, sha256, verifyMakeDocsExecutable } from "../src/harness-access";
 import { loadGlobalConfig, writeGlobalConfig } from "../src/store/global-config";
+import { CURRENT_STORE_SCHEMA_VERSION, STORE_MIGRATIONS } from "../src/store";
+import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
+import {
+  preparePlannedFileChange,
+  readInstallationStatus,
+  recoverInstallationOperation,
+  sealInstallationOperation,
+  withInstallationOperation,
+} from "../src/store/installation-state";
+import {
+  applySetupProjectRecovery,
+  prepareSetupProjectRecoveryReview,
+  SetupProjectRecoveryError,
+  type SetupProjectRecoveryReview,
+} from "../src/setup-project-recovery";
 import { loadManifest } from "../src/manifest";
+import { MigrationSafetyError } from "../src/migration";
 import { renderManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
 import { createTempDir, cleanupTempDir, mockSkillFetches } from "./helpers";
@@ -27,6 +46,50 @@ const ALL_SKILL_NAMES = [
   "naive-uat",
 ];
 const NONE_METHODS = ["--codex-method", "none", "--claude-code-method", "none"] as const;
+
+function seedSchemaThreeStore(storeRoot: string): void {
+  mkdirSync(storeRoot, { recursive: true });
+  const db = new DatabaseSync(path.join(storeRoot, "store.db"));
+  db.exec("PRAGMA foreign_keys=ON");
+  for (const migration of STORE_MIGRATIONS.filter((candidate) => candidate.version <= 3)) {
+    for (const statement of migration.statements) db.exec(statement);
+    db.exec(`PRAGMA user_version=${migration.version}`);
+  }
+  db.close();
+}
+
+function seedSchemaThreeInstallationLedger(
+  storeRoot: string,
+  targetDir: string,
+  manifest: NonNullable<ReturnType<typeof loadManifest>>,
+): void {
+  seedSchemaThreeStore(storeRoot);
+  const targetRoot = realpathSync(targetDir);
+  const targetStat = statSync(targetRoot);
+  const createdAt = new Date().toISOString();
+  const db = new DatabaseSync(path.join(storeRoot, "store.db"));
+  db.prepare(
+    `INSERT INTO installation_checkouts
+      (checkout_id, project_id, root_path, root_device, root_inode, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+  ).run(
+    "checkout-schema-three-preview",
+    manifest.projectId!,
+    targetRoot,
+    String(targetStat.dev),
+    String(targetStat.ino),
+    createdAt,
+  );
+  db.prepare(
+    `INSERT INTO installation_ledgers (checkout_id, manifest_json, updated_at)
+     VALUES (?, ?, ?)`,
+  ).run(
+    "checkout-schema-three-preview",
+    JSON.stringify(manifest),
+    createdAt,
+  );
+  db.close();
+}
 
 vi.mock("../src/wizard", () => ({
   runSelectionWizard: runSelectionWizardMock,
@@ -201,6 +264,100 @@ function writeConflictingRootInstruction(targetDir: string) {
   );
 }
 
+function createPendingSetupOperation(
+  targetDir: string,
+  options: { planComplete: boolean; applyChange?: boolean },
+): void {
+  const relativePath = "recovery-note.md";
+  writeFileSync(path.join(targetDir, relativePath), "before\n", "utf8");
+  expect(() => withInstallationOperation(targetDir, "setup.migration", () => {
+    const apply = preparePlannedFileChange(
+      targetDir,
+      relativePath,
+      { kind: "file", content: "after\n" },
+      () => writeFileSync(path.join(targetDir, relativePath), "after\n", "utf8"),
+    );
+    if (options.planComplete) sealInstallationOperation(targetDir);
+    if (options.applyChange) apply();
+    throw new Error("simulated interrupted setup");
+  })).toThrow("simulated interrupted setup");
+}
+
+function writePausedLegacyReceipt(targetDir: string): void {
+  const canonicalTargetDir = realpathSync(targetDir);
+  const receiptsDir = path.join(targetDir, ".make-docs/state/migration-receipts");
+  const backupFilesDir = path.join(targetDir, ".make-docs/backup/one/files");
+  mkdirSync(receiptsDir, { recursive: true });
+  mkdirSync(backupFilesDir, { recursive: true });
+  const snapshotId = `sha256:${sha256("legacy-paused-snapshot")}`;
+  const subject = {
+    status: "paused",
+    checkpoint: 11,
+    snapshotId,
+    lockTokenDigest: sha256("legacy-paused-lock"),
+    createdAt: "2026-09-22T00:00:00Z",
+    code: null,
+    message: "paused for recovery",
+    rollback: {
+      attempted: false,
+      completed: false,
+      restoredPaths: [],
+      unrestoredPaths: [],
+    },
+  };
+  const stable = (value: unknown): unknown =>
+    Array.isArray(value)
+      ? value.map(stable)
+      : value && typeof value === "object"
+        ? Object.fromEntries(
+            Object.entries(value)
+              .sort(([left], [right]) => left.localeCompare(right))
+              .map(([key, entry]) => [key, stable(entry)]),
+          )
+        : value;
+  const receiptId = `sha256:${sha256(JSON.stringify(stable(subject)))}`;
+  writeFileSync(
+    path.join(receiptsDir, `${receiptId.slice(7)}.json`),
+    JSON.stringify({
+      schemaVersion: 1,
+      receiptId,
+      ...subject,
+      claims: {
+        validated: false,
+        accepted: false,
+        downstreamAuthorized: false,
+        released: false,
+      },
+    }),
+    "utf8",
+  );
+  writeFileSync(path.join(targetDir, "doc.md"), "current knowledge", "utf8");
+  writeFileSync(path.join(backupFilesDir, "doc.md"), "prior knowledge", "utf8");
+  writeFileSync(
+    path.join(targetDir, ".make-docs/backup/one/backup-manifest.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      backupId: "one",
+      snapshotId,
+      projectRoot: canonicalTargetDir,
+      repository: { projectRootDigest: sha256(canonicalTargetDir) },
+      entries: [
+        {
+          relativePath: "doc.md",
+          backupPath: "files/doc.md",
+          original: {
+            relativePath: "doc.md",
+            digest: sha256("prior knowledge"),
+          },
+          copied: true,
+          verified: true,
+        },
+      ],
+    }),
+    "utf8",
+  );
+}
+
 function getCompatibilityFixtureCase(id: string) {
   const fixtureCase = COMPATIBILITY_FIXTURE_CASES.find((entry) => entry.id === id);
   if (!fixtureCase) {
@@ -210,13 +367,21 @@ function getCompatibilityFixtureCase(id: string) {
   return fixtureCase;
 }
 
-async function captureCliOutput(argv: string[]): Promise<string> {
+async function captureCliOutput(
+  argv: string[],
+  priorProjectRecovery: SetupProjectRecoveryReview | null = null,
+  priorProjectMutationApplied = false,
+): Promise<string> {
   const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
   try {
     const { runCli } = await import("../src/cli");
 
-    await runCli(withRequiredSetupMethods(argv));
+    await runCli(
+      withRequiredSetupMethods(argv),
+      priorProjectRecovery,
+      priorProjectMutationApplied,
+    );
     return writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
   } finally {
     writeSpy.mockRestore();
@@ -793,28 +958,360 @@ personas:
     }
   });
 
-  test("fails closed before overwriting a managed block without manifest ownership", async () => {
+  test("shows and reapproves the current project plan after legacy transfer", async () => {
+    const targetDir = createTempDir("make-docs-legacy-reapproval-");
+    const oldRoot = createTempDir("make-docs-legacy-reapproval-source-");
+    try {
+      await installManifest(oldRoot);
+      cpSync(oldRoot, targetDir, { recursive: true });
+      const legacy = loadManifest(oldRoot)!;
+      delete legacy.projectId;
+      writeFileSync(
+        path.join(targetDir, ".make-docs/manifest.json"),
+        `${JSON.stringify(legacy, null, 2)}\n`,
+        "utf8",
+      );
+      const configPath = path.join(targetDir, ".make-docs/config.yaml");
+      writeFileSync(
+        configPath,
+        readFileSync(configPath, "utf8").replace(/^projectId:.*\n/m, ""),
+        "utf8",
+      );
+      selectMock.mockResolvedValue("backup-and-install");
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      const confirmationMessages = confirmMock.mock.calls.map(
+        ([options]) => String(options.message),
+      );
+      const projectConfirmations = confirmationMessages.filter(
+        (message) => message !== "Apply the reviewed This computer changes?",
+      );
+      expect(projectConfirmations.length).toBeGreaterThanOrEqual(2);
+      expect(output).toContain(
+        "The legacy installation transfer changed the project review. Review the current project plan.",
+      );
+      expect(output.indexOf("This project")).toBeLessThan(
+        output.indexOf("The legacy installation transfer changed the project review"),
+      );
+      expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+      cleanupTempDir(oldRoot);
+    }
+  });
+
+  test("routes an imported pending legacy operation through plain setup review", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-legacy-pending-review-");
+    try {
+      writePausedLegacyReceipt(targetDir);
+
+      const output = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const result = JSON.parse(output);
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        projectRecovery: {
+          status: "blocked",
+          operation: "legacy.recovery",
+          selectedMode: null,
+        },
+        project: { changed: true, mutationState: "applied" },
+      });
+      expect(result.nextAction).toBe(
+        "Preserve the project and review the listed conflicts. Setup cannot safely continue yet.",
+      );
+      expect(output).not.toContain("project state status");
+      expect(readInstallationStatus(targetDir).status).toBe("recovery-required");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("completes a reviewed overwrite without leaving migration recovery state", async () => {
     const targetDir = createTempDir();
 
     try {
       writeConflictingRootInstruction(targetDir);
       const agentsPath = path.join(targetDir, "AGENTS.md");
-      const agentsBefore = readFileSync(agentsPath);
       runSelectionWizardMock.mockResolvedValue(defaultSelections());
       promptForManagedFileConflictResolutionsMock.mockResolvedValue({
         "AGENTS.md": "overwrite",
       });
 
-      const error = await captureCliError(["setup", "--target", targetDir]);
+      await captureCliOutput(["setup", "--target", targetDir]);
 
-      expect(error.message).toContain(
-        "Migration checkpoint 3 ended with status failed: The frozen classification does not permit reviewed mutation (ambiguous-ownership).",
-      );
       expect(runSelectionWizardMock).toHaveBeenCalledOnce();
       expect(promptForManagedFileConflictResolutionsMock).toHaveBeenCalledOnce();
-      expect(readFileSync(agentsPath)).toEqual(agentsBefore);
+      expect(readFileSync(agentsPath, "utf8")).not.toContain("Locally edited make-docs routing");
+      expect(loadManifest(targetDir)).not.toBeNull();
+      expect(readInstallationStatus(targetDir)).toMatchObject({
+        status: "ready",
+        pendingOperation: null,
+      });
       expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+      expect(existsSync(path.join(targetDir, ".make-docs/state"))).toBe(false);
       expect(listConflictFiles(targetDir)).toEqual([]);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("plain setup restores an incomplete project operation before it replans", async () => {
+    const targetDir = createTempDir("make-docs-setup-restore-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: false });
+      selectMock.mockResolvedValueOnce("restore");
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(output).toContain("Setup found unfinished project work.");
+      expect(output).toContain("Saved plan: incomplete.");
+      expect(output).toContain("Recommended: Restore the prior project state.");
+      expect(output).not.toContain("project state recover");
+      expect(selectMock).toHaveBeenCalledWith(expect.objectContaining({
+        options: expect.arrayContaining([
+          expect.objectContaining({ value: "resume", disabled: true }),
+          expect.objectContaining({ value: "restore", disabled: false }),
+        ]),
+      }));
+      expect(readFileSync(path.join(targetDir, "recovery-note.md"), "utf8")).toBe("before\n");
+      expect(readInstallationStatus(targetDir)).toMatchObject({
+        status: "ready",
+        pendingOperation: null,
+      });
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("plain setup resumes a complete project operation before it replans", async () => {
+    const targetDir = createTempDir("make-docs-setup-resume-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      selectMock.mockResolvedValueOnce("resume");
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(output).toContain("Saved plan: complete.");
+      expect(output).toContain("Recommended: Resume reviewed work.");
+      expect(output).toContain("Setup resumed and completed the unfinished project work.");
+      expect(output).not.toContain("project state recover");
+      expect(readFileSync(path.join(targetDir, "recovery-note.md"), "utf8")).toBe("after\n");
+      expect(readInstallationStatus(targetDir)).toMatchObject({
+        status: "ready",
+        pendingOperation: null,
+      });
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("plain setup cancel keeps unfinished project work unchanged", async () => {
+    const targetDir = createTempDir("make-docs-setup-recovery-cancel-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      const before = readFileSync(path.join(targetDir, "recovery-note.md"));
+      selectMock.mockResolvedValueOnce("cancelled");
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(output).toContain("Setup cancelled. The unfinished project work was not changed.");
+      expect(readFileSync(path.join(targetDir, "recovery-note.md"))).toEqual(before);
+      expect(readInstallationStatus(targetDir).status).toBe("recovery-required");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("reports no mutation when a reviewed recovery becomes stale before apply", async () => {
+    const targetDir = createTempDir("make-docs-setup-recovery-stale-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      const review = prepareSetupProjectRecoveryReview(targetDir);
+      expect(review).not.toBeNull();
+      recoverInstallationOperation(
+        targetDir,
+        review!.operationId,
+        "rollback",
+        false,
+      );
+
+      try {
+        applySetupProjectRecovery(review!, "resume");
+        throw new Error("Expected stale recovery review to fail.");
+      } catch (error) {
+        expect(error).toBeInstanceOf(SetupProjectRecoveryError);
+        expect((error as SetupProjectRecoveryError).mutationState).toBe("none");
+      }
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not apply a second pending operation during one setup invocation", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-setup-recovery-bounded-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      const before = readFileSync(path.join(targetDir, "recovery-note.md"));
+      const pending = prepareSetupProjectRecoveryReview(targetDir)!;
+      const priorRecovery = {
+        ...pending,
+        status: "rolled-back" as const,
+        selectedMode: "restore" as const,
+      };
+      const { runCli } = await import("../src/cli");
+      const output = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        "--recover",
+        "resume",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ], priorRecovery, true);
+
+      expect(JSON.parse(output)).toMatchObject({
+        status: "blocked",
+        projectRecovery: {
+          status: "blocked",
+          operationId: pending.operationId,
+          selectedMode: null,
+        },
+        project: { changed: true, mutationState: "applied" },
+      });
+      expect(output).toContain("No second recovery was applied");
+      expect(readFileSync(path.join(targetDir, "recovery-note.md"))).toEqual(before);
+      expect(readInstallationStatus(targetDir).status).toBe("recovery-required");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("non-interactive setup needs an explicit recovery choice and emits the same review", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-setup-recovery-json-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: false });
+
+      const blockedOutput = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      expect(JSON.parse(blockedOutput)).toMatchObject({
+        status: "blocked",
+        projectRecovery: {
+          status: "blocked",
+          operation: "setup.migration",
+          planComplete: false,
+          recommendation: "restore",
+          selectedMode: null,
+          choices: expect.arrayContaining([
+            expect.objectContaining({ mode: "resume", available: false }),
+            expect.objectContaining({ mode: "restore", available: true }),
+          ]),
+        },
+        project: { changed: false, mutationState: "none" },
+      });
+      expect(readInstallationStatus(targetDir).status).toBe("recovery-required");
+
+      const completedOutput = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        "--recover",
+        "restore",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      expect(JSON.parse(completedOutput)).toMatchObject({
+        status: "complete",
+        projectRecovery: {
+          status: "rolled-back",
+          operation: "setup.migration",
+          selectedMode: "restore",
+        },
+        project: {
+          changed: true,
+          mutationState: "applied",
+        },
+      });
+      expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("uses the saved recovery action when no recovery choice is safe", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-setup-recovery-no-choice-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      writeFileSync(path.join(targetDir, "recovery-note.md"), "outside change\n", "utf8");
+      const review = prepareSetupProjectRecoveryReview(targetDir)!;
+      expect(review.choices.every((choice) => !choice.available)).toBe(true);
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        nextAction: review.nextAction,
+        projectRecovery: {
+          status: "blocked",
+          nextAction: review.nextAction,
+        },
+      });
+      expect(result.nextAction).not.toContain("interactive terminal");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -1065,6 +1562,7 @@ personas:
       manifest = loadManifest(allTargetDir);
       expect(manifest?.selections.selectedSkills).toEqual([
         "archive-docs",
+        "backlog-review",
         "cleanup-docs",
         "decompose-codebase",
         "factory",
@@ -1073,6 +1571,7 @@ personas:
         "preflight",
       ]);
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
+      expect(manifest?.skillFiles).toContain(".claude/skills/backlog-review");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/decompose-codebase");
       expect(manifest?.skillFiles).toContain(".claude/skills/human-experience");
@@ -1584,7 +2083,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -1957,8 +2456,642 @@ personas:
     }
   });
 
-  test("keeps system success and gives project recovery after one project failure", async () => {
+  test("applies and verifies the reviewed Store bridge before system setup", async () => {
     setTTY(false);
+    const targetDir = createTempDir("make-docs-store-before-system-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    seedSchemaThreeStore(storeRoot);
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockImplementation(async () => {
+        const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+        expect(db.prepare("PRAGMA user_version").get()).toEqual({
+          user_version: CURRENT_STORE_SCHEMA_VERSION,
+        });
+        db.close();
+        return {
+          schemaVersion: 2,
+          status: "unchanged",
+          scope: "machine",
+          selections: { codex: "none", "claude-code": "none" },
+          configured: [],
+          skipped: ["codex", "claude-code"],
+          blocked: [],
+          attemptedWork: [],
+          mutationState: "verified",
+          failedCondition: null,
+          nextAction: null,
+          recoveryAction: null,
+        };
+      });
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", "--yes", ...NONE_METHODS, "--target", targetDir]);
+
+      expect(applySystem).toHaveBeenCalledTimes(1);
+      expect(loadManifest(targetDir)).not.toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("previews a schema-3 Store bridge for a target directory that does not exist yet", async () => {
+    setTTY(false);
+    const parentDir = createTempDir("make-docs-schema-three-missing-target-");
+    const targetDir = path.join(parentDir, "new-project");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    seedSchemaThreeStore(storeRoot);
+    try {
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--dry-run",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result).toMatchObject({
+        status: "planned",
+        store: { sourceSchemaVersion: 3 },
+      });
+      expect(existsSync(targetDir)).toBe(false);
+    } finally {
+      cleanupTempDir(parentDir);
+    }
+  });
+
+  test("rebuilds and reapproves the project plan after the Store bridge changes project state", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-store-project-reapproval-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    const agentsPath = path.join(targetDir, "AGENTS.md");
+    try {
+      const predictedPlan = await planInstall({
+        targetDir,
+        selections: defaultSelections(),
+        existingManifest: null,
+      });
+      const predictedAgentsAction = predictedPlan.actions.find(
+        (action) => action.relativePath === "AGENTS.md",
+      );
+      expect(predictedAgentsAction?.type).toBe("create");
+      expect(predictedAgentsAction?.content).toBeDefined();
+      seedSchemaThreeStore(storeRoot);
+
+      const migration = await import("../src/migration");
+      const executeStoreCheckpoint9Migration = migration.executeStoreCheckpoint9Migration;
+      const storeBridge = vi
+        .spyOn(migration, "executeStoreCheckpoint9Migration")
+        .mockImplementation((input) => {
+          expect(existsSync(agentsPath)).toBe(false);
+          expect(loadManifest(targetDir)).toBeNull();
+          const result = executeStoreCheckpoint9Migration(input);
+          writeFileSync(agentsPath, predictedAgentsAction!.content!);
+          return result;
+        });
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      const confirmationMessages = confirmMock.mock.calls.map(
+        ([options]) => String(options.message),
+      );
+      const projectConfirmations = confirmationMessages.filter(
+        (message) => message === "Install make-docs with this plan?",
+      );
+      const refreshedReview = output.indexOf(
+        "The verified Store state changed the project review. Review the current project plan.",
+      );
+
+      expect(storeBridge).toHaveBeenCalledTimes(1);
+      expect(projectConfirmations).toHaveLength(2);
+      expect(refreshedReview).toBeGreaterThan(-1);
+      expect(output.slice(0, refreshedReview)).toContain("- generate: AGENTS.md");
+      expect(output.slice(refreshedReview)).not.toContain("- generate: AGENTS.md");
+      expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
+      expect(readFileSync(agentsPath, "utf8")).toBe(
+        String(predictedAgentsAction!.content),
+      );
+      expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("previews the same final project actions that apply follows after a schema-3 Store bridge", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-schema-three-preview-parity-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    try {
+      await installManifest(targetDir);
+      const installedManifest = loadManifest(targetDir)!;
+      const agentsBefore = readFileSync(path.join(targetDir, "AGENTS.md"), "utf8");
+      rmSync(storeRoot, { recursive: true, force: true });
+      seedSchemaThreeInstallationLedger(storeRoot, targetDir, installedManifest);
+
+      const preview = JSON.parse(await captureCliOutput([
+        "setup",
+        "--dry-run",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      const previewDb = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(previewDb.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
+      previewDb.close();
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toBe(agentsBefore);
+
+      const applied = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(preview.project.actions).toEqual(applied.project.actions);
+      expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not ask for project approval again when the Store bridge leaves review facts unchanged", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-schema-three-stable-review-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    try {
+      await installManifest(targetDir);
+      const installedManifest = loadManifest(targetDir)!;
+      rmSync(storeRoot, { recursive: true, force: true });
+      seedSchemaThreeInstallationLedger(storeRoot, targetDir, installedManifest);
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const projectConfirmations = confirmMock.mock.calls
+        .map(([options]) => String(options.message))
+        .filter((message) => message === "Apply this make-docs sync?");
+
+      expect(projectConfirmations).toHaveLength(1);
+      expect(output).not.toContain(
+        "The verified Store state changed the project review. Review the current project plan.",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("checks compatibility again after a predicted schema-3 ledger becomes current", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-schema-three-reloaded-guard-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    try {
+      await installManifest(targetDir);
+      const installedManifest = loadManifest(targetDir)!;
+      rmSync(storeRoot, { recursive: true, force: true });
+      seedSchemaThreeInstallationLedger(storeRoot, targetDir, installedManifest);
+      const compatibility = await import("../src/compatibility");
+      const classification = await compatibility.classifyCompatibilityState({ targetDir });
+      vi.spyOn(compatibility, "classifyCompatibilityState").mockResolvedValue({
+        ...classification,
+        disposition: "manual-review-required",
+      });
+
+      const error = await captureCliError([
+        "setup",
+        "--yes",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain(
+        "make-docs cannot classify this target safely enough to write changes",
+      );
+      const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({
+        user_version: CURRENT_STORE_SCHEMA_VERSION,
+      });
+      db.close();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("reports a failed Store prerequisite without machine or project writes", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-store-prerequisite-failure-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    seedSchemaThreeStore(storeRoot);
+    try {
+      const migration = await import("../src/migration");
+      vi.spyOn(migration, "executeStoreCheckpoint9Migration").mockImplementation(() => {
+        throw new MigrationSafetyError("permission-denied", "The Store backup path denied access.");
+      });
+
+      const output = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(JSON.parse(output)).toMatchObject({
+        status: "blocked",
+        store: { sourceSchemaVersion: 3, mutationState: "none" },
+        project: { mutationState: "none" },
+        failedCondition: "The Store backup path denied access.",
+        nextAction: "Restore Store and backup-path access, then run `make-docs setup` again.",
+      });
+      const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
+      db.close();
+      expect(loadManifest(targetDir)).toBeNull();
+      expect(existsSync(path.join(storeRoot, "config.json"))).toBe(false);
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("reports machine mutation state from the apply result instead of the reviewed plan", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-machine-result-state-");
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const prepareActual = setupSystem.prepareSystemSetupCommand;
+      vi.spyOn(setupSystem, "prepareSystemSetupCommand").mockImplementation(async (options) => {
+        const prepared = await prepareActual(options);
+        return {
+          ...prepared,
+          changed: true,
+          plans: [{
+            harness: "codex",
+            method: "none",
+            status: "drifted",
+            operations: ["injected reviewed machine operation"],
+            operationEffects: [],
+            allowedStoreOperations: "active-operation-registry",
+            ownedEntries: [],
+            machineFiles: [],
+            changed: true,
+            detail: "Injected reviewed machine change.",
+            apply: async () => undefined,
+            verify: async () => true,
+          }],
+        };
+      });
+      vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        schemaVersion: 2,
+        status: "unchanged",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: [],
+        skipped: ["codex", "claude-code"],
+        blocked: [],
+        attemptedWork: [],
+        mutationState: "none",
+        failedCondition: null,
+        nextAction: null,
+        recoveryAction: null,
+      });
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result.machine.states[0]).toMatchObject({ mutationState: "none" });
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not report an unchanged machine plan as applied", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-machine-unchanged-result-state-");
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const prepareActual = setupSystem.prepareSystemSetupCommand;
+      vi.spyOn(setupSystem, "prepareSystemSetupCommand").mockImplementation(async (options) => {
+        const prepared = await prepareActual(options);
+        return {
+          ...prepared,
+          plans: [{
+            harness: "codex",
+            method: "none",
+            status: "current",
+            operations: [],
+            operationEffects: [],
+            allowedStoreOperations: "active-operation-registry",
+            ownedEntries: [],
+            machineFiles: [],
+            changed: false,
+            detail: "No machine change is needed.",
+            apply: async () => undefined,
+            verify: async () => true,
+          }],
+        };
+      });
+      vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        schemaVersion: 2,
+        status: "configured",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: ["codex"],
+        skipped: ["claude-code"],
+        blocked: [],
+        attemptedWork: ["verified codex"],
+        mutationState: "verified",
+        failedCondition: null,
+        nextAction: null,
+        recoveryAction: null,
+      });
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result.machine.states).toContainEqual(
+        expect.objectContaining({
+          harness: "codex",
+          mutationState: "none",
+        }),
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not apply a Store-only machine prerequisite without This computer approval", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-store-approval-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    const global = loadGlobalConfig(storeRoot).config;
+    global.settings.harnesses.codex = {
+      selected: false,
+      maximumMethod: null,
+      accessCeiling: { store: "none", project: "none", hostConfig: "none" },
+    };
+    global.settings.harnesses["claude-code"] = {
+      selected: false,
+      maximumMethod: null,
+      accessCeiling: { store: "none", project: "none", hostConfig: "none" },
+    };
+    writeGlobalConfig(storeRoot, global);
+    seedSchemaThreeStore(storeRoot);
+    runSelectionWizardMock.mockResolvedValue(defaultSelections());
+    confirmMock.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    try {
+      const { runCli } = await import("../src/cli");
+
+      await runCli(["setup", ...NONE_METHODS, "--target", targetDir]);
+
+      expect(confirmMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+      );
+      const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
+      db.close();
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("closes the schema-3, Codex-drift, and new-Claude full-setup loop", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-p7-loop-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    const executablePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../dist/index.js",
+    );
+    const executable = verifyMakeDocsExecutable({ executablePath });
+    const priorArgv1 = process.argv[1];
+    try {
+      mkdirSync(path.join(isolatedSetupHome, ".codex"), { recursive: true });
+      writeFileSync(
+        path.join(isolatedSetupHome, ".codex/config.toml"),
+        'model = "user-model"\n',
+        "utf8",
+      );
+      writeFileSync(
+        path.join(isolatedSetupHome, ".claude.json"),
+        `${JSON.stringify({ theme: "user-theme" }, null, 2)}\n`,
+        "utf8",
+      );
+      const initialPlan = CODEX_HARNESS_ADAPTER.plan({
+        method: "mcp",
+        scope: "machine",
+        root: isolatedSetupHome,
+        executable,
+      });
+      const initial = CODEX_HARNESS_ADAPTER.apply({
+        plan: initialPlan,
+        approved: true,
+        operationId: "p7.codex.prior",
+        appliedVersion: executable.packageVersion,
+        verifiedAt: "2026-09-22T12:00:00.000Z",
+      });
+      const codexPath = path.join(isolatedSetupHome, initial.receipt.entries[0]!.path);
+      const desiredEntry = initial.receipt.entries[0]!.value as string;
+      const priorEntry = desiredEntry.replace(
+        "# make-docs:end harness-access codex mcp",
+        "# Prior Make Docs package\n# make-docs:end harness-access codex mcp",
+      );
+      const priorContent = readFileSync(codexPath, "utf8").replace(desiredEntry, priorEntry);
+      writeFileSync(codexPath, priorContent, "utf8");
+      const priorReceipt = {
+        ...initial.receipt,
+        entries: [{
+          ...initial.receipt.entries[0]!,
+          value: priorEntry,
+          entryFingerprint: fingerprintEntry(priorEntry),
+          fileFingerprint: sha256(priorContent),
+        }],
+      };
+
+      seedSchemaThreeStore(storeRoot);
+      const legacy = new DatabaseSync(path.join(storeRoot, "store.db"));
+      const insertReceipt = legacy.prepare(
+        "INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'completed',?,?,?,?,?)",
+      );
+      insertReceipt.run(
+        `harness-receipt:${priorReceipt.operationId}`,
+        "setup.system.receipt",
+        process.pid,
+        "p7-fixture",
+        JSON.stringify(priorReceipt),
+        priorReceipt.verifiedAt,
+        priorReceipt.verifiedAt,
+      );
+      insertReceipt.run(
+        "harness-receipt-current:machine:codex:mcp",
+        "setup.system.receipt-current",
+        process.pid,
+        "p7-fixture",
+        JSON.stringify(priorReceipt),
+        priorReceipt.verifiedAt,
+        priorReceipt.verifiedAt,
+      );
+      legacy.close();
+      process.argv[1] = executablePath;
+
+      const previewOutput = await captureCliOutput([
+        "setup",
+        "--dry-run",
+        "--json",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+      expect(JSON.parse(previewOutput)).toMatchObject({
+        status: "planned",
+        dryRun: true,
+        store: {
+          sourceSchemaVersion: 3,
+          targetSchemaVersion: CURRENT_STORE_SCHEMA_VERSION,
+          mutationState: "planned",
+        },
+        machine: {
+          states: expect.arrayContaining([
+            expect.objectContaining({ harness: "codex", state: "drifted" }),
+            expect.objectContaining({ harness: "claude-code", state: "incomplete" }),
+          ]),
+        },
+      });
+      const previewDb = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(previewDb.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
+      previewDb.close();
+      expect(existsSync(path.join(targetDir, ".make-docs/manifest.json"))).toBe(false);
+
+      const directJsonOutput = await captureCliOutput([
+        "setup",
+        "system",
+        "--yes",
+        "--json",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+      const directJson = JSON.parse(directJsonOutput);
+      expect(directJson).toMatchObject({
+        status: "recovery",
+        failedCondition: expect.stringContaining("supported legacy schema 3"),
+        nextAction: expect.stringContaining("`make-docs setup`"),
+      });
+      expect(directJson.nextAction).not.toContain("setup system");
+      expect(existsSync(path.join(storeRoot, "config.json"))).toBe(false);
+
+      setTTY(true);
+      const directHuman = await captureCliOutput([
+        "setup",
+        "system",
+        "--yes",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+      expect(directHuman).toContain("Machine setup: recovery.");
+      expect(directHuman).toContain("Run `make-docs setup`");
+      expect(directHuman).not.toContain("Run `make-docs setup system`");
+      setTTY(false);
+
+      const firstOutput = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+      const first = JSON.parse(firstOutput);
+      expect(first).toMatchObject({
+        status: "complete",
+        store: { sourceSchemaVersion: 3, targetSchemaVersion: CURRENT_STORE_SCHEMA_VERSION },
+        machine: { configured: ["codex", "claude-code"] },
+      });
+      expect(readFileSync(codexPath, "utf8")).toContain('model = "user-model"');
+      expect(readFileSync(codexPath, "utf8")).toContain(desiredEntry);
+      expect(readFileSync(codexPath, "utf8")).not.toContain("Prior Make Docs package");
+      expect(JSON.parse(readFileSync(path.join(isolatedSetupHome, ".claude.json"), "utf8")))
+        .toMatchObject({ theme: "user-theme", mcpServers: { "make-docs": expect.any(Object) } });
+      expect(readPendingHarnessSystemOperation(targetDir, storeRoot)).toBeNull();
+      expect(loadGlobalConfig(storeRoot).config.settings.harnesses).toMatchObject({
+        codex: { selected: true, maximumMethod: "mcp" },
+        "claude-code": { selected: true, maximumMethod: "mcp" },
+      });
+
+      const repeatOutput = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+      const repeat = JSON.parse(repeatOutput);
+      expect(repeat).toMatchObject({
+        status: "complete",
+        store: { mutationState: "none" },
+        machine: {
+          configured: ["codex", "claude-code"],
+          states: expect.arrayContaining([
+            expect.objectContaining({ harness: "codex", state: "current", mutationState: "none" }),
+            expect.objectContaining({ harness: "claude-code", state: "current", mutationState: "none" }),
+          ]),
+        },
+        project: { changed: false, mutationState: "none" },
+      });
+    } finally {
+      process.argv[1] = priorArgv1;
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("keeps system success and gives project recovery after one project failure", async () => {
+    setTTY(true);
     const targetDir = createTempDir("make-docs-project-failure-");
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     try {
@@ -1991,6 +3124,51 @@ personas:
       expect(applyProject).toHaveBeenCalledTimes(1);
       expect(writeSpy.mock.calls.map(([chunk]) => String(chunk)).join(""))
         .toContain("This computer remains configured. Project scope failed. Run `make-docs setup` to review and resume the project change.");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("emits one canonical JSON result when project apply fails before mutation", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-project-json-failure-");
+    try {
+      vi.resetModules();
+      const setupSystem = await import("../src/setup-system");
+      vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        schemaVersion: 2,
+        status: "unchanged",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: [],
+        skipped: ["codex", "claude-code"],
+        blocked: [],
+        attemptedWork: [],
+        mutationState: "none",
+        failedCondition: null,
+        nextAction: null,
+        recoveryAction: null,
+      });
+      const install = await import("../src/install");
+      vi.spyOn(install, "applyInstallPlan").mockImplementation(() => {
+        throw new Error("injected JSON project apply failure");
+      });
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        project: { changed: false, mutationState: "none" },
+        failedCondition: "injected JSON project apply failure",
+      });
+      expect(result.nextAction).toContain("review and recover the project change");
     } finally {
       cleanupTempDir(targetDir);
     }

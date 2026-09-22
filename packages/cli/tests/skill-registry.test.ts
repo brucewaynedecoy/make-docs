@@ -55,6 +55,7 @@ describe("skill registry", () => {
     expect(registry.sourcePolicy.kind).toBe("first-party");
     expect(registry.purposes.map((purpose) => purpose.id)).toEqual([
       "archive-management",
+      "backlog-review",
       "codebase-decomposition",
       "documentation-maintenance",
       "lifecycle-closeout",
@@ -65,6 +66,7 @@ describe("skill registry", () => {
     ]);
     expect(registry.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",
+      "backlog-review",
       "cleanup-docs",
       "decompose-codebase",
       "naive-uat",
@@ -74,6 +76,7 @@ describe("skill registry", () => {
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
+      "backlog-review",
       "cleanup-docs",
       "decompose-codebase",
       "factory",

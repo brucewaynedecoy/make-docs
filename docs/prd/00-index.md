@@ -24,21 +24,22 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 4. Read [49 Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) when work creates or materially changes a result that people use, read, operate, maintain, review, recover, or rely on.
 5. Read [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) whenever work selects, expands, explains, gates, reuses, or asks a person to perform testing. It routes detailed Performance Testing to [PRD 48](48-performance-evidence-governance.md) and conditional Unassisted Goal Testing to [PRD 46](46-naive-end-user-acceptance-testing.md).
 6. Read [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) and [47 Persona Model](47-persona-model.md) when testing creates accepted future work or needs intended-audience and evidence-path resolution. Persona selection does not prove tester qualification.
-7. Use plans and work backlogs only after the owning current PRDs establish the product contract.
+7. Read [51 Backlog Review and Reporting](51-backlog-review-and-reporting.md) when work collects, interprets, presents, or recommends an order for project backlog records.
+8. Use plans and work backlogs only after the owning current PRDs establish the product contract.
 
 ## Document Map
 
 | Slot | Document | Kind | Status | Related authorities | Current focus |
 | --- | --- | --- | --- | --- | --- |
 | `00` | [Make Docs PRD Index](00-index.md) | core | Current | All active PRDs | Navigation and ownership for the active authority set. |
-| `01` | [Product Overview](01-product-overview.md) | core | Current | 02, 05-10, 14, 17, 21, 25, 30, 34-39, 45-50 | Product purpose, users, retained resource, Skill, testing, and Human Experience capabilities, reduced boundaries, and limitations. |
+| `01` | [Product Overview](01-product-overview.md) | core | Current | 02, 05-10, 14, 17, 21, 25, 30, 34-39, 45-51 | Product purpose, users, retained resource, Skill, testing, Human Experience, and backlog-review capabilities, reduced boundaries, and limitations. |
 | `02` | [Architecture Overview](02-architecture-overview.md) | core | Current | 05-10, 16-19, 21-25, 28, 30, 34-39, 45-47 | Runtime zones, resource providers and typed operations, always-local router bootstrap, optional resource bodies, Global Store, configuration, and authority boundaries. |
 | `03` | [Open Questions and Risk Register](03-open-questions-and-risk-register.md) | core | Current | All active PRDs | Confirmed drift, open questions, deferred obligations, and rebuild risks. |
 | `04` | [Glossary](04-glossary.md) | reference | Current | All active PRDs | Canonical product and lifecycle terminology. |
 | `05` | [Installation, Profile, and Manifest Lifecycle](05-installation-profile-and-manifest-lifecycle.md) | subsystem | Current | 06-09, 15, 17, 18, 21, 24, 38 | Selection identity, resource projection, reviewed file changes, Store-owned installation records, conflict handling, and lifecycle safety. |
 | `06` | [Template Contracts and Generated Assets](06-template-contracts-and-generated-assets.md) | subsystem | Current | 05, 09, 10, 17, 21-25, 48-50 | Upstream template authority, peer contracts/prompts/references/templates, unconditional bootstrap and on-demand asset routers, optional resource bodies, Human Experience and testing resources, selected assets, and generated files. |
 | `07` | [CLI Command Surface and Lifecycle](07-cli-command-surface-and-lifecycle.md) | subsystem | Current | 05, 17, 21, 25, 39 | Public resource, project-surface, setup, reconfiguration, update, uninstall, and lifecycle command UX. |
-| `08` | [Skills Catalog and Distribution](08-skills-catalog-and-distribution.md) | subsystem | Current | 05, 18, 25, 28, 30, 46 | Purpose-led explicit Skill selection, registries, manifests, trust, distribution, and the thin CLI-delegating Naive-UAT Skill. |
+| `08` | [Skills Catalog and Distribution](08-skills-catalog-and-distribution.md) | subsystem | Current | 05, 18, 25, 28, 30, 46, 51 | Purpose-led explicit Skill selection, registries, manifests, trust, distribution, and thin CLI-delegating first-party Skills. |
 | `09` | [Dogfood and Maintainer Operations](09-dogfood-and-maintainer-operations.md) | subsystem | Current | 06, 10, 16, 17, 21, 25 | Upstream-first resource authoring, package projection, downstream dogfood, and maintainer validation. |
 | `10` | [Packaging, Validation, and Release Reference](10-packaging-validation-and-release-reference.md) | reference | Current | 06, 09, 16-18, 25, 28, 30, 36, 48, 50 | Package/provider parity, allowlist and prepack flow, smoke validation, direct installed-harness evidence, and release gates. |
 | `14` | [Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) | capability | Current | 23, 25, 38, 45-50 | Lifecycle arc, coverage-pass decisions, four-type testing selection, Human Experience review lens, explicit gate effects, follow-on routing, and optional adversarial review. |
@@ -50,20 +51,21 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 | `22` | [Project Documentation Asset Model](22-project-documentation-asset-model.md) | subsystem | Current | 06, 14, 21, 23, 24, 46, 47 | Archives, shared project material, on-demand Persona assets and testing evidence, reviewed legacy destinations, and template/package/dogfood proof. |
 | `23` | [Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md) | capability | Current | 14, 17, 21, 22, 24, 46, 47, 49, 50 | Current document/resource metadata, source relationships, lifecycle fields, Human Experience and testing body authority, and follow-on handoffs without Playbook or Protocol kinds. |
 | `24` | [Project Configuration and Convention Overlay](24-project-configuration-and-convention-overlay.md) | capability | Current | 17, 21-23, 25, 28, 30, 38, 46, 47 | Declarative project identity and settings, resource and router selection, presentation, and Persona configuration without installation progress or ownership records. |
-| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 17, 21, 24, 28, 30, 38, 39, 46 | Shared typed resource, project-surface, general-run, and UAT operations; CLI/MCP parity; and the no-scripts boundary. |
+| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 17, 21, 24, 28, 30, 38, 39, 46, 51 | Shared typed operations, CLI/MCP parity, deterministic and agentic twin boundaries, and the no-scripts boundary. |
 | `28` | [Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) | subsystem | Current | 08, 10, 16-18, 25, 30, 36, 39, 50 | Explicitly selected Skills, source-owned static harness adapters, native exposure, ownership, access boundaries, and direct installed-product proof. |
 | `30` | [Agentic Extensibility Boundary](30-plugin-substrate-and-workflow-bundles.md) | subsystem | Current | 08, 10, 16, 25, 28, 36, 39, 50 | No general plugin or workflow-bundle product; only explicitly selected, traced optional integrations over the typed core. |
 | `34` | [Procedural Asset Boundary and Legacy Compatibility](34-playbook-authoring-contract-and-model.md) | subsystem | Current | 18, 22-24, 30, 35, 36 | No Playbook or Protocol authoring capability; current reusable procedure authority lives in peer system resources, with legacy inputs classified conservatively. |
 | `35` | [Workflow Execution and Legacy Run Boundary](35-run-playbook-state-machine-and-portability.md) | subsystem | Current | 18, 25, 30, 34, 36, 38, 39 | No Playbook execution state machine; typed general lifecycle runs remain current while legacy Playbook state stays opaque. |
 | `36` | [Agentic Packaging and Adapter Boundary](36-playbook-packaging-compiler-and-harness-adapters.md) | subsystem | Current | 10, 16, 25, 28, 30, 34, 35, 39, 50 | No Playbook packaging compiler; optional Skill/package/adapter behavior requires a traced non-Playbook purpose and direct installed-product evidence. |
 | `38` | [Global Store and Project State](38-global-store-and-project-state.md) | subsystem | Current | 05, 18, 21, 24, 25, 35, 39, 45, 46, 48 | Store-only installation and migration authority, project and checkout identity, locks, verified transfer and recovery, general runs and evidence, opaque legacy records, and scoped cleanup. |
-| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 17, 25, 35, 36, 38, 46 | Command grammar, separate tool-removal and Store-cleanup choices, and typed resource, project state status/recovery, general-run, and Naive-UAT operations with shared human/agent results. |
+| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 17, 25, 35, 36, 38, 46, 51 | Command grammar, registry admission, derived MCP tools, and shared human, JSON, and agent results. |
 | `45` | [Deferred Obligation Governance](45-deferred-obligation-governance.md) | capability | Current | 03, 14, 38, 46-48, 50 | Durable obligation identity, finding routing, triggers, testing deferral boundaries, phase-close consumption, and anti-orphan governance. |
 | `46` | [Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) | capability | Current | 14, 22, 38, 45, 47-50 | Conditional qualified-human attempts, public goals, anti-coaching, Human Experience inputs, stable `NUAT-###` scenarios, diagnostic findings, explicit gate effects, and valid `not-needed-now`. |
 | `47` | [Persona Model](47-persona-model.md) | capability | Current | 22-24, 46, 49, 50 | Two fixed audience defaults, merged custom Personas, CLI-free discovery, affected-human linkage, guided-review roles, unassisted audience resolution, evidence-path routing, and the independent tester boundary. |
 | `48` | [Performance Evidence Governance](48-performance-evidence-governance.md) | capability | Current | 06, 10, 14, 18, 21, 28, 38, 45, 46, 50 | Performance applicability, maturity, target authority, versioned `PERF-###` profiles, comparable bounded evidence, finite budgets, gate effects, expiry, and proof-mode boundaries. |
 | `49` | [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) | capability | Current | 01, 06, 14, 15, 23, 46, 47, 50 | Canonical Human Experience Standard, impact classification, conditional design intent, lifecycle propagation, human and machine surface boundary, evidence-review lens, and prospective adoption. |
 | `50` | [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) | capability | Current | 01, 06, 10, 14-16, 23, 28, 39, 45-49 | Four-type testing taxonomy, current-decision selection, automated-test levels, direct installed-harness proof, human testing experience, effort and stop rules, evidence reuse, and explicit gate effects. |
+| `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots, deterministic and agentic review twins, optional rebuildable per-record review reuse, concise chat reports, and self-contained interactive HTML reports with raw-data access. |
 
 ## Source Anchors
 
@@ -73,6 +75,9 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 - [Human Experience Standard and Intent design](../designs/2026-08-28-human-experience-standard-and-intent.md)
 - [W20 R0 Human Experience Standard and Intent plan](../plans/2026-08-28-w20-r0-human-experience-standard-and-intent/00-overview.md)
 - [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md)
+- [Backlog Review and Reporting design](../designs/2026-09-18-backlog-review-and-reporting.md)
+- [W23 R0 Backlog Review and Reporting plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md)
+- [Backlog Review and Reporting](51-backlog-review-and-reporting.md)
 - [Product overview](01-product-overview.md)
 - [Architecture overview](02-architecture-overview.md)
 - [Open questions and risk register](03-open-questions-and-risk-register.md)
@@ -103,13 +108,17 @@ Read 01, 02, 04, 05, 06, 07, and 09 first. Then open the capability PRD named by
 
 Read 01-04, then use the document map to identify the owning capability. Review 14 and 45-47 whenever phase completion, deferred work, Persona selection, or user-observable acceptance is in scope.
 
+### Backlog Reviewer
+
+Read [51 Backlog Review and Reporting](51-backlog-review-and-reporting.md), then use [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md), [23 Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md), and the source project work records to interpret the result.
+
 ### AI Coding Assistant
 
 Resolve product authority from this active map, not from a historical action-named path. Read every related authority named by the work coordinates, preserve requirement identifiers and stable semantic anchors, and run the PRD authority validator before downstream work consumes PRD changes.
 
 ## Intended Follow-On
 
-W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions.
+W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions. W23 R0 is a draft product package. Its implementation must wait for the applicable W22 R0 Store, CLI, registry, and MCP decisions plus separate owner implementation authority.
 
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.

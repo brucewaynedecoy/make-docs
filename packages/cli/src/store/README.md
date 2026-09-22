@@ -108,11 +108,12 @@ R-LIFE-1's "tool `uninstall`, which removes the CLI itself" names a machine-leve
 
 An ordered, append-only list `STORE_MIGRATIONS`, each entry `{ version, description, statements }` (R-DB-2).
 
-- A fresh database replays the full list. An existing schema-5 database opens without conversion. Ordinary Store access rejects supported old schemas instead of changing them.
-- Setup and update first call `previewStoreCompatibilityBridge`. The preview is read-only. It classifies supported schemas 1 through 4, exact changes, blockers, retained history, and one next action.
+- A fresh database replays the full list. An existing schema-6 database opens without conversion. Ordinary Store access rejects supported old schemas instead of changing them.
+- Setup and update first call `previewStoreCompatibilityBridge`. The preview is read-only. It classifies supported schemas 1 through 5, exact changes, blockers, retained history, and one next action.
 - A reviewed conversion creates and verifies one private SQLite backup before the first schema write. It then records one pending operation in the shared `tool_operations` journal. The schema changes and the final operation state use one `BEGIN IMMEDIATE` transaction. An interruption rolls the database back to its before state.
 - Schema 5 archives old checkout device and inode strings as migration evidence, removes both active columns, copies checkpoint receipts to `store_migration_receipts`, and removes legacy projection mirrors from active installation ledger JSON. Old checkpoint and transfer rows stay as private history because their deletion needs separate approval.
-- Repeating setup on schema 5 does not create a second conversion or a second recovery engine. Malformed, corrupt, unclear, or newer state stays unchanged and gets a safe stop result.
+- Schema 6 adds the optional `backlog_review_cache` table. Its exact per-record rows are bounded, private, and rebuildable. It adds no project-local state.
+- Repeating setup on schema 6 does not create a second conversion or a second recovery engine. Malformed, corrupt, unclear, or newer state stays unchanged and gets a safe stop result.
 - A database whose `user_version` is **newer** than `CURRENT_STORE_SCHEMA_VERSION` is never read or written: `openStoreDatabase` throws `StoreSchemaNewerError` with an explicit diagnostic naming both versions and telling the user to update the CLI. Downgrade-safe by construction.
 
 ### Locking discipline (WAL concurrency)

@@ -139,6 +139,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
       ).all() as Array<{ name: string }>;
       expect(tables.map((row) => row.name)).toEqual([
+        "backlog_review_cache",
         "installation_checkouts",
         "installation_ledgers",
         "installation_locks",
@@ -193,7 +194,9 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       ).get("legacy-1");
 
       expect(applyStoreMigrations(db, 1)).toBe(CURRENT_STORE_SCHEMA_VERSION);
-      const checkpoint9Objects = new Set([
+      const migrationObjects = new Set([
+        "backlog_review_cache",
+        "idx_backlog_review_cache_checkout_updated",
         "runs",
         "idx_runs_project_status",
         "run_evidence",
@@ -205,7 +208,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       ]);
       const preservedSchema = (db.prepare(
         "SELECT type, name, tbl_name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-      ).all() as Array<{ name: string }>).filter((entry) => !checkpoint9Objects.has(entry.name) && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
+      ).all() as Array<{ name: string }>).filter((entry) => !migrationObjects.has(entry.name) && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
       expect(preservedSchema).toEqual(schemaBefore);
       expect(db.prepare(
         "SELECT hex(record) AS record_hex FROM playbook_runs WHERE run_id = ?",

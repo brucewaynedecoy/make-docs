@@ -12,6 +12,7 @@ import type {
 
 const ALL_SKILL_NAMES = [
   "archive-docs",
+  "backlog-review",
   "cleanup-docs",
   "decompose-codebase",
   "preflight",
@@ -84,6 +85,7 @@ describe("skill catalog", () => {
 
     expect(choices.map((choice) => choice.name)).toEqual([
       "archive-docs",
+      "backlog-review",
       "decompose-codebase",
       "cleanup-docs",
       "human-experience",

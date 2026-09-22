@@ -85,6 +85,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SURF-1 (MUST): registry operations project to the canonical CLI `resource`, `project`, or `run` command and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
 - R-SURF-2 (MUST): the W19 R1 P3 inventory plus `performance.evidence.validate` contains 25 stable nonlegacy identifiers. All 25 are active. Later owner-admitted project-state, path-hygiene, Persona, and layout operations extend the overall registry without changing or reassigning this cohort.
 - R-SURF-3 (MUST): delivery history remains explicit. W19 R1 P4 activated `project.surface.ensure`; W19 R1 P6 activated the lifecycle identifiers; W19 R1 P7 activated the UAT identifiers; and W19 R2 P4 activated `performance.evidence.validate` after the decision-only authority commit and separate implementation authority. No identifier in this cohort remains pending.
+- R-SURF-4 (MUST): W23 R0 P5 must activate `work.backlog-cache.lookup` and `work.backlog-cache.write` as separate operations. Lookup declares Store-read and project-read access. Write declares Store-write and project-read access. Both declare host-configuration-none access, use the shared operation core, and derive their CLI and MCP surfaces from the registry. They are not active before their P5 handlers and required validation land.
 
 - Existing Playbook and Protocol registry entries, implementations, CLI surfaces, and MCP surfaces form a frozen compatibility baseline outside the 25 admitted nonlegacy identifiers. P3 preserves that baseline unchanged and adds no legacy behavior or support claim. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 
@@ -292,6 +293,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-21 — W23 R0 P5 Cache Operation Admission
+
+- Affected requirement or section: The Operation Registry and Shared Core; Registry Cohesion and Operation Admission.
+- Previous contract: The registry contained the Store-free `work.backlog.snapshot` operation but no public operation for optional backlog-review cache lookup or writing.
+- Replacement contract: P5 must activate separate `work.backlog-cache.lookup` and `work.backlog-cache.write` operations with read-only and write access classes. One shared internal cache service owns their deterministic logic. The preflight decision alone does not make either operation active.
+- Rationale: The split permits least-access cache reuse and keeps Store classification, CLI, MCP, and typed fallback behavior inside the existing operation system.
+- Source: Owner-accepted W23 R0 P5 preflight decision in [PRD 51](51-backlog-review-and-reporting.md) and the [P5 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md).
 
 ### 2026-09-18 — W22 R0
 

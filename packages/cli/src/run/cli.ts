@@ -302,6 +302,39 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       ...optionalPathValue(options, "store-root", "storeRoot"),
     },
   }),
+  "work.backlog.snapshot": (options) => ({
+    input: {
+      targetRoot: path.resolve(
+        requiredValue(options, "target-root", operationPath("work.backlog.snapshot")),
+      ),
+    },
+  }),
+  "work.backlog-cache.lookup": (options) => ({
+    input: {
+      targetRoot: path.resolve(
+        requiredValue(options, "target-root", operationPath("work.backlog-cache.lookup")),
+      ),
+      snapshot: parseJsonPayload(
+        requiredValue(options, "snapshot-json", operationPath("work.backlog-cache.lookup")),
+        "snapshot-json",
+      ),
+    },
+  }),
+  "work.backlog-cache.write": (options) => ({
+    input: {
+      targetRoot: path.resolve(
+        requiredValue(options, "target-root", operationPath("work.backlog-cache.write")),
+      ),
+      snapshot: parseJsonPayload(
+        requiredValue(options, "snapshot-json", operationPath("work.backlog-cache.write")),
+        "snapshot-json",
+      ),
+      records: parseJsonPayload(
+        requiredValue(options, "records-json", operationPath("work.backlog-cache.write")),
+        "records-json",
+      ),
+    },
+  }),
 };
 
 function parseUatPayload(raw: string): Record<string, unknown> {

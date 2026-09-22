@@ -715,6 +715,17 @@ export function getInstallationCheckoutId(projectRoot: string, storeRoot?: strin
     const root = canonicalInstallationPath(projectRoot);
     return withInstallationDatabase(root, db => transaction(db, () => bindCheckout(db, root).checkout_id), { storeRoot });
 }
+/** Read an existing checkout binding without creating or changing Store state. */
+export function getExistingInstallationCheckoutId(projectRoot: string, storeRoot?: string): string | null {
+    const root = canonicalInstallationPath(projectRoot);
+    return withInstallationDatabase(root, db => {
+        const row = checkout(db, root);
+        if (!row)
+            return null;
+        assertCheckoutIdentity(row, root);
+        return row.checkout_id;
+    }, { storeRoot, readOnly: true });
+}
 export function acquireInstallationLock(projectRoot: string, storeRoot?: string): InstallationLock {
     const root = canonicalInstallationPath(projectRoot);
     const existing = held.get(root);
@@ -781,12 +792,29 @@ export function releaseInstallationLock(lock: InstallationLock): void {
         current.depth--;
         return;
     }
-    assertInstallationLockActive(lock);
-    withInstallationDatabase(lock.projectRoot, db => { db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(lock.projectRoot, lock.token); }, { storeRoot: lock.storeRoot });
-    held.delete(lock.projectRoot);
-    if (current?.globalLock)
-        releaseGlobalAssetLock(current.globalLock);
-    current?.releaseAccess();
+    const owned = current?.token === lock.token ? current : undefined;
+    try {
+        withInstallationDatabase(lock.projectRoot, db => {
+            const row = db.prepare('SELECT token FROM installation_locks WHERE root_path=?').get(lock.projectRoot) as {
+                token: string;
+            } | undefined;
+            if (row?.token !== lock.token)
+                fail('writer-active', 'Checkout lock ownership changed.');
+            db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(lock.projectRoot, lock.token);
+        }, { storeRoot: lock.storeRoot });
+    }
+    finally {
+        if (owned) {
+            held.delete(lock.projectRoot);
+            try {
+                if (owned.globalLock)
+                    releaseGlobalAssetLock(owned.globalLock);
+            }
+            finally {
+                owned.releaseAccess();
+            }
+        }
+    }
 }
 export function readInstallationManifest(projectRoot: string, storeRoot?: string): InstallManifest | null {
     const root = canonicalInstallationPath(projectRoot);
@@ -1440,6 +1468,93 @@ export function listMigrationState<T = unknown>(projectRoot: string, kind: Migra
 }[]).map(r => JSON.parse(r.record_json)); }, { storeRoot, readOnly: true }); }
 export function deleteMigrationState(projectRoot: string, kind: MigrationRecordKind, id: string, storeRoot?: string): void { withInstallationDatabase(projectRoot, db => { const row = checkout(db, canonicalInstallationPath(projectRoot)); if (row)
     db.prepare('DELETE FROM installation_migration_records WHERE checkout_id=? AND kind=? AND record_id=?').run(row.checkout_id, kind, id); }, { storeRoot }); }
+
+function isSetupBridgeIdentityRecord(row: {
+    kind: string;
+    record_id: string;
+    record_json: string;
+}): boolean {
+    let value: Record<string, unknown>;
+    try {
+        const parsed = JSON.parse(row.record_json) as unknown;
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+            return false;
+        value = parsed as Record<string, unknown>;
+    }
+    catch {
+        return false;
+    }
+    if (row.kind === 'quiescence' && row.record_id === 'legacy') {
+        return value.schemaVersion === 1 && value.status === 'active' &&
+            typeof value.snapshotId === 'string' && /^sha256:[a-f0-9]{64}$/.test(value.snapshotId) &&
+            typeof value.lockTokenDigest === 'string' && /^[a-f0-9]{64}$/.test(value.lockTokenDigest) &&
+            Array.isArray(value.legacyOperations);
+    }
+    if (row.kind === 'receipt') {
+        return value.schemaVersion === 1 && value.status === 'completed' && value.checkpoint === 9 &&
+            value.receiptId === row.record_id && typeof value.receiptId === 'string' &&
+            /^sha256:[a-f0-9]{64}$/.test(value.receiptId) &&
+            typeof value.snapshotId === 'string' && /^sha256:[a-f0-9]{64}$/.test(value.snapshotId);
+    }
+    return false;
+}
+
+/**
+ * A schema-1/2 Store can retain the project id in `projects` while the setup
+ * bridge creates its first installation checkout under a temporary id.
+ * Adopt the old id only while that checkout still contains bridge-only state.
+ */
+function adoptLegacyProjectIdentity(db: StoreDatabase, root: string, projectId: string): void {
+    const current = checkout(db, root);
+    if (!current || current.project_id === projectId)
+        return;
+    const declarativeId = readDeclarativeProjectId(root);
+    if (declarativeId && declarativeId !== projectId)
+        fail('ownership-unverified', 'The legacy project identity conflicts with the checkout config.');
+    const legacy = db.prepare('SELECT project_id,root_path FROM projects WHERE project_id=?').all(projectId) as Array<{
+        project_id: string;
+        root_path: string;
+    }>;
+    if (legacy.length !== 1 || !platform.samePath(legacy[0].root_path, root))
+        fail('ownership-unverified', 'The legacy project identity has no matching project registry path.');
+    const legacyPathOwners = (db.prepare('SELECT project_id,root_path FROM projects').all() as Array<{
+        project_id: string;
+        root_path: string;
+    }>).filter(row => platform.samePath(row.root_path, root));
+    if (legacyPathOwners.length !== 1 || legacyPathOwners[0].project_id !== projectId)
+        fail('ownership-unverified', 'More than one legacy project identity claims this checkout path.');
+    const competing = (db.prepare('SELECT checkout_id FROM installation_checkouts WHERE project_id=?').all(projectId) as Array<{
+        checkout_id: string;
+    }>).filter(row => row.checkout_id !== current.checkout_id);
+    if (competing.length)
+        fail('ownership-unverified', 'Another checkout already owns the legacy project identity.');
+    if (db.prepare('SELECT 1 FROM installation_ledgers WHERE checkout_id=?').get(current.checkout_id))
+        fail('ownership-unverified', 'The temporary checkout already has an installation ledger.');
+    if (db.prepare('SELECT 1 FROM installation_operations WHERE checkout_id=?').get(current.checkout_id))
+        fail('recovery-required', 'The temporary checkout has project work that requires recovery.');
+    if (db.prepare('SELECT 1 FROM installation_transfers WHERE checkout_id=?').get(current.checkout_id))
+        fail('ownership-unverified', 'The temporary checkout has legacy transfer history.');
+    if (current.verified_at !== null || current.verification_json !== null)
+        fail('ownership-unverified', 'The checkout identity already has verification evidence.');
+    const records = db.prepare('SELECT kind,record_id,record_json FROM installation_migration_records WHERE checkout_id=?').all(current.checkout_id) as Array<{
+        kind: string;
+        record_id: string;
+        record_json: string;
+    }>;
+    if (records.some(record => !isSetupBridgeIdentityRecord(record)))
+        fail('ownership-unverified', 'The temporary checkout contains non-bridge migration state.');
+    const verifiedAt = now();
+    const verificationJson = JSON.stringify(checkoutVerificationEvidence(
+        db,
+        root,
+        projectId,
+        current.checkout_id,
+        null,
+    ));
+    db.prepare('UPDATE installation_checkouts SET project_id=?,verified_at=?,verification_json=? WHERE checkout_id=?')
+        .run(projectId, verifiedAt, verificationJson, current.checkout_id);
+}
+
 /** Save useful legacy records and exact source provenance in one Store transaction. */
 export function importInstallationState(projectRoot: string, input: {
     manifest: InstallManifest | null;
@@ -1459,6 +1574,8 @@ export function importInstallationState(projectRoot: string, input: {
     const lock = acquireInstallationLock(root, storeRoot);
     try {
         withInstallationDatabase(root, db => transaction(db, () => {
+            if (input.manifest?.projectId)
+                adoptLegacyProjectIdentity(db, root, input.manifest.projectId);
             const row = bindCheckout(db, root, input.manifest?.projectId);
             const prior = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='legacy-import' AND record_id=?").get(row.checkout_id, input.importId);
             if (prior)

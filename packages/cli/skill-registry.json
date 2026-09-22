@@ -22,6 +22,17 @@
       }
     },
     {
+      "id": "backlog-review",
+      "label": "Backlog review",
+      "description": "Portfolio review, attention, status, and recommended-order reporting.",
+      "order": 15,
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs canonical purpose",
+        "manifestId": "make-docs.first-party"
+      }
+    },
+    {
       "id": "codebase-decomposition",
       "label": "Codebase decomposition",
       "description": "Repository analysis and implementation-planning inputs.",
@@ -132,6 +143,77 @@
         {
           "source": "scripts/trace_relationships.py",
           "installPath": "scripts/trace_relationships.py"
+        }
+      ]
+    },
+    {
+      "name": "backlog-review",
+      "displayName": "Backlog Review",
+      "source": "embedded:backlog-review",
+      "entryPoint": "SKILL.md",
+      "installName": "backlog-review",
+      "description": "Review the full Make Docs work portfolio and explain focus, attention, and recommended order.",
+      "purposes": [
+        "backlog-review"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/review-method.md",
+          "installPath": "references/review-method.md"
+        },
+        {
+          "source": "references/report-model.md",
+          "installPath": "references/report-model.md"
+        },
+        {
+          "source": "references/fallback.md",
+          "installPath": "references/fallback.md"
+        },
+        {
+          "source": "references/cache.md",
+          "installPath": "references/cache.md"
+        },
+        {
+          "source": "references/rule-map.md",
+          "installPath": "references/rule-map.md"
+        },
+        {
+          "source": "examples/chat-reports.md",
+          "installPath": "examples/chat-reports.md"
+        },
+        {
+          "source": "examples/human-errors.json",
+          "installPath": "examples/human-errors.json"
+        },
+        {
+          "source": "references/html-report.md",
+          "installPath": "references/html-report.md"
+        },
+        {
+          "source": "scripts/render-report.mjs",
+          "installPath": "scripts/render-report.mjs"
+        },
+        {
+          "source": "scripts/collect-project-lead-context.mjs",
+          "installPath": "scripts/collect-project-lead-context.mjs"
+        },
+        {
+          "source": "assets/backlog-review-report.html",
+          "installPath": "assets/backlog-review-report.html"
         }
       ]
     },

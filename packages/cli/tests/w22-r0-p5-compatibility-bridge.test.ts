@@ -25,7 +25,7 @@ function storeRoot(): string {
   return root;
 }
 
-function seedSchema(root: string, version: 1 | 2 | 3 | 4): DatabaseSync {
+function seedSchema(root: string, version: 1 | 2 | 3 | 4 | 5): DatabaseSync {
   mkdirSync(root, { recursive: true });
   const db = new DatabaseSync(path.join(root, "store.db"));
   db.exec("PRAGMA foreign_keys=ON");
@@ -113,6 +113,23 @@ describe("W22 R0 P5 compatibility bridge", () => {
     expect(readdirSync(root).sort()).toEqual(beforeEntries);
   });
 
+  test("previews the schema-5 cache migration without treating retained bridge history as a collision", () => {
+    const root = storeRoot();
+    const db = seedSchema(root, 5);
+    db.close();
+    const preview = previewStoreCompatibilityBridge(root);
+    expect(preview).toMatchObject({
+      readOnly: true,
+      sourceSchemaVersion: 5,
+      targetSchemaVersion: CURRENT_STORE_SCHEMA_VERSION,
+      disposition: "convert",
+      blockers: [],
+    });
+    expect(preview.records).toEqual(expect.arrayContaining([
+      expect.objectContaining({ bridgeId: "w23-r0-p5-backlog-review-cache", disposition: "convert" }),
+    ]));
+  });
+
   test("does not let an unreviewed Store writer trigger the bridge", () => {
     const root = storeRoot();
     const db = seedSchema(root, 4);
@@ -146,8 +163,10 @@ describe("W22 R0 P5 compatibility bridge", () => {
     ]));
 
     const migrated = new DatabaseSync(path.join(root, "store.db"));
-    expect(applyStoreMigrations(migrated, 4)).toBe(5);
-    expect(migrated.prepare("PRAGMA user_version").get()).toEqual({ user_version: 5 });
+    expect(applyStoreMigrations(migrated, 4)).toBe(CURRENT_STORE_SCHEMA_VERSION);
+    expect(migrated.prepare("PRAGMA user_version").get()).toEqual({
+      user_version: CURRENT_STORE_SCHEMA_VERSION,
+    });
     const columns = (migrated.prepare("PRAGMA table_info(installation_checkouts)").all() as Array<{ name: string }>).map((row) => row.name);
     expect(columns).not.toContain("root_device");
     expect(columns).not.toContain("root_inode");
@@ -173,7 +192,9 @@ describe("W22 R0 P5 compatibility bridge", () => {
     expect(after.blockers).toEqual([]);
     const repeat = new DatabaseSync(path.join(root, "store.db"));
     const backupCount = readdirSync(root).filter((name) => name.endsWith(".backup")).length;
-    expect(applyStoreMigrations(repeat, 5)).toBe(5);
+    expect(applyStoreMigrations(repeat, CURRENT_STORE_SCHEMA_VERSION)).toBe(
+      CURRENT_STORE_SCHEMA_VERSION,
+    );
     repeat.close();
     expect(readdirSync(root).filter((name) => name.endsWith(".backup"))).toHaveLength(backupCount);
   });
