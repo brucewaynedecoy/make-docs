@@ -44,6 +44,8 @@ describe("make-docs MCP runtime", () => {
       "make_docs_work_evidence_record",
       "make_docs_work_evidence_read",
       "make_docs_work_backlog_snapshot",
+      "make_docs_work_backlog_cache_lookup",
+      "make_docs_work_backlog_cache_write",
       "make_docs_resource_list",
       "make_docs_resource_read",
       "make_docs_resource_ensure",

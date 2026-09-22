@@ -19,7 +19,7 @@ source:
 
 Provide the draft implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
 
-The owner authorized P1 through P4. P1, P2, P3, and P4 are complete. The owner accepted the corrected real-report output for P4. The owner accepted the new P5 scope for W23 R0, but P5 has not started and still requires separate phase-start authority. P6 is not authorized. Do not change Store, installation, publication, or release behavior outside the accepted phase boundary.
+The owner authorized P1 through P5. P1 through P5 are complete. P6 is not authorized. Do not change Store, installation, publication, or release behavior outside the accepted phase boundary.
 
 ## Human Experience Trace
 
@@ -41,16 +41,16 @@ The owner authorized P1 through P4. P1, P2, P3, and P4 are complete. The owner a
 | P2 | Complete | [Deterministic Snapshot Operation](02-deterministic-snapshot-operation.md) | Store-free TypeScript operation with shared CLI and MCP results. |
 | P3 | Complete | [Skill and Chat Report](03-skill-and-chat-report.md) | First-party Skill, honest fallback, shared report model, and concise default chat review. |
 | P4 | Complete | [Single-File Interactive Report](04-single-file-interactive-report.md) | Accepted safe, offline, accessible, responsive HTML template with corrected deterministic wave presentation and a source-backed project lead. |
-| P5 | Not started | [Incremental Review Cache and Data Access](05-incremental-review-cache-and-data-access.md) | Exact per-record review reuse, full stateless fallback, raw-data access, and bounded repeat-review characterization. |
+| P5 | Complete | [Incremental Review Cache and Data Access](05-incremental-review-cache-and-data-access.md) | Exact per-record review reuse, full stateless fallback, raw-data access, and bounded repeat-review characterization. |
 | P6 | Not started | [Package Parity and Acceptance](06-package-parity-and-acceptance.md) | One installed package candidate passes parity, cache, data-access, offline, browser, and Human Experience review. |
 
 Evidence: [Central evidence report](evidence.md).
 
 ## Usage Notes
 
-- Review the completed P1 through P4 evidence before later implementation.
+- Review the completed P1 through P5 evidence before later implementation.
 - Read phases in order.
-- Do not start P5 until P4 closes and the owner gives separate phase-start authority.
+- P5 closed after its bounded performance work and Human Experience Review completed. The owner accepted the three-entry size limit and fallback explanation on 2026-09-22.
 - Do not start P6 without separate owner authority.
 - P2 passed its W22 preflight. The tested checkout contains W22 R0 P6 closeout commit `edd9d7e4` as an ancestor. Current PRD 38 and PRD 39 authority was reread. Project-read, Store-none, and host-configuration-none access was confirmed. Existing registry, access, CLI, and MCP tests passed before implementation.
 - Keep the core snapshot Store-free. P5 can add only the accepted optional rebuildable review cache. A cache failure must fall back to the full stateless review.
@@ -64,9 +64,9 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. P1 through P4 are complete. P5 and P6 have not started.
+This handoff is advisory-default-but-overridable. P1 through P5 are complete. P6 has not started.
 
 - Route: `implementation-loop`
-- Next step: Commit the reviewed P4 change set when authorized. Start P5 only after separate phase-start authority.
-- Why: P4 is accepted. P5 owns the optional exact-match review cache, data access, and repeat-review characterization.
-- Coordinate Handoff: Close `W23 R0 P4`. Preserve the fixed P1 contract, P2 operation boundary, P3 report meaning, and the owner's accepted P4 template. Carry the accepted cache decision into P5 and final package proof into P6.
+- Next step: Run P6 preflight only after separate owner authority.
+- Why: P5 is complete. P6 owns installed-package parity, final browser and offline checks, and capability acceptance.
+- Coordinate Handoff: Continue at `W23 R0 P6` only after separate authority. Preserve the completed P1-P5 boundaries.

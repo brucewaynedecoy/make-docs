@@ -40,7 +40,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 5;
+export const CURRENT_STORE_SCHEMA_VERSION = 6;
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -291,6 +291,46 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       )`,
     ],
   },
+  {
+    version: 6,
+    description:
+      "W23 R0 P5: optional, rebuildable per-record backlog review cache.",
+    statements: [
+      `CREATE TABLE backlog_review_cache (
+        checkout_id TEXT NOT NULL REFERENCES installation_checkouts(checkout_id) ON DELETE CASCADE,
+        record_path TEXT NOT NULL CHECK (
+          length(record_path) BETWEEN 1 AND 2048 AND
+          substr(record_path, 1, 1) <> '/' AND
+          instr(record_path, '\\') = 0
+        ),
+        record_digest TEXT NOT NULL CHECK (
+          length(record_digest) = 64 AND
+          record_digest NOT GLOB '*[^0-9a-f]*'
+        ),
+        snapshot_schema_version INTEGER NOT NULL CHECK (snapshot_schema_version >= 1),
+        rule_catalog_version INTEGER NOT NULL CHECK (rule_catalog_version >= 1),
+        skill_version INTEGER NOT NULL CHECK (skill_version >= 1),
+        fragment_json TEXT NOT NULL CHECK (length(fragment_json) BETWEEN 2 AND 65536),
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (
+          checkout_id,
+          record_path,
+          record_digest,
+          snapshot_schema_version,
+          rule_catalog_version,
+          skill_version
+        )
+      )`,
+      `CREATE INDEX idx_backlog_review_cache_checkout_updated
+       ON backlog_review_cache (checkout_id, updated_at DESC, record_path)`,
+      `INSERT INTO store_schema_journal VALUES (
+        6,
+        'W23 R0 P5 backlog review cache',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+    ],
+  },
 ];
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
@@ -422,8 +462,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 5 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 6 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -1082,6 +1122,7 @@ const VERSION_TWO_TABLES = [
 const VERSION_THREE_TABLES = [...VERSION_TWO_TABLES, "installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps", "installation_locks", "installation_migration_records", "installation_transfers", "tool_operations", "store_schema_journal"] as const;
 const VERSION_FOUR_TABLES = VERSION_THREE_TABLES;
 const VERSION_FIVE_TABLES = [...VERSION_FOUR_TABLES, "store_migration_receipts"] as const;
+const VERSION_SIX_TABLES = [...VERSION_FIVE_TABLES, "backlog_review_cache"] as const;
 
 /** Classifies the Store without creating a directory, database, sidecar, or table. */
 export function classifyStoreCheckpoint9State(
@@ -1159,7 +1200,7 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-newer", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== 5 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
       const reason = `schema version ${schemaVersion} is not a supported checkpoint-9 input`;
       return {
         state: "unknown",
@@ -1177,7 +1218,9 @@ export function classifyStoreCheckpoint9State(
           ? VERSION_THREE_TABLES
           : schemaVersion === 4
             ? VERSION_FOUR_TABLES
-            : VERSION_FIVE_TABLES;
+            : schemaVersion === 5
+              ? VERSION_FIVE_TABLES
+              : VERSION_SIX_TABLES;
     const actualTables = new Set(
       (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
         .map((row) => row.name),
@@ -1194,8 +1237,8 @@ export function classifyStoreCheckpoint9State(
       };
     }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 }
-      : { state: "supported-current", databasePath, schemaVersion: 5 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 }
+      : { state: "supported-current", databasePath, schemaVersion: 6 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);
@@ -1658,7 +1701,7 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
     });
   }
-  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== 5 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
     throw new StoreCheckpoint9StateError({
       state: "unknown",
       databasePath,
@@ -1674,7 +1717,9 @@ function assertCheckpoint9StateInsideTransaction(
         ? VERSION_THREE_TABLES
         : schemaVersion === 4
           ? VERSION_FOUR_TABLES
-          : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_FIVE_TABLES : [];
+          : schemaVersion === 5
+            ? VERSION_FIVE_TABLES
+            : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_SIX_TABLES : [];
   const actualTables = new Set(
     (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
       .map((row) => row.name),

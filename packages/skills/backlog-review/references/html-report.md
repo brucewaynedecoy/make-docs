@@ -32,7 +32,19 @@ The report:
 - makes each collapsed summary the disclosure surface while leaving its wave link independent;
 - keeps expanded detail outside the disclosure surface;
 - preserves visible focus, keyboard use, reduced motion, responsive layouts, and print; and
-- renders project text as inert text.
+- renders project text as inert text;
+- labels the main record section `Backlog` and gives it keyboard-accessible `Work` and `Data` tabs;
+- keeps search, filter, sort, and expanded-item state unchanged when the user switches tabs;
+- includes the complete normalized embedded model in the `Data` tab; and
+- downloads that same full model as JSON only after the user starts the download.
+
+The data view and download never use the current filter, search, sort order, or expanded-item state. They always expose the complete validated report model that is embedded in the file.
+
+Do not format or place the full JSON text in the Data panel during page startup. Format it only when the user first selects the `Data` tab or starts the download. Reuse that formatted value for later view or download actions. Keep the download control inside the `Data` panel. Do not duplicate data controls in the footer.
+
+Use the standard tab pattern. `Work` is selected by default. Left Arrow, Right Arrow, Home, and End move and select the tabs. Tab changes must not rebuild the Work panel.
+
+Printing always shows the normal Work report and never shows Data or JSON.
 
 The wave badge shows `statusReason`. Its color and exact filter membership come only from `waveStatus`. Archived scope comes only from the record scope.
 
@@ -44,6 +56,8 @@ Attention icons use the fixed report mapping: `conflict` is error/red, `attentio
 
 ## Verify the result
 
-Open the saved file with network access unavailable. Check one wide and one narrow view in light and dark modes. Use the keyboard to search, change a filter, change both sort controls, open a wave, follow its source link, and reach Print. Confirm that the wave link does not open or close detail.
+Open the saved file with network access unavailable. Check one wide and one narrow view in light and dark modes. Use the keyboard to select both Backlog tabs, search, change a filter, change both sort controls, open a wave, follow its source link, reach Print, and start the JSON download. Confirm that the wave link does not open or close detail. Confirm that the Work state survives a move to Data and back. Confirm that print shows Work and omits Data.
+
+Compare the displayed data and downloaded JSON with the embedded model. They must contain every report record even when the visible wave list is filtered.
 
 Inspect hostile or markup-like project text when present. It must display as text and must not create elements or run code.

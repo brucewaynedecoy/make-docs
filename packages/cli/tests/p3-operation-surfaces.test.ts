@@ -50,7 +50,7 @@ afterEach(() => {
 });
 
 describe("W19 R1 P3 admitted operation surfaces", () => {
-  it("pins the exact 24 P3 IDs and separate P5, W19 R2 P4, W19 R3, and W19 R4 admissions", () => {
+  it("pins the exact 24 P3 IDs and separate later-phase admissions", () => {
     const admitted = listAdmittedOperations();
     const r2P4Ids = ["performance.evidence.validate"];
     const r3Ids = ["project.state.status", "project.state.recover"];
@@ -62,7 +62,8 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       "project.layout.verify",
     ];
     const w23R0P2Ids = ["work.backlog.snapshot"];
-    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("project.path-hygiene.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id));
+    const w23R0P5Ids = ["work.backlog-cache.lookup", "work.backlog-cache.write"];
+    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("project.path-hygiene.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
     expect(admitted.filter(entry => r2P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "performance.evidence.validate", status: "active" },
     ]);
@@ -75,6 +76,10 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     );
     expect(admitted.filter(entry => w23R0P2Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "work.backlog.snapshot", status: "active" },
+    ]);
+    expect(admitted.filter(entry => w23R0P5Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
+      { id: "work.backlog-cache.lookup", status: "active" },
+      { id: "work.backlog-cache.write", status: "active" },
     ]);
     const p5Admitted = admitted.filter((entry) => entry.id.startsWith("project.path-hygiene."));
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);

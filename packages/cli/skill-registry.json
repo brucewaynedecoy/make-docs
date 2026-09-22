@@ -184,6 +184,10 @@
           "installPath": "references/fallback.md"
         },
         {
+          "source": "references/cache.md",
+          "installPath": "references/cache.md"
+        },
+        {
           "source": "references/rule-map.md",
           "installPath": "references/rule-map.md"
         },

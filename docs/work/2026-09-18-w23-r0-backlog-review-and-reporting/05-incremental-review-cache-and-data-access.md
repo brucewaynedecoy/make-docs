@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: Incremental Review Cache and Data Access"
 kind: "work"
-status: "draft"
+status: "completed"
 coordinate: "W23 R0 P5"
 source:
   type: "prd"
@@ -49,7 +49,7 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), [PRD 
 
 ## P5 Preflight Decision Record
 
-Recorded on 2026-09-21. This preflight records accepted authority. It does not start P5 implementation.
+Recorded on 2026-09-21. This preflight records accepted authority. P5 implementation started after the owner accepted P4 and instructed P5 to proceed.
 
 | Item | Decision |
 | --- | --- |
@@ -64,11 +64,11 @@ Recorded on 2026-09-21. This preflight records accepted authority. It does not s
 | Store check | The shared Store session gate checks configuration, reachability, safety, and policy as part of the cache operation. Do not add a separate Store-status probe. |
 | Cache check | In the same admitted lookup session, validate the cache service and schema, resolve the current checkout binding, and perform one bulk exact-key lookup. Distinguish service availability from record hits, misses, and rejected entries. |
 | Schema behavior | Add the cache table through the existing Store migration path. Lookup does not create or migrate a Store. An unusable cache schema routes to safe stateless review. |
-| Write behavior | Fresh review remains valid when cache writing is denied or fails. The failure affects only later reuse. Explain it naturally only when it matters to the request. |
+| Write behavior | After the full report validates, attempt one write for each freshly reviewed miss or rejected record when lookup succeeded. Do not rewrite exact hits. A denied or failed write does not affect the current report. It affects only later reuse. Explain it naturally only when it matters to the request. |
 | Agentic fallback | The documented fallback performs the full stateless review. It does not imitate Global Store cache access or create a project-local cache. |
 | Portfolio rule | Rebuild all tallies, attention findings, recommendation order, and other cross-record conclusions from the current full snapshot after combining exact hits with fresh per-record review. |
 
-Preflight result: no unresolved product choice blocks P5. P4 task t15 and its explicit owner acceptance gate still block P5 implementation. A separate owner instruction must start P5 implementation after P4 closes.
+Preflight result: no unresolved product choice blocks P5. The owner accepted P4, committed it as `61c3c46`, and gave the separate instruction to start P5.
 
 ## Performance Applicability
 
@@ -278,11 +278,11 @@ Preflight result: no unresolved product choice blocks P5. P4 task t15 and its ex
 
 ### Tasks
 
-- [ ] t1: Define one cache value and exact key that match PRD 51 and the PRD 38 durable field register.
-- [ ] t2: Add the accepted `work.backlog-cache.lookup` and `work.backlog-cache.write` operations through the shared registry. Use the shared Global Store path, session gate, lock, migration, and transaction boundaries.
-- [ ] t3: Implement one internal cache service with bulk exact lookup, bounded write, invalidation, corrupt-entry rejection, pruning, and diagnostics. Keep CLI and MCP surfaces free of cache logic.
-- [ ] t4: Keep the snapshot operation Store-free and run it before every cache lookup.
-- [ ] t5: Keep cached values free of repository bodies, prompts, secrets, raw logs, and absolute paths.
+- [x] t1: Define one cache value and exact key that match PRD 51 and the PRD 38 durable field register.
+- [x] t2: Add the accepted `work.backlog-cache.lookup` and `work.backlog-cache.write` operations through the shared registry. Use the shared Global Store path, session gate, lock, migration, and transaction boundaries.
+- [x] t3: Implement one internal cache service with bulk exact lookup, bounded write, invalidation, corrupt-entry rejection, pruning, and diagnostics. Keep CLI and MCP surfaces free of cache logic.
+- [x] t4: Keep the snapshot operation Store-free and run it before every cache lookup.
+- [x] t5: Keep cached values free of repository bodies, prompts, secrets, raw logs, and absolute paths.
 
 ### Acceptance criteria
 
@@ -302,18 +302,18 @@ Preflight result: no unresolved product choice blocks P5. P4 task t15 and its ex
 
 ### Tasks
 
-- [ ] t6: Reuse exact per-record review fragments while rebuilding tallies, attention findings, recommendation order, and every other cross-record conclusion from the current full snapshot.
-- [ ] t7: Complete the full stateless review for `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied` states.
-- [ ] t8: Explain material cache limits to the human in natural language without presenting cache mechanics as project status.
-- [ ] t9: Add an accessible in-report view of the normalized embedded report model.
-- [ ] t10: Add a user-started JSON download of the full normalized model. Keep filtered UI state out of the exported model.
-- [ ] t11: Update Skill references, package declarations, and focused fixtures without changing the accepted report layout or owner-defined spacing.
+- [x] t6: Reuse exact per-record review fragments while rebuilding tallies, attention findings, recommendation order, and every other cross-record conclusion from the current full snapshot.
+- [x] t7: Complete the full stateless review for `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied` states.
+- [x] t8: Explain material cache limits to the human in natural language without presenting cache mechanics as project status.
+- [x] t9: Add an accessible Backlog `Data` tab for the complete normalized report model. Keep the existing report controls and records in the `Work` tab.
+- [x] t10: Add a user-started JSON download of the full normalized model. Keep filtered UI state out of the exported model.
+- [x] t11: Update Skill references, package declarations, and focused fixtures without unrelated layout changes or changes to the owner's existing spacing.
 
 ### Acceptance criteria
 
 - A40: One changed record causes fresh review only for that record when all other exact keys remain valid. Portfolio conclusions still reflect the current full snapshot.
 - A41: Every Store refusal or failure completes the same full stateless review meaning. The human explanation states the effect and next action without blocking the report.
-- A42: The report remains one offline HTML file. Its data view and JSON download expose the same full normalized model, keep project text inert, and are accessible by keyboard.
+- A42: The report remains one offline HTML file. Its accessible Work and Data tabs expose the same full normalized model, keep project text inert, preserve Work state, and stay out of print.
 
 ### Dependencies
 
@@ -323,9 +323,9 @@ Preflight result: no unresolved product choice blocks P5. P4 task t15 and its ex
 
 ### Tasks
 
-- [ ] t12: Run focused and full automated checks for schema migration, exact reuse, invalidation, privacy, Store states, package output, data parity, and no project mutation.
-- [ ] t13: Validate the `PERF-001` fixture and measurement seam. Run only its three authorized observations. Record the fingerprint, raw evidence, uncertainty, budget ledger, result, limits, and any findings in `evidence.md`.
-- [ ] t14: Run Guided Progress Review and Human Experience Review of the data view, JSON download, reuse disclosure, and Store-free fallback explanation.
+- [x] t12: Run focused and full automated checks for schema migration, exact reuse, invalidation, privacy, Store states, package output, data parity, and no project mutation.
+- [x] t13: Validate the `PERF-001` fixture and measurement seam. Run only its three authorized observations. Record the fingerprint, raw evidence, uncertainty, budget ledger, result, limits, and any findings in `evidence.md`.
+- [x] t14: Run Guided Progress Review and Human Experience Review of the data view, JSON download, reuse disclosure, and Store-free fallback explanation.
 
 ### Acceptance criteria
 
@@ -340,10 +340,12 @@ Preflight result: no unresolved product choice blocks P5. P4 task t15 and its ex
 ### Closeout Notes
 
 - Four testing decisions: Automated required; Performance characterize-now; Guided required; Unassisted not-needed-now.
-- Performance evidence: `PERF-001` must be completed within its finite budget before P5 closes.
-- Human Experience Review: Required for the fallback explanation and raw-data controls.
-- Optional experience handoff: Repeat one review, open the report data view, and optionally save the JSON data.
+- Performance evidence: `PERF-001` passed within its finite budget. `PERF-001-F1` records three oversized fragments that use the safe fresh-review path.
+- Human Experience Review: Completed. The owner accepted the restored raw-data controls, the three-entry cache-size limit, and the Store-free fallback explanation on 2026-09-22.
+- Optional experience handoff: Repeat one review, switch from Backlog Work to Data, and optionally save the JSON data.
+- Owner review refinement: The owner approved a normal post-validation write attempt for every freshly reviewed cache fragment. The owner also approved permanent report-data controls with JSON formatting deferred until the first Data-tab or download action. Separate footer controls were replaced by Backlog Work and Data tabs. Work state and Work-only print output remain intact. The owner retained only the separate label refinement from the later responsive-tab experiment: `Needs attention` is now `Attention`.
 - Explicit human acceptance gate: none.
-- Evidence report: Add the P5 result to the central report after evidence exists.
-- Phase / capability status: P5 has not started. P6 remains the final package parity and acceptance phase.
-- Preflight status: Complete on 2026-09-21. Implementation remains blocked by P4 owner acceptance and requires a separate owner instruction after P4 closes.
+- Evidence report: The central report contains the P5 implementation, automated checks, `PERF-001`, owner decisions, Human Experience Review, and limits.
+- Optional Store capture: A read-only `project.state.status` check returned `store-not-configured` for the current agent harness. The owner will address that setup in another task. This stopped only that Store operation. It did not block Store-free P5 closeout.
+- Phase / capability status: P5 is complete. Tasks t1-t14 and A37-A44 are complete. P6 remains the final package parity and acceptance phase and needs separate owner authority.
+- Preflight status: Complete on 2026-09-21. The owner accepted P4 and gave the separate P5 implementation instruction.

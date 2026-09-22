@@ -47,6 +47,7 @@ describe("backlog-review first-party Skill", () => {
       "references/review-method.md",
       "references/report-model.md",
       "references/fallback.md",
+      "references/cache.md",
       "references/rule-map.md",
       "examples/chat-reports.md",
       "examples/human-errors.json",
@@ -146,6 +147,26 @@ describe("backlog-review first-party Skill", () => {
     expect(examples).toContain("### Next");
   });
 
+  test("runs the current snapshot before exact cache reuse and refreshes fresh fragments", () => {
+    const skill = read("SKILL.md");
+    const cache = read("references/cache.md");
+
+    expect(skill.indexOf("Start every review with one fact source")).toBeLessThan(
+      skill.indexOf("try the optional cache lookup"),
+    );
+    expect(cache).toContain("make_docs_work_backlog_cache_lookup");
+    expect(cache).toContain("make-docs run work backlog-cache lookup");
+    expect(cache).toContain("make_docs_work_backlog_cache_write");
+    expect(cache).toContain("make-docs run work backlog-cache write");
+    expect(cache).toContain("Never reuse a portfolio conclusion from cache.");
+    expect(skill).toContain("attempt a cache write for every freshly reviewed `miss` or `rejected` record");
+    expect(cache).toContain("attempt to cache each freshly reviewed fragment");
+    expect(cache).toContain("Do not write exact-hit fragments again.");
+    expect(cache).toContain("repository bodies, prompts, secrets, raw logs, absolute paths");
+    expect(cache).toContain("does not change the current snapshot, report records, or report result");
+    expect(read("references/fallback.md")).toContain("does not read, imitate, or create cache state");
+  });
+
   test("renders one offline HTML file with inert project text", () => {
     const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-backlog-report-"));
     try {
@@ -200,6 +221,41 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain("\\u003csvg onload");
       expect(html).not.toContain("Review of ${report.tallies.workRecordsFound}");
       expect(html).toContain("report.projectLead.sentences.map");
+      expect(html).toContain('<h2 id="ledgerHeading">Backlog</h2>');
+      expect(html).toContain('class="backlog-tabs" role="tablist" aria-label="Backlog views"');
+      expect(html).toContain('id="workTab" type="button" role="tab" aria-selected="true" aria-controls="workPanel"');
+      expect(html).toContain('id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel"');
+      expect(html).toContain('<h2>Attention</h2>');
+      expect(html).not.toContain('<h2>Needs attention</h2>');
+      expect(html).toContain('id="workPanel" role="tabpanel" aria-labelledby="workTab"');
+      expect(html).toContain('id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden');
+      expect(html).toContain("Complete normalized report data");
+      expect(html).toContain('id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"');
+      expect(html).not.toContain('id="toggleReportData"');
+      expect(html).toContain("let normalizedReportJson = null;");
+      expect(html).toContain("function getNormalizedReportJson()");
+      expect(html).toContain('tab.dataset.backlogTab === "data" && !reportDataLoaded');
+      expect(html).toContain("reportDataView.textContent = getNormalizedReportJson();");
+      expect(html).toContain('["ArrowLeft", "ArrowRight", "Home", "End"]');
+      expect(html).toContain('window.addEventListener("beforeprint"');
+      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('window.addEventListener("afterprint"');
+      expect(html).toContain("#workPanel { display: block !important; }");
+      expect(html).toContain(".backlog-tabs, #dataPanel { display: none !important; }");
+      expect(html).toContain('.workspace { display: block; }');
+      const tabControllerStart = html.indexOf("function activateBacklogTab");
+      const tabControllerEnd = html.indexOf("backlogTabs.forEach((tab)", tabControllerStart);
+      expect(tabControllerStart).toBeGreaterThan(-1);
+      expect(tabControllerEnd).toBeGreaterThan(tabControllerStart);
+      expect(html.slice(tabControllerStart, tabControllerEnd)).not.toContain("renderWaves");
+      expect(html).toContain("new Blob([getNormalizedReportJson()]");
+      expect(html).not.toContain("reportDataView.textContent = normalizedReportJson;");
+      expect(html).toContain('download.download = `${projectSlug}-backlog-review.json`;');
+      expect(html).not.toContain("JSON.stringify(visible");
+      const executableScripts = [...html.matchAll(/<script(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)]
+        .map((match) => match[1]);
+      expect(executableScripts).toHaveLength(1);
+      expect(() => new Function(executableScripts[0]!)).not.toThrow();
       expect(html).not.toMatch(/(?:src|href)=["']https?:/i);
       const overwriteAttempt = spawnSync(process.execPath, [
         path.join(SKILL_ROOT, "scripts/render-report.mjs"),

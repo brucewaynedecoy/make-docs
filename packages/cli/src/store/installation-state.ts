@@ -715,6 +715,17 @@ export function getInstallationCheckoutId(projectRoot: string, storeRoot?: strin
     const root = canonicalInstallationPath(projectRoot);
     return withInstallationDatabase(root, db => transaction(db, () => bindCheckout(db, root).checkout_id), { storeRoot });
 }
+/** Read an existing checkout binding without creating or changing Store state. */
+export function getExistingInstallationCheckoutId(projectRoot: string, storeRoot?: string): string | null {
+    const root = canonicalInstallationPath(projectRoot);
+    return withInstallationDatabase(root, db => {
+        const row = checkout(db, root);
+        if (!row)
+            return null;
+        assertCheckoutIdentity(row, root);
+        return row.checkout_id;
+    }, { storeRoot, readOnly: true });
+}
 export function acquireInstallationLock(projectRoot: string, storeRoot?: string): InstallationLock {
     const root = canonicalInstallationPath(projectRoot);
     const existing = held.get(root);

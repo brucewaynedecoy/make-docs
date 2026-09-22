@@ -12,7 +12,7 @@ source:
 
 ## Current State
 
-P1, P2, P3, and P4 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. The correction is implemented. The owner reviewed the corrected real report and accepted P4 on 2026-09-21. The owner accepted the new P5 cache and data-access scope. P5 and P6 have not started. The backlog review capability remains incomplete until P6.
+P1 through P5 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. P4 corrected those defects. P5 added exact optional review reuse and lazy access to the normalized report data. The owner accepted the bounded three-entry cache-size limit and the Store-free fallback explanation on 2026-09-22. P6 has not started. The backlog review capability remains incomplete until P6.
 
 The P4 tested base revision was `a976404` on branch `make-docs-v2`. This revision contains the committed P3 closeout. The P4 checks included the uncommitted P4 product, test, and closeout changes in the local maintainer checkout.
 
@@ -286,4 +286,112 @@ The owner reviewed the corrected real-report output. The owner then said P4 was 
 
 ### Phase Boundary
 
-P4 is complete. P5 and P6 have not started. P5 still requires separate phase-start authority. P5 owns the accepted cache, data-access, and repeat-review characterization work. P6 owns installed-package parity, installed Skill rendering, final browser and offline checks, and capability acceptance. P4 does not publish or release the package.
+P4 is complete. P5 started after separate owner authority. P6 has not started. P5 owns the accepted cache, data-access, and repeat-review characterization work. P6 owns installed-package parity, installed Skill rendering, final browser and offline checks, and capability acceptance. P4 does not publish or release the package.
+
+## P5 Incremental Review Cache and Data Access
+
+### Current Claim and Surface
+
+P5 is complete. It adds an optional, rebuildable, exact-match backlog-review cache to Global Store schema 6. It also adds the accepted lookup and write operations through the shared registry. Every Skill review still starts with the Store-free current snapshot. Cache loss, refusal, rejection, or mismatch routes the review to fresh per-record work.
+
+The saved report remains one offline HTML file. Wide screens retain the `Next` and `Attention` sidebar. Small screens stack those sections above the visible `Backlog` heading. The Backlog section has `Work` and `Data` tabs. Work keeps search, filters, sorting, open rows, and the phase legend. Data contains the complete normalized model and a user-started JSON download. Switching tabs does not rebuild or clear Work state. Search, filters, sorting, and open rows do not change the viewed or downloaded model. Print shows Work and omits Data and tab controls.
+
+### Implementation Evidence
+
+| Area | Files | Result |
+| --- | --- | --- |
+| Store schema and compatibility | [`database.ts`](../../../packages/cli/src/store/database.ts), [`compatibility-bridge.ts`](../../../packages/cli/src/store/compatibility-bridge.ts), and [`installation-state.ts`](../../../packages/cli/src/store/installation-state.ts) | Adds the bounded rebuildable cache table through Store schema 6. Read-only lookup does not create, bind, or migrate the Store. Legacy schema use fails closed and directs the reviewed setup or update path. |
+| Cache service | [`cache-service.ts`](../../../packages/cli/src/operations/work/backlog/cache-service.ts) | Uses checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version as the exact key. It performs bulk lookup, validates current facts, rejects corrupt or private fragments, invalidates changed records, writes in one transaction, and prunes to a fixed bound. A fully rejected write makes no cache change. |
+| Public routes | [`cache-operation.ts`](../../../packages/cli/src/operations/work/backlog/cache-operation.ts), [`registry.ts`](../../../packages/cli/src/operations/registry.ts), and [`cli.ts`](../../../packages/cli/src/run/cli.ts) | Adds `work.backlog-cache.lookup` and `work.backlog-cache.write`, their canonical CLI paths, and registry-derived MCP tools. The lookup uses Store read. The write uses Store write. Both use project read and no host-configuration access. |
+| Skill flow and fallback | [`SKILL.md`](../../../packages/skills/backlog-review/SKILL.md), [`cache.md`](../../../packages/skills/backlog-review/references/cache.md), and [`fallback.md`](../../../packages/skills/backlog-review/references/fallback.md) | Requires the current snapshot first, exact-hit reuse only, fresh work for misses or rejected rows, full portfolio rebuilding, a write attempt for freshly reviewed fragments after validation, Store-free completion, privacy limits, and natural human error explanations. A denied or failed write does not affect the current report. |
+| Report data access | [`backlog-review-report.html`](../../../packages/skills/backlog-review/assets/backlog-review-report.html) and [`html-report.md`](../../../packages/skills/backlog-review/references/html-report.md) | Keeps the visible Backlog heading and its Work and Data tabs separate from the Next and Attention sections. Work keeps the existing report state. Data contains the download control and complete embedded model. The browser formats and places the JSON only after the first Data-tab or download action. Print shows Work and omits Data and tab controls. |
+| Automated checks | [`backlog-cache.test.ts`](../../../packages/cli/tests/backlog-cache.test.ts), [`backlog-review-skill.test.ts`](../../../packages/cli/tests/backlog-review-skill.test.ts), and shared Store, registry, CLI, MCP, and package tests | Covers schema 6, no lookup or write migration, cold misses, exact hits, one-record misses, invalidation, corrupt rows, privacy rejection, pruning, no project mutation, public route identity, package declarations, embedded data parity, and script validity. |
+
+### Verification Evidence
+
+| Check | Result | Observation |
+| --- | --- | --- |
+| Focused P5 and changed-contract checks | Passed: 2 files and 16 tests for the owner-approved refinement | Cache and Skill tests pass with required fresh-fragment write attempts, Backlog Work and Data tabs, lazy report-data formatting, keyboard navigation, Work-state preservation, and Work-only print output. Earlier P5 checks also covered Store migration, operation registry, CLI, MCP, and exact surface lists. |
+| Full CLI suite | Passed: 90 files and 1,436 tests; 1 file and 5 tests skipped | No detected CLI, Store, setup, Skill, or package regression remains. The existing installed-upgrade matrix stays skipped. |
+| TypeScript check | Passed | The Store schema, service, operation inputs, result contracts, registry routes, and tests type-check. |
+| CLI package build | Passed | The package build includes the cache operations, schema, Skill guidance, and updated report asset. |
+| Skill validator | Passed | The updated `backlog-review` Skill entrypoint and declared support files pass the local Skill validator. |
+| Diff check | Passed | `git diff --check` found no whitespace errors. |
+| Review artifact | Created | `/private/tmp/make-docs-backlog-report-p5-review-current.html` uses the current template and the retained 70-record report model. The temporary renderer input was removed after success. |
+| Lazy-data review artifact | Created and statically checked | `/private/tmp/make-docs-backlog-report-p5-lazy-review.html` retains all 70 records. It has the lazy formatter and on-demand download path. It has no eager assignment to the hidden data view. |
+| Tabbed-data review artifact | Created and statically checked | `/private/tmp/make-docs-backlog-report-p5-tabs-review-v2.html` retains all 70 records. It has the Backlog Work/Data tabs, lazy Data formatting, one download control, Work-only print handling, and a valid executable script. The temporary renderer input was removed after success. |
+| Responsive-tab review artifact | Created, reviewed, and rejected by the owner | `/private/tmp/make-docs-backlog-report-p5-responsive-tabs-review.html` is the rejected responsive experiment. It is not current implementation evidence. |
+| Restored-layout review artifact | Created and statically checked | `/private/tmp/make-docs-backlog-report-p5-restored-tabs-review.html` retains all 70 records. Static checks confirm the visible Backlog heading, separate Next and Attention sections, Work/Data-only tabs, stacked narrow layout, lazy Data view, Work-only print handling, one download control, and a valid executable script. The temporary renderer input was removed after success. |
+| Browser interaction check | Pending | Browser automation refused local `file:` inspection under its URL policy. No alternate browser path was used. Static report and script checks passed, but this does not replace direct review. |
+
+### PERF-001 Result
+
+Result: `pass` with one moderate performance finding. The test found no correctness, privacy, safety, or portability failure. It makes no general speed claim.
+
+#### Evidence Fingerprint
+
+| Field | Recorded value |
+| --- | --- |
+| Profile | `PERF-001` version `1`; source digest `5303b73db447269f95fc73aa0c45fd9780608d14c6ad0f70c8b7bb9766b4ee8e` |
+| Instrument | `W23-R0-P5-PERF-001-V1` on Node.js `v24.19.0` |
+| Product state | Branch `make-docs-v2`; Git revision `61c3c46917d3825f08024b80b7c1d8ded9ff7630`; dirty-state digest `a5b734d2a39ae72f77d769d4dd82b74c403233980c6478e33afc7065ba386121` |
+| Dependency state | `package-lock.json` digest `c6b5ab7c26f0d59291eeec226493d67179835d71d73fd76d408f2c483f89324d` |
+| Contract versions | Store schema `6`; snapshot schema `1`; rule catalog `1`; Skill version `1` |
+| Workload | Frozen comparable 70-record W23 R0 snapshot and accepted report fragments; workload digest `ef24bba68f50a0f60c4bcb77278d8cf79168ce045cee6d353de09b47eb445244` |
+| Environment | macOS `27.0`, arm64, 90 GB free before the run |
+| Raw result | `/private/tmp/make-docs-p5-perf-001-20260922.json`; SHA-256 `479c70bb177008547b61c7b6c6e0ae05a0d736dfc797aa6b09d952bd4f0c6899` |
+
+#### Three Authorized Observations
+
+| Observation | Validated render | Cache lookup | Post-validation write | Result |
+| --- | ---: | --- | --- | --- |
+| Cold | 1,462.529 ms; 1,549.097 ms with write | 0 hits, 70 misses, 0 rejected | 67 stored, 3 rejected | Complete report rendered and validated. |
+| Exact repeat | 1,327.690 ms; 1,353.890 ms with write | 67 hits, 3 misses, 0 rejected | 0 stored, 3 rejected | Report and HTML hashes match the cold result. Reused fragments match the accepted fresh fragments. |
+| One-record change | 1,346.697 ms; 1,394.758 ms with write | 66 hits, 4 misses, 0 rejected | 1 stored, 3 rejected, 1 old digest invalidated | The changed record was the one added miss. A lookup after the write returned 67 hits and 3 misses. The changed record was reusable. |
+
+The controlled change affected only `docs/work/2026-09-18-w23-r0-backlog-review-and-reporting`. The test changed its deterministic digest in memory. It did not change a project file. The worktree dirty-state digest was the same before and after the test.
+
+#### Finding PERF-001-F1
+
+Three unchanged accepted report fragments exceed the 65,536-byte cache-entry limit. The cache rejects these fragments and uses fresh review on each run.
+
+| Record | Fragment size |
+| --- | ---: |
+| `docs/work/2026-08-14-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery` | 151,207 bytes |
+| `docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent` | 85,486 bytes |
+| `docs/work/2026-08-28-w21-r0-proportionate-testing-and-human-centered-validation` | 137,715 bytes |
+
+The exact repeat reused 67 of 70 fragments. The report stayed complete and equivalent because the other three fragments used the safe fresh-review path. This is a moderate repeat-work limit. It is not a report-correctness failure. Keep the safe fallback. Decide before P5 closes whether to accept this bounded limit or change the cache payload size or shape.
+
+#### Budget, Uncertainty, And Limits
+
+- The run used all three authorized observations.
+- The harness used two of two allowed correction attempts before the comparable run. The first stopped at an unexpected warm miss. The second identified the three valid size rejections.
+- The run used one of two review cycles and finished within the two-hour investigation limit.
+- The timed window had no model call and no human review time. The elapsed values cover local snapshot, cache, assembly, validation, render, and write work only.
+- The frozen fragments preserve report parity. They do not measure provider delay or the fresh-review time for the three rejected fragments.
+- The result does not set or support a numeric product speed target.
+
+### Guided Progress And Human Experience Review
+
+Status: complete.
+
+| Human promise | Observation | Conclusion | Limit | Next action |
+| --- | --- | --- | --- | --- |
+| A changed record receives fresh review and becomes reusable during the next report. | `PERF-001` used the 70-record fixture. The controlled record became one added miss. The post-validation write stored it, invalidated its old digest, and made it an exact hit on the next lookup. The owner accepted the three-entry size limit on 2026-09-22. | `satisfied` for the implemented flow and bounded evidence. | Three oversized fragments still use fresh review. This does not affect the changed-record result. | Preserve the safe fallback. Revisit payload size or shape only under later authority. |
+| A maintainer can inspect or save the complete normalized report data without changing report meaning. | The owner reviewed the first data controls and made them permanent. The owner rejected the later unified responsive tabs and restored the separate Next, Attention, and Backlog sections. Work keeps its live state. Data lazily formats the full model and owns the download control. | `satisfied` for the restored structure and automated checks; direct review remains useful. | Browser automation cannot inspect local `file:` pages under the app policy. The owner can review the new artifact directly. | Offer the restored-layout artifact for optional confirmation. |
+| A Store refusal or failed cache write does not block the report and receives a natural explanation. | The Skill guidance preserves Store-free completion and explains that only later reuse is affected. The owner reviewed and accepted the bounded fallback explanation on 2026-09-22. A live read-only check then returned `store-not-configured` for the current agent harness. | `satisfied` for the guidance, automated Store-state checks, and owner-reviewed wording. | The live result proves only that this agent harness lacks Store access configuration. It does not prove that the Global Store is down or unavailable to another configured client. | The owner will address this harness setup in another task. Continue Store-free work in the meantime. |
+
+### Coverage And Closeout
+
+- Automated Implementation Testing: required and passed.
+- Performance Testing: `characterize-now` and passed within the `PERF-001` budget. The owner accepted the moderate `PERF-001-F1` limit.
+- Guided Progress Review: required and passed for the restored report-data controls, cache disclosure, and fallback flow.
+- Unassisted Goal Testing: `not-needed-now`. P5 remains a maintainer-led optimization and inspection feature.
+- Human Experience Review: `satisfied` within the owner-reviewed P5 controls and fallback explanation.
+- Explicit human acceptance gate: none. The owner still gave direct acceptance for the remaining P5 decisions on 2026-09-22.
+- Optional Store capture: `project.state.status` returned `store-not-configured` for the current agent harness. Only that Store operation stopped. Local evidence and history remain valid project knowledge.
+
+### Current Review Boundary
+
+P5 is complete. Tasks t1 through t14 and A37-A44 are complete. `PERF-001` passed its three bounded observations. The owner accepted the moderate `PERF-001-F1` limit and the Store-free fallback explanation. The report keeps the accepted separate Next and Attention sections plus Backlog Work and Data tabs. P6 has not started and needs separate owner authority. P5 is not yet committed, published, or released.

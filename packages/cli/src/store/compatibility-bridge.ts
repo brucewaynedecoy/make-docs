@@ -169,7 +169,11 @@ export function previewStoreCompatibilityBridge(storeRoot: string): StoreCompati
       ...base,
       disposition: "rebuild",
       records: [],
-      changes: { store: ["Create a fresh schema-5 Store."], project: [], native: [] },
+      changes: {
+        store: [`Create a fresh schema-${CURRENT_STORE_SCHEMA_VERSION} Store.`],
+        project: [],
+        native: [],
+      },
       blockers: [],
       nextAction: "Review setup. Setup can create the Store without a compatibility conversion.",
     };
@@ -191,13 +195,23 @@ export function previewStoreCompatibilityBridge(storeRoot: string): StoreCompati
     const changes: string[] = [];
     const blockers: string[] = [];
 
-    if (version < CURRENT_STORE_SCHEMA_VERSION) {
+    if (version < 5) {
       records.push(record("w22-p5-store-schema-v1-v4", "convert", 1, `Schema ${version} has a supported conversion to schema ${CURRENT_STORE_SCHEMA_VERSION}.`));
+    }
+    if (version < 6) {
+      records.push(record(
+        "w23-r0-p5-backlog-review-cache",
+        "convert",
+        1,
+        `Schema ${version} can add the optional rebuildable backlog review cache.`,
+      ));
+    }
+    if (version < CURRENT_STORE_SCHEMA_VERSION) {
       changes.push(`Create and verify one Store backup before converting schema ${version} to schema ${CURRENT_STORE_SCHEMA_VERSION}.`);
     }
     if (version >= 3 && tables.has("installation_checkouts")) {
       const bridgeCollisions = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_migration_records WHERE kind='legacy-import' AND record_id IN ('w22-p5:checkout-object-numbers:v4','w22-p5:installation-ledger-projection:v4')").get() as { count: number | bigint }).count);
-      if (version < CURRENT_STORE_SCHEMA_VERSION && bridgeCollisions) blockers.push(`${bridgeCollisions} reserved P5 bridge record(s) already exist in an older schema.`);
+      if (version < 5 && bridgeCollisions) blockers.push(`${bridgeCollisions} reserved P5 bridge record(s) already exist in an older schema.`);
       const activeLocks = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as { count: number | bigint }).count);
       if (activeLocks) blockers.push(`${activeLocks} active installation lock(s) must finish before conversion.`);
       const pendingToolOperations = Number((db.prepare("SELECT COUNT(*) AS count FROM tool_operations WHERE status='pending'").get() as { count: number | bigint }).count);

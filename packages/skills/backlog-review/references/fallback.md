@@ -1,6 +1,6 @@
 # Portable Agentic Fallback
 
-Use this method only when neither the compatible MCP snapshot tool nor the Make Docs CLI snapshot command is available. Call the method `agentic fallback` in the report. Do not claim a deterministic run.
+Use this method only when neither the compatible MCP snapshot tool nor the Make Docs CLI snapshot command is available. Call the method `agentic fallback` in the report. Do not claim a deterministic run. This method is also the full stateless review method when the optional cache is unavailable after a deterministic snapshot. It does not read, imitate, or create cache state.
 
 ## Discover records
 

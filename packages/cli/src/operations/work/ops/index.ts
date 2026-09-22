@@ -2,6 +2,10 @@ import type { OperationDefinition } from "../../registry";
 import { workEvidenceReadOperation } from "./evidence-read";
 import { workEvidenceRecordOperation } from "./evidence-record";
 import { workItemResolveOperation } from "./item-resolve";
+import {
+  workBacklogCacheLookupOperation,
+  workBacklogCacheWriteOperation,
+} from "../backlog/cache-operation";
 import { workBacklogSnapshotOperation } from "../backlog/operation";
 
 /**
@@ -15,9 +19,13 @@ export const workOperations: OperationDefinition[] = [
   workEvidenceRecordOperation as OperationDefinition,
   workEvidenceReadOperation as OperationDefinition,
   workBacklogSnapshotOperation as OperationDefinition,
+  workBacklogCacheLookupOperation as OperationDefinition,
+  workBacklogCacheWriteOperation as OperationDefinition,
 ];
 
 export {
+  workBacklogCacheLookupOperation,
+  workBacklogCacheWriteOperation,
   workBacklogSnapshotOperation,
   workEvidenceReadOperation,
   workEvidenceRecordOperation,

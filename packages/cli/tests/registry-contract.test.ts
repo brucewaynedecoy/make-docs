@@ -80,6 +80,10 @@ const LITERAL_R4_ADMITTED_IDENTIFIERS = [
   "project.layout.verify",
 ] as const;
 const LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS = ["work.backlog.snapshot"] as const;
+const LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS = [
+  "work.backlog-cache.lookup",
+  "work.backlog-cache.write",
+] as const;
 
 /** Pruned per the migrated-operations inventory disposition (R-RUN-2). */
 const PRUNED_SEGMENTS = [
@@ -102,7 +106,7 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => !id.startsWith("project.path-hygiene.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("project.path-hygiene.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
@@ -112,6 +116,7 @@ describe("operation registry contract", () => {
     expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(LITERAL_R4_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS);
+    expect(admittedIds.filter(id => LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS);
     expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
@@ -121,6 +126,7 @@ describe("operation registry contract", () => {
         ...LITERAL_R3_ADMITTED_IDENTIFIERS,
         ...LITERAL_R4_ADMITTED_IDENTIFIERS,
         ...LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS,
+        ...LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
     expect(new Set(ids).size).toBe(ids.length);

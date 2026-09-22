@@ -204,6 +204,10 @@
     .order-item { padding: 13px 0; }
     .order-number { padding: 3px; font-size: .7rem; background: var(--paper); color: var(--ink); }
     .ledger { min-width: 0; }
+    .backlog-tabs { display: flex; gap: 18px; margin: 0 0 18px; border-bottom: 1px solid var(--line); }
+    .backlog-tab { min-height: 38px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); padding: 6px 2px; font-size: .82rem; cursor: pointer; }
+    .backlog-tab[aria-selected="true"] { border-bottom-color: var(--ink); color: var(--ink); font-weight: 700; }
+    .backlog-panel[hidden] { display: none; }
     .controls { margin-bottom: 28px; }
     .search-wrap { position: relative; }
     .search-wrap::before { position: absolute; left: 13px; top: 50%; width: 12px; height: 12px; border: 2px solid var(--muted); border-radius: 50%; content: ""; transform: translateY(-58%); pointer-events: none; }
@@ -274,6 +278,10 @@
     .legend .blocked { background: var(--phase-blocked); border-color: var(--phase-blocked); }
     .legend .conflict { background: var(--phase-conflict); border-color: var(--phase-conflict); }
     .legend .superseded { background: var(--phase-superseded); border-color: var(--phase-superseded); }
+    .data-copy { max-width: var(--measure); margin: 0; color: var(--muted); font-size: .82rem; }
+    .data-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .data-view { max-height: 34rem; margin: 16px 0 0; overflow: auto; border: 1px solid var(--line); background: var(--panel); padding: 16px; color: var(--copy); font: .75rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre; tab-size: 2; }
+    .data-view[hidden] { display: none; }
     footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 30px; margin-top: 48px; border-top: 1px solid var(--line-strong); padding-top: 20px; color: var(--muted); font-size: .78rem; }
     footer p { max-width: var(--measure); margin: 0; }
 
@@ -311,7 +319,8 @@
       :root, :root[data-theme="light"], :root[data-theme="dark"] { color-scheme: light; --ink: #15213c; --muted: #5d6b82; --paper: #ffffff; --panel: #ffffff; --copy: #34415a; --detail: #eef3ff; --detail-copy: #42506a; --line: #d7deea; --line-strong: #aeb9ca; --blue: #3159d8; --blue-soft: #e9efff; --phase-complete: #70ad9a; --phase-open: #829de0; --phase-blocked: #d77d87; --phase-conflict: #d5a158; --phase-superseded: #a7afbc; --phase-unknown: #dfe4ec; --wave-current: #3159d8; --wave-current-soft: #e9efff; --wave-attention: #9a5a10; --wave-attention-soft: #fff0db; --wave-conflict: #a6333d; --wave-conflict-soft: #fdebee; --wave-deferred: #6750a4; --wave-deferred-soft: #f0ebff; --wave-complete: #246b58; --wave-complete-soft: #e4f4ee; --wave-history: #5f6b7e; --wave-history-soft: #edf0f5; --button-text: #ffffff; }
       :root, :root[data-theme="light"], :root[data-theme="dark"] { --accent: #3159d8; --accent-line: #7187b6; }
       .shell { width: 100%; padding: 0; }
-      .controls, .filters, .sort-controls, .meta-actions { display: none !important; }
+      .controls, .filters, .sort-controls, .meta-actions, .backlog-tabs, #dataPanel { display: none !important; }
+      #workPanel { display: block !important; }
       .workspace { display: block; }
       .attention { position: static; margin-bottom: 28px; }
       .wave[hidden] { display: none; }
@@ -345,24 +354,35 @@
     <div class="workspace">
       <aside class="attention" id="attentionRail" aria-label="Attention and recommended order">
         <section id="orderBlock"><div class="section-heading"><h2>Next</h2></div><ol class="order-list" id="orderList"></ol></section>
-        <section class="attention-block" id="attentionBlock"><div class="section-heading"><h2>Needs attention</h2></div><ul class="attention-list" id="attentionList"></ul></section>
+        <section class="attention-block" id="attentionBlock"><div class="section-heading"><h2>Attention</h2></div><ul class="attention-list" id="attentionList"></ul></section>
       </aside>
       <section class="ledger" aria-labelledby="ledgerHeading">
-        <div class="section-heading"><h2 id="ledgerHeading">Waves</h2></div>
-        <div class="controls"><label class="search-wrap"><span class="sr-only">Search waves</span><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"></label></div>
-        <div class="ledger-tools">
-          <div class="filters" id="filters" role="group" aria-label="Filter waves"></div>
-          <div class="sort-controls">
-            <label for="sortBy"><span class="sr-only">Sort waves by</span><select id="sortBy"><option value="created">Created date</option><option value="coordinate">Wave coordinate</option><option value="updated" selected>Last updated</option></select></label>
-            <button id="sortDirection" type="button" data-direction="desc" aria-label="Sort direction: newest first. Change to oldest first." title="Newest first">
-              <svg class="sort-direction-icon descending" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16m-3-3 3 3 3-3"></path><path d="M12 6h9M12 10h7M12 14h5M12 18h3"></path></svg>
-              <svg class="sort-direction-icon ascending" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V4M3 7l3-3 3 3"></path><path d="M12 6h3M12 10h5M12 14h7M12 18h9"></path></svg>
-            </button>
-          </div>
+        <div class="section-heading"><h2 id="ledgerHeading">Backlog</h2></div>
+        <div class="backlog-tabs" role="tablist" aria-label="Backlog views">
+          <button class="backlog-tab" id="workTab" type="button" role="tab" aria-selected="true" aria-controls="workPanel" tabindex="0" data-backlog-tab="work">Work</button>
+          <button class="backlog-tab" id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel" tabindex="-1" data-backlog-tab="data">Data</button>
         </div>
-        <p class="result-note" id="resultNote" aria-live="polite"></p>
-        <div class="wave-list" id="waveList"></div>
-        <div class="legends"><section class="legend-block" aria-labelledby="legendHeading"><h2 id="legendHeading">Phase state legend</h2><div class="legend"><span><i class="complete"></i>Complete</span><span><i class="open"></i>Open or planned</span><span><i class="blocked"></i>Blocked</span><span><i class="conflict"></i>Conflicting evidence</span><span><i class="superseded"></i>Superseded</span><span><i></i>Not started or unknown</span></div></section></div>
+        <div class="backlog-panel" id="workPanel" role="tabpanel" aria-labelledby="workTab">
+          <div class="controls"><label class="search-wrap"><span class="sr-only">Search waves</span><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"></label></div>
+          <div class="ledger-tools">
+            <div class="filters" id="filters" role="group" aria-label="Filter waves"></div>
+            <div class="sort-controls">
+              <label for="sortBy"><span class="sr-only">Sort waves by</span><select id="sortBy"><option value="created">Created date</option><option value="coordinate">Wave coordinate</option><option value="updated" selected>Last updated</option></select></label>
+              <button id="sortDirection" type="button" data-direction="desc" aria-label="Sort direction: newest first. Change to oldest first." title="Newest first">
+                <svg class="sort-direction-icon descending" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16m-3-3 3 3 3-3"></path><path d="M12 6h9M12 10h7M12 14h5M12 18h3"></path></svg>
+                <svg class="sort-direction-icon ascending" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V4M3 7l3-3 3 3"></path><path d="M12 6h3M12 10h5M12 14h7M12 18h9"></path></svg>
+              </button>
+            </div>
+          </div>
+          <p class="result-note" id="resultNote" aria-live="polite"></p>
+          <div class="wave-list" id="waveList"></div>
+          <div class="legends"><section class="legend-block" aria-labelledby="legendHeading"><h2 id="legendHeading">Phase state legend</h2><div class="legend"><span><i class="complete"></i>Complete</span><span><i class="open"></i>Open or planned</span><span><i class="blocked"></i>Blocked</span><span><i class="conflict"></i>Conflicting evidence</span><span><i class="superseded"></i>Superseded</span><span><i></i>Not started or unknown</span></div></section></div>
+        </div>
+        <div class="backlog-panel" id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden>
+          <p class="data-copy">View or save the complete normalized data that backs this report. Filters, search, sorting, and open items do not change this data.</p>
+          <div class="data-actions"><button class="meta-button" type="button" id="downloadReportData">Download JSON</button></div>
+          <pre class="data-view" id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"></pre>
+        </div>
       </section>
     </div>
     <footer><p><a id="projectFooterLink">Open the project</a></p></footer>
@@ -621,6 +641,11 @@
     }
 
     const projectName = report.project.name || report.project.id || String(report.targetRoot).split(/[\\/]/).filter(Boolean).at(-1) || "Project";
+    let normalizedReportJson = null;
+    function getNormalizedReportJson() {
+      if (normalizedReportJson === null) normalizedReportJson = `${JSON.stringify(report, null, 2)}\n`;
+      return normalizedReportJson;
+    }
     document.title = `${projectName} backlog review`;
     const reportLead = document.querySelector("#reportLead");
     if (report.projectLead) {
@@ -639,6 +664,54 @@
     document.querySelector("#recordsInScope").textContent = report.tallies.workRecordsStillInScope;
     document.querySelector("#historicalRecords").textContent = report.tallies.historicalRecords;
     document.querySelector("#archivedRecords").textContent = report.tallies.archivedRecords;
+    const reportDataView = document.querySelector("#reportDataView");
+    let reportDataLoaded = false;
+    const backlogTabs = [...document.querySelectorAll("[data-backlog-tab]")];
+
+    function activateBacklogTab(tab, moveFocus = false) {
+      backlogTabs.forEach((candidate) => {
+        const selected = candidate === tab;
+        candidate.setAttribute("aria-selected", String(selected));
+        candidate.tabIndex = selected ? 0 : -1;
+        document.getElementById(candidate.getAttribute("aria-controls")).hidden = !selected;
+      });
+      if (tab.dataset.backlogTab === "data" && !reportDataLoaded) {
+        reportDataView.textContent = getNormalizedReportJson();
+        reportDataLoaded = true;
+      }
+      if (moveFocus) tab.focus();
+    }
+
+    backlogTabs.forEach((tab) => tab.addEventListener("click", () => activateBacklogTab(tab)));
+    document.querySelector("[role=tablist]").addEventListener("keydown", (event) => {
+      const current = backlogTabs.indexOf(document.activeElement);
+      if (current < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? backlogTabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + backlogTabs.length) % backlogTabs.length;
+      activateBacklogTab(backlogTabs[next], true);
+    });
+    let tabBeforePrint = null;
+    window.addEventListener("beforeprint", () => {
+      tabBeforePrint = backlogTabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+      activateBacklogTab(document.querySelector("#workTab"));
+    });
+    window.addEventListener("afterprint", () => {
+      if (tabBeforePrint) activateBacklogTab(tabBeforePrint);
+      tabBeforePrint = null;
+    });
+    document.querySelector("#downloadReportData").addEventListener("click", () => {
+      const blob = new Blob([getNormalizedReportJson()], { type: "application/json;charset=utf-8" });
+      const href = URL.createObjectURL(blob);
+      const download = document.createElement("a");
+      const projectSlug = String(projectName).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "project";
+      download.href = href;
+      download.download = `${projectSlug}-backlog-review.json`;
+      download.hidden = true;
+      document.body.append(download);
+      download.click();
+      download.remove();
+      setTimeout(() => URL.revokeObjectURL(href), 0);
+    });
 
     renderOrder();
     renderAttention();
