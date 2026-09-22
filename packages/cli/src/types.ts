@@ -597,6 +597,8 @@ export interface PlannedAction {
   type: ActionType;
   relativePath: string;
   sourceId?: string;
+  /** Explicit user decision that resolved a managed-file ownership conflict. */
+  reviewedConflictResolution?: ManagedFileConflictResolution;
   agenticRole?: AgenticFileRole;
   agenticOwnership?: AgenticOwnershipMetadata;
   skillExposure?: SkillExposureMetadata;

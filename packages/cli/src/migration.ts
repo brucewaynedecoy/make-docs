@@ -62,6 +62,7 @@ import {
 import { isRetiredTemplateOwnedChildRouterPath } from "./router-paths";
 import { resolveInstallProfile } from "./profile";
 import { planProjectHarnessIntegrationWrite } from "./config";
+import { assertLifecyclePlanSnapshotCurrent } from "./lifecycle-plan";
 
 import {
   withInstallationOperation,
@@ -70,6 +71,7 @@ import {
   assertInstallationLockActive,
   recordMigrationState,
   readMigrationState,
+  readInstallationManifest,
   withReviewedStoreCompatibilityBridge,
 } from "./store/installation-state";
 
@@ -371,6 +373,15 @@ interface FixedMigrationProductPlan {
   appliedActions: PlannedAction[];
   conflictFiles: string[];
   projectHarnessConfig?: import("./config").ProjectHarnessIntegrationWritePlan;
+}
+
+interface PreparedInstallPlanMigration {
+  projectRoot: string;
+  input: InstallPlanMigrationInput;
+  productPlan: FixedMigrationProductPlan;
+  classification: MigrationCompatibilityClassification;
+  affectedPaths: MigrationAffectedPath[];
+  inspectedPaths: MigrationPathSnapshot[];
 }
 
 interface QuiescenceRecord {
@@ -1158,36 +1169,36 @@ type InstallPlanMigrationInput = {
   backupId?: string;
 };
 export function executeInstallPlanMigration(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
-  if (input.projectHarnessConfig) {
-    const currentConfig = existsSync(input.projectHarnessConfig.configPath)
-      ? readFileSync(input.projectHarnessConfig.configPath, "utf8")
-      : null;
-    if (currentConfig !== input.projectHarnessConfig.beforeContent) {
-      throw new MigrationSafetyError("snapshot-drift", "Project config changed after migration review.");
-    }
-  }
-  return withReviewedStoreCompatibilityBridge(() => withInstallationOperation(input.projectRoot, "setup.migration", () => {
-    if (stableJson(loadManifest(input.projectRoot)) !== stableJson(input.existingManifest)) {
-      throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
-    }
-    const projectHarnessConfig = input.projectHarnessConfig
-      ? planProjectHarnessIntegrationWrite({
-          targetDir: input.projectRoot,
-          reviewed: input.projectHarnessConfig.reviewed,
-          contentWhenMissing: input.projectHarnessConfig.content,
-        })
-      : undefined;
-    return executeInstallPlanMigrationOwned({
-      ...input,
-      ...(projectHarnessConfig ? { projectHarnessConfig } : {}),
+  return withReviewedStoreCompatibilityBridge(() => {
+    const prepared = prepareInstallPlanMigration(input);
+    return withInstallationOperation(prepared.projectRoot, "setup.migration", () => {
+      assertPreparedInstallPlanMigrationCurrent(prepared);
+      const projectHarnessConfig = input.projectHarnessConfig
+        ? planProjectHarnessIntegrationWrite({
+            targetDir: prepared.projectRoot,
+            reviewed: input.projectHarnessConfig.reviewed,
+            contentWhenMissing: input.projectHarnessConfig.content,
+          })
+        : undefined;
+      return executePreparedInstallPlanMigration({
+        ...prepared,
+        productPlan: {
+          ...prepared.productPlan,
+          ...(projectHarnessConfig ? { projectHarnessConfig } : {}),
+        },
+      });
+    }, {
+      storeRoot: input.storeRoot,
+      projectId: input.existingManifest?.projectId,
     });
-  }, {
-    storeRoot: input.storeRoot,
-    projectId: input.existingManifest?.projectId,
-  }));
+  });
 }
-function executeInstallPlanMigrationOwned(input: InstallPlanMigrationInput): InstallPlanMigrationResult {
+
+function prepareInstallPlanMigration(
+  input: InstallPlanMigrationInput,
+): PreparedInstallPlanMigration {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
+  assertInstallPlanMigrationInputsCurrent(projectRoot, input);
   assertStoreCheckpoint9SetupSafe(input.storeRoot);
   const unresolved = findReviewableManagedFileConflicts(input.installPlan);
   if (unresolved.length > 0 || (input.installPlan.stops?.length ?? 0) > 0) {
@@ -1196,23 +1207,148 @@ function executeInstallPlanMigrationOwned(input: InstallPlanMigrationInput): Ins
       "The install plan still has unresolved ownership or safety stops.",
     );
   }
+  const productPlan = createFixedMigrationProductPlan(
+    projectRoot,
+    input.storeRoot,
+    input.installPlan,
+    input.existingManifest,
+    input.projectHarnessConfig,
+  );
+  const classification = classificationFromReviewedInstallPlan(
+    input.compatibility,
+    input.existingManifest,
+    input.installPlan,
+    input.storeRoot,
+  );
+  assertReviewedMutationAllowed(classification);
+  const affectedPaths = affectedPathsFromInstallPlan(projectRoot, productPlan);
+  const inspectedPaths = normalizeAffectedPaths(projectRoot, affectedPaths);
+  assertMigrationBackupCanBePrepared(projectRoot, inspectedPaths, input.backupId);
+  assertResourceDiscoveryOperationsAvailable();
+  assertOnDemandRoutingAvailable(projectRoot);
+  validateRetirementProductBoundary();
+  return {
+    projectRoot,
+    input,
+    productPlan,
+    classification,
+    affectedPaths,
+    inspectedPaths,
+  };
+}
+
+function assertInstallPlanMigrationInputsCurrent(
+  projectRoot: string,
+  input: InstallPlanMigrationInput,
+): void {
+  if (stableJson(readInstallationManifest(projectRoot, input.storeRoot)) !== stableJson(input.existingManifest)) {
+    throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
+  }
+  assertInstallPlanLifecycleSnapshotCurrent(projectRoot, input.installPlan);
+  if (!input.projectHarnessConfig) return;
+  const currentConfig = existsSync(input.projectHarnessConfig.configPath)
+    ? readFileSync(input.projectHarnessConfig.configPath, "utf8")
+    : null;
+  if (currentConfig !== input.projectHarnessConfig.beforeContent) {
+    throw new MigrationSafetyError("snapshot-drift", "Project config changed after migration review.");
+  }
+  planProjectHarnessIntegrationWrite({
+    targetDir: projectRoot,
+    reviewed: input.projectHarnessConfig.reviewed,
+    contentWhenMissing: input.projectHarnessConfig.content,
+  });
+}
+
+function assertInstallPlanLifecycleSnapshotCurrent(
+  projectRoot: string,
+  installPlan: InstallPlan,
+): void {
+  if (!installPlan.classificationSnapshot) return;
+  try {
+    assertLifecyclePlanSnapshotCurrent(projectRoot, installPlan.classificationSnapshot);
+  } catch (error) {
+    throw new MigrationSafetyError(
+      "snapshot-drift",
+      error instanceof Error ? error.message : "The reviewed lifecycle plan is stale.",
+    );
+  }
+}
+
+function assertPreparedInstallPlanMigrationCurrent(
+  prepared: PreparedInstallPlanMigration,
+): void {
+  if (
+    stableJson(readInstallationManifest(prepared.projectRoot, prepared.input.storeRoot)) !==
+    stableJson(prepared.input.existingManifest)
+  ) {
+    throw new MigrationSafetyError("snapshot-drift", "Installation state changed after migration review.");
+  }
+  assertInstallPlanLifecycleSnapshotCurrent(prepared.projectRoot, prepared.input.installPlan);
+  const inspectedPaths = normalizeAffectedPaths(prepared.projectRoot, prepared.affectedPaths);
+  if (stableJson(inspectedPaths) !== stableJson(prepared.inspectedPaths)) {
+    throw new MigrationSafetyError(
+      "snapshot-drift",
+      "An affected path changed after migration admission.",
+    );
+  }
+  assertStoreCheckpoint9SetupSafe(prepared.input.storeRoot);
+}
+
+function assertReviewedMutationAllowed(
+  classification: MigrationCompatibilityClassification,
+): void {
+  if (classification.reviewedMigrationAllowed) return;
+  throw new MigrationSafetyError(
+    "classification-blocked",
+    `The reviewed plan does not permit migration (${classification.blockers.join(", ") || "no accepted safety proof"}).`,
+  );
+}
+
+function assertMigrationBackupCanBePrepared(
+  projectRoot: string,
+  paths: readonly MigrationPathSnapshot[],
+  requestedBackupId?: string,
+): void {
+  assertManagedPathHasNoSymlinks(projectRoot, ".make-docs/backup");
+  for (const relativePath of [".make-docs", ".make-docs/backup"]) {
+    const stats = lstatSync(path.join(projectRoot, relativePath), { throwIfNoEntry: false });
+    if (stats && !stats.isDirectory()) {
+      throw new MigrationSafetyError(
+        "backup-incomplete",
+        `The migration backup path is not a directory: ${relativePath}.`,
+      );
+    }
+  }
+  if (requestedBackupId) {
+    const backupId = sanitizeBackupId(requestedBackupId);
+    if (existsSync(path.join(projectRoot, ".make-docs/backup", backupId))) {
+      throw new MigrationSafetyError(
+        "backup-incomplete",
+        "The selected backup destination already exists.",
+      );
+    }
+  }
+  const unsupported = paths.find((entry) =>
+    isMutatingDisposition(entry.disposition) &&
+    (entry.entryType === "directory" || entry.entryType === "other"),
+  );
+  if (!unsupported) return;
+  throw new MigrationSafetyError(
+    "backup-incomplete",
+    `A mutating directory or special entry requires explicit child dispositions: ${unsupported.relativePath}.`,
+  );
+}
+
+function executePreparedInstallPlanMigration(
+  prepared: PreparedInstallPlanMigration,
+): InstallPlanMigrationResult {
+  const { projectRoot, input, productPlan, classification, affectedPaths } = prepared;
   const lock = acquireProjectMigrationLock({ projectRoot, storeRoot: input.storeRoot });
   try {
-    const productPlan = createFixedMigrationProductPlan(
-      projectRoot,
-      input.storeRoot,
-      input.installPlan,
-      input.existingManifest,
-      input.projectHarnessConfig,
-    );
     const snapshot = createReviewedMigrationSnapshot({
       lock,
-      classification: classificationFromReviewedInstallPlan(
-        input.compatibility,
-        input.existingManifest,
-        input.installPlan,
-      ),
-      affectedPaths: affectedPathsFromInstallPlan(projectRoot, productPlan),
+      classification,
+      affectedPaths,
     });
     const backup = createVerifiedMigrationBackup({
       lock,
@@ -1616,7 +1752,7 @@ function classificationFromReviewedInstallPlan(
   const { evidence, auditReport } = compatibility;
   const manifestTrust = evidence.manifestTrust;
   const filesystemTrust = evidence.filesystemTrust;
-  const manifestProvenance = !manifestTrust.present
+  const sourceManifestProvenance = !manifestTrust.present
     ? "absent"
     : manifestTrust.parseable &&
         manifestTrust.packageIdentityTrusted &&
@@ -1628,26 +1764,48 @@ function classificationFromReviewedInstallPlan(
       : manifestTrust.parseable
         ? "incomplete"
         : "contradictory";
-  const reviewedMutationPaths = new Set(
-    installPlan.actions
-      .filter((action) =>
-        action.type === "update" ||
-        action.type === "update-conflict" ||
-        action.type === "strip-managed-block" ||
-        action.type === "remove-managed",
-      )
-      .map((action) => action.relativePath),
+  const actionsByPath = new Map(
+    installPlan.actions.map((action) => [action.relativePath, action]),
   );
-  const allModifiedPathsReviewed = filesystemTrust.modifiedPaths.every((relativePath) =>
-    reviewedMutationPaths.has(relativePath),
+  const hasUnresolvedPlanState =
+    (installPlan.stops?.length ?? 0) > 0 ||
+    installPlan.actions.some((action) => action.type === "skip-conflict");
+  const pathHasReviewedPlanCoverage = (relativePath: string) =>
+    actionProvidesReviewedPlanCoverage(
+      actionsByPath.get(relativePath),
+      installPlan,
+      existingManifest,
+    );
+  const allModifiedPathsReviewed = filesystemTrust.modifiedPaths.every(
+    pathHasReviewedPlanCoverage,
+  );
+  const recognizedPaths = new Set([
+    ...filesystemTrust.recognizableManagedPaths,
+    ...filesystemTrust.modifiedPaths,
+  ]);
+  const reviewedPlanReplacesSourceProof =
+    !hasUnresolvedPlanState &&
+    recognizedPaths.size > 0 &&
+    filesystemTrust.ambiguousFallbackPaths.length === 0 &&
+    filesystemTrust.nonMakeDocsPathCollisions.length === 0 &&
+    [...recognizedPaths].every(pathHasReviewedPlanCoverage);
+  const manifestProvenance =
+    sourceManifestProvenance === "verified" || reviewedPlanReplacesSourceProof
+      ? "verified"
+      : sourceManifestProvenance;
+  const hasReviewedProjectOwnedPath = installPlan.actions.some(
+    (action) => action.reviewedConflictResolution !== undefined,
   );
   const filesystem: MigrationFilesystemState =
     filesystemTrust.ambiguousFallbackPaths.length > 0 ||
     filesystemTrust.nonMakeDocsPathCollisions.length > 0
       ? "unknown"
-      : (filesystemTrust.modifiedPaths.length > 0 && !allModifiedPathsReviewed) ||
+      : hasUnresolvedPlanState ||
+          (filesystemTrust.modifiedPaths.length > 0 && !allModifiedPathsReviewed) ||
           !filesystemTrust.managedBlocksValid
         ? "managed-modified"
+        : reviewedPlanReplacesSourceProof
+          ? hasReviewedProjectOwnedPath ? "project-owned" : "managed-clean"
         : filesystemTrust.managedFilesMatch || filesystemTrust.missingPaths.length > 0
           ? "managed-clean"
           : "absent";
@@ -1658,6 +1816,10 @@ function classificationFromReviewedInstallPlan(
       : auditReport.removableFiles.length > 0
         ? "managed-clean"
         : "absent";
+  const agenticPathsCovered = [
+    ...evidence.skillTrust.missingSkillOutputs,
+    ...evidence.skillTrust.modifiedSkillOutputs,
+  ].every(pathHasReviewedPlanCoverage);
   const optionalAgentics: MigrationFilesystemState =
     (existingManifest?.skillFiles.length ?? 0) === 0
       ? "absent"
@@ -1665,12 +1827,17 @@ function classificationFromReviewedInstallPlan(
           evidence.skillTrust.missingSkillOutputs.length === 0 &&
           evidence.skillTrust.modifiedSkillOutputs.length === 0
         ? "managed-clean"
+        : agenticPathsCovered && !hasUnresolvedPlanState
+          ? "managed-clean"
         : "unknown";
   return classifyMigrationCompatibility({
     state: compatibility.state,
     disposition: compatibility.disposition,
     facets: {
-      resource: evidence.providerCacheTrust.trusted ? "managed-clean" : "unknown",
+      resource:
+        evidence.providerCacheTrust.trusted || reviewedPlanReplacesSourceProof
+          ? "managed-clean"
+          : "unknown",
       filesystem,
       manifestProvenance,
       store: inspectMigrationStoreFacet(storeRoot),
@@ -1683,6 +1850,37 @@ function classificationFromReviewedInstallPlan(
       optionalAgentics,
     },
   });
+}
+
+function actionProvidesReviewedPlanCoverage(
+  action: PlannedAction | undefined,
+  installPlan: InstallPlan,
+  existingManifest: InstallManifest | null,
+): boolean {
+  if (!action || action.type === "skip-conflict") return false;
+  const desired = installPlan.desiredFiles[action.relativePath];
+  const desiredProofMatches = Boolean(
+    desired &&
+    action.contentHash &&
+    desired.hash === action.contentHash &&
+    desired.sourceId === action.sourceId,
+  );
+  switch (action.type) {
+    case "noop":
+      return desiredProofMatches;
+    case "update":
+    case "update-conflict":
+    case "generate":
+      return desiredProofMatches && action.content !== undefined;
+    case "strip-managed-block":
+    case "remove-managed":
+      return Boolean(existingManifest?.files[action.relativePath]);
+    case "skip":
+      return action.reviewedConflictResolution === "skip" &&
+        existingManifest?.files[action.relativePath] === undefined;
+    case "create":
+      return false;
+  }
 }
 
 function inspectMigrationStoreFacet(storeRoot: string): MigrationStoreState {
@@ -1705,11 +1903,19 @@ function affectedPathsFromInstallPlan(
   for (const action of product.installPlan.actions) {
     const preserved = product.preservedActions.includes(action);
     if (preserved) continue;
-    const replacingProjectContent = action.type === "update-conflict";
+    const replacingProjectContent =
+      action.type === "update-conflict" ||
+      action.reviewedConflictResolution === "overwrite";
+    const preservingProjectContent = action.reviewedConflictResolution === "skip";
     add({
       relativePath: action.relativePath,
-      ownership: replacingProjectContent ? "project-owned" : "managed-clean",
-      disposition: action.type === "noop" || action.type === "skip" || action.type === "skip-conflict"
+      ownership:
+        replacingProjectContent || preservingProjectContent
+          ? "project-owned"
+          : "managed-clean",
+      disposition: preservingProjectContent
+        ? "preserve-project-owned"
+        : action.type === "noop" || action.type === "skip" || action.type === "skip-conflict"
         ? "skip"
         : replacingProjectContent
           ? "export-then-replace"

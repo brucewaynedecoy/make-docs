@@ -44,6 +44,7 @@ import {
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
 import { runCli } from "../src/cli";
 import { defaultSelections } from "../src/profile";
+import { renderManagedBlock } from "../src/managed-block";
 import {
   failingPathHygieneFindings,
   fixRepositoryRootPaths,
@@ -51,7 +52,7 @@ import {
   validateProjectPathHygiene,
 } from "../src/path-hygiene";
 
-import { readMigrationState, listMigrationState, readInstallationManifest, withInstallationDatabase } from "../src/store/installation-state";
+import { readMigrationState, listMigrationState, readInstallationManifest, readInstallationStatus, withInstallationDatabase } from "../src/store/installation-state";
 
 const roots: string[] = [];
 const stores = new Map<string, string>();
@@ -158,6 +159,90 @@ function reviewedCompatibility(root: string): CompatibilityClassification {
   };
 }
 
+function missingManifestCompatibility(
+  root: string,
+  recognizableManagedPaths: string[],
+  options: {
+    modifiedPaths?: string[];
+    ambiguousFallbackPaths?: string[];
+  } = {},
+): CompatibilityClassification {
+  process.env.MAKE_DOCS_HOME = fixtureStore(root);
+  return {
+    state: "missing-manifest-recognizable",
+    disposition: "migrate-with-review",
+    targetDir: root,
+    manifestPath: path.join(root, ".make-docs/manifest.json"),
+    auditReport: {
+      mode: "manifest-missing",
+      targetDir: root,
+      manifestPath: path.join(root, ".make-docs/manifest.json"),
+      removableFiles: [],
+      prunableDirectories: [],
+      preservedPaths: [],
+      skippedPaths: [],
+    },
+    evidence: {
+      manifestTrust: {
+        present: false,
+        parseable: false,
+        schemaVersion: null,
+        packageIdentityTrusted: false,
+        selectionsTrusted: false,
+        managedFileRecordsTrusted: false,
+        skillRecordsTrusted: false,
+        materializationProvenanceTrusted: false,
+        reasons: ["Manifest is missing."],
+      },
+      filesystemTrust: {
+        managedFilesMatch: false,
+        managedBlocksValid: true,
+        recognizableManagedPaths,
+        modifiedPaths: options.modifiedPaths ?? [],
+        missingPaths: [],
+        ambiguousFallbackPaths: options.ambiguousFallbackPaths ?? [],
+        nonMakeDocsPathCollisions: [],
+        reasons: [],
+      },
+      bootstrapTrust: {
+        requiredLocalBootstrapPresent: false,
+        missingBootstrapPaths: [],
+        reasons: ["Bootstrap trust requires a trusted manifest."],
+      },
+      skillTrust: {
+        selectedSkillsTrusted: false,
+        missingSkillOutputs: [],
+        modifiedSkillOutputs: [],
+        reasons: ["Skill trust requires a trusted manifest."],
+      },
+      providerCacheTrust: {
+        mode: null,
+        trusted: false,
+        providerAvailable: false,
+        cacheUsable: false,
+        staleHashes: [],
+        reasons: ["Provider/cache trust requires a trusted manifest."],
+      },
+    },
+    printableEvidence: [],
+  };
+}
+
+async function reviewedMissingManifestPlan(
+  root: string,
+  managedFileConflictResolutions?: Record<string, "overwrite" | "skip">,
+) {
+  const selections = defaultSelections();
+  selections.resourceProjection = [];
+  return planInstall({
+    targetDir: root,
+    selections,
+    existingManifest: null,
+    operation: "setup",
+    managedFileConflictResolutions,
+  });
+}
+
 function reviewedFixture(relativePath = "managed.txt") {
   const root = fixtureRoot();
   writeFileSync(path.join(root, relativePath), "before\n", "utf8");
@@ -221,6 +306,165 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
         reason: "unsafe",
       }],
     })).toThrowError(MigrationSafetyError);
+  });
+
+  it("admits a reviewed AGENTS.md overwrite as export then replace", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-reviewed-overwrite-"));
+    roots.push(root);
+    writeFileSync(
+      path.join(root, "AGENTS.md"),
+      `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
+      "utf8",
+    );
+    const plan = await reviewedMissingManifestPlan(root, { "AGENTS.md": "overwrite" });
+    const reviewedAction = plan.actions.find((action) => action.relativePath === "AGENTS.md");
+    expect(reviewedAction).toMatchObject({
+      type: "update",
+      reviewedConflictResolution: "overwrite",
+    });
+
+    const result = executeInstallPlanMigration({
+      projectRoot: root,
+      storeRoot: fixtureStore(root),
+      compatibility: missingManifestCompatibility(root, ["AGENTS.md"]),
+      installPlan: plan,
+      existingManifest: null,
+      backupId: "reviewed-overwrite",
+    });
+
+    const backup = readMigrationState(
+      root,
+      "backup",
+      "reviewed-overwrite",
+      fixtureStore(root),
+    ) as { entries: Array<{ relativePath: string; original: { disposition: string; ownership: string } }> };
+    expect(backup.entries.find((entry) => entry.relativePath === "AGENTS.md")?.original)
+      .toMatchObject({ ownership: "project-owned", disposition: "export-then-replace" });
+    expect(result.manifest.files["AGENTS.md"]).toBeDefined();
+    expect(readFileSync(path.join(root, "AGENTS.md"), "utf8"))
+      .not.toContain("Locally edited make-docs routing");
+    expect(readInstallationStatus(root, fixtureStore(root))).toMatchObject({
+      status: "ready",
+      pendingOperation: null,
+    });
+  });
+
+  it("adopts exact desired bytes from a recognized older install", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-noop-adoption-"));
+    roots.push(root);
+    const initialPlan = await reviewedMissingManifestPlan(root);
+    const agentsCreate = initialPlan.actions.find((action) => action.relativePath === "AGENTS.md");
+    expect(agentsCreate).toMatchObject({ type: "create" });
+    writeFileSync(path.join(root, "AGENTS.md"), agentsCreate!.content!, "utf8");
+    const plan = await reviewedMissingManifestPlan(root);
+    expect(plan.actions.find((action) => action.relativePath === "AGENTS.md"))
+      .toMatchObject({ type: "noop", contentHash: plan.desiredFiles["AGENTS.md"]!.hash });
+
+    const result = executeInstallPlanMigration({
+      projectRoot: root,
+      storeRoot: fixtureStore(root),
+      compatibility: missingManifestCompatibility(root, ["AGENTS.md"]),
+      installPlan: plan,
+      existingManifest: null,
+      backupId: "noop-adoption",
+    });
+
+    expect(result.manifest.files["AGENTS.md"]).toEqual(plan.desiredFiles["AGENTS.md"]);
+    expect(readInstallationStatus(root, fixtureStore(root))).toMatchObject({
+      status: "ready",
+      pendingOperation: null,
+    });
+  });
+
+  it("blocks incomplete reviewed coverage before creating a pending operation", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-incomplete-admission-"));
+    roots.push(root);
+    const initialPlan = await reviewedMissingManifestPlan(root);
+    const agentsCreate = initialPlan.actions.find((action) => action.relativePath === "AGENTS.md");
+    writeFileSync(path.join(root, "AGENTS.md"), agentsCreate!.content!, "utf8");
+    writeFileSync(path.join(root, "uncovered.md"), "unreviewed bytes\n", "utf8");
+    const plan = await reviewedMissingManifestPlan(root);
+    const storeRoot = fixtureStore(root);
+
+    expect(() => executeInstallPlanMigration({
+      projectRoot: root,
+      storeRoot,
+      compatibility: missingManifestCompatibility(
+        root,
+        ["AGENTS.md", "uncovered.md"],
+        { modifiedPaths: ["uncovered.md"] },
+      ),
+      installPlan: plan,
+      existingManifest: null,
+      backupId: "incomplete-admission",
+    })).toThrow("The reviewed plan does not permit migration (ambiguous-ownership)");
+
+    expect(readInstallationStatus(root, storeRoot)).toMatchObject({ status: "unregistered" });
+    expect(existsSync(storeRoot)).toBe(false);
+    expect(existsSync(path.join(root, ".make-docs/config.yaml"))).toBe(false);
+  });
+
+  it("blocks a non-directory backup path before creating a pending operation", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-backup-path-admission-"));
+    roots.push(root);
+    const initialPlan = await reviewedMissingManifestPlan(root);
+    const agentsCreate = initialPlan.actions.find((action) => action.relativePath === "AGENTS.md");
+    writeFileSync(path.join(root, "AGENTS.md"), agentsCreate!.content!, "utf8");
+    const plan = await reviewedMissingManifestPlan(root);
+    mkdirSync(path.join(root, ".make-docs"), { recursive: true });
+    writeFileSync(path.join(root, ".make-docs/backup"), "not a directory\n", "utf8");
+    const storeRoot = fixtureStore(root);
+
+    let failure: unknown;
+    try {
+      executeInstallPlanMigration({
+        projectRoot: root,
+        storeRoot,
+        compatibility: missingManifestCompatibility(root, ["AGENTS.md"]),
+        installPlan: plan,
+        existingManifest: null,
+        backupId: "blocked-backup-path",
+      });
+    } catch (error) {
+      failure = error;
+    }
+
+    expect(failure).toBeInstanceOf(MigrationSafetyError);
+    expect(failure).toMatchObject({ code: "backup-incomplete" });
+    expect(readInstallationStatus(root, storeRoot)).toMatchObject({ status: "unregistered" });
+    expect(existsSync(storeRoot)).toBe(false);
+  });
+
+  it("uses the explicit Store root during migration admission", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-explicit-store-"));
+    roots.push(root);
+    writeFileSync(
+      path.join(root, "AGENTS.md"),
+      `${renderManagedBlock("- Locally edited make-docs routing.\n")}\n`,
+      "utf8",
+    );
+    const plan = await reviewedMissingManifestPlan(root, { "AGENTS.md": "overwrite" });
+    const compatibility = missingManifestCompatibility(root, ["AGENTS.md"]);
+    const explicitStoreRoot = fixtureStore(root);
+    const defaultStoreRoot = `${root}-default-store`;
+    roots.push(defaultStoreRoot);
+    mkdirSync(defaultStoreRoot, { recursive: true });
+    writeFileSync(path.join(defaultStoreRoot, "store.db"), "corrupt default Store", "utf8");
+    process.env.MAKE_DOCS_HOME = defaultStoreRoot;
+
+    const result = executeInstallPlanMigration({
+      projectRoot: root,
+      storeRoot: explicitStoreRoot,
+      compatibility,
+      installPlan: plan,
+      existingManifest: null,
+      backupId: "explicit-store",
+    });
+
+    expect(result.manifest.files["AGENTS.md"]).toBeDefined();
+    expect(readInstallationStatus(root, explicitStoreRoot)).toMatchObject({ status: "ready" });
+    expect(readFileSync(path.join(defaultStoreRoot, "store.db"), "utf8"))
+      .toBe("corrupt default Store");
   });
 
   it("fixture 3: rejects path escape, Windows path forms, and case collisions", () => {
