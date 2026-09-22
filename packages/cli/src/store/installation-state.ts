@@ -781,12 +781,29 @@ export function releaseInstallationLock(lock: InstallationLock): void {
         current.depth--;
         return;
     }
-    assertInstallationLockActive(lock);
-    withInstallationDatabase(lock.projectRoot, db => { db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(lock.projectRoot, lock.token); }, { storeRoot: lock.storeRoot });
-    held.delete(lock.projectRoot);
-    if (current?.globalLock)
-        releaseGlobalAssetLock(current.globalLock);
-    current?.releaseAccess();
+    const owned = current?.token === lock.token ? current : undefined;
+    try {
+        withInstallationDatabase(lock.projectRoot, db => {
+            const row = db.prepare('SELECT token FROM installation_locks WHERE root_path=?').get(lock.projectRoot) as {
+                token: string;
+            } | undefined;
+            if (row?.token !== lock.token)
+                fail('writer-active', 'Checkout lock ownership changed.');
+            db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(lock.projectRoot, lock.token);
+        }, { storeRoot: lock.storeRoot });
+    }
+    finally {
+        if (owned) {
+            held.delete(lock.projectRoot);
+            try {
+                if (owned.globalLock)
+                    releaseGlobalAssetLock(owned.globalLock);
+            }
+            finally {
+                owned.releaseAccess();
+            }
+        }
+    }
 }
 export function readInstallationManifest(projectRoot: string, storeRoot?: string): InstallManifest | null {
     const root = canonicalInstallationPath(projectRoot);
