@@ -1163,3 +1163,198 @@ Tasks t1 through t13 are complete. Acceptance criteria A36 through A44 are satis
 One exact package passed the required source and installed-package gates on Windows, macOS, and Linux. The final comparison passed. The six W22 PRD risk records and all known W22 symptom chains have exact close evidence. No W22 deferred obligation or platform exception remains open.
 
 The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publication, release, old-history deletion, and any push of this closeout commit remain separate actions.
+
+## P7 Setup Bridge Order and Recovery Loop Repair
+
+### Status
+
+P7 Stage 1 source repair, three authentic older-package fixtures, focused validation, and corrective review are complete as of 2026-09-22. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open. P7 and D-038 remain open.
+
+The final Stage 1 source result includes the checkpoint-3 regression, three exact authentic older-package fixtures, isolated plain-setup upgrade proof, focused and full validation, package build, TypeScript checks, and an independent read-only audit with no material defects. Stage 1 made no live CLI installation or live Store change. It did not stage, commit, push, publish, release, or start an external workflow.
+
+### Prior Source Implementation Result - Invalidated For Acceptance
+
+The following result remains as historical source evidence. It proved the first reported command loop, but it did not prove end-to-end upgrade convergence. The later installed counterevidence invalidates it for A45 through A49 and Stage 1 closeout.
+
+- [The full setup coordinator](../../../packages/cli/src/cli.ts) now treats the reviewed Store bridge as a This-computer prerequisite. It applies and verifies that bridge before a Store-backed machine step.
+- The Store prerequisite has the This-computer approval boundary. Project approval remains separate.
+- [Direct system setup](../../../packages/cli/src/setup-system.ts) stays machine-level. A supported legacy Store points to full setup for the bridge. Direct system setup does not own project migration.
+- New harness intent is saved only after the native machine state verifies. An interrupted machine change keeps one pending operation and does not claim unfulfilled new intent.
+- Human and JSON failure results name the failed condition, the mutation state, and one action that can change the condition.
+- Full setup preserves Store backup and journal behavior, user-owned native content, project approval, Store-free work, and the existing platform support boundary.
+
+### Prior Regression Fixture - Incomplete
+
+[The exact CLI regression](../../../packages/cli/tests/cli.test.ts) uses a schema 3 Store, a drifted managed Codex MCP entry, a newly selected Claude Code MCP method, user-owned Codex and Claude content, and reviewed project work. The earlier captured terminal evidence records the pre-fix reciprocal directions. The fixture reconstructs those preconditions without the owner's live Store.
+
+The fixed results are:
+
+1. Full dry-run reports the schema 3 bridge, Codex drift, Claude incompleteness, and no mutation.
+2. Direct system setup names schema 3 and points to full setup. It does not point back to system setup. It changes no Store, project, or native file.
+3. Full setup converts the Store to schema 6 before machine apply. It repairs Codex, adds Claude, preserves the user-owned Codex model and Claude theme, and applies project work only after its separate approval.
+4. New Codex and Claude intent exists only after native verification.
+5. Repeat full setup is a no-op for the Store, both machine routes, and project files.
+
+[The interruption regression](../../../packages/cli/tests/w19-r6-setup.test.ts) proves that an interrupted native apply leaves one resumable pending operation and no new global intent. A retry resumes the recorded operation, verifies the native state, clears the pending operation, and then saves intent.
+
+Injected Store prerequisite failure proves that project mutation stays `none`, machine apply does not start, the Store reports `partial` or its observed state, and the next action addresses the Store access failure. A Store-only bridge also requires This-computer approval.
+
+This fixture did not use an authentic supported older package to create the full installation. It did not model the later `partial-install` state with modified managed files and old managed ownership. It did not test agreement between the displayed plan, frozen classification, migration coordinator, and executor. It also did not require every predictable safety check to pass before operation creation. These gaps make the earlier fixture incomplete for P7 acceptance.
+
+### Installed Counterevidence That Reopened Stage 1
+
+The owner ran the current installed CLI against the Make Docs project after the prior repair.
+
+1. `make-docs project state recover 6a20948a-d104-42bc-af61-e895cbb51bec --rollback --target-root <project>` restored the prior state.
+2. `make-docs project state status` reported installation state `ready`, installed version `2.0.0-rc`, and no recovery need.
+3. Plain `make-docs setup` classified the project as `partial-install` with disposition `migrate-with-review`.
+4. Setup reported 108 evaluated files, 107 current files, and one planned skip for `.make-docs/archive/legacy-playbooks/agent/make-docs-lifecycle.playbook.md`.
+5. Setup listed six modified managed files and requested project approval.
+6. The owner approved the project work.
+7. Migration checkpoint 3 rejected the reviewed work because the frozen classification did not permit `ambiguous-ownership` mutation.
+8. Setup created pending operation `9b687b36-5394-4bae-879e-416937eaa33d` and directed the owner to project-state status and recovery commands.
+
+The displayed planner result and the checkpoint-3 classifier result conflict. The executor started an operation before the predictable rejection. Plain setup did not provide the normal resume or restore choice. This trace disproves A45 through A49 and the prior Stage 1 Human Experience Review.
+
+### Prior Stage 1 Validation Evidence - Incomplete
+
+| Check | Result |
+| --- | --- |
+| Focused setup, Store remediation, and exact loop tests | Passed: 145 of 145 in `cli.test.ts`, `w19-r6-setup.test.ts`, and `w19-r8-store-access-remediation.test.ts`. |
+| Full CLI suite | Passed: 90 test files; 1,442 tests passed and 5 skipped. One test file was skipped by its existing contract. |
+| Package proof-harness tests | Passed: 19 of 19. |
+| Default validation | Passed: 53 of 53. |
+| TypeScript package build | Passed. |
+| Diff whitespace check | Passed. |
+
+The local results remain valid for the exact cases that passed. They are incomplete for P7 acceptance. They did not cover the installed `partial-install` and `ambiguous-ownership` path, authentic older-package installation state, final-plan agreement, all safety checks before operation creation, or plain-setup resume and restore.
+
+### Prior P7 Human Experience Review - Stage 1 Claim Withdrawn
+
+Reviewer: Codex agent.
+
+Review surface: isolated human output, canonical JSON output, the exact regression fixture, failure injection, interruption and resume results, approval rejection, and repeat no-op results.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | The source cases gave one action for the first loop. The installed project later received an approved plan, a conflicting checkpoint-3 rejection, and a deep recovery direction. | Not satisfied for Stage 1. The earlier claim is withdrawn. | Prove that the approved plan and executable plan agree, and that predictable failures stop before operation creation. |
+| HX-5: setup and repair use one open recovery path | The source cases resumed one native operation. The installed project later required deep project-state commands after plain setup created a pending operation. | Not satisfied for Stage 1. The earlier claim is withdrawn. | Plain setup must offer the valid resume or restore action for interrupted project work. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The earlier source suite did not show a boundary regression, but the current end-to-end repair is incomplete. | Not yet accepted for the reopened Stage 1 result. | Repeat the source checks and the authentic installed matrix after the repair. |
+
+This review no longer supports Stage 1 closeout. The installed counterevidence is the stronger observation for the affected human path. A new Human Experience Review waits for the repaired source and installed results.
+
+### Interim Stage 1 Source Result And Corrective Review
+
+- Authentic old-package flows reached current plain setup and avoided the earlier checkpoint-3 dead end.
+- The interim tests supported ownership classification, migration admission, native safety, stale-state checks, and operation timing for the cases that ran.
+- Corrective review found that approval could occur in the wrong order.
+- Corrective review found that migration backup preflight did not reject a regular file at `.make-docs/backup` before operation creation.
+- Corrective review found that the one-recovery guard was incomplete.
+- Corrective review found that recovery routing after import was incomplete.
+- Corrective review found that JSON output did not fully report mutation state.
+- A later fail-closed regression found that a retired Store resource could be silently reintroduced.
+- The final Stage 1 repair closed each finding. This interim result remains as the reason for the corrective work.
+
+### Authentic Older-Package Fixture Evidence
+
+| Fixture | Exact identity | Digest and provenance | Result |
+| --- | --- | --- | --- |
+| `packages/cli/tests/fixtures/legacy-packages/make-docs-0.1.0.tgz` | Historical Make Docs 0.1.0 archive. It was not published under either current npm name. Its source bodies match Git commit `55b0cbec5526f5a1cd32c8ba284e4c00498e84c6`. | SHA-256 `aa9c10e20a49dfeb5afbcd3e26fd9873d4362311fe277145be5a4332a80d6acb`; size `229393` bytes. | The authentic old installation upgrades through current plain setup. |
+| `packages/cli/tests/fixtures/legacy-packages/brucewaynedecoy-make-docs-1.0.0-rc.1.tgz` | Exact published npm archive for `@brucewaynedecoy/make-docs@1.0.0-rc.1`. | SHA-256 `dfad170ceffc6e74c2afd397b390be5c900bd2e74e63491598c394382e209d71`; size `231478` bytes; npm SHA-1 `684a0791879e1218ddb7148d46c0adad55c7405b`; npm integrity `sha512-lF8MH7lRxAclI5ewIK4johoerXhD9EpJlGbXpDKOjtHGdl8kCPXb8xtNSeAivHoYgYtBsSTF3x4wxfTwSrhzyg==`. | The authentic old installation upgrades through current plain setup. |
+| `packages/cli/tests/fixtures/legacy-packages/brucewaynedecoy-make-docs-2.0.0-rc-f5fd5579.tgz` | Historical schema-3 source package from commit `f5fd5579849debf87f5a700dd8b8a656c4f01e87`. Its 109 source-map source bodies byte-match that commit. Path-independent archive reproducibility is not claimed. | SHA-256 `6008ee431f8e42d3714da8df512a934aa5e3f5d930a7a0c8104a17768a0fb878`; size `1508366` bytes. | Before repair, the fixture reproduces the checkpoint-3 failure. After repair, plain setup preserves the six exact changed managed files and archived playbook bytes, adopts the six files as project-owned with current digests, leaves no pending operation, and does not repeat conflict review on the immediate second setup. |
+
+The fixture provenance is recorded in `packages/cli/tests/fixtures/legacy-packages/README.md`. The published rc.1 package uses the old bare install command and writes manifest schema 1. The fixture preserves those facts instead of rewriting them into the current install form. All three exact archive paths are durable test fixtures and are no longer excluded by `.gitignore`, so a clean checkout can run the same cases after the files enter the repository. This evidence does not claim that the current working-tree archives are already committed.
+
+### Interim Stage 1 Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| Focused seven-file P7 run | Passed: 191 of 191 tests. |
+| Authentic 0.1.0 plain-setup upgrade | Passed. |
+| Exact published 1.0.0-rc.1 plain-setup upgrade | Passed. |
+| Default validation | Passed: 53 of 53. |
+| Full CLI suite | Passed: 92 test files; 1 test file skipped; 1,458 tests passed and 5 skipped. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Diff whitespace check | Passed. |
+
+These results proved that the first two authentic older-package fixtures could upgrade through current plain setup. They were provisional because the corrective review gaps remained open. They did not identify or prove the final repaired package candidate on Windows, macOS, and Linux.
+
+### Interim P7 Human Experience Review - Stage 1
+
+Reviewer: Codex agent.
+
+Review surface: the repaired human and JSON setup results, checkpoint-3 regression, interruption, resume, restore, repeat, no-op, and both authentic older-package plain-setup upgrades.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Both authentic old installations upgrade through plain setup, but final review found approval-order, migration backup preflight, and JSON mutation-state gaps. | Not yet satisfied for Stage 1. | Correct the three gaps and repeat the focused blocked, human, and JSON review. |
+| HX-5: setup and repair use one open recovery path | Both authentic old installations upgrade through plain setup, but final review found one-recovery guard and post-import recovery routing gaps. | Not yet satisfied for Stage 1. | Correct the two gaps and repeat interruption, resume, restore, and post-import cases. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The focused and full suites did not show a boundary regression in the cases that ran. | Provisional until corrected Stage 1 validation passes. | Repeat the required source checks after the five fixes. |
+
+This review does not support Stage 1 closeout. It does not claim real-platform installed parity, live owner-Store repair, or a lived-human reaction.
+
+### Final Stage 1 Source Result
+
+- Setup now derives one final project plan from verified post-prerequisite state. Approval and execution use the same managed-path actions.
+- Ownership, migration admission, migration backup destination, native safety, approval, stale-state, and operation checks finish before operation creation or the first durable write.
+- A regular file at `.make-docs/backup` fails before operation creation and leaves no pending operation.
+- Plain setup provides the valid resume or restore route. Deep project-state recovery remains a support and automation control.
+- Human and JSON output report the same mutation state and one action that can change the failed condition.
+- The one-recovery guard and post-import recovery route pass their focused cases.
+- The retired-resource regression first failed closed. The repair keeps the retired resource retired without weakening the fail-closed migration rule.
+- The schema-3 fixture reproduced the original checkpoint-3 failure before repair. After repair, it preserves these six exact changed managed files:
+  - `.make-docs/system/contracts/output-contract.md`
+  - `.make-docs/system/references/execution-workflow.md`
+  - `.make-docs/system/contracts/human-experience-contract.md`
+  - `.make-docs/system/references/human-experience.md`
+  - `.make-docs/system/contracts/performance-evidence-governance.md`
+  - `.make-docs/system/references/performance-evidence.md`
+- The schema-3 repair also preserves the exact bytes of `.make-docs/archive/legacy-playbooks/agent/make-docs-lifecycle.playbook.md`.
+- The six changed managed files become project-owned with their current digests. Setup leaves no pending operation. An immediate second setup does not repeat conflict review.
+
+### Final Stage 1 Validation Evidence
+
+| Check | Result |
+| --- | --- |
+| Focused P7 source suite | Passed: 6 test files; 182 tests passed. |
+| Three authentic package fixtures | Passed: 0.1.0, published 1.0.0-rc.1, and historical schema-3 source package. |
+| Default validation | Passed: 53 of 53. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Independent read-only audit | Passed with no material defects. |
+| First full-suite attempt and corrective checks | Failed: one backup test exceeded its 15-second test limit, and two retired-resource tests exposed a fail-closed regression. The backup case passed alone: 1 of 1. The retired-resource repair passed its focused checks. |
+| Final full CLI suite | Passed with the standard npm test command and an isolated `MAKE_DOCS_HOME`: 92 test files passed and 1 test file skipped; 1,468 tests passed and 5 installed-platform tests skipped; 1,473 tests total. The backup case passed in this run in 11.855 seconds. |
+
+These source results satisfy t1 through t8 and A45 through A49. They do not identify or prove the exact Stage 2 candidate on Windows, macOS, and Linux.
+
+### P7 Human Experience Review - Final Stage 1 Result
+
+Reviewer: Codex agent.
+
+Review surface: repaired human and JSON setup results, checkpoint-3 regression, migration backup block, interruption, resume, restore, post-import recovery, repeat, no-op, retired-resource safety, and all three authentic older-package plain-setup upgrades.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Approval and execution now use one plan. Predictable failures block before operation creation. Human and JSON results show the same mutation state and one condition-changing action. | Satisfied for the Stage 1 isolated source boundary. | Repeat the result with one exact installed candidate on all three required operating systems. |
+| HX-5: setup and repair use one open recovery path | Plain setup now offers the valid resume or restore route. The one-recovery guard and post-import routing pass. The immediate second schema-3 setup does not repeat conflict review. | Satisfied for the Stage 1 isolated source boundary. | Repeat failure, interruption, resume, restore, and repeat with the Stage 2 candidate. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The focused and full source suites, authentic fixtures, and independent audit found no material boundary defect. | Preserved for the Stage 1 isolated source boundary. | Real-platform installed parity remains a Stage 2 gate. |
+
+This review supports Stage 1 closeout only. It does not claim real-platform installed parity, live owner-Store repair, or a lived-human reaction.
+
+### Testing Decisions
+
+- Automated Implementation Testing: Stage 1 passed. Stage 2 exact-candidate and three-platform installed proof remain required and blocking.
+- Performance Testing: `not-needed-now`. No accepted performance target depends on setup duration.
+- Guided Progress Review: The Stage 1 corrective review passed. Review remains useful for the final installed output.
+- Unassisted Goal Testing: `not-needed-now`. Deterministic source and installed-package evidence can answer the current recovery question.
+
+### P7 Gate
+
+Tasks t1 through t8 are complete. Acceptance criteria A45 through A49 are satisfied by the final Stage 1 source result. The earlier failure evidence and interim review gaps remain part of the record.
+
+Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain open. No exact repaired P7 candidate identity, three-platform installed run, final comparison, installed Human Experience Review, or corrective closeout exists yet.
+
+The next gate is Stage 2. Build one exact repaired candidate with recorded package and install identity. Then run comparable installed proof on Windows, macOS, and Linux. Local `just install-cli` and the live plain-setup retry remain separate later owner actions.
+
+P7 and D-038 remain open. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside P7 without separate owner approval. Staging, commit, push, external workflow execution, live owner-Store verification, and closeout each require their applicable next authority.

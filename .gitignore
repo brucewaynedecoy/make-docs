@@ -28,6 +28,10 @@ out/
 wheels/
 *.tsbuildinfo
 *.tgz
+# Exact old package archives used by the W22 R0 P7 upgrade fixtures.
+!packages/cli/tests/fixtures/legacy-packages/make-docs-0.1.0.tgz
+!packages/cli/tests/fixtures/legacy-packages/brucewaynedecoy-make-docs-1.0.0-rc.1.tgz
+!packages/cli/tests/fixtures/legacy-packages/brucewaynedecoy-make-docs-2.0.0-rc-f5fd5579.tgz
 next-env.d.ts
 
 # testing

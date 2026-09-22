@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "Implement the bounded P7 setup recovery repair after the owner reviews the approach and separately authorizes runtime work."
-  coordinate_handoff: "Carry W22 R0 P7 into implementation evidence and a later corrective closeout."
+  why: "Stage 1 source repair and authentic older-package proof pass. Stage 2 must identify one exact candidate and prove it on Windows, macOS, and Linux."
+  coordinate_handoff: "Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed proof."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -19,7 +19,7 @@ follow_on:
 
 Plan the architecture recovery defined by the [source design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md). The plan first tests the value of each current mechanism. It then settles current authority, creates a platform-neutral safety boundary, simplifies Store and harness state, migrates existing installations, closes known symptoms, and proves installed results on Windows, macOS, and Linux.
 
-P1 through P6 remain completed records for their exact accepted evidence. The owner reopened W22 R0 on 2026-09-22 after a current installed CLI proved a new closed setup recovery loop. P7 is the only active phase. This authority update does not authorize P7 code changes, Store changes, real-project repair, installation, push, publication, or release.
+P1 through P6 remain completed records for their exact accepted evidence. The owner reopened W22 R0 on 2026-09-22 after a current installed CLI proved a new closed setup recovery loop. P7 is the only active phase. P7 Stage 1 source repair, authentic older-package proof, and corrective review are complete. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open.
 
 ## Objective
 
@@ -57,9 +57,9 @@ Produce a smaller and explainable Store foundation without losing proved safety.
 
 ## Reopened Scope
 
-W22 R0 revisits the build segment after its prior close. This is an explicit lifecycle departure under the lifecycle straddle rule. The new installed evidence invalidates only the prior claim that setup and Store access always have one open recovery path.
+W22 R0 revisits the build segment after its prior close. This is an explicit lifecycle departure under the lifecycle straddle rule. The first installed trace invalidated the prior claim that setup and Store access always have one open recovery path. A second installed trace invalidated the P7 Stage 1 source-completion claim because setup approved a `partial-install` plan, rejected it later as `ambiguous-ownership`, and created a pending operation for a predictable failure.
 
-P7 owns the bounded correction. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. A new W22 completion claim requires P7 source proof and one new exact installed candidate on Windows, macOS, and Linux.
+P7 owns the bounded correction. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures now pass through plain setup. The corrective review found and closed the approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. A new W22 completion claim still requires one exact repaired candidate with comparable installed proof on Windows, macOS, and Linux.
 
 ## Maintenance Inputs
 
@@ -74,7 +74,8 @@ P7 owns the bounded correction. It does not reopen the accepted architecture dec
 | Current code | `packages/cli/src/store/`, `packages/cli/src/harness-access/`, `packages/cli/src/setup-system.ts`, `packages/cli/src/project-projection.ts`, and `packages/cli/src/operations/resource/` | High confidence for the present implementation. Reindex and recheck before each implementation phase. |
 | Change history | Commits `dabd0b36`, `7ca65f40`, `afbeaab2`, `56800c35`, and `0e5e90be` | High confidence for growth, correction, removal, and repair sequence. It is evidence for review, not proof of a defect by itself. |
 | Symptom inventory | P1 ledger plus later owner evidence | P1 is complete. P7 reopens D-038 for the exact installed loop without creating a competing symptom list. |
-| Installed setup transcript and current source trace, 2026-09-22 | Owner-provided terminal evidence plus current CLI source and Store classification | High confidence for the P7 trigger. The installed binary matched the current repository build. Full setup and system setup directed the person back to each other while the Store remained on supported legacy schema 3. |
+| Installed setup transcripts and current source trace, 2026-09-22 | Owner-provided terminal evidence plus current CLI source and Store classification | High confidence for the P7 trigger. The first trace showed reciprocal setup commands on supported legacy schema 3. The second trace showed approved `partial-install` work rejected later as `ambiguous-ownership` after operation creation. |
+| P7 Stage 1 source evidence, 2026-09-22 | Current repair source, checkpoint-3 regression, three authentic package fixtures, validation results, independent read-only audit, and corrective review findings | Stage 1 tasks t1 through t8 and A45 through A49 pass. The exact Stage 2 candidate and real-platform proof remain open. |
 
 ## Human Experience Propagation
 
@@ -148,7 +149,7 @@ After target acceptance, add one `2026-09-18 — W22 R0` entry to each materiall
 | Links and index | [PRD index](../../prd/00-index.md) | Update relationships only when the accepted target changes navigation. | Navigation only. |
 | Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and reopen D-038 for P7. | Living risk and decision register. |
 | Plan | This directory | Keep decision order, limits, and phase dependencies current. | Sequencing and rationale. |
-| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P6 as completed records and P7 active. Runtime implementation remains separately approved. | Current implementation queue. |
+| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P6 and P7 Stage 1 as completed records. Keep P7 Stage 2 exact-candidate and three-platform proof open. | Current implementation queue. |
 | Prior plans and work | W19 Store, setup, harness, and recovery packages | Link as evidence. Do not rewrite completed records. | Historical context and prior proof. |
 | History | Future W22 phase records | Create only during authorized phase closeout. | Execution provenance. |
 
@@ -162,7 +163,7 @@ After target acceptance, add one `2026-09-18 — W22 R0` entry to each materiall
 | [04-harness-trust-setup-and-resource-simplification.md](04-harness-trust-setup-and-resource-simplification.md) | Separate trust concerns and reduce setup and projection coupling. |
 | [05-compatibility-bridge-and-symptom-closure.md](05-compatibility-bridge-and-symptom-closure.md) | Migrate existing state safely and close every in-scope symptom. |
 | [06-real-platform-package-proof-and-closeout.md](06-real-platform-package-proof-and-closeout.md) | Prove one installed result on real platforms and complete the recovery review. |
-| [07-setup-bridge-order-and-recovery-loop-repair.md](07-setup-bridge-order-and-recovery-loop-repair.md) | Repair the legacy-Store setup order, prevent premature intent changes, and prove one non-circular recovery path. |
+| [07-setup-bridge-order-and-recovery-loop-repair.md](07-setup-bridge-order-and-recovery-loop-repair.md) | Build one final plan from predicted post-prerequisite state, complete all safety checks before operation creation, align planner and executor, and keep resume or restore in plain setup. |
 
 ## Output Contract
 
@@ -171,7 +172,7 @@ After target acceptance, add one `2026-09-18 — W22 R0` entry to each materiall
 - PRDs: surgical maintenance of existing owners only after P1 decisions are accepted.
 - Risk register: reopen D-038 for the P7 defect. Current normative requirements already cover the repair, so this authority pass adds no new product capability.
 - Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and seven phase files.
-- This authority pass changes only plan, work, and risk state. P7 runtime implementation remains separately gated.
+- P7 Stage 1 source repair and authentic older-package proof pass. Stage 2 candidate packaging, installed three-platform proof, local installation, live setup, staging, commit, push, publication, and release retain their applicable gates.
 
 ## Worker Ownership
 
@@ -185,7 +186,7 @@ Use the highest delegation tier that the authorized implementation session permi
 | Store model owner | Checkout, operation, ledger, and migration schema | Store modules and fixtures | Accepted P2 contracts | Minimal compatible state model. |
 | Harness and setup owner | Receipts, current execution proof, access policy, setup, projection, and P7 correction | Harness, operation policy, setup, and projection modules plus tests | P3 safety services and P7 trigger evidence | Thin coordinated flows with one recovery path and exact loop regression. |
 | Compatibility owner | Old schema, receipt, ledger, and pending-operation bridge | Migration modules and compatibility fixtures | P3 and P4 target behavior | Safe read, classify, convert, quarantine, and rollback. |
-| Platform evidence owner | Installed candidates and real-OS matrix | CI, package fixtures, and evidence paths only | P7 source repair and checks complete | One identified corrected package with comparable platform proof. |
+| Platform evidence owner | Installed candidates and real-OS matrix | CI, package fixtures, and evidence paths only | P7 Stage 1 repair and checks complete | One identified corrected package with comparable platform proof. |
 | Validation owner | Authority, links, package, Human Experience, and regression review | Bounded fixes returned to owners | Assembled candidate | Final verdicts and visible limits. |
 
 ## MCP Strategy
@@ -194,13 +195,13 @@ Use jdocmunch for project documents and jcodemunch for code and function signatu
 
 ## Dependencies
 
-P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on the 2026-09-22 installed failure trace and the reopened D-038 finding.
+P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on both 2026-09-22 installed failure traces and the reopened D-038 finding.
 
-P7 is limited to the setup ordering, machine-setup independence, intent-commit timing, recovery-action accuracy, and regression proof needed to close the observed loop. A finding that changes the accepted product target or adds a new capability returns to the owner before P7 continues.
+P7 is limited to one final plan from predicted post-prerequisite state, complete preflight before operation creation, planner-classifier-executor agreement, machine-setup independence, intent-commit timing, recovery-action accuracy, plain-setup resume or restore, and regression proof needed to close the observed loops. A reset or forced reinstall path is a separate product choice and remains outside P7 without owner approval. Any other finding that changes the accepted product target or adds a new capability returns to the owner before P7 continues.
 
 ## Validation
 
-Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests for old supported state. Require interruption and restart proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce the exact supported-legacy-Store and drifted-machine state before the repair, then prove full setup, direct system setup, failure, repeat, and machine-readable results without a reciprocal recovery loop or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
+Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests from authentic supported older packages. Require interruption, resume, and restore proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce both the reciprocal-command trace and the later `partial-install` and `ambiguous-ownership` checkpoint-3 trace. The repair must prove one final approved plan, every predictable safety check before operation creation, full setup, direct system setup, failure, repeat, and machine-readable results without a command loop, a normal-use deep recovery command, or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
 
 Automated Implementation Testing is required in every implementation phase. Performance Testing is `not-needed-now` unless a later accepted product decision creates a real performance question. Guided Progress Review is useful for decision review and final installed flows. Unassisted Goal Testing is `not-needed-now` for the architecture decision because the owner has the needed product context. Reassess it for final normal-use discoverability only if current testing authority and executor isolation make it useful.
 
@@ -209,9 +210,9 @@ The agent must complete a Human Experience Review for the installed result. Huma
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Review the bounded P7 implementation approach with the owner. Start runtime work only after separate implementation approval.
+- Next step: Build and identify one exact repaired candidate. Run the required installed proof on Windows, macOS, and Linux.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: Current PRDs already require the repaired behavior. P7 now carries the exact correction and proof boundary.
-- Coordinate Handoff: Carry W22 R0 P7 into implementation evidence and a later corrective closeout.
+- Why: Stage 1 source repair, authentic package fixtures, validation, and corrective review pass. P7 still needs exact candidate identity and real-platform installed evidence.
+- Coordinate Handoff: Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed-package proof.
 
-This direct return from a reopened plan to the implementation loop is an explicit lifecycle departure. P2 already reconciled the current PRDs. D-038 records the new drift. The owner requested an implementation discussion after this authority update, so P7 code work remains stopped until that discussion and separate approval.
+This direct return from a reopened plan to the implementation loop is an explicit lifecycle departure. P2 already reconciled the current PRDs. D-038 records the drift. Stage 1 is complete. P7 and D-038 remain open until Stage 2 proves one exact installed candidate on Windows, macOS, and Linux and the remaining close gates pass.

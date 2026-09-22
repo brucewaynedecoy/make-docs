@@ -1,8 +1,8 @@
 import { importLegacyInstallationState, previewLegacyInstallationState } from "./store/legacy-installation";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
-import { confirm, isCancel, note } from "@clack/prompts";
+import { confirm, isCancel, note, select } from "@clack/prompts";
 import { formatAgenticSkillFileRole } from "./agentic-skill-roles";
 import { runBackupCommand } from "./backup";
 import {
@@ -32,11 +32,12 @@ import {
   findReviewableManagedFileConflicts,
   planInstall,
 } from "./install";
-import { loadManifest } from "./manifest";
+import { loadManifest, validateAndMigrateManifest } from "./manifest";
 import {
   Checkpoint9ReceiptProjectionError,
   executeInstallPlanMigration,
   executeStoreCheckpoint9Migration,
+  MigrationSafetyError,
 } from "./migration";
 import {
   createExecutionContext,
@@ -50,6 +51,8 @@ import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
   previewStoreCompatibilityBridge,
   resolveStoreRoot,
+  classifyStoreCheckpoint9State,
+  loadSqliteDriver,
   type StoreCompatibilityBridgePreview,
 } from "./store";
 import { readInstallationStatus } from "./store/installation-state";
@@ -65,6 +68,7 @@ import type {
   InstallManifest,
   InstallSelections,
   LifecyclePermissionsMode,
+  ManagedFileConflictResolutions,
   PlannedAction,
   ProjectResourceType,
 } from "./types";
@@ -74,7 +78,19 @@ import {
   promptForManagedFileConflictResolutions,
   runSelectionWizard,
 } from "./wizard";
-import { resolveUnifiedSetupState } from "./setup-state";
+import {
+  resolveUnifiedSetupState,
+  type SetupProjectState,
+} from "./setup-state";
+import {
+  applySetupProjectRecovery,
+  blockSetupProjectRecovery,
+  prepareSetupProjectRecoveryReview,
+  renderSetupProjectRecovery,
+  SetupProjectRecoveryError,
+  type SetupProjectRecoveryMode,
+  type SetupProjectRecoveryReview,
+} from "./setup-project-recovery";
 import {
   applyGenericMcpSetup,
   genericMcpProjectIntent,
@@ -135,6 +151,7 @@ interface ParsedArgs {
   skillsManifest?: string;
   adoptExisting?: string[];
   review?: string;
+  projectRecovery?: SetupProjectRecoveryMode;
   runArgs: string[];
 }
 
@@ -272,7 +289,40 @@ export function validateMakeDocsCliArgv(argv: string[]): void {
   validateParsedArgs(parseArgs(resolveCliLaunchArgv(argv).argv));
 }
 
-export async function runCli(argv = process.argv.slice(2)): Promise<void> {
+function previewPostBridgeInstallationManifest(
+  targetDir: string,
+  storeRoot: string,
+  bridge: StoreCompatibilityBridgePreview,
+): InstallManifest | null {
+  if ((bridge.sourceSchemaVersion ?? 0) < 3) return null;
+  const classification = classifyStoreCheckpoint9State(storeRoot);
+  if (classification.state !== "supported-legacy") return null;
+  const driver = loadSqliteDriver();
+  if (!driver.available) return null;
+  const targetRoot = realpathSync(targetDir);
+  const db = new driver.sqlite.DatabaseSync(classification.databasePath, { readOnly: true });
+  try {
+    const rows = db.prepare(
+      `SELECT installation_checkouts.root_path, installation_ledgers.manifest_json
+       FROM installation_checkouts
+       JOIN installation_ledgers USING (checkout_id)`,
+    ).all() as Array<{ root_path: string; manifest_json: string }>;
+    const row = rows.find((candidate) => path.resolve(candidate.root_path) === targetRoot);
+    if (!row) return null;
+    return validateAndMigrateManifest(
+      JSON.parse(row.manifest_json),
+      `predicted post-bridge Store ledger for ${targetRoot}`,
+    );
+  } finally {
+    db.close();
+  }
+}
+
+export async function runCli(
+  argv = process.argv.slice(2),
+  priorProjectRecovery: SetupProjectRecoveryReview | null = null,
+  priorProjectMutationApplied = false,
+): Promise<void> {
   const resolvedLaunch = resolveCliLaunchArgv(argv);
   argv = resolvedLaunch.argv;
   if (argv[0] === "--version" || argv[0] === "-v") {
@@ -423,6 +473,11 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     return;
   }
 
+  const jsonOutput = parsed.json || !output.isTTY;
+  const interactive = !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY);
+  const recoveredProjectChanged =
+    priorProjectMutationApplied || priorProjectRecovery !== null;
+
   // Context-aware bare invocation (R-BARE-1): with an install present, show
   // status and help and never auto-sync; with none, continue into the guided
   // interactive setup below, which asks before writing. The installer-first
@@ -460,24 +515,164 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       `Store compatibility preview stopped setup: ${storeBridgePreview.blockers.join("; ")} ${storeBridgePreview.nextAction}`,
     );
   }
-  const legacyState = previewLegacyInstallationState(targetDir);
+  const projectRecoveryReview = prepareSetupProjectRecoveryReview(targetDir, storeRoot);
+  if (projectRecoveryReview) {
+    if (!jsonOutput) output.write(renderSetupProjectRecovery(projectRecoveryReview));
+
+    if (priorProjectRecovery) {
+      const reason =
+        "Setup found another unfinished project operation after one recovery. " +
+        "No second recovery was applied. Run setup again to review this operation.";
+      const blocked = blockSetupProjectRecovery(projectRecoveryReview, null, reason);
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: false,
+          targetRoot: targetDir,
+          storeBridge: storeBridgePreview,
+          projectRecovery: blocked,
+          storeMutationState: "none",
+          projectChanged: true,
+          projectMutationState: "applied",
+          projectActions: [],
+          failedCondition: "A new recovery review is required.",
+          nextAction: reason,
+        });
+      } else {
+        output.write(`Next: ${reason}\n`);
+      }
+      return;
+    }
+
+    let selectedMode = parsed.projectRecovery;
+    const availableChoices = projectRecoveryReview.choices.filter((choice) => choice.available);
+    if (!selectedMode && interactive && availableChoices.length > 0) {
+      const selected = await select({
+        message: "How should setup recover this unfinished project work?",
+        options: projectRecoveryReview.choices.map((choice) => ({
+          value: choice.mode,
+          label: choice.label,
+          hint: choice.available
+            ? choice.mode === projectRecoveryReview.recommendation
+              ? "Recommended"
+              : undefined
+            : choice.conflicts[0] ?? "This action is not safe for the saved operation.",
+          disabled: !choice.available,
+        })),
+        initialValue: projectRecoveryReview.recommendation ?? undefined,
+      });
+      if (isCancel(selected)) {
+        output.write("Setup cancelled. The unfinished project work was not changed.\n");
+        return;
+      }
+      selectedMode = selected as SetupProjectRecoveryMode;
+    }
+
+    const selectedChoice = selectedMode
+      ? projectRecoveryReview.choices.find((choice) => choice.mode === selectedMode)
+      : null;
+    const mayApply = Boolean(
+      selectedMode &&
+      selectedChoice?.available &&
+      !parsed.dryRun &&
+      (interactive || parsed.yes),
+    );
+    if (!mayApply) {
+      const reason = parsed.dryRun
+        ? "Preview only. No project files or Store records changed."
+        : selectedMode && !selectedChoice?.available
+          ? `${selectedChoice?.label ?? selectedMode} is not safe for this operation. Review the listed conflicts.`
+          : !interactive && !parsed.yes && selectedMode
+            ? "Run setup with --yes after you review this recovery choice."
+            : "Run make-docs setup in an interactive terminal and choose one available recovery action.";
+      const blocked = blockSetupProjectRecovery(projectRecoveryReview, selectedMode ?? null, reason);
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: parsed.dryRun,
+          targetRoot: targetDir,
+          storeBridge: storeBridgePreview,
+          projectRecovery: blocked,
+          storeMutationState: "none",
+          projectChanged: recoveredProjectChanged,
+          projectMutationState: recoveredProjectChanged ? "applied" : "none",
+          projectActions: [],
+          failedCondition: parsed.dryRun ? null : "Unfinished project work requires a recovery choice.",
+          nextAction: reason,
+        });
+      } else {
+        output.write(`Next: ${reason}\n`);
+      }
+      return;
+    }
+
+    try {
+      const recovered = applySetupProjectRecovery(
+        projectRecoveryReview,
+        selectedMode!,
+        storeRoot,
+      );
+      if (!jsonOutput) output.write(renderSetupProjectRecovery(recovered));
+      return runCli(argv, recovered, true);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      const blocked = blockSetupProjectRecovery(projectRecoveryReview, selectedMode!, reason);
+      const recoveryMutationState = error instanceof SetupProjectRecoveryError
+        ? error.mutationState
+        : "partial";
+      const combinedProjectMutationState = recoveryMutationState === "partial"
+        ? "partial"
+        : recoveredProjectChanged
+          ? "applied"
+          : "none";
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: false,
+          targetRoot: targetDir,
+          storeBridge: storeBridgePreview,
+          projectRecovery: blocked,
+          storeMutationState: "none",
+          projectChanged: combinedProjectMutationState !== "none",
+          projectMutationState: combinedProjectMutationState,
+          projectActions: [],
+          failedCondition: reason,
+          nextAction: "Keep the current files. Run setup again to review the current recovery state.",
+        });
+      } else {
+        output.write(`${renderSetupProjectRecovery(blocked)}Keep the current files. Run setup again to review the current recovery state.\n`);
+      }
+      return;
+    }
+  }
+  if (parsed.projectRecovery && !priorProjectRecovery) {
+    throw new Error("No unfinished project operation is available for setup recovery.");
+  }
+  let legacyState = previewLegacyInstallationState(targetDir);
   if (legacyState.blockers.length) {
     throw new Error(`Legacy installation state requires review before setup: ${legacyState.blockers.join("; ")}`);
   }
-  if (legacyState.sources.length) {
+  if (!jsonOutput && legacyState.sources.length) {
     output.write("Legacy installation state will move to the global Make Docs Store. These verified records will be removed after Store readback:\n");
     for (const source of legacyState.sources) output.write(`- ${source.relativePath}\n`);
   }
   const installIntent = inferInstallIntent(parsed);
   const loadedConfig = loadMakeDocsConfigOrThrow(targetDir);
   const makeDocsConfig = loadedConfig.config;
-  const compatibilityClassification = await classifyCompatibilityState({
+  let compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
-  let existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
-    ? loadManifest(targetDir) ?? legacyState.manifest
-    : null;
-  const freshInstallTarget = isFreshInstallTarget({
+  const predictedPostBridgeManifest = previewPostBridgeInstallationManifest(
+    targetDir,
+    storeRoot,
+    storeBridgePreview,
+  );
+  let existingManifest = predictedPostBridgeManifest ?? (
+    compatibilityClassification.evidence.manifestTrust.parseable
+      ? loadManifest(targetDir) ?? legacyState.manifest
+      : null
+  );
+  let freshInstallTarget = isFreshInstallTarget({
     targetDir,
     existingManifest,
     installIntent,
@@ -493,9 +688,6 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       "No make-docs manifest was found in the target directory. Run `make-docs setup` first.",
     );
   }
-
-  const jsonOutput = parsed.json || !output.isTTY;
-  const interactive = !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY);
 
   if (
     freshInstallTarget &&
@@ -532,11 +724,13 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     }
   }
 
-  guardCompatibilityDisposition({
-    classification: compatibilityClassification,
-    interactive,
-    freshInstallTarget,
-  });
+  if (!predictedPostBridgeManifest) {
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
+  }
 
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
@@ -545,14 +739,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   const resolvedSelections = resolveSelections({ parsed, existingManifest });
-  const installationStatus = readInstallationStatus(targetDir, resolveStoreRoot());
-  if (interactive && installationStatus.status === "recovery-required") {
-    output.write(
-      `Setup found pending project work before editable questions. ${installationStatus.nextAction}\n`,
-    );
-    return;
-  }
-  const projectState = freshInstallTarget
+  let installationStatus = readInstallationStatus(targetDir, storeRoot);
+  let projectState: SetupProjectState = freshInstallTarget
     ? "fresh"
     : installationStatus.status === "recovery-required"
       ? "recoverable"
@@ -688,7 +876,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   const resumedSystemSetup = await resumePendingSystemSetupCommand(systemOptions);
   if (resumedSystemSetup) {
     if (jsonOutput) {
-      writeCanonicalSetupResult({ status: resumedSystemSetup.status === "configured" ? "machine-recovered" : "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, system: resumedSystemSetup, projectChanged: false, projectActions: [], failedCondition: resumedSystemSetup.blocked[0]?.reason ?? null, nextAction: resumedSystemSetup.recoveryAction });
+      writeCanonicalSetupResult({ status: resumedSystemSetup.status === "configured" ? "machine-recovered" : "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, system: resumedSystemSetup, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: [], failedCondition: resumedSystemSetup.blocked[0]?.reason ?? null, nextAction: resumedSystemSetup.recoveryAction });
     } else output.write(
         resumedSystemSetup.status === "configured"
           ? "Pending machine setup is now verified. Run `make-docs setup` again for one current computer and project review.\n"
@@ -715,11 +903,12 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
   });
 
+  let managedFileConflictResolutions: ManagedFileConflictResolutions | undefined;
   if (interactive) {
     const managedFileConflicts = findReviewableManagedFileConflicts(plan);
     if (managedFileConflicts.length > 0) {
-      const managedFileConflictResolutions =
-        await promptForManagedFileConflictResolutions(managedFileConflicts);
+      managedFileConflictResolutions =
+        await promptForManagedFileConflictResolutions(managedFileConflicts) ?? undefined;
       if (!managedFileConflictResolutions) {
         output.write("Installer cancelled.\n");
         return;
@@ -756,10 +945,10 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
       return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
     });
   if (genericMcpPlan) reviewedHarnessIntegrations.push(genericMcpProjectIntent(genericMcpPlan));
-  const plannedConfigValue = plan.actions.find(action =>
+  let plannedConfigValue = plan.actions.find(action =>
     action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
   )?.content ?? "{}\n";
-  const plannedConfigContent = typeof plannedConfigValue === "string"
+  let plannedConfigContent = typeof plannedConfigValue === "string"
     ? plannedConfigValue
     : Buffer.from(plannedConfigValue).toString("utf8");
   let projectHarnessConfig = planProjectHarnessIntegrationWrite({
@@ -768,14 +957,121 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     contentWhenMissing: plannedConfigContent,
   });
 
-  const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
-  const requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
-  const hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+  let hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
+  let requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
+  let hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+  let reviewedProjectFingerprint = setupProjectReviewFingerprint(
+    legacyState,
+    compatibilityClassification,
+    existingManifest,
+    freshInstallTarget,
+    projectState,
+    plan,
+    projectHarnessConfig,
+  );
+
+  const reloadProjectReview = async (): Promise<"changed" | "unchanged" | "cancelled"> => {
+    const previousFingerprint = reviewedProjectFingerprint;
+    legacyState = previewLegacyInstallationState(targetDir);
+    if (legacyState.blockers.length) {
+      throw new Error(
+        `Legacy installation state requires review before setup: ${legacyState.blockers.join("; ")}`,
+      );
+    }
+    compatibilityClassification = await classifyCompatibilityState({ targetDir });
+    existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
+      ? loadManifest(targetDir) ?? legacyState.manifest
+      : null;
+    freshInstallTarget = isFreshInstallTarget({
+      targetDir,
+      existingManifest,
+      installIntent,
+      classification: compatibilityClassification,
+    });
+    installationStatus = readInstallationStatus(targetDir, storeRoot);
+    projectState = freshInstallTarget
+      ? "fresh"
+      : installationStatus.status === "recovery-required"
+        ? "recoverable"
+        : compatibilityClassification.state === "modified-v1"
+          ? "drifted"
+          : compatibilityClassification.state === "partial-install" ||
+              existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+            ? "partial"
+            : "current";
+
+    plan = await planInstall({
+      targetDir,
+      selections,
+      existingManifest,
+      packageMeta,
+      ...(managedFileConflictResolutions ? { managedFileConflictResolutions } : {}),
+      skillRegistry: effectiveSkillRegistry.registry,
+      preserveExistingSkills: skillReconciliation.routed,
+      operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+    });
+
+    if (interactive) {
+      const refreshedConflicts = findReviewableManagedFileConflicts(plan);
+      if (refreshedConflicts.length > 0) {
+        const refreshedResolutions =
+          await promptForManagedFileConflictResolutions(refreshedConflicts);
+        if (!refreshedResolutions) {
+          output.write("Installer cancelled.\n");
+          return "cancelled";
+        }
+        managedFileConflictResolutions = {
+          ...managedFileConflictResolutions,
+          ...refreshedResolutions,
+        };
+        plan = await planInstall({
+          targetDir,
+          selections,
+          existingManifest,
+          packageMeta,
+          managedFileConflictResolutions,
+          skillRegistry: effectiveSkillRegistry.registry,
+          preserveExistingSkills: skillReconciliation.routed,
+          operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+        });
+      }
+    }
+
+    if (!hasEffectiveCapabilities(plan.profile)) {
+      throw new Error("At least one capability must remain enabled.");
+    }
+    plannedConfigValue = plan.actions.find(action =>
+      action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
+    )?.content ?? "{}\n";
+    plannedConfigContent = typeof plannedConfigValue === "string"
+      ? plannedConfigValue
+      : Buffer.from(plannedConfigValue).toString("utf8");
+    projectHarnessConfig = planProjectHarnessIntegrationWrite({
+      targetDir,
+      reviewed: reviewedHarnessIntegrations,
+      contentWhenMissing: plannedConfigContent,
+    });
+    hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
+    requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
+    hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+    reviewedProjectFingerprint = setupProjectReviewFingerprint(
+      legacyState,
+      compatibilityClassification,
+      existingManifest,
+      freshInstallTarget,
+      projectState,
+      plan,
+      projectHarnessConfig,
+    );
+    return reviewedProjectFingerprint !== previousFingerprint ? "changed" : "unchanged";
+  };
+  const hasMachineMutation = preparedSystemSetup.changed || Boolean(genericMcpPlan?.changed) || storeBridgePreview.changes.store.length > 0;
   if (!jsonOutput) note(preparedSystemSetup.review, "This computer");
   if (!jsonOutput && genericMcpPlan) note(renderGenericMcpSetupResult(genericMcpPlan), "Generic MCP client");
   if (!jsonOutput && storeBridgePreview.changes.store.length) {
-    output.write("Store plan:\n");
+    output.write("Store prerequisite for This computer:\n");
     for (const change of storeBridgePreview.changes.store) output.write(`- ${change}\n`);
+    output.write("- Approval boundary: the This computer approval covers this prerequisite. It does not approve project files.\n");
     output.write(`Next: ${storeBridgePreview.nextAction}\n`);
   }
   if (!jsonOutput) printPlan({
@@ -798,7 +1094,7 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (parsed.dryRun) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || preparedSystemSetup.changed || genericMcpPlan?.changed || storeBridgePreview.disposition === "convert" ? "Run setup with the same choices and --yes to apply this plan." : null });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectRecovery: priorProjectRecovery, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || hasMachineMutation ? "Run setup with the same choices and --yes to apply this plan." : null });
     else output.write("\nDry run complete.\n");
     return;
   }
@@ -820,8 +1116,8 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     );
   }
 
-  let systemApproved = parsed.yes || (!preparedSystemSetup.changed && !genericMcpPlan?.changed);
-  if (interactive && (preparedSystemSetup.changed || genericMcpPlan?.changed)) {
+  let systemApproved = parsed.yes || !hasMachineMutation;
+  if (interactive && hasMachineMutation) {
     const proceed = await confirm({
       message: "Apply the reviewed This computer changes?",
       initialValue: false,
@@ -848,9 +1144,126 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (!systemApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectRecovery: priorProjectRecovery, storeMutationState: "none", projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: "Machine setup was not approved.", nextAction: "Run setup with --yes after you review the plan." });
     else output.write("Machine setup was not approved. No system or project files were changed.\n");
     return;
+  }
+
+  let appliedStoreBridge = storeBridgePreview;
+  try {
+    const checkpoint9 = executeStoreCheckpoint9Migration({
+      projectRoot: targetDir,
+      storeRoot,
+    });
+    if (!checkpoint9.setupMayContinue) {
+      throw new Checkpoint9ReceiptProjectionError(checkpoint9);
+    }
+    const observedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
+    appliedStoreBridge = {
+      ...storeBridgePreview,
+      storeState: observedStoreBridge.storeState,
+      blockers: observedStoreBridge.blockers,
+      nextAction: observedStoreBridge.nextAction,
+    };
+  } catch (error) {
+    const failedCondition = error instanceof Error ? error.message : String(error);
+    let observedStoreBridge = storeBridgePreview;
+    try {
+      observedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
+    } catch {
+      // Keep the reviewed preview when the failed Store condition also blocks readback.
+    }
+    const nextAction = storePrerequisiteFailureAction(error);
+    const failedStoreBridge = {
+      ...storeBridgePreview,
+      storeState: observedStoreBridge.storeState,
+      blockers: observedStoreBridge.blockers,
+      nextAction,
+    };
+    const storeMutationState = observedStoreBridge.storeState === "supported-current"
+      ? "applied" as const
+      : observedStoreBridge.storeState === storeBridgePreview.storeState &&
+          observedStoreBridge.sourceSchemaVersion === storeBridgePreview.sourceSchemaVersion
+        ? "none" as const
+        : "partial" as const;
+    if (jsonOutput) {
+      writeCanonicalSetupResult({
+        status: "blocked",
+        dryRun: false,
+        targetRoot: targetDir,
+        prepared: preparedSystemSetup,
+        genericMcp: genericMcpPlan,
+        storeBridge: failedStoreBridge,
+        projectRecovery: priorProjectRecovery,
+        storeMutationState,
+        projectChanged: recoveredProjectChanged,
+        projectMutationState: recoveredProjectChanged ? "applied" : "none",
+        projectActions: plan.actions,
+        failedCondition,
+        nextAction,
+      });
+    } else {
+      output.write(`Setup stopped at the Store prerequisite. ${failedCondition}\nNext: ${nextAction}\n`);
+    }
+    return;
+  }
+
+  const postStoreProjectReview = await reloadProjectReview();
+  if (postStoreProjectReview === "cancelled") return;
+  if (installationStatus.status === "recovery-required") {
+    return runCli(argv, priorProjectRecovery, recoveredProjectChanged);
+  }
+  if (postStoreProjectReview === "changed") {
+    if (!jsonOutput) {
+      output.write(
+        "The verified Store state changed the project review. Review the current project plan.\n",
+      );
+      printPlan({
+        actions: plan.actions,
+        dryRun: false,
+        existingManifest,
+        installIntent,
+        packageName: plan.packageName,
+        packageVersion: plan.packageVersion,
+        selectionSource,
+        targetDir,
+        compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
+        config: makeDocsConfig,
+        selectedResourceTypes: plan.profile.selections.resourceProjection,
+        selectedCapabilities: plan.profile.effectiveCapabilities,
+        stops: plan.stops ?? [],
+      });
+      if (projectHarnessConfig.changed) {
+        output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
+      }
+    }
+    const refreshedConflicts = findReviewableManagedFileConflicts(plan);
+    if (!interactive && refreshedConflicts.length > 0) {
+      throw new Error(
+        [
+          "The verified Store state changed the project plan and found unresolved managed-file diffs.",
+          "Run `make-docs setup` without `--yes` to review the conflicts interactively.",
+          "",
+          ...buildCompatibilitySummaryLines(compatibilityClassification),
+          "",
+          "Conflicting managed files:",
+          ...refreshedConflicts.map((conflict) => `- ${conflict.relativePath}`),
+        ].join("\n"),
+      );
+    }
+    if (projectApproved) {
+      projectApproved = parsed.yes || !hasInstallMutation;
+      if (interactive && hasInstallMutation) {
+        const proceed = await confirm({
+          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          initialValue: true,
+          active: "Yes",
+          inactive: "No",
+          withGuide: true,
+        });
+        projectApproved = !isCancel(proceed) && Boolean(proceed);
+      }
+    }
   }
 
   const systemSetup = await applyPreparedSystemSetup(preparedSystemSetup);
@@ -859,34 +1272,103 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
     output.write(renderGenericMcpSetupResult(appliedGenericMcpPlan));
   }
   if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
     else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
     return;
   }
 
   if (!projectApproved) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: storeBridgePreview, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: "Project setup was not approved.", nextAction: "Run setup with --yes after you review the project plan." });
     else output.write("This computer remains configured. Project setup was not approved. Run `make-docs setup` to review the project change.\n");
     return;
   }
 
-  const checkpoint9 = executeStoreCheckpoint9Migration({
-    projectRoot: targetDir,
-    storeRoot,
-  });
-  if (!checkpoint9.setupMayContinue) {
-    throw new Checkpoint9ReceiptProjectionError(checkpoint9);
-  }
+  let projectPrerequisiteChanged = recoveredProjectChanged;
   if (legacyState.sources.length) {
     const imported = importLegacyInstallationState(targetDir, storeRoot);
-    existingManifest = loadManifest(targetDir);
-    projectHarnessConfig = planProjectHarnessIntegrationWrite({
-      targetDir,
-      reviewed: reviewedHarnessIntegrations,
-      contentWhenMissing: plannedConfigContent,
-    });
+    projectPrerequisiteChanged = true;
     if (imported.recoveryRequired) {
-      throw new Error("Legacy state was transferred. A pending operation requires review. Run `make-docs project state status` before a new mutation.");
+      return runCli(argv, priorProjectRecovery, true);
+    }
+    const postImportProjectReview = await reloadProjectReview();
+    if (postImportProjectReview === "cancelled") return;
+    if (installationStatus.status === "recovery-required") {
+      return runCli(argv, priorProjectRecovery, true);
+    }
+    if (postImportProjectReview === "changed") {
+      if (!jsonOutput) {
+        output.write(
+          "The legacy installation transfer changed the project review. Review the current project plan.\n",
+        );
+        printPlan({
+          actions: plan.actions,
+          dryRun: false,
+          existingManifest,
+          installIntent,
+          packageName: plan.packageName,
+          packageVersion: plan.packageVersion,
+          selectionSource,
+          targetDir,
+          compatibilityClassification: freshInstallTarget ? null : compatibilityClassification,
+          config: makeDocsConfig,
+          selectedResourceTypes: plan.profile.selections.resourceProjection,
+          selectedCapabilities: plan.profile.effectiveCapabilities,
+          stops: plan.stops ?? [],
+        });
+        if (projectHarnessConfig.changed) {
+          output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
+        }
+      }
+      const refreshedConflicts = findReviewableManagedFileConflicts(plan);
+      if (!interactive && refreshedConflicts.length > 0) {
+        throw new Error(
+          [
+            "The legacy installation transfer changed the project plan and found unresolved managed-file diffs.",
+            "Run `make-docs setup` without `--yes` to review the conflicts interactively.",
+            "",
+            ...buildCompatibilitySummaryLines(compatibilityClassification),
+            "",
+            "Conflicting managed files:",
+            ...refreshedConflicts.map((conflict) => `- ${conflict.relativePath}`),
+          ].join("\n"),
+        );
+      }
+      projectApproved = parsed.yes || !hasInstallMutation;
+      if (interactive && hasInstallMutation) {
+        const proceed = await confirm({
+          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          initialValue: true,
+          active: "Yes",
+          inactive: "No",
+          withGuide: true,
+        });
+        projectApproved = !isCancel(proceed) && Boolean(proceed);
+      }
+      if (!projectApproved) {
+        if (jsonOutput) {
+          writeCanonicalSetupResult({
+            status: "blocked",
+            dryRun: false,
+            targetRoot: targetDir,
+            system: systemSetup,
+            prepared: preparedSystemSetup,
+            genericMcp: appliedGenericMcpPlan,
+            storeBridge: appliedStoreBridge,
+            projectRecovery: priorProjectRecovery,
+            projectChanged: true,
+            projectMutationState: "applied",
+            projectActions: plan.actions,
+            failedCondition: "The current project plan was not approved after legacy transfer.",
+            nextAction: "Run setup again to review the current project plan.",
+          });
+        } else {
+          output.write(
+            "This computer remains configured. Legacy state was transferred. " +
+            "The current project plan was not approved. Run `make-docs setup` to review it.\n",
+          );
+        }
+        return;
+      }
     }
   }
   let applied: ReturnType<typeof applyInstallPlan>;
@@ -907,6 +1389,31 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
           projectHarnessConfig,
         });
   } catch (error) {
+    const failedCondition = error instanceof Error ? error.message : String(error);
+    if (jsonOutput) {
+      const failedProjectStatus = readInstallationStatus(targetDir, storeRoot);
+      const projectMutationState = failedProjectStatus.status === "recovery-required"
+        ? "partial" as const
+        : projectPrerequisiteChanged
+          ? "applied" as const
+          : "none" as const;
+      writeCanonicalSetupResult({
+        status: "blocked",
+        dryRun: false,
+        targetRoot: targetDir,
+        system: systemSetup,
+        prepared: preparedSystemSetup,
+        genericMcp: appliedGenericMcpPlan,
+        storeBridge: appliedStoreBridge,
+        projectRecovery: priorProjectRecovery,
+        projectChanged: projectMutationState !== "none",
+        projectMutationState,
+        projectActions: plan.actions,
+        failedCondition,
+        nextAction: "Run make-docs setup again to review and recover the project change.",
+      });
+      return;
+    }
     if (systemSetup.status === "configured" || systemSetup.status === "unchanged") {
       output.write(
         "This computer remains configured. Project scope failed. Run `make-docs setup` to review and resume the project change.\n",
@@ -943,8 +1450,22 @@ export async function runCli(argv = process.argv.slice(2)): Promise<void> {
   }
 
   if (jsonOutput) {
-    const completedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
-    writeCanonicalSetupResult({ status: "complete", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: completedStoreBridge, projectChanged: applied.mutationApplied, projectActions: applied.appliedActions, failedCondition: null, nextAction: null });
+    writeCanonicalSetupResult({
+      status: "complete",
+      dryRun: false,
+      targetRoot: targetDir,
+      system: systemSetup,
+      prepared: preparedSystemSetup,
+      genericMcp: appliedGenericMcpPlan,
+      storeBridge: appliedStoreBridge,
+      projectRecovery: priorProjectRecovery,
+      projectChanged: projectPrerequisiteChanged || applied.mutationApplied,
+      projectMutationState:
+        projectPrerequisiteChanged || applied.mutationApplied ? "applied" : "none",
+      projectActions: applied.appliedActions,
+      failedCondition: null,
+      nextAction: null,
+    });
   }
 
 
@@ -1038,6 +1559,10 @@ async function runProjectPathHygieneCommand(
     process.stderr.write("Path check error: " + (error instanceof Error ? error.message : String(error)) + "\n");
     process.exitCode = 2;
   }
+}
+
+function setupProjectReviewFingerprint(...values: unknown[]): string {
+  return JSON.stringify(values);
 }
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
@@ -1431,6 +1956,14 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--json":
         parsed.json = true;
         break;
+      case "--recover": {
+        const value = args.shift();
+        if (value !== "resume" && value !== "restore") {
+          throw new Error("`--recover` must be either `resume` or `restore`.");
+        }
+        parsed.projectRecovery = value;
+        break;
+      }
       case "--help":
       case "-h":
         parsed.help = true;
@@ -1705,6 +2238,24 @@ function renderSystemSetupResult(result: import("./setup-system").SystemSetupRes
   return `${lines.join("\n")}\n`;
 }
 
+function storePrerequisiteFailureAction(error: unknown): string {
+  if (error instanceof Checkpoint9ReceiptProjectionError) {
+    return "Restore write access for the Store receipt projection, then run `make-docs setup` to verify and resume the recorded bridge.";
+  }
+  if (error instanceof MigrationSafetyError) {
+    if (error.code === "active-writer" || error.code === "lock-active") {
+      return "Let the named Store writer finish or recover its recorded operation, then run `make-docs setup` again.";
+    }
+    if (error.code === "permission-denied" || error.code === "backup-incomplete") {
+      return "Restore Store and backup-path access, then run `make-docs setup` again.";
+    }
+    if (error.code === "snapshot-drift" || error.code === "lock-lost") {
+      return "Keep the changed Store state, then run `make-docs setup` again to review a new exact bridge plan.";
+    }
+  }
+  return "Correct the reported Store prerequisite, then run `make-docs setup` again to review a new exact bridge plan.";
+}
+
 function writeCanonicalSetupResult(input: {
   status: "planned" | "complete" | "blocked" | "machine-recovered";
   dryRun: boolean;
@@ -1713,7 +2264,10 @@ function writeCanonicalSetupResult(input: {
   system?: import("./setup-system").SystemSetupResult;
   genericMcp?: GenericMcpSetupPlan | null;
   storeBridge?: StoreCompatibilityBridgePreview;
+  projectRecovery?: SetupProjectRecoveryReview | null;
+  storeMutationState?: "none" | "planned" | "partial" | "applied";
   projectChanged: boolean;
+  projectMutationState?: "none" | "planned" | "partial" | "applied";
   projectActions: readonly PlannedAction[];
   failedCondition: string | null;
   nextAction: string | null;
@@ -1733,7 +2287,16 @@ function writeCanonicalSetupResult(input: {
         method: plan.method,
         state: plan.status,
         attemptedWork: [...plan.operations],
-        mutationState: plan.changed ? (input.dryRun ? "planned" : "applied") : "none",
+        mutationState: input.system
+          ? input.system.mutationState === "partial"
+            ? "partial"
+            : input.system.mutationState === "verified" &&
+                input.system.configured.includes(plan.harness)
+              ? "applied"
+              : "none"
+          : plan.changed
+            ? (input.dryRun ? "planned" : "applied")
+            : "none",
         detail: plan.detail,
       })),
       configured: input.system?.configured ?? [],
@@ -1744,17 +2307,24 @@ function writeCanonicalSetupResult(input: {
       sourceSchemaVersion: input.storeBridge.sourceSchemaVersion,
       targetSchemaVersion: input.storeBridge.targetSchemaVersion,
       disposition: input.storeBridge.disposition,
-      mutationState: input.storeBridge.disposition === "convert"
-        ? (input.dryRun ? "planned" : "applied")
-        : "none",
+      mutationState: input.storeMutationState ?? (
+        input.storeBridge.changes.store.length > 0
+          ? (input.dryRun ? "planned" : "applied")
+          : "none"
+      ),
       changes: input.storeBridge.changes.store,
       blockers: input.storeBridge.blockers,
       nextAction: input.storeBridge.nextAction,
     } : null,
+    projectRecovery: input.projectRecovery ?? null,
     project: {
       changed: input.projectChanged,
-      mutationState: input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none",
-      actions: input.projectActions.map(action => ({ path: action.relativePath, action: action.type })),
+      mutationState: input.projectMutationState ?? (
+        input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none"
+      ),
+      actions: [...input.projectActions]
+        .sort((left, right) => left.relativePath.localeCompare(right.relativePath))
+        .map(action => ({ path: action.relativePath, action: action.type })),
     },
     failedCondition: input.failedCondition,
     nextAction: input.nextAction,
@@ -1774,6 +2344,12 @@ function validateParsedArgs(parsed: ParsedArgs): void {
   }
   if (parsed.json && (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
     throw new Error("`--json` is valid only with setup, setup reconfigure, or setup system.");
+  }
+  if (
+    parsed.projectRecovery &&
+    (parsed.command !== "setup" || parsed.setupSubcommand !== undefined)
+  ) {
+    throw new Error("`--recover` is valid only with plain `make-docs setup`.");
   }
   // Bare invocation is context-aware status/guided-setup only (R-BARE-1);
   // install and sync options belong to `setup`.
@@ -2278,6 +2854,7 @@ const SETUP_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
   --yes                          Approve a fully specified non-interactive plan.
+  --recover <resume|restore>     Choose recovery for unfinished project work.
   --json                         Emit only the canonical setup result JSON.
   --help, -h                     Show help for this command.
 

@@ -5,6 +5,7 @@ import {
   resolveUnifiedSetupState,
 } from "../src/setup-state";
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { prepareSystemSetupCommand, renderSystemPlans, runSystemSetupCommand, SYSTEM_COMMAND_RULE_AUTHORITY } from "../src/setup-system";
@@ -12,6 +13,7 @@ import { CODEX_HARNESS_ADAPTER, fingerprintEntry, listBoundedHarnessCommandRules
 import { loadGlobalConfig, writeGlobalConfig } from "../src/store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "../src/store/harness-integration-receipts";
 import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
+import { STORE_MIGRATIONS } from "../src/store";
 import { cleanupTempDir, createTempDir } from "./helpers";
 import type { Capability, Harness } from "../src/types";
 import {
@@ -19,6 +21,17 @@ import {
   runSelectionWizardWithRenderer,
   type WizardRenderer,
 } from "../src/wizard";
+
+function seedLegacyStore(storeRoot: string, version: 3): void {
+  mkdirSync(storeRoot, { recursive: true });
+  const db = new DatabaseSync(path.join(storeRoot, "store.db"));
+  db.exec("PRAGMA foreign_keys=ON");
+  for (const migration of STORE_MIGRATIONS.filter((candidate) => candidate.version <= version)) {
+    for (const statement of migration.statements) db.exec(statement);
+    db.exec(`PRAGMA user_version=${migration.version}`);
+  }
+  db.close();
+}
 
 describe("W19 R6 unified setup", () => {
   test("fresh setup selects the complete project shape without a capability step", async () => {
@@ -251,6 +264,106 @@ describe("W19 R6 unified setup", () => {
       });
     } finally {
       cleanupTempDir(root);
+      cleanupTempDir(storeContainer);
+    }
+  });
+
+  test("an interrupted native apply keeps prior intent and resumes from the recorded machine operation", async () => {
+    const machineRoot = createTempDir("make-docs-system-interrupted-");
+    const storeContainer = createTempDir("make-docs-system-interrupted-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    const executable = verifyMakeDocsExecutable({
+      executablePath: path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dist/index.js",
+      ),
+    });
+    try {
+      const interrupted = await runSystemSetupCommand({
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+        afterNativeApplyForTests() {
+          throw new Error("injected interruption after native apply");
+        },
+      });
+
+      expect(interrupted).toMatchObject({
+        status: "recovery",
+        configured: [],
+        recoveryAction: expect.stringContaining("resume the recorded Codex machine change"),
+      });
+      expect(existsSync(path.join(machineRoot, ".codex/config.toml"))).toBe(true);
+      expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).not.toBeNull();
+      expect(existsSync(path.join(storeRoot, "config.json"))).toBe(false);
+
+      const recovered = await runSystemSetupCommand({
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+      });
+
+      expect(recovered).toMatchObject({ status: "configured", configured: ["codex"] });
+      expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).toBeNull();
+      expect(loadGlobalConfig(storeRoot).config.settings.harnesses.codex).toEqual({
+        selected: true,
+        maximumMethod: "mcp",
+        accessCeiling: { store: "write", project: "write", hostConfig: "none" },
+      });
+    } finally {
+      cleanupTempDir(machineRoot);
+      cleanupTempDir(storeContainer);
+    }
+  });
+
+  test("direct system setup names full setup as the action for a supported legacy Store", async () => {
+    const machineRoot = createTempDir("make-docs-system-legacy-");
+    const storeContainer = createTempDir("make-docs-system-legacy-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    const executable = verifyMakeDocsExecutable({
+      executablePath: path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dist/index.js",
+      ),
+    });
+    try {
+      seedLegacyStore(storeRoot, 3);
+
+      const result = await runSystemSetupCommand({
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+      });
+
+      expect(result).toMatchObject({
+        status: "recovery",
+        configured: [],
+        failedCondition: expect.stringContaining("supported legacy schema 3"),
+        recoveryAction: expect.stringContaining("`make-docs setup`"),
+      });
+      expect(result.recoveryAction).not.toContain("setup system");
+      expect(existsSync(path.join(machineRoot, ".codex/config.toml"))).toBe(false);
+      expect(existsSync(path.join(storeRoot, "config.json"))).toBe(false);
+      const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
+      db.close();
+    } finally {
+      cleanupTempDir(machineRoot);
       cleanupTempDir(storeContainer);
     }
   });

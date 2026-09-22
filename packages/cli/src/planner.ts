@@ -281,6 +281,45 @@ export async function createInstallPlan(options: {
       continue;
     }
 
+    const projectOwnedResource = getVerifiedProjectOwnedResourceOverride(
+      existingManifest,
+      asset.relativePath,
+      asset.sourceId,
+      currentHash,
+    );
+    if (projectOwnedResource) {
+      desiredFiles[asset.relativePath] = projectOwnedResource.file;
+      selectedProjection.state.resources[projectOwnedResource.uri] = projectOwnedResource.resource;
+      actions.push({
+        type: "noop",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        reviewedConflictResolution: "skip",
+        contentHash: projectOwnedResource.file.hash,
+        reason: "Preserve the verified project-owned resource override.",
+      });
+      continue;
+    }
+
+    if (
+      !isInstructionPath(asset.relativePath) &&
+      hasVerifiedCleanLegacyManagedOwnership(
+        existingManifest,
+        asset.relativePath,
+        currentHash,
+      )
+    ) {
+      actions.push({
+        type: "update",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        content: asset.content,
+        contentHash: desiredHash,
+        reason: "Refresh the verified clean legacy managed asset.",
+      });
+      continue;
+    }
+
     if (
       asset.sourceId.startsWith("resource:") &&
       !hasVerifiedResourceOwnership(existingManifest, asset.relativePath, asset.sourceId)
@@ -366,6 +405,7 @@ export async function createInstallPlan(options: {
         type: "update",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
+        reviewedConflictResolution: conflictResolution,
         content,
         contentHash: desiredHash,
         reason: getManagedFileConflictOverwriteReason(conflictClassification),
@@ -374,10 +414,49 @@ export async function createInstallPlan(options: {
     }
 
     if (conflictClassification && conflictResolution === "skip") {
+      const resourceUri = asset.sourceId.startsWith("resource:")
+        ? asset.sourceId.slice("resource:".length)
+        : null;
+      const projectedResource = resourceUri
+        ? selectedProjection.state.resources[resourceUri]
+        : undefined;
+      if (
+        manifestEntry &&
+        resourceUri &&
+        currentHash !== null &&
+        projectedResource?.managedDestination === asset.relativePath
+      ) {
+        desiredFiles[asset.relativePath] = {
+          hash: currentHash,
+          sourceId: asset.sourceId,
+          ownershipClass: "project-owned",
+        };
+        selectedProjection.state.resources[resourceUri] = {
+          ...projectedResource,
+          ownershipClass: "project-owned",
+          installedDigest: currentHash,
+          lastVerifiedAt: verifiedAt,
+        };
+        forceManifestWrite = true;
+        actions.push({
+          type: "noop",
+          relativePath: asset.relativePath,
+          sourceId: asset.sourceId,
+          reviewedConflictResolution: conflictResolution,
+          contentHash: currentHash,
+          reason: getManagedFileConflictSkipReason(
+            conflictClassification,
+            conflictResolution,
+            true,
+          ),
+        });
+        continue;
+      }
       actions.push({
         type: "skip",
         relativePath: asset.relativePath,
         sourceId: asset.sourceId,
+        reviewedConflictResolution: conflictResolution,
         contentHash: desiredHash,
         reason: getManagedFileConflictSkipReason(
           conflictClassification,
@@ -612,6 +691,9 @@ export async function createInstallPlan(options: {
         type: "skip-conflict",
         relativePath,
         sourceId: manifestEntry.sourceId,
+        ...(replacementTarget && currentHash !== null
+          ? { content: currentContent, contentHash: currentHash }
+          : {}),
         reason:
           "Existing managed file differs from the recorded manifest and will not be removed automatically.",
       });
@@ -1380,6 +1462,13 @@ function hasVerifiedLegacySystemResourceOwnership(
   relativePath: string,
   entry: InstallManifest["files"][string],
 ): boolean {
+  if (
+    manifest.schemaVersion === 1 &&
+    isLegacySamePathSource(entry.sourceId, relativePath) &&
+    entry.ownershipClass === undefined
+  ) {
+    return true;
+  }
   if (entry.ownershipClass === "managed-projection") {
     return hasVerifiedResourceOwnership(manifest, relativePath, entry.sourceId);
   }
@@ -1714,6 +1803,71 @@ function hasVerifiedResourceOwnership(
       manifestFile.sourceId === sourceId &&
       manifestFile.hash === entry.installedDigest,
   );
+}
+
+function getVerifiedProjectOwnedResourceOverride(
+  manifest: InstallManifest | null,
+  relativePath: string,
+  sourceId: string,
+  currentHash: string | null,
+): {
+  uri: string;
+  file: InstallManifest["files"][string];
+  resource: NonNullable<InstallManifest["resourceProjection"]>["resources"][string];
+} | null {
+  if (!manifest?.resourceProjection || !sourceId.startsWith("resource:") || !currentHash) {
+    return null;
+  }
+  const uri = sourceId.slice("resource:".length);
+  const resource = manifest.resourceProjection.resources[uri];
+  const file = manifest.files[relativePath];
+  if (
+    !resource ||
+    resource.uri !== uri ||
+    resource.managedDestination !== relativePath ||
+    resource.ownershipClass !== "project-owned" ||
+    resource.lifecycleDisposition !== "active" ||
+    resource.installedDigest !== currentHash ||
+    file?.ownershipClass !== "project-owned" ||
+    file.sourceId !== sourceId ||
+    file.hash !== currentHash
+  ) {
+    return null;
+  }
+  return {
+    uri,
+    file: { ...file },
+    resource: { ...resource },
+  };
+}
+
+function hasVerifiedCleanLegacyManagedOwnership(
+  manifest: InstallManifest | null,
+  relativePath: string,
+  currentHash: string | null,
+): boolean {
+  if (!manifest || manifest.schemaVersion >= 4 || !currentHash) return false;
+  const entry = manifest.files[relativePath];
+  if (
+    !entry ||
+    entry.hash !== currentHash ||
+    !isLegacySamePathSource(entry.sourceId, relativePath) ||
+    (entry.ownershipClass !== undefined && entry.ownershipClass !== "managed-snapshot")
+  ) {
+    return false;
+  }
+  if (!entry.systemAsset) return manifest.schemaVersion === 1;
+  return (
+    entry.systemAsset.logicalAssetId === relativePath &&
+    entry.systemAsset.localPath === relativePath &&
+    entry.systemAsset.sourcePackage === manifest.packageName &&
+    entry.systemAsset.hashAlgorithm === "sha256" &&
+    entry.systemAsset.expectedHashes.includes(entry.hash)
+  );
+}
+
+function isLegacySamePathSource(sourceId: string, relativePath: string): boolean {
+  return sourceId === `file:${relativePath}` || sourceId === `build:${relativePath}`;
 }
 
 function getCarriedOnDemandRouterAssets(options: {
