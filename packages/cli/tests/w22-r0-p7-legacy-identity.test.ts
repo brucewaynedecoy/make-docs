@@ -94,6 +94,15 @@ function checkoutProjectId(root: string, store: string, checkoutId: string): str
   }, { storeRoot: store, readOnly: true });
 }
 
+function installationLockCount(root: string, store: string): number {
+  return withInstallationDatabase(root, (db) => {
+    const row = db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as {
+      count: number;
+    };
+    return row.count;
+  }, { storeRoot: store, readOnly: true });
+}
+
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
@@ -127,7 +136,7 @@ describe("W22 R0 P7 legacy Store identity adoption", () => {
         mkdirSync(path.join(root, ".make-docs"), { recursive: true });
         writeFileSync(path.join(root, ".make-docs/config.yaml"), `projectId: ${randomUUID()}\n`);
       },
-      message: "conflicts with the checkout binding",
+      message: "legacy project identity conflicts with the checkout config",
     },
     {
       name: "a non-bridge migration record",
@@ -171,5 +180,6 @@ describe("W22 R0 P7 legacy Store identity adoption", () => {
 
     expect(() => importLegacy(root, store, projectId)).toThrow(message);
     expect(checkoutProjectId(root, store, seeded.checkoutId)).toBe(seeded.temporaryProjectId);
+    expect(installationLockCount(root, store)).toBe(0);
   });
 });

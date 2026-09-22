@@ -1170,7 +1170,7 @@ The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publicati
 
 P7 Stage 1 source repair, three authentic older-package fixtures, focused validation, and corrective review are complete as of 2026-09-22. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open. P7 and D-038 remain open.
 
-The final Stage 1 source result includes the checkpoint-3 regression, three exact authentic older-package fixtures, isolated plain-setup upgrade proof, focused and full validation, package build, TypeScript checks, and an independent read-only audit with no material defects. Stage 1 made no live CLI installation or live Store change. It did not stage, commit, push, publish, release, or start an external workflow.
+The first Stage 2 candidate at `f0846d58f5ebfca2d2485362f1cc324b8934dc0a` passed the three-platform workflow in run `35775207319`. Pull-request review then found seven material defects. That candidate is rejected for P7 acceptance. The corrective source result fixes those defects and passes local validation. It makes no live CLI installation or live Store change. A new exact package run is still required.
 
 ### Prior Source Implementation Result - Invalidated For Acceptance
 
@@ -1191,7 +1191,7 @@ The fixed results are:
 
 1. Full dry-run reports the schema 3 bridge, Codex drift, Claude incompleteness, and no mutation.
 2. Direct system setup names schema 3 and points to full setup. It does not point back to system setup. It changes no Store, project, or native file.
-3. Full setup converts the Store to schema 6 before machine apply. It repairs Codex, adds Claude, preserves the user-owned Codex model and Claude theme, and applies project work only after its separate approval.
+3. The later W23-bearing CLI used for this invalidated fixture converts the Store to schema 6 before machine apply. It repairs Codex, adds Claude, preserves the user-owned Codex model and Claude theme, and applies project work only after its separate approval. This is historical defect evidence. The isolated P7 candidate started from `main` and targeted Store schema 5. The integrated `make-docs-v2` line targets Store schema 6 and needs separate exact-candidate proof.
 4. New Codex and Claude intent exists only after native verification.
 5. Repeat full setup is a no-op for the Store, both machine routes, and project files.
 
@@ -1322,11 +1322,39 @@ This review does not support Stage 1 closeout. It does not claim real-platform i
 | Default validation | Passed: 53 of 53. |
 | TypeScript check | Passed. |
 | Package build | Passed. |
-| Independent read-only audit | Passed with no material defects. |
+| Earlier independent read-only audit | Passed, but later pull-request review found seven material defects that were outside that audit result. |
 | First full-suite attempt and corrective checks | Failed: one backup test exceeded its 15-second test limit, and two retired-resource tests exposed a fail-closed regression. The backup case passed alone: 1 of 1. The retired-resource repair passed its focused checks. |
 | Final full CLI suite | Passed with the standard npm test command and an isolated `MAKE_DOCS_HOME`: 92 test files passed and 1 test file skipped; 1,468 tests passed and 5 installed-platform tests skipped; 1,473 tests total. The backup case passed in this run in 11.855 seconds. |
 
 These source results satisfy t1 through t8 and A45 through A49. They do not identify or prove the exact Stage 2 candidate on Windows, macOS, and Linux.
+
+### Pull-Request Review Correction
+
+The first Stage 2 candidate passed its workflow. It did not pass review. The review found these defects:
+
+1. A missing project target could fail during schema-3 bridge preview.
+2. Machine JSON could report an unchanged plan as applied.
+3. A recovery state with no safe choice could direct the user back into setup.
+4. Setup did not repeat the compatibility guard after the Store bridge.
+5. Time-bearing plan data could force a second approval for an unchanged project plan.
+6. Lock release could hide the first error and leave a checkout lock.
+7. The evidence mixed later schema-6 W23 traces with the isolated schema-5 P7 branch.
+
+The corrective result fixes all seven defects. It adds one safe next action when no recovery choice is available. It repeats the compatibility check after Store conversion. It limits the approval fingerprint to stable plan facts. It releases the owned lock without repeating checkout identity checks. It also separates the isolated schema-5 P7 proof from the current schema-6 integration proof.
+
+The local corrective checks passed:
+
+| Check | Result |
+| --- | --- |
+| Focused repair suite | Passed: 2 test files; 140 tests. |
+| Authentic older-package upgrade suite | Passed: 3 tests. |
+| Full repository test command | Passed: 88 test files; 1,385 tests. One file and 5 installed-platform tests used their normal skip guard. |
+| Default validation | Passed: 53 tests. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Whitespace check | Passed. |
+
+These checks repair the reviewed source defects. They do not replace the required new package identity or the new Windows, macOS, and Linux installed proof.
 
 ### P7 Human Experience Review - Final Stage 1 Result
 
@@ -1353,7 +1381,7 @@ This review supports Stage 1 closeout only. It does not claim real-platform inst
 
 Tasks t1 through t8 are complete. Acceptance criteria A45 through A49 are satisfied by the final Stage 1 source result. The earlier failure evidence and interim review gaps remain part of the record.
 
-Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain open. No exact repaired P7 candidate identity, three-platform installed run, final comparison, installed Human Experience Review, or corrective closeout exists yet.
+Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain open. The first exact P7 candidate and workflow run are rejected because later review found material defects. No exact corrected package identity, corrected three-platform installed run, final comparison, installed Human Experience Review, or corrective closeout exists yet.
 
 The next gate is Stage 2. Build one exact repaired candidate with recorded package and install identity. Then run comparable installed proof on Windows, macOS, and Linux. Local `just install-cli` and the live plain-setup retry remain separate later owner actions.
 

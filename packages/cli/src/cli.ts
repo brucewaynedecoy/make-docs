@@ -66,6 +66,7 @@ import {
 } from "./skill-registry";
 import type {
   InstallManifest,
+  InstallPlan,
   InstallSelections,
   LifecyclePermissionsMode,
   ManagedFileConflictResolutions,
@@ -295,6 +296,7 @@ function previewPostBridgeInstallationManifest(
   bridge: StoreCompatibilityBridgePreview,
 ): InstallManifest | null {
   if ((bridge.sourceSchemaVersion ?? 0) < 3) return null;
+  if (!existsSync(targetDir)) return null;
   const classification = classifyStoreCheckpoint9State(storeRoot);
   if (classification.state !== "supported-legacy") return null;
   const driver = loadSqliteDriver();
@@ -582,6 +584,8 @@ export async function runCli(
         ? "Preview only. No project files or Store records changed."
         : selectedMode && !selectedChoice?.available
           ? `${selectedChoice?.label ?? selectedMode} is not safe for this operation. Review the listed conflicts.`
+          : availableChoices.length === 0
+            ? projectRecoveryReview.nextAction
           : !interactive && !parsed.yes && selectedMode
             ? "Run setup with --yes after you review this recovery choice."
             : "Run make-docs setup in an interactive terminal and choose one available recovery action.";
@@ -961,11 +965,6 @@ export async function runCli(
   let requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
   let hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
   let reviewedProjectFingerprint = setupProjectReviewFingerprint(
-    legacyState,
-    compatibilityClassification,
-    existingManifest,
-    freshInstallTarget,
-    projectState,
     plan,
     projectHarnessConfig,
   );
@@ -987,6 +986,11 @@ export async function runCli(
       existingManifest,
       installIntent,
       classification: compatibilityClassification,
+    });
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
     });
     installationStatus = readInstallationStatus(targetDir, storeRoot);
     projectState = freshInstallTarget
@@ -1055,11 +1059,6 @@ export async function runCli(
     requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
     hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
     reviewedProjectFingerprint = setupProjectReviewFingerprint(
-      legacyState,
-      compatibilityClassification,
-      existingManifest,
-      freshInstallTarget,
-      projectState,
       plan,
       projectHarnessConfig,
     );
@@ -1561,8 +1560,26 @@ async function runProjectPathHygieneCommand(
   }
 }
 
-function setupProjectReviewFingerprint(...values: unknown[]): string {
-  return JSON.stringify(values);
+function setupProjectReviewFingerprint(
+  plan: InstallPlan,
+  projectHarnessConfig: unknown,
+): string {
+  const stablePlan = {
+    packageName: plan.packageName,
+    packageVersion: plan.packageVersion,
+    profile: plan.profile,
+    systemAssetMaterialization: plan.systemAssetMaterialization,
+    actions: plan.actions,
+    desiredFiles: plan.desiredFiles,
+    desiredSkillFiles: plan.desiredSkillFiles,
+    operation: plan.operation,
+    stops: plan.stops,
+    forceManifestWrite: plan.forceManifestWrite,
+  };
+  return JSON.stringify([
+    stablePlan,
+    projectHarnessConfig,
+  ]);
 }
 
 function inferInstallIntent(parsed: ParsedArgs): InstallIntent {
@@ -2291,6 +2308,7 @@ function writeCanonicalSetupResult(input: {
           ? input.system.mutationState === "partial"
             ? "partial"
             : input.system.mutationState === "verified" &&
+                plan.changed &&
                 input.system.configured.includes(plan.harness)
               ? "applied"
               : "none"

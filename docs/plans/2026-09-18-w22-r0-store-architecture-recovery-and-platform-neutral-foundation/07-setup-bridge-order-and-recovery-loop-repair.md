@@ -22,6 +22,8 @@ The Store remained on schema 3. The managed Codex entry remained drifted. No pro
 
 A later installed run disproved the first P7 Stage 1 repair. After rollback, `project state status` reported a ready schema 6 installation with no recovery needed. Plain `make-docs setup` then classified the project as `partial-install`, offered `migrate-with-review`, showed one planned skip after 108 file checks, and received project approval. Migration checkpoint 3 then rejected the reviewed work as `ambiguous-ownership` and created pending operation `9b687b36-5394-4bae-879e-416937eaa33d`. The planner, classifier, and executor did not agree on whether the reviewed project result was safe. The failure was predictable before operation creation, but setup created recoverable state and sent the person to `project state status` and deep recovery commands.
 
+The schema 6 traces came from the later `make-docs-v2` line after W23 Store work was present. They are historical defect evidence. The isolated P7 branch started from `main` and targeted Store schema 5. Its installed proof used that exact schema-5 candidate and did not run against the owner's schema-6 Store. This integrated `make-docs-v2` line targets Store schema 6. It needs its own exact schema-6 proof before live setup.
+
 This installed trace withdrew the first Stage 1 completion claim. The corrective review then found approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. Stage 1 fixed those gaps. The failed installed trace and interim review remain historical evidence for the defect and repair boundary.
 
 ## Authority Disposition

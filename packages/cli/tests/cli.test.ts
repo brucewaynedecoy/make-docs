@@ -1032,7 +1032,9 @@ personas:
         },
         project: { changed: true, mutationState: "applied" },
       });
-      expect(result.nextAction).toContain("Run make-docs setup in an interactive terminal");
+      expect(result.nextAction).toBe(
+        "Preserve the project and review the listed conflicts. Setup cannot safely continue yet.",
+      );
       expect(output).not.toContain("project state status");
       expect(readInstallationStatus(targetDir).status).toBe("recovery-required");
     } finally {
@@ -1277,6 +1279,39 @@ personas:
         },
       });
       expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("uses the saved recovery action when no recovery choice is safe", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-setup-recovery-no-choice-");
+    try {
+      await installManifest(targetDir);
+      createPendingSetupOperation(targetDir, { planComplete: true, applyChange: true });
+      writeFileSync(path.join(targetDir, "recovery-note.md"), "outside change\n", "utf8");
+      const review = prepareSetupProjectRecoveryReview(targetDir)!;
+      expect(review.choices.every((choice) => !choice.available)).toBe(true);
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        nextAction: review.nextAction,
+        projectRecovery: {
+          status: "blocked",
+          nextAction: review.nextAction,
+        },
+      });
+      expect(result.nextAction).not.toContain("interactive terminal");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -2460,6 +2495,32 @@ personas:
     }
   });
 
+  test("previews a schema-3 Store bridge for a target directory that does not exist yet", async () => {
+    setTTY(false);
+    const parentDir = createTempDir("make-docs-schema-three-missing-target-");
+    const targetDir = path.join(parentDir, "new-project");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    seedSchemaThreeStore(storeRoot);
+    try {
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--dry-run",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result).toMatchObject({
+        status: "planned",
+        store: { sourceSchemaVersion: 3 },
+      });
+      expect(existsSync(targetDir)).toBe(false);
+    } finally {
+      cleanupTempDir(parentDir);
+    }
+  });
+
   test("rebuilds and reapproves the project plan after the Store bridge changes project state", async () => {
     setTTY(true);
     const targetDir = createTempDir("make-docs-store-project-reapproval-");
@@ -2564,6 +2625,73 @@ personas:
     }
   });
 
+  test("does not ask for project approval again when the Store bridge leaves review facts unchanged", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-schema-three-stable-review-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    try {
+      await installManifest(targetDir);
+      const installedManifest = loadManifest(targetDir)!;
+      rmSync(storeRoot, { recursive: true, force: true });
+      seedSchemaThreeInstallationLedger(storeRoot, targetDir, installedManifest);
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const projectConfirmations = confirmMock.mock.calls
+        .map(([options]) => String(options.message))
+        .filter((message) => message === "Apply this make-docs sync?");
+
+      expect(projectConfirmations).toHaveLength(1);
+      expect(output).not.toContain(
+        "The verified Store state changed the project review. Review the current project plan.",
+      );
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("checks compatibility again after a predicted schema-3 ledger becomes current", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-schema-three-reloaded-guard-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    try {
+      await installManifest(targetDir);
+      const installedManifest = loadManifest(targetDir)!;
+      rmSync(storeRoot, { recursive: true, force: true });
+      seedSchemaThreeInstallationLedger(storeRoot, targetDir, installedManifest);
+      const compatibility = await import("../src/compatibility");
+      const classification = await compatibility.classifyCompatibilityState({ targetDir });
+      vi.spyOn(compatibility, "classifyCompatibilityState").mockResolvedValue({
+        ...classification,
+        disposition: "manual-review-required",
+      });
+
+      const error = await captureCliError([
+        "setup",
+        "--yes",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+
+      expect(error.message).toContain(
+        "make-docs cannot classify this target safely enough to write changes",
+      );
+      const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({
+        user_version: CURRENT_STORE_SCHEMA_VERSION,
+      });
+      db.close();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("reports a failed Store prerequisite without machine or project writes", async () => {
     setTTY(false);
     const targetDir = createTempDir("make-docs-store-prerequisite-failure-");
@@ -2653,6 +2781,67 @@ personas:
       ]));
 
       expect(result.machine.states[0]).toMatchObject({ mutationState: "none" });
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("does not report an unchanged machine plan as applied", async () => {
+    setTTY(false);
+    const targetDir = createTempDir("make-docs-machine-unchanged-result-state-");
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const prepareActual = setupSystem.prepareSystemSetupCommand;
+      vi.spyOn(setupSystem, "prepareSystemSetupCommand").mockImplementation(async (options) => {
+        const prepared = await prepareActual(options);
+        return {
+          ...prepared,
+          plans: [{
+            harness: "codex",
+            method: "none",
+            status: "current",
+            operations: [],
+            operationEffects: [],
+            allowedStoreOperations: "active-operation-registry",
+            ownedEntries: [],
+            machineFiles: [],
+            changed: false,
+            detail: "No machine change is needed.",
+            apply: async () => undefined,
+            verify: async () => true,
+          }],
+        };
+      });
+      vi.spyOn(setupSystem, "applyPreparedSystemSetup").mockResolvedValue({
+        schemaVersion: 2,
+        status: "configured",
+        scope: "machine",
+        selections: { codex: "none", "claude-code": "none" },
+        configured: ["codex"],
+        skipped: ["claude-code"],
+        blocked: [],
+        attemptedWork: ["verified codex"],
+        mutationState: "verified",
+        failedCondition: null,
+        nextAction: null,
+        recoveryAction: null,
+      });
+
+      const result = JSON.parse(await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]));
+
+      expect(result.machine.states).toContainEqual(
+        expect.objectContaining({
+          harness: "codex",
+          mutationState: "none",
+        }),
+      );
     } finally {
       cleanupTempDir(targetDir);
     }
