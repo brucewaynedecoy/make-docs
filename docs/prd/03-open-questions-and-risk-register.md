@@ -836,7 +836,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | W19 R8 repairs normal package-launch verification, independent setup subplans, optional Store behavior, mid-task access recovery, generic MCP setup, and agent continuation. The repair does not depend on Store or MCP access. | None. [W19 R8 P1 evidence](../work/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/evidence.md) records the exact installed package and complete acceptance matrix. |
+| Open | Reopened on 2026-09-22. Current product authority already requires one open recovery path. W22 R0 P7 owns the bounded correction for legacy-Store bridge order, direct machine-setup independence, harness-intent commit timing, and recovery-action accuracy. | Implement and prove [W22 R0 P7](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/07-setup-bridge-order-and-recovery-loop-repair.md). Do not retry the current reciprocal commands or edit the Store by hand. |
 
 **Issue:** Full setup can ask for machine MCP, Skills, and resources and then reject an existing project's Skill change without applying any valid independent setup. Focused machine setup can label MCP methods available and later block them because it cannot verify the active packaged executable. The verifier rejects a symbolic-link launch path before it resolves the declared package bin, drops the exact error, and recommends reinstall. A normal global npm install creates the same link again. Agent guidance can then ask for a method already selected or stop the whole task when only one Store-backed operation is unavailable.
 
@@ -846,7 +846,13 @@ Code anchors:
 
 **To close:** Prove a normal package-manager link verifies the exact package bin while unsafe links remain blocked with exact detail. Prove one subplan failure does not erase another verified result. Prove no-Store projects keep Store-free behavior. Prove all four Store access results and one exact action across human, JSON, MCP, and agent output. Prove mid-task first-party and generic MCP setup, access refresh, one-operation retry, upgrade from v1 and early v2, interrupted setup, repeat setup, and W19 R7 recovery cases from one exact installed package with no repository available.
 
-**Resolution:** W19 R8 P1 passed all stated close cases against the recorded package candidate. `W19-R8-GATE-EXCEPTION-1` excludes only separate Performance Evidence projection failures and does not cover this finding.
+**Prior resolution, now narrowed by the reopened evidence below:** W19 R8 P1 passed all stated close cases against the recorded package candidate. `W19-R8-GATE-EXCEPTION-1` excludes only separate Performance Evidence projection failures and does not cover this finding.
+
+**Reopened issue, 2026-09-22:** A current installed CLI matched the repository build but still formed a closed command loop in a different accepted state. Full setup reviewed a schema 3 to schema 6 compatibility bridge, attempted machine setup first, and directed the person to system setup. System setup could not apply the reviewed bridge and directed the person back to full setup. Neither command changed the failed prerequisite. The Store remained on schema 3, the managed Codex entry remained drifted, and new Claude Code MCP intent was saved before the machine change succeeded.
+
+**Reopened recommendation:** In full setup, apply and verify the reviewed Store bridge before any dependent Store-backed machine step. Keep direct system setup callable without the Store or MCP route that it creates or repairs. Persist new harness intent only after its required prerequisite and owned machine change can complete. Derive the next action from the exact failed condition and reject reciprocal command directions.
+
+**Reopened close condition:** The exact supported schema 3, drifted Codex MCP, newly selected Claude Code MCP, and reviewed project fixture must reach one current Store and verified result without reciprocal commands, hidden partial intent, manual database edits, or unreviewed project changes. Human and JSON results must agree. Failure, interruption, retry, and repeat must preserve data and one safe next action. One exact installed package must pass the same contract on Windows, macOS, and Linux.
 
 Code anchors:
 
@@ -857,6 +863,12 @@ Code anchors:
 - `packages/cli/src/skills-ui.ts`
 - `packages/cli/src/operations/harness-policy.ts`
 - `packages/cli/src/store/bootstrap.ts`
+- `packages/cli/src/store/installation-state.ts`
+- `packages/cli/src/migration.ts`
+- `packages/cli/tests/cli.test.ts`
+- `packages/cli/tests/p6-global-store-lifecycle.test.ts`
+- `docs/plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/07-setup-bridge-order-and-recovery-loop-repair.md`
+- `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/07-setup-bridge-order-and-recovery-loop-repair.md`
 - `scripts/smoke-pack.mjs`
 
 ### D-039 Durable File Identity and Broad Store State Exceed the Accepted Model
