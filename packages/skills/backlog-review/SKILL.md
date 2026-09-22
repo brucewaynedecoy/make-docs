@@ -23,11 +23,13 @@ A cache refusal or failure must not block the report. Complete the full stateles
 
 Build one report record for every discovered live and archived record. Give each live record exactly one `waveStatus`. Give every record a clear `statusReason` with source evidence. Keep report findings separate from wave status.
 
+Give every Next item one `recordPath` that matches exactly one report record. An Attention item can use one exact report `recordPath` or null. Null means a backlog-wide finding. Validate these references before writing chat or HTML. Show the matched wave coordinate outside agent-written claim text. Use the same visible hierarchy for Next and Attention: sourced coordinate or `Backlog finding` as compact metadata, then the claim as the main heading. Do not repeat the item's own wave coordinate in its claim only to identify the item. Use a local phase label such as `P5` for a phase in the displayed wave. Use another wave's full coordinate when that relationship matters. Label a null Attention item `Backlog finding`.
+
 Use the six fixed live statuses only: `attention`, `current`, `conflict`, `deferred`, `complete`, and `history`. Archived records use a null status and remain in the archived tally.
 
 Build the project lead from bounded project-summary context before you write report prose. Run `scripts/collect-project-lead-context.mjs` with the project root and up to three report records that represent the current focus. Use only the returned excerpts for the lead. Write two or three source-backed sentences that state what the project is and its current status or objective. Do not mention report counts, backlog totals, filters, sorting, search, or instructions for using the report. Do not add unsupported project details. When the context packet does not contain both project purpose and current status or objective, set `projectLead` to null and explain the omission to the user. Never invent a generic lead.
 
-Lead the chat report with current focus, **Next**, and **Attention**. Separate facts, inferences, and recommendations. Omit empty sections. Keep material limits visible. Link to repository-relative sources.
+Lead the chat report with current focus, **Next**, and **Attention**. Show the linked wave coordinate for every Next item and every wave-specific Attention item. Label a backlog-wide Attention item `Backlog finding`. Separate facts, inferences, and recommendations. Omit empty sections. Keep material limits visible. Link to repository-relative sources.
 
 Create an HTML report only when the user asks for it. Read [the HTML report guide](references/html-report.md), confirm the exact output path, and render the same normalized report model with the bundled renderer. The result must be one offline `.html` file. Do not create a site or keep a hidden report copy. The report may expose its own embedded model through the Backlog Data tab and its user-started JSON download. Ask before replacing an existing file.
 

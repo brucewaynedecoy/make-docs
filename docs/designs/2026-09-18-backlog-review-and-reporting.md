@@ -47,6 +47,8 @@ Experience promises:
 - Give every included wave one fixed report status: `attention`, `current`, `conflict`, `deferred`, `complete`, or `history`.
 - Keep the fixed status separate from the agent-written status reason and from recorded lifecycle state.
 - Keep source links and exact phase or task detail available without putting that detail in the default reading path.
+- Show which wave each Next or wave-specific Attention item affects before asking the person to act.
+- Let a person focus the Backlog on that wave and clear the focus without losing the selected status filter.
 - When a tool reports an error, warning, or material limit, have the agent explain the subject, meaning, effect on the current request, evidence limit, and next useful action in natural language. Keep the exact diagnostic code as secondary detail.
 - Provide a concise in-chat report by default and an optional self-contained interactive HTML report on request.
 - Keep the HTML report usable offline, responsive, keyboard-accessible, and printable or savable as one file.
@@ -64,6 +66,7 @@ Evidence required:
 - Compare the structured snapshot, chat report, and HTML report for the same meaning and source traceability.
 - Exercise agent handling for operation errors, partial records, unsupported records, and evidence fallbacks. Confirm that the human explanation keeps the exact meaning while adding context, impact, and a useful next action.
 - Inspect the rendered HTML at desktop and mobile sizes and exercise all keyboard-accessible filters, sorting controls, source links, and disclosure controls.
+- Exercise wave-specific Next and Attention navigation, backlog-wide Attention labels, and the conditional search-clear control with pointer and keyboard input.
 - Run a Human Experience Review against the accepted promises and record observations, conclusions, limits, and next actions.
 
 ## Performance Evidence Candidates
@@ -133,6 +136,8 @@ The report model also contains a nonempty `statusReason`. The Skill writes this 
 
 The fixed status controls exact status-filter membership and the badge and status-filter color. Attention findings remain separate report items. An attention finding about a current wave does not move that wave into the `attention` filter. Archive location separately controls archived scope.
 
+Every Next item maps to one included wave through its report-record path. Every Attention item either maps to one included wave or is explicitly backlog-wide. The renderer derives a visible coordinate from the matched record instead of depending on agent-written prose. A backlog-wide item uses the stable label `Backlog finding`.
+
 The report uses four fixed portfolio tallies:
 
 | Tally label | Rule |
@@ -149,6 +154,10 @@ The interactive report opens with `In Scope`. It also provides the six exact sta
 The report sorts by directory creation date, wave coordinate, or last-updated date and toggles each sort between ascending and descending. The default is last updated, newest first. The created date comes from the dated work-directory name. The last-updated scope contains only the work record directory and its linked phase files. Local changes use the newest modification time among changed or untracked scoped files. A clean record uses the latest Git committer date that affected a scoped file. Git absence, denial, a non-repository location, or missing history falls back to the newest scoped file modification time. Missing usable file time falls back to the created date. Each fallback is explicit. Linked product source files and report generation time never affect this value. Equal primary sort values use wave coordinate, then record path, in ascending order.
 
 Each collapsed wave summary is a large pointer target. Its wave-name link continues to open the source index and does not toggle detail. Expanded detail does not close when a user selects or activates its content. The summary surface exposes its open or closed state and supports keyboard activation.
+
+A wave-specific Next or Attention item is also one accessible pointer and keyboard target. Activating it selects `All`, activates Backlog Work, places the matched coordinate in search, and updates the wave list. On a narrow layout, the report brings the filtered Backlog result into view. Backlog-wide findings remain non-interactive because they have no wave destination.
+
+The search field has a template-owned `Clear search` control. It appears only while search contains a value. Clearing search preserves the selected status filter. The control has a visible focus state and an accessible name. Print removes interactive treatment while keeping the item text and coordinate readable.
 
 ### W22 R0 integration gate
 

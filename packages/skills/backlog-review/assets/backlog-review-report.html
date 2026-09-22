@@ -192,16 +192,22 @@
     .section-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin: 0 0 14px; border-bottom: 2px solid var(--ink); padding-bottom: 9px; }
     .section-heading h2 { margin: 0; font-size: 1rem; font-weight: 750; letter-spacing: -.01em; }
     .attention-list, .order-list { margin: 0; padding: 0; list-style: none; }
-    .attention-item, .order-item { display: grid; grid-template-columns: 32px 1fr; gap: 12px; border-bottom: 1px solid var(--line); padding: 16px 0; }
+    .attention-item, .order-item { border-bottom: 1px solid var(--line); }
+    .report-action, .backlog-finding { display: grid; width: 100%; grid-template-columns: 32px 1fr; gap: 12px; border: 0; background: transparent; color: inherit; padding: 16px 0; text-align: left; }
+    .report-action { cursor: pointer; }
+    .report-action:hover { background: color-mix(in srgb, var(--blue-soft) 28%, transparent); }
+    .report-action:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
     .attention-icon, .order-number { width: 28px; min-height: 23px; display: grid; place-items: center; align-self: start; }
     .attention-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
     .attention-item.info .attention-icon { color: var(--wave-current); }
     .attention-item.warning .attention-icon { color: var(--wave-attention); }
     .attention-item.error .attention-icon { color: var(--wave-conflict); }
-    .attention-item p, .order-item p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
-    .attention-item strong, .order-item strong { font-size: .9rem; }
-    .attention-block { margin-top: 42px; }
-    .order-item { padding: 13px 0; }
+    .action-copy { min-width: 0; }
+    .action-detail { display: block; margin-top: 4px; color: var(--muted); font-size: .82rem; }
+    .attention-item strong, .order-item strong { display: block; font-size: .9rem; }
+    .action-coordinate { display: block; margin-bottom: 3px; color: var(--muted); font-size: .72rem; font-weight: 700; }
+    .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 42px; }
+    .order-item .report-action { padding: 13px 0; }
     .order-number { padding: 3px; font-size: .7rem; background: var(--paper); color: var(--ink); }
     .ledger { min-width: 0; }
     .backlog-tabs { display: flex; gap: 18px; margin: 0 0 18px; border-bottom: 1px solid var(--line); }
@@ -212,7 +218,12 @@
     .search-wrap { position: relative; }
     .search-wrap::before { position: absolute; left: 13px; top: 50%; width: 12px; height: 12px; border: 2px solid var(--muted); border-radius: 50%; content: ""; transform: translateY(-58%); pointer-events: none; }
     .search-wrap::after { position: absolute; left: 25px; top: 57%; width: 7px; height: 2px; background: var(--muted); content: ""; transform: rotate(45deg); pointer-events: none; }
-    #search { width: 100%; min-height: 43px; border: 1px solid var(--line-strong); background: var(--panel); color: var(--ink); padding: 9px 12px 9px 42px; }
+    #search { width: 100%; min-height: 43px; border: 1px solid var(--line-strong); background: var(--panel); color: var(--ink); padding: 9px 48px 9px 42px; }
+    #search::-webkit-search-cancel-button { -webkit-appearance: none; }
+    .search-clear { position: absolute; right: 5px; top: 50%; width: 34px; min-height: 34px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); padding: 0; transform: translateY(-50%); cursor: pointer; }
+    .search-clear:hover { color: var(--ink); }
+    .search-clear[hidden] { display: none; }
+    .search-clear svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 1.8; }
     .ledger-tools { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
     .filters { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0 0 13px; }
     .filter-button { min-height: 34px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); padding: 6px 12px; font-size: .8rem; cursor: pointer; }
@@ -288,7 +299,7 @@
     @media (max-width: 1080px) {
       .workspace { grid-template-columns: 1fr; }
       .attention { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-      .attention-block { margin-top: 0; }
+      .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 0; }
       .wave-overview { grid-template-columns: minmax(140px, .8fr) minmax(220px, 1.2fr) minmax(220px, 1.4fr); gap: 16px; }
     }
     @media (max-width: 760px) {
@@ -298,7 +309,7 @@
       .report-meta div + div { margin-top: 0; }
       .meta-actions { grid-column: 1 / -1; margin-top: 2px; }
       .attention { display: block; }
-      .attention-block { margin-top: 42px; }
+      .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 42px; }
       .ledger-tools { flex-direction: column; align-items: stretch; }
       .sort-controls { justify-content: flex-start; }
       .wave-overview { grid-template-columns: 1fr; gap: 10px; padding: 20px 2px 12px; }
@@ -326,6 +337,8 @@
       .wave[hidden] { display: none; }
       .wave { break-inside: avoid; }
       .detail[hidden] { display: grid !important; }
+      .report-action { color: var(--ink); cursor: default; }
+      .report-action:hover { background: transparent; }
     }
   </style>
 </head>
@@ -353,8 +366,8 @@
     </section>
     <div class="workspace">
       <aside class="attention" id="attentionRail" aria-label="Attention and recommended order">
-        <section id="orderBlock"><div class="section-heading"><h2>Next</h2></div><ol class="order-list" id="orderList"></ol></section>
         <section class="attention-block" id="attentionBlock"><div class="section-heading"><h2>Attention</h2></div><ul class="attention-list" id="attentionList"></ul></section>
+        <section id="orderBlock"><div class="section-heading"><h2>Next</h2></div><ol class="order-list" id="orderList"></ol></section>
       </aside>
       <section class="ledger" aria-labelledby="ledgerHeading">
         <div class="section-heading"><h2 id="ledgerHeading">Backlog</h2></div>
@@ -363,7 +376,7 @@
           <button class="backlog-tab" id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel" tabindex="-1" data-backlog-tab="data">Data</button>
         </div>
         <div class="backlog-panel" id="workPanel" role="tabpanel" aria-labelledby="workTab">
-          <div class="controls"><label class="search-wrap"><span class="sr-only">Search waves</span><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"></label></div>
+          <div class="controls"><div class="search-wrap"><label class="sr-only" for="search">Search waves</label><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"><button class="search-clear" id="clearSearch" type="button" aria-label="Clear search" title="Clear search" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div></div>
           <div class="ledger-tools">
             <div class="filters" id="filters" role="group" aria-label="Filter waves"></div>
             <div class="sort-controls">
@@ -392,6 +405,7 @@
     "use strict";
     const report = JSON.parse(document.querySelector("#backlog-report-data").textContent);
     const snapshotByPath = new Map(report.snapshot.records.map((record) => [record.recordPath, record]));
+    const reportByPath = new Map(report.records.map((record) => [record.recordPath, record]));
     const fixedFilters = [
       ["in-scope", "In Scope", false], ["attention", "Attention", true],
       ["current", "Current", true], ["conflict", "Conflict", true],
@@ -506,23 +520,36 @@
         button.setAttribute("aria-pressed", String(filter === activeFilter));
         button.hidden = !["all", "in-scope"].includes(filter) && !report.records.some((record) => matchesFilter(record, filter));
         button.addEventListener("click", () => {
-          activeFilter = filter;
-          container.querySelectorAll("button").forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+          setActiveFilter(filter);
           renderWaves();
         });
         container.append(button);
       });
     }
 
+    function setActiveFilter(filter) {
+      activeFilter = filter;
+      document.querySelectorAll("#filters .filter-button").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+      });
+    }
+
     function renderOrder() {
       const list = document.querySelector("#orderList");
       report.recommendationOrder.forEach((item) => {
+        const record = reportByPath.get(item.recordPath);
         const row = node("li", "order-item");
-        row.append(node("span", "order-number", item.rank));
-        const copy = node("div");
+        const action = node("button", "report-action");
+        action.type = "button";
+        action.setAttribute("aria-label", `Show ${recordName(record)} in the Backlog: ${claimText(item.claim)}`);
+        action.addEventListener("click", () => focusBacklogRecord(record));
+        action.append(node("span", "order-number", item.rank));
+        const copy = node("span", "action-copy");
+        copy.append(node("span", "action-coordinate", recordName(record)));
         copy.append(node("strong", "", claimText(item.claim)));
-        copy.append(node("p", "", item.claim.rationale));
-        row.append(copy);
+        copy.append(node("span", "action-detail", item.claim.rationale));
+        action.append(copy);
+        row.append(action);
         list.append(row);
       });
       document.querySelector("#orderBlock").hidden = report.recommendationOrder.length === 0;
@@ -549,12 +576,19 @@
       report.attentionFindings.forEach((finding) => {
         const kind = attentionKind(finding);
         const row = node("li", `attention-item ${kind}`);
-        row.append(attentionIcon(kind));
-        const copy = node("div");
-        const record = report.records.find((item) => item.recordPath === finding.recordPath);
-        copy.append(node("strong", "", record ? recordName(record) : "Portfolio finding"));
-        copy.append(node("p", "", claimText(finding.claim)));
-        row.append(copy);
+        const record = finding.recordPath === null ? null : reportByPath.get(finding.recordPath);
+        const content = record ? node("button", "report-action") : node("div", "backlog-finding");
+        if (record) {
+          content.type = "button";
+          content.setAttribute("aria-label", `Show ${recordName(record)} in the Backlog: ${claimText(finding.claim)}`);
+          content.addEventListener("click", () => focusBacklogRecord(record));
+        }
+        content.append(attentionIcon(kind));
+        const copy = node("span", "action-copy");
+        copy.append(node("span", "action-coordinate", record ? recordName(record) : "Backlog finding"));
+        copy.append(node("strong", "", claimText(finding.claim)));
+        content.append(copy);
+        row.append(content);
         list.append(row);
       });
       document.querySelector("#attentionBlock").hidden = report.attentionFindings.length === 0;
@@ -564,6 +598,7 @@
     function renderWave(record, index) {
       const snapshot = snapshotByPath.get(record.recordPath);
       const article = node("article", "wave");
+      article.dataset.recordPath = record.recordPath;
       const overview = node("div", "wave-overview");
       const detailId = `wave-detail-${index}`;
       overview.dataset.disclosureSurface = "";
@@ -682,6 +717,32 @@
       if (moveFocus) tab.focus();
     }
 
+    const searchInput = document.querySelector("#search");
+    const clearSearch = document.querySelector("#clearSearch");
+    function updateSearchClear() {
+      clearSearch.hidden = searchInput.value.length === 0;
+    }
+    function focusBacklogRecord(record) {
+      activateBacklogTab(document.querySelector("#workTab"));
+      setActiveFilter("all");
+      searchInput.value = recordName(record);
+      updateSearchClear();
+      renderWaves();
+      requestAnimationFrame(() => {
+        const target = [...document.querySelectorAll("#waveList .wave")].find(
+          (wave) => wave.dataset.recordPath === record.recordPath,
+        );
+        const surface = target?.querySelector("[data-disclosure-surface]");
+        surface?.focus({ preventScroll: true });
+        if (target && window.matchMedia("(max-width: 1080px)").matches) {
+          target.scrollIntoView({
+            block: "start",
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          });
+        }
+      });
+    }
+
     backlogTabs.forEach((tab) => tab.addEventListener("click", () => activateBacklogTab(tab)));
     document.querySelector("[role=tablist]").addEventListener("keydown", (event) => {
       const current = backlogTabs.indexOf(document.activeElement);
@@ -729,7 +790,14 @@
       event.preventDefault();
       setExpanded(surface, surface.getAttribute("aria-expanded") !== "true");
     });
-    document.querySelector("#search").addEventListener("input", renderWaves);
+    searchInput.addEventListener("input", () => { updateSearchClear(); renderWaves(); });
+    clearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      updateSearchClear();
+      renderWaves();
+      searchInput.focus();
+    });
+    updateSearchClear();
     document.querySelector("#sortBy").addEventListener("change", () => { updateSortLabel(); renderWaves(); });
     document.querySelector("#sortDirection").addEventListener("click", () => {
       const button = document.querySelector("#sortDirection");

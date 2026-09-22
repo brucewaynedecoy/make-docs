@@ -41,11 +41,17 @@ Use only decisive evidence in report-layer claims. The source snapshot already r
 
 Keep a report-level attention finding separate from wave status. A current or complete wave can still have a finding.
 
-Do not choose an attention icon or severity. The fixed renderer maps a `conflict` wave to `error`, an `attention` wave to `warning`, and every other record or portfolio finding to `info`.
+Use the matched report `recordPath` for a wave-specific finding. Use null only for a backlog-wide finding. A backlog-wide finding is not a substitute for a wave reference that is known. In chat, show the matched coordinate for a wave-specific finding and use the fixed label `Backlog finding` for a null reference. Treat that label as metadata and use the finding claim as the main heading.
+
+Do not choose an attention icon or severity. The fixed renderer maps a `conflict` wave to `error`, an `attention` wave to `warning`, and every other record or backlog finding to `info`.
 
 ## Recommend order
 
 Recommend order only for useful next work. Explain why one item comes before another. Consider accepted authority, explicit dependencies, blockers, active edits, closeout debt, evidence conflicts, supersession, and owner direction. Age can support context. Age cannot prove priority.
+
+Give every ordered item the exact `recordPath` of one included report record. Show that record's sourced coordinate as metadata with the action in chat and HTML. Use the recommendation claim as the main heading. Do not write a Next item that a reader cannot map to one wave.
+
+Do not repeat the item's own wave coordinate in a Next or Attention claim only to identify the item. Use a local phase label such as `P5` for a phase in the displayed wave. Keep another wave's full coordinate when it explains a dependency, conflict, or sequence.
 
 Use contiguous ranks from one. If evidence cannot support a useful order, say so and leave the order empty.
 
@@ -57,13 +63,13 @@ Use this compact order:
 2. the four full-portfolio tallies;
 3. **Current focus**;
 4. **Next**;
-5. **Needs attention**;
+5. **Attention**;
 6. nonempty state groups for open or current, closeout needed, blocked or conflicted, paused or superseded, completed, and historical work;
 7. material evidence limits and diagnostics.
 
 The first screenful must show current focus, material conflicts, and the next useful actions. Use normal names before internal codes. Put exact codes and machine detail after the human account.
 
-For each displayed wave, link its coordinate or name to its repository-relative `00-index.md` when that file exists. Keep the default summary short. Add compact facts, inference, recommendation, confidence, and limit detail only when it helps the current decision.
+For each displayed wave, link its coordinate or name to its repository-relative `00-index.md` when that file exists. Every Next item and wave-specific Attention item must show this coordinate as compact metadata above its claim heading. A backlog-wide Attention item must show `Backlog finding` in the same metadata position and no false wave link. Keep the default summary short. Add compact facts, inference, recommendation, confidence, and limit detail only when it helps the current decision.
 
 Omit empty sections. Never omit a material failure, conflict, limit, or required action.
 

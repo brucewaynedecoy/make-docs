@@ -1,14 +1,14 @@
 ---
-title: "W23 R0 P6 Package Parity and Acceptance"
+title: "W23 R0 P7 Package Parity and Acceptance"
 kind: "plan"
 status: "draft"
-coordinate: "W23 R0 P6"
+coordinate: "W23 R0 P7"
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
 ---
 
-# W23 R0 P6 Package Parity and Acceptance
+# W23 R0 P7 Package Parity and Acceptance
 
 ## Purpose
 

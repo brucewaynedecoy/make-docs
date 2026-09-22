@@ -18,7 +18,7 @@ Source method: MCP snapshot
 
 ### Next
 
-1. Review the active record before opening more work. This preserves the current focus. Limit: owner direction can change the order.
+1. [W1 R1](docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md) — Review the active record before opening more work. This preserves the current focus. Limit: owner direction can change the order.
 
 ## Medium portfolio
 
@@ -36,10 +36,10 @@ Source method: CLI snapshot
 
 ### Next
 
-1. Continue W8 R0. It has accepted authority and no stronger conflict.
-2. Reconcile W7 R2 before closeout. Its task evidence and recorded status disagree.
+1. [W8 R0](docs/work/2042-07-10-w8-r0-harbor-index/00-index.md) — Continue the accepted work. It has accepted authority and no stronger conflict.
+2. [W7 R2](docs/work/2042-06-18-w7-r2-harbor-import/00-index.md) — Reconcile the task evidence and recorded status before closeout.
 
-### Needs attention
+### Attention
 
 - [W7 R2](docs/work/2042-06-18-w7-r2-harbor-import/00-index.md) — `conflict`: Recorded completion conflicts with one open task.
   - Recommendation: Reconcile the record before using it as historical evidence.
@@ -64,13 +64,14 @@ Source method: agentic fallback
 
 ### Next
 
-1. Finish the W31 R0 closeout evidence before opening another release track.
-2. Review the recorded blocker on W30 R1 after W31 R0 is settled.
+1. [W31 R0](docs/work/2042-08-03-w31-r0-atlas-release/00-index.md) — Finish the closeout evidence before opening another release track.
+2. [W30 R1](docs/work/2042-07-22-w30-r1-atlas-recovery/00-index.md) — Review the recorded blocker after W31 R0 is settled.
 
-### Needs attention
+### Attention
 
-- W31 R0 has complete tasks but no accepted closeout fact.
-- W30 R1 depends on an owner decision that this review cannot make.
+- [W31 R0](docs/work/2042-08-03-w31-r0-atlas-release/00-index.md) has complete tasks but no accepted closeout fact.
+- [W30 R1](docs/work/2042-07-22-w30-r1-atlas-recovery/00-index.md) depends on an owner decision that this review cannot make.
+- **Backlog finding** — Twelve inventory-only records cannot support current status claims.
 
 ### Evidence limit
 
@@ -91,8 +92,8 @@ Lead with the conflict in normal words. Keep the recorded facts separate.
 
 ### Next
 
-1. Reconcile the recorded status and task or closeout evidence before using this record to set later work.
+1. [W4 R1](docs/work/2042-04-03-w4-r1-conflicted-closeout/00-index.md) — Reconcile the recorded status and task or closeout evidence before using this record to set later work.
 
-### Needs attention
+### Attention
 
-- The source disagreement blocks a clean complete or historical classification. Human action is required only if the maintainer wants to resolve the record now.
+- [W4 R1](docs/work/2042-04-03-w4-r1-conflicted-closeout/00-index.md) — The source disagreement blocks a clean complete or historical classification. Human action is required only if the maintainer wants to resolve the record now.

@@ -124,6 +124,13 @@ describe("backlog-review first-party Skill", () => {
     expect(model).toContain("Never copy a whole record's evidence catalog");
     expect(model).toContain("The project lead is a short project description");
     expect(model).toContain("Do not include backlog counts, report metrics");
+    expect(model).toContain(
+      "Every `recommendationOrder` item is wave-specific. Its `recordPath` must match exactly one report record.",
+    );
+    expect(model).toContain("uses null for a backlog-wide finding");
+    expect(model).toContain("fixed label `Backlog finding`");
+    expect(model).toContain("Use the claim as the item's main heading in both Next and Attention.");
+    expect(model).toContain("Do not repeat an item's own wave coordinate in its claim only to identify the item.");
   });
 
   test("keeps response meaning structured without freezing report prose", () => {
@@ -145,6 +152,9 @@ describe("backlog-review first-party Skill", () => {
     }
     expect(examples).toContain("Source method:");
     expect(examples).toContain("### Next");
+    expect(examples).toContain("### Attention");
+    expect(examples).toContain("**Backlog finding**");
+    expect(examples).not.toContain("### Needs attention");
   });
 
   test("runs the current snapshot before exact cache reuse and refreshes fresh fragments", () => {
@@ -227,6 +237,29 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain('id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel"');
       expect(html).toContain('<h2>Attention</h2>');
       expect(html).not.toContain('<h2>Needs attention</h2>');
+      expect(html).toContain('id="attentionBlock"');
+      expect(html).toContain('id="orderBlock"');
+      expect(html.indexOf('id="attentionBlock"')).toBeLessThan(
+        html.indexOf('id="orderBlock"'),
+      );
+      expect(html).toContain(
+        '.attention > section:not([hidden]) + section:not([hidden]) { margin-top: 42px; }',
+      );
+      expect(html).not.toContain('.attention-block { margin-top: 42px; }');
+      expect(html).toContain('id="clearSearch"');
+      expect(html).toContain('aria-label="Clear search"');
+      expect(html).toContain('node("span", "action-coordinate"');
+      expect(html).toContain('node("button", "report-action")');
+      expect(html).toContain('record ? recordName(record) : "Backlog finding"');
+      expect(html).toContain('copy.append(node("span", "action-coordinate", record ? recordName(record) : "Backlog finding"));');
+      expect(html).toContain('copy.append(node("strong", "", claimText(finding.claim)));');
+      expect(html).not.toContain('node("strong", "", record ? recordName(record) : "Backlog finding")');
+      expect(html).not.toContain("Portfolio finding");
+      expect(html).toContain("function focusBacklogRecord(record)");
+      expect(html).toContain('setActiveFilter("all");');
+      expect(html).toContain('searchInput.value = recordName(record);');
+      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
       expect(html).toContain('id="workPanel" role="tabpanel" aria-labelledby="workTab"');
       expect(html).toContain('id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden');
       expect(html).toContain("Complete normalized report data");
@@ -244,7 +277,7 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain(".backlog-tabs, #dataPanel { display: none !important; }");
       expect(html).toContain('.workspace { display: block; }');
       const tabControllerStart = html.indexOf("function activateBacklogTab");
-      const tabControllerEnd = html.indexOf("backlogTabs.forEach((tab)", tabControllerStart);
+      const tabControllerEnd = html.indexOf("const searchInput", tabControllerStart);
       expect(tabControllerStart).toBeGreaterThan(-1);
       expect(tabControllerEnd).toBeGreaterThan(tabControllerStart);
       expect(html.slice(tabControllerStart, tabControllerEnd)).not.toContain("renderWaves");
@@ -265,6 +298,46 @@ describe("backlog-review first-party Skill", () => {
         outputPath,
       ]);
       expect(overwriteAttempt.status).not.toBe(0);
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("refuses dangling wave references before rendering", () => {
+    const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-backlog-reference-"));
+    try {
+      const inputPath = path.join(temporaryRoot, "report.json");
+      const attentionOutputPath = path.join(temporaryRoot, "attention.html");
+      const nextOutputPath = path.join(temporaryRoot, "next.html");
+      const rendererPath = path.join(SKILL_ROOT, "scripts/render-report.mjs");
+
+      const danglingAttention = structuredClone(mixedPortfolioFixture.report);
+      danglingAttention.attentionFindings[0].recordPath = "docs/work/missing-attention";
+      writeFileSync(inputPath, JSON.stringify(danglingAttention), "utf8");
+      const attentionResult = spawnSync(
+        process.execPath,
+        [rendererPath, "--input", inputPath, "--output", attentionOutputPath],
+        { encoding: "utf8" },
+      );
+      expect(attentionResult.status).not.toBe(0);
+      expect(attentionResult.stderr).toContain(
+        "Attention item 1 must refer to exactly one included report record.",
+      );
+      expect(existsSync(attentionOutputPath)).toBe(false);
+
+      const danglingNext = structuredClone(mixedPortfolioFixture.report);
+      danglingNext.recommendationOrder[0].recordPath = "docs/work/missing-next";
+      writeFileSync(inputPath, JSON.stringify(danglingNext), "utf8");
+      const nextResult = spawnSync(
+        process.execPath,
+        [rendererPath, "--input", inputPath, "--output", nextOutputPath],
+        { encoding: "utf8" },
+      );
+      expect(nextResult.status).not.toBe(0);
+      expect(nextResult.stderr).toContain(
+        "Next item 1 must refer to exactly one included report record.",
+      );
+      expect(existsSync(nextOutputPath)).toBe(false);
     } finally {
       rmSync(temporaryRoot, { recursive: true, force: true });
     }

@@ -348,8 +348,29 @@ export const mixedPortfolioFixture = {
           limits: ["The note is synthetic and does not assign priority."],
         },
       },
+      {
+        id: "attention-synthetic-backlog-note",
+        recordPath: null,
+        claim: {
+          class: "fact",
+          text: "One synthetic backlog-wide finding needs review.",
+          evidence: [evidence("docs/work/00-index.md")],
+        },
+      },
     ],
-    recommendationOrder: [],
+    recommendationOrder: [
+      {
+        rank: 1,
+        recordPath: mixedRecords[2].recordPath,
+        claim: {
+          class: "recommendation",
+          text: "Review the synthetic conflict record next.",
+          evidence: [evidence(`${mixedRecords[2].recordPath}/00-index.md`)],
+          rationale: "Its recorded evidence conflicts and needs a clear disposition.",
+          limits: ["The recommendation is limited to this synthetic fixture."],
+        },
+      },
+    ],
     diagnostics: [],
   } satisfies BacklogReportV1,
   presentationLimit: 3,
@@ -706,6 +727,13 @@ export const expectedCompactChatPresentation = {
       id: finding.id,
       recordPath: finding.recordPath,
       claimClass: finding.claim.class,
+    }),
+  ),
+  recommendationOrder: mixedPortfolioFixture.report.recommendationOrder.map(
+    (item) => ({
+      rank: item.rank,
+      recordPath: item.recordPath,
+      claimClass: item.claim.class,
     }),
   ),
   fixtureExamples: presentationFixtureExamples,

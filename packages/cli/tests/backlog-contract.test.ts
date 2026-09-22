@@ -491,6 +491,51 @@ describe("version 1 report schema", () => {
     expect(finding.claim.class).toBe("inference");
   });
 
+  it("requires every wave-specific report action to match one included record", () => {
+    const parsed = BacklogReportV1Schema.parse(mixedPortfolioFixture.report);
+    expect(parsed.attentionFindings.map((finding) => finding.recordPath)).toEqual([
+      parsed.records[1]?.recordPath,
+      null,
+    ]);
+    expect(parsed.recommendationOrder).toMatchObject([
+      {
+        rank: 1,
+        recordPath: parsed.records[2]?.recordPath,
+      },
+    ]);
+
+    const missingAttentionRecord = clone(mixedPortfolioFixture.report);
+    missingAttentionRecord.attentionFindings[0].recordPath =
+      "docs/work/2042-06-30-w9-r9-missing";
+    const attentionResult = BacklogReportV1Schema.safeParse(missingAttentionRecord);
+    expect(attentionResult.success).toBe(false);
+    if (attentionResult.success) throw new Error("Expected an invalid Attention reference.");
+    expect(attentionResult.error.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ["attentionFindings", 0, "recordPath"],
+          message:
+            "A wave-specific Attention item must refer to exactly one included report record.",
+        }),
+      ]),
+    );
+
+    const missingNextRecord = clone(mixedPortfolioFixture.report);
+    missingNextRecord.recommendationOrder[0].recordPath =
+      "docs/work/2042-06-30-w9-r9-missing";
+    const nextResult = BacklogReportV1Schema.safeParse(missingNextRecord);
+    expect(nextResult.success).toBe(false);
+    if (nextResult.success) throw new Error("Expected an invalid Next reference.");
+    expect(nextResult.error.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ["recommendationOrder", 0, "recordPath"],
+          message: "Every Next item must refer to exactly one included report record.",
+        }),
+      ]),
+    );
+  });
+
   it("requires report dates to match the source snapshot exactly", () => {
     const valid = BacklogReportV1Schema.parse(mixedPortfolioFixture.report);
     for (const reportRecord of valid.records) {

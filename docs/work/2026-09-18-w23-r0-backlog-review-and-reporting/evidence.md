@@ -12,7 +12,7 @@ source:
 
 ## Current State
 
-P1 through P5 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. P4 corrected those defects. P5 added exact optional review reuse and lazy access to the normalized report data. The owner accepted the bounded three-entry cache-size limit and the Store-free fallback explanation on 2026-09-22. P6 has not started. The backlog review capability remains incomplete until P6.
+P1 through P6 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. P4 corrected those defects. P5 added exact optional review reuse and lazy access to the normalized report data. P6 added exact report-item traceability, reversible Backlog navigation, consistent Next and Attention hierarchy, and the accepted Attention-before-Next layout. The owner directed P6 closeout and local commit on 2026-09-22. P7 has not started. The backlog review capability remains incomplete until P7.
 
 The P4 tested base revision was `a976404` on branch `make-docs-v2`. This revision contains the committed P3 closeout. The P4 checks included the uncommitted P4 product, test, and closeout changes in the local maintainer checkout.
 
@@ -76,7 +76,7 @@ Optional human feedback is welcome after a public report surface exists. No huma
 
 ### Phase Boundary
 
-P1 closed on this evidence. P2 is now complete. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
+P1 closed on this evidence. P2 is now complete. After the accepted phase insertions, the full backlog review capability remains incomplete until P7.
 
 ## P2 Deterministic Snapshot Operation
 
@@ -120,7 +120,7 @@ The public surfaces are `work.backlog.snapshot`, `make-docs run work backlog sna
 | Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
 | --- | --- | --- | --- | --- |
 | A reviewer receives useful status before machine detail. | Human CLI output starts with all-record, live, and archived counts. It then states supported, partial, and inventory-only detail. | `satisfied` for the P2 CLI surface. | Codex. This is an agent review of emitted text, not a person's lived response. | Preserve count-first meaning in P3 and P4. |
-| A reviewer can understand limits and reach exact evidence. | Human output states Git limits when present. It directs the reviewer to JSON for exact evidence and safe next actions. JSON and MCP retain diagnostics, evidence paths, raw values, and capability states. | `satisfied` for the P2 CLI, JSON, and MCP surfaces. | Codex. P2 does not prove the final chat or HTML report experience. | Prove normal-use report meaning in P3-P6. |
+| A reviewer can understand limits and reach exact evidence. | Human output states Git limits when present. It directs the reviewer to JSON for exact evidence and safe next actions. JSON and MCP retain diagnostics, evidence paths, raw values, and capability states. | `satisfied` for the P2 CLI, JSON, and MCP surfaces. | Codex. P2 does not prove the final chat or HTML report experience. | Prove normal-use report meaning in P3-P7. |
 | Repository facts remain useful without Store access. | The real repository run kept Store at `not-used`. Tests retain repository facts for unavailable, denied, and non-repository Git cases. | `satisfied` within P2 scope. | Codex. Optional future enrichment is outside P2. | Keep Store optional in later phases. |
 
 Optional human feedback remains welcome. No human acceptance gate applies to P2.
@@ -140,7 +140,7 @@ Optional human feedback remains welcome. No human acceptance gate applies to P2.
 
 ### Phase Boundary
 
-P2 can close on this evidence. P3 had not started at P2 closeout. P2 adds no Skill, agent inference, recommendation, chat report, HTML report, Store integration, setup behavior, package publication, or release. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
+P2 can close on this evidence. P3 had not started at P2 closeout. P2 adds no Skill, agent inference, recommendation, chat report, HTML report, Store integration, setup behavior, package publication, or release. After the accepted phase insertions, the full backlog review capability remains incomplete until P7.
 
 ## P3 Skill and Chat Report
 
@@ -169,7 +169,7 @@ The Skill preserves the version 1 report model. It keeps all records, the four f
 | CLI package build | Passed | The package build embeds the eighth Skill and all declared files. |
 | Skill validator | Passed | The Skill entrypoint and metadata satisfy the local Skill validator. |
 | Local packed-package smoke | Passed | A packed package installed, backed up, and removed all eight Skills. The extracted `backlog-review` payload retained every declared file without checkout-only dependencies. |
-| Full remote-runner smoke | Not run in this test area | The public npm registry was not reachable. The check stopped before package testing and directed the run to local mode. P6 owns final installed candidate and runner parity. |
+| Full remote-runner smoke | Not run in this test area | The public npm registry was not reachable. The check stopped before package testing and directed the run to local mode. P7 owns final installed candidate and runner parity. |
 | Diff check | Passed | `git diff --check` found no whitespace errors. |
 
 ### Guided Progress Review
@@ -190,9 +190,9 @@ This review supports presentation changes without changing status, tally, eviden
 | Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
 | --- | --- | --- | --- | --- |
 | A maintainer sees current focus and next work before machine detail. | The Skill and all complete chat patterns place the method and tallies first, then Current focus, Next, and Needs attention. Empty sections are omitted. | `satisfied` for the P3 chat guidance. | Codex. This is an agent review of instructions and examples, not a person's lived response. | Preserve this order in P4. |
-| A maintainer can tell fact from agent judgment. | The review method defines fact, inference, and recommendation claims. Inferences include confidence and limits. Status reason stays separate from fixed status. | `satisfied` for P3 guidance and shared contract. | Codex. Future agent output can still vary in wording. | Keep semantic tests and review generated reports in P6. |
+| A maintainer can tell fact from agent judgment. | The review method defines fact, inference, and recommendation claims. Inferences include confidence and limits. Status reason stays separate from fixed status. | `satisfied` for P3 guidance and shared contract. | Codex. Future agent output can still vary in wording. | Keep semantic tests and review generated reports in P6 and P7. |
 | Errors and limits keep human context. | The Skill requires subject, context, effect, known and unknown facts, next action, and human action level. Structured examples keep raw codes secondary without changing severity. | `satisfied` for the instructed meaning. | Codex. Two semantic examples do not prove every future error explanation. | Add new semantic fixtures when new material errors appear. |
-| Exact evidence remains reachable. | Every displayed wave uses a repository-relative source link. The full report keeps every snapshot record and source evidence. | `satisfied` for P3 chat guidance. | Codex. P4 and P6 still own rendered link and installed-candidate proof. | Verify HTML navigation in P4 and installed parity in P6. |
+| Exact evidence remains reachable. | Every displayed wave uses a repository-relative source link. The full report keeps every snapshot record and source evidence. | `satisfied` for P3 chat guidance. | Codex. P4 and P6 own rendered link and interaction proof. P7 owns installed-candidate proof. | Verify HTML navigation in P6 and installed parity in P7. |
 
 Optional owner feedback remains welcome. No human acceptance gate applies to P3.
 
@@ -212,7 +212,7 @@ Optional owner feedback remains welcome. No human acceptance gate applies to P3.
 
 ### Phase Boundary
 
-P3 closed on this evidence. At that boundary, P4 had not started and needed separate owner authority. P3 added no HTML report, Store integration, package publication, or release. After the accepted phase insertion, the full backlog review capability remains incomplete until P6.
+P3 closed on this evidence. At that boundary, P4 had not started and needed separate owner authority. P3 added no HTML report, Store integration, package publication, or release. After the accepted phase insertions, the full backlog review capability remains incomplete until P7.
 
 ## P4 Single-File Interactive Report
 
@@ -268,25 +268,25 @@ The owner reviewed the corrected real-report output. The owner then said P4 was 
 
 | Promise | Evidence and observation | Conclusion | Reviewer and limit | Next action |
 | --- | --- | --- | --- | --- |
-| A maintainer can understand the project before reading report detail. | Owner review found that the fixed lead repeated backlog counts and filter instructions. The correction collects bounded purpose and current-objective context, validates two or three role-ordered source-backed sentences, and removes renderer fallback prose. The owner reviewed the new introduction and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed one real report for this project. This does not prove every future project summary. | Keep the source-backed lead contract and recheck the installed candidate in P6. |
-| A maintainer can scan current focus without losing the full portfolio. | The correction restored deterministic wave names, visible attention icons, the accepted detail panel, bounded evidence display, and the final approved styles. The owner reviewed the corrected report and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed this project and dataset. Other portfolio shapes can expose new issues. | Repeat the installed-candidate review in P6. |
-| A maintainer can use the report on a narrow screen. | At 480 pixels, the same content stacked in a useful order. No horizontal overflow or clipped critical text appeared. | `satisfied` for the tested viewport. | Codex. Device and assistive-technology coverage is not exhaustive. | Repeat installed-candidate checks in P6. |
-| A maintainer can tell status from status reason and can reach the source. | The correction keeps fixed status colors, short reasons, independent wave links, and visible deterministic severity icons. The owner removed the badge borders as a final small refinement and accepted P4. | `satisfied` for the reviewed report. | This review did not include full assistive-technology coverage. | Repeat installed accessibility and source-link checks in P6. |
-| The report remains usable without sighted pointer-only interaction. | Controls have accessible names and state. Row disclosure works by pointer and keyboard. Visible focus, reduced motion, print detail, and non-color text cues are present. | `satisfied` within browser automation limits. | Codex. This is not a full screen-reader or high-zoom human session. | Keep optional owner feedback open and run final package review in P6. |
-| The saved file stays private and offline. | The content policy blocks remote sources. The browser loaded no resource request. Project text was inserted as inert text. | `satisfied` for the generated single file. | Codex. Browser checks used local synthetic data. | Repeat from the installed Skill in P6. |
+| A maintainer can understand the project before reading report detail. | Owner review found that the fixed lead repeated backlog counts and filter instructions. The correction collects bounded purpose and current-objective context, validates two or three role-ordered source-backed sentences, and removes renderer fallback prose. The owner reviewed the new introduction and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed one real report for this project. This does not prove every future project summary. | Keep the source-backed lead contract and recheck the installed candidate in P7. |
+| A maintainer can scan current focus without losing the full portfolio. | The correction restored deterministic wave names, visible attention icons, the accepted detail panel, bounded evidence display, and the final approved styles. The owner reviewed the corrected report and accepted P4. | `satisfied` for the reviewed report. | The owner reviewed this project and dataset. Other portfolio shapes can expose new issues. | Prove traceable report-item navigation in P6. Repeat the installed-candidate review in P7. |
+| A maintainer can use the report on a narrow screen. | At 480 pixels, the same content stacked in a useful order. No horizontal overflow or clipped critical text appeared. | `satisfied` for the tested viewport. | Codex. Device and assistive-technology coverage is not exhaustive. | Check the P6 interaction at narrow width. Repeat installed-candidate checks in P7. |
+| A maintainer can tell status from status reason and can reach the source. | The correction keeps fixed status colors, short reasons, independent wave links, and visible deterministic severity icons. The owner removed the badge borders as a final small refinement and accepted P4. | `satisfied` for the reviewed report. | This review did not include full assistive-technology coverage. | Prove visible item-to-wave mapping in P6. Repeat installed accessibility and source-link checks in P7. |
+| The report remains usable without sighted pointer-only interaction. | Controls have accessible names and state. Row disclosure works by pointer and keyboard. Visible focus, reduced motion, print detail, and non-color text cues are present. | `satisfied` within browser automation limits. | Codex. This is not a full screen-reader or high-zoom human session. | Add keyboard-safe list-item navigation in P6. Run final package review in P7. |
+| The saved file stays private and offline. | The content policy blocks remote sources. The browser loaded no resource request. Project text was inserted as inert text. | `satisfied` for the generated single file. | Codex. Browser checks used local synthetic data. | Repeat from the installed Skill in P7. |
 
 ### Coverage Decisions
 
 - Automated Testing: `required` and passed.
-- Performance Testing: `not-needed-now` for P4. P5 owns the accepted bounded repeat-review characterization. P6 retains installed-candidate size and use checks.
+- Performance Testing: `not-needed-now` for P4. P5 owns the accepted bounded repeat-review characterization. P7 retains installed-candidate size and use checks.
 - Guided Progress Review: `required` and passed after correction and owner review of the real report.
 - Unassisted Goal Testing: `not-needed-now`. The Skill and report remain maintainer-led.
-- Human Experience Review: `satisfied` within the owner-reviewed P4 report. P6 still owns installed-candidate review.
+- Human Experience Review: `satisfied` within the owner-reviewed P4 report. P6 owns the new traceability interaction review. P7 owns installed-candidate review.
 - Explicit human acceptance gate: satisfied by the owner's P4 closeout direction on 2026-09-21.
 
 ### Phase Boundary
 
-P4 is complete. P5 started after separate owner authority. P6 has not started. P5 owns the accepted cache, data-access, and repeat-review characterization work. P6 owns installed-package parity, installed Skill rendering, final browser and offline checks, and capability acceptance. P4 does not publish or release the package.
+P4 is complete. P5 started after separate owner authority. P6 and P7 have not started. P5 owns the accepted cache, data-access, and repeat-review characterization work. P6 owns report-item traceability and navigation. P7 owns installed-package parity, installed Skill rendering, final browser and offline checks, and capability acceptance. P4 does not publish or release the package.
 
 ## P5 Incremental Review Cache and Data Access
 
@@ -394,4 +394,69 @@ Status: complete.
 
 ### Current Review Boundary
 
-P5 is complete. Tasks t1 through t14 and A37-A44 are complete. `PERF-001` passed its three bounded observations. The owner accepted the moderate `PERF-001-F1` limit and the Store-free fallback explanation. The report keeps the accepted separate Next and Attention sections plus Backlog Work and Data tabs. P6 has not started and needs separate owner authority. P5 is not yet committed, published, or released.
+P5 is complete and was committed as `a9cff6c`. Tasks t1 through t14 and A37-A44 are complete. `PERF-001` passed its three bounded observations. The owner accepted the moderate `PERF-001-F1` limit and the Store-free fallback explanation. The report keeps the accepted separate Next and Attention sections plus Backlog Work and Data tabs. At P5 closeout, P6 and P7 had not started. The owner later approved P6 preflight and implementation. P5 is not published or released.
+
+## P6 Report Item Traceability and Navigation
+
+### Planning Finding
+
+The owner found that the visible Next item `Resolve the 11 open tasks as completed, superseded, or still owed` did not identify W19 R6. The report model already required a `recordPath` for every Next item. Attention findings already allowed either one `recordPath` or `null`. The gap was not missing model identity. The gap was missing cross-record validation, missing visible coordinate presentation, and no direct navigation from the two summary lists to the affected wave.
+
+### Accepted Authority
+
+On 2026-09-22, the owner approved reopening W23 R0 and adding a new phase. The prior package parity and acceptance phase moved from P6 to P7. The accepted P6 authority requires these results:
+
+- Every Next item resolves to exactly one included wave.
+- A wave-specific Attention item resolves to exactly one included wave.
+- A backlog-wide Attention item uses no wave reference and displays the fixed label `Backlog finding`.
+- The renderer derives the visible coordinate from the matched report record. It does not depend on agent prose to repeat the coordinate.
+- Activating a wave-specific Next or Attention item selects `All`, activates Backlog `Work`, places the wave coordinate in search, and filters the wave list.
+- Search has a conditional Clear search control. Clearing search keeps the current status filter.
+- The chat report keeps the same visible traceability rules.
+- Deterministic validation and the agentic Skill twin receive the same rule update.
+
+### Preflight Evidence
+
+| Check | Result | Observation |
+| --- | --- | --- |
+| Checkout boundary | Passed | Preflight used branch `make-docs-v2` at base revision `db9875b3af56`. No branch or worktree changed. |
+| Worktree boundary | Passed | Nothing was staged. Existing changes were limited to the accepted W23 authority reconciliation before product edits began. |
+| Capacity | Passed | The workspace had 86 GB free. |
+| Authority | Passed | The owner approved P6 preflight and implementation on 2026-09-22. After direct report review, the owner separately directed P6 closeout and a local commit. P7 was not included. |
+
+### Implementation Evidence
+
+| Area | Files | Result |
+| --- | --- | --- |
+| Deterministic report contract | [`schemas.ts`](../../../packages/cli/src/operations/work/backlog/schemas.ts) and [`render-report.mjs`](../../../packages/skills/backlog-review/scripts/render-report.mjs) | Every Next item and every wave-specific Attention item must resolve to exactly one included report record. The renderer stops before output when a reference is missing. Null Attention references remain valid backlog-wide findings. |
+| Agentic Skill twin | [`SKILL.md`](../../../packages/skills/backlog-review/SKILL.md), [`report-model.md`](../../../packages/skills/backlog-review/references/report-model.md), [`review-method.md`](../../../packages/skills/backlog-review/references/review-method.md), [`html-report.md`](../../../packages/skills/backlog-review/references/html-report.md), and [`chat-reports.md`](../../../packages/skills/backlog-review/examples/chat-reports.md) | The Skill uses the same exact-reference rules. It requires visible wave coordinates and the fixed `Backlog finding` label. It keeps backlog-wide findings non-interactive. It also tells agents not to repeat an item's own wave coordinate only for identity. A same-wave phase uses a local label such as `P5`; a material reference to another wave keeps its full coordinate. |
+| HTML report | [`backlog-review-report.html`](../../../packages/skills/backlog-review/assets/backlog-review-report.html) | Wave-specific Next and Attention rows are accessible actions. Both lists use the same marker, compact scope metadata, and main claim heading hierarchy. Attention appears before Next. Their tuned gap belongs to the second visible section instead of either named section. An action selects `All`, activates Work, searches the exact coordinate, renders one matching wave, focuses it, and scrolls it into view on narrow screens. A conditional `Clear search` control clears only the search and keeps the active status filter. |
+| Tests and fixtures | [`backlog-contract.test.ts`](../../../packages/cli/tests/backlog-contract.test.ts), [`backlog-review-skill.test.ts`](../../../packages/cli/tests/backlog-review-skill.test.ts), and [`backlog-contract.ts`](../../../packages/cli/tests/fixtures/backlog-contract.ts) | Fixtures cover wave-specific and backlog-wide Attention items plus a Next item. Tests cover valid references, exact issue paths, renderer refusal, visible labels, action state, clear-search state, print, and twin guidance. |
+
+### Verification Evidence
+
+| Check | Result | Observation |
+| --- | --- | --- |
+| Focused P6 suite | Passed: 2 files and 65 tests | The contract and Skill tests passed. This includes dangling-reference refusal and no-output checks. |
+| Full CLI suite | Passed: 92 files and 1,470 tests; 1 file and 5 tests skipped | No detected CLI, Skill, report, Store, setup, or package regression remains. The existing installed-upgrade matrix stays skipped. |
+| Default consistency | Passed: 3 files and 53 tests | Default resources, template links, and package safety passed. |
+| TypeScript check | Passed | The changed contract, fixture, and test code type-check. |
+| CLI package build | Passed | The package build accepts the changed report contract and Skill assets. |
+| Diff check | Passed | `git diff --check` found no whitespace errors. |
+| Synthetic browser flow | Passed | Next and wave-specific Attention actions selected `All`, activated Work, searched the coordinate, and focused one match. Clear search removed the term and kept `All`. Backlog findings stayed non-interactive. Keyboard activation, reduced motion, light mode, dark mode, desktop, and 480-pixel layouts passed. |
+| Retained 70-record report | Passed after owner findings | The first P6 review showed the coordinate above Next claims but used the coordinate as the Attention heading. The owner found the hierarchy inconsistent. The corrected renderer uses compact scope metadata above the main claim heading in both lists. The owner then requested Attention before Next. `/private/tmp/make-docs-backlog-report-p6-attention-first-review.html` uses that order in screen and print. At 586 pixels, the three gaps from tallies to Attention, Attention to Next, and Next to Backlog each measured 42 pixels. Attention-only and Next-only checks kept 42 pixels above and below the one visible section. At 1,440 pixels, Attention remained above Next with the same 42-pixel internal gap. The page had no horizontal overflow in either tested width or color mode. The W22 R0 Attention action still selected `All`, searched the coordinate, showed one result, and focused the matching wave. |
+
+### Guided Progress And Human Experience Review
+
+| Human promise | Observation | Conclusion | Limit | Next action |
+| --- | --- | --- | --- | --- |
+| A maintainer can see the affected wave before taking a Next or Attention action. | The retained report shows `W19 R6` above the original unclear Next claim. Wave-specific Attention items show the same sourced coordinate. | `satisfied` for the retained 70-record report and contract. | Agent wording can still vary, but it cannot remove the sourced coordinate or use a dangling wave reference. | Keep the exact-reference and visible-coordinate tests in P7. |
+| Next and Attention use one understandable text hierarchy. | Owner review found that the first P6 report made the Next coordinate metadata but made the Attention coordinate its main heading. The corrected report uses marker, compact scope metadata, and main claim heading in both lists. Guidance removes needless self-coordinate repetition while preserving material cross-wave references. The owner reviewed the corrected result, requested the final section order, and then directed P6 closeout. | `satisfied` for the owner-reviewed retained report. | The review covers this project and retained model. It does not prove that every future agent claim will be equally concise. | Keep the hierarchy and semantic tests in P7. |
+| Attention appears before Next without changing the tuned section rhythm. | The 586-pixel light and dark checks showed Attention before Next. The gaps from tallies to Attention, Attention to Next, and Next to Backlog were each 42 pixels. When either summary section was hidden, the remaining section kept a 42-pixel outer gap on both sides. Print kept Attention before Next, Work visible, and Data hidden. | `satisfied` for the retained report and tested states. | The browser checks used the retained 70-record model and synthetic hidden-section states. They do not cover every browser font or print driver. | Preserve the second-visible-section rule in P7. |
+| One action focuses the matching wave and makes its state clear. | Pointer and keyboard checks selected `All`, activated Work, set the exact coordinate search, showed one match, and focused that wave. Narrow-screen checks also brought the result into view. | `satisfied` for tested desktop and 480-pixel browser flows. | Browser automation is not a full screen-reader, high-zoom, or device review. | Repeat the installed-candidate check in P7. |
+| A maintainer can reverse the focused search without losing the selected filter. | The clear control appeared only when search had a value. It cleared the term, kept `All`, restored all results, and returned focus to search. | `satisfied` for the tested flow. | The check covers the supported report controls, not every browser or assistive tool. | Preserve this state rule in P7. |
+| Existing report behavior remains available. | Data-to-Next routing returned to Work. Source links and wave disclosure remain separate. Reduced motion changed scrolling to immediate movement. Print keeps the reading layout and removes action hover behavior. The owner completed direct P6 review and directed closeout. | `satisfied` within automated, visual, and owner-review limits. | This is not a full screen-reader, high-zoom, or cross-browser device review. | Repeat installed-candidate checks in P7. |
+
+### Current Boundary
+
+P6 is complete. Tasks t1 through t12 and A45-A52 are implemented and verified. The owner directed closeout and a local commit on 2026-09-22. This closeout does not publish, release, or push anything. P7 has not started and remains the final package parity and acceptance phase.

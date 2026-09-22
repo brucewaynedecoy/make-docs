@@ -25,7 +25,9 @@ This capability covers:
 - a concise in-chat report;
 - an optional self-contained interactive HTML report;
 - an optional rebuildable per-record review cache in the Global Store; and
-- an in-report data view with a user-started JSON download.
+- an in-report data view with a user-started JSON download;
+- visible wave mapping for recommended Next items and wave-specific Attention findings; and
+- interactive navigation from those items to the matching Backlog record.
 
 This capability does not own the general operation registry, MCP naming rules, Store model, Skill installation model, lifecycle semantics, testing policy, or Human Experience standard. Those boundaries remain with [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 38](38-global-store-and-project-state.md), [PRD 08](08-skills-catalog-and-distribution.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md), [PRD 50](50-proportionate-testing-and-human-centered-validation.md), and [PRD 49](49-human-experience-standard-and-intent.md).
 
@@ -114,6 +116,8 @@ Code anchors:
 - R-BACKLOG-SKILL-19 (MUST): the cache uses the Global Store boundary in PRD 38. It creates no project-local operational file, hidden report copy, or required companion file. Cached values exclude repository document bodies, prompts, secrets, and absolute local paths.
 - R-BACKLOG-SKILL-20 (MUST): cache diagnostics report exact hits, misses, invalidations, rejected entries, and fallback use for validation. Normal human output stays concise and does not present cache mechanics as project status.
 - R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead.
+- R-BACKLOG-SKILL-22 (MUST): every recommendation-order item is wave-specific. Its `recordPath` resolves to exactly one included report record. Every Attention item either has one `recordPath` that resolves to exactly one included report record or uses null to mean a backlog-wide finding. Report validation rejects a missing or dangling required reference.
+- R-BACKLOG-SKILL-23 (MUST): chat and HTML derive the visible wave coordinate for a Next or wave-specific Attention item from the matched report record. The agent does not need to repeat that coordinate inside claim prose. A null Attention reference uses the fixed label `Backlog finding`, not `Portfolio finding`.
 
 ### Chat report
 
@@ -121,6 +125,7 @@ Code anchors:
 - R-BACKLOG-CHAT-2 (MUST): the report provides sections for current or open work, completed work that may need closeout, blocked or conflicted work, paused or superseded work, likely historical records, and recommendation order when those sections have content.
 - R-BACKLOG-CHAT-3 (MUST): the default report stays concise. Exact tasks, machine fields, and full evidence remain available through linked or expandable detail rather than overwhelming the summary.
 - R-BACKLOG-CHAT-4 (MUST): absent evidence, source disagreement, and unverified conclusions remain visible. The report does not present an inference as a recorded fact.
+- R-BACKLOG-CHAT-5 (MUST): every Next item and wave-specific Attention item visibly names its matched wave coordinate. A backlog-wide Attention item visibly uses `Backlog finding`.
 
 ### Single-file interactive report
 
@@ -138,6 +143,9 @@ Code anchors:
 - R-BACKLOG-HTML-12 (MUST): the self-contained report provides an accessible view of its normalized embedded report model and a user-started JSON download of that same model. These controls preserve inert project text and current filtering does not alter the exported full model.
 - R-BACKLOG-HTML-13 (MUST): the normal saved result remains one `.html` file. Raw-data access does not require a JSON companion, does not create an automatic hidden copy, and does not turn exported data into product authority or operational state.
 - R-BACKLOG-HTML-14 (MUST): the report lead contains exactly two or three source-backed sentences. It starts with project purpose, then states current status or objective, and can add the remaining current role. It contains no backlog totals, report metrics, report-control instructions, or unsupported project claims. The renderer displays normalized lead text but does not create it. When supported context is incomplete, the normalized value is null and the renderer hides the lead.
+- R-BACKLOG-HTML-15 (MUST): a wave-specific Next or Attention item is one accessible click or tap target with a visible matched coordinate. Activating it selects `All`, activates Backlog Work, places that coordinate in search, updates the result list, and brings the filtered Backlog result into view when needed. A backlog-wide finding has no false wave action.
+- R-BACKLOG-HTML-16 (MUST): search has an icon-only control named `Clear search`. The control is present only while search contains a value. Clearing search preserves the selected filter, restores the applicable result set, and keeps a usable keyboard and focus path.
+- R-BACKLOG-HTML-17 (MUST): Next and Attention navigation preserves the independent wave source link, wave disclosure behavior, Data view state, safe project-text handling, reduced-motion preference, and readable print output.
 
 ### Human outcomes
 
@@ -153,6 +161,7 @@ The capability follows the [Human Experience Contract](../../.make-docs/system/c
 - R-BACKLOG-HX-8 (MUST): a repeat review can reuse unchanged per-record analysis without hiding current repository changes or requiring Store access.
 - R-BACKLOG-HX-9 (MUST): a maintainer can inspect and save the normalized report data from the report without managing a second required file.
 - R-BACKLOG-HX-10 (MUST): the report introduction tells a reader what the project is and its current status or objective before report detail. It does not use that space for metrics, technical proof, or report-use instructions.
+- R-BACKLOG-HX-11 (MUST): a reader can identify which wave each Next or wave-specific Attention item affects before acting, can focus the Backlog on that wave with one action, and can clear that focus without losing the selected status filter.
 
 Code anchors:
 
@@ -196,7 +205,8 @@ The Skill adds a report layer to the snapshot. It contains:
 - every discovered live and archived record, with archive scope, `createdAt`, and `lastUpdatedAt` evidence;
 - exactly one source-backed `waveStatus` per included wave: `attention`, `current`, `conflict`, `deferred`, `complete`, or `history`;
 - one nonempty agent-written `statusReason` per included wave;
-- recommendation order with rationale;
+- recommendation order with rationale and one exact included-record reference per item;
+- attention findings with either one exact included-record reference or an explicit backlog-wide null reference;
 - claim evidence class: `fact`, `inference`, or `recommendation`;
 - confidence and evidence limits for non-facts;
 - display labels and compact explanatory copy;
@@ -210,6 +220,8 @@ The report model does not modify the snapshot or project records. A saved HTML f
 The optional cache stores bounded per-record report fragments only. It does not cache or replace the current deterministic snapshot. A review always recomputes cross-record values from the current full snapshot. The cache key is exact and includes checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version.
 
 `waveStatus` is the only field that controls exact status filtering and semantic color. `statusReason` supplies the visible badge text. Archive location controls archived scope. An attention finding can refer to any wave and does not change that wave's `waveStatus`.
+
+Every recommendation-order `recordPath` and every non-null Attention `recordPath` resolves to exactly one record in the same report. The matched record supplies the visible wave coordinate. A null Attention path means the finding applies to the Backlog as a whole and uses `Backlog finding`. Agent-written claim text does not carry this identity contract.
 
 The four fixed tallies use these formulas:
 
@@ -249,6 +261,8 @@ Code anchors:
 - Keep the HTML template self-contained and treat all project content as untrusted text.
 - Build project-lead context through the bounded deterministic collector. Keep agent freedom limited to concise wording supported by the supplied excerpts. Never replace missing context with report metrics or generic project prose.
 - Expose raw report data from the embedded model only through an accessible view and a user-started download. Do not make a companion file part of the default output.
+- Validate report-item references against the full included record set. Derive visible coordinates from matched records instead of depending on agent wording. Keep null Attention references visibly backlog-wide.
+- Keep Next and wave-specific Attention navigation accessible, reversible, and independent from wave source links and disclosure controls.
 - Preserve the agentic fallback and twin review even when deterministic tooling is available in the maintainer repository.
 - Apply the W22 R0 gate before P2 changes a shared surface. Do not add a temporary dispatcher, Store adapter, setup path, trust path, or MCP-only implementation.
 
@@ -260,6 +274,14 @@ Code anchors:
 - `packages/skills/`
 
 ## Requirement History
+
+### 2026-09-22 — W23 R0 P6 report-item traceability and navigation
+
+- Affected requirement or section: Scope; First-party backlog-review Skill; Chat report; Single-file interactive report; Human outcomes; Report model; Rebuild Notes.
+- Previous contract: Next items carried a `recordPath`, but the report did not have to show the matched coordinate or validate that every displayed path matched an included record. Attention items could be wave-specific or report-wide, but the report-wide label was not fixed. List items did not focus the Backlog, and search had no template-owned clear control.
+- Replacement contract: Every Next reference and every non-null Attention reference must match exactly one included record. Chat and HTML show the matched coordinate outside agent prose. Null Attention references use `Backlog finding`. Wave-specific items focus Backlog Work by selecting `All` and searching for the coordinate. Search provides a conditional accessible clear control.
+- Rationale: A recommended action is not useful when a reader cannot tell which wave it affects. Visible deterministic identity and one-action navigation remove that ambiguity without expanding agent inference or changing source facts.
+- Source: Owner review of the retained 70-record report and the [P6 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/06-report-item-traceability-and-navigation.md).
 
 ### 2026-09-21 — W23 R0 P4 project-lead correction
 

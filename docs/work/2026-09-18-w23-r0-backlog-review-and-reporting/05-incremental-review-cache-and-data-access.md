@@ -36,7 +36,7 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), [PRD 
 | --- | --- | --- |
 | Automated Implementation Testing | Required | Exact cache identity, hit, miss, invalidation, pruning, corrupt entry, Store-state fallback, report-data parity, safety, and package checks. |
 | Performance Testing | `characterize-now` | A bounded comparison can show what exact reuse changes. No latency target or product speed promise exists. |
-| Guided Progress Review | Required | Owner review can change the raw-data controls and fallback explanation before P6. |
+| Guided Progress Review | Required | Owner review can change the raw-data controls and fallback explanation before final P7 acceptance. |
 | Unassisted Goal Testing | `not-needed-now` | The current work is a maintainer-led optimization and inspection feature. No separate discoverability gate exists. |
 
 - Base maintenance action: `create`
@@ -80,7 +80,7 @@ Preflight result: no unresolved product choice blocks P5. The owner accepted P4,
 | Base Maintenance Action | `create` |
 | Protected Outcome | A maintainer does not wait for unchanged records to receive the same agent review again. |
 | Decision Informed | Whether the exact per-record cache meaningfully changes repeat-review work while preserving correctness and fallback behavior. |
-| Failure Cost | A false favorable result can ship stale conclusions. A false unfavorable result can reject useful optional reuse. Both are reversible before P6. |
+| Failure Cost | A false favorable result can ship stale conclusions. A false unfavorable result can reject useful optional reuse. Both are reversible before P7. |
 | Risk And Reversibility | Medium correctness and privacy risk. Cache rows are rebuildable and removable. Repository authority is unchanged. |
 | Supported Scope | One local Make Docs checkout, the W23 R0 review flow, and the named 70-record workload or a recorded comparable fixture. |
 | Product Maturity | Pre-release implementation. |
@@ -90,7 +90,7 @@ Preflight result: no unresolved product choice blocks P5. The owner accepted P4,
 | Applicability | `characterize-now` |
 | Target Class | `characterization-baseline` |
 | Owner | W23 R0 P5 work record. |
-| Lifecycle Coordinate | W23 R0 P5, after cache correctness passes and before P6. |
+| Lifecycle Coordinate | W23 R0 P5, after cache correctness passes and before the later P6 and P7 work. |
 | Gate Effect | Informational for speed. Invalid or non-comparable evidence cannot block correctness proof or create a speed claim. |
 | Reason | The accepted cache decision needs one bounded, comparable observation. No approved numeric target exists. |
 | Next Record | `PERF-001` |
@@ -225,7 +225,7 @@ Preflight result: no unresolved product choice blocks P5. The owner accepted P4,
 | Field | Value |
 | --- | --- |
 | Material Change Triggers | Cache identity, schema, snapshot schema, rule catalog, Skill version, workload, model, Store service, instrument, or comparison method changes. |
-| Time Or Release Boundary | W23 R0 P6 closeout. |
+| Time Or Release Boundary | W23 R0 P7 closeout. |
 | Current-Use Invalidation Rule | Any material trigger makes the result historical and non-current. |
 | Next Review Condition | A later product target, regression decision, or material cache design change. |
 | Requalification Authority | Separate owner or phase authority. |
@@ -347,5 +347,5 @@ Preflight result: no unresolved product choice blocks P5. The owner accepted P4,
 - Explicit human acceptance gate: none.
 - Evidence report: The central report contains the P5 implementation, automated checks, `PERF-001`, owner decisions, Human Experience Review, and limits.
 - Optional Store capture: A read-only `project.state.status` check returned `store-not-configured` for the current agent harness. The owner will address that setup in another task. This stopped only that Store operation. It did not block Store-free P5 closeout.
-- Phase / capability status: P5 is complete. Tasks t1-t14 and A37-A44 are complete. P6 remains the final package parity and acceptance phase and needs separate owner authority.
+- Phase / capability status: P5 is complete. Tasks t1-t14 and A37-A44 are complete. After the accepted phase insertion, P6 owns report-item traceability and navigation. P7 remains the final package parity and acceptance phase. Both need separate owner authority.
 - Preflight status: Complete on 2026-09-21. The owner accepted P4 and gave the separate P5 implementation instruction.

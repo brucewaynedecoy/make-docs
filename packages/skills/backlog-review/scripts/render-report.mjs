@@ -135,6 +135,34 @@ function validateReport(report) {
       throw new Error(`Record ${record.recordPath} needs a status reason.`);
     }
   }
+  if (!Array.isArray(report.attentionFindings)) {
+    throw new Error("The report must include its Attention items.");
+  }
+  for (const [index, finding] of report.attentionFindings.entries()) {
+    if (!isObject(finding) || !("recordPath" in finding)) {
+      throw new Error(`Attention item ${index + 1} must declare a wave path or null.`);
+    }
+    if (
+      finding.recordPath !== null &&
+      paths.filter((recordPath) => recordPath === finding.recordPath).length !== 1
+    ) {
+      throw new Error(
+        `Attention item ${index + 1} must refer to exactly one included report record.`,
+      );
+    }
+  }
+  if (!Array.isArray(report.recommendationOrder)) {
+    throw new Error("The report must include its Next items.");
+  }
+  for (const [index, item] of report.recommendationOrder.entries()) {
+    if (
+      !isObject(item) ||
+      typeof item.recordPath !== "string" ||
+      paths.filter((recordPath) => recordPath === item.recordPath).length !== 1
+    ) {
+      throw new Error(`Next item ${index + 1} must refer to exactly one included report record.`);
+    }
+  }
   const archived = report.records.filter((record) => record.scope === "archived").length;
   const historical = report.records.filter(
     (record) => record.scope === "live" && record.waveStatus === "history",

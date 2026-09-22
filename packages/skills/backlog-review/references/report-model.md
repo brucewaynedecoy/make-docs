@@ -76,6 +76,10 @@ The invariant is:
 
 The report record count must equal `workRecordsFound`. Each snapshot path must appear exactly once with the same scope and date evidence.
 
+Every `recommendationOrder` item is wave-specific. Its `recordPath` must match exactly one report record. Every `attentionFindings` item either uses one `recordPath` that matches exactly one report record or uses null for a backlog-wide finding. Reject a missing or dangling reference before chat or HTML rendering.
+
+For chat and HTML, derive the visible wave coordinate from the matched report record and unchanged snapshot. Use the coordinate, or `Backlog finding`, as compact metadata. Use the claim as the item's main heading in both Next and Attention. Do not depend on the claim text to repeat the coordinate. Display a null Attention reference with the fixed label `Backlog finding`.
+
 ## Status rules
 
 Only these live status values are valid:
@@ -91,12 +95,14 @@ Status controls filtering and semantic color. Reason supplies the visible explan
 
 Keep `statusReason` compact. Use two to eight words when the evidence permits it. Do not write a sentence, repeat the wave name, or include evidence links in the reason.
 
-Attention severity is deterministic presentation data. A finding for a `conflict` wave uses `error`. A finding for an `attention` wave uses `warning`. Every other record or portfolio finding uses `info`. The severity changes the icon and its color. It does not change wave status.
+Attention severity is deterministic presentation data. A finding for a `conflict` wave uses `error`. A finding for an `attention` wave uses `warning`. Every other record or backlog finding uses `info`. The severity changes the icon and its color. It does not change wave status.
 
 ## Claim rules
 
 A fact needs evidence. An inference needs evidence, confidence, and limits. A recommendation needs rationale and limits. A recommendation can have no direct source only when its rationale names the supporting report facts.
 
+Do not repeat an item's own wave coordinate in its claim only to identify the item. Use a local phase label such as `P5` for a phase in the displayed wave. Use another wave's full coordinate when that relationship is material. This rule keeps the sourced metadata and agent-written heading distinct without hiding a needed cross-wave reference.
+
 Evidence stays in the normalized report data. The compact wave detail displays claim text only. It does not print evidence-link lists, confidence labels, rationale labels, or limit labels in the visual panel.
 
-Recommendation ranks are unique and contiguous from one.
+Recommendation ranks are unique and contiguous from one. Each visible Next item shows its matched wave coordinate as compact metadata outside the recommendation prose.

@@ -1029,17 +1029,28 @@ export const BacklogReportV1Schema = z
         message: "The report identity and total must match its source snapshot.",
       });
     }
-    if (
-      value.attentionFindings.some(
-        (finding) => finding.recordPath !== null && !snapshotPaths.includes(finding.recordPath),
-      ) ||
-      value.recommendationOrder.some((item) => !snapshotPaths.includes(item.recordPath))
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Report findings and recommendations must refer to records in the snapshot.",
-      });
-    }
+    value.attentionFindings.forEach((finding, index) => {
+      if (
+        finding.recordPath !== null &&
+        reportPaths.filter((recordPath) => recordPath === finding.recordPath).length !== 1
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["attentionFindings", index, "recordPath"],
+          message:
+            "A wave-specific Attention item must refer to exactly one included report record.",
+        });
+      }
+    });
+    value.recommendationOrder.forEach((item, index) => {
+      if (reportPaths.filter((recordPath) => recordPath === item.recordPath).length !== 1) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["recommendationOrder", index, "recordPath"],
+          message: "Every Next item must refer to exactly one included report record.",
+        });
+      }
+    });
     const ranks = value.recommendationOrder.map((item) => item.rank);
     if (
       new Set(ranks).size !== ranks.length ||
