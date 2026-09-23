@@ -888,7 +888,7 @@ export async function runCli(
       );
     return;
   }
-  const preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
+  let preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
   const genericMcpPlan = parsed.genericMcpClient
     ? prepareGenericMcpSetup({
         clientLabel: parsed.genericMcpClient,
@@ -935,20 +935,24 @@ export async function runCli(
     throw new Error("At least one capability must remain enabled.");
   }
 
-  const reviewedHarnessIntegrations = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
-    .filter(harness => selections.harnesses[harness])
-    .filter(harness => {
-      const harnessPlan = preparedSystemSetup.plans.find(candidate => candidate.harness === harness);
-      return harnessPlan?.status !== "blocked" && harnessPlan?.status !== "unsupported";
-    })
-    .map((harness): ProjectHarnessIntegrationRecord => {
-      const method = preparedSystemSetup.selections[harness];
-      if (method === "none") return { harness, mode: "disable" };
-      const accessCeiling = preparedSystemSetup.intent.config.settings.harnesses[harness]?.accessCeiling;
-      if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
-      return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
-    });
-  if (genericMcpPlan) reviewedHarnessIntegrations.push(genericMcpProjectIntent(genericMcpPlan));
+  const buildReviewedHarnessIntegrations = (): ProjectHarnessIntegrationRecord[] => {
+    const reviewed = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
+      .filter(harness => selections.harnesses[harness])
+      .filter(harness => {
+        const harnessPlan = preparedSystemSetup.plans.find(candidate => candidate.harness === harness);
+        return harnessPlan?.status !== "blocked" && harnessPlan?.status !== "unsupported";
+      })
+      .map((harness): ProjectHarnessIntegrationRecord => {
+        const method = preparedSystemSetup.selections[harness];
+        if (method === "none") return { harness, mode: "disable" };
+        const accessCeiling = preparedSystemSetup.intent.config.settings.harnesses[harness]?.accessCeiling;
+        if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
+        return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
+      });
+    if (genericMcpPlan) reviewed.push(genericMcpProjectIntent(genericMcpPlan));
+    return reviewed;
+  };
+  let reviewedHarnessIntegrations = buildReviewedHarnessIntegrations();
   let plannedConfigValue = plan.actions.find(action =>
     action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
   )?.content ?? "{}\n";
@@ -1118,7 +1122,7 @@ export async function runCli(
   let systemApproved = parsed.yes || !hasMachineMutation;
   if (interactive && hasMachineMutation) {
     const proceed = await confirm({
-      message: "Apply the reviewed This computer changes?",
+      message: "Apply the reviewed changes to this computer?",
       initialValue: false,
       active: "Yes",
       inactive: "No",
@@ -1205,6 +1209,58 @@ export async function runCli(
       output.write(`Setup stopped at the Store prerequisite. ${failedCondition}\nNext: ${nextAction}\n`);
     }
     return;
+  }
+
+  const reviewedSystemFingerprint = setupSystemReviewFingerprint(preparedSystemSetup);
+  const refreshedSystemSetup = await prepareSystemSetupCommand({
+    ...systemOptions,
+    promptForMethods: false,
+    methods: { ...preparedSystemSetup.selections },
+  });
+  const systemReviewChanged = setupSystemReviewFingerprint(refreshedSystemSetup) !== reviewedSystemFingerprint;
+  preparedSystemSetup = refreshedSystemSetup;
+  reviewedHarnessIntegrations = buildReviewedHarnessIntegrations();
+  if (systemReviewChanged) {
+    if (!jsonOutput) {
+      output.write(
+        "The verified Store state changed the computer review. Review the current computer plan.\n",
+      );
+      note(preparedSystemSetup.review, "This computer");
+    }
+    systemApproved = parsed.yes || !preparedSystemSetup.changed;
+    if (interactive && preparedSystemSetup.changed) {
+      const proceed = await confirm({
+        message: "Apply the reviewed changes to this computer?",
+        initialValue: false,
+        active: "Yes",
+        inactive: "No",
+        withGuide: true,
+      });
+      systemApproved = !isCancel(proceed) && Boolean(proceed);
+    }
+    if (!systemApproved) {
+      const nextAction = "Run `make-docs setup` again to review the current computer and project plans.";
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: false,
+          targetRoot: targetDir,
+          prepared: preparedSystemSetup,
+          genericMcp: genericMcpPlan,
+          storeBridge: appliedStoreBridge,
+          projectRecovery: priorProjectRecovery,
+          storeMutationState: storeBridgePreview.changes.store.length > 0 ? "applied" : "none",
+          projectChanged: recoveredProjectChanged,
+          projectMutationState: recoveredProjectChanged ? "applied" : "none",
+          projectActions: plan.actions,
+          failedCondition: "The refreshed computer setup was not approved.",
+          nextAction,
+        });
+      } else {
+        output.write(`The refreshed computer changes were not approved. Setup did not apply the refreshed computer or project plan. Next: ${nextAction}\n`);
+      }
+      return;
+    }
   }
 
   const postStoreProjectReview = await reloadProjectReview();
@@ -1558,6 +1614,16 @@ async function runProjectPathHygieneCommand(
     process.stderr.write("Path check error: " + (error instanceof Error ? error.message : String(error)) + "\n");
     process.exitCode = 2;
   }
+}
+
+function setupSystemReviewFingerprint(prepared: {
+  changed: boolean;
+  review: string;
+}): string {
+  return JSON.stringify([
+    prepared.changed,
+    prepared.review,
+  ]);
 }
 
 function setupProjectReviewFingerprint(

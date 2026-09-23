@@ -462,7 +462,7 @@ describe("cli interactive flows", () => {
       expect(promptForManagedFileConflictResolutionsMock).not.toHaveBeenCalled();
       expect(confirmMock).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+        expect.objectContaining({ message: "Apply the reviewed changes to this computer?" }),
       );
       expect(confirmMock).toHaveBeenNthCalledWith(
         2,
@@ -532,7 +532,7 @@ describe("cli interactive flows", () => {
         allowCapabilityExpansion: false,
       }));
       expect(confirmMock).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+        expect.objectContaining({ message: "Apply the reviewed changes to this computer?" }),
       );
       expect(output).toContain("This project");
       expect(output).toContain("Mode: existing install sync");
@@ -991,7 +991,7 @@ personas:
         ([options]) => String(options.message),
       );
       const projectConfirmations = confirmationMessages.filter(
-        (message) => message !== "Apply the reviewed This computer changes?",
+        (message) => message !== "Apply the reviewed changes to this computer?",
       );
       expect(projectConfirmations.length).toBeGreaterThanOrEqual(2);
       expect(output).toContain(
@@ -1102,6 +1102,64 @@ personas:
       });
     } finally {
       cleanupTempDir(targetDir);
+    }
+  });
+
+  test("plain setup applies reviewed computer changes after it restores project work", async () => {
+    const targetDir = createTempDir("make-docs-setup-restore-machine-");
+    const unrelatedTarget = createTempDir("make-docs-setup-unrelated-pending-");
+    const executablePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../dist/index.js",
+    );
+    const priorArgv1 = process.argv[1];
+    try {
+      process.argv[1] = executablePath;
+      await installManifest(targetDir);
+      const changedManagedPath = ".make-docs/system/contracts/output-contract.md";
+      const changedManagedFile = path.join(targetDir, changedManagedPath);
+      writeFileSync(
+        changedManagedFile,
+        `${readFileSync(changedManagedFile, "utf8")}\nUser-owned setup recovery change.\n`,
+        "utf8",
+      );
+      expect(() => withInstallationOperation(
+        unrelatedTarget,
+        "setup.migration",
+        () => {
+          throw new Error("simulated unrelated interruption");
+        },
+        { storeRoot: process.env.MAKE_DOCS_HOME },
+      )).toThrow("simulated unrelated interruption");
+      createPendingSetupOperation(targetDir, { planComplete: false });
+      selectMock.mockResolvedValueOnce("restore");
+      promptForManagedFileConflictResolutionsMock.mockResolvedValue({
+        [changedManagedPath]: "skip",
+      });
+
+      const output = await captureCliOutput([
+        "setup",
+        "--codex-method",
+        "mcp",
+        "--claude-code-method",
+        "mcp",
+        "--target",
+        targetDir,
+      ]);
+
+      expect(output).toContain("Setup restored the project state from before the unfinished work.");
+      expect(output).not.toContain("Setup stopped at machine scope.");
+      expect(output).not.toContain("project state status");
+      expect(readPendingHarnessSystemOperation(targetDir, process.env.MAKE_DOCS_HOME!)).toBeNull();
+      expect(readInstallationStatus(targetDir)).toMatchObject({
+        status: "ready",
+        pendingOperation: null,
+      });
+      expect(readInstallationStatus(unrelatedTarget).status).toBe("recovery-required");
+    } finally {
+      process.argv[1] = priorArgv1;
+      cleanupTempDir(targetDir);
+      cleanupTempDir(unrelatedTarget);
     }
   });
 
@@ -2334,7 +2392,7 @@ personas:
 
       const configPath = path.join(isolatedSetupHome, "store", "config.json");
       expect(confirmMock).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+        expect.objectContaining({ message: "Apply the reviewed changes to this computer?" }),
       );
       const review = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(review).toContain("Global intent file:");
@@ -2579,6 +2637,62 @@ personas:
         String(predictedAgentsAction!.content),
       );
       expect(readInstallationStatus(targetDir).status).toBe("ready");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("rebuilds and reapproves the computer plan after the Store bridge changes its review", async () => {
+    setTTY(true);
+    const targetDir = createTempDir("make-docs-store-computer-reapproval-");
+    const storeRoot = path.join(isolatedSetupHome, "store");
+    seedSchemaThreeStore(storeRoot);
+    try {
+      const setupSystem = await import("../src/setup-system");
+      const prepareActual = setupSystem.prepareSystemSetupCommand;
+      let prepareCount = 0;
+      vi.spyOn(setupSystem, "prepareSystemSetupCommand").mockImplementation(async (options) => {
+        const prepared = await prepareActual(options);
+        prepareCount += 1;
+        if (prepareCount === 1) return prepared;
+        return {
+          ...prepared,
+          changed: true,
+          review: `${prepared.review}\nRefreshed computer plan.`,
+          plans: [{
+            harness: "codex",
+            method: "none",
+            status: "drifted",
+            operations: [],
+            operationEffects: [],
+            allowedStoreOperations: "active-operation-registry",
+            ownedEntries: [],
+            machineFiles: [],
+            changed: true,
+            detail: "Refreshed computer plan.",
+            apply: async () => undefined,
+            verify: async () => true,
+          }],
+        };
+      });
+      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+
+      const output = await captureCliOutput([
+        "setup",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const computerConfirmations = confirmMock.mock.calls
+        .map(([options]) => String(options.message))
+        .filter((message) => message === "Apply the reviewed changes to this computer?");
+
+      expect(prepareCount).toBe(2);
+      expect(computerConfirmations).toHaveLength(2);
+      expect(output).toContain(
+        "The verified Store state changed the computer review. Review the current computer plan.",
+      );
+      expect(output).toContain("Refreshed computer plan.");
     } finally {
       cleanupTempDir(targetDir);
     }
@@ -2873,7 +2987,7 @@ personas:
 
       expect(confirmMock).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ message: "Apply the reviewed This computer changes?" }),
+        expect.objectContaining({ message: "Apply the reviewed changes to this computer?" }),
       );
       const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
       expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });

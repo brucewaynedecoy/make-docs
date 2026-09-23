@@ -854,6 +854,12 @@ Code anchors:
 
 **Reopened close condition:** The exact supported schema 3, drifted Codex MCP, newly selected Claude Code MCP, and reviewed project fixture must reach one current Store and verified result without reciprocal commands, hidden partial intent, manual database edits, or unreviewed project changes. Human and JSON results must agree. Failure, interruption, retry, and repeat must preserve data and one safe next action. One exact installed package must pass the same contract on Windows, macOS, and Linux.
 
+**Latest installed counterevidence, 2026-09-22:** Installed `2.0.1` restored the unfinished operation for the current project and received separate computer and project approvals. Machine setup then stopped because an installation operation was pending under a different checkout in the shared Store. The current target read back as `ready` with no pending operation. The machine guard treated all project operations and project locks as global conflicts. The output then directed the person to project-state recovery for the wrong target state. The same flow used the malformed prompt `Apply the reviewed This computer changes?`.
+
+**Latest bounded correction:** Scope installation-operation and project-lock conflicts to the exact target checkout. Keep machine-wide tool operations global. Preserve all unrelated project work. Rebuild the computer plan after a Store prerequisite changes Store state. Show and reapprove a changed computer review. Read the current target before recovery guidance. Use `Apply the reviewed changes to this computer?` for computer approval.
+
+**Latest close condition:** In one shared Store, leave an unrelated checkout in recovery-required state and prove that plain setup can restore or resume the current target, apply its reviewed computer work, and preserve the unrelated operation unchanged. Prove that a changed post-Store computer review requires another approval. Prove that a ready target with no pending operation never receives project-state recovery guidance. Repeat the exact installed result on Windows, macOS, and Linux before another live closeout claim.
+
 Code anchors:
 
 - `packages/cli/src/harness-access/contract.ts`

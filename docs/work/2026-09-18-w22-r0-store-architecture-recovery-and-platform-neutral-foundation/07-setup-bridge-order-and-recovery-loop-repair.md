@@ -18,7 +18,7 @@ Repair the complete upgrade path for supported older installations. Plain setup 
 
 P7 corrects the dependency order in full setup, builds one final plan from predicted post-prerequisite state, completes every safety check before operation creation, requires planner-classifier-executor agreement, preserves direct machine setup independence, delays new harness intent until its owned change can succeed, and keeps normal resume or restore in plain setup. It proves both reported installed failures with authentic supported older-package fixtures and one exact installed package on Windows, macOS, and Linux.
 
-P7 is the only active W22 phase. P1 through P6 remain completed records for their exact prior evidence. Stage 1 source repair, three authentic older-package fixtures, focused validation, and corrective review are complete. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed proof remain open.
+P7 is the only active W22 phase. P1 through P6 remain completed records for their exact prior evidence. A live installed `2.0.1` run found that one project could block another project during machine setup. P7 is reopened for this cross-project Store isolation repair. The earlier source and platform results remain historical evidence for their exact candidates. They do not close this new failure.
 
 ## Human Experience Outcome
 
@@ -36,7 +36,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 | Testing type | Current decision | Decision record or `not-needed-now` reason |
 | --- | --- | --- |
-| Automated Implementation Testing | Required; Stage 1 passed; Stage 2 blocking | Three authentic older-package fixtures and the corrected focused source suite pass. One exact installed candidate still needs comparable Windows, macOS, and Linux proof. |
+| Automated Implementation Testing | Required; reopened source repair passed; new installed proof blocking | The exact cross-project, computer-replan, current-target guidance, and prompt tests pass. The full repository test gate passes. One new exact candidate still needs comparable Windows, macOS, and Linux proof. |
 | Performance Testing | `not-needed-now` | No accepted performance target or current decision depends on setup duration. |
 | Guided Progress Review | Stage 1 corrective review passed | The review found and closed approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. Review remains useful for Stage 2 installed output. |
 | Unassisted Goal Testing | `not-needed-now` | Deterministic state assertions and installed workflow evidence can answer the current recovery question. |
@@ -69,6 +69,8 @@ Performance evidence lifecycle fields:
 - Reopened finding: [D-038 Setup and Store Access Form a Closed Recovery Loop](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop).
 - Installed counterevidence: after rollback reported a ready installation, plain setup classified the project as `partial-install`, offered `migrate-with-review`, showed one planned skip after 108 checks, received approval, rejected the same work at checkpoint 3 as `ambiguous-ownership`, and created pending operation `9b687b36-5394-4bae-879e-416937eaa33d`.
 - Audit finding: the planner can call a path current while the frozen migration classifier calls its older-manifest ownership ambiguous. A test expected this dead end. Operation creation occurred before the predictable rejection.
+- Latest installed counterevidence: after plain setup restored the current project operation, the owner approved both reviewed plans. Machine setup then stopped on a pending operation from a different checkout. The current target read back as `ready` with no pending operation. The shared machine guard used Store-wide project-operation and project-lock checks instead of current-target checks.
+- Latest human wording finding: the computer approval prompt said `Apply the reviewed This computer changes?`. The accepted wording is `Apply the reviewed changes to this computer?`.
 - Accepted obligations: none.
 - Activated Unassisted Goal Test scenarios: none.
 
@@ -143,3 +145,30 @@ Performance evidence lifecycle fields:
 - Explicit human acceptance gate: None unless the owner creates one before closeout.
 - Evidence report: Link the P7 section in `evidence.md` plus the exact cross-platform workflow results.
 - Phase / capability status: Stage 2 is the next open P7 stage. P7 and W22 remain open until A50 through A52 pass and the owner authorizes closeout.
+
+## Stage 3 - Cross-Project Store Isolation And Live Acceptance Repair
+
+### Tasks
+
+- [x] t16: Record the live `2.0.1` counterevidence. Prove that the pending operation belongs to a different checkout while the current target is `ready` with no pending operation.
+- [x] t17: Scope installation-operation and project-lock conflicts to the exact target checkout. Keep machine-wide tool operations global. Preserve the unrelated project operation without change.
+- [x] t18: Rebuild the computer plan after the Store prerequisite. Show and reapprove a changed computer review. Read the current target before recovery guidance. Use the approved computer prompt wording.
+- [x] t19: Add the exact combined plain-setup regression plus focused component tests. Pass the full repository test command, package build, and diff check.
+- [ ] t20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
+
+### Acceptance Criteria
+
+- A53: A pending operation or project lock for another checkout does not block machine setup for the current target. The unrelated operation remains present and recoverable.
+- A54: A Store state change cannot leave machine setup with a stale plan. A changed computer review is shown and approved again before native changes.
+- A55: Recovery guidance names the current target state. A ready target with no pending operation is not directed to project-state recovery. The computer prompt reads `Apply the reviewed changes to this computer?`.
+- A56: One exact repaired package passes the installed workflow on Windows, macOS, and Linux. The same candidate then completes the live Make Docs setup path without cross-project interference or deep-command recovery.
+
+### Dependencies
+
+- The owner approved reopening P7 and implementing this bounded repair.
+- The unrelated checkout and its pending operation remain outside this repair and must not change.
+- Staging, commit, push, pull-request work, installation, live setup, and closeout remain separate actions unless the owner authorizes them.
+
+### Current Result
+
+Tasks t16 through t19 pass in source. The focused repair run passed four tests. The package build passed. The full repository command passed 92 test files, skipped one test file under its normal guard, passed 1,479 tests, and skipped five installed-platform tests under their normal guard. Task t20 and A56 remain open. P7 and D-038 remain open.

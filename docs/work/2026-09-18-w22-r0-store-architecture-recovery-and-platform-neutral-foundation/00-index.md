@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "Stage 1 source repair and authentic older-package proof pass. Stage 2 must identify one exact candidate and prove it on Windows, macOS, and Linux."
-  coordinate_handoff: "Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed proof."
+  why: "The reopened P7 source repair passes. A new exact candidate must prove cross-project Store isolation on Windows, macOS, and Linux."
+  coordinate_handoff: "Carry W22 R0 P7 into Stage 3 exact-candidate and live installed proof."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -19,9 +19,9 @@ follow_on:
 
 Provide the execution queue for the [W22 R0 design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [plan](../../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md).
 
-P1 through P6 remain completed records for their exact accepted evidence. The owner reopened W22 R0 on 2026-09-22 after two installed failures showed command-loop and checkpoint-3 upgrade defects. P7 is the only active phase. Stage 1 source repair, authentic older-package proof, and corrective review are complete. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open.
+P1 through P6 remain completed records for their exact accepted evidence. P7 is the only active phase. The owner reopened P7 again on 2026-09-22 after the installed `2.0.1` CLI let pending work from another checkout block machine setup for the current target. The current target was `ready` with no pending operation. Stage 3 source tasks t16 through t19 pass. The new exact-candidate, three-platform, and live installed proof in t20 remain open.
 
-The Stage 1 result covers the conflicting planner and checkpoint-3 decision, operation creation timing, migration backup preflight, plain-setup resume or restore, retired-resource safety, and authentic upgrades from three older packages. P7 and D-038 remain open for Stage 2 tasks t9 through t15 and A50 through A52.
+The earlier result covers the conflicting planner and checkpoint-3 decision, operation creation timing, migration backup preflight, plain-setup resume or restore, retired-resource safety, and authentic upgrades from three older packages. The reopened repair adds exact-checkout isolation, post-Store computer replanning, current-target recovery guidance, and the corrected computer approval prompt. P7 and D-038 remain open for t20 and A56.
 
 ## Human Experience Trace
 
@@ -48,7 +48,7 @@ The Stage 1 result covers the conflicting planner and checkpoint-3 decision, ope
 
 ## Usage Notes
 
-- P1 through P6 and P7 Stage 1 are completed records. Start with P7 Stage 2 exact-candidate identity and installed proof.
+- P1 through P6 and the prior P7 source results are completed records for their exact evidence. Start with P7 Stage 3 task t20.
 - Keep Stage 2 bound to one exact candidate. Record package and install identity before the same candidate runs on Windows, macOS, and Linux.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
 - Never create or switch a branch or worktree without explicit user permission.

@@ -8,11 +8,12 @@ import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { prepareSystemSetupCommand, renderSystemPlans, runSystemSetupCommand, SYSTEM_COMMAND_RULE_AUTHORITY } from "../src/setup-system";
+import { applyPreparedSystemSetup, prepareSystemSetupCommand, renderSystemPlans, runSystemSetupCommand, SYSTEM_COMMAND_RULE_AUTHORITY } from "../src/setup-system";
 import { CODEX_HARNESS_ADAPTER, fingerprintEntry, listBoundedHarnessCommandRules, sha256, verifyMakeDocsExecutable } from "../src/harness-access/index";
 import { loadGlobalConfig, writeGlobalConfig } from "../src/store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "../src/store/harness-integration-receipts";
 import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
+import { withInstallationDatabase } from "../src/store/installation-state";
 import { STORE_MIGRATIONS } from "../src/store";
 import { cleanupTempDir, createTempDir } from "./helpers";
 import type { Capability, Harness } from "../src/types";
@@ -362,6 +363,73 @@ describe("W19 R6 unified setup", () => {
       const db = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
       expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 3 });
       db.close();
+    } finally {
+      cleanupTempDir(machineRoot);
+      cleanupTempDir(storeContainer);
+    }
+  });
+
+  test("machine setup checks this project before it gives pending Store recovery guidance", async () => {
+    const machineRoot = createTempDir("make-docs-system-pending-guidance-");
+    const storeContainer = createTempDir("make-docs-system-pending-guidance-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    try {
+      const runPendingFailure = () => applyPreparedSystemSetup({
+        options: {
+          dryRun: false,
+          yes: true,
+          harnesses: { codex: true, "claude-code": false },
+          targetRoot: machineRoot,
+          storeRoot,
+          machineRoot,
+          persistIntent: false,
+        },
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+        selections: { codex: "none", "claude-code": "none" },
+        plans: [{
+          harness: "codex",
+          method: "none",
+          status: "drifted",
+          operations: [],
+          operationEffects: [],
+          allowedStoreOperations: "active-operation-registry",
+          ownedEntries: [],
+          machineFiles: [],
+          changed: true,
+          detail: "A Store operation is already pending.",
+          async apply() {
+            throw new Error("A Store operation is already pending (other-project). Resolve it before machine setup. No native file was changed.");
+          },
+          async verify() {
+            return false;
+          },
+        }],
+        intent: { config: loadGlobalConfig(storeRoot).config, changes: [] },
+        review: "Injected pending Store review.",
+        changed: true,
+      });
+      const result = await runPendingFailure();
+
+      expect(result).toMatchObject({
+        status: "recovery",
+        recoveryAction: expect.stringContaining("This project has no pending operation to recover."),
+      });
+      expect(result.recoveryAction).toContain("`make-docs setup`");
+      expect(result.recoveryAction).not.toContain("project state status");
+      expect(result.recoveryAction).not.toContain("setup system");
+
+      withInstallationDatabase(machineRoot, db => {
+        db.prepare(
+          "INSERT INTO tool_operations VALUES ('tool-pending','self.update','pending',1,'test-host','{}','2026-09-22T00:00:00.000Z',NULL)",
+        ).run();
+      }, { storeRoot });
+      const machineWideResult = await runPendingFailure();
+      expect(machineWideResult.recoveryAction).toContain(
+        "A machine-wide Store operation is still pending.",
+      );
+      expect(machineWideResult.recoveryAction).not.toContain("project state status");
     } finally {
       cleanupTempDir(machineRoot);
       cleanupTempDir(storeContainer);

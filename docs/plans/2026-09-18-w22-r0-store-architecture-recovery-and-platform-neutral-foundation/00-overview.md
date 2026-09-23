@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "Stage 1 source repair and authentic older-package proof pass. Stage 2 must identify one exact candidate and prove it on Windows, macOS, and Linux."
-  coordinate_handoff: "Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed proof."
+  why: "The reopened P7 source repair passes. A new exact candidate must prove cross-project Store isolation on Windows, macOS, and Linux."
+  coordinate_handoff: "Carry W22 R0 P7 into Stage 3 exact-candidate and live installed proof."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -19,7 +19,7 @@ follow_on:
 
 Plan the architecture recovery defined by the [source design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md). The plan first tests the value of each current mechanism. It then settles current authority, creates a platform-neutral safety boundary, simplifies Store and harness state, migrates existing installations, closes known symptoms, and proves installed results on Windows, macOS, and Linux.
 
-P1 through P6 remain completed records for their exact accepted evidence. The owner reopened W22 R0 on 2026-09-22 after a current installed CLI proved a new closed setup recovery loop. P7 is the only active phase. P7 Stage 1 source repair, authentic older-package proof, and corrective review are complete. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open.
+P1 through P6 remain completed records for their exact accepted evidence. P7 is the only active phase. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The current target was `ready` and had no pending operation. P7 is reopened for cross-project Store isolation, post-Store computer replanning, current-target recovery guidance, and the corrected computer approval prompt. The source repair passes. A new exact installed candidate remains open.
 
 ## Objective
 
@@ -59,7 +59,7 @@ Produce a smaller and explainable Store foundation without losing proved safety.
 
 W22 R0 revisits the build segment after its prior close. This is an explicit lifecycle departure under the lifecycle straddle rule. The first installed trace invalidated the prior claim that setup and Store access always have one open recovery path. A second installed trace invalidated the P7 Stage 1 source-completion claim because setup approved a `partial-install` plan, rejected it later as `ambiguous-ownership`, and created a pending operation for a predictable failure.
 
-P7 owns the bounded correction. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures now pass through plain setup. The corrective review found and closed the approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. A new W22 completion claim still requires one exact repaired candidate with comparable installed proof on Windows, macOS, and Linux.
+P7 owns the bounded correction. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures still pass through plain setup. The latest repair scopes project operations and locks to the current target, keeps machine-wide tool operations global, rebuilds the computer plan after Store changes, and verifies the current target before it gives recovery guidance. A new W22 completion claim still requires one exact repaired candidate with comparable installed proof on Windows, macOS, and Linux.
 
 ## Maintenance Inputs
 

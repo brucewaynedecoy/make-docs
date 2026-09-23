@@ -90,7 +90,7 @@ export function prepareHarnessSystemOperation(
   withInstallationDatabase(targetRoot, (db) => {
     db.exec("BEGIN IMMEDIATE");
     try {
-      assertNoOtherStoreWork(db);
+      assertNoOtherStoreWork(db, targetRoot);
       db.prepare(
         "INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'pending',?,?,?,?,NULL)",
       ).run(
@@ -165,7 +165,7 @@ export function completeHarnessSystemOperation(
   withInstallationDatabase(targetRoot, (db) => {
     db.exec("BEGIN IMMEDIATE");
     try {
-      assertNoOtherStoreWork(db, exact.operationId);
+      assertNoOtherStoreWork(db, targetRoot, exact.operationId);
       const storedReceipt = db.prepare(
         "SELECT metadata_json FROM tool_operations WHERE operation_id=? AND operation='setup.system.receipt' AND status='completed'",
       ).get(`harness-receipt:${exact.operationId}`) as { metadata_json: string } | undefined;
@@ -212,7 +212,7 @@ export function failHarnessSystemOperation(
   withInstallationDatabase(targetRoot, (db) => {
     db.exec("BEGIN IMMEDIATE");
     try {
-      assertNoOtherStoreWork(db, exact.operationId);
+      assertNoOtherStoreWork(db, targetRoot, exact.operationId);
       const finishedAt = new Date().toISOString();
       const result = db.prepare(
         "UPDATE tool_operations SET status='failed',metadata_json=?,finished_at=? WHERE operation_id=? AND operation=? AND status='pending' AND metadata_json=?",
@@ -429,14 +429,25 @@ function assertReceiptMatchesPlan(
   }
 }
 
-function assertNoOtherStoreWork(db: StoreDatabase, ownOperationId?: string): void {
+function assertNoOtherStoreWork(
+  db: StoreDatabase,
+  targetRoot: string,
+  ownOperationId?: string,
+): void {
   const tool = db.prepare(
     `SELECT operation_id FROM tool_operations WHERE status='pending'${ownOperationId ? " AND operation_id<>?" : ""} LIMIT 1`,
   ).get(...(ownOperationId ? [ownOperationId] : [])) as { operation_id: string } | undefined;
   const project = db.prepare(
-    "SELECT operation_id FROM installation_operations WHERE status='pending' LIMIT 1",
-  ).get() as { operation_id: string } | undefined;
-  const writer = db.prepare("SELECT root_path FROM installation_locks LIMIT 1").get() as
+    `SELECT operations.operation_id
+       FROM installation_operations AS operations
+       JOIN installation_checkouts AS checkouts
+         ON checkouts.checkout_id=operations.checkout_id
+      WHERE operations.status='pending' AND checkouts.root_path=?
+      LIMIT 1`,
+  ).get(targetRoot) as { operation_id: string } | undefined;
+  const writer = db.prepare(
+    "SELECT root_path FROM installation_locks WHERE root_path=? LIMIT 1",
+  ).get(targetRoot) as
     | { root_path: string }
     | undefined;
   if (tool || project || writer) {

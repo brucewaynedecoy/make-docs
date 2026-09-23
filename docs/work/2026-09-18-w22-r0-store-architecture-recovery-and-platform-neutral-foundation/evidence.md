@@ -1168,7 +1168,7 @@ The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publicati
 
 ### Status
 
-P7 Stage 1 source repair, three authentic older-package fixtures, focused validation, and corrective review are complete as of 2026-09-22. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open. P7 and D-038 remain open.
+P7 is open. A live installed `2.0.1` run found a cross-project Store isolation failure after the earlier source and platform work. The reopened Stage 3 source repair passes tasks t16 through t19 and A53 through A55. Task t20, A56, a new exact three-platform candidate, and the live retry remain open.
 
 The first Stage 2 candidate at `f0846d58f5ebfca2d2485362f1cc324b8934dc0a` passed the three-platform workflow in run `35775207319`. Pull-request review then found seven material defects. That candidate is rejected for P7 acceptance. The corrective source result fixes those defects and passes local validation. It makes no live CLI installation or live Store change. A new exact package run is still required.
 
@@ -1386,3 +1386,61 @@ Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain ope
 The next gate is Stage 2. Build one exact repaired candidate with recorded package and install identity. Then run comparable installed proof on Windows, macOS, and Linux. Local `just install-cli` and the live plain-setup retry remain separate later owner actions.
 
 P7 and D-038 remain open. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside P7 without separate owner approval. Staging, commit, push, external workflow execution, live owner-Store verification, and closeout each require their applicable next authority.
+
+### Live 2.0.1 Counterevidence - Cross-Project Store Isolation
+
+The owner installed CLI version `2.0.1` and ran plain `make-docs setup` against the Make Docs project.
+
+1. Setup found incomplete operation `9b687b36-5394-4bae-879e-416937eaa33d` for the current project.
+2. The owner selected the recommended restore action.
+3. Setup rebuilt and showed the computer and project reviews.
+4. The owner approved both reviews.
+5. Setup stopped at machine scope and claimed that a Store operation was pending.
+6. Immediate current-target readback reported installation state `ready` and `pendingOperation: null`.
+7. Read-only Store history found pending installation operation `67a0e504-dd52-4bd8-b1a2-642b284ce72b` under a different checkout.
+8. The unrelated operation remained unchanged. No repair or recovery action was run against that project.
+
+The exact cause was the machine setup conflict guard. It treated every pending installation operation and every installation lock in the shared Store as a machine-wide conflict. Project operations and project locks belong to one exact checkout. Only tool-level machine operations remain global. The false global check also caused incorrect guidance to run project-state commands against a current target that had no pending operation.
+
+The same live review exposed the prompt `Apply the reviewed This computer changes?`. The owner selected `Apply the reviewed changes to this computer?` as the required text.
+
+This live result is stronger than the prior candidate claim for the affected path. It reopens P7 and D-038. The prior source and platform results remain valid only for the exact cases and candidates that passed.
+
+### Reopened Source Repair Result
+
+- The machine setup guard now checks pending installation operations through the exact checkout root.
+- The guard now checks project locks only for the exact target root.
+- Pending tool operations remain global because they represent machine-wide work.
+- The combined regression leaves another checkout in `recovery-required` state, restores the current project, applies the current computer plan, and proves that the unrelated operation remains present.
+- Full setup now prepares the computer plan again after the Store prerequisite verifies.
+- If the visible computer review changes, setup shows the current review and asks for computer approval again.
+- Pending-Store guidance reads the current target first. It does not direct a ready target with no pending operation to project-state recovery.
+- Both full setup and direct system setup now ask `Apply the reviewed changes to this computer?`.
+
+### Reopened Source Validation
+
+| Check | Result |
+| --- | --- |
+| Focused repair tests | Passed: 4 tests across `cli.test.ts`, `w19-r6-setup.test.ts`, and `w19-r6-harness-system-operations.test.ts`. |
+| Package build | Passed with `npm run build`. |
+| Full repository test command | Passed: 92 test files passed and one test file used its normal skip guard; 1,479 tests passed and five installed-platform tests used their normal skip guard. |
+| Full authentic older-package suite | Passed inside the full repository run: all three P7 fixtures passed. |
+| Diff whitespace check | Passed. |
+
+The first focused run found one test-only folder collision from a fixed temporary path. The fixture now uses a unique temporary directory. The product assertion did not fail. The corrected focused run passed all four selected tests.
+
+### Reopened Human Experience Review
+
+Reviewer: Codex agent.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | The current target is checked before recovery guidance. The prompt now names the computer action in normal English. | Satisfied for the reopened source boundary. | Repeat the exact output with one installed candidate on all three required operating systems. |
+| HX-5: setup and repair use one open recovery path | Unrelated project recovery state no longer blocks the current target. The unrelated operation remains unchanged. | Satisfied for the reopened source boundary. | Repeat the live Make Docs setup path with the exact candidate after platform proof. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | Tool operations remain global. Project operations and locks use exact-checkout scope. The repair does not clear or edit another project. | Preserved in source tests. | Installed package and live proof remain open. |
+
+### Reopened P7 Gate
+
+Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 pass in source. Task t20 and A56 remain open. The next gate is one exact repaired package with comparable Windows, macOS, and Linux results. Installation into the owner's local CLI and the live plain-setup retry remain separate later actions.
+
+P7 and D-038 remain open. This repair does not authorize staging, commit, push, pull-request work, installation, live Store mutation, or closeout.
