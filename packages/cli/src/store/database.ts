@@ -1097,7 +1097,9 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       cleanupAccessDirectory(directory);
       if (error instanceof StoreUnavailableError) throw error;
       const code = systemCode(error);
-      if (new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "") && Date.now() < deadline) {
+      const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
+        || (platform.kind === "darwin" && code === "EINVAL");
+      if (retryableSessionOpenError && Date.now() < deadline) {
         pause(attempt++, deadline);
         continue;
       }
