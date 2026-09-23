@@ -49,7 +49,7 @@ The earlier result covers the conflicting planner and checkpoint-3 decision, ope
 ## Usage Notes
 
 - P1 through P6 and the prior P7 source results are completed records for their exact evidence. Start with P7 Stage 3 task t20.
-- Keep Stage 2 bound to one exact candidate. Record package and install identity before the same candidate runs on Windows, macOS, and Linux.
+- Keep Stage 3 bound to one exact candidate. Record package and install identity before the same candidate runs on Windows, macOS, and Linux.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
 - Never create or switch a branch or worktree without explicit user permission.
 - Keep the affected real project and its Store read-only until an approved phase and its candidate gate permit a bounded action.

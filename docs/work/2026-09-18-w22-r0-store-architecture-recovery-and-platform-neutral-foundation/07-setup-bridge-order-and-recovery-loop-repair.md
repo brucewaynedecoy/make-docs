@@ -156,7 +156,7 @@ Performance evidence lifecycle fields:
 - [x] t19: Add the exact combined plain-setup regression plus focused component tests. Pass the full repository test command, package build, and diff check.
 - [ ] t20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
 
-### Acceptance Criteria
+### Acceptance criteria
 
 - A53: A pending operation or project lock for another checkout does not block machine setup for the current target. The unrelated operation remains present and recoverable.
 - A54: A Store state change cannot leave machine setup with a stale plan. A changed computer review is shown and approved again before native changes.
