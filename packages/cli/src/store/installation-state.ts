@@ -1444,12 +1444,19 @@ export function reviewCompletedRemovalHandoff(
                     && step.after.kind === 'directory'
                     && path.posix.dirname(normalized) === '.make-docs/backup';
             });
-            if (backupRootSteps.length !== 1) {
+            if (backupRootSteps.length === 0) return noHandoff();
+            if (backupRootSteps.length > 1) {
                 blockers.push('The completed removal does not have one exact reviewed backup root.');
             }
             const backupRoot = backupRootSteps[0]
                 ? normalizeOperationPath(backupRootSteps[0].relative_path)
                 : '';
+            if (
+                backupRootSteps.length === 1
+                && !existsSync(assertSafeFilePath(root, backupRoot))
+            ) {
+                return noHandoff();
+            }
             const insideBackup = (candidate: string) => {
                 const normalized = normalizeOperationPath(candidate);
                 return backupRoot !== '' && (normalized === backupRoot || normalized.startsWith(`${backupRoot}/`));

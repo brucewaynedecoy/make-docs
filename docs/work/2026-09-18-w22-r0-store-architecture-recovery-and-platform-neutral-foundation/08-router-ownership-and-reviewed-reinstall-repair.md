@@ -91,6 +91,7 @@ Performance evidence lifecycle fields:
 ### Dependencies
 
 - The owner approved P8 Stage 1 implementation on 2026-09-23.
+- The owner later approved staging, commit, push, pull-request review, and Stage 2 tasks t8 through t10.
 - P7 and D-038 remain open.
 - The North Atlantic BuildOS live project stays unchanged during source and isolated fixture work.
 - Existing Store, backup, rollback, user-content, path, symlink, and platform safety rules remain in force.
@@ -124,7 +125,7 @@ Performance evidence lifecycle fields:
 
 - Stage 1 passes A57 through A60.
 - The exact candidate is built after the final P8 source change.
-- Push, pull-request workflow execution, local CLI installation, live North Atlantic BuildOS apply, closeout, publication, and release remain separately gated actions.
+- Stage 2 tasks t8 through t10 are approved. Local CLI installation, live North Atlantic BuildOS apply, closeout, publication, and release remain separately gated actions.
 
 ### Closeout Notes
 

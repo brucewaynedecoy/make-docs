@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P8 authority defines the remaining router-ownership and reviewed-reinstall repair. Implementation still needs owner approval."
-  coordinate_handoff: "Carry W22 R0 P8 into the implementation loop only after separate owner approval."
+  why: "P8 Stage 1 source work is complete. The owner approved Stage 2 exact-package and three-platform proof. Local installation and live-project proof remain separately gated."
+  coordinate_handoff: "Carry W22 R0 P8 through the approved Stage 2 package proof. Stop before local installation or live-project setup without separate owner approval."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -21,7 +21,7 @@ Plan the architecture recovery defined by the [source design](../../designs/2026
 
 P1 through P6 remain completed records for their exact accepted evidence. P7 remains open. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The current target was `ready` and had no pending operation. The P7 source repair passes, and the Make Docs project completed plain setup with the repaired CLI.
 
-The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 is a draft corrective phase for target-scoped router ownership and a reviewed reinstall handoff. P8 implementation is not authorized.
+The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 Stage 1 source work is approved and complete. The owner also approved Stage 2 exact-package and three-platform proof. Local installation, live North Atlantic BuildOS setup, and closeout remain separately gated.
 
 ## Objective
 
@@ -180,7 +180,7 @@ The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a
 - PRDs: surgical maintenance of existing owners only after P1 decisions are accepted.
 - Risk register: keep D-038 open for the P7 and P8 defects. P8 adds no new broad reset or force capability.
 - Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and eight phase files.
-- The owner approved P8 Stage 1 implementation on 2026-09-23. Source and isolated proof are complete. Candidate packaging, installed three-platform proof, local installation, live setup, staging, commit, push, publication, and release retain their applicable gates.
+- The owner approved P8 Stage 1 implementation on 2026-09-23. Source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, candidate packaging, and installed three-platform proof. Local installation, live setup, closeout, publication, and release retain their separate gates.
 
 ## Worker Ownership
 
@@ -206,7 +206,7 @@ Use jdocmunch for project documents and jcodemunch for code and function signatu
 
 P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on the 2026-09-22 installed failure traces and the reopened D-038 finding.
 
-P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. The owner approved Stage 1 implementation on 2026-09-23. Source and isolated proof pass. Stage 2 package work and the live North Atlantic BuildOS action remain separately gated.
+P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. The owner approved Stage 1 implementation on 2026-09-23. Source and isolated proof pass. The owner later approved Stage 2 tasks t8 through t10. Local installation and the live North Atlantic BuildOS action remain separately gated.
 
 P7 and P8 remain bounded repairs. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Any finding that changes that product target returns to the owner.
 

@@ -1469,8 +1469,8 @@ The fixture adds 52 managed backup router files and 36 unrelated active project 
 
 | Check | Result |
 | --- | --- |
-| P8 exact fixture | Passed: 9 of 9 tests. |
-| Focused P8, compatibility, and CLI suite | Passed: 3 files; 163 tests passed. |
+| P8 exact fixture | Passed: 11 of 11 tests. The added cases prove that plain setup uses the normal guarded path when a completed removal has no backup or its recorded backup root is wholly absent. |
+| Focused P8, compatibility, and CLI suite | Passed: 3 files; 165 tests passed. |
 | TypeScript check | Passed with `npx tsc -p packages/cli/tsconfig.json --noEmit`. |
 | Package build | Passed with `npm run build --workspace @brucewaynedecoy/make-docs`. |
 | Full default validation | Passed: 93 test files passed and 1 file used its normal installed-platform skip guard; 1,488 tests passed and 5 installed-platform tests skipped. Instruction-router and wave-numbering checks passed. |
@@ -1488,8 +1488,37 @@ Reviewer: Codex agent.
 | HX-5: setup and repair use one open recovery path | Plain setup previews, applies, resumes, rolls back, retries, and reaches repeat no-op state. It does not require a hidden reinstall command or Store edit. | Satisfied for the isolated source boundary. | Prove the installed package and then run the separately approved live North Atlantic BuildOS test. |
 | HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same plan keeps backup evidence, unrelated routers, project identity, checkout identity, Store integrity, and earlier safety stops. | Preserved in source tests. | Three-platform installed proof remains open. |
 
+### Pull-Request Review Correction
+
+The first Stage 2 candidate at `9f859ac5c5ee65125704ca44a55d4341e730c15b` passed every source and installed-package job in workflow run `35898621758`. Pull-request review then found one material recovery defect. A completed removal with no backup, or with a wholly absent backup root, could return a blocked handoff that told the person to restore backup evidence that did not exist. That candidate is rejected for P8 acceptance.
+
+The corrective source result keeps the strict handoff only when exact backup evidence exists. It uses normal guarded setup when no backup was recorded or the one recorded backup root is wholly absent. Multiple backup roots and partial, changed, or symlinked backup evidence still stop before a new project operation.
+
+The same review corrected five smaller evidence and test defects:
+
+- Plan, backlog, risk, and evidence records now state the approved Stage 2 boundary.
+- HX-5 claims only A57 through A60. A61 and A62 remain open.
+- JSON action assertions use the emitted `path` field.
+- Package-version assertions read current package metadata instead of a fixed version string.
+- The active D-038 next action no longer asks for approval that the owner already gave.
+
+The local corrective checks passed:
+
+| Check | Result |
+| --- | --- |
+| P8 exact fixture | Passed: 11 tests. |
+| Focused P8, compatibility, and CLI suite | Passed: 3 files; 165 tests. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Stable full repository validation | Passed: 93 test files and 1 normal skipped file; 1,492 tests passed and 5 installed-platform tests skipped. Instruction-router and wave-numbering checks passed. The shared worktree also contained unrelated uncommitted Backlog Review changes, so the exact corrective commit still needs the pull-request workflow. |
+| Diff whitespace check | Passed. |
+
+The first full corrective validation attempt is not product evidence. A concurrent task changed the embedded Skill registry after Vitest loaded its starting digest. The later Skill tests correctly rejected the changed registry. The P8 suite passed 11 tests in that run. The registry then stayed stable for the passing full run above. A new exact candidate remains required.
+
 ### P8 Gate
 
 Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 2 tasks t8 through t12 and acceptance criteria A61 through A62 remain open.
 
-P7, P8, D-038, and W22 remain open. This Stage 1 result does not authorize staging, commit, push, package installation, pull-request workflow work, live North Atlantic BuildOS setup, or closeout.
+The owner approved staging, commit, push, pull-request review, and Stage 2 tasks t8 through t10. Local CLI installation, live North Atlantic BuildOS setup, closeout, publication, and release remain separate gates.
+
+P7, P8, D-038, and W22 remain open.

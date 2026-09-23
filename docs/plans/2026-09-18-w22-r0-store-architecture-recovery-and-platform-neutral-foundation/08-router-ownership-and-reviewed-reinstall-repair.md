@@ -83,4 +83,4 @@ After those gates pass, a separately approved live run must continue from the cu
 
 Human Experience Review must inspect the actual preview, approval, success, blocked, and repeat surfaces. The result must make the subject, ownership boundary, preserved content, effect, and next action clear without requiring the person to learn Store internals.
 
-The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof are complete. Stage 2 package work, local installation, live North Atlantic BuildOS setup, staging, commit, push, and closeout retain their separate gates.
+The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, and Stage 2 tasks t8 through t10. Local installation, live North Atlantic BuildOS setup, and closeout retain their separate gates.

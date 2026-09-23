@@ -30,7 +30,7 @@ import {
 } from "../src/store/installation-state";
 import type { AuditRemovableFile } from "../src/types";
 import { runUninstallCommand } from "../src/uninstall";
-import { hashText } from "../src/utils";
+import { hashText, readPackageMeta } from "../src/utils";
 import * as fileUtils from "../src/utils";
 import { cleanupTempDir, createTempDir, setTTY } from "./helpers";
 
@@ -192,16 +192,12 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
           ),
         ) as {
           status: string;
-          project: { actions: Array<{ relativePath: string }> };
+          project: { actions: Array<{ path: string; action: string }> };
         };
         expect(jsonPreview.status).toBe("planned");
-        expect(jsonPreview.project.actions).not.toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              relativePath: "services/service-00/AGENTS.md",
-            }),
-          ]),
-        );
+        expect(
+          jsonPreview.project.actions.map((action) => action.path),
+        ).not.toContain("services/service-00/AGENTS.md");
 
         setTTY(true);
         const appliedOutput = await captureStdout(() =>
@@ -213,7 +209,9 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
             fixture.targetDir,
           ]),
         );
-        expect(appliedOutput).toContain("Synced make-docs 2.0.1");
+        expect(appliedOutput).toContain(
+          `Synced make-docs ${readPackageMeta().version}`,
+        );
         expect(readFileSync(fixture.sharedRouterPath, "utf8")).toBe(
           fixture.sharedRouterContent,
         );
@@ -251,6 +249,71 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
           checkoutId: fixture.checkoutId,
           pendingOperation: null,
         });
+      } finally {
+        cleanupTempDir(fixture.fixtureRoot);
+      }
+    },
+    120_000,
+  );
+
+  test(
+    "uses ordinary guarded setup after a completed removal without backup",
+    async () => {
+      const fixture = await createCompletedRemovalFixture("managed-block", false);
+      try {
+        expect(
+          reviewCompletedRemovalHandoff(fixture.targetDir, fixture.storeRoot),
+        ).toEqual({ status: "none" });
+
+        await captureStdout(() =>
+          runCli([
+            "setup",
+            "--yes",
+            ...NONE_METHODS,
+            "--target",
+            fixture.targetDir,
+          ]),
+        );
+        expect(readInstallationStatus(fixture.targetDir, fixture.storeRoot)).toMatchObject({
+          status: "ready",
+          projectId: fixture.projectId,
+          checkoutId: fixture.checkoutId,
+          pendingOperation: null,
+        });
+        assertFileMapUnchanged(fixture.unrelatedRouters);
+      } finally {
+        cleanupTempDir(fixture.fixtureRoot);
+      }
+    },
+    120_000,
+  );
+
+  test(
+    "uses ordinary guarded setup when the completed removal backup root is absent",
+    async () => {
+      const fixture = await createCompletedRemovalFixture();
+      try {
+        rmSync(fixture.backupRoot, { recursive: true, force: true });
+        expect(
+          reviewCompletedRemovalHandoff(fixture.targetDir, fixture.storeRoot),
+        ).toEqual({ status: "none" });
+
+        await captureStdout(() =>
+          runCli([
+            "setup",
+            "--yes",
+            ...NONE_METHODS,
+            "--target",
+            fixture.targetDir,
+          ]),
+        );
+        expect(readInstallationStatus(fixture.targetDir, fixture.storeRoot)).toMatchObject({
+          status: "ready",
+          projectId: fixture.projectId,
+          checkoutId: fixture.checkoutId,
+          pendingOperation: null,
+        });
+        assertFileMapUnchanged(fixture.unrelatedRouters);
       } finally {
         cleanupTempDir(fixture.fixtureRoot);
       }
@@ -616,6 +679,7 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
 
 async function createCompletedRemovalFixture(
   routerMode: "managed-block" | "missing-managed-block" = "managed-block",
+  backup = true,
 ): Promise<CompletedRemovalFixture> {
   const fixtureRoot = createTempDir("make-docs-p8-router-reinstall-");
   const targetDir = path.join(fixtureRoot, "project");
@@ -712,7 +776,7 @@ async function createCompletedRemovalFixture(
       homeDir,
       storeRoot,
       auditReport: audit,
-      backup: true,
+      backup,
       permissions: "allow-all",
       now: NOW,
     }),
@@ -720,17 +784,19 @@ async function createCompletedRemovalFixture(
   expect(removal).toContain("make-docs setup remove");
 
   const backupRoot = path.join(targetDir, ".make-docs/backup/2026-09-23");
-  expect(existsSync(backupRoot)).toBe(true);
+  expect(existsSync(backupRoot)).toBe(backup);
   const backupRouters = new Map<string, string>();
-  for (let index = 0; index < BACKUP_ROUTER_COUNT; index += 1) {
-    const relativePath = `legacy/managed-${String(index).padStart(2, "0")}/AGENTS.md`;
-    const sourcePath = path.join(targetDir, relativePath);
-    const backupPath = path.join(backupRoot, relativePath);
-    expect(existsSync(sourcePath)).toBe(false);
-    const content = readFileSync(backupPath, "utf8");
-    backupRouters.set(backupPath, content);
+  if (backup) {
+    for (let index = 0; index < BACKUP_ROUTER_COUNT; index += 1) {
+      const relativePath = `legacy/managed-${String(index).padStart(2, "0")}/AGENTS.md`;
+      const sourcePath = path.join(targetDir, relativePath);
+      const backupPath = path.join(backupRoot, relativePath);
+      expect(existsSync(sourcePath)).toBe(false);
+      const content = readFileSync(backupPath, "utf8");
+      backupRouters.set(backupPath, content);
+    }
   }
-  expect(backupRouters.size).toBe(BACKUP_ROUTER_COUNT);
+  expect(backupRouters.size).toBe(backup ? BACKUP_ROUTER_COUNT : 0);
 
   return {
     fixtureRoot,
