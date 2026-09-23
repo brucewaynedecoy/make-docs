@@ -836,7 +836,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Reopened on 2026-09-22. Current product authority already requires one open recovery path. W22 R0 P7 owns the bounded correction for legacy-Store bridge order, direct machine-setup independence, harness-intent commit timing, and recovery-action accuracy. | Implement and prove [W22 R0 P7](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/07-setup-bridge-order-and-recovery-loop-repair.md). Do not retry the current reciprocal commands or edit the Store by hand. |
+| Open | Current product authority requires one open recovery path. W22 R0 P7 owns setup order, cross-project Store isolation, machine-setup independence, intent timing, and recovery-action accuracy. W22 R0 P8 owns target-scoped router ownership and the reviewed reinstall handoff after completed removal. | Review and, only after separate owner approval, implement [W22 R0 P8](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md). Keep P7 open. Do not edit the Store or quarantine unrelated routers by hand. |
 
 **Issue:** Full setup can ask for machine MCP, Skills, and resources and then reject an existing project's Skill change without applying any valid independent setup. Focused machine setup can label MCP methods available and later block them because it cannot verify the active packaged executable. The verifier rejects a symbolic-link launch path before it resolves the declared package bin, drops the exact error, and recommends reinstall. A normal global npm install creates the same link again. Agent guidance can then ask for a method already selected or stop the whole task when only one Store-backed operation is unavailable.
 
@@ -860,6 +860,12 @@ Code anchors:
 
 **Latest close condition:** In one shared Store, leave an unrelated checkout in recovery-required state and prove that plain setup can restore or resume the current target, apply its reviewed computer work, and preserve the unrelated operation unchanged. Prove that a changed post-Store computer review requires another approval. Prove that a ready target with no pending operation never receives project-state recovery guidance. Repeat the exact installed result on Windows, macOS, and Linux before another live closeout claim.
 
+**P8 installed counterevidence, 2026-09-23:** The repaired `2.0.1` CLI completed plain setup in the Make Docs project. In North Atlantic BuildOS, setup reviewed a `modified-v1` plan and explicit router conflict choices, but apply rejected the same plan as `ambiguous-ownership`. A separately reviewed `setup remove --backup` then removed 67 manifest-owned files, preserved 12 project-owned paths, created 67 verified backup copies, kept the existing project and checkout identities, and left no pending operation or lock. Plain setup from that completed state classified the tree as `missing-manifest-recognizable`. It treated 52 router files inside `.make-docs/backup/**` and 36 unrelated active BuildOS routers as ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose.
+
+**P8 decision:** Inactive backup roots are not part of the active installation surface. Router ownership is exact-path and evidence-specific. Only router paths that the reviewed plan can change enter ownership review. A shared target router remains project-owned outside its exact Make Docs managed block. A completed reviewed removal and verified backup for the same checkout form the trusted handoff into a new plain-setup install plan. The flow preserves the project and checkout identities and does not add a broad force, reset, detach, quarantine, or repository-cleaning command.
+
+**P8 close condition:** Reproduce the completed-removal state in isolation. Prove that backup routers and unrelated non-target routers do not block setup, target router changes preserve all non-Make-Docs bytes, malformed target markers stop before operation creation, and plain setup reaches one reviewed reinstall action without an unavailable command or manual Store edit. One exact package must pass this contract on Windows, macOS, and Linux. After separate owner approval, the same candidate must complete the current North Atlantic BuildOS setup while preserving its backup, project-owned router content, project identity, checkout identity, and a clean terminal Store state.
+
 Code anchors:
 
 - `packages/cli/src/harness-access/contract.ts`
@@ -870,6 +876,7 @@ Code anchors:
 - `packages/cli/src/operations/harness-policy.ts`
 - `packages/cli/src/store/bootstrap.ts`
 - `packages/cli/src/store/installation-state.ts`
+- `packages/cli/src/compatibility.ts`
 - `packages/cli/src/migration.ts`
 - `packages/cli/tests/cli.test.ts`
 - `packages/cli/tests/p6-global-store-lifecycle.test.ts`

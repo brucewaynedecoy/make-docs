@@ -8,6 +8,7 @@ import { runBackupCommand } from "./backup";
 import {
   classifyCompatibilityState,
   formatCompatibilityClassification,
+  scopeCompatibilityToInstallPlan,
   type CompatibilityClassification,
 } from "./compatibility";
 import {
@@ -55,7 +56,11 @@ import {
   loadSqliteDriver,
   type StoreCompatibilityBridgePreview,
 } from "./store";
-import { readInstallationStatus } from "./store/installation-state";
+import {
+  readInstallationStatus,
+  reviewCompletedRemovalHandoff,
+  type CompletedRemovalHandoffReview,
+} from "./store/installation-state";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -666,6 +671,8 @@ export async function runCli(
   let compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
+  let completedRemovalHandoff = reviewCompletedRemovalHandoff(targetDir, storeRoot);
+  assertCompletedRemovalHandoffUsable(completedRemovalHandoff);
   const predictedPostBridgeManifest = previewPostBridgeInstallationManifest(
     targetDir,
     storeRoot,
@@ -674,6 +681,11 @@ export async function runCli(
   let existingManifest = predictedPostBridgeManifest ?? (
     compatibilityClassification.evidence.manifestTrust.parseable
       ? loadManifest(targetDir) ?? legacyState.manifest
+      : null
+  );
+  let planningManifest = existingManifest ?? (
+    completedRemovalHandoff.status === "ready"
+      ? completedRemovalHandoff.beforeManifest
       : null
   );
   let freshInstallTarget = isFreshInstallTarget({
@@ -702,6 +714,14 @@ export async function runCli(
     );
   }
 
+  if (!predictedPostBridgeManifest && completedRemovalHandoff.status !== "ready") {
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
+  }
+
   // Pre-v2 detection on `setup` and `setup reconfigure` (R-MIG-2): a
   // fingerprinted pre-v2 install gets the warning-and-choice flow — back up
   // and install the latest version (recommended) or cancel — before any
@@ -728,21 +748,13 @@ export async function runCli(
     }
   }
 
-  if (!predictedPostBridgeManifest) {
-    guardCompatibilityDisposition({
-      classification: compatibilityClassification,
-      interactive,
-      freshInstallTarget,
-    });
-  }
-
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
       "`make-docs setup reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs setup reconfigure` interactively.",
     );
   }
 
-  const resolvedSelections = resolveSelections({ parsed, existingManifest });
+  const resolvedSelections = resolveSelections({ parsed, existingManifest: planningManifest });
   let installationStatus = readInstallationStatus(targetDir, storeRoot);
   let projectState: SetupProjectState = freshInstallTarget
     ? "fresh"
@@ -751,7 +763,7 @@ export async function runCli(
     : compatibilityClassification.state === "modified-v1"
       ? "drifted"
       : compatibilityClassification.state === "partial-install" ||
-          existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+          planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
         ? "partial"
         : "current";
   let selections = applySkillRegistrySelectionMetadata(
@@ -765,7 +777,7 @@ export async function runCli(
   );
   let selectionSource = describeSelectionSource({
     parsed,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
   });
   let interactiveMethodSelections: Partial<Record<"codex" | "claude-code", HarnessMethodSelection>> = {};
@@ -792,7 +804,7 @@ export async function runCli(
       });
       return true;
     };
-    if (!existingManifest && installIntent === "apply") {
+    if (!planningManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
@@ -847,7 +859,7 @@ export async function runCli(
   }
 
   const skillReconciliation = reconcileExistingInstallSkillSelection({
-    existingManifest,
+    existingManifest: planningManifest,
     selections,
   });
   selections = skillReconciliation.selections;
@@ -900,7 +912,7 @@ export async function runCli(
   let plan = await planInstall({
     targetDir,
     selections,
-    existingManifest,
+    existingManifest: planningManifest,
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
     preserveExistingSkills: skillReconciliation.routed,
@@ -921,7 +933,7 @@ export async function runCli(
       plan = await planInstall({
         targetDir,
         selections,
-        existingManifest,
+        existingManifest: planningManifest,
         packageMeta,
         managedFileConflictResolutions,
         skillRegistry: effectiveSkillRegistry.registry,
@@ -929,6 +941,25 @@ export async function runCli(
         operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
       });
     }
+  }
+
+  compatibilityClassification = scopeCompatibilityToInstallPlan({
+    classification: compatibilityClassification,
+    plan,
+    completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+  });
+  freshInstallTarget = isFreshInstallTarget({
+    targetDir,
+    existingManifest,
+    installIntent,
+    classification: compatibilityClassification,
+  });
+  if (!predictedPostBridgeManifest) {
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
   }
 
   if (!hasEffectiveCapabilities(plan.profile)) {
@@ -982,20 +1013,29 @@ export async function runCli(
       );
     }
     compatibilityClassification = await classifyCompatibilityState({ targetDir });
+    completedRemovalHandoff = reviewCompletedRemovalHandoff(targetDir, storeRoot);
+    assertCompletedRemovalHandoffUsable(completedRemovalHandoff);
     existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
       ? loadManifest(targetDir) ?? legacyState.manifest
       : null;
+    planningManifest = existingManifest ?? (
+      completedRemovalHandoff.status === "ready"
+        ? completedRemovalHandoff.beforeManifest
+        : null
+    );
     freshInstallTarget = isFreshInstallTarget({
       targetDir,
       existingManifest,
       installIntent,
       classification: compatibilityClassification,
     });
-    guardCompatibilityDisposition({
-      classification: compatibilityClassification,
-      interactive,
-      freshInstallTarget,
-    });
+    if (completedRemovalHandoff.status !== "ready") {
+      guardCompatibilityDisposition({
+        classification: compatibilityClassification,
+        interactive,
+        freshInstallTarget,
+      });
+    }
     installationStatus = readInstallationStatus(targetDir, storeRoot);
     projectState = freshInstallTarget
       ? "fresh"
@@ -1004,14 +1044,14 @@ export async function runCli(
         : compatibilityClassification.state === "modified-v1"
           ? "drifted"
           : compatibilityClassification.state === "partial-install" ||
-              existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+              planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
             ? "partial"
             : "current";
 
     plan = await planInstall({
       targetDir,
       selections,
-      existingManifest,
+      existingManifest: planningManifest,
       packageMeta,
       ...(managedFileConflictResolutions ? { managedFileConflictResolutions } : {}),
       skillRegistry: effectiveSkillRegistry.registry,
@@ -1035,7 +1075,7 @@ export async function runCli(
         plan = await planInstall({
           targetDir,
           selections,
-          existingManifest,
+          existingManifest: planningManifest,
           packageMeta,
           managedFileConflictResolutions,
           skillRegistry: effectiveSkillRegistry.registry,
@@ -1044,6 +1084,23 @@ export async function runCli(
         });
       }
     }
+
+    compatibilityClassification = scopeCompatibilityToInstallPlan({
+      classification: compatibilityClassification,
+      plan,
+      completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+    });
+    freshInstallTarget = isFreshInstallTarget({
+      targetDir,
+      existingManifest,
+      installIntent,
+      classification: compatibilityClassification,
+    });
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
 
     if (!hasEffectiveCapabilities(plan.profile)) {
       throw new Error("At least one capability must remain enabled.");
@@ -1080,7 +1137,7 @@ export async function runCli(
   if (!jsonOutput) printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
     packageName: plan.packageName,
     packageVersion: plan.packageVersion,
@@ -1135,7 +1192,7 @@ export async function runCli(
   if (interactive && hasInstallMutation) {
     const proceed = await confirm({
       message: getApplyConfirmationMessage({
-        existingManifest,
+        existingManifest: planningManifest,
         installIntent,
       }),
       initialValue: true,
@@ -1276,7 +1333,7 @@ export async function runCli(
       printPlan({
         actions: plan.actions,
         dryRun: false,
-        existingManifest,
+        existingManifest: planningManifest,
         installIntent,
         packageName: plan.packageName,
         packageVersion: plan.packageVersion,
@@ -1310,7 +1367,7 @@ export async function runCli(
       projectApproved = parsed.yes || !hasInstallMutation;
       if (interactive && hasInstallMutation) {
         const proceed = await confirm({
-          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          message: getApplyConfirmationMessage({ existingManifest: planningManifest, installIntent }),
           initialValue: true,
           active: "Yes",
           inactive: "No",
@@ -1358,7 +1415,7 @@ export async function runCli(
         printPlan({
           actions: plan.actions,
           dryRun: false,
-          existingManifest,
+          existingManifest: planningManifest,
           installIntent,
           packageName: plan.packageName,
           packageVersion: plan.packageVersion,
@@ -1391,7 +1448,7 @@ export async function runCli(
       projectApproved = parsed.yes || !hasInstallMutation;
       if (interactive && hasInstallMutation) {
         const proceed = await confirm({
-          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          message: getApplyConfirmationMessage({ existingManifest: planningManifest, installIntent }),
           initialValue: true,
           active: "Yes",
           inactive: "No",
@@ -1428,7 +1485,9 @@ export async function runCli(
   }
   let applied: ReturnType<typeof applyInstallPlan>;
   try {
-    applied = !freshInstallTarget && hasInstallMutation
+    applied = !freshInstallTarget &&
+        hasInstallMutation &&
+        completedRemovalHandoff.status !== "ready"
       ? executeInstallPlanMigration({
           projectRoot: targetDir,
           storeRoot,
@@ -1490,7 +1549,7 @@ export async function runCli(
 
   if (hasInstallMutation && !jsonOutput) {
     writeApplyCompletionSummary({
-      existingManifest,
+      existingManifest: planningManifest,
       installIntent,
       manifest: applied.manifest,
       targetDir,
@@ -2684,6 +2743,23 @@ function isFreshInstallTarget(options: {
     filesystemTrust.recognizableManagedPaths.length === 0 &&
     filesystemTrust.ambiguousFallbackPaths.length === 0 &&
     filesystemTrust.nonMakeDocsPathCollisions.length === 0
+  );
+}
+
+function assertCompletedRemovalHandoffUsable(
+  review: CompletedRemovalHandoffReview,
+): void {
+  if (review.status !== "blocked") {
+    return;
+  }
+
+  throw new Error(
+    [
+      "The completed make-docs removal cannot be used for this reinstall.",
+      `Operation: ${review.operationId}`,
+      ...review.blockers.map((blocker) => `- ${blocker}`),
+      `Next: ${review.nextAction}`,
+    ].join("\n"),
   );
 }
 

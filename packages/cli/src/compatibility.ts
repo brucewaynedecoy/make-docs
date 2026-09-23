@@ -1,6 +1,6 @@
 import { previewLegacyInstallationState } from "./store/legacy-installation";
 import { readInstallationManifest } from "./store/installation-state";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { createAuditReport } from "./audit";
@@ -17,6 +17,7 @@ import type {
   CompatibilityDisposition,
   CompatibilitySourceState,
   InstallManifest,
+  InstallPlan,
   ManifestFileEntry,
   ManifestSystemAssetEntry,
 } from "./types";
@@ -118,8 +119,6 @@ const OPTIONAL_LOCAL_BOOTSTRAP_PATHS = new Set([
   ".make-docs/templates/custom",
 ]);
 
-const NON_PRODUCT_AGENT_FILENAMES = new Set(["AGENTS.md", "CLAUDE.md"]);
-
 export async function classifyCompatibilityState(options: {
   targetDir: string;
   homeDir?: string;
@@ -149,6 +148,90 @@ export async function classifyCompatibilityState(options: {
     rawManifest,
     manifest: rawManifest.manifest,
   });
+}
+
+export function scopeCompatibilityToInstallPlan(options: {
+  classification: CompatibilityClassification;
+  plan: InstallPlan;
+  completedRemovalHandoff: boolean;
+}): CompatibilityClassification {
+  const { classification, plan, completedRemovalHandoff } = options;
+  if (!completedRemovalHandoff) {
+    return classification;
+  }
+
+  const plannedActions = new Map(
+    plan.actions.map((action) => [action.relativePath, action]),
+  );
+  const isUnresolvedPlannedPath = (relativePath: string): boolean => {
+    const action = plannedActions.get(relativePath);
+    return Boolean(
+      action &&
+      (action.type === "skip-conflict" || plan.stops?.includes(relativePath)),
+    );
+  };
+  const filesystemTrust = classification.evidence.filesystemTrust;
+  const ambiguousFallbackPaths = filesystemTrust.ambiguousFallbackPaths.filter((relativePath) =>
+    isUnresolvedPlannedPath(relativePath)
+  );
+  const nonMakeDocsPathCollisions = filesystemTrust.nonMakeDocsPathCollisions.filter((relativePath) =>
+    isUnresolvedPlannedPath(relativePath)
+  );
+  const reasons = filesystemTrust.reasons.filter(
+    (reason) =>
+      !reason.startsWith("Ambiguous fallback paths:") &&
+      !reason.startsWith("Non-make-docs path collisions:") &&
+      !reason.startsWith("Completed reviewed removal:"),
+  );
+  if (ambiguousFallbackPaths.length > 0) {
+    reasons.push(`Ambiguous planned fallback paths: ${ambiguousFallbackPaths.join(", ")}.`);
+  }
+  if (nonMakeDocsPathCollisions.length > 0) {
+    reasons.push(`Non-make-docs planned path collisions: ${nonMakeDocsPathCollisions.join(", ")}.`);
+  }
+  if (completedRemovalHandoff) {
+    reasons.push(
+      "Completed reviewed removal: the same verified checkout and backup provide the plain-setup reinstall handoff.",
+    );
+  }
+
+  const disposition =
+    (classification.state === "missing-manifest-recognizable" ||
+      classification.state === "unknown-shape") &&
+      ambiguousFallbackPaths.length === 0 &&
+      nonMakeDocsPathCollisions.length === 0
+      ? "migrate-with-review"
+      : classification.disposition;
+  const evidence: CompatibilityEvidence = {
+    ...classification.evidence,
+    filesystemTrust: {
+      ...filesystemTrust,
+      managedBlocksValid:
+        classification.state === "missing-manifest-recognizable" ||
+        classification.state === "unknown-shape"
+          ? ambiguousFallbackPaths.length === 0
+          : filesystemTrust.managedBlocksValid,
+      ambiguousFallbackPaths,
+      nonMakeDocsPathCollisions,
+      reasons,
+    },
+  };
+
+  return {
+    ...classification,
+    disposition,
+    evidence,
+    printableEvidence: [
+      `state=${classification.state}`,
+      `disposition=${disposition}`,
+      ...formatAuditSkillSelectionEvidence(classification.auditReport),
+      ...evidence.manifestTrust.reasons.map((reason) => `manifest: ${reason}`),
+      ...evidence.filesystemTrust.reasons.map((reason) => `filesystem: ${reason}`),
+      ...evidence.bootstrapTrust.reasons.map((reason) => `bootstrap: ${reason}`),
+      ...evidence.skillTrust.reasons.map((reason) => `skills: ${reason}`),
+      ...evidence.providerCacheTrust.reasons.map((reason) => `provider-cache: ${reason}`),
+    ],
+  };
 }
 
 export function formatCompatibilityClassification(
@@ -666,21 +749,6 @@ function evaluateFallbackRecognition(targetDir: string): {
     }
   }
 
-  for (const relativePath of walkFiles(targetDir)) {
-    if (
-      !LEGACY_RECOGNITION_FINGERPRINT_PATHS.includes(
-        relativePath as (typeof LEGACY_RECOGNITION_FINGERPRINT_PATHS)[number],
-      ) &&
-      NON_PRODUCT_AGENT_FILENAMES.has(path.basename(relativePath)) &&
-      !looksCanonicalMakeDocsContent(
-        relativePath,
-        readFileSync(path.join(targetDir, relativePath), "utf8"),
-      )
-    ) {
-      nonMakeDocsPathCollisions.push(relativePath);
-    }
-  }
-
   const reasons: string[] = [];
   pushReason(
     reasons,
@@ -849,29 +917,6 @@ function looksCanonicalMakeDocsContent(relativePath: string, content: string): b
   }
 
   return false;
-}
-
-function walkFiles(rootDir: string): string[] {
-  if (!existsSync(rootDir)) {
-    return [];
-  }
-
-  const result: string[] = [];
-  const stack = [rootDir];
-  while (stack.length > 0) {
-    const current = stack.pop()!;
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      const absolutePath = path.join(current, entry.name);
-      if (entry.isDirectory()) {
-        stack.push(absolutePath);
-        continue;
-      }
-      if (entry.isFile()) {
-        result.push(path.relative(rootDir, absolutePath).split(path.sep).join("/"));
-      }
-    }
-  }
-  return result.sort();
 }
 
 function pushReason(

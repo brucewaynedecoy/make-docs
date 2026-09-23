@@ -60,6 +60,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-SETUP-16 (MUST): `setup` and `setup system` accept `--generic-mcp-client <label>` as the canonical non-interactive input for one bounded generic MCP profile. Interactive setup offers `Generic MCP client`. Machine setup records reviewed machine intent and prints the standard client-owned configuration object. Project setup records separate project intent for the same label. Make Docs does not edit unknown client files.
 - R-SETUP-17 (MUST): an active agent task that receives `store-not-configured` can show the exact selected-harness or generic-client setup command, continue independent Store-free work, refresh access after setup, and retry only the affected Store-backed operation. `store-unavailable`, `store-unsafe`, and `store-denied` keep the same scoped-stop rule with their own exact action.
 - R-SETUP-18 (MUST): Make Docs CLI and Store-access remediation does not require Store, MCP, a harness receipt, Store-backed lifecycle state, or successful setup in the maintainer checkout. Repository authority, direct package commands, temporary homes, and temporary Store roots remain sufficient. A missing Store is evidence, not a remediation blocker.
+- R-SETUP-19 (MUST): when the same verified checkout has a completed reviewed removal and verified backup evidence, plain `make-docs setup` presents the new install plan and its router-block effects. It does not require an unexposed `backup-and-reinstall` command, manual Store edits, or quarantine of unrelated router files. Apply creates a new operation only after that plan passes current-state, ownership, path, backup, approval, and stale-state checks.
 
 ### Setup Coordination and Scoped Stops (R-SETUP-COMP)
 
@@ -293,6 +294,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-23 — W22 R0 P8
+
+- Affected requirement or section: `Setup Command Contract`
+- Previous contract: Setup was the state-aware entry for fresh and recoverable installs, while removal and backup were separate flows, but the public command contract did not define the next plain-setup action after a completed reviewed removal.
+- Replacement contract: Plain setup recognizes the completed removal and verified backup for the same checkout, shows a new reviewed install plan with exact router-block effects, and applies it without an unavailable command, manual Store edit, or unrelated-router quarantine.
+- Rationale: The supported recovery entry must expose an action that can change the current condition. Internal disposition names cannot substitute for a reachable public flow.
+- Source: [W22 R0 P8 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md)
 
 ### 2026-09-21 — W23 R0 P5 Cache Operation Admission
 

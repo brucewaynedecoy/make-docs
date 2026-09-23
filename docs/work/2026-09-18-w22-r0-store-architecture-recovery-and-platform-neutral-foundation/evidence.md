@@ -1444,3 +1444,52 @@ Reviewer: Codex agent.
 Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 pass in source. Task t20 and A56 remain open. The next gate is one exact repaired package with comparable Windows, macOS, and Linux results. Installation into the owner's local CLI and the live plain-setup retry remain separate later actions.
 
 P7 and D-038 remain open. This repair does not authorize staging, commit, push, pull-request work, installation, live Store mutation, or closeout.
+
+## P8 Router Ownership and Reviewed Reinstall Repair
+
+### Stage 1 Source Result
+
+- Active compatibility discovery no longer scans every `AGENTS.md` or `CLAUDE.md` in the repository. Backup routers and unrelated project routers are not active ownership evidence.
+- The completed `setup remove --backup` operation is a read-only handoff only when its sealed plan, before and after ledgers, applied steps, backup root, exact backup files, digests, project identity, checkout identity, and current result all verify.
+- Plain setup uses the verified before-ledger as planning input. It preserves the current Store project and checkout identities.
+- Only unresolved exact plan targets retain ownership ambiguity. A reviewed shared router update changes only the Make Docs managed block. It preserves all other bytes.
+- A missing managed block becomes an explicit `update` only after reviewed conflict resolution. Malformed or duplicated markers remain a stop.
+- Changed backup bytes, backup symlinks, changed project identity, and changed target bytes fail before a new project operation.
+- An interrupted reinstall supports both resume and rollback. Rollback restores the completed-removal handoff. Plain setup can then run again.
+- The public continuation remains `make-docs setup`. P8 adds no reset, force, detach, quarantine, database-edit, or unrelated-router move command.
+- The deterministic command changed under the existing public setup path. No shipped agent resource needed a new command or direct-router-edit instruction.
+
+### Exact Isolated Fixture
+
+The P8 fixture creates a real current Store installation. It records the real project and checkout identifiers. It then completes a real reviewed `setup remove --backup` operation.
+
+The fixture adds 52 managed backup router files and 36 unrelated active project router files. It preserves shared-router project content outside the Make Docs block. It verifies the backup before plain setup. The applied reinstall keeps all unrelated router bytes and backup bytes unchanged.
+
+### Stage 1 Validation
+
+| Check | Result |
+| --- | --- |
+| P8 exact fixture | Passed: 9 of 9 tests. |
+| Focused P8, compatibility, and CLI suite | Passed: 3 files; 163 tests passed. |
+| TypeScript check | Passed with `npx tsc -p packages/cli/tsconfig.json --noEmit`. |
+| Package build | Passed with `npm run build --workspace @brucewaynedecoy/make-docs`. |
+| Full default validation | Passed: 93 test files passed and 1 file used its normal installed-platform skip guard; 1,488 tests passed and 5 installed-platform tests skipped. Instruction-router and wave-numbering checks passed. |
+| PRD authority, links, and path hygiene | Passed in the full repository test run. |
+| Diff whitespace check | Passed. |
+| Corrective source review | Passed. The review added explicit rollback, backup-symlink, and project-identity cases. It kept the earlier missing-manifest and schema-bridge safety stops. |
+
+### Stage 1 Human Experience Review
+
+Reviewer: Codex agent.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Human preview names `migrate-with-review`. Blocked backup and identity cases state the failed evidence and one setup retry action after restoration. | Satisfied for the isolated source boundary. | Review the same output from one exact installed candidate on Windows, macOS, and Linux. |
+| HX-5: setup and repair use one open recovery path | Plain setup previews, applies, resumes, rolls back, retries, and reaches repeat no-op state. It does not require a hidden reinstall command or Store edit. | Satisfied for the isolated source boundary. | Prove the installed package and then run the separately approved live North Atlantic BuildOS test. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same plan keeps backup evidence, unrelated routers, project identity, checkout identity, Store integrity, and earlier safety stops. | Preserved in source tests. | Three-platform installed proof remains open. |
+
+### P8 Gate
+
+Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 2 tasks t8 through t12 and acceptance criteria A61 through A62 remain open.
+
+P7, P8, D-038, and W22 remain open. This Stage 1 result does not authorize staging, commit, push, package installation, pull-request workflow work, live North Atlantic BuildOS setup, or closeout.

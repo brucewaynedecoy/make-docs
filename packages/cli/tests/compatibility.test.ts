@@ -115,9 +115,8 @@ describe("compatibility classifier", () => {
     expect(ambiguous.evidence.filesystemTrust.ambiguousFallbackPaths).toContain(
       "docs/AGENTS.md",
     );
-    expect(collision.evidence.filesystemTrust.nonMakeDocsPathCollisions).toContain(
-      "notes/AGENTS.md",
-    );
+    expect(collision.evidence.filesystemTrust.nonMakeDocsPathCollisions).toEqual([]);
+    expect(collision.printableEvidence.join("\n")).not.toContain("notes/AGENTS.md");
   });
 
   it("trusts a current schema-4 router refresh only with valid separate router ownership", async () => {
