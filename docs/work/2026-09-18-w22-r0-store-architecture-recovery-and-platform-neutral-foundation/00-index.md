@@ -66,7 +66,7 @@ The earlier result covers the conflicting planner and checkpoint-3 decision, ope
 - Route: `implementation-loop`
 - Next step: Identify one exact repaired candidate and run the required installed proof on Windows, macOS, and Linux.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: Stage 1 source repair, authentic package fixtures, validation, and corrective review pass. P7 still needs exact candidate identity and real-platform installed evidence.
-- Coordinate Handoff: Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed proof.
+- Why: Stage 3 source repair, authentic package fixtures, validation, and corrective review pass. P7 still needs exact candidate identity and real-platform installed evidence.
+- Coordinate Handoff: Carry W22 R0 P7 through Stage 3 exact-candidate identity and three-platform installed proof.
 
-Reopening the completed wave is an explicit lifecycle departure. New installed evidence invalidated the first P7 Stage 1 completion claim. The corrected Stage 1 result now passes. P7 and D-038 remain open through Stage 2 exact-candidate and three-platform installed proof. Local `just install-cli` and live plain setup remain separate later actions.
+Reopening the completed wave is an explicit lifecycle departure. New installed evidence invalidated the first P7 Stage 1 completion claim. The corrected Stage 3 result now passes. P7 and D-038 remain open through Stage 3 exact-candidate and three-platform installed proof. Local `just install-cli` and live plain setup remain separate later actions.
