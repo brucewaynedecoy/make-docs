@@ -1562,6 +1562,22 @@ The corrected source uses the verified before-manifest for fresh-install detecti
 | Product authority and documentation checks | PRD authority, content path hygiene, instruction routers, and wave numbering passed. |
 | Diff whitespace check | Passed. |
 
+### Windows Installed-Package Timeout Correction
+
+Commit `11cf23c9db275387f6af4cab20eaaa2c87d861e8` was tested in Platform Safety run [35927230235](https://github.com/brucewaynedecoy/make-docs/actions/runs/35927230235). The Ubuntu, macOS, and Windows source contracts passed. The exact candidate build passed. The Ubuntu and macOS installed-package contracts passed.
+
+The Windows installed-package job failed in its required source safety matrix. One existing projection lifecycle test exceeded the shared 120-second per-test limit. That test runs 18 setup and reconfigure cycles. It took about 177 seconds on this runner. The other 225 tests in the matrix passed. The final evidence comparison then failed because the Windows package proof did not run and no Windows evidence artifact existed.
+
+The same Windows test matrix passed earlier in this workflow as the source-platform contract. The failure therefore showed a runner-time variance around a known long test. It did not show a product assertion failure.
+
+The bounded repair gives only that long test a 240-second limit. The shared workflow limit remains 120 seconds for all other tests.
+
+| Check | Result |
+| --- | --- |
+| Exact long test | Passed: 1 of 1 tests; 22 unrelated tests skipped. |
+| Full projection lifecycle file | Passed: 23 of 23 tests. |
+| Exact-candidate three-platform proof | Still open. A new workflow run must pass before t18 or A61 through A62 can pass. |
+
 ### P8 Gate
 
 Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 3 source tasks t13 through t17 and acceptance criteria A63 through A64 pass. Stage 2 tasks t8 through t12, Stage 3 tasks t18 through t19, and acceptance criteria A61, A62, and A65 remain open for the new exact source.

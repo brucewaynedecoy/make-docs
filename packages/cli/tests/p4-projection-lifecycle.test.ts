@@ -577,7 +577,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
         }
       }
     }
-  });
+  }, 240_000);
 
   it("repairs only the docs/assets root routers and preserves Persona testing content", async () => {
     const targetDir = mkdtempSync(path.join(os.tmpdir(), "make-docs-p4-assets-root-"));
