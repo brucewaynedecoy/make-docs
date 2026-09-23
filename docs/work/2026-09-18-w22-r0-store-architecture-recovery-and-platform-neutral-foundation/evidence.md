@@ -1576,7 +1576,26 @@ The bounded repair gives only that long test a 240-second limit. The shared work
 | --- | --- |
 | Exact long test | Passed: 1 of 1 tests; 22 unrelated tests skipped. |
 | Full projection lifecycle file | Passed: 23 of 23 tests. |
-| Exact-candidate three-platform proof | Still open. A new workflow run must pass before t18 or A61 through A62 can pass. |
+| Exact-candidate three-platform proof | Passed for commit `a258e2ff710e9e74e1132647148ea5ce119ce0b9` in Platform Safety run [35929502366](https://github.com/brucewaynedecoy/make-docs/actions/runs/35929502366). All source, candidate-build, installed-package, and comparison jobs passed. That candidate was later rejected because of the no-harness review defect below. |
+
+### Pull-Request No-Harness Correction
+
+CodeRabbit found that the selection wizard repeated the harness step when a user selected no harnesses. This contradicted the product contract. A user can select `none` and continue to use project routers, optional Skills, and Store-free resource commands.
+
+The repeated step also blocked P8 recovery. A reviewed reinstall with unknown resource intent could not reach the shared options step when both harnesses remained disabled. The user therefore could not select the required project resources.
+
+The corrected wizard applies the empty harness set and continues. The system method review already handles this state. It selects `none` for both harnesses and makes no native harness changes. The options step then remains available for Skills and project-resource choices.
+
+| Check | Result |
+| --- | --- |
+| Selection wizard suite | Passed: 23 of 23 tests. The no-harness case now proves one harness review, one options review, and both harnesses disabled. |
+| P8 exact fixture | Passed: 14 of 14 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,495 tests; 1 installed-package file and its 5 platform cases used their normal source skip guard. |
+| Default package validation | Passed: 53 of 53 tests. |
+| TypeScript and package build | Passed. |
+| Product authority and documentation checks | PRD authority, path hygiene, instruction routers, and wave numbering passed. |
+| Diff whitespace check | Passed. |
+| Exact-candidate three-platform proof | Open. A new workflow run must pass for this corrected source. |
 
 ### P8 Gate
 
