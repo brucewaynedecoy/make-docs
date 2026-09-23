@@ -30,7 +30,7 @@ P8 uses the completed removal operation and verified backup as the handoff into 
 - Executor: Compatibility and setup owners implement. Store, router, platform, and validation owners review their boundaries.
 - Accepted obligation or deferral route: None. P8 cannot close while plain setup requires an unavailable command, unrelated router quarantine, manual Store edits, or loss of project-owned bytes.
 
-Authority: [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md), [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md), [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), and [D-038](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop).
+Authority: [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md), [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md), [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md#resource-selection-and-applied-ownership), [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), and [D-038](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop).
 
 ## Current Testing Decisions
 
@@ -57,6 +57,7 @@ Performance evidence lifecycle fields:
 
 - [03 Open Questions and Risk Register](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop)
 - [18 Compatibility Classification and Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md)
+- [24 Project Configuration and Convention Overlay](../../prd/24-project-configuration-and-convention-overlay.md#resource-selection-and-applied-ownership)
 - [38 Global Store and Project State](../../prd/38-global-store-and-project-state.md#transfer-and-recovery-r-xfer)
 - [39 CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md#setup-command-contract-r-setup)
 
@@ -136,3 +137,37 @@ Performance evidence lifecycle fields:
 - Explicit human acceptance gate: None unless the owner creates one before the live run.
 - Evidence report: Link the P8 central evidence section and exact three-platform workflow.
 - Phase / capability status: P8, P7, D-038, and W22 remain open until A57 through A62 pass and the owner authorizes closeout.
+
+## Stage 3 - Live Acceptance Correction
+
+### Tasks
+
+- [x] t13: Record the live defect. The first repaired setup completed, but it did not retain the prior local resource selection or recreate proved `docs/assets/` routers. A later setup could therefore plan removal of current local resources.
+- [x] t14: Recover the prior resource selection only from exact canonical resource records in the verified completed-removal before-ledger. Require an explicit interactive or command-line selection when that evidence is not sufficient.
+- [x] t15: Let the completed-removal handoff recreate exact on-demand surface routers from proved manifest file records even when removal deleted the former surface directory.
+- [x] t16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, and an immediate all-no-op repeat.
+- [x] t17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, and diff whitespace check.
+- [ ] t18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
+- [ ] t19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
+
+### Acceptance criteria
+
+- A63: A verified completed-removal handoff retains the prior local resource selection when exact canonical resource records prove it. Unknown intent stops before mutation until the person makes an explicit selection.
+- A64: The first setup recreates every proved planned surface router without using unrelated routers or the deleted directory as ownership evidence. Immediate repeat setup reports no project change and only no-op file actions.
+- A65: One new exact candidate passes the three-platform installed contract and the repeated live North Atlantic BuildOS test. The open pull request stays unmerged until this result passes review.
+
+### Dependencies
+
+- The owner approved this additional P8 repair on 2026-09-23.
+- The earlier candidate and live run are evidence for the defect. They are not acceptance evidence for A63 through A65.
+- Staging, commit, push, a new workflow run, candidate installation, live project mutation, merge, and closeout keep their existing approval gates.
+
+### Closeout Notes
+
+- Four testing decisions: Automated Implementation Testing and Guided Progress Review remain required. Performance and Unassisted Goal Testing remain `not-needed-now`.
+- Performance evidence: None.
+- Human Experience Review: Inspect the new first-run and repeat output. Confirm that preserved resource intent and recreated surface routers are visible without requiring Store knowledge.
+- Optional experience handoff: State that plain setup preserves the reviewed local resource set and that immediate repeat should need no project change.
+- Explicit human acceptance gate: None. The live run still requires the approved exact-candidate action.
+- Evidence report: Add the source correction and later exact-candidate results to the P8 section in `evidence.md`.
+- Phase / capability status: Stage 3 source work passes. A65, P8, P7, D-038, and W22 remain open.

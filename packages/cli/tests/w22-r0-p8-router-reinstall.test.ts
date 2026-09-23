@@ -23,12 +23,14 @@ import {
 } from "../src/manifest";
 import { parseManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
+import { createProjectSurfaceRouterAssets } from "../src/project-projection";
 import {
   readInstallationStatus,
   recoverInstallationOperation,
   reviewCompletedRemovalHandoff,
+  saveInstallationManifest,
 } from "../src/store/installation-state";
-import type { AuditRemovableFile } from "../src/types";
+import { PROJECT_RESOURCE_TYPES, type AuditRemovableFile } from "../src/types";
 import { runUninstallCommand } from "../src/uninstall";
 import { hashText, readPackageMeta } from "../src/utils";
 import * as fileUtils from "../src/utils";
@@ -41,6 +43,7 @@ const NONE_METHODS = [
   "none",
 ] as const;
 const BACKUP_ROUTER_COUNT = 52;
+const LEGACY_BACKUP_ROUTER_COUNT = BACKUP_ROUTER_COUNT - 2;
 const UNRELATED_ROUTER_COUNT = 36;
 const NOW = new Date("2026-09-23T12:00:00.000Z");
 
@@ -54,6 +57,7 @@ interface CompletedRemovalFixture {
   checkoutId: string;
   sharedRouterPath: string;
   sharedRouterContent: string;
+  assetRouterPaths: string[];
   unrelatedRouters: Map<string, string>;
   backupRouters: Map<string, string>;
 }
@@ -173,6 +177,9 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
           ]),
         );
         expect(humanPreview).toContain("Disposition: migrate-with-review");
+        expect(humanPreview).toContain(
+          "Local resource projection: contract, prompt, reference, template",
+        );
         expect(humanPreview).toContain("Dry run complete.");
         expect(humanPreview).not.toContain("legacy/managed-00/AGENTS.md");
         expect(humanPreview).not.toContain("services/service-00/AGENTS.md");
@@ -221,6 +228,10 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
         const manifest = loadManifest(fixture.targetDir);
         expect(manifest).not.toBeNull();
         expect(manifest?.projectId).toBe(fixture.projectId);
+        expect(manifest?.selections.resourceProjection).toEqual(PROJECT_RESOURCE_TYPES);
+        for (const relativePath of fixture.assetRouterPaths) {
+          expect(existsSync(path.join(fixture.targetDir, relativePath))).toBe(true);
+        }
         expect(readInstallationStatus(fixture.targetDir, fixture.storeRoot)).toMatchObject({
           status: "ready",
           projectId: fixture.projectId,
@@ -240,15 +251,65 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
               fixture.targetDir,
             ]),
           ),
-        ) as { status: string; project: { changed: boolean } };
+        ) as {
+          status: string;
+          project: { changed: boolean; actions: Array<{ action: string }> };
+        };
         expect(repeat.status).toBe("complete");
         expect(repeat.project.changed).toBe(false);
+        expect(repeat.project.actions.every((action) => action.action === "noop")).toBe(true);
         expect(readInstallationStatus(fixture.targetDir, fixture.storeRoot)).toMatchObject({
           status: "ready",
           projectId: fixture.projectId,
           checkoutId: fixture.checkoutId,
           pendingOperation: null,
         });
+      } finally {
+        cleanupTempDir(fixture.fixtureRoot);
+      }
+    },
+    120_000,
+  );
+
+  test(
+    "requires an explicit resource choice when completed-removal evidence cannot recover it",
+    async () => {
+      const fixture = await createCompletedRemovalFixture(
+        "managed-block",
+        true,
+        "unknown",
+      );
+      try {
+        await expect(
+          captureStdout(() =>
+            runCli([
+              "setup",
+              "--yes",
+              ...NONE_METHODS,
+              "--target",
+              fixture.targetDir,
+            ]),
+          ),
+        ).rejects.toThrow(
+          "The completed removal does not contain enough evidence to recover the prior local resource selection.",
+        );
+
+        const explicitSelectionOutput = await captureStdout(() =>
+          runCli([
+            "setup",
+            "--yes",
+            ...NONE_METHODS,
+            "--project-resources",
+            "none",
+            "--target",
+            fixture.targetDir,
+          ]),
+        );
+        expect(JSON.parse(explicitSelectionOutput)).toMatchObject({
+          status: "complete",
+          project: { changed: true, mutationState: "applied" },
+        });
+        expect(loadManifest(fixture.targetDir)?.selections.resourceProjection ?? []).toEqual([]);
       } finally {
         cleanupTempDir(fixture.fixtureRoot);
       }
@@ -680,6 +741,7 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
 async function createCompletedRemovalFixture(
   routerMode: "managed-block" | "missing-managed-block" = "managed-block",
   backup = true,
+  legacyResourceProjection: "all" | "unknown" = "all",
 ): Promise<CompletedRemovalFixture> {
   const fixtureRoot = createTempDir("make-docs-p8-router-reinstall-");
   const targetDir = path.join(fixtureRoot, "project");
@@ -693,6 +755,9 @@ async function createCompletedRemovalFixture(
 
   const selections = defaultSelections();
   selections.skills = false;
+  if (legacyResourceProjection === "all") {
+    selections.resourceProjection = [...PROJECT_RESOURCE_TYPES];
+  }
   const installPlan = await planInstall({
     targetDir,
     selections,
@@ -730,6 +795,45 @@ async function createCompletedRemovalFixture(
   }
   writeFileSync(sharedRouterPath, sharedRouterContent, "utf8");
 
+  const assetRouterAssets = createProjectSurfaceRouterAssets(
+    installPlan.profile,
+    "assets",
+  );
+  const assetRouterPaths = assetRouterAssets.map((asset) => asset.relativePath);
+  const installedManifest = loadManifest(targetDir);
+  if (!installedManifest) {
+    throw new Error("The P8 fixture lost its installation manifest before legacy conversion.");
+  }
+  const legacyFiles = { ...installedManifest.files };
+  for (const asset of assetRouterAssets) {
+    const absolutePath = path.join(targetDir, asset.relativePath);
+    const content = typeof asset.content === "string"
+      ? asset.content
+      : Buffer.from(asset.content).toString("utf8");
+    mkdirSync(path.dirname(absolutePath), { recursive: true });
+    writeFileSync(absolutePath, content, "utf8");
+    legacyFiles[asset.relativePath] = {
+      hash: getManifestFileHash(asset.relativePath, content) ?? hashText(content),
+      sourceId: asset.sourceId,
+      ownershipClass: "managed-block",
+    };
+  }
+  const {
+    resourceProjection: _resourceProjection,
+    routerOwnership: _routerOwnership,
+    ...legacyManifestBase
+  } = installedManifest;
+  const {
+    resourceProjection: _resourceProjectionSelection,
+    ...legacySelections
+  } = installedManifest.selections;
+  saveInstallationManifest(targetDir, {
+    ...legacyManifestBase,
+    schemaVersion: 3,
+    selections: legacySelections,
+    files: legacyFiles,
+  });
+
   const unrelatedRouters = new Map<string, string>();
   for (let index = 0; index < UNRELATED_ROUTER_COUNT; index += 1) {
     const relativePath = `services/service-${String(index).padStart(2, "0")}/AGENTS.md`;
@@ -741,7 +845,7 @@ async function createCompletedRemovalFixture(
   }
 
   const syntheticManagedRouters: AuditRemovableFile[] = [];
-  for (let index = 0; index < BACKUP_ROUTER_COUNT; index += 1) {
+  for (let index = 0; index < LEGACY_BACKUP_ROUTER_COUNT; index += 1) {
     const relativePath = `legacy/managed-${String(index).padStart(2, "0")}/AGENTS.md`;
     const absolutePath = path.join(targetDir, relativePath);
     const content = [
@@ -785,9 +889,15 @@ async function createCompletedRemovalFixture(
 
   const backupRoot = path.join(targetDir, ".make-docs/backup/2026-09-23");
   expect(existsSync(backupRoot)).toBe(backup);
+  rmSync(path.join(targetDir, "docs/assets"), { recursive: true, force: true });
   const backupRouters = new Map<string, string>();
   if (backup) {
-    for (let index = 0; index < BACKUP_ROUTER_COUNT; index += 1) {
+    for (const relativePath of assetRouterPaths) {
+      const backupPath = path.join(backupRoot, relativePath);
+      expect(existsSync(path.join(targetDir, relativePath))).toBe(false);
+      backupRouters.set(backupPath, readFileSync(backupPath, "utf8"));
+    }
+    for (let index = 0; index < LEGACY_BACKUP_ROUTER_COUNT; index += 1) {
       const relativePath = `legacy/managed-${String(index).padStart(2, "0")}/AGENTS.md`;
       const sourcePath = path.join(targetDir, relativePath);
       const backupPath = path.join(backupRoot, relativePath);
@@ -808,6 +918,7 @@ async function createCompletedRemovalFixture(
     checkoutId: installedStatus.checkoutId,
     sharedRouterPath,
     sharedRouterContent,
+    assetRouterPaths,
     unrelatedRouters,
     backupRouters,
   };

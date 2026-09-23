@@ -1515,10 +1515,37 @@ The local corrective checks passed:
 
 The first full corrective validation attempt is not product evidence. A concurrent task changed the embedded Skill registry after Vitest loaded its starting digest. The later Skill tests correctly rejected the changed registry. The P8 suite passed 11 tests in that run. The registry then stayed stable for the passing full run above. A new exact candidate remains required.
 
+### Live Acceptance Correction
+
+Pull request [#15](https://github.com/brucewaynedecoy/make-docs/pull/15) tested commit `bcddccad74136faa0f7e1d91bdd0680cdbe7039c`. Platform Safety run [35904245005](https://github.com/brucewaynedecoy/make-docs/actions/runs/35904245005) passed the source contract, one installed-package build, the installed package on Ubuntu, macOS, and Windows, and the final evidence comparison. CodeRabbit also passed.
+
+The exact candidate then completed plain setup in the live North Atlantic BuildOS project. The later review found that the first reinstall had not retained the prior local resource selection. A later setup could therefore plan removal of 62 current local resource files. The first reinstall also did not recreate the proved `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md` routers because removal had deleted the former surface directory. A reviewed `setup reconfigure --project-resources all` restored the live project to a stable current state. The backup, BuildOS-owned router content, and project data remained preserved.
+
+The source correction now:
+
+- recovers prior resource selection only from canonical resource records in the verified completed-removal before-ledger;
+- requires an explicit resource choice when old evidence is not sufficient;
+- recreates exact on-demand surface routers from completed-removal manifest proof even when the former directory is absent; and
+- requires the first reinstall and immediate repeat to converge to all no-op file actions.
+
+The corrected fixture is a valid schema-3 installation ledger. It omits the newer resource-selection and router-ownership fields. It retains exact managed resource and asset-router file records. The first plain setup preserves all four resource types, recreates both asset routers, and saves current state. The immediate repeat reports no project change and only no-op actions.
+
+| Check | Result |
+| --- | --- |
+| Corrected P8 exact fixture | Passed: 12 of 12 tests. |
+| Related authentic-upgrade, legacy-identity, projection, and installed-matrix source suites | Passed: 32 tests; 5 installed-platform cases used their normal skip guard. |
+| General CLI suite | Passed: 136 of 136 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,493 tests; 1 installed-package file and its 5 platform cases used their normal skip guard. |
+| TypeScript check | Passed with `npx tsc --noEmit -p packages/cli/tsconfig.json`. |
+| Package build | Passed with `npm run build -w packages/cli`. |
+| Diff whitespace check | Passed. |
+
+This source evidence does not replace the exact installed-package or live-project gate. Commit `bcddccad` and workflow `35904245005` predate this correction. Pull request #15 must remain open until a new exact candidate passes the three-platform workflow and the repeated North Atlantic BuildOS acceptance test.
+
 ### P8 Gate
 
-Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 2 tasks t8 through t12 and acceptance criteria A61 through A62 remain open.
+Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 3 source tasks t13 through t17 and acceptance criteria A63 through A64 pass. Stage 2 tasks t8 through t12, Stage 3 tasks t18 through t19, and acceptance criteria A61, A62, and A65 remain open for the new exact source.
 
-The owner approved staging, commit, push, pull-request review, and Stage 2 tasks t8 through t10. Local CLI installation, live North Atlantic BuildOS setup, closeout, publication, and release remain separate gates.
+The owner approved the additional P8 source repair. Staging, commit, push, a new workflow run, exact-candidate installation, repeated live North Atlantic BuildOS setup, merge, closeout, publication, and release remain separate gates.
 
 P7, P8, D-038, and W22 remain open.

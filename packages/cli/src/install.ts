@@ -53,6 +53,7 @@ export async function planInstall(options: {
   targetDir: string;
   selections: InstallSelections;
   existingManifest: InstallManifest | null;
+  completedRemovalHandoff?: boolean;
   packageMeta?: PackageMeta;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
@@ -68,6 +69,7 @@ export async function planInstall(options: {
     packageMeta,
     profile,
     existingManifest: options.existingManifest,
+    completedRemovalHandoff: options.completedRemovalHandoff,
     managedFileConflictResolutions: options.managedFileConflictResolutions,
     systemAssetMaterializationMode: options.systemAssetMaterializationMode,
     skillRegistry: options.skillRegistry,

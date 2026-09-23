@@ -688,6 +688,10 @@ export async function runCli(
       ? completedRemovalHandoff.beforeManifest
       : null
   );
+  const completedRemovalResourceProjection = completedRemovalHandoff.status === "ready" &&
+    completedRemovalHandoff.beforeManifest.selections.resourceProjection === undefined
+    ? inferCompletedRemovalResourceProjection(completedRemovalHandoff.beforeManifest)
+    : undefined;
   let freshInstallTarget = isFreshInstallTarget({
     targetDir,
     existingManifest,
@@ -754,7 +758,24 @@ export async function runCli(
     );
   }
 
+  if (
+    completedRemovalResourceProjection === null &&
+    !interactive &&
+    parsed.projectResources === undefined
+  ) {
+    throw new Error(
+      "The completed removal does not contain enough evidence to recover the prior local resource selection. Run `make-docs setup` interactively, or rerun with `--project-resources <csv|all|none>`.",
+    );
+  }
+
   const resolvedSelections = resolveSelections({ parsed, existingManifest: planningManifest });
+  if (
+    parsed.projectResources === undefined &&
+    completedRemovalResourceProjection !== undefined &&
+    completedRemovalResourceProjection !== null
+  ) {
+    resolvedSelections.resourceProjection = [...completedRemovalResourceProjection];
+  }
   let installationStatus = readInstallationStatus(targetDir, storeRoot);
   let projectState: SetupProjectState = freshInstallTarget
     ? "fresh"
@@ -780,6 +801,13 @@ export async function runCli(
     existingManifest: planningManifest,
     installIntent,
   });
+  if (
+    parsed.projectResources === undefined &&
+    completedRemovalResourceProjection !== undefined &&
+    completedRemovalResourceProjection !== null
+  ) {
+    selectionSource = "verified completed-removal resource records";
+  }
   let interactiveMethodSelections: Partial<Record<"codex" | "claude-code", HarnessMethodSelection>> = {};
 
   if (interactive) {
@@ -913,6 +941,7 @@ export async function runCli(
     targetDir,
     selections,
     existingManifest: planningManifest,
+    completedRemovalHandoff: completedRemovalHandoff.status === "ready",
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
     preserveExistingSkills: skillReconciliation.routed,
@@ -934,6 +963,7 @@ export async function runCli(
         targetDir,
         selections,
         existingManifest: planningManifest,
+        completedRemovalHandoff: completedRemovalHandoff.status === "ready",
         packageMeta,
         managedFileConflictResolutions,
         skillRegistry: effectiveSkillRegistry.registry,
@@ -1052,6 +1082,7 @@ export async function runCli(
       targetDir,
       selections,
       existingManifest: planningManifest,
+      completedRemovalHandoff: completedRemovalHandoff.status === "ready",
       packageMeta,
       ...(managedFileConflictResolutions ? { managedFileConflictResolutions } : {}),
       skillRegistry: effectiveSkillRegistry.registry,
@@ -1076,6 +1107,7 @@ export async function runCli(
           targetDir,
           selections,
           existingManifest: planningManifest,
+          completedRemovalHandoff: completedRemovalHandoff.status === "ready",
           packageMeta,
           managedFileConflictResolutions,
           skillRegistry: effectiveSkillRegistry.registry,
@@ -1827,6 +1859,30 @@ function resolveSelections(options: {
     selections.resourceProjection = [...parsed.projectResources];
   }
   return selections;
+}
+
+function inferCompletedRemovalResourceProjection(
+  manifest: InstallManifest,
+): ProjectResourceType[] | null {
+  const resourceUris = new Set<string>([
+    ...Object.keys(manifest.resourceProjection?.resources ?? {}),
+    ...Object.values(manifest.files)
+      .map((entry) => entry.sourceId)
+      .filter((sourceId) => sourceId.startsWith("resource:"))
+      .map((sourceId) => sourceId.slice("resource:".length)),
+  ]);
+  if (resourceUris.size === 0) return null;
+
+  const selected = new Set<ProjectResourceType>();
+  for (const uri of resourceUris) {
+    const type = PROJECT_RESOURCE_TYPES.find((candidate) =>
+      uri.startsWith(`make-docs://system/${candidate}/`)
+    );
+    if (!type) return null;
+    selected.add(type);
+  }
+
+  return PROJECT_RESOURCE_TYPES.filter((type) => selected.has(type));
 }
 
 const EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR =

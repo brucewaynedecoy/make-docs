@@ -66,6 +66,7 @@ export async function createInstallPlan(options: {
   packageMeta: PackageMeta;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
+  completedRemovalHandoff?: boolean;
   reviewedSkillAdoption?: boolean;
   managedFileConflictResolutions?: ManagedFileConflictResolutions;
   systemAssetMaterializationMode?: SystemAssetMaterializationMode;
@@ -114,6 +115,7 @@ export async function createInstallPlan(options: {
     targetDir,
     profile,
     existingManifest,
+    completedRemovalHandoff: options.completedRemovalHandoff,
   });
   const routerAssets = [...thinRouterAssets, ...carriedOnDemandRouterAssets];
   const thinRouterPaths = new Set(
@@ -1874,8 +1876,13 @@ function getCarriedOnDemandRouterAssets(options: {
   targetDir: string;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
+  completedRemovalHandoff?: boolean;
 }): ResolvedAsset[] {
-  if (!options.existingManifest?.routerOwnership) {
+  const manifest = options.existingManifest;
+  if (
+    !manifest ||
+    (!manifest.routerOwnership && !options.completedRemovalHandoff)
+  ) {
     return [];
   }
   const surfaceDirectories = {
@@ -1884,23 +1891,27 @@ function getCarriedOnDemandRouterAssets(options: {
   } as const;
   const assets: ResolvedAsset[] = [];
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {
-    if (!existsSync(path.join(options.targetDir, directory))) {
-      continue;
-    }
+    const surfaceExists = existsSync(path.join(options.targetDir, directory));
     for (const asset of createProjectSurfaceRouterAssets(
       options.profile,
       surface as keyof typeof surfaceDirectories,
     )) {
-      const proof = options.existingManifest.routerOwnership.routers[asset.relativePath];
-      const file = options.existingManifest.files[asset.relativePath];
-      if (
-        (!proof || proof.routerClass === "bootstrap" || proof.routerClass === "on-demand-surface") &&
-        (!proof || (proof.provenanceState === "verified" &&
-        proof.ownershipClass === "managed-snapshot" &&
-        proof.lifecycleDisposition === "active" &&
-        proof.sourceId === asset.sourceId &&
+      const proof = manifest.routerOwnership?.routers[asset.relativePath];
+      const file = manifest.files[asset.relativePath];
+      const completedRemovalFileProof =
+        options.completedRemovalHandoff === true &&
         file?.sourceId === asset.sourceId &&
-        file.ownershipClass === "managed-block"))
+        (file.ownershipClass === undefined || file.ownershipClass === "managed-block");
+      if (
+        completedRemovalFileProof ||
+        (surfaceExists &&
+          (!proof || proof.routerClass === "bootstrap" || proof.routerClass === "on-demand-surface") &&
+          (!proof || (proof.provenanceState === "verified" &&
+          proof.ownershipClass === "managed-snapshot" &&
+          proof.lifecycleDisposition === "active" &&
+          proof.sourceId === asset.sourceId &&
+          file?.sourceId === asset.sourceId &&
+          file.ownershipClass === "managed-block")))
       ) {
         assets.push(asset);
       }
