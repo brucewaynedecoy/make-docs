@@ -50,6 +50,8 @@ A shared target router remains project-owned. Make Docs can insert, update, or r
 
 The first setup after a completed removal restores the prior local resource selection from verified legacy resource records. It recreates proved on-demand surface routers even when removal deleted the former surface directory. If the old evidence cannot prove the selection, setup requires an explicit interactive or command-line choice before mutation. The immediate repeat is a no-op.
 
+The completed-removal before-ledger remains the planning authority for every saved project selection. Setup does not classify that reviewed handoff as a fresh install. It preserves disabled capabilities unless the person uses an authorized reconfigure path to change them. Unknown resource intent makes interactive setup enter the state-review wizard. It does not silently use the default empty selection.
+
 The normal result requires no manual Store edit, hidden command, repository-wide router quarantine, or loss of BuildOS project control files.
 
 ## Repair Contract
@@ -65,6 +67,7 @@ The normal result requires no manual Store edit, hidden command, repository-wide
 - Keep plain `make-docs setup` as the public continuation. Do not require a command that the CLI does not expose. Do not require a person to delete Store rows, edit SQLite, move unrelated routers, or understand the internal ownership model.
 - When a supported completed-removal ledger predates the current saved resource-selection field, recover the prior selection only from exact canonical resource records in the verified before-ledger. Preserve the recovered selection in the new installation record.
 - If the verified records are absent, incomplete, or use an unknown resource type, require an explicit interactive selection or `--project-resources` value before project mutation. Do not treat unknown intent as `none`.
+- Use the verified completed-removal before-manifest for fresh-install detection and selection planning. Preserve each enabled and disabled capability. Do not broaden the installation to the fresh default capability set.
 - Recreate an on-demand surface router when the completed-removal before-ledger proves its exact source identity and managed-block ownership, even when the removal deleted the former surface directory.
 - Make the first completed-removal setup and its immediate repeat converge. The repeat must report no project change and only no-op file actions.
 - Preserve the existing fail-closed rule for unknown non-router files, unsafe paths, symlink escape, changed backup evidence, changed target files, conflicting checkout identity, or active operations.
@@ -84,7 +87,7 @@ The normal result requires no manual Store edit, hidden command, repository-wide
 
 Automated Implementation Testing is required. The isolated regression must reproduce the exact completed-removal state, verified backup, preserved shared routers, 52 backup router files, and 36 unrelated active BuildOS router files. It must prove that only planned target routers enter ownership review.
 
-The tests must prove managed-block insertion, update, removal, missing block, malformed marker, changed target, changed backup, repeat setup, interruption, rollback, and no-op behavior. They must include a valid schema-3 completed-removal fixture with current resource files but no current resource-selection field. They must prove recovered selection, first-run surface-router creation, an immediate all-no-op repeat, and an explicit-choice stop when old evidence is not sufficient. A blocked plan creates no pending operation and changes no Store, project, backup, router, or native file.
+The tests must prove managed-block insertion, update, removal, missing block, malformed marker, changed target, changed backup, repeat setup, interruption, rollback, and no-op behavior. They must include a valid schema-3 completed-removal fixture with current resource files but no current resource-selection field. They must prove recovered selection, first-run surface-router creation, an immediate all-no-op repeat, and an explicit-choice stop when old evidence is not sufficient. They must also prove that interactive setup opens the state-review wizard for unknown resource intent and that a disabled capability remains disabled through reinstall. A blocked plan creates no pending operation and changes no Store, project, backup, router, or native file.
 
 One exact package candidate must pass the installed contract on Windows, macOS, and Linux. The source checkout must be unavailable to product execution. The final comparison must reject a missing host, candidate mismatch, source execution, extract-only proof, different router behavior, or a public path that needs an internal command.
 
@@ -92,4 +95,4 @@ After those gates pass, a separately approved live run must continue from the cu
 
 Human Experience Review must inspect the actual preview, approval, success, blocked, and repeat surfaces. The result must make the subject, ownership boundary, preserved content, effect, and next action clear without requiring the person to learn Store internals.
 
-The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, and the first live North Atlantic BuildOS test. The owner approved the additional resource-intent and surface-router repair after that live test exposed the remaining defect. A new exact candidate, repeated live acceptance, merge, and closeout retain separate gates.
+The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, and the first live North Atlantic BuildOS test. The owner approved the additional resource-intent and surface-router repair after that live test exposed the remaining defect. Pull-request review of the next candidate found that unknown resource intent could still avoid the interactive wizard and that fresh-install detection could re-enable disabled capabilities. The owner approved this bounded correction. A new exact candidate, repeated live acceptance, merge, and closeout retain separate gates.

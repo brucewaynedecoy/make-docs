@@ -143,10 +143,10 @@ Performance evidence lifecycle fields:
 ### Tasks
 
 - [x] t13: Record the live defect. The first repaired setup completed, but it did not retain the prior local resource selection or recreate proved `docs/assets/` routers. A later setup could therefore plan removal of current local resources.
-- [x] t14: Recover the prior resource selection only from exact canonical resource records in the verified completed-removal before-ledger. Require an explicit interactive or command-line selection when that evidence is not sufficient.
+- [x] t14: Recover the prior resource selection only from exact canonical resource records in the verified completed-removal before-ledger. Require an explicit interactive or command-line selection when that evidence is not sufficient. Use the before-manifest as planning authority so setup preserves disabled capabilities and does not classify the reviewed handoff as fresh.
 - [x] t15: Let the completed-removal handoff recreate exact on-demand surface routers from proved manifest file records even when removal deleted the former surface directory.
-- [x] t16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, and an immediate all-no-op repeat.
-- [x] t17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, and diff whitespace check.
+- [x] t16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, interactive state review for unknown intent, disabled-capability preservation, and an immediate all-no-op repeat.
+- [x] t17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, documentation validation, and diff whitespace check against the final reviewed source.
 - [ ] t18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
 - [ ] t19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
 
@@ -160,6 +160,7 @@ Performance evidence lifecycle fields:
 
 - The owner approved this additional P8 repair on 2026-09-23.
 - The earlier candidate and live run are evidence for the defect. They are not acceptance evidence for A63 through A65.
+- Pull-request review of commit `740c7b64` found two remaining selection-continuity defects. The completed-removal before-manifest was not used for fresh-install detection, and unknown resource intent did not force the interactive state-review wizard. The owner approved the bounded source and regression repair.
 - Staging, commit, push, a new workflow run, candidate installation, live project mutation, merge, and closeout keep their existing approval gates.
 
 ### Closeout Notes

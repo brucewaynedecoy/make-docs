@@ -46,6 +46,32 @@ const BACKUP_ROUTER_COUNT = 52;
 const LEGACY_BACKUP_ROUTER_COUNT = BACKUP_ROUTER_COUNT - 2;
 const UNRELATED_ROUTER_COUNT = 36;
 const NOW = new Date("2026-09-23T12:00:00.000Z");
+const {
+  runSelectionWizardMock,
+  promptForManagedFileConflictResolutionsMock,
+  confirmMock,
+  selectMock,
+} = vi.hoisted(() => ({
+  runSelectionWizardMock: vi.fn(),
+  promptForManagedFileConflictResolutionsMock: vi.fn(),
+  confirmMock: vi.fn(),
+  selectMock: vi.fn(),
+}));
+
+vi.mock("../src/wizard", () => ({
+  runSelectionWizard: runSelectionWizardMock,
+  promptForManagedFileConflictResolutions: promptForManagedFileConflictResolutionsMock,
+}));
+
+vi.mock("@clack/prompts", async () => {
+  const actual = await vi.importActual<typeof import("@clack/prompts")>("@clack/prompts");
+  return {
+    ...actual,
+    confirm: confirmMock,
+    select: selectMock,
+    isCancel: (value: unknown) => value === "cancelled",
+  };
+});
 
 interface CompletedRemovalFixture {
   fixtureRoot: string;
@@ -69,6 +95,12 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
   beforeEach(() => {
     previousHome = process.env.HOME;
     previousMakeDocsHome = process.env.MAKE_DOCS_HOME;
+    runSelectionWizardMock.mockReset();
+    promptForManagedFileConflictResolutionsMock.mockReset();
+    confirmMock.mockReset();
+    confirmMock.mockResolvedValue(true);
+    selectMock.mockReset();
+    selectMock.mockResolvedValue("none");
     setTTY(false);
   });
 
@@ -310,6 +342,83 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
           project: { changed: true, mutationState: "applied" },
         });
         expect(loadManifest(fixture.targetDir)?.selections.resourceProjection ?? []).toEqual([]);
+      } finally {
+        cleanupTempDir(fixture.fixtureRoot);
+      }
+    },
+    120_000,
+  );
+
+  test(
+    "routes unknown completed-removal resource intent through the interactive state review",
+    async () => {
+      const fixture = await createCompletedRemovalFixture(
+        "managed-block",
+        true,
+        "unknown",
+      );
+      try {
+        const reviewedSelections = defaultSelections();
+        reviewedSelections.skills = false;
+        reviewedSelections.resourceProjection = ["contract"];
+        runSelectionWizardMock.mockResolvedValue(reviewedSelections);
+        setTTY(true);
+
+        const output = await captureStdout(() =>
+          runCli([
+            "setup",
+            ...NONE_METHODS,
+            "--target",
+            fixture.targetDir,
+          ]),
+        );
+
+        expect(runSelectionWizardMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            projectState: "partial",
+            introTitle: "Let's reconfigure your make-docs install",
+          }),
+        );
+        expect(output).toContain(`Synced make-docs ${readPackageMeta().version}`);
+        expect(loadManifest(fixture.targetDir)?.selections.resourceProjection).toEqual([
+          "contract",
+        ]);
+      } finally {
+        cleanupTempDir(fixture.fixtureRoot);
+      }
+    },
+    120_000,
+  );
+
+  test(
+    "preserves disabled capabilities from the completed-removal manifest",
+    async () => {
+      const fixture = await createCompletedRemovalFixture(
+        "managed-block",
+        true,
+        "unknown",
+        true,
+      );
+      try {
+        const output = JSON.parse(
+          await captureStdout(() =>
+            runCli([
+              "setup",
+              "--yes",
+              "--json",
+              ...NONE_METHODS,
+              "--project-resources",
+              "none",
+              "--target",
+              fixture.targetDir,
+            ]),
+          ),
+        ) as { status: string };
+        expect(output.status).toBe("complete");
+
+        const manifest = loadManifest(fixture.targetDir);
+        expect(manifest?.selections.capabilities.designs).toBe(false);
+        expect(manifest?.effectiveCapabilities).not.toContain("designs");
       } finally {
         cleanupTempDir(fixture.fixtureRoot);
       }
@@ -742,6 +851,7 @@ async function createCompletedRemovalFixture(
   routerMode: "managed-block" | "missing-managed-block" = "managed-block",
   backup = true,
   legacyResourceProjection: "all" | "unknown" = "all",
+  disableDesigns = false,
 ): Promise<CompletedRemovalFixture> {
   const fixtureRoot = createTempDir("make-docs-p8-router-reinstall-");
   const targetDir = path.join(fixtureRoot, "project");
@@ -755,6 +865,7 @@ async function createCompletedRemovalFixture(
 
   const selections = defaultSelections();
   selections.skills = false;
+  if (disableDesigns) selections.capabilities.designs = false;
   if (legacyResourceProjection === "all") {
     selections.resourceProjection = [...PROJECT_RESOURCE_TYPES];
   }

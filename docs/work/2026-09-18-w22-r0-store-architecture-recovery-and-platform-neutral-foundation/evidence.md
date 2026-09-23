@@ -1542,6 +1542,26 @@ The corrected fixture is a valid schema-3 installation ledger. It omits the newe
 
 This source evidence does not replace the exact installed-package or live-project gate. Commit `bcddccad` and workflow `35904245005` predate this correction. Pull request #15 must remain open until a new exact candidate passes the three-platform workflow and the repeated North Atlantic BuildOS acceptance test.
 
+### Pull-Request Selection-Continuity Correction
+
+Commit `740c7b64a3900463ea5abaf14e4911e9e02e0b22` passed every source, installed-package, and comparison job in Platform Safety run [35922365870](https://github.com/brucewaynedecoy/make-docs/actions/runs/35922365870). CodeRabbit then found two material selection-continuity defects. That candidate is not accepted for A65.
+
+First, the completed-removal before-manifest was used to resolve selections but not to decide whether the target was a fresh install. Setup could therefore apply the fresh default capability set and re-enable a capability that the earlier installation had disabled.
+
+Second, a completed-removal ledger with unknown resource intent stopped noninteractive setup but did not force interactive setup into the state-review wizard. A target otherwise classified as current could skip the wizard and continue with the default empty resource selection.
+
+The corrected source uses the verified before-manifest for fresh-install detection before and after Store-backed review reload. It classifies unknown completed-removal resource intent as partial state. Interactive setup must therefore obtain a reviewed resource selection. The P8 fixture now proves both the interactive state-review path and preservation of a disabled capability.
+
+| Check | Result |
+| --- | --- |
+| Corrected P8 exact fixture | Passed: 14 of 14 tests. |
+| P8, authentic-upgrade, legacy-identity, projection, installed-matrix source, and general CLI suites | Passed: 182 tests; 5 installed-platform cases used their normal source skip guard. |
+| Full CLI source suite | Passed: 93 test files and 1,495 tests; 1 installed-package file and its 5 platform cases used their normal source skip guard. |
+| TypeScript check | Passed with `npx tsc --noEmit -p packages/cli/tsconfig.json`. |
+| Package build | Passed with `npm run build -w packages/cli`. |
+| Product authority and documentation checks | PRD authority, content path hygiene, instruction routers, and wave numbering passed. |
+| Diff whitespace check | Passed. |
+
 ### P8 Gate
 
 Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 3 source tasks t13 through t17 and acceptance criteria A63 through A64 pass. Stage 2 tasks t8 through t12, Stage 3 tasks t18 through t19, and acceptance criteria A61, A62, and A65 remain open for the new exact source.

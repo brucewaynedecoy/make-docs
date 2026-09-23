@@ -694,7 +694,7 @@ export async function runCli(
     : undefined;
   let freshInstallTarget = isFreshInstallTarget({
     targetDir,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
     classification: compatibilityClassification,
   });
@@ -783,7 +783,8 @@ export async function runCli(
       ? "recoverable"
     : compatibilityClassification.state === "modified-v1"
       ? "drifted"
-      : compatibilityClassification.state === "partial-install" ||
+      : completedRemovalResourceProjection === null ||
+          compatibilityClassification.state === "partial-install" ||
           planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
         ? "partial"
         : "current";
@@ -1055,7 +1056,7 @@ export async function runCli(
     );
     freshInstallTarget = isFreshInstallTarget({
       targetDir,
-      existingManifest,
+      existingManifest: planningManifest,
       installIntent,
       classification: compatibilityClassification,
     });
@@ -1073,7 +1074,8 @@ export async function runCli(
         ? "recoverable"
         : compatibilityClassification.state === "modified-v1"
           ? "drifted"
-          : compatibilityClassification.state === "partial-install" ||
+          : completedRemovalResourceProjection === null ||
+              compatibilityClassification.state === "partial-install" ||
               planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
             ? "partial"
             : "current";
