@@ -247,6 +247,14 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
       const unrelatedRouter = path.join(targetDir, "src/AGENTS.md");
       mkdirSync(path.dirname(unrelatedRouter), { recursive: true });
       writeFileSync(unrelatedRouter, "# Project-owned source router\n", "utf8");
+      const legacyProjectAsset =
+        legacy.version === "0.1.0"
+          ? path.join(targetDir, "docs/assets/history/project-owned-history.md")
+          : null;
+      if (legacyProjectAsset) {
+        mkdirSync(path.dirname(legacyProjectAsset), { recursive: true });
+        writeFileSync(legacyProjectAsset, "# Project-owned history\n", "utf8");
+      }
       const unrecordedTargetRouter =
         legacy.manifestSchema === 1
           ? path.join(targetDir, ".make-docs/AGENTS.md")
@@ -292,6 +300,16 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
       expect(readFileSync(unrelatedRouter, "utf8")).toBe(
         "# Project-owned source router\n",
       );
+      if (legacyProjectAsset) {
+        expect(readFileSync(legacyProjectAsset, "utf8")).toBe(
+          "# Project-owned history\n",
+        );
+        for (const router of ["docs/assets/AGENTS.md", "docs/assets/CLAUDE.md"]) {
+          expect(
+            parseManagedBlock(readFileSync(path.join(targetDir, router), "utf8")).state,
+          ).toBe("valid");
+        }
+      }
       expect(loadManifest(targetDir)).toMatchObject({ schemaVersion: 4 });
       expect(readInstallationStatus(targetDir, storeRoot)).toMatchObject({
         status: "ready",

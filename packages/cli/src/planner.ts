@@ -1949,6 +1949,37 @@ function isLegacySamePathSource(sourceId: string, relativePath: string): boolean
   return sourceId === `file:${relativePath}` || sourceId === `build:${relativePath}`;
 }
 
+function schemaOneSurfaceHasPreservedContent(options: {
+  targetDir: string;
+  directory: string;
+  manifest: InstallManifest;
+}): boolean {
+  const surfaceRoot = path.join(options.targetDir, options.directory);
+  if (!existsSync(surfaceRoot)) return false;
+
+  const surfaceStat = lstatSync(surfaceRoot);
+  if (!surfaceStat.isDirectory() || surfaceStat.isSymbolicLink()) return false;
+
+  const visit = (directory: string): boolean =>
+    readdirSync(directory, { withFileTypes: true }).some((entry) => {
+      const absolutePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return visit(absolutePath);
+
+      const relativePath = normalizePlanPath(
+        path.relative(options.targetDir, absolutePath),
+      );
+      const manifestEntry = options.manifest.files[relativePath];
+      if (!manifestEntry || manifestEntry.ownershipClass === "project-owned") {
+        return true;
+      }
+      if (!entry.isFile()) return true;
+
+      return hashText(readTextFile(absolutePath)) !== manifestEntry.hash;
+    });
+
+  return visit(surfaceRoot);
+}
+
 function getCarriedOnDemandRouterAssets(options: {
   targetDir: string;
   profile: InstallProfile;
@@ -1958,7 +1989,9 @@ function getCarriedOnDemandRouterAssets(options: {
   const manifest = options.existingManifest;
   if (
     !manifest ||
-    (!manifest.routerOwnership && !options.completedRemovalHandoff)
+    (!manifest.routerOwnership &&
+      !options.completedRemovalHandoff &&
+      manifest.schemaVersion !== 1)
   ) {
     return [];
   }
@@ -1969,6 +2002,13 @@ function getCarriedOnDemandRouterAssets(options: {
   const assets: ResolvedAsset[] = [];
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {
     const surfaceExists = existsSync(path.join(options.targetDir, directory));
+    const schemaOneSurfaceNeedsRouters =
+      manifest.schemaVersion === 1 &&
+      schemaOneSurfaceHasPreservedContent({
+        targetDir: options.targetDir,
+        directory,
+        manifest,
+      });
     for (const asset of createProjectSurfaceRouterAssets(
       options.profile,
       surface as keyof typeof surfaceDirectories,
@@ -1981,6 +2021,7 @@ function getCarriedOnDemandRouterAssets(options: {
         (file.ownershipClass === undefined || file.ownershipClass === "managed-block");
       if (
         completedRemovalFileProof ||
+        schemaOneSurfaceNeedsRouters ||
         (surfaceExists &&
           (!proof || proof.routerClass === "bootstrap" || proof.routerClass === "on-demand-surface") &&
           (!proof || (proof.provenanceState === "verified" &&

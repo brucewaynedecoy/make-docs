@@ -1701,3 +1701,29 @@ The authentic schema-1 fixture now creates an unrecorded current target router. 
 Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
 
 The shared checkout also contains separate uncommitted Backlog Review work. Stage 4 did not edit, stage, or commit those files.
+
+### Stage 4 Live Candidate Rejection And Convergence Repair
+
+The first Stage 4 candidate came from pull request 16. Its merge source was `a3d1af81172290912a2a04e8f9af530f70a60371`, with pull-request head `9e82fcb065c54f1c1262ae43eb196db32b844bad`. The package file was `brucewaynedecoy-make-docs-2.0.1.tgz`. Its SHA-256 digest was `748dfd5a7752fd02679131a296c3c13dd8490c17ef54350c52b9c4ff01aed089`, and its size was `1717607` bytes. Workflow run `36023428616` passed the Windows, macOS, Linux, comparison, source, and package gates.
+
+The candidate was installed for the approved live Videos Matter test. The installed executable digest changed to `a085b7e251fb274dcfcb97d1fc14e89ac1006bd165d9daf35bf678666d6a3571`. The package still reported `2.0.1`. That version was incorrect because the published `2.0.1` release and this candidate had different bytes. The next candidate now uses version `2.0.2`.
+
+The live initial upgrade used `make-docs setup --project-resources none --codex-method mcp --claude-code-method mcp`. It completed with status 0. It preserved project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7`. Store readback was `ready` with no pending operation. The reviewed backup was created. The saved resource selection remained `none`. The user-owned Codex MCP entry remained blocked from product changes, and the Claude Code MCP entry remained current.
+
+The immediate plain-setup repeat exposed a defect. It planned two project changes: generate `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md`. The live test declined that project apply. No second-run project change occurred. This result fails t27 and A70, so the first candidate is rejected even though its CI and initial live upgrade passed.
+
+The cause was deterministic. The schema-1 first migration removed exact legacy `docs/assets` root routers while project-owned history and archive content remained below that surface. The new schema-4 manifest then caused the repeat planner to restore the missing root routers. The correction now carries or upgrades the surface routers during the first schema-1 migration whenever unrecorded, project-owned, changed, or otherwise preserved content will remain below that surface. It does not retain the routers when every legacy child is safely removable.
+
+The authentic `0.1.0` fixture now includes project-owned history below `docs/assets`. It proves that the first upgrade preserves that content, leaves both root routers valid, and makes the immediate repeat report `Changes planned: 0` with an identical project tree. The deterministic and agentic business-logic review again found no safe agentic twin. File type, path, manifest ownership, and exact hashes must decide this pre-write rule.
+
+| Correction check | Result |
+| --- | --- |
+| Authentic schema-1 upgrade and immediate repeat | Passed: 9 of 9 tests. |
+| Router, projection, and installer regression set | Passed: 102 of 102 tests. |
+| Full repository suite | Passed: 93 test files and 1,502 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+| Package proof harness | Passed: 19 of 19 tests. |
+| TypeScript check | Passed with `npx --no-install tsc -p packages/cli/tsconfig.json --noEmit`. |
+| Package build | Passed with package version `2.0.2`. |
+| Default validation | Passed: 53 of 53 tests. |
+
+Tasks t26 through t28 remain open. A new exact `2.0.2` candidate must pass the Windows, macOS, and Linux installed-package contract. Videos Matter is now in the post-upgrade state. The new candidate must repair the two missing surface routers and then make the immediate repeat plan zero project changes. The authentic fixture and the three-platform installed contract retain responsibility for the direct schema-1 transition. No live reset or rollback is authorized only to recreate that starting state. P8 and D-038 remain open.
