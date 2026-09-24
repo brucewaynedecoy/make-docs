@@ -836,7 +836,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Reopened | W22 R0 P7 remains closed. W22 R0 P8 is reopened for the authentic schema-1 router transition. Exact legacy whole-file hashes must govern ownership before V2 managed-block rules apply. | Implement only after separate owner approval. Prove one direct setup upgrade, an immediate no-op repeat, one exact three-platform installed candidate, and a separately approved live Videos Matter upgrade. Do not add a broad reset or force path. |
+| Closed | W22 R0 P7 remains closed. W22 R0 P8 now covers the authentic schema-1 router transition. Exact legacy whole-file hashes govern ownership before V2 managed-block rules apply. | Keep the fail-closed boundary and the authentic legacy regression contract. Treat a new setup loop or ownership failure as new counterevidence. |
 
 **Issue:** Full setup can ask for machine MCP, Skills, and resources and then reject an existing project's Skill change without applying any valid independent setup. Focused machine setup can label MCP methods available and later block them because it cannot verify the active packaged executable. The verifier rejects a symbolic-link launch path before it resolves the declared package bin, drops the exact error, and recommends reinstall. A normal global npm install creates the same link again. Agent guidance can then ask for a method already selected or stop the whole task when only one Store-backed operation is unavailable.
 
@@ -874,7 +874,9 @@ Code anchors:
 
 **Reopened close condition:** Use an authentic older-package fixture with actual schema-1 manifest and router bytes. Prove a direct one-command upgrade, an immediate all-no-op repeat, state preservation for every blocked case, and one exact installed candidate on Windows, macOS, and Linux. After separate owner approval, run the same candidate in Videos Matter and verify preserved project content, stable project and checkout identities, verified backup evidence, a clean Store state, and no project change on immediate repeat.
 
-**Authority gate:** The owner approved this product-authority and backlog update and its commit on 2026-09-24. Implementation, exact-candidate installation, live Videos Matter setup, and closeout retain their applicable approval gates.
+**Authority gate:** The owner approved this product-authority and backlog update and its commit on 2026-09-24. The owner later approved implementation, exact-candidate installation, the live Videos Matter setup, final closeout, and pull-request merge.
+
+**Final closure, 2026-09-24:** Pull request #16 head `abddd1fe8258a11e4f621e6e1314e6d72a358d4d` produced exact package `@brucewaynedecoy/make-docs@2.0.2` with SHA-256 `615b09efe987fbbb63f95c505a598381f4c50001357402581bf530ebb7948007`. Platform Safety run `36032340715` passed the comparable source, package, Ubuntu, macOS, Windows, installed-package, and final-comparison gates. The approved live Videos Matter correction kept project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7`, preserved the protected project-content digest and verified backup evidence, left the Store `ready` with no pending operation, restored the two required surface routers, and made immediate repeat setup report 26 of 26 files current and zero planned changes. The authentic `0.1.0` fixture and the exact three-platform installed contract prove the direct schema-1 transition because the final live candidate began from the post-initial-upgrade state. No reset, hidden command, manual Store edit, or unrelated-router movement was used. P8 and D-038 are closed. W22 revision closeout, publication, and release remain separate.
 
 Code anchors:
 

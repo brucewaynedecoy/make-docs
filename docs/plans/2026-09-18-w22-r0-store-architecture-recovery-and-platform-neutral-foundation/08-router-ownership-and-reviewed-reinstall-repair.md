@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 P8 Router Ownership and Reviewed Reinstall Repair"
 kind: "plan"
-status: "active"
+status: "complete"
 coordinate: "W22 R0 P8"
 source:
   type: "design"
@@ -14,7 +14,7 @@ source:
 
 Repair the remaining upgrade failure exposed by the North Atlantic BuildOS test. Make Docs must distinguish its managed router blocks from project-owned router content, ignore router files that the reviewed plan will not change, treat backup copies as inactive evidence, and use a completed reviewed removal as a safe handoff into plain setup.
 
-P8 is reopened for the authentic schema-1 router defect exposed by Videos Matter. The prior repair remains accepted for its reviewed-removal scope. The reopened work adds the missing direct older-package ownership and upgrade proof.
+P8 was reopened for the authentic schema-1 router defect exposed by Videos Matter. The prior repair remains accepted for its reviewed-removal scope. The final work added and passed the missing direct older-package ownership and upgrade proof.
 
 ## Trigger Evidence
 
@@ -117,3 +117,9 @@ The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isol
 The final candidate passed the complete source and installed-package workflow on Ubuntu, macOS, and Windows in Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304). The approved live North Atlantic setup completed with status 0, stable project and checkout identities, no pending recovery, and no project file change. The final live run began from an already-current `2.0.1` project state. Authentic schema-3 fixtures retain responsibility for proving the initial legacy transition.
 
 The owner authorized closeout and pull-request merge on 2026-09-23 for the prior accepted scope. The Videos Matter counterevidence on 2026-09-24 reopens P8 and D-038 for the authentic schema-1 router transition only. The owner approved this product-authority and backlog update and its commit. Implementation, a new exact-candidate install, the live Videos Matter upgrade, and closeout each retain their applicable approval gates.
+
+## Final Closeout
+
+The owner approved Stage 4 implementation, the exact-candidate installation, the live Videos Matter test, final closeout, and pull-request merge. Exact package `@brucewaynedecoy/make-docs@2.0.2` passed the installed-package contract on Ubuntu, macOS, and Windows. The approved live correction preserved project content, project and checkout identities, Store and backup evidence, and a clean terminal Store state. Immediate repeat setup reported zero planned changes. The authentic fixture and three-platform installed contract prove the direct schema-1 transition because the final live candidate began from the post-initial-upgrade state.
+
+P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release retain separate gates.
