@@ -606,17 +606,25 @@ describe("W22 R0 P8 router ownership and reviewed reinstall", () => {
         const malformed = `${fixture.sharedRouterContent}\n<!-- make-docs:begin -->\n`;
         writeFileSync(fixture.sharedRouterPath, malformed, "utf8");
 
-        await expect(
-          captureStdout(() =>
-            runCli([
-              "setup",
-              "--yes",
-              ...NONE_METHODS,
-              "--target",
-              fixture.targetDir,
-            ]),
-          ),
-        ).rejects.toThrow(/unresolved managed-file diffs/i);
+        const output = await captureStdout(() =>
+          runCli([
+            "setup",
+            "--yes",
+            ...NONE_METHODS,
+            "--target",
+            fixture.targetDir,
+          ]),
+        );
+        const result = JSON.parse(output);
+        expect(result).toMatchObject({
+          status: "blocked",
+          project: { changed: false, mutationState: "none" },
+          failedCondition: expect.stringContaining("AGENTS.md"),
+          nextAction: expect.stringContaining("Review and repair the listed files"),
+        });
+        expect(result.failedCondition).toContain(
+          "does not permit migration (ambiguous-ownership)",
+        );
         expect(readInstallationStatus(fixture.targetDir, fixture.storeRoot)).toMatchObject({
           status: "unregistered",
           projectId: fixture.projectId,

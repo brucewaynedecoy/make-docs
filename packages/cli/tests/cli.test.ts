@@ -1071,6 +1071,38 @@ personas:
     }
   });
 
+  test("returns a canonical JSON block for an unresolved managed router conflict", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      writeConflictingRootInstruction(targetDir);
+
+      const output = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const result = JSON.parse(output);
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        project: { changed: false, mutationState: "none" },
+        failedCondition: expect.stringContaining("AGENTS.md"),
+        nextAction: expect.stringContaining("Review and repair"),
+      });
+      expect(result.failedCondition).toContain("ambiguous-ownership");
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "Locally edited make-docs routing",
+      );
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("plain setup restores an incomplete project operation before it replans", async () => {
     const targetDir = createTempDir("make-docs-setup-restore-");
     try {

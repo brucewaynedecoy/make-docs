@@ -247,11 +247,29 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
       const unrelatedRouter = path.join(targetDir, "src/AGENTS.md");
       mkdirSync(path.dirname(unrelatedRouter), { recursive: true });
       writeFileSync(unrelatedRouter, "# Project-owned source router\n", "utf8");
+      const unrecordedTargetRouter =
+        legacy.manifestSchema === 1
+          ? path.join(targetDir, ".make-docs/AGENTS.md")
+          : null;
+      const unrecordedTargetRouterBody = "# Project-owned Make Docs router\n";
+      if (unrecordedTargetRouter) {
+        expect(legacyManifest.files[".make-docs/AGENTS.md"]).toBeUndefined();
+        writeFileSync(unrecordedTargetRouter, unrecordedTargetRouterBody, "utf8");
+      }
       process.env.HOME = homeDir;
       process.env.MAKE_DOCS_HOME = storeRoot;
       vi.spyOn(os, "homedir").mockReturnValue(homeDir);
       runSelectionWizardMock.mockImplementation(async () =>
         createAuthenticUpgradeSelections(),
+      );
+      promptForManagedFileConflictResolutionsMock.mockImplementation(
+        async (conflicts: Array<{ relativePath: string }>) =>
+          Object.fromEntries(
+            conflicts.map(({ relativePath }) => [
+              relativePath,
+              relativePath === ".make-docs/AGENTS.md" ? "overwrite" : "skip",
+            ]),
+          ),
       );
       selectMock.mockResolvedValueOnce("backup-and-install").mockResolvedValue("none");
       const outputSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
@@ -287,6 +305,14 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
           ).state,
         ).toBe("valid");
       }
+      if (unrecordedTargetRouter) {
+        const upgradedRouter = readFileSync(unrecordedTargetRouter, "utf8");
+        expect(upgradedRouter).toContain(unrecordedTargetRouterBody.trim());
+        expect(parseManagedBlock(upgradedRouter).state).toBe("valid");
+        expect(loadManifest(targetDir)!.files[".make-docs/AGENTS.md"]).toMatchObject({
+          ownershipClass: "managed-block",
+        });
+      }
 
       const database = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
       try {
@@ -297,6 +323,7 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
       }
 
       const firstRunFiles = snapshotProjectFiles(targetDir);
+      outputSpy.mockClear();
       await runCli([
         "setup",
         "--codex-method",
@@ -308,6 +335,10 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
         "--target",
         targetDir,
       ]);
+      const repeatOutput = outputSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
+      expect(repeatOutput).toContain("Changes planned: 0");
       expect(snapshotProjectFiles(targetDir)).toEqual(firstRunFiles);
       expect(readInstallationStatus(targetDir, storeRoot)).toMatchObject({
         status: "ready",
@@ -382,23 +413,33 @@ describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
         createAuthenticUpgradeSelections(),
       );
       selectMock.mockResolvedValueOnce("backup-and-install").mockResolvedValue("none");
-      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+      const outputSpy = vi
+        .spyOn(process.stdout, "write")
+        .mockImplementation(() => true);
       vi.spyOn(process.stderr, "write").mockImplementation(() => true);
 
       const { runCli } = await import("../src/cli");
-      await expect(
-        runCli([
-          "setup",
-          "--codex-method",
-          "none",
-          "--claude-code-method",
-          "none",
-          "--project-resources",
-          "none",
-          "--target",
-          targetDir,
-        ]),
-      ).rejects.toThrow(/does not permit migration \(ambiguous-ownership\)/i);
+      await runCli([
+        "setup",
+        "--codex-method",
+        "none",
+        "--claude-code-method",
+        "none",
+        "--project-resources",
+        "none",
+        "--target",
+        targetDir,
+      ]);
+      const blockedOutput = outputSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
+      expect(blockedOutput).toContain(
+        "does not permit migration (ambiguous-ownership)",
+      );
+      expect(blockedOutput).toContain("AGENTS.md");
+      expect(blockedOutput).toContain(
+        "Next: Review and repair the listed files without deleting project content",
+      );
       expect(snapshotProjectFiles(targetDir)).toEqual(projectBefore);
       expect(snapshotProjectFiles(homeDir)).toEqual(homeBefore);
       expect(existsSync(storeRoot)).toBe(false);

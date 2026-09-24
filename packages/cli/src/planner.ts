@@ -1851,7 +1851,10 @@ function getSchemaOneInstructionOwnershipStop(
   }
 
   const entry = manifest.files[relativePath];
-  if (!entry || entry.hash !== hashText(currentContent)) {
+  if (!entry) {
+    return null;
+  }
+  if (entry.hash !== hashText(currentContent)) {
     return "Schema-1 whole-file instruction ownership does not match the recorded path and hash.";
   }
 

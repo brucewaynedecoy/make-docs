@@ -1679,6 +1679,25 @@ The first full CLI run found one synthetic test that labeled current managed-blo
 | PRD authority, links, and path hygiene | Passed after the evidence update: 81 of 81 focused tests. |
 | Diff whitespace check | Passed with `git diff --check` after the source and evidence update. |
 
+### Stage 4 Pull Request Review Correction
+
+Pull request 16 received three valid CodeRabbit findings. The repair now returns one blocked human or JSON result that names each affected path, gives the failed ownership reason, and gives one safe next action. The same result is used for unresolved non-interactive managed-file conflicts before any Store or project mutation.
+
+The planner no longer treats a schema-1 router as an ownership contradiction only because that router is absent from the old manifest. When the path is a current Make Docs target, setup routes it through explicit conflict review. An approved overwrite changes only the Make Docs managed block and preserves the project-owned bytes outside that block. A recorded schema-1 whole-file hash mismatch and all contradictory V2 marker forms remain hard stops.
+
+The authentic schema-1 fixture now creates an unrecorded current target router. It proves reviewed managed-block insertion, preservation of the original project text, and block-scoped ownership in the new manifest. Its immediate repeat also proves the user-visible `Changes planned: 0` result. A separate CLI case proves the structured JSON blocker and no-mutation result. Older regression tests now check the structured result instead of the former thrown error.
+
+| Pull request review check | Result |
+| --- | --- |
+| Authentic schema-1 fixture | Passed: 9 of 9 tests. |
+| Malformed target router blocker | Passed: 1 focused test. |
+| Retired resource blockers | Passed: 2 focused tests. |
+| Canonical JSON managed-router blocker | Passed: 1 focused test. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Package smoke-harness tests | Passed: 19 of 19 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,502 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+
 Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
 
 The shared checkout also contains separate uncommitted Backlog Review work. Stage 4 did not edit, stage, or commit those files.

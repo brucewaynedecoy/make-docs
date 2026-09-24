@@ -1194,18 +1194,51 @@ export function executeInstallPlanMigration(input: InstallPlanMigrationInput): I
   });
 }
 
+export interface InstallPlanMigrationReviewBlock {
+  failedCondition: string;
+  nextAction: string;
+}
+
+export function getInstallPlanMigrationReviewBlock(
+  installPlan: InstallPlan,
+): InstallPlanMigrationReviewBlock | null {
+  const unresolved = findReviewableManagedFileConflicts(installPlan);
+  const conflictActions = installPlan.actions.filter(
+    (action) => action.type === "skip-conflict",
+  );
+  const stops = installPlan.stops ?? [];
+  if (unresolved.length === 0 && conflictActions.length === 0 && stops.length === 0) {
+    return null;
+  }
+
+  const affected = new Map<string, string>();
+  for (const action of [...unresolved, ...conflictActions]) {
+    affected.set(
+      action.relativePath,
+      action.reason ?? "Managed-file ownership needs review.",
+    );
+  }
+  const stopReasons = stops.filter((reason) => !affected.has(reason));
+
+  return {
+    failedCondition: [
+      "The reviewed plan does not permit migration (ambiguous-ownership).",
+      ...[...affected].map(([relativePath, reason]) => `- ${relativePath}: ${reason}`),
+      ...stopReasons.map((reason) => `- ${reason}`),
+    ].join("\n"),
+    nextAction:
+      "Review and repair the listed files without deleting project content, then run `make-docs setup` again.",
+  };
+}
+
 export function assertInstallPlanMigrationReviewReady(
   installPlan: InstallPlan,
 ): void {
-  const unresolved = findReviewableManagedFileConflicts(installPlan);
-  if (
-    unresolved.length > 0 ||
-    (installPlan.stops?.length ?? 0) > 0 ||
-    installPlan.actions.some((action) => action.type === "skip-conflict")
-  ) {
+  const block = getInstallPlanMigrationReviewBlock(installPlan);
+  if (block) {
     throw new MigrationSafetyError(
       "ambiguous-ownership",
-      "The reviewed plan does not permit migration (ambiguous-ownership).",
+      `${block.failedCondition}\nNext: ${block.nextAction}`,
     );
   }
 }
