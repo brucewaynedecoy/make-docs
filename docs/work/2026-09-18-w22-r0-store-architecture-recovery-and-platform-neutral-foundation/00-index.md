@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P7 and P8 are closed from the final exact candidate, three-platform installed proof, and approved live setup results. W22 remains open for revision-level closeout."
-  coordinate_handoff: "Review the complete W22 R0 evidence and request owner authority before revision closeout, publication, or release."
+  why: "P8 is reopened for the authentic schema-1 router transition. Implementation requires separate owner approval."
+  coordinate_handoff: "After this authority commit, request owner approval before P8 implementation. Keep revision closeout, publication, and release separate."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -19,11 +19,13 @@ follow_on:
 
 Provide the execution queue for the [W22 R0 design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md) and [plan](../../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md).
 
-P1 through P8 are completed records for their exact accepted evidence. The owner reopened P7 on 2026-09-22 after the installed `2.0.1` CLI let pending work from another checkout block machine setup for the current target. The final repair corrected that scope and passed its exact installed and live gates.
+P1 through P7 are completed records for their exact accepted evidence. P8 preserves its prior accepted results and is reopened for the authentic schema-1 router transition. The owner reopened P7 on 2026-09-22 after the installed `2.0.1` CLI let pending work from another checkout block machine setup for the current target. The final repair corrected that scope and passed its exact installed and live gates.
 
 The repaired CLI completed plain setup in the Make Docs project. The North Atlantic BuildOS acceptance test then found a separate defect. After a reviewed removal, plain setup treated backup routers and unrelated BuildOS routers as active ownership collisions and required a `backup-and-reinstall` flow that the CLI does not expose.
 
-P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change.
+
+Videos Matter then proved that authentic schema-1 whole-file routers are still rejected because they do not contain V2 managed-block markers. P8 and D-038 are reopened for this bounded defect. Task t20 is complete. Tasks t21 through t28 await separate implementation approval.
 
 ## Human Experience Trace
 
@@ -47,7 +49,7 @@ P8 corrected target-scoped router ownership and the reviewed reinstall handoff. 
 | P5 | [Compatibility Bridge and Symptom Closure](05-compatibility-bridge-and-symptom-closure.md) | Safe conversion or quarantine for supported old state and close evidence for every symptom. |
 | P6 | [Real Platform Package Proof and Closeout](06-real-platform-package-proof-and-closeout.md) | One package passes comparable installed cases on Windows, macOS, and Linux. |
 | P7 | [Setup Bridge Order and Recovery Loop Repair](07-setup-bridge-order-and-recovery-loop-repair.md) | Plain setup uses one final post-prerequisite plan, passes every safety check before operation creation, and provides normal resume or restore without deep recovery commands. |
-| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Plain setup scopes router ownership to active planned targets and continues a completed reviewed removal under the same project and checkout identities. |
+| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Reopened. Preserve target-scoped reviewed reinstall behavior and repair the authentic schema-1 whole-file router transition. |
 
 ## Usage Notes
 
@@ -68,9 +70,9 @@ P8 corrected target-scoped router ownership and the reviewed reinstall handoff. 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Review the complete W22 R0 evidence before any revision-level closeout.
+- Next step: Request owner approval before P8 implementation.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: P7 and P8 are closed. W22 revision closeout, publication, and release retain separate authority gates.
-- Coordinate Handoff: Keep P1 through P8 as completed records and request owner authority before closing W22 R0.
+- Why: P8 and D-038 are reopened for the authentic schema-1 router transition. This authority update does not authorize implementation.
+- Coordinate Handoff: Keep P1 through P7 complete, preserve prior P8 evidence, and implement only after separate owner approval.
 
-Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded the new defect without rewriting prior phase history. The owner approved the final exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded each defect without rewriting prior phase history. The owner approved the prior exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Videos Matter reopened P8 and D-038 on 2026-09-24. P7 remains closed. W22 remains open.

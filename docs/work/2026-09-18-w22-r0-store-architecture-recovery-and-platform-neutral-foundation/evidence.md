@@ -1629,10 +1629,26 @@ Final Human Experience Review:
 | HX-5: setup and repair use one open recovery path | The final candidate preserved project and checkout identity, backup evidence, saved intent, project-owned router content, and the user-owned Codex entry. The authentic fixture proves the initial reviewed reinstall and immediate no-op repeat. | Satisfied for the accepted P7 and P8 scope. | The live final run began from an already-current `2.0.1` state, so the initial legacy transition claim stays bound to the authentic fixture and three-platform installed contract. |
 | HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same candidate passed the installed contract on Ubuntu, macOS, and Windows. Store-free, identity, ownership, and retained-mechanism checks passed in the recorded source and installed suites. | Preserved within the tested scope. | Publication and release remain separate actions. |
 
-### P8 Gate
+### Prior P8 Gate - Superseded By Videos Matter Counterevidence
 
 Stage 1 tasks t1 through t7, Stage 2 tasks t8 through t12, and Stage 3 tasks t13 through t19 are complete. Acceptance criteria A57 through A65 pass.
 
 The source and authentic fixtures passed. One exact candidate passed the same installed-package contract on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with status 0, stable Store and project identities, no pending recovery, and no project file change. The recorded limit does not weaken the initial-upgrade proof because the authentic legacy fixture and three-platform installed contract own that transition.
 
 The owner authorized closeout and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.
+
+### Videos Matter Schema-1 Counterevidence
+
+On 2026-09-24, installed `make-docs setup` reviewed an authentic Videos Matter `0.1.0` schema-1 installation. The compatibility audit found all 71 manifest-managed files present and matching their manifest whole-file hashes. It also listed 26 router files as malformed because they do not contain V2 managed-block markers. The reviewed plan contained 83 changes: 12 generates, 12 updates, and 59 removals. After the reviewed legacy transfer changed the project review, apply stopped as `ambiguous-ownership`.
+
+Store readback for project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7` was `ready` with no pending recovery. This authority turn did not retry setup or change the live Videos Matter project.
+
+The code trace found the exact gap. Instruction-file manifest hashing expects a valid V2 managed block. When an authentic schema-1 router has no such block, it returns no comparable hash. Compatibility classification then reports a malformed block before it can use the schema-1 whole-file hash. Migration converts that result to ambiguous ownership.
+
+The existing `modified-v1` fixture is not authentic for this case. It installs current V2 router files and then changes the manifest schema. The prior North Atlantic BuildOS proof remains accepted for target-scoped ownership, reviewed removal, selection continuity, and repeat convergence. It does not prove the direct schema-1 whole-file router transition.
+
+### Reopened P8 Gate
+
+The owner approved the P8 and D-038 authority update and this backlog commit on 2026-09-24. Task t20 is complete. Tasks t21 through t28 and acceptance criteria A66 through A70 are open.
+
+Implementation has not started. It requires separate owner approval. A new exact-candidate install and the live Videos Matter upgrade also retain their applicable approval gates. P7 remains closed. P8 and D-038 remain open. W22 remains open.

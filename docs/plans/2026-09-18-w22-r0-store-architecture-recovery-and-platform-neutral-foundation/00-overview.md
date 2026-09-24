@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P7 and P8 are closed from the final exact candidate, three-platform installed proof, and approved live setup results. W22 remains open for revision-level closeout."
-  coordinate_handoff: "Review the complete W22 R0 evidence and request separate owner authority before revision closeout, publication, or release."
+  why: "P8 is reopened for the authentic schema-1 router transition. Implementation requires separate owner approval."
+  coordinate_handoff: "After this authority commit, request owner approval before P8 implementation. Keep revision closeout, publication, and release separate."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -19,9 +19,11 @@ follow_on:
 
 Plan the architecture recovery defined by the [source design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md). The plan first tests the value of each current mechanism. It then settles current authority, creates a platform-neutral safety boundary, simplifies Store and harness state, migrates existing installations, closes known symptoms, and proves installed results on Windows, macOS, and Linux.
 
-P1 through P8 are completed records for their exact accepted evidence. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The P7 repair corrected that scope and the Make Docs project completed plain setup with the repaired CLI.
+P1 through P7 are completed records for their exact accepted evidence. P8 keeps its prior accepted results, but it is reopened for the authentic schema-1 router transition. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The P7 repair corrected that scope and the Make Docs project completed plain setup with the repaired CLI.
 
-The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 corrected that behavior. One final exact candidate passed the three-platform installed-package workflow and the approved live North Atlantic setup result. P7, P8, and D-038 are closed.
+The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 corrected that behavior. One final exact candidate passed the three-platform installed-package workflow and the approved live North Atlantic setup result.
+
+Videos Matter then exposed a missing part of the same P8 contract. Its authentic schema-1 routers match the legacy manifest whole-file hashes but do not contain V2 managed-block markers. Setup treats those expected legacy files as malformed and rejects the reviewed upgrade as `ambiguous-ownership`. P8 and D-038 are reopened for this bounded defect. Implementation has not started and requires separate owner approval.
 
 ## Objective
 
@@ -64,7 +66,9 @@ W22 R0 revisits the build segment after its prior close. This is an explicit lif
 
 P7 owns the setup-order, cross-project Store isolation, computer-replan, recovery-guidance, and approval-wording corrections. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures still pass through plain setup.
 
-P8 owns the later router-ownership and reviewed-reinstall defect. This is another explicit lifecycle revisit under the straddle rule. P8 does not add a broad force, reset, detach, or quarantine command. It updates the existing compatibility, Store transfer, setup, and D-038 authority so plain setup can continue from a completed reviewed removal. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+P8 owns the later router-ownership and reviewed-reinstall defect. This is another explicit lifecycle revisit under the straddle rule. P8 does not add a broad force, reset, detach, or quarantine command. It updates the existing compatibility, Store transfer, setup, and D-038 authority so plain setup can continue from a completed reviewed removal.
+
+The Videos Matter trace reopens P8 and D-038 again. This bounded scope interprets exact schema-1 whole-file router hashes as trusted legacy ownership, treats missing V2 markers as expected for that source schema, preserves hard stops for inconsistent evidence, and proves a direct one-command V1 upgrade plus an immediate no-op repeat. P7 remains closed. W22 remains open.
 
 ## Maintenance Inputs
 
@@ -154,9 +158,9 @@ The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a
 | Surface | Artifact | Required maintenance | Authority role |
 | --- | --- | --- | --- |
 | Links and index | [PRD index](../../prd/00-index.md) | Update relationships only when the accepted target changes navigation. | Navigation only. |
-| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and close D-038 with the final P7 and P8 evidence and recorded limit. | Living risk and decision register. |
+| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and keep D-038 open until the authentic schema-1 repair passes its final gates. | Living risk and decision register. |
 | Plan | This directory | Keep decision order, limits, and phase dependencies current. | Sequencing and rationale. |
-| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P8 as completed records. Preserve rejected candidates and failed live attempts as historical evidence. | Current implementation queue. |
+| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P7 complete. Reopen P8 only for the authentic schema-1 router repair. Preserve all prior evidence. | Current implementation queue. |
 | Prior plans and work | W19 Store, setup, harness, and recovery packages | Link as evidence. Do not rewrite completed records. | Historical context and prior proof. |
 | History | Future W22 phase records | Create only during authorized phase closeout. | Execution provenance. |
 
@@ -171,14 +175,14 @@ The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a
 | [05-compatibility-bridge-and-symptom-closure.md](05-compatibility-bridge-and-symptom-closure.md) | Migrate existing state safely and close every in-scope symptom. |
 | [06-real-platform-package-proof-and-closeout.md](06-real-platform-package-proof-and-closeout.md) | Prove one installed result on real platforms and complete the recovery review. |
 | [07-setup-bridge-order-and-recovery-loop-repair.md](07-setup-bridge-order-and-recovery-loop-repair.md) | Build one final plan from predicted post-prerequisite state, complete all safety checks before operation creation, align planner and executor, and keep resume or restore in plain setup. |
-| [08-router-ownership-and-reviewed-reinstall-repair.md](08-router-ownership-and-reviewed-reinstall-repair.md) | Scope router ownership to active planned targets and continue a completed reviewed removal through plain setup under the same project and checkout identities. |
+| [08-router-ownership-and-reviewed-reinstall-repair.md](08-router-ownership-and-reviewed-reinstall-repair.md) | Preserve target-scoped reviewed reinstall behavior and repair the direct authentic schema-1 whole-file router transition. |
 
 ## Output Contract
 
 - Design: `docs/designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md`.
 - Plan: this directory with `00-overview.md` and eight phase files.
 - PRDs: surgical maintenance of existing owners only after P1 decisions are accepted.
-- Risk register: D-038 is closed by the final P7 and P8 evidence. P8 adds no new broad reset or force capability.
+- Risk register: D-038 is reopened for the authentic schema-1 router transition. P8 adds no new broad reset or force capability.
 - Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and eight phase files.
 - The owner approved the final exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Publication and release retain their separate gates.
 
@@ -206,13 +210,13 @@ Use jdocmunch for project documents and jcodemunch for code and function signatu
 
 P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on the 2026-09-22 installed failure traces and the reopened D-038 finding.
 
-P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. Source, isolated, three-platform installed-package, and approved live proof pass.
+P8 retains the accepted North Atlantic BuildOS proof. Its reopened scope depends on the Videos Matter schema-1 trace, exact legacy manifest hashes, authentic older-package bytes, and the accepted current authority in PRDs 18 and 39.
 
-P7 and P8 are closed bounded repairs. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Any later finding that changes that product target returns to the owner.
+P7 is closed. P8 and D-038 are open for the bounded schema-1 repair. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Implementation requires separate owner approval.
 
 ## Validation
 
-Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests from authentic supported older packages. Require interruption, resume, and restore proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce both the reciprocal-command trace and the later `partial-install` and `ambiguous-ownership` checkpoint-3 trace. P8 must reproduce the completed removal, verified backup, unavailable reinstall path, backup-router scan, and unrelated-router collision. The combined repairs must prove one final approved plan, target-scoped ownership, managed-block preservation, every predictable safety check before operation creation, full setup, direct system setup, reviewed reinstall, failure, repeat, and machine-readable results without a command loop, unavailable command, normal-use deep recovery command, or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
+Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests from authentic supported older packages. Require interruption, resume, and restore proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce both the reciprocal-command trace and the later `partial-install` and `ambiguous-ownership` checkpoint-3 trace. P8 must reproduce the completed removal, verified backup, unavailable reinstall path, backup-router scan, unrelated-router collision, and authentic schema-1 whole-file router state. The combined repairs must prove one final approved plan, source-schema-aware ownership, target-scoped ownership, managed-block preservation, every predictable safety check before operation creation, a direct one-command V1 upgrade, an immediate no-op repeat, full setup, direct system setup, reviewed reinstall, failure, repeat, and machine-readable results without a command loop, unavailable command, normal-use deep recovery command, or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
 
 Automated Implementation Testing is required in every implementation phase. Performance Testing is `not-needed-now` unless a later accepted product decision creates a real performance question. Guided Progress Review is useful for decision review and final installed flows. Unassisted Goal Testing is `not-needed-now` for the architecture decision because the owner has the needed product context. Reassess it for final normal-use discoverability only if current testing authority and executor isolation make it useful.
 
@@ -221,9 +225,9 @@ The agent must complete a Human Experience Review for the installed result. Huma
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Review the complete W22 R0 evidence before any revision-level closeout.
+- Next step: Request owner approval before P8 implementation.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: P7 and P8 are closed. W22 revision closeout, publication, and release retain separate authority gates.
-- Coordinate Handoff: Keep P1 through P8 as completed records and request owner authority before closing W22 R0.
+- Why: P8 and D-038 are reopened for the authentic schema-1 router transition. This authority update does not authorize implementation.
+- Coordinate Handoff: Keep P1 through P7 complete, preserve prior P8 evidence, and implement only after separate owner approval.
 
-This direct return from a reopened plan to product-authority maintenance and then implementation was an explicit lifecycle departure. P8 updated existing PRD owners and D-038. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+This direct return to product-authority maintenance is an explicit lifecycle departure. P8 updates existing PRD owners and reopens D-038. P7 remains closed. P8 implementation, W22 closeout, publication, and release keep separate gates.

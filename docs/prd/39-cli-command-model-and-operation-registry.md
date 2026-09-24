@@ -147,6 +147,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-MIG-4 (MUST): setup classifies and bootstraps the external Store before project mutation. Schema changes and their journal commit in one transaction. All project-operation receipts and recovery progress remain in the Store. A required Store failure stops the affected operation and returns a typed result with safe next steps. There is no local receipt projection or retry path. Recovery never replaces the whole Store after commit.
 - R-MIG-5 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each returns a reachable status and one safe next action. Input failure before mutation creates no blocking operation. Repeat setup preserves independent completed subplans and resumes only incomplete work.
 - R-MIG-6 (MUST): Store access results use `store-not-configured`, `store-unavailable`, `store-unsafe`, or `store-denied`. A required Store failure stops only the affected operation. It does not state that Store-free operations or the wider agent task are unavailable.
+- R-MIG-7 (MUST): plain `make-docs setup` upgrades a supported schema-1 installation with exact legacy ownership evidence in one reviewed command. It does not require removal, reset, manual Store edits, or a second migration command. The immediate repeat reports no project change and only no-op file actions. Ambiguous legacy ownership stops before project mutation and names one action that can change the condition.
 
 ### Installation State Commands (R-STATE)
 
@@ -209,6 +210,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 - R-TEST-13 (MUST): typed-access tests cover `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied` across human, JSON, MCP, and agent paths. Store-free work continues. An active-task case grants first-party or generic MCP access, refreshes state, retries one operation, and preserves prior task progress.
 - R-TEST-14 (MUST): one exact installed package with the repository unavailable covers fresh, v1, early-v2, partial, invalid-option, interrupted, repeat, no-Store, configured-Store, first-party MCP, generic MCP, recovery, repair, and removal cases. Candidate construction and proof do not require live Store or MCP access in the maintainer checkout.
 - R-TEST-15 (MUST): performance validation tests cover the shared deterministic core, CLI/MCP result parity, the installed agent method, rule-catalog mappings, explicit one-sided reasons, proof-state honesty, fail-closed paths, judgment non-capabilities, and the rule that a change to either twin requires review of the mapped twin.
+- R-TEST-16 (MUST): an authentic older-package fixture uses the actual schema-1 manifest form and whole-file router bytes. It proves one-command upgrade, managed-block conversion, preserved project content, a no-op immediate repeat, and fail-closed hash and marker contradictions. One exact installed package runs the same contract on Windows, macOS, and Linux before live-project acceptance.
 
 The seven-command structure, context-aware bare command, machine-footprint `uninstall`, remote-execution-honest self-management, registry-derived surfaces, modular shared core with one-way dependencies, canonical resource grammar, registry-only lifecycle surface, compatibility rejection, and pre-v2 detection are non-substitutable. Implementations may choose the pre-v2 fingerprint set and warning copy, install-manager detection matrix, and internal operation-core module layout without changing registered identities.
 
@@ -294,6 +296,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - R-SKILL-ADOPT-CMD-6 (MUST): expose pending work and safe recovery through existing `project state status` and `project state recover` behavior. Reuse [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) for file/exposure ownership and [PRD 38](38-global-store-and-project-state.md) for durable state. Do not add another command family or local operational fallback.
 
 ## Requirement History
+
+### 2026-09-24 — W22 R0 P8 Authentic Schema-1 Router Reopening
+
+- Affected requirement or section: `Command Compatibility and Upgrade Safety (R-MIG)` and `Verification and Testability (R-TEST)`
+- Previous contract: Plain setup promised a reachable v1 upgrade, but the P8 proof used current managed-block routers or an already-current live project. It did not prove the direct transition from authentic schema-1 whole-file routers.
+- Replacement contract: Plain setup performs that direct reviewed upgrade in one command, immediate repeat is a no-op, and an authentic older-package fixture plus one three-platform installed candidate owns the transition proof.
+- Rationale: A synthetic manifest downgrade cannot prove that the public command accepts the file form shipped by an older package.
+- Source: [W22 R0 P8 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md)
 
 ### 2026-09-23 — W22 R0 P8
 
