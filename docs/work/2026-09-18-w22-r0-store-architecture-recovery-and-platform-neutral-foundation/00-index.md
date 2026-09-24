@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P7 and P8 are closed from the final exact candidate, three-platform installed proof, and approved live setup results. W22 remains open for revision-level closeout."
-  coordinate_handoff: "Review the complete W22 R0 evidence and request owner authority before revision closeout, publication, or release."
+  why: "P8 Stage 4 is accepted and closed. W22 remains open for revision-level closeout."
+  coordinate_handoff: "Keep P1 through P8 complete. Review W22 revision closeout separately. Keep publication and release separate."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -23,7 +23,9 @@ P1 through P8 are completed records for their exact accepted evidence. The owner
 
 The repaired CLI completed plain setup in the Make Docs project. The North Atlantic BuildOS acceptance test then found a separate defect. After a reviewed removal, plain setup treated backup routers and unrelated BuildOS routers as active ownership collisions and required a `backup-and-reinstall` flow that the CLI does not expose.
 
-P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change.
+
+Videos Matter then proved that authentic schema-1 whole-file routers were still rejected because they do not contain V2 managed-block markers. Stage 4 repaired this bounded defect. The exact `2.0.2` candidate passed the three-platform installed workflow. The approved live Videos Matter correction preserved content and identities, left a clean Store, and made the immediate repeat report zero changes. Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed.
 
 ## Human Experience Trace
 
@@ -33,7 +35,7 @@ P8 corrected target-scoped router ownership and the reviewed reinstall handoff. 
 | HX-2: clear state and one next safe action | Same | PRDs 07, 38, and 39 after P2 reconciliation | [P4](04-harness-trust-setup-and-resource-simplification.md), [P6](06-real-platform-package-proof-and-closeout.md), and [P7](07-setup-bridge-order-and-recovery-loop-repair.md) | Output fixtures, installed transcripts, and Human Experience Review | A20-A27, A40-A44, and A45-A52 pass | None |
 | HX-3: independent work continues without Store access | Same | PRDs 07, 25, 38, and 39 after P2 reconciliation | [P2](02-product-authority-and-minimal-state-model.md), [P4](04-harness-trust-setup-and-resource-simplification.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Access matrix and installed absent/denied/unavailable cases | A10, A23-A24, and A39 pass | None |
 | HX-4: checkout moves and valid package updates do not fail only because low-level identity changed | Same | PRDs 16, 18, 28, and 38 after P2 reconciliation | [P2](02-product-authority-and-minimal-state-model.md), [P3](03-platform-neutral-filesystem-and-checkout-safety.md), and [P5](05-compatibility-bridge-and-symptom-closure.md) | Schema, move, update, and bridge cases | A9, A14-A16, and A28-A35 pass | None |
-| HX-5: setup and repair use one open recovery path | Same | PRDs 07, 18, 38, and 39 after P8 authority maintenance | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), [P7](07-setup-bridge-order-and-recovery-loop-repair.md), and [P8](08-router-ownership-and-reviewed-reinstall-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, router-preservation proof, three-platform installed proof, and live setup results | A22-A26, A31-A34, and A45-A65 pass. | None |
+| HX-5: setup and repair use one open recovery path | Same | PRDs 07, 18, 38, and 39 after P8 authority maintenance | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), [P7](07-setup-bridge-order-and-recovery-loop-repair.md), and [P8](08-router-ownership-and-reviewed-reinstall-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, router-preservation proof, three-platform installed proof, and live setup results | A22-A26, A31-A34, and A45-A70 pass. | None |
 | HX-6: every retained mechanism has a clear purpose and authority class | Same | PRDs 02, 03, 25, 28, and 38 after P2 reconciliation | [P1](01-architecture-inventory-and-decision-gates.md), [P2](02-product-authority-and-minimal-state-model.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Decision ledger, PRD validation, and final review | A1-A12 and A42 pass | None |
 
 ## Phase Map
@@ -47,11 +49,11 @@ P8 corrected target-scoped router ownership and the reviewed reinstall handoff. 
 | P5 | [Compatibility Bridge and Symptom Closure](05-compatibility-bridge-and-symptom-closure.md) | Safe conversion or quarantine for supported old state and close evidence for every symptom. |
 | P6 | [Real Platform Package Proof and Closeout](06-real-platform-package-proof-and-closeout.md) | One package passes comparable installed cases on Windows, macOS, and Linux. |
 | P7 | [Setup Bridge Order and Recovery Loop Repair](07-setup-bridge-order-and-recovery-loop-repair.md) | Plain setup uses one final post-prerequisite plan, passes every safety check before operation creation, and provides normal resume or restore without deep recovery commands. |
-| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Plain setup scopes router ownership to active planned targets and continues a completed reviewed removal under the same project and checkout identities. |
+| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Complete. The source-schema ownership repair, exact three-platform `2.0.2` candidate, live Videos Matter correction, and immediate no-op repeat pass. |
 
 ## Usage Notes
 
-- P1 through P8 are completed records for their exact evidence. Preserve the rejected candidates and failed live attempts as historical evidence.
+- P1 through P8 are completed records. Preserve the rejected candidates and failed live attempts as historical evidence.
 - The source, isolated fixture, exact package, installed, and approved live North Atlantic BuildOS gates passed for P7 and P8.
 - Keep the P8 closeout bound to the recorded exact candidate and its Ubuntu, macOS, Windows, and live-project evidence.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
@@ -68,9 +70,9 @@ P8 corrected target-scoped router ownership and the reviewed reinstall handoff. 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Review the complete W22 R0 evidence before any revision-level closeout.
+- Next step: Review W22 R0 for revision-level closeout against the complete P1 through P8 evidence.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: P7 and P8 are closed. W22 revision closeout, publication, and release retain separate authority gates.
-- Coordinate Handoff: Keep P1 through P8 as completed records and request owner authority before closing W22 R0.
+- Why: P8 and D-038 are closed. W22 remains open only for its separate revision-level closeout.
+- Coordinate Handoff: Keep P1 through P8 complete and preserve all accepted and rejected evidence. Do not infer publication or release authority.
 
-Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded the new defect without rewriting prior phase history. The owner approved the final exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
+Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded each defect without rewriting prior phase history. The owner approved the prior exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Videos Matter reopened P8 and D-038 on 2026-09-24. The final `2.0.2` candidate and live correction passed, and the owner approved P8 and D-038 closeout and pull-request merge on 2026-09-24. P7 and P8 are closed. W22 remains open.

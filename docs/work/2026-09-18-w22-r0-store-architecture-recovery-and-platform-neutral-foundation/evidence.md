@@ -1629,10 +1629,119 @@ Final Human Experience Review:
 | HX-5: setup and repair use one open recovery path | The final candidate preserved project and checkout identity, backup evidence, saved intent, project-owned router content, and the user-owned Codex entry. The authentic fixture proves the initial reviewed reinstall and immediate no-op repeat. | Satisfied for the accepted P7 and P8 scope. | The live final run began from an already-current `2.0.1` state, so the initial legacy transition claim stays bound to the authentic fixture and three-platform installed contract. |
 | HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same candidate passed the installed contract on Ubuntu, macOS, and Windows. Store-free, identity, ownership, and retained-mechanism checks passed in the recorded source and installed suites. | Preserved within the tested scope. | Publication and release remain separate actions. |
 
-### P8 Gate
+### Prior P8 Gate - Superseded By Videos Matter Counterevidence
 
 Stage 1 tasks t1 through t7, Stage 2 tasks t8 through t12, and Stage 3 tasks t13 through t19 are complete. Acceptance criteria A57 through A65 pass.
 
 The source and authentic fixtures passed. One exact candidate passed the same installed-package contract on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with status 0, stable Store and project identities, no pending recovery, and no project file change. The recorded limit does not weaken the initial-upgrade proof because the authentic legacy fixture and three-platform installed contract own that transition.
 
 The owner authorized closeout and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.
+
+### Videos Matter Schema-1 Counterevidence
+
+On 2026-09-24, installed `make-docs setup` reviewed an authentic Videos Matter `0.1.0` schema-1 installation. The compatibility audit found all 71 manifest-managed files present and matching their manifest whole-file hashes. It also listed 26 router files as malformed because they do not contain V2 managed-block markers. The reviewed plan contained 83 changes: 12 generates, 12 updates, and 59 removals. After the reviewed legacy transfer changed the project review, apply stopped as `ambiguous-ownership`.
+
+Store readback for project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7` was `ready` with no pending recovery. This authority turn did not retry setup or change the live Videos Matter project.
+
+The code trace found the exact gap. Instruction-file manifest hashing expects a valid V2 managed block. When an authentic schema-1 router has no such block, it returns no comparable hash. Compatibility classification then reports a malformed block before it can use the schema-1 whole-file hash. Migration converts that result to ambiguous ownership.
+
+The existing `modified-v1` fixture is not authentic for this case. It installs current V2 router files and then changes the manifest schema. The prior North Atlantic BuildOS proof remains accepted for target-scoped ownership, reviewed removal, selection continuity, and repeat convergence. It does not prove the direct schema-1 whole-file router transition.
+
+### Reopened P8 Gate
+
+The owner approved the P8 and D-038 authority update and this backlog commit on 2026-09-24. Task t20 is complete. Tasks t21 through t28 and acceptance criteria A66 through A70 are open.
+
+Implementation has not started. It requires separate owner approval. A new exact-candidate install and the live Videos Matter upgrade also retain their applicable approval gates. P7 remains closed. P8 and D-038 remain open. W22 remains open.
+
+### Stage 4 Source Implementation
+
+The owner approved P8 Stage 4 implementation on 2026-09-24. The repair uses the archived `make-docs@0.1.0` package that produced the Videos Matter schema-1 installation form. The fixture has exact whole-file router hashes and no V2 managed-block markers.
+
+Compatibility and install planning now select the hash rule from the source manifest schema. A schema-1 instruction file is trusted only when its full bytes match the manifest entry for that path and no V2 marker is present. Later schemas keep managed-block body hashing.
+
+Whole-file hash mismatch and partial, malformed, duplicated, nested, or otherwise contradictory V2 marker evidence create an unresolved ownership stop. The CLI now enforces that stop before machine approval, Store conversion, legacy transfer, backup, project configuration, or operation creation. The blocked cases keep the complete project tree and home tree unchanged and do not create the Store path.
+
+The authentic schema-1 fixture completes one reviewed plain setup. It preserves a project-owned source router that is outside the Make Docs plan. It then runs plain setup again with the same reviewed choices and proves that every project file and symlink is unchanged.
+
+The deterministic and agentic business-logic review found no safe agentic twin for this rule. Source schema, exact bytes, hashes, marker structure, and the pre-write gate must stay deterministic. An instruction-only agent decision would weaken the fail-closed ownership boundary.
+
+The first full CLI run found one synthetic test that labeled current managed-block routers as schema 1. That state contradicts the approved schema-1 whole-file contract. The fixture now uses schema 2 for its block-model refresh case. The same review expanded the authentic hard-stop proof to cover all approved marker forms and full state preservation.
+
+| Check | Result |
+| --- | --- |
+| Authentic schema-1 upgrade and safety fixture | Passed: 9 of 9 tests. |
+| Focused compatibility and install regression set | Passed in the final full run: 109 tests across the authentic-upgrade, compatibility, compatibility-fixture, and installer files. |
+| Full CLI source suite | Passed: 93 test files and 1,501 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+| TypeScript check | Passed with `npm exec -w packages/cli tsc -- --noEmit`. |
+| Package build | Passed with `npm run build`. |
+| Default validation | Passed: 53 of 53 tests. |
+| Package smoke-harness tests | Passed: 19 of 19 tests. |
+| PRD authority, links, and path hygiene | Passed after the evidence update: 81 of 81 focused tests. |
+| Diff whitespace check | Passed with `git diff --check` after the source and evidence update. |
+
+### Stage 4 Pull Request Review Correction
+
+Pull request 16 received three valid CodeRabbit findings. The repair now returns one blocked human or JSON result that names each affected path, gives the failed ownership reason, and gives one safe next action. The same result is used for unresolved non-interactive managed-file conflicts before any Store or project mutation.
+
+The planner no longer treats a schema-1 router as an ownership contradiction only because that router is absent from the old manifest. When the path is a current Make Docs target, setup routes it through explicit conflict review. An approved overwrite changes only the Make Docs managed block and preserves the project-owned bytes outside that block. A recorded schema-1 whole-file hash mismatch and all contradictory V2 marker forms remain hard stops.
+
+The authentic schema-1 fixture now creates an unrecorded current target router. It proves reviewed managed-block insertion, preservation of the original project text, and block-scoped ownership in the new manifest. Its immediate repeat also proves the user-visible `Changes planned: 0` result. A separate CLI case proves the structured JSON blocker and no-mutation result. Older regression tests now check the structured result instead of the former thrown error.
+
+| Pull request review check | Result |
+| --- | --- |
+| Authentic schema-1 fixture | Passed: 9 of 9 tests. |
+| Malformed target router blocker | Passed: 1 focused test. |
+| Retired resource blockers | Passed: 2 focused tests. |
+| Canonical JSON managed-router blocker | Passed: 1 focused test. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Package smoke-harness tests | Passed: 19 of 19 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,502 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+
+Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
+
+The shared checkout also contains separate uncommitted Backlog Review work. Stage 4 did not edit, stage, or commit those files.
+
+### Stage 4 Live Candidate Rejection And Convergence Repair
+
+The first Stage 4 candidate came from pull request 16. Its merge source was `a3d1af81172290912a2a04e8f9af530f70a60371`, with pull-request head `9e82fcb065c54f1c1262ae43eb196db32b844bad`. The package file was `brucewaynedecoy-make-docs-2.0.1.tgz`. Its SHA-256 digest was `748dfd5a7752fd02679131a296c3c13dd8490c17ef54350c52b9c4ff01aed089`, and its size was `1717607` bytes. Workflow run `36023428616` passed the Windows, macOS, Linux, comparison, source, and package gates.
+
+The candidate was installed for the approved live Videos Matter test. The installed executable digest changed to `a085b7e251fb274dcfcb97d1fc14e89ac1006bd165d9daf35bf678666d6a3571`. The package still reported `2.0.1`. That version was incorrect because the published `2.0.1` release and this candidate had different bytes. The next candidate now uses version `2.0.2`.
+
+The live initial upgrade used `make-docs setup --project-resources none --codex-method mcp --claude-code-method mcp`. It completed with status 0. It preserved project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7`. Store readback was `ready` with no pending operation. The reviewed backup was created. The saved resource selection remained `none`. The user-owned Codex MCP entry remained blocked from product changes, and the Claude Code MCP entry remained current.
+
+The immediate plain-setup repeat exposed a defect. It planned two project changes: generate `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md`. The live test declined that project apply. No second-run project change occurred. This result fails t27 and A70, so the first candidate is rejected even though its CI and initial live upgrade passed.
+
+The cause was deterministic. The schema-1 first migration removed exact legacy `docs/assets` root routers while project-owned history and archive content remained below that surface. The new schema-4 manifest then caused the repeat planner to restore the missing root routers. The correction now carries or upgrades the surface routers during the first schema-1 migration whenever unrecorded, project-owned, changed, or otherwise preserved content will remain below that surface. It does not retain the routers when every legacy child is safely removable.
+
+The authentic `0.1.0` fixture now includes project-owned history below `docs/assets`. It proves that the first upgrade preserves that content, leaves both root routers valid, and makes the immediate repeat report `Changes planned: 0` with an identical project tree. The deterministic and agentic business-logic review again found no safe agentic twin. File type, path, manifest ownership, and exact hashes must decide this pre-write rule.
+
+| Correction check | Result |
+| --- | --- |
+| Authentic schema-1 upgrade and immediate repeat | Passed: 9 of 9 tests. |
+| Router, projection, and installer regression set | Passed: 102 of 102 tests. |
+| Full repository suite | Passed: 93 test files and 1,502 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+| Package proof harness | Passed: 19 of 19 tests. |
+| TypeScript check | Passed with `npx --no-install tsc -p packages/cli/tsconfig.json --noEmit`. |
+| Package build | Passed with package version `2.0.2`. |
+| Default validation | Passed: 53 of 53 tests. |
+
+Tasks t26 through t28 remain open. A new exact `2.0.2` candidate must pass the Windows, macOS, and Linux installed-package contract. Videos Matter is now in the post-upgrade state. The new candidate must repair the two missing surface routers and then make the immediate repeat plan zero project changes. The authentic fixture and the three-platform installed contract retain responsibility for the direct schema-1 transition. No live reset or rollback is authorized only to recreate that starting state. P8 and D-038 remain open.
+
+### Stage 4 Final Exact Candidate And Live Acceptance
+
+Pull request [#16](https://github.com/brucewaynedecoy/make-docs/pull/16) produced the final exact Stage 4 candidate. The pull-request head was `abddd1fe8258a11e4f621e6e1314e6d72a358d4d`. The GitHub merge-ref source revision was `f10bb747f3bbc4eb809115b9b94f1cd330bd5e1f`. The package identity was `@brucewaynedecoy/make-docs@2.0.2`. The package file was `brucewaynedecoy-make-docs-2.0.2.tgz`, its SHA-256 digest was `615b09efe987fbbb63f95c505a598381f4c50001357402581bf530ebb7948007`, and its size was `1718241` bytes. The installed executable SHA-256 digest was `5fc48d502576ca0cef41e01cf4ba2ea9c5127e10c6c8e3e5a97962ce835b3a5c`.
+
+[Platform Safety run 36032340715](https://github.com/brucewaynedecoy/make-docs/actions/runs/36032340715) passed the exact-package build, the Ubuntu, macOS, and Windows platform contracts, the Ubuntu, macOS, and Windows installed-package jobs, and the final comparison. The source checkout was unavailable to installed product execution. Candidate identity and execution provenance agreed across all three hosts. CodeRabbit's actionable computer-change finding was corrected before this candidate. The CodeRabbit check passed. A later review request reached its rate limit and produced no new finding.
+
+The approved live Videos Matter test installed this exact `2.0.2` candidate. The first setup review planned only two project actions: generate `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md`. The operator did not approve the required computer change on that attempt. The CLI stopped before it changed the machine, project, Store, backup, or router state and stated that machine setup was not approved. This was the required safe blocked result.
+
+The approved retry applied the Make Docs-owned Claude Code MCP entry change and completed the project sync with status 0. Store readback was `ready`, installed version was `2.0.2`, and no pending operation remained. Project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7` remained unchanged. The protected history-and-archive combined SHA-256 digest remained `893e466b29022c1630388161e61d786d5a1b62dde1092fe209b5e0791481437c` before and after the live correction. The two restored surface routers contained valid Make Docs managed blocks.
+
+The backup evidence remained present. The `.make-docs/backup` tree contained 171 files, including the reviewed `2026-09-24T16-25-57.357Z` root and operation backup records. Its combined SHA-256 digest was `2f2ce44b7c6de1b6a8f2bf2930b6d8fb7730ff3a415ca941de1fec147cdf57cf`.
+
+The immediate plain-setup repeat reported installed and package version `2.0.2`, 26 managed files evaluated, 26 already current, and `Changes planned: 0`. It made no project change. The live project began this final run in the post-initial-upgrade state because the rejected candidate had already completed the schema-1 transition. The authentic `0.1.0` fixture and the exact three-platform installed contract retain responsibility for the direct schema-1 transition. The final live result proves the corrected surface-router convergence, preserved state, normal setup path, and immediate no-op repeat. No live reset or rollback was used.
+
+Human Experience Review used the actual preview, blocked, success, and repeat output. Codex performed the review, and the owner accepted the result on 2026-09-24. The preview named the two planned project effects. The blocked result clearly stated that approval was missing and made no change. The success result named the synced version and project. The repeat result made current state and zero planned changes visible. The flow preserved control and supplied one safe next action. The only limit is the split live evidence noted above: the final candidate repaired an already-upgraded live project, while the authentic fixture and three-platform installed workflow prove the direct schema-1 transition.
+
+Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release retain separate gates.

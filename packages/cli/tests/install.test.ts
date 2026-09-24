@@ -1741,7 +1741,7 @@ describe("installer integration", () => {
     }
   });
 
-  test("refreshes clean W17 root blocks and removes stale dedicated instruction files", async () => {
+  test("refreshes clean block-model root routers and removes stale dedicated instruction files", async () => {
     const targetDir = createTempDir();
     try {
       const selections = defaultSelections();
@@ -1770,7 +1770,7 @@ describe("installer integration", () => {
 
       let existingManifest: NonNullable<ReturnType<typeof loadManifest>> = {
         projectId: mintProjectId(),
-        schemaVersion: 1,
+        schemaVersion: 2,
         packageName: "make-docs",
         packageVersion: "0.1.0",
         updatedAt: "2026-06-18T00:00:00.000Z",

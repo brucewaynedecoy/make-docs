@@ -1,7 +1,7 @@
 ---
 title: "Phase 8: Router Ownership and Reviewed Reinstall Repair"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W22 R0 P8"
 source:
   type: "prd"
@@ -14,11 +14,15 @@ source:
 
 Make plain setup complete a reviewed reinstall after a verified project removal. Scope ownership checks to active planned targets. Preserve unrelated routers, shared-router user content, and backup evidence.
 
+Repair the missing direct upgrade path for authentic schema-1 routers whose exact legacy manifest hashes match but whose files predate V2 managed-block markers.
+
 ## Overview
 
 P8 repairs the defect found during the North Atlantic BuildOS acceptance test. The current CLI scans router names across the repository, including its own backup tree and unrelated BuildOS control files. After a successful reviewed removal, it then requires a `backup-and-reinstall` path that the public CLI does not expose.
 
-P8 uses the completed removal operation and verified backup as the handoff into a new reviewed setup plan for the same project and checkout. It does not add a broad reset or force command. P8 is closed after source proof, one exact three-platform installed-package result, and the approved live North Atlantic BuildOS setup result.
+P8 uses the completed removal operation and verified backup as the handoff into a new reviewed setup plan for the same project and checkout. It does not add a broad reset or force command. The prior P8 scope closed after source proof, one exact three-platform installed-package result, and the approved live North Atlantic BuildOS setup result.
+
+Videos Matter reopened P8 on 2026-09-24. Its schema-1 manifest and exact whole-file router hashes are authentic legacy evidence. Setup treated the missing V2 markers as malformed and stopped as `ambiguous-ownership`. Stage 4 repaired this bounded defect. The final exact candidate and live result passed, and the owner approved closeout on 2026-09-24.
 
 ## Human Experience Outcome
 
@@ -41,7 +45,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 | Guided Progress Review | Passed | The review covered the real preview, approval, blocked, success, and repeat outputs before closeout. |
 | Unassisted Goal Testing | `not-needed-now` | The exact deterministic state and installed-project contract can answer this recovery question. |
 
-Human Experience Review is separate. The installed and live results support HX-2 and HX-5 within the recorded limits. The owner approved phase closeout on 2026-09-23. No separate human acceptance gate applied.
+Human Experience Review is separate. The installed and live results support HX-2 and HX-5 within the recorded limits. The owner approved the prior scope closeout on 2026-09-23 and the final Stage 4 closeout on 2026-09-24. No separate human acceptance gate applied.
 
 Performance evidence lifecycle fields:
 
@@ -69,6 +73,10 @@ Performance evidence lifecycle fields:
 - Plain setup then treated 52 backup router files and 36 unrelated active BuildOS router files as ownership collisions and required an unavailable explicit `backup-and-reinstall` flow.
 - The backup exactly matches the 67 removed Git `HEAD` files. No project content is known lost.
 - The live North Atlantic BuildOS project and its backup remain outside source implementation and isolated tests. A later live apply requires separate owner approval.
+- Videos Matter reports installed version `0.1.0`, schema-1 state, and exact hashes for all 71 manifest-managed files. Its 26 legacy router files predate V2 managed-block markers.
+- Compatibility classification rejects those exact legacy routers as malformed before it compares their schema-1 whole-file hashes. Apply then rejects the reviewed `modified-v1` plan as `ambiguous-ownership`.
+- The current `modified-v1` fixture installs current V2 files before it changes the manifest schema. It cannot prove the authentic legacy file form.
+- Videos Matter Store readback is `ready` with stable project and checkout identities and no pending recovery. This authority update does not retry or change that project.
 
 ## Stage 1 - Ownership Scope And Reinstall Core
 
@@ -172,3 +180,41 @@ Performance evidence lifecycle fields:
 - Explicit human acceptance gate: None. The live run still requires the approved exact-candidate action.
 - Evidence report: The P8 section in `evidence.md` records the source correction, final exact candidate, three-platform installed result, live North Atlantic result, and evidence limit.
 - Phase / capability status: Stage 3 tasks t13 through t19 and A63 through A65 pass. The owner authorized closeout on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout.
+
+## Stage 4 - Authentic Schema-1 Router Upgrade Repair
+
+### Tasks
+
+- [x] t20: Record the Videos Matter counterevidence. Reopen P8 and D-038. Update PRDs 18 and 39 with the source-schema ownership and one-command upgrade contract.
+- [x] t21: Add an authentic older-package fixture. Use the actual schema-1 manifest form, exact whole-file router hashes, and router bytes without V2 managed-block markers.
+- [x] t22: Make router ownership classification source-schema aware. Trust an exact schema-1 whole-file hash. Treat missing V2 markers as expected only for that exact legacy state.
+- [x] t23: Preserve the hard stop for whole-file hash mismatch and partial, malformed, duplicated, nested, or contradictory V2 markers. A blocked plan must create no operation and change no Store, project, backup, router, or native file.
+- [x] t24: Prove one direct plain-setup upgrade from authentic schema 1 and one immediate all-no-op repeat. Require no removal, reset, manual Store edit, hidden command, or unrelated-router movement.
+- [x] t25: Run the focused compatibility, migration, router, setup, authentic-upgrade, and packed-CLI suites. Run the full CLI suite, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`.
+- [x] t26: Build one exact package candidate. Record its source commit, package identity, digest, and size. Run the same installed-package contract on Windows, macOS, and Linux with the source checkout unavailable.
+- [x] t27: After separate owner approval, install the exact accepted candidate and run plain setup once in Videos Matter. Verify the direct upgrade, preserved project content, project and checkout identities, Store state, backup evidence, router bytes, and no pending operation. Run immediate repeat setup and require no project change.
+- [x] t28: Complete Human Experience Review, corrective review, evidence, owner acceptance, and P8 and D-038 closeout. Keep W22 revision closeout, publication, and release separate.
+
+### Acceptance criteria
+
+- A66: A supported schema-1 router with an exact manifest whole-file hash is trusted legacy ownership. Missing V2 managed-block markers are expected in that exact state.
+- A67: Hash mismatch and partial, malformed, duplicated, nested, or contradictory marker evidence stop before operation creation and preserve all state.
+- A68: An authentic older-package fixture completes one reviewed plain-setup upgrade and an immediate all-no-op repeat without a reset, manual Store edit, or second migration command.
+- A69: One exact package passes the authentic schema-1 transition contract on Windows, macOS, and Linux with comparable candidate and execution evidence.
+- A70: After separate owner approval, the same candidate completes the live Videos Matter upgrade and immediate repeat while preserving project content, identities, backup evidence, and a clean Store state.
+
+### Dependencies
+
+- Depends on the accepted prior P8 target-scoped ownership and reviewed-removal results.
+- Depends on PRD 18 R-BRIDGE-7, PRD 39 R-MIG-7 and R-TEST-16, and reopened D-038.
+- Depends on separate owner approval before implementation and again before the live Videos Matter install and setup.
+
+### Closeout Notes
+
+- Four testing decisions: Automated Implementation Testing and Guided Progress Review are required. Performance and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: None.
+- Human Experience Review: Passed for source, installed, blocked, success, and immediate-repeat output. The first live attempt stopped before mutation when the computer change was not approved. The approved retry completed, and the repeat output reported zero project changes.
+- Optional experience handoff: Plain setup is the normal path. No reset, hidden command, manual Store edit, or unrelated-router movement is required.
+- Explicit human acceptance gate: The owner approved implementation, exact-candidate installation, the live Videos Matter action, and final closeout on 2026-09-24.
+- Evidence report: The Stage 4 source, rejected candidate, convergence correction, exact `2.0.2` candidate, three-platform workflow, live result, immediate repeat, and evidence limits are recorded in `evidence.md` without replacing prior P8 evidence.
+- Phase / capability status: Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release remain separate.

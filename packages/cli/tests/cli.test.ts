@@ -1071,6 +1071,66 @@ personas:
     }
   });
 
+  test("returns a canonical JSON block for an unresolved managed router conflict", async () => {
+    const targetDir = createTempDir();
+
+    try {
+      writeConflictingRootInstruction(targetDir);
+      const setupSystem = await import("../src/setup-system");
+      const prepareActual = setupSystem.prepareSystemSetupCommand;
+      vi.spyOn(setupSystem, "prepareSystemSetupCommand").mockImplementation(async (options) => {
+        const prepared = await prepareActual(options);
+        return {
+          ...prepared,
+          changed: true,
+          plans: [{
+            harness: "codex",
+            method: "none",
+            status: "drifted",
+            operations: ["injected reviewed machine operation"],
+            operationEffects: [],
+            allowedStoreOperations: "active-operation-registry",
+            ownedEntries: [],
+            machineFiles: [],
+            changed: true,
+            detail: "Injected reviewed machine change.",
+            apply: async () => undefined,
+            verify: async () => true,
+          }],
+        };
+      });
+      const applySystem = vi.spyOn(setupSystem, "applyPreparedSystemSetup");
+
+      const output = await captureCliOutput([
+        "setup",
+        "--yes",
+        "--json",
+        ...NONE_METHODS,
+        "--target",
+        targetDir,
+      ]);
+      const result = JSON.parse(output);
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        machine: { states: expect.arrayContaining([
+          expect.objectContaining({ mutationState: "none" }),
+        ]) },
+        project: { changed: false, mutationState: "none" },
+        failedCondition: expect.stringContaining("AGENTS.md"),
+        nextAction: expect.stringContaining("Review and repair"),
+      });
+      expect(applySystem).not.toHaveBeenCalled();
+      expect(result.failedCondition).toContain("ambiguous-ownership");
+      expect(readFileSync(path.join(targetDir, "AGENTS.md"), "utf8")).toContain(
+        "Locally edited make-docs routing",
+      );
+      expect(loadManifest(targetDir)).toBeNull();
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
   test("plain setup restores an incomplete project operation before it replans", async () => {
     const targetDir = createTempDir("make-docs-setup-restore-");
     try {

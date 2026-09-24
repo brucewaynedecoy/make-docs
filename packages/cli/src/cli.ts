@@ -35,6 +35,7 @@ import {
 } from "./install";
 import { loadManifest, validateAndMigrateManifest } from "./manifest";
 import {
+  getInstallPlanMigrationReviewBlock,
   Checkpoint9ReceiptProjectionError,
   executeInstallPlanMigration,
   executeStoreCheckpoint9Migration,
@@ -1195,19 +1196,74 @@ export async function runCli(
 
   const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
   if (!interactive && unresolvedManagedFileConflicts.length > 0) {
-    throw new Error(
-      [
-        "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
-        "Run `make-docs setup` without `--yes` to review the conflicts interactively.",
-        "",
-        ...buildCompatibilitySummaryLines(compatibilityClassification),
-        "",
-        "Conflicting managed files:",
-        ...unresolvedManagedFileConflicts.map(
-          (conflict) => `- ${conflict.relativePath}`,
-        ),
-      ].join("\n"),
-    );
+    const migrationReviewBlock = getInstallPlanMigrationReviewBlock(plan);
+    const failedCondition = [
+      "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
+      "",
+      ...buildCompatibilitySummaryLines(compatibilityClassification),
+      "",
+      migrationReviewBlock?.failedCondition ??
+        [
+          "Conflicting managed files:",
+          ...unresolvedManagedFileConflicts.map(
+            (conflict) => `- ${conflict.relativePath}: ${conflict.reason}`,
+          ),
+        ].join("\n"),
+    ].join("\n");
+    const nextAction =
+      migrationReviewBlock?.nextAction ??
+      "Run `make-docs setup` without `--yes` to review the conflicts interactively.";
+    if (jsonOutput) {
+      writeCanonicalSetupResult({
+        status: "blocked",
+        dryRun: false,
+        targetRoot: targetDir,
+        prepared: preparedSystemSetup,
+        genericMcp: genericMcpPlan,
+        storeBridge: storeBridgePreview,
+        projectRecovery: priorProjectRecovery,
+        storeMutationState: "none",
+        projectChanged: recoveredProjectChanged,
+        projectMutationState: recoveredProjectChanged ? "applied" : "none",
+        projectActions: plan.actions,
+        failedCondition,
+        nextAction,
+      });
+      return;
+    }
+    throw new Error(`${failedCondition}\n\nNext: ${nextAction}`);
+  }
+
+  if (
+    !freshInstallTarget &&
+    hasInstallMutation &&
+    completedRemovalHandoff.status !== "ready"
+  ) {
+    const migrationReviewBlock = getInstallPlanMigrationReviewBlock(plan);
+    if (migrationReviewBlock) {
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: false,
+          targetRoot: targetDir,
+          prepared: preparedSystemSetup,
+          genericMcp: genericMcpPlan,
+          storeBridge: storeBridgePreview,
+          projectRecovery: priorProjectRecovery,
+          storeMutationState: "none",
+          projectChanged: recoveredProjectChanged,
+          projectMutationState: recoveredProjectChanged ? "applied" : "none",
+          projectActions: plan.actions,
+          failedCondition: migrationReviewBlock.failedCondition,
+          nextAction: migrationReviewBlock.nextAction,
+        });
+      } else {
+        output.write(
+          `${migrationReviewBlock.failedCondition}\nNext: ${migrationReviewBlock.nextAction}\n`,
+        );
+      }
+      return;
+    }
   }
 
   let systemApproved = parsed.yes || !hasMachineMutation;
@@ -2496,7 +2552,7 @@ function writeCanonicalSetupResult(input: {
               ? "applied"
               : "none"
           : plan.changed
-            ? (input.dryRun ? "planned" : "applied")
+            ? (input.dryRun ? "planned" : "none")
             : "none",
         detail: plan.detail,
       })),

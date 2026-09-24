@@ -10,8 +10,14 @@ import {
   getSystemAssetMaterializationPlan,
 } from "./catalog";
 import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
-import { getManifestFileHash, MANIFEST_RELATIVE_PATH, RETIRED_PLAYBOOK_CONTRACT_PATH,
-  RETIRED_PLAYBOOK_CONTRACT_HASH, hasTrustedRetiredPlaybookContractOwnership } from "./manifest";
+import {
+  getManifestFileHash,
+  getManifestFileHashForSourceSchema,
+  hasTrustedRetiredPlaybookContractOwnership,
+  MANIFEST_RELATIVE_PATH,
+  RETIRED_PLAYBOOK_CONTRACT_HASH,
+  RETIRED_PLAYBOOK_CONTRACT_PATH,
+} from "./manifest";
 import { parseManagedBlock, upsertManagedBlock } from "./managed-block";
 import { getDesiredSkillAssets, getRetiredManagedSkillAssets } from "./skill-catalog";
 import type { SkillRegistry } from "./skill-registry";
@@ -272,7 +278,26 @@ export async function createInstallPlan(options: {
 
     const currentContent = readTextFile(absolutePath);
     const manifestEntry = existingManifest?.files[asset.relativePath];
-    const currentHash = getCurrentManifestHash(asset.relativePath, currentContent);
+    const currentHash = getCurrentManifestHash(
+      asset.relativePath,
+      currentContent,
+      existingManifest?.schemaVersion ?? null,
+    );
+    const schemaOneInstructionStop = getSchemaOneInstructionOwnershipStop(
+      existingManifest,
+      asset.relativePath,
+      currentContent,
+    );
+    if (schemaOneInstructionStop) {
+      conflictsRunId ??= createRunId();
+      actions.push({
+        type: "skip-conflict",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        reason: schemaOneInstructionStop,
+      });
+      continue;
+    }
     if (currentHash === desiredHash) {
       actions.push({
         type: "noop",
@@ -613,7 +638,26 @@ export async function createInstallPlan(options: {
       }
 
       const currentContent = readTextFile(absolutePath);
-      const currentHash = getCurrentManifestHash(relativePath, currentContent);
+      const currentHash = getCurrentManifestHash(
+        relativePath,
+        currentContent,
+        existingManifest.schemaVersion,
+      );
+      const schemaOneInstructionStop = getSchemaOneInstructionOwnershipStop(
+        existingManifest,
+        relativePath,
+        currentContent,
+      );
+      if (schemaOneInstructionStop) {
+        conflictsRunId ??= createRunId();
+        actions.push({
+          type: "skip-conflict",
+          relativePath,
+          sourceId: manifestEntry.sourceId,
+          reason: schemaOneInstructionStop,
+        });
+        continue;
+      }
       const legacyFullFileHash = hashText(currentContent);
       const legacyMigrationTarget = getSystemToolResourceMigrationTarget(relativePath);
       const replacementTarget = legacyMigrationTarget ?? getRetiredResourceReplacement(relativePath);
@@ -1711,8 +1755,16 @@ function normalizePlanPath(relativePath: string): string {
   return relativePath.replace(/\\/g, "/");
 }
 
-function getCurrentManifestHash(relativePath: string, content: string): string | null {
-  return getManifestFileHash(relativePath, content);
+function getCurrentManifestHash(
+  relativePath: string,
+  content: string,
+  sourceSchemaVersion: number | null,
+): string | null {
+  return getManifestFileHashForSourceSchema(
+    relativePath,
+    content,
+    sourceSchemaVersion,
+  );
 }
 
 function getPlannedUpdateContent(asset: ResolvedAsset, currentContent: string): string {
@@ -1782,6 +1834,31 @@ function getInstructionMigrationContent(
     content: getPlannedUpdateContent(asset, currentContent),
     reason: "Insert the make-docs managed block into the existing instruction file.",
   };
+}
+
+function getSchemaOneInstructionOwnershipStop(
+  manifest: InstallManifest | null,
+  relativePath: string,
+  currentContent: string,
+): string | null {
+  if (manifest?.schemaVersion !== 1 || !isInstructionPath(relativePath)) {
+    return null;
+  }
+
+  const parsed = parseManagedBlock(currentContent);
+  if (parsed.state !== "absent") {
+    return "Schema-1 instruction ownership is contradictory because V2 managed-block markers are present.";
+  }
+
+  const entry = manifest.files[relativePath];
+  if (!entry) {
+    return null;
+  }
+  if (entry.hash !== hashText(currentContent)) {
+    return "Schema-1 whole-file instruction ownership does not match the recorded path and hash.";
+  }
+
+  return null;
 }
 
 function hasVerifiedResourceOwnership(
@@ -1872,6 +1949,37 @@ function isLegacySamePathSource(sourceId: string, relativePath: string): boolean
   return sourceId === `file:${relativePath}` || sourceId === `build:${relativePath}`;
 }
 
+function schemaOneSurfaceHasPreservedContent(options: {
+  targetDir: string;
+  directory: string;
+  manifest: InstallManifest;
+}): boolean {
+  const surfaceRoot = path.join(options.targetDir, options.directory);
+  if (!existsSync(surfaceRoot)) return false;
+
+  const surfaceStat = lstatSync(surfaceRoot);
+  if (!surfaceStat.isDirectory() || surfaceStat.isSymbolicLink()) return false;
+
+  const visit = (directory: string): boolean =>
+    readdirSync(directory, { withFileTypes: true }).some((entry) => {
+      const absolutePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return visit(absolutePath);
+
+      const relativePath = normalizePlanPath(
+        path.relative(options.targetDir, absolutePath),
+      );
+      const manifestEntry = options.manifest.files[relativePath];
+      if (!manifestEntry || manifestEntry.ownershipClass === "project-owned") {
+        return true;
+      }
+      if (!entry.isFile()) return true;
+
+      return hashText(readTextFile(absolutePath)) !== manifestEntry.hash;
+    });
+
+  return visit(surfaceRoot);
+}
+
 function getCarriedOnDemandRouterAssets(options: {
   targetDir: string;
   profile: InstallProfile;
@@ -1881,7 +1989,9 @@ function getCarriedOnDemandRouterAssets(options: {
   const manifest = options.existingManifest;
   if (
     !manifest ||
-    (!manifest.routerOwnership && !options.completedRemovalHandoff)
+    (!manifest.routerOwnership &&
+      !options.completedRemovalHandoff &&
+      manifest.schemaVersion !== 1)
   ) {
     return [];
   }
@@ -1892,6 +2002,13 @@ function getCarriedOnDemandRouterAssets(options: {
   const assets: ResolvedAsset[] = [];
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {
     const surfaceExists = existsSync(path.join(options.targetDir, directory));
+    const schemaOneSurfaceNeedsRouters =
+      manifest.schemaVersion === 1 &&
+      schemaOneSurfaceHasPreservedContent({
+        targetDir: options.targetDir,
+        directory,
+        manifest,
+      });
     for (const asset of createProjectSurfaceRouterAssets(
       options.profile,
       surface as keyof typeof surfaceDirectories,
@@ -1904,6 +2021,7 @@ function getCarriedOnDemandRouterAssets(options: {
         (file.ownershipClass === undefined || file.ownershipClass === "managed-block");
       if (
         completedRemovalFileProof ||
+        schemaOneSurfaceNeedsRouters ||
         (surfaceExists &&
           (!proof || proof.routerClass === "bootstrap" || proof.routerClass === "on-demand-surface") &&
           (!proof || (proof.provenanceState === "verified" &&

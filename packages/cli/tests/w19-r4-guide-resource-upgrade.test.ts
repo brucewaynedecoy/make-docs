@@ -74,7 +74,18 @@ describe('W19 R4 canonical guide resource names', () => {
   it.each(names)('preserves edited retired resource %s and reports the conflict', async (oldName) => {
     await legacyFixture();
     writeFileSync(file(oldName), '# User changes must survive\n');
-    await expect(runCli(['setup', '--yes', '--codex-method', 'none', '--claude-code-method', 'none', '--target', root])).rejects.toThrow(/conflict|review|overwrite|unresolved ownership or safety stops/i);
+    const outputSpy = vi.mocked(process.stdout.write);
+    outputSpy.mockClear();
+    await runCli(['setup', '--yes', '--codex-method', 'none', '--claude-code-method', 'none', '--target', root]);
+    const output = outputSpy.mock.calls.map(([chunk]) => String(chunk)).join('');
+    const result = JSON.parse(output);
+    expect(result).toMatchObject({
+      status: 'blocked',
+      project: { changed: false, mutationState: 'none' },
+      failedCondition: expect.stringContaining(oldName),
+      nextAction: expect.stringContaining('Review and repair the listed files'),
+    });
+    expect(result.failedCondition).toContain('does not permit migration (ambiguous-ownership)');
     expect(readFileSync(file(oldName), 'utf8')).toBe('# User changes must survive\n');
     expect(loadManifest(root)?.files[`.make-docs/system/${oldName}`]).toBeDefined();
   });

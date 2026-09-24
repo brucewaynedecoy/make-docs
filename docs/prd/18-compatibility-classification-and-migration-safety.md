@@ -152,6 +152,7 @@ Validation boundary:
 - R-BRIDGE-4 (MUST): every bridge register entry contains a stable bridge id, old form, target form, first bridge version, owner, proof that old-form writes stopped, deterministic remaining-state check, last supported old version or other measurable end condition, removal phase or release, required tests, retention and export rule, and separate deletion approval.
 - R-BRIDGE-5 (MUST): a bridge without an owner and measurable exit is not temporary and cannot be introduced. A bridge can be removed only after target reader, writer, verifier, repair, and recovery pass; every old fact is migrated, exported, preserved as opaque history, or separately approved for deletion; affected core capabilities pass the exact installed package on Windows, macOS, and Linux; and the owner separately approves the removal action.
 - R-BRIDGE-6 (MUST): a newer unknown, corrupt, or unclear schema fails closed for Store-backed mutation while Store-free work continues. Older packages fail closed on a newer schema and never rewrite it. A pre-project failure restores the verified Store backup. A post-project failure uses the recorded resume or rollback path.
+- R-BRIDGE-7 (MUST): router ownership evidence is interpreted under the source manifest schema. For a supported schema-1 manifest, an exact whole-file hash match is trusted legacy ownership and the absence of V2 managed-block markers is an expected legacy state. A whole-file hash mismatch, partial or malformed V2 marker, nested or duplicated marker, or contradiction between schema and file evidence fails closed before operation creation. The reviewed bridge converts an exact legacy router to the current managed-block form and preserves any separately classified project content.
 
 ## Existing-Project Adoption Boundaries
 
@@ -190,6 +191,14 @@ R-ASSET-MIG-5 (MUST): an explicit reviewed move may relocate project-owned or mo
 R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, concurrent writer exclusion, changed inputs, unsafe paths, conflicting destinations, real project content, and empty-directory cleanup. Completion permits only named, verified archival or backup exclusions outside active legacy routing. Ordinary work without the CLI remains valid; it does not authorize unreviewed legacy cleanup.
 
 ## Requirement History
+
+### 2026-09-24 — W22 R0 P8 Authentic Schema-1 Router Reopening
+
+- Affected requirement or section: `Compatibility Bridge Contract`, classification priority, and router ownership
+- Previous contract: P8 scoped ownership review to planned router targets, but compatibility classification still required current managed-block markers before it would compare a legacy router's schema-1 whole-file hash.
+- Replacement contract: A supported schema-1 router with an exact manifest whole-file hash is trusted legacy ownership. Missing V2 markers are expected in that exact state. Hash mismatch and malformed, partial, duplicated, nested, or contradictory V2 markers remain hard stops before mutation.
+- Rationale: An authentic older package cannot contain markers that did not yet exist. Exact source-schema evidence must govern the bridge without weakening the current fail-closed boundary.
+- Source: [W22 R0 P8 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md)
 
 ### 2026-09-23 — W22 R0 P8
 

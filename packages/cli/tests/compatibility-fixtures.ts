@@ -1,11 +1,19 @@
 import { withInstallationDatabase } from "../src/store/installation-state";
 import { realpathSync } from "node:fs";
-import { mkdirSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { getManifestPath, loadManifest, loadLegacyManifest, writeManifest } from "../src/manifest";
+import {
+  getManifestPath,
+  isInstructionManifestPath,
+  loadManifest,
+  loadLegacyManifest,
+  writeManifest,
+} from "../src/manifest";
+import { parseManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
 import { createSystemAssetManifestState } from "../src/system-assets";
+import { hashText } from "../src/utils";
 import type {
   InstallManifest,
   InstallSelections,
@@ -224,12 +232,31 @@ async function installFixture(
 
 function writeLegacyV1Manifest(targetDir: string): void {
   const manifest = loadManifest(targetDir)!;
+  const files = structuredClone(manifest.files);
+  for (const [relativePath, entry] of Object.entries(files)) {
+    if (!isInstructionManifestPath(relativePath)) continue;
+    const absolutePath = path.join(targetDir, relativePath);
+    const parsed = parseManagedBlock(readFileSync(absolutePath, "utf8"));
+    if (parsed.state !== "valid" || parsed.body === null) {
+      throw new Error(`Current fixture router is malformed: ${relativePath}.`);
+    }
+    writeFileSync(absolutePath, parsed.body, "utf8");
+    entry.hash = hashText(parsed.body);
+    entry.sourceId = `build:${relativePath}`;
+    delete entry.ownershipClass;
+    delete entry.systemAsset;
+  }
   const legacyManifest = {
-    ...manifest,
     schemaVersion: 1,
+    packageName: manifest.packageName,
+    packageVersion: manifest.packageVersion,
     updatedAt: "2026-06-25T00:00:00.000Z",
-  } as Record<string, unknown>;
-  delete legacyManifest.systemAssetMaterialization;
+    profileId: manifest.profileId,
+    selections: manifest.selections,
+    effectiveCapabilities: manifest.effectiveCapabilities,
+    files,
+    skillFiles: manifest.skillFiles,
+  };
   discardFixtureLedger(targetDir);
   writeFixtureFile(
     targetDir,

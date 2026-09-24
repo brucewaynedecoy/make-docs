@@ -132,6 +132,25 @@ export function getManifestFileHash(relativePath: string, content: string | Buff
     : null;
 }
 
+export function getManifestFileHashForSourceSchema(
+  relativePath: string,
+  content: string | Buffer,
+  sourceSchemaVersion: number | null,
+): string | null {
+  if (!isInstructionManifestPath(relativePath)) {
+    return hashText(content);
+  }
+
+  if (typeof content !== "string") return null;
+  const parsed = parseManagedBlock(content);
+  if (sourceSchemaVersion === 1) {
+    return parsed.state === "absent" ? hashText(content) : null;
+  }
+  return parsed.state === "valid" && parsed.body !== null
+    ? hashText(parsed.body)
+    : null;
+}
+
 export function loadManifest(targetDir: string): InstallManifest | null {
   const manifest = readInstallationManifest(targetDir);
   return manifest ? validateAndMigrateManifest(manifest, "Make Docs Store installation ledger") : null;
