@@ -43,6 +43,7 @@ describe("backlog-review first-party Skill", () => {
       supportedHarnesses: ["claude-code", "codex"],
     });
     expect(entry?.assets.map((asset) => asset.source)).toEqual([
+      "README.md",
       "agents/openai.yaml",
       "references/review-method.md",
       "references/report-model.md",
@@ -64,6 +65,18 @@ describe("backlog-review first-party Skill", () => {
     expect(Object.keys(bundle.payloads["backlog-review"].files).sort()).toEqual(
       [entry!.entryPoint, ...entry!.assets.map((asset) => asset.source)].sort(),
     );
+  });
+
+  test("keeps README source links on durable Make Docs GitHub paths", () => {
+    const body = read("README.md");
+    const links = [...body.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]!);
+    const prefix = "https://github.com/brucewaynedecoy/make-docs/blob/main/";
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.startsWith(prefix)).toBe(true);
+      const relativePath = decodeURIComponent(link.slice(prefix.length).split("#")[0]!);
+      expect(existsSync(path.resolve(PACKAGE_ROOT, "../..", relativePath))).toBe(true);
+    }
   });
 
   test("keeps every Skill link inside the extracted package", () => {
