@@ -8,6 +8,7 @@ import { runBackupCommand } from "./backup";
 import {
   classifyCompatibilityState,
   formatCompatibilityClassification,
+  scopeCompatibilityToInstallPlan,
   type CompatibilityClassification,
 } from "./compatibility";
 import {
@@ -55,7 +56,11 @@ import {
   loadSqliteDriver,
   type StoreCompatibilityBridgePreview,
 } from "./store";
-import { readInstallationStatus } from "./store/installation-state";
+import {
+  readInstallationStatus,
+  reviewCompletedRemovalHandoff,
+  type CompletedRemovalHandoffReview,
+} from "./store/installation-state";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
@@ -666,6 +671,8 @@ export async function runCli(
   let compatibilityClassification = await classifyCompatibilityState({
     targetDir,
   });
+  let completedRemovalHandoff = reviewCompletedRemovalHandoff(targetDir, storeRoot);
+  assertCompletedRemovalHandoffUsable(completedRemovalHandoff);
   const predictedPostBridgeManifest = previewPostBridgeInstallationManifest(
     targetDir,
     storeRoot,
@@ -676,9 +683,18 @@ export async function runCli(
       ? loadManifest(targetDir) ?? legacyState.manifest
       : null
   );
+  let planningManifest = existingManifest ?? (
+    completedRemovalHandoff.status === "ready"
+      ? completedRemovalHandoff.beforeManifest
+      : null
+  );
+  const completedRemovalResourceProjection = completedRemovalHandoff.status === "ready" &&
+    completedRemovalHandoff.beforeManifest.selections.resourceProjection === undefined
+    ? inferCompletedRemovalResourceProjection(completedRemovalHandoff.beforeManifest)
+    : undefined;
   let freshInstallTarget = isFreshInstallTarget({
     targetDir,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
     classification: compatibilityClassification,
   });
@@ -700,6 +716,14 @@ export async function runCli(
     throw new Error(
       "Fresh setup always installs Designs, Plans, PRD, and Work. Remove the document-type flags. You can review a later change with `make-docs setup reconfigure`.",
     );
+  }
+
+  if (!predictedPostBridgeManifest && completedRemovalHandoff.status !== "ready") {
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
   }
 
   // Pre-v2 detection on `setup` and `setup reconfigure` (R-MIG-2): a
@@ -728,21 +752,30 @@ export async function runCli(
     }
   }
 
-  if (!predictedPostBridgeManifest) {
-    guardCompatibilityDisposition({
-      classification: compatibilityClassification,
-      interactive,
-      freshInstallTarget,
-    });
-  }
-
   if (!interactive && installIntent === "reconfigure" && !hasSelectionOverrides(parsed)) {
     throw new Error(
       "`make-docs setup reconfigure --yes` requires at least one selection flag. Provide selection flags or run `make-docs setup reconfigure` interactively.",
     );
   }
 
-  const resolvedSelections = resolveSelections({ parsed, existingManifest });
+  if (
+    completedRemovalResourceProjection === null &&
+    !interactive &&
+    parsed.projectResources === undefined
+  ) {
+    throw new Error(
+      "The completed removal does not contain enough evidence to recover the prior local resource selection. Run `make-docs setup` interactively, or rerun with `--project-resources <csv|all|none>`.",
+    );
+  }
+
+  const resolvedSelections = resolveSelections({ parsed, existingManifest: planningManifest });
+  if (
+    parsed.projectResources === undefined &&
+    completedRemovalResourceProjection !== undefined &&
+    completedRemovalResourceProjection !== null
+  ) {
+    resolvedSelections.resourceProjection = [...completedRemovalResourceProjection];
+  }
   let installationStatus = readInstallationStatus(targetDir, storeRoot);
   let projectState: SetupProjectState = freshInstallTarget
     ? "fresh"
@@ -750,8 +783,9 @@ export async function runCli(
       ? "recoverable"
     : compatibilityClassification.state === "modified-v1"
       ? "drifted"
-      : compatibilityClassification.state === "partial-install" ||
-          existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+      : completedRemovalResourceProjection === null ||
+          compatibilityClassification.state === "partial-install" ||
+          planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
         ? "partial"
         : "current";
   let selections = applySkillRegistrySelectionMetadata(
@@ -765,9 +799,16 @@ export async function runCli(
   );
   let selectionSource = describeSelectionSource({
     parsed,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
   });
+  if (
+    parsed.projectResources === undefined &&
+    completedRemovalResourceProjection !== undefined &&
+    completedRemovalResourceProjection !== null
+  ) {
+    selectionSource = "verified completed-removal resource records";
+  }
   let interactiveMethodSelections: Partial<Record<"codex" | "claude-code", HarnessMethodSelection>> = {};
 
   if (interactive) {
@@ -792,7 +833,7 @@ export async function runCli(
       });
       return true;
     };
-    if (!existingManifest && installIntent === "apply") {
+    if (!planningManifest && installIntent === "apply") {
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
@@ -847,7 +888,7 @@ export async function runCli(
   }
 
   const skillReconciliation = reconcileExistingInstallSkillSelection({
-    existingManifest,
+    existingManifest: planningManifest,
     selections,
   });
   selections = skillReconciliation.selections;
@@ -888,7 +929,7 @@ export async function runCli(
       );
     return;
   }
-  const preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
+  let preparedSystemSetup = await prepareSystemSetupCommand(systemOptions);
   const genericMcpPlan = parsed.genericMcpClient
     ? prepareGenericMcpSetup({
         clientLabel: parsed.genericMcpClient,
@@ -900,7 +941,8 @@ export async function runCli(
   let plan = await planInstall({
     targetDir,
     selections,
-    existingManifest,
+    existingManifest: planningManifest,
+    completedRemovalHandoff: completedRemovalHandoff.status === "ready",
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
     preserveExistingSkills: skillReconciliation.routed,
@@ -921,7 +963,8 @@ export async function runCli(
       plan = await planInstall({
         targetDir,
         selections,
-        existingManifest,
+        existingManifest: planningManifest,
+        completedRemovalHandoff: completedRemovalHandoff.status === "ready",
         packageMeta,
         managedFileConflictResolutions,
         skillRegistry: effectiveSkillRegistry.registry,
@@ -931,24 +974,47 @@ export async function runCli(
     }
   }
 
+  compatibilityClassification = scopeCompatibilityToInstallPlan({
+    classification: compatibilityClassification,
+    plan,
+    completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+  });
+  freshInstallTarget = isFreshInstallTarget({
+    targetDir,
+    existingManifest,
+    installIntent,
+    classification: compatibilityClassification,
+  });
+  if (!predictedPostBridgeManifest) {
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
+  }
+
   if (!hasEffectiveCapabilities(plan.profile)) {
     throw new Error("At least one capability must remain enabled.");
   }
 
-  const reviewedHarnessIntegrations = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
-    .filter(harness => selections.harnesses[harness])
-    .filter(harness => {
-      const harnessPlan = preparedSystemSetup.plans.find(candidate => candidate.harness === harness);
-      return harnessPlan?.status !== "blocked" && harnessPlan?.status !== "unsupported";
-    })
-    .map((harness): ProjectHarnessIntegrationRecord => {
-      const method = preparedSystemSetup.selections[harness];
-      if (method === "none") return { harness, mode: "disable" };
-      const accessCeiling = preparedSystemSetup.intent.config.settings.harnesses[harness]?.accessCeiling;
-      if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
-      return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
-    });
-  if (genericMcpPlan) reviewedHarnessIntegrations.push(genericMcpProjectIntent(genericMcpPlan));
+  const buildReviewedHarnessIntegrations = (): ProjectHarnessIntegrationRecord[] => {
+    const reviewed = (Object.keys(selections.harnesses) as Array<keyof typeof selections.harnesses>)
+      .filter(harness => selections.harnesses[harness])
+      .filter(harness => {
+        const harnessPlan = preparedSystemSetup.plans.find(candidate => candidate.harness === harness);
+        return harnessPlan?.status !== "blocked" && harnessPlan?.status !== "unsupported";
+      })
+      .map((harness): ProjectHarnessIntegrationRecord => {
+        const method = preparedSystemSetup.selections[harness];
+        if (method === "none") return { harness, mode: "disable" };
+        const accessCeiling = preparedSystemSetup.intent.config.settings.harnesses[harness]?.accessCeiling;
+        if (!accessCeiling) throw new Error(`No reviewed access ceiling exists for ${harness}.`);
+        return { harness, mode: "narrow", method, accessCeiling: { ...accessCeiling } };
+      });
+    if (genericMcpPlan) reviewed.push(genericMcpProjectIntent(genericMcpPlan));
+    return reviewed;
+  };
+  let reviewedHarnessIntegrations = buildReviewedHarnessIntegrations();
   let plannedConfigValue = plan.actions.find(action =>
     action.relativePath === ".make-docs/config.yaml" && action.content !== undefined
   )?.content ?? "{}\n";
@@ -978,20 +1044,29 @@ export async function runCli(
       );
     }
     compatibilityClassification = await classifyCompatibilityState({ targetDir });
+    completedRemovalHandoff = reviewCompletedRemovalHandoff(targetDir, storeRoot);
+    assertCompletedRemovalHandoffUsable(completedRemovalHandoff);
     existingManifest = compatibilityClassification.evidence.manifestTrust.parseable
       ? loadManifest(targetDir) ?? legacyState.manifest
       : null;
+    planningManifest = existingManifest ?? (
+      completedRemovalHandoff.status === "ready"
+        ? completedRemovalHandoff.beforeManifest
+        : null
+    );
     freshInstallTarget = isFreshInstallTarget({
       targetDir,
-      existingManifest,
+      existingManifest: planningManifest,
       installIntent,
       classification: compatibilityClassification,
     });
-    guardCompatibilityDisposition({
-      classification: compatibilityClassification,
-      interactive,
-      freshInstallTarget,
-    });
+    if (completedRemovalHandoff.status !== "ready") {
+      guardCompatibilityDisposition({
+        classification: compatibilityClassification,
+        interactive,
+        freshInstallTarget,
+      });
+    }
     installationStatus = readInstallationStatus(targetDir, storeRoot);
     projectState = freshInstallTarget
       ? "fresh"
@@ -999,15 +1074,17 @@ export async function runCli(
         ? "recoverable"
         : compatibilityClassification.state === "modified-v1"
           ? "drifted"
-          : compatibilityClassification.state === "partial-install" ||
-              existingManifest?.effectiveCapabilities.length !== CAPABILITIES.length
+          : completedRemovalResourceProjection === null ||
+              compatibilityClassification.state === "partial-install" ||
+              planningManifest?.effectiveCapabilities.length !== CAPABILITIES.length
             ? "partial"
             : "current";
 
     plan = await planInstall({
       targetDir,
       selections,
-      existingManifest,
+      existingManifest: planningManifest,
+      completedRemovalHandoff: completedRemovalHandoff.status === "ready",
       packageMeta,
       ...(managedFileConflictResolutions ? { managedFileConflictResolutions } : {}),
       skillRegistry: effectiveSkillRegistry.registry,
@@ -1031,7 +1108,8 @@ export async function runCli(
         plan = await planInstall({
           targetDir,
           selections,
-          existingManifest,
+          existingManifest: planningManifest,
+          completedRemovalHandoff: completedRemovalHandoff.status === "ready",
           packageMeta,
           managedFileConflictResolutions,
           skillRegistry: effectiveSkillRegistry.registry,
@@ -1040,6 +1118,23 @@ export async function runCli(
         });
       }
     }
+
+    compatibilityClassification = scopeCompatibilityToInstallPlan({
+      classification: compatibilityClassification,
+      plan,
+      completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+    });
+    freshInstallTarget = isFreshInstallTarget({
+      targetDir,
+      existingManifest,
+      installIntent,
+      classification: compatibilityClassification,
+    });
+    guardCompatibilityDisposition({
+      classification: compatibilityClassification,
+      interactive,
+      freshInstallTarget,
+    });
 
     if (!hasEffectiveCapabilities(plan.profile)) {
       throw new Error("At least one capability must remain enabled.");
@@ -1076,7 +1171,7 @@ export async function runCli(
   if (!jsonOutput) printPlan({
     actions: plan.actions,
     dryRun: parsed.dryRun,
-    existingManifest,
+    existingManifest: planningManifest,
     installIntent,
     packageName: plan.packageName,
     packageVersion: plan.packageVersion,
@@ -1118,7 +1213,7 @@ export async function runCli(
   let systemApproved = parsed.yes || !hasMachineMutation;
   if (interactive && hasMachineMutation) {
     const proceed = await confirm({
-      message: "Apply the reviewed This computer changes?",
+      message: "Apply the reviewed changes to this computer?",
       initialValue: false,
       active: "Yes",
       inactive: "No",
@@ -1131,7 +1226,7 @@ export async function runCli(
   if (interactive && hasInstallMutation) {
     const proceed = await confirm({
       message: getApplyConfirmationMessage({
-        existingManifest,
+        existingManifest: planningManifest,
         installIntent,
       }),
       initialValue: true,
@@ -1207,6 +1302,58 @@ export async function runCli(
     return;
   }
 
+  const reviewedSystemFingerprint = setupSystemReviewFingerprint(preparedSystemSetup);
+  const refreshedSystemSetup = await prepareSystemSetupCommand({
+    ...systemOptions,
+    promptForMethods: false,
+    methods: { ...preparedSystemSetup.selections },
+  });
+  const systemReviewChanged = setupSystemReviewFingerprint(refreshedSystemSetup) !== reviewedSystemFingerprint;
+  preparedSystemSetup = refreshedSystemSetup;
+  reviewedHarnessIntegrations = buildReviewedHarnessIntegrations();
+  if (systemReviewChanged) {
+    if (!jsonOutput) {
+      output.write(
+        "The verified Store state changed the computer review. Review the current computer plan.\n",
+      );
+      note(preparedSystemSetup.review, "This computer");
+    }
+    systemApproved = parsed.yes || !preparedSystemSetup.changed;
+    if (interactive && preparedSystemSetup.changed) {
+      const proceed = await confirm({
+        message: "Apply the reviewed changes to this computer?",
+        initialValue: false,
+        active: "Yes",
+        inactive: "No",
+        withGuide: true,
+      });
+      systemApproved = !isCancel(proceed) && Boolean(proceed);
+    }
+    if (!systemApproved) {
+      const nextAction = "Run `make-docs setup` again to review the current computer and project plans.";
+      if (jsonOutput) {
+        writeCanonicalSetupResult({
+          status: "blocked",
+          dryRun: false,
+          targetRoot: targetDir,
+          prepared: preparedSystemSetup,
+          genericMcp: genericMcpPlan,
+          storeBridge: appliedStoreBridge,
+          projectRecovery: priorProjectRecovery,
+          storeMutationState: storeBridgePreview.changes.store.length > 0 ? "applied" : "none",
+          projectChanged: recoveredProjectChanged,
+          projectMutationState: recoveredProjectChanged ? "applied" : "none",
+          projectActions: plan.actions,
+          failedCondition: "The refreshed computer setup was not approved.",
+          nextAction,
+        });
+      } else {
+        output.write(`The refreshed computer changes were not approved. Setup did not apply the refreshed computer or project plan. Next: ${nextAction}\n`);
+      }
+      return;
+    }
+  }
+
   const postStoreProjectReview = await reloadProjectReview();
   if (postStoreProjectReview === "cancelled") return;
   if (installationStatus.status === "recovery-required") {
@@ -1220,7 +1367,7 @@ export async function runCli(
       printPlan({
         actions: plan.actions,
         dryRun: false,
-        existingManifest,
+        existingManifest: planningManifest,
         installIntent,
         packageName: plan.packageName,
         packageVersion: plan.packageVersion,
@@ -1254,7 +1401,7 @@ export async function runCli(
       projectApproved = parsed.yes || !hasInstallMutation;
       if (interactive && hasInstallMutation) {
         const proceed = await confirm({
-          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          message: getApplyConfirmationMessage({ existingManifest: planningManifest, installIntent }),
           initialValue: true,
           active: "Yes",
           inactive: "No",
@@ -1302,7 +1449,7 @@ export async function runCli(
         printPlan({
           actions: plan.actions,
           dryRun: false,
-          existingManifest,
+          existingManifest: planningManifest,
           installIntent,
           packageName: plan.packageName,
           packageVersion: plan.packageVersion,
@@ -1335,7 +1482,7 @@ export async function runCli(
       projectApproved = parsed.yes || !hasInstallMutation;
       if (interactive && hasInstallMutation) {
         const proceed = await confirm({
-          message: getApplyConfirmationMessage({ existingManifest, installIntent }),
+          message: getApplyConfirmationMessage({ existingManifest: planningManifest, installIntent }),
           initialValue: true,
           active: "Yes",
           inactive: "No",
@@ -1372,7 +1519,9 @@ export async function runCli(
   }
   let applied: ReturnType<typeof applyInstallPlan>;
   try {
-    applied = !freshInstallTarget && hasInstallMutation
+    applied = !freshInstallTarget &&
+        hasInstallMutation &&
+        completedRemovalHandoff.status !== "ready"
       ? executeInstallPlanMigration({
           projectRoot: targetDir,
           storeRoot,
@@ -1434,7 +1583,7 @@ export async function runCli(
 
   if (hasInstallMutation && !jsonOutput) {
     writeApplyCompletionSummary({
-      existingManifest,
+      existingManifest: planningManifest,
       installIntent,
       manifest: applied.manifest,
       targetDir,
@@ -1558,6 +1707,16 @@ async function runProjectPathHygieneCommand(
     process.stderr.write("Path check error: " + (error instanceof Error ? error.message : String(error)) + "\n");
     process.exitCode = 2;
   }
+}
+
+function setupSystemReviewFingerprint(prepared: {
+  changed: boolean;
+  review: string;
+}): string {
+  return JSON.stringify([
+    prepared.changed,
+    prepared.review,
+  ]);
 }
 
 function setupProjectReviewFingerprint(
@@ -1702,6 +1861,30 @@ function resolveSelections(options: {
     selections.resourceProjection = [...parsed.projectResources];
   }
   return selections;
+}
+
+function inferCompletedRemovalResourceProjection(
+  manifest: InstallManifest,
+): ProjectResourceType[] | null {
+  const resourceUris = new Set<string>([
+    ...Object.keys(manifest.resourceProjection?.resources ?? {}),
+    ...Object.values(manifest.files)
+      .map((entry) => entry.sourceId)
+      .filter((sourceId) => sourceId.startsWith("resource:"))
+      .map((sourceId) => sourceId.slice("resource:".length)),
+  ]);
+  if (resourceUris.size === 0) return null;
+
+  const selected = new Set<ProjectResourceType>();
+  for (const uri of resourceUris) {
+    const type = PROJECT_RESOURCE_TYPES.find((candidate) =>
+      uri.startsWith(`make-docs://system/${candidate}/`)
+    );
+    if (!type) return null;
+    selected.add(type);
+  }
+
+  return PROJECT_RESOURCE_TYPES.filter((type) => selected.has(type));
 }
 
 const EXISTING_INSTALL_SKILL_SELECTION_CHANGE_ERROR =
@@ -2618,6 +2801,23 @@ function isFreshInstallTarget(options: {
     filesystemTrust.recognizableManagedPaths.length === 0 &&
     filesystemTrust.ambiguousFallbackPaths.length === 0 &&
     filesystemTrust.nonMakeDocsPathCollisions.length === 0
+  );
+}
+
+function assertCompletedRemovalHandoffUsable(
+  review: CompletedRemovalHandoffReview,
+): void {
+  if (review.status !== "blocked") {
+    return;
+  }
+
+  throw new Error(
+    [
+      "The completed make-docs removal cannot be used for this reinstall.",
+      `Operation: ${review.operationId}`,
+      ...review.blockers.map((blocker) => `- ${blocker}`),
+      `Next: ${review.nextAction}`,
+    ].join("\n"),
   );
 }
 

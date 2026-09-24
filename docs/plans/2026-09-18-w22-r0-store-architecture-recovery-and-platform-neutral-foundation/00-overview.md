@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "Stage 1 source repair and authentic older-package proof pass. Stage 2 must identify one exact candidate and prove it on Windows, macOS, and Linux."
-  coordinate_handoff: "Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed proof."
+  why: "P7 and P8 are closed from the final exact candidate, three-platform installed proof, and approved live setup results. W22 remains open for revision-level closeout."
+  coordinate_handoff: "Review the complete W22 R0 evidence and request separate owner authority before revision closeout, publication, or release."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -19,7 +19,9 @@ follow_on:
 
 Plan the architecture recovery defined by the [source design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md). The plan first tests the value of each current mechanism. It then settles current authority, creates a platform-neutral safety boundary, simplifies Store and harness state, migrates existing installations, closes known symptoms, and proves installed results on Windows, macOS, and Linux.
 
-P1 through P6 remain completed records for their exact accepted evidence. The owner reopened W22 R0 on 2026-09-22 after a current installed CLI proved a new closed setup recovery loop. P7 is the only active phase. P7 Stage 1 source repair, authentic older-package proof, and corrective review are complete. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open.
+P1 through P8 are completed records for their exact accepted evidence. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The P7 repair corrected that scope and the Make Docs project completed plain setup with the repaired CLI.
+
+The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 corrected that behavior. One final exact candidate passed the three-platform installed-package workflow and the approved live North Atlantic setup result. P7, P8, and D-038 are closed.
 
 ## Objective
 
@@ -34,7 +36,8 @@ Produce a smaller and explainable Store foundation without losing proved safety.
 - one installed-package matrix on real operating systems;
 - closure evidence for the known symptoms and any added in-scope symptoms; and
 - a Human Experience Review that reports the real result and its limits; and
-- exact regression proof that a supported legacy Store plus drifted machine setup reaches one successful path without reciprocal commands or premature intent changes.
+- exact regression proof that a supported legacy Store plus drifted machine setup reaches one successful path without reciprocal commands or premature intent changes; and
+- exact proof that a completed reviewed removal can continue through plain setup without scanning backup copies or unrelated router files as active ownership conflicts.
 
 ## Governing Invariant
 
@@ -59,7 +62,9 @@ Produce a smaller and explainable Store foundation without losing proved safety.
 
 W22 R0 revisits the build segment after its prior close. This is an explicit lifecycle departure under the lifecycle straddle rule. The first installed trace invalidated the prior claim that setup and Store access always have one open recovery path. A second installed trace invalidated the P7 Stage 1 source-completion claim because setup approved a `partial-install` plan, rejected it later as `ambiguous-ownership`, and created a pending operation for a predictable failure.
 
-P7 owns the bounded correction. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures now pass through plain setup. The corrective review found and closed the approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. A new W22 completion claim still requires one exact repaired candidate with comparable installed proof on Windows, macOS, and Linux.
+P7 owns the setup-order, cross-project Store isolation, computer-replan, recovery-guidance, and approval-wording corrections. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures still pass through plain setup.
+
+P8 owns the later router-ownership and reviewed-reinstall defect. This is another explicit lifecycle revisit under the straddle rule. P8 does not add a broad force, reset, detach, or quarantine command. It updates the existing compatibility, Store transfer, setup, and D-038 authority so plain setup can continue from a completed reviewed removal. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
 
 ## Maintenance Inputs
 
@@ -75,7 +80,8 @@ P7 owns the bounded correction. It does not reopen the accepted architecture dec
 | Change history | Commits `dabd0b36`, `7ca65f40`, `afbeaab2`, `56800c35`, and `0e5e90be` | High confidence for growth, correction, removal, and repair sequence. It is evidence for review, not proof of a defect by itself. |
 | Symptom inventory | P1 ledger plus later owner evidence | P1 is complete. P7 reopens D-038 for the exact installed loop without creating a competing symptom list. |
 | Installed setup transcripts and current source trace, 2026-09-22 | Owner-provided terminal evidence plus current CLI source and Store classification | High confidence for the P7 trigger. The first trace showed reciprocal setup commands on supported legacy schema 3. The second trace showed approved `partial-install` work rejected later as `ambiguous-ownership` after operation creation. |
-| P7 Stage 1 source evidence, 2026-09-22 | Current repair source, checkpoint-3 regression, three authentic package fixtures, validation results, independent read-only audit, and corrective review findings | Stage 1 tasks t1 through t8 and A45 through A49 pass. The exact Stage 2 candidate and real-platform proof remain open. |
+| P7 and P8 final evidence, 2026-09-23 | Authentic package fixtures, current repair source, exact candidate identity, Platform Safety run 35932516304, installed-package results, Store readback, and approved live setup results | P7 tasks t1 through t20 and A45 through A56 pass. P8 tasks t1 through t19 and A57 through A65 pass. The live final North Atlantic run began from an already-current `2.0.1` state, so authentic fixtures remain the initial-transition evidence. |
+| North Atlantic BuildOS installed acceptance trace, 2026-09-23 | Installed `2.0.1` CLI, reviewed removal result, exact 67-file backup, Store status, project Git state, and source trace | High confidence for P8. Plain setup treated 52 backup routers and 36 unrelated active routers as collisions after a completed reviewed removal, then required a public flow that does not exist. |
 
 ## Human Experience Propagation
 
@@ -85,7 +91,7 @@ P7 owns the bounded correction. It does not reopen the accepted architecture dec
 | HX-2: clear project state and next safe action before internal detail | PRDs 07, 38, and 39 | Setup, status, verify, repair, and recovery output | [P4](04-harness-trust-setup-and-resource-simplification.md), [P6](06-real-platform-package-proof-and-closeout.md), and [P7](07-setup-bridge-order-and-recovery-loop-repair.md) | Output fixtures, installed transcripts, and Human Experience Review | None |
 | HX-3: independent project work continues without Store access | PRDs 07, 25, 38, and 39 | Resource reads, project docs, validation, and Store-backed writes | [P2](02-product-authority-and-minimal-state-model.md), [P4](04-harness-trust-setup-and-resource-simplification.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Access matrix and denial/unavailable installed cases | None |
 | HX-4: moves and package updates do not fail only because durable low-level identity changed | PRDs 16, 18, 28, and 38 | Moved checkout, package upgrade, harness verification, and repair | [P2](02-product-authority-and-minimal-state-model.md), [P3](03-platform-neutral-filesystem-and-checkout-safety.md), and [P5](05-compatibility-bridge-and-symptom-closure.md) | Migration fixtures and real-platform installed cases | None |
-| HX-5: setup and repair have one open recovery path | PRDs 07, 18, 38, and 39 | Setup, system setup, status, recover, and repair | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), and [P7](07-setup-bridge-order-and-recovery-loop-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, and installed transcripts | None |
+| HX-5: setup and repair have one open recovery path | PRDs 07, 18, 38, and 39 | Setup, system setup, status, recover, removal, and reviewed reinstall | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), [P7](07-setup-bridge-order-and-recovery-loop-repair.md), and [P8](08-router-ownership-and-reviewed-reinstall-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, router-preservation proof, and installed transcripts | None |
 | HX-6: every retained mechanism has an explainable purpose and authority class | PRDs 02, 03, 25, 28, and 38 | Maintainer architecture, review, debugging, and rebuild | [P1](01-architecture-inventory-and-decision-gates.md), [P2](02-product-authority-and-minimal-state-model.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Decision ledger, PRD review, source anchors, and final review | None |
 
 ## Performance Evidence Plan
@@ -113,6 +119,7 @@ P7 owns the bounded correction. It does not reopen the accepted architecture dec
 | Harness receipt and current execution proof | `update-existing` | PRDs 28 and 38 | Existing owners cover native ownership and Store access. | Current receipt and executable fingerprint coupling. |
 | Setup composition and Store access policy | `update-existing` | PRDs 07, 25, 38, and 39 | Existing CLI and runtime owners cover setup and operation access. | Current closed-loop recovery risk and large coordinator surface. |
 | Resource projection state | `update-existing` | PRDs 06, 24, 25, and 38 | Existing resource, config, runtime, and Store owners cover projection. | Duplicate manifest, Store, and live-file facts require classification. |
+| Router ownership and post-removal reinstall | `update-existing` | PRDs 18, 38, and 39 | Existing compatibility, Store, and setup owners cover active discovery, managed-block ownership, completed removal evidence, and the public continuation path. | North Atlantic BuildOS reviewed removal and failed repeat setup. |
 | Confirmed drift, open choices, and rebuild risk | `update-existing` | PRD 03 | The living register owns unresolved and confirmed state. | W22 R0 findings and decisions. |
 | New product PRD | `none` | Existing PRDs own every affected product subject. | This is an architecture recovery, not a new product capability. | Ownership map above. |
 | PRD index | `link-only` unless discovery changes document relationships | PRD 00 | No new PRD is planned. | Current document map remains structurally valid. |
@@ -127,12 +134,12 @@ P7 owns the bounded correction. It does not reopen the accepted architecture dec
 | [07 CLI Command Surface](../../prd/07-cli-command-surface-and-lifecycle.md) | Setup, status, repair, and recovery | State one understandable path and Store-free behavior. | Command identity outside this scope. |
 | [10 Packaging and Release](../../prd/10-packaging-validation-and-release-reference.md) | Validation matrix and installed proof | Require real Windows, macOS, and Linux installed-package cases. | Other package and release checks. |
 | [16 Runtime Boundaries](../../prd/16-package-runtime-and-deployment-boundaries.md) | Supported platform and runtime rules | Define equal platform support and the small platform adapter. | Package layout and unrelated deployment rules. |
-| [18 Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md) | Migration, rollback, and preservation | Define the compatibility bridge and ambiguous-state handling. | User content and backup rules. |
+| [18 Migration Safety](../../prd/18-compatibility-classification-and-migration-safety.md) | Classification, router ownership, backup-and-reinstall, rollback, and preservation | Exclude inactive backup roots, scope router checks to planned targets, preserve shared-router user bytes, and define the completed-removal reinstall handoff. | Fail-closed handling for unknown affected files, user content, and backup rules. |
 | [24 Configuration Overlay](../../prd/24-project-configuration-and-convention-overlay.md) | Desired selections and harness settings | Keep declarative desired state separate from applied proof. | Unrelated project configuration. |
 | [25 TypeScript Runtime Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | Operation and adapter boundaries | Define the platform layer and thin setup coordinator. | General CLI and MCP parity rules. |
 | [28 Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | Receipts, methods, ownership, and safety | Separate managed-entry ownership from current caller proof. | Supported harness list and unrelated Skill rules. |
-| [38 Global Store](../../prd/38-global-store-and-project-state.md) | Store data, identity, operations, recovery, and tests | Replace durable low-level identity and state duplication with the accepted minimal model. | Stable project identity and proved non-rebuildable state. |
-| [39 Command Model](../../prd/39-cli-command-model-and-operation-registry.md) | Setup, access, status, repair, JSON, and MCP | State one operation policy and one recovery path. | Registry identity and unrelated commands. |
+| [38 Global Store](../../prd/38-global-store-and-project-state.md) | Store data, identity, operations, removal evidence, recovery, and tests | Preserve completed removal and verified backup evidence as the reviewed reinstall handoff for the same project and checkout. | Stable project identity, checkout identity, and proved non-rebuildable state. |
+| [39 Command Model](../../prd/39-cli-command-model-and-operation-registry.md) | Setup, access, status, repair, removal continuation, JSON, and MCP | Make plain setup expose the reviewed reinstall path after completed removal without a hidden command or unrelated-router quarantine. | Registry identity and unrelated commands. |
 
 ## Genuinely New Product PRDs
 
@@ -140,16 +147,16 @@ None planned. P1 must stop and request an owner decision if discovery finds a co
 
 ## Requirement History Entries
 
-After target acceptance, add one `2026-09-18 — W22 R0` entry to each materially changed PRD. Each entry must name the former contract, the accepted replacement, the reason, and this design and plan. PRD 03 uses its own item history and does not receive a requirement-history section.
+The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a separate `2026-09-23 — W22 R0 P8` entry to PRDs 18, 38, and 39. Each entry names the former contract, the replacement, the reason, and this plan. PRD 03 uses D-038 history and does not receive a requirement-history section.
 
 ## Affected Links, Risks, Plans, And Work
 
 | Surface | Artifact | Required maintenance | Authority role |
 | --- | --- | --- | --- |
 | Links and index | [PRD index](../../prd/00-index.md) | Update relationships only when the accepted target changes navigation. | Navigation only. |
-| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and reopen D-038 for P7. | Living risk and decision register. |
+| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and close D-038 with the final P7 and P8 evidence and recorded limit. | Living risk and decision register. |
 | Plan | This directory | Keep decision order, limits, and phase dependencies current. | Sequencing and rationale. |
-| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P6 and P7 Stage 1 as completed records. Keep P7 Stage 2 exact-candidate and three-platform proof open. | Current implementation queue. |
+| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P8 as completed records. Preserve rejected candidates and failed live attempts as historical evidence. | Current implementation queue. |
 | Prior plans and work | W19 Store, setup, harness, and recovery packages | Link as evidence. Do not rewrite completed records. | Historical context and prior proof. |
 | History | Future W22 phase records | Create only during authorized phase closeout. | Execution provenance. |
 
@@ -164,15 +171,16 @@ After target acceptance, add one `2026-09-18 — W22 R0` entry to each materiall
 | [05-compatibility-bridge-and-symptom-closure.md](05-compatibility-bridge-and-symptom-closure.md) | Migrate existing state safely and close every in-scope symptom. |
 | [06-real-platform-package-proof-and-closeout.md](06-real-platform-package-proof-and-closeout.md) | Prove one installed result on real platforms and complete the recovery review. |
 | [07-setup-bridge-order-and-recovery-loop-repair.md](07-setup-bridge-order-and-recovery-loop-repair.md) | Build one final plan from predicted post-prerequisite state, complete all safety checks before operation creation, align planner and executor, and keep resume or restore in plain setup. |
+| [08-router-ownership-and-reviewed-reinstall-repair.md](08-router-ownership-and-reviewed-reinstall-repair.md) | Scope router ownership to active planned targets and continue a completed reviewed removal through plain setup under the same project and checkout identities. |
 
 ## Output Contract
 
 - Design: `docs/designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md`.
-- Plan: this directory with `00-overview.md` and seven phase files.
+- Plan: this directory with `00-overview.md` and eight phase files.
 - PRDs: surgical maintenance of existing owners only after P1 decisions are accepted.
-- Risk register: reopen D-038 for the P7 defect. Current normative requirements already cover the repair, so this authority pass adds no new product capability.
-- Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and seven phase files.
-- P7 Stage 1 source repair and authentic older-package proof pass. Stage 2 candidate packaging, installed three-platform proof, local installation, live setup, staging, commit, push, publication, and release retain their applicable gates.
+- Risk register: D-038 is closed by the final P7 and P8 evidence. P8 adds no new broad reset or force capability.
+- Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and eight phase files.
+- The owner approved the final exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Publication and release retain their separate gates.
 
 ## Worker Ownership
 
@@ -186,6 +194,7 @@ Use the highest delegation tier that the authorized implementation session permi
 | Store model owner | Checkout, operation, ledger, and migration schema | Store modules and fixtures | Accepted P2 contracts | Minimal compatible state model. |
 | Harness and setup owner | Receipts, current execution proof, access policy, setup, projection, and P7 correction | Harness, operation policy, setup, and projection modules plus tests | P3 safety services and P7 trigger evidence | Thin coordinated flows with one recovery path and exact loop regression. |
 | Compatibility owner | Old schema, receipt, ledger, and pending-operation bridge | Migration modules and compatibility fixtures | P3 and P4 target behavior | Safe read, classify, convert, quarantine, and rollback. |
+| Router and reinstall owner | Active-surface filtering, shared-router managed blocks, completed removal evidence, and plain reinstall | Compatibility, Store transfer, setup, and focused fixture modules plus tests | Accepted P8 authority | Target-scoped ownership and one reviewed reinstall path. |
 | Platform evidence owner | Installed candidates and real-OS matrix | CI, package fixtures, and evidence paths only | P7 Stage 1 repair and checks complete | One identified corrected package with comparable platform proof. |
 | Validation owner | Authority, links, package, Human Experience, and regression review | Bounded fixes returned to owners | Assembled candidate | Final verdicts and visible limits. |
 
@@ -195,13 +204,15 @@ Use jdocmunch for project documents and jcodemunch for code and function signatu
 
 ## Dependencies
 
-P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on both 2026-09-22 installed failure traces and the reopened D-038 finding.
+P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on the 2026-09-22 installed failure traces and the reopened D-038 finding.
 
-P7 is limited to one final plan from predicted post-prerequisite state, complete preflight before operation creation, planner-classifier-executor agreement, machine-setup independence, intent-commit timing, recovery-action accuracy, plain-setup resume or restore, and regression proof needed to close the observed loops. A reset or forced reinstall path is a separate product choice and remains outside P7 without owner approval. Any other finding that changes the accepted product target or adds a new capability returns to the owner before P7 continues.
+P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. Source, isolated, three-platform installed-package, and approved live proof pass.
+
+P7 and P8 are closed bounded repairs. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Any later finding that changes that product target returns to the owner.
 
 ## Validation
 
-Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests from authentic supported older packages. Require interruption, resume, and restore proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce both the reciprocal-command trace and the later `partial-install` and `ambiguous-ownership` checkpoint-3 trace. The repair must prove one final approved plan, every predictable safety check before operation creation, full setup, direct system setup, failure, repeat, and machine-readable results without a command loop, a normal-use deep recovery command, or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
+Validate every phase against the source design promises and current accepted PRDs. Require complete keep/rework/remove coverage. Require one authority owner for each durable fact. Require migration tests from authentic supported older packages. Require interruption, resume, and restore proof. Require Store-free access cases. Require real Windows, macOS, and Linux installed-package evidence. P7 must reproduce both the reciprocal-command trace and the later `partial-install` and `ambiguous-ownership` checkpoint-3 trace. P8 must reproduce the completed removal, verified backup, unavailable reinstall path, backup-router scan, and unrelated-router collision. The combined repairs must prove one final approved plan, target-scoped ownership, managed-block preservation, every predictable safety check before operation creation, full setup, direct system setup, reviewed reinstall, failure, repeat, and machine-readable results without a command loop, unavailable command, normal-use deep recovery command, or unapproved partial intent. Run focused and full tests, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check` at the proper close gates.
 
 Automated Implementation Testing is required in every implementation phase. Performance Testing is `not-needed-now` unless a later accepted product decision creates a real performance question. Guided Progress Review is useful for decision review and final installed flows. Unassisted Goal Testing is `not-needed-now` for the architecture decision because the owner has the needed product context. Reassess it for final normal-use discoverability only if current testing authority and executor isolation make it useful.
 
@@ -210,9 +221,9 @@ The agent must complete a Human Experience Review for the installed result. Huma
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Build and identify one exact repaired candidate. Run the required installed proof on Windows, macOS, and Linux.
+- Next step: Review the complete W22 R0 evidence before any revision-level closeout.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: Stage 1 source repair, authentic package fixtures, validation, and corrective review pass. P7 still needs exact candidate identity and real-platform installed evidence.
-- Coordinate Handoff: Carry W22 R0 P7 into Stage 2 exact-candidate identity and three-platform installed-package proof.
+- Why: P7 and P8 are closed. W22 revision closeout, publication, and release retain separate authority gates.
+- Coordinate Handoff: Keep P1 through P8 as completed records and request owner authority before closing W22 R0.
 
-This direct return from a reopened plan to the implementation loop is an explicit lifecycle departure. P2 already reconciled the current PRDs. D-038 records the drift. Stage 1 is complete. P7 and D-038 remain open until Stage 2 proves one exact installed candidate on Windows, macOS, and Linux and the remaining close gates pass.
+This direct return from a reopened plan to product-authority maintenance and then implementation was an explicit lifecycle departure. P8 updated existing PRD owners and D-038. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.

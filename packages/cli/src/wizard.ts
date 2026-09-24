@@ -579,10 +579,6 @@ export async function runSelectionWizardWithRenderer(
         return null;
       }
 
-      if (selectedHarnesses.length === 0) {
-        continue;
-      }
-
       selections = applyHarnessSelections(selections, selectedHarnesses);
       if (options.afterHarnessSelection && !(await options.afterHarnessSelection(selections))) {
         return null;

@@ -8,6 +8,7 @@ import { getStoreDatabasePath, resolveStoreRoot } from "./store/paths";
 import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig } from "./store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "./store/harness-integration-receipts";
 import { completeHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
+import { readInstallationStatus } from "./store/installation-state";
 import type { SetupHarnessState } from "./setup-state";
 import type { Harness } from "./types";
 import { platform } from "./platform";
@@ -74,7 +75,7 @@ export async function runSystemSetupCommand(options: RunSystemSetupOptions): Pro
     );
   }
   if (prepared.changed && !options.yes) {
-    const approved = await confirm({ message: "Apply the reviewed This computer changes?", initialValue: false, active: "Yes", inactive: "No", withGuide: true });
+    const approved = await confirm({ message: "Apply the reviewed changes to this computer?", initialValue: false, active: "Yes", inactive: "No", withGuide: true });
     if (isCancel(approved) || !approved) return makeResult("blocked", prepared.selections, [], [], "Run `make-docs setup system` and approve the reviewed machine changes.");
   }
   return applyPreparedSystemSetup(prepared);
@@ -167,6 +168,8 @@ export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): P
         const recovery = recoveryActionForPlanFailure(
           plan,
           "The applied native entry did not verify.",
+          targetRoot,
+          storeRoot,
         );
         blocked.push({ harness: plan.harness, reason: "The applied native entry did not verify.", nextAction: recovery });
         recoveryAction ??= recovery;
@@ -179,7 +182,12 @@ export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): P
       configured.push(plan.harness);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      const recovery = recoveryActionForPlanFailure(plan, reason);
+      const recovery = recoveryActionForPlanFailure(
+        plan,
+        reason,
+        targetRoot,
+        storeRoot,
+      );
       blocked.push({ harness: plan.harness, reason, nextAction: recovery });
       recoveryAction ??= recovery;
       if (plan.pendingOperation?.()) break;
@@ -234,12 +242,38 @@ function persistReviewedDisabledIntents(
   }
 }
 
-function recoveryActionForPlanFailure(plan: SystemHarnessPlan, reason: string): string {
+function recoveryActionForPlanFailure(
+  plan: SystemHarnessPlan,
+  reason: string,
+  targetRoot: string,
+  storeRoot: string,
+): string {
   if (reason.includes("Run make-docs setup to review and apply the compatibility bridge")) {
     return "Run `make-docs setup` to review and apply the Store compatibility bridge. Full setup will retry the approved machine work after that prerequisite verifies.";
   }
   if (reason.includes("Store operation is already pending")) {
-    return "Run `make-docs project state status` to inspect and resolve the pending Store operation. Then run `make-docs setup system` again.";
+    try {
+      const currentProject = readInstallationStatus(targetRoot, storeRoot);
+      const pendingProject = "pendingOperation" in currentProject
+        ? currentProject.pendingOperation
+        : null;
+      if (currentProject.status === "recovery-required" && pendingProject) {
+        return "Run `make-docs setup` again. Setup will review the unfinished work for this project before it builds a new computer plan.";
+      }
+      if (
+        currentProject.status === "recovery-required" &&
+        "toolOperations" in currentProject &&
+        currentProject.toolOperations.length > 0
+      ) {
+        return "A machine-wide Store operation is still pending. Finish or recover that recorded tool operation, then run `make-docs setup` again to build a current computer plan.";
+      }
+      if (currentProject.status === "writer-active") {
+        return "This project has an active writer. Wait for it to finish, then run `make-docs setup` again to build a current computer plan.";
+      }
+      return "This project has no pending operation to recover. Wait for the reported Store writer to finish, then run `make-docs setup` again. Setup will build a new computer plan from current Store state.";
+    } catch {
+      return "Run `make-docs setup` again. Setup will read the current project state before it builds a new computer plan.";
+    }
   }
   if (plan.pendingOperation?.()) {
     return `Run \`make-docs setup system\` to resume the recorded ${label(plan.harness)} machine change.`;

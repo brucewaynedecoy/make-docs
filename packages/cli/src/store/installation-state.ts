@@ -49,6 +49,27 @@ interface Operation {
     after_ledger: string | null;
     plan_complete: number;
 }
+
+export type CompletedRemovalHandoffReview =
+    | { status: 'none' }
+    | {
+        status: 'ready';
+        operationId: string;
+        projectId: string;
+        checkoutId: string;
+        beforeManifest: InstallManifest;
+        backupRoot: string;
+        removedPaths: string[];
+        preservedPaths: string[];
+      }
+    | {
+        status: 'blocked';
+        operationId: string;
+        projectId: string;
+        checkoutId: string;
+        blockers: string[];
+        nextAction: string;
+      };
 export interface InstallationFileState {
     kind: 'missing' | 'file' | 'directory' | 'symlink';
     digest?: string;
@@ -1303,6 +1324,266 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
     catch (e) {
         return { ...base, status: e instanceof InstallationStateError ? e.code : 'store-unavailable', storeAvailable: false, nextAction: e instanceof Error ? e.message : String(e) };
     }
+}
+
+/**
+ * Review the latest completed project removal as a possible plain-setup handoff.
+ *
+ * This is read-only. It accepts only the same verified checkout, an absent
+ * current ledger, one sealed completed setup.remove operation, and an exact
+ * unchanged backup for every removed file. Project-owned paths that were not
+ * removed remain outside Make Docs ownership and are reviewed by the new plan.
+ */
+export function reviewCompletedRemovalHandoff(
+    projectRoot: string,
+    storeRoot?: string,
+): CompletedRemovalHandoffReview {
+    const root = canonicalInstallationPath(projectRoot);
+    const noHandoff = (): CompletedRemovalHandoffReview => ({ status: 'none' });
+    try {
+        const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+        if (!existsSync(getStoreDatabasePath(store))) return noHandoff();
+        if (classifyStoreCheckpoint9State(store).state !== 'supported-current') return noHandoff();
+
+        return withInstallationDatabase(root, db => {
+            const row = checkout(db, root);
+            if (!row) return noHandoff();
+            const currentLedger = db.prepare(
+                'SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?',
+            ).get(row.checkout_id) as { manifest_json: string } | undefined;
+            if (currentLedger) return noHandoff();
+            const pending = db.prepare(
+                "SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending' LIMIT 1",
+            ).get(row.checkout_id) as { operation_id: string } | undefined;
+            if (pending) return noHandoff();
+
+            const operation = db.prepare(
+                "SELECT * FROM installation_operations WHERE checkout_id=? AND status='completed' ORDER BY finished_at DESC, operation_id DESC LIMIT 1",
+            ).get(row.checkout_id) as (Operation & { finished_at: string | null }) | undefined;
+            if (!operation || operation.operation !== 'setup.remove' || !operation.before_ledger || operation.before_ledger === 'null') {
+                return noHandoff();
+            }
+
+            const blockers: string[] = [];
+            try {
+                assertCheckoutIdentity(row, root);
+            }
+            catch (error) {
+                blockers.push(
+                    `The completed removal checkout identity is not valid: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            }
+            let beforeManifest: InstallManifest | null = null;
+            try {
+                beforeManifest = validateAndMigrateManifest(
+                    JSON.parse(operation.before_ledger),
+                    'completed setup.remove before-ledger',
+                );
+            }
+            catch (error) {
+                blockers.push(
+                    `The completed removal before-ledger is invalid: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            }
+            if (operation.after_ledger !== 'null') {
+                blockers.push('The completed removal did not finish with an empty installation ledger.');
+            }
+            if (!operation.plan_complete) {
+                blockers.push('The completed removal plan was not sealed before its file changes.');
+            }
+            let declaredProjectId: string | null = null;
+            try {
+                declaredProjectId = readDeclarativeProjectId(root);
+            }
+            catch (error) {
+                blockers.push(
+                    `The completed removal project identity cannot be verified: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            }
+            if (declaredProjectId !== row.project_id) {
+                blockers.push('The project identity no longer matches the completed removal checkout.');
+            }
+            if (beforeManifest?.projectId !== row.project_id) {
+                blockers.push('The completed removal ledger does not match the current project identity.');
+            }
+
+            const rawSteps = db.prepare(
+                'SELECT * FROM installation_steps WHERE operation_id=? ORDER BY ordinal',
+            ).all(operation.operation_id) as unknown as Step[];
+            const steps = rawSteps.map(step => ({
+                ...step,
+                before: parseCompletedRemovalFileState(step.before_json),
+                after: parseCompletedRemovalFileState(step.after_json),
+            }));
+            if (steps.length === 0) blockers.push('The completed removal has no saved file plan.');
+            for (const step of steps) {
+                if (!step.before || !step.after) {
+                    blockers.push(`The completed removal has invalid file evidence for ${step.relative_path}.`);
+                    continue;
+                }
+                if (!step.applied) {
+                    blockers.push(`The completed removal did not apply its reviewed action for ${step.relative_path}.`);
+                    continue;
+                }
+                try {
+                    if (!matches(root, step.relative_path, step.after)) {
+                        blockers.push(`The completed removal output changed at ${step.relative_path}.`);
+                    }
+                }
+                catch (error) {
+                    blockers.push(
+                        `The completed removal output cannot be verified at ${step.relative_path}: ${error instanceof Error ? error.message : String(error)}`,
+                    );
+                }
+            }
+
+            const backupRootSteps = steps.filter(step => {
+                if (!step.before || !step.after) return false;
+                const normalized = normalizeOperationPath(step.relative_path);
+                return step.before.kind === 'missing'
+                    && step.after.kind === 'directory'
+                    && path.posix.dirname(normalized) === '.make-docs/backup';
+            });
+            if (backupRootSteps.length === 0) return noHandoff();
+            if (backupRootSteps.length > 1) {
+                blockers.push('The completed removal does not have one exact reviewed backup root.');
+            }
+            const backupRoot = backupRootSteps[0]
+                ? normalizeOperationPath(backupRootSteps[0].relative_path)
+                : '';
+            if (
+                backupRootSteps.length === 1
+                && !existsSync(assertSafeFilePath(root, backupRoot))
+            ) {
+                return noHandoff();
+            }
+            const insideBackup = (candidate: string) => {
+                const normalized = normalizeOperationPath(candidate);
+                return backupRoot !== '' && (normalized === backupRoot || normalized.startsWith(`${backupRoot}/`));
+            };
+            const removedSteps = steps.filter(step =>
+                step.before && step.after
+                && step.before.kind !== 'missing'
+                && step.after.kind === 'missing'
+                && !insideBackup(step.relative_path),
+            );
+            if (removedSteps.length === 0) {
+                blockers.push('The completed removal has no reviewed removed paths.');
+            }
+            const backupFileSteps = new Map(
+                steps
+                    .filter(step => step.after?.kind === 'file' && insideBackup(step.relative_path))
+                    .map(step => [normalizeOperationPath(step.relative_path), step]),
+            );
+            for (const removed of removedSteps) {
+                if (removed.before?.kind !== 'file' || !backupRoot) continue;
+                const backupRelativePath = removalBackupRelativePath(root, removed.relative_path);
+                const backupPath = backupRelativePath
+                    ? path.posix.join(backupRoot, backupRelativePath)
+                    : null;
+                const backup = backupPath ? backupFileSteps.get(backupPath) : undefined;
+                if (!backup || backup.after?.kind !== 'file' || backup.after.digest !== removed.before.digest) {
+                    blockers.push(`The verified backup does not match removed file ${removed.relative_path}.`);
+                }
+            }
+            if (backupRoot) {
+                const recordedBackupFiles = new Set(backupFileSteps.keys());
+                for (const currentPath of listCompletedRemovalBackupFiles(root, backupRoot)) {
+                    if (!recordedBackupFiles.has(currentPath)) {
+                        blockers.push(`The completed removal backup has unreviewed file ${currentPath}.`);
+                    }
+                }
+            }
+
+            if (!beforeManifest || blockers.length > 0) {
+                return {
+                    status: 'blocked',
+                    operationId: operation.operation_id,
+                    projectId: row.project_id,
+                    checkoutId: row.checkout_id,
+                    blockers: [...new Set(blockers)].sort(),
+                    nextAction: 'Restore the completed removal backup, project identity, and target files to their reviewed state. Then run make-docs setup again.',
+                };
+            }
+
+            const removedPaths = [...new Set(removedSteps.map(step => normalizeOperationPath(step.relative_path)))].sort();
+            const removedSet = new Set(removedPaths);
+            const preservedPaths = Object.keys(beforeManifest.files)
+                .map(normalizeOperationPath)
+                .filter(relativePath => !removedSet.has(relativePath))
+                .sort();
+            return {
+                status: 'ready',
+                operationId: operation.operation_id,
+                projectId: row.project_id,
+                checkoutId: row.checkout_id,
+                beforeManifest,
+                backupRoot,
+                removedPaths,
+                preservedPaths,
+            };
+        }, { storeRoot: store, readOnly: true });
+    }
+    catch {
+        return noHandoff();
+    }
+}
+
+function parseCompletedRemovalFileState(value: string): FileState | null {
+    try {
+        const parsed = JSON.parse(value) as FileState;
+        if (!parsed || typeof parsed !== 'object') return null;
+        if (parsed.kind === 'missing' || parsed.kind === 'directory') return parsed;
+        if (parsed.kind === 'file' && typeof parsed.digest === 'string') return parsed;
+        if (parsed.kind === 'symlink' && typeof parsed.target === 'string') return parsed;
+        return null;
+    }
+    catch {
+        return null;
+    }
+}
+
+function normalizeOperationPath(value: string): string {
+    return value.split(path.sep).join('/');
+}
+
+function removalBackupRelativePath(root: string, operationPath: string): string | null {
+    const absolute = path.isAbsolute(operationPath)
+        ? path.normalize(operationPath)
+        : path.resolve(root, operationPath);
+    const projectRelative = path.relative(root, absolute);
+    if (projectRelative === '' || (!projectRelative.startsWith('..') && !path.isAbsolute(projectRelative))) {
+        return normalizeOperationPath(projectRelative);
+    }
+    const home = platform.userHome();
+    const homeRelative = path.relative(home, absolute);
+    if (homeRelative === '' || (!homeRelative.startsWith('..') && !path.isAbsolute(homeRelative))) {
+        return path.posix.join('_home', normalizeOperationPath(homeRelative));
+    }
+    return null;
+}
+
+function listCompletedRemovalBackupFiles(root: string, backupRoot: string): string[] {
+    const absoluteRoot = assertSafeFilePath(root, backupRoot);
+    if (!existsSync(absoluteRoot)) return [];
+    const files: string[] = [];
+    const stack = [absoluteRoot];
+    while (stack.length > 0) {
+        const current = stack.pop()!;
+        for (const entry of readdirSync(current, { withFileTypes: true })) {
+            const absolute = path.join(current, entry.name);
+            if (entry.isDirectory()) {
+                stack.push(absolute);
+            }
+            else if (entry.isFile()) {
+                files.push(normalizeOperationPath(path.relative(root, absolute)));
+            }
+            else {
+                files.push(normalizeOperationPath(path.relative(root, absolute)));
+            }
+        }
+    }
+    return files.sort();
 }
 export function recoverInstallationOperation(projectRoot: string, operationId: string, mode: 'resume' | 'rollback', dryRun: boolean, storeRoot?: string) {
     if (mode !== 'resume' && mode !== 'rollback')

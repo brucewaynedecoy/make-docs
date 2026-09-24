@@ -155,6 +155,7 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-XFER-6 (MUST): the corrected CLI is the minimum supported writer after transfer. Setup names that boundary and blocks known active old writers through scoped evidence. Probe the actual prior package to document its guard or limit; do not claim that an immutable old binary obeys new Store rules. Use a declarative format guard only when that parser proves rejection before writes. No local marker, dual writes, automatic CLI replacement, broad process scan, or second-version bridge is required or permitted by this scope.
 - R-XFER-7 (MUST): the Store service derives recovery actions from `plan_complete`, saved steps, before and after ledgers, checkout binding, lock state, and current file evidence. Resume is valid only for a complete verified plan. An incomplete zero-step operation with equal ledgers and no active lock can finish as a no-effect rollback that changes only its status and final time. Unknown or conflicting evidence blocks mutation and keeps the pending record visible.
 - R-XFER-8 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup can always reach status plus one safe next action. A repeat reads independent completed subplans and resumes only incomplete work. It never requires manual database edits, deletion of a pending row, successful prior MCP access, or a reinstall that does not change the failed condition.
+- R-XFER-9 (MUST): a completed reviewed `setup remove --backup` operation retains the exact checkout binding, removed-path ledger, preserved-path ledger, verified backup index, digests, and terminal result needed for a later reviewed install. Plain setup for that same checkout can use this evidence without fabricating prior ownership for preserved user files. It keeps the existing project and checkout identifiers, preserves the backup through verified install completion, and never applies the evidence to another checkout.
 
 ### Privacy (R-PRIV)
 
@@ -214,6 +215,14 @@ This capability integrates with the adjacent current authorities linked from Req
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
+
+### 2026-09-23 — W22 R0 P8
+
+- Affected requirement or section: `Backup, Uninstall, and Upgrade` and `Transfer and Recovery`
+- Previous contract: Project removal preserved Store rows and backup indexes, but the Store contract did not state that the completed removal result is the trusted handoff into a later reviewed install for the same checkout.
+- Replacement contract: The completed removal operation retains its exact ledgers, backup index, digests, checkout binding, and terminal result. Plain setup can use that evidence for a new reviewed install while preserving the project and checkout identifiers and all project-owned files.
+- Rationale: A verified removal must not discard the evidence needed to reinstall safely or force a person to edit Store state by hand.
+- Source: [W22 R0 P8 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md)
 
 ### 2026-09-20 — W23 R0 P5 authority reconciliation
 

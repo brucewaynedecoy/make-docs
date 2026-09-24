@@ -895,7 +895,17 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
   let attempt = 0;
   const removed: string[] = [];
   while (true) {
-    const result = recoverDeadStoreAccessSessions(storeRoot);
+    let result: StoreSessionRecoveryResult;
+    try {
+      result = recoverDeadStoreAccessSessions(storeRoot);
+    } catch (error) {
+      const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
+      if (platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "") && Date.now() < deadline) {
+        pause(attempt++, deadline);
+        continue;
+      }
+      throw error;
+    }
     removed.push(...result.removed);
     if (result.active.length === 0) return removed;
     if (Date.now() >= deadline) {
@@ -1087,7 +1097,9 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       cleanupAccessDirectory(directory);
       if (error instanceof StoreUnavailableError) throw error;
       const code = systemCode(error);
-      if (new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "") && Date.now() < deadline) {
+      const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
+        || (platform.kind === "darwin" && code === "EINVAL");
+      if (retryableSessionOpenError && Date.now() < deadline) {
         pause(attempt++, deadline);
         continue;
       }

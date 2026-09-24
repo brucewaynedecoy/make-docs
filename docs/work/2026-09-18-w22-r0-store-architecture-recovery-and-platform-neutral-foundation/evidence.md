@@ -1168,7 +1168,7 @@ The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publicati
 
 ### Status
 
-P7 Stage 1 source repair, three authentic older-package fixtures, focused validation, and corrective review are complete as of 2026-09-22. Tasks t1 through t8 and A45 through A49 pass. Stage 2 exact-candidate and three-platform installed-package proof remain open. P7 and D-038 remain open.
+P7 is closed after the final P7 and P8 candidate passed the three-platform installed workflow and the approved live setup checks. The live installed `2.0.1` counterevidence and intermediate open gates below remain as historical repair evidence.
 
 The first Stage 2 candidate at `f0846d58f5ebfca2d2485362f1cc324b8934dc0a` passed the three-platform workflow in run `35775207319`. Pull-request review then found seven material defects. That candidate is rejected for P7 acceptance. The corrective source result fixes those defects and passes local validation. It makes no live CLI installation or live Store change. A new exact package run is still required.
 
@@ -1379,10 +1379,260 @@ This review supports Stage 1 closeout only. It does not claim real-platform inst
 
 ### P7 Gate
 
-Tasks t1 through t8 are complete. Acceptance criteria A45 through A49 are satisfied by the final Stage 1 source result. The earlier failure evidence and interim review gaps remain part of the record.
+Tasks t1 through t20 are complete. Acceptance criteria A45 through A56 pass. The earlier failure evidence, rejected candidates, and interim review gaps remain part of the record.
 
-Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain open. The first exact P7 candidate and workflow run are rejected because later review found material defects. No exact corrected package identity, corrected three-platform installed run, final comparison, installed Human Experience Review, or corrective closeout exists yet.
+The final exact candidate and live result are recorded in the P8 final acceptance section below because the accepted P8 corrections completed the same public recovery path. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source, exact candidate, installed Ubuntu, installed macOS, installed Windows, and final comparison jobs. The live Make Docs and North Atlantic results completed without cross-project interference or deep-command recovery.
 
-The next gate is Stage 2. Build one exact repaired candidate with recorded package and install identity. Then run comparable installed proof on Windows, macOS, and Linux. Local `just install-cli` and the live plain-setup retry remain separate later owner actions.
+The final Human Experience Review supports HX-2 and HX-5. Setup shows the current target, keeps machine and project review separate, preserves unrelated project work, and returns one normal action. The final North Atlantic run began from an already-current `2.0.1` state. The authentic schema-3 fixtures remain the proof for the initial older-package transition.
 
-P7 and D-038 remain open. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside P7 without separate owner approval. Staging, commit, push, external workflow execution, live owner-Store verification, and closeout each require their applicable next authority.
+The owner authorized closeout on 2026-09-23. P7 and D-038 are closed. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside the accepted product scope.
+
+### Live 2.0.1 Counterevidence - Cross-Project Store Isolation
+
+The owner installed CLI version `2.0.1` and ran plain `make-docs setup` against the Make Docs project.
+
+1. Setup found incomplete operation `9b687b36-5394-4bae-879e-416937eaa33d` for the current project.
+2. The owner selected the recommended restore action.
+3. Setup rebuilt and showed the computer and project reviews.
+4. The owner approved both reviews.
+5. Setup stopped at machine scope and claimed that a Store operation was pending.
+6. Immediate current-target readback reported installation state `ready` and `pendingOperation: null`.
+7. Read-only Store history found pending installation operation `67a0e504-dd52-4bd8-b1a2-642b284ce72b` under a different checkout.
+8. The unrelated operation remained unchanged. No repair or recovery action was run against that project.
+
+The exact cause was the machine setup conflict guard. It treated every pending installation operation and every installation lock in the shared Store as a machine-wide conflict. Project operations and project locks belong to one exact checkout. Only tool-level machine operations remain global. The false global check also caused incorrect guidance to run project-state commands against a current target that had no pending operation.
+
+The same live review exposed the prompt `Apply the reviewed This computer changes?`. The owner selected `Apply the reviewed changes to this computer?` as the required text.
+
+This live result is stronger than the prior candidate claim for the affected path. It reopens P7 and D-038. The prior source and platform results remain valid only for the exact cases and candidates that passed.
+
+### Reopened Source Repair Result
+
+- The machine setup guard now checks pending installation operations through the exact checkout root.
+- The guard now checks project locks only for the exact target root.
+- Pending tool operations remain global because they represent machine-wide work.
+- The combined regression leaves another checkout in `recovery-required` state, restores the current project, applies the current computer plan, and proves that the unrelated operation remains present.
+- Full setup now prepares the computer plan again after the Store prerequisite verifies.
+- If the visible computer review changes, setup shows the current review and asks for computer approval again.
+- Pending-Store guidance reads the current target first. It does not direct a ready target with no pending operation to project-state recovery.
+- Both full setup and direct system setup now ask `Apply the reviewed changes to this computer?`.
+
+### Reopened Source Validation
+
+| Check | Result |
+| --- | --- |
+| Focused repair tests | Passed: 4 tests across `cli.test.ts`, `w19-r6-setup.test.ts`, and `w19-r6-harness-system-operations.test.ts`. |
+| Package build | Passed with `npm run build`. |
+| Full repository test command | Passed: 92 test files passed and one test file used its normal skip guard; 1,479 tests passed and five installed-platform tests used their normal skip guard. |
+| Full authentic older-package suite | Passed inside the full repository run: all three P7 fixtures passed. |
+| Diff whitespace check | Passed. |
+
+The first focused run found one test-only folder collision from a fixed temporary path. The fixture now uses a unique temporary directory. The product assertion did not fail. The corrected focused run passed all four selected tests.
+
+### Reopened Human Experience Review
+
+Reviewer: Codex agent.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | The current target is checked before recovery guidance. The prompt now names the computer action in normal English. | Satisfied for the reopened source boundary. | Repeat the exact output with one installed candidate on all three required operating systems. |
+| HX-5: setup and repair use one open recovery path | Unrelated project recovery state no longer blocks the current target. The unrelated operation remains unchanged. | Satisfied for the reopened source boundary. | Repeat the live Make Docs setup path with the exact candidate after platform proof. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | Tool operations remain global. Project operations and locks use exact-checkout scope. The repair does not clear or edit another project. | Preserved in source tests. | Installed package and live proof remain open. |
+
+### Reopened P7 Gate
+
+At this intermediate gate, Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 passed in source. Task t20 and A56 remained open. The next gate was one exact repaired package with comparable Windows, macOS, and Linux results, followed by separately approved local installation and live setup.
+
+P7 and D-038 remained open at this point. The later final candidate and live evidence below close them.
+
+## P8 Router Ownership and Reviewed Reinstall Repair
+
+### Stage 1 Source Result
+
+- Active compatibility discovery no longer scans every `AGENTS.md` or `CLAUDE.md` in the repository. Backup routers and unrelated project routers are not active ownership evidence.
+- The completed `setup remove --backup` operation is a read-only handoff only when its sealed plan, before and after ledgers, applied steps, backup root, exact backup files, digests, project identity, checkout identity, and current result all verify.
+- Plain setup uses the verified before-ledger as planning input. It preserves the current Store project and checkout identities.
+- Only unresolved exact plan targets retain ownership ambiguity. A reviewed shared router update changes only the Make Docs managed block. It preserves all other bytes.
+- A missing managed block becomes an explicit `update` only after reviewed conflict resolution. Malformed or duplicated markers remain a stop.
+- Changed backup bytes, backup symlinks, changed project identity, and changed target bytes fail before a new project operation.
+- An interrupted reinstall supports both resume and rollback. Rollback restores the completed-removal handoff. Plain setup can then run again.
+- The public continuation remains `make-docs setup`. P8 adds no reset, force, detach, quarantine, database-edit, or unrelated-router move command.
+- The deterministic command changed under the existing public setup path. No shipped agent resource needed a new command or direct-router-edit instruction.
+
+### Exact Isolated Fixture
+
+The P8 fixture creates a real current Store installation. It records the real project and checkout identifiers. It then completes a real reviewed `setup remove --backup` operation.
+
+The fixture adds 52 managed backup router files and 36 unrelated active project router files. It preserves shared-router project content outside the Make Docs block. It verifies the backup before plain setup. The applied reinstall keeps all unrelated router bytes and backup bytes unchanged.
+
+### Stage 1 Validation
+
+| Check | Result |
+| --- | --- |
+| P8 exact fixture | Passed: 11 of 11 tests. The added cases prove that plain setup uses the normal guarded path when a completed removal has no backup or its recorded backup root is wholly absent. |
+| Focused P8, compatibility, and CLI suite | Passed: 3 files; 165 tests passed. |
+| TypeScript check | Passed with `npx tsc -p packages/cli/tsconfig.json --noEmit`. |
+| Package build | Passed with `npm run build --workspace @brucewaynedecoy/make-docs`. |
+| Full default validation | Passed: 93 test files passed and 1 file used its normal installed-platform skip guard; 1,488 tests passed and 5 installed-platform tests skipped. Instruction-router and wave-numbering checks passed. |
+| PRD authority, links, and path hygiene | Passed in the full repository test run. |
+| Diff whitespace check | Passed. |
+| Corrective source review | Passed. The review added explicit rollback, backup-symlink, and project-identity cases. It kept the earlier missing-manifest and schema-bridge safety stops. |
+
+### Stage 1 Human Experience Review
+
+Reviewer: Codex agent.
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Human preview names `migrate-with-review`. Blocked backup and identity cases state the failed evidence and one setup retry action after restoration. | Satisfied for the isolated source boundary. | Review the same output from one exact installed candidate on Windows, macOS, and Linux. |
+| HX-5: setup and repair use one open recovery path | Plain setup previews, applies, resumes, rolls back, retries, and reaches repeat no-op state. It does not require a hidden reinstall command or Store edit. | Satisfied for the isolated source boundary. | Prove the installed package and then run the separately approved live North Atlantic BuildOS test. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same plan keeps backup evidence, unrelated routers, project identity, checkout identity, Store integrity, and earlier safety stops. | Preserved in source tests. | Three-platform installed proof was still open at this intermediate gate. |
+
+### Pull-Request Review Correction
+
+The first Stage 2 candidate at `9f859ac5c5ee65125704ca44a55d4341e730c15b` passed every source and installed-package job in workflow run `35898621758`. Pull-request review then found one material recovery defect. A completed removal with no backup, or with a wholly absent backup root, could return a blocked handoff that told the person to restore backup evidence that did not exist. That candidate is rejected for P8 acceptance.
+
+The corrective source result keeps the strict handoff only when exact backup evidence exists. It uses normal guarded setup when no backup was recorded or the one recorded backup root is wholly absent. Multiple backup roots and partial, changed, or symlinked backup evidence still stop before a new project operation.
+
+The same review corrected five smaller evidence and test defects:
+
+- Plan, backlog, risk, and evidence records now state the approved Stage 2 boundary.
+- HX-5 claimed only A57 through A60 at this intermediate gate. A61 and A62 remained open.
+- JSON action assertions use the emitted `path` field.
+- Package-version assertions read current package metadata instead of a fixed version string.
+- The active D-038 next action no longer asks for approval that the owner already gave.
+
+The local corrective checks passed:
+
+| Check | Result |
+| --- | --- |
+| P8 exact fixture | Passed: 11 tests. |
+| Focused P8, compatibility, and CLI suite | Passed: 3 files; 165 tests. |
+| TypeScript check | Passed. |
+| Package build | Passed. |
+| Stable full repository validation | Passed: 93 test files and 1 normal skipped file; 1,492 tests passed and 5 installed-platform tests skipped. Instruction-router and wave-numbering checks passed. The shared worktree also contained unrelated uncommitted Backlog Review changes, so the exact corrective commit still needs the pull-request workflow. |
+| Diff whitespace check | Passed. |
+
+The first full corrective validation attempt is not product evidence. A concurrent task changed the embedded Skill registry after Vitest loaded its starting digest. The later Skill tests correctly rejected the changed registry. The P8 suite passed 11 tests in that run. The registry then stayed stable for the passing full run above. A new exact candidate remains required.
+
+### Live Acceptance Correction
+
+Pull request [#15](https://github.com/brucewaynedecoy/make-docs/pull/15) tested commit `bcddccad74136faa0f7e1d91bdd0680cdbe7039c`. Platform Safety run [35904245005](https://github.com/brucewaynedecoy/make-docs/actions/runs/35904245005) passed the source contract, one installed-package build, the installed package on Ubuntu, macOS, and Windows, and the final evidence comparison. CodeRabbit also passed.
+
+The exact candidate then completed plain setup in the live North Atlantic BuildOS project. The later review found that the first reinstall had not retained the prior local resource selection. A later setup could therefore plan removal of 62 current local resource files. The first reinstall also did not recreate the proved `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md` routers because removal had deleted the former surface directory. A reviewed `setup reconfigure --project-resources all` restored the live project to a stable current state. The backup, BuildOS-owned router content, and project data remained preserved.
+
+The source correction now:
+
+- recovers prior resource selection only from canonical resource records in the verified completed-removal before-ledger;
+- requires an explicit resource choice when old evidence is not sufficient;
+- recreates exact on-demand surface routers from completed-removal manifest proof even when the former directory is absent; and
+- requires the first reinstall and immediate repeat to converge to all no-op file actions.
+
+The corrected fixture is a valid schema-3 installation ledger. It omits the newer resource-selection and router-ownership fields. It retains exact managed resource and asset-router file records. The first plain setup preserves all four resource types, recreates both asset routers, and saves current state. The immediate repeat reports no project change and only no-op actions.
+
+| Check | Result |
+| --- | --- |
+| Corrected P8 exact fixture | Passed: 12 of 12 tests. |
+| Related authentic-upgrade, legacy-identity, projection, and installed-matrix source suites | Passed: 32 tests; 5 installed-platform cases used their normal skip guard. |
+| General CLI suite | Passed: 136 of 136 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,493 tests; 1 installed-package file and its 5 platform cases used their normal skip guard. |
+| TypeScript check | Passed with `npx tsc --noEmit -p packages/cli/tsconfig.json`. |
+| Package build | Passed with `npm run build -w packages/cli`. |
+| Diff whitespace check | Passed. |
+
+This source evidence does not replace the exact installed-package or live-project gate. Commit `bcddccad` and workflow `35904245005` predate this correction. Pull request #15 must remain open until a new exact candidate passes the three-platform workflow and the repeated North Atlantic BuildOS acceptance test.
+
+### Pull-Request Selection-Continuity Correction
+
+Commit `740c7b64a3900463ea5abaf14e4911e9e02e0b22` passed every source, installed-package, and comparison job in Platform Safety run [35922365870](https://github.com/brucewaynedecoy/make-docs/actions/runs/35922365870). CodeRabbit then found two material selection-continuity defects. That candidate is not accepted for A65.
+
+First, the completed-removal before-manifest was used to resolve selections but not to decide whether the target was a fresh install. Setup could therefore apply the fresh default capability set and re-enable a capability that the earlier installation had disabled.
+
+Second, a completed-removal ledger with unknown resource intent stopped noninteractive setup but did not force interactive setup into the state-review wizard. A target otherwise classified as current could skip the wizard and continue with the default empty resource selection.
+
+The corrected source uses the verified before-manifest for fresh-install detection before and after Store-backed review reload. It classifies unknown completed-removal resource intent as partial state. Interactive setup must therefore obtain a reviewed resource selection. The P8 fixture now proves both the interactive state-review path and preservation of a disabled capability.
+
+| Check | Result |
+| --- | --- |
+| Corrected P8 exact fixture | Passed: 14 of 14 tests. |
+| P8, authentic-upgrade, legacy-identity, projection, installed-matrix source, and general CLI suites | Passed: 182 tests; 5 installed-platform cases used their normal source skip guard. |
+| Full CLI source suite | Passed: 93 test files and 1,495 tests; 1 installed-package file and its 5 platform cases used their normal source skip guard. |
+| TypeScript check | Passed with `npx tsc --noEmit -p packages/cli/tsconfig.json`. |
+| Package build | Passed with `npm run build -w packages/cli`. |
+| Product authority and documentation checks | PRD authority, content path hygiene, instruction routers, and wave numbering passed. |
+| Diff whitespace check | Passed. |
+
+### Windows Installed-Package Timeout Correction
+
+Commit `11cf23c9db275387f6af4cab20eaaa2c87d861e8` was tested in Platform Safety run [35927230235](https://github.com/brucewaynedecoy/make-docs/actions/runs/35927230235). The Ubuntu, macOS, and Windows source contracts passed. The exact candidate build passed. The Ubuntu and macOS installed-package contracts passed.
+
+The Windows installed-package job failed in its required source safety matrix. One existing projection lifecycle test exceeded the shared 120-second per-test limit. That test runs 18 setup and reconfigure cycles. It took about 177 seconds on this runner. The other 225 tests in the matrix passed. The final evidence comparison then failed because the Windows package proof did not run and no Windows evidence artifact existed.
+
+The same Windows test matrix passed earlier in this workflow as the source-platform contract. The failure therefore showed a runner-time variance around a known long test. It did not show a product assertion failure.
+
+The bounded repair gives only that long test a 240-second limit. The shared workflow limit remains 120 seconds for all other tests.
+
+| Check | Result |
+| --- | --- |
+| Exact long test | Passed: 1 of 1 tests; 22 unrelated tests skipped. |
+| Full projection lifecycle file | Passed: 23 of 23 tests. |
+| Exact-candidate three-platform proof | Passed for commit `a258e2ff710e9e74e1132647148ea5ce119ce0b9` in Platform Safety run [35929502366](https://github.com/brucewaynedecoy/make-docs/actions/runs/35929502366). All source, candidate-build, installed-package, and comparison jobs passed. That candidate was later rejected because of the no-harness review defect below. |
+
+### Pull-Request No-Harness Correction
+
+CodeRabbit found that the selection wizard repeated the harness step when a user selected no harnesses. This contradicted the product contract. A user can select `none` and continue to use project routers, optional Skills, and Store-free resource commands.
+
+The repeated step also blocked P8 recovery. A reviewed reinstall with unknown resource intent could not reach the shared options step when both harnesses remained disabled. The user therefore could not select the required project resources.
+
+The corrected wizard applies the empty harness set and continues. The system method review already handles this state. It selects `none` for both harnesses and makes no native harness changes. The options step then remains available for Skills and project-resource choices.
+
+| Check | Result |
+| --- | --- |
+| Selection wizard suite | Passed: 23 of 23 tests. The no-harness case now proves one harness review, one options review, and both harnesses disabled. |
+| P8 exact fixture | Passed: 14 of 14 tests. |
+| Full CLI source suite | Passed: 93 test files and 1,495 tests; 1 installed-package file and its 5 platform cases used their normal source skip guard. |
+| Default package validation | Passed: 53 of 53 tests. |
+| TypeScript and package build | Passed. |
+| Product authority and documentation checks | PRD authority, path hygiene, instruction routers, and wave numbering passed. |
+| Diff whitespace check | Passed. |
+| Exact-candidate three-platform proof | Passed in the final workflow recorded below. |
+
+### Final Exact Candidate And Live Acceptance
+
+Pull request [#15](https://github.com/brucewaynedecoy/make-docs/pull/15) tested head commit `9e57667a0329324fa7e437c4f84422e2b33c51de`. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the Ubuntu, macOS, and Windows source contracts, one candidate build, the installed-package contract on all three hosts, and the final evidence comparison. The CodeRabbit check also passed.
+
+The workflow candidate record identifies merge revision `7b5346887ab6ad730b93ddd4ae5424bc4934c7ba`, whose parents include the approved pull-request head. The exact package identity is:
+
+| Field | Value |
+| --- | --- |
+| Package | `@brucewaynedecoy/make-docs@2.0.1` |
+| File | `brucewaynedecoy-make-docs-2.0.1.tgz` |
+| Size | 1,715,101 bytes |
+| SHA-256 | `ec5bb32e962bb7c35fa47e47c40007b241ea8db75d0b845da926375ae34d142e` |
+| Installed executable SHA-256 | `1cbb16b9e6b1270653f69c06533672d193540b85570b2355992324a1162ac0d9` |
+
+The exact package was installed through the normal global package-manager path. `make-docs --version` returned `2.0.1`. The installed executable digest matched the refreshed Claude Code MCP receipt.
+
+The approved North Atlantic BuildOS live check ran plain `make-docs setup` once with the final candidate and exited with status 0. The review reported a `clean-v2-provider-backed` project state, package and installed version `2.0.1`, 90 managed files evaluated, 90 already current, no planned project file changes, and no safety stop. Setup refreshed the drifted Claude Code MCP entry to the exact installed executable. It preserved the user-owned Codex MCP entry.
+
+Store readback remained `ready`. Project `423f49d6-c28d-4ba5-b99f-3049a31efcb8` and checkout `ff0e0216-fd25-4b5e-b896-aa63beed415d` did not change. No pending recovery remained. The project Git change set was identical before and after setup. The backup and project-owned router content remained unchanged.
+
+The live project already reported `2.0.1` before this final command. This run proves that the exact final candidate completes the normal setup and repeat path against the formerly failing live project state. It does not by itself replay the initial legacy file migration. The authentic schema-3 completed-removal fixture supplies that transition evidence and proves resource-selection recovery, surface-router recreation, disabled-capability preservation, explicit review for unknown resource intent, and an immediate all-no-op repeat.
+
+A separate North Atlantic path-hygiene validation reported 307 existing findings across 92,091 files. It reported no changed files and no input or output errors. The findings are in earlier BuildOS evidence and synthetic test artifacts. They are not setup changes and do not block P7 or P8 closeout.
+
+Final Human Experience Review:
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Plain setup showed the current project and computer reviews, completed with status 0, and returned control to the terminal without a recovery loop. Store readback was `ready` with no pending operation. | Satisfied for the accepted P7 and P8 scope. | Existing North Atlantic content-hygiene findings remain separate project work. |
+| HX-5: setup and repair use one open recovery path | The final candidate preserved project and checkout identity, backup evidence, saved intent, project-owned router content, and the user-owned Codex entry. The authentic fixture proves the initial reviewed reinstall and immediate no-op repeat. | Satisfied for the accepted P7 and P8 scope. | The live final run began from an already-current `2.0.1` state, so the initial legacy transition claim stays bound to the authentic fixture and three-platform installed contract. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same candidate passed the installed contract on Ubuntu, macOS, and Windows. Store-free, identity, ownership, and retained-mechanism checks passed in the recorded source and installed suites. | Preserved within the tested scope. | Publication and release remain separate actions. |
+
+### P8 Gate
+
+Stage 1 tasks t1 through t7, Stage 2 tasks t8 through t12, and Stage 3 tasks t13 through t19 are complete. Acceptance criteria A57 through A65 pass.
+
+The source and authentic fixtures passed. One exact candidate passed the same installed-package contract on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with status 0, stable Store and project identities, no pending recovery, and no project file change. The recorded limit does not weaken the initial-upgrade proof because the authentic legacy fixture and three-platform installed contract own that transition.
+
+The owner authorized closeout and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.

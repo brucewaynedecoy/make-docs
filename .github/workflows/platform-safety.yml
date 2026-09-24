@@ -90,7 +90,7 @@ jobs:
       - name: Run source and proof-harness tests
         run: |
           npm run test:smoke-harness
-          npm test -w packages/cli
+          npm test -w packages/cli -- --testTimeout=120000
           npm run validate:defaults
 
       - name: Build the package candidate

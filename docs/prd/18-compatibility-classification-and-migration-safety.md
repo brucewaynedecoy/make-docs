@@ -17,9 +17,10 @@ Classification priority:
 
 1. Resolve the external Store and declarative project identity. Classify Store safety and the checkout binding. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
 2. Validate the Store installation record or supported legacy input: schema, package identity, project and checkout identity, saved selections, ownership, hashes, resource provenance, and competing claims. A clone or missing Store cannot inherit ownership from project identity alone.
-3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the filesystem without following links outside the approved project or machine root.
-4. If the manifest is absent or unusable, use only conservative fallback recognition for known make-docs-managed paths and canonical content.
-5. If fallback recognition is ambiguous, stop before mutation.
+3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the active filesystem surface without following links outside the approved project or machine root.
+4. Exclude `.make-docs/backup/**` and declared inactive backup, export, and archive roots from active installation discovery. Verify them only through their owning backup, restoration, or history contract.
+5. If the manifest is absent or unusable, use only conservative fallback recognition for known make-docs-managed paths and canonical content. Router recognition is limited to exact paths the reviewed plan can change.
+6. If fallback recognition for an affected path is ambiguous, stop before mutation. Unrelated non-target paths do not become blockers only because they share a router filename.
 
 Source states:
 
@@ -84,6 +85,12 @@ Migration safety:
 - R-MIG-REENTRY-1 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each has a reachable next action. Input rejection before mutation creates no blocking operation. A saved incomplete operation uses the verified recovery rules below. The CLI never requires a successful prior setup to repair setup.
 - R-MIG-REENTRY-2 (MUST): machine, project, Skills, and resource setup are independent reviewed subplans. A later subplan failure preserves every earlier verified result and its recovery evidence. Repeat setup resumes only incomplete work and does not replay or roll back an independent completed subplan.
 - R-MIG-REENTRY-3 (MUST): remediation of the CLI, Store bootstrap, migration, or harness access can proceed from repository and package authority with no usable Store or MCP connection in the maintainer checkout. Isolated temporary Store roots remain required for Store behavior tests. No project-local fallback state is permitted.
+- R-MIG-REENTRY-4 (MUST): after a reviewed project removal completes with a verified backup for the same checkout, plain setup can use that completed operation as the handoff into a new reviewed install plan. It preserves the project and checkout identities and does not require an unavailable command, manual Store edit, or movement of unrelated project files.
+
+- R-MIG-ROUTER-1 (MUST): router ownership is path- and evidence-specific. A router filename does not prove Make Docs ownership. A Store or supported legacy record can prove whole-file ownership for an exact managed path. A shared router remains project-owned outside its exact Make Docs managed block.
+- R-MIG-ROUTER-2 (MUST): compatibility and migration review classify only router paths that the reviewed plan proposes to create, change, or remove. Other `AGENTS.md`, `CLAUDE.md`, or future router-named files are unrelated project content and cannot block the plan only because their names match.
+- R-MIG-ROUTER-3 (MUST): a shared target router change inserts, updates, or removes only the exact reviewed Make Docs managed block and preserves every other byte. Missing-block insertion is an explicit planned action. The product never adopts whole-file ownership from a managed-block change.
+- R-MIG-ROUTER-4 (MUST): malformed, nested, duplicated, or contradictory Make Docs markers on a target path stop before operation creation. Output names the affected path, preserved state, failed ownership rule, and one safe action that can change the condition.
 
 - Migration must not silently overwrite user-modified content.
 - Migration must not broaden skill selection or install skill files by default.
@@ -101,6 +108,7 @@ Backup-and-reinstall safety:
 - Remove only files the same reviewed audit result marks removable.
 - Install fresh from the selected v2 mode after removal.
 - Never re-audit between user approval, backup, removal, and reinstall.
+- When removal and reinstall occur as separate reviewed operations, the completed removal result and verified backup index become the immutable handoff. The later install can refresh current target state and build a new reviewed plan, but it must not reclassify inactive backup copies or unrelated non-target routers as active installation conflicts.
 
 Rollback:
 
@@ -182,6 +190,14 @@ R-ASSET-MIG-5 (MUST): an explicit reviewed move may relocate project-owned or mo
 R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, concurrent writer exclusion, changed inputs, unsafe paths, conflicting destinations, real project content, and empty-directory cleanup. Completion permits only named, verified archival or backup exclusions outside active legacy routing. Ordinary work without the CLI remains valid; it does not authorize unreviewed legacy cleanup.
 
 ## Requirement History
+
+### 2026-09-23 — W22 R0 P8
+
+- Affected requirement or section: `Classification priority`, `Ordered Migration`, `Backup-and-reinstall safety`, and router ownership
+- Previous contract: Missing-manifest fallback scanned recognizable router names across the repository, and backup-and-reinstall safety did not define how a completed reviewed removal continues when removal and reinstall are separate operations.
+- Replacement contract: Active discovery excludes inactive backup roots, router ownership is checked only for planned target paths, shared routers preserve all non-Make-Docs bytes, and a completed reviewed removal with verified backup evidence can continue through plain setup under the same project and checkout identities.
+- Rationale: Backup copies and unrelated project routers are not active Make Docs ownership claims. A successful reviewed removal must not lead to a public recovery command that does not exist.
+- Source: [W22 R0 P8 plan](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/08-router-ownership-and-reviewed-reinstall-repair.md)
 
 ### 2026-09-18 — W22 R0
 

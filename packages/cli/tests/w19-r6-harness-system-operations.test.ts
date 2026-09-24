@@ -18,6 +18,7 @@ import {
 import { recordHarnessIntegrationReceipt } from "../src/store/harness-integration-receipts";
 import {
   acquireInstallationLock,
+  readInstallationStatus,
   releaseInstallationLock,
   withInstallationOperation,
 } from "../src/store/installation-state";
@@ -139,6 +140,40 @@ describe("W19 R6 Store-owned harness system operations", () => {
       { reason: "Known test failure.", changeOutcome: "none" },
     );
     expect(readPendingHarnessSystemOperation(input.targetRoot, input.storeRoot)).toBeNull();
+  });
+
+  it("does not treat another project's unfinished work as a machine-setup conflict", () => {
+    const input = fixture();
+    const otherTarget = path.join(input.base, "other-project");
+    mkdirSync(otherTarget);
+    expect(() => withInstallationOperation(
+      otherTarget,
+      "setup.migration",
+      () => {
+        throw new Error("simulated unrelated interruption");
+      },
+      { storeRoot: input.storeRoot },
+    )).toThrow("simulated unrelated interruption");
+    expect(readInstallationStatus(otherTarget, input.storeRoot).status).toBe("recovery-required");
+
+    const pending = prepare(input);
+    const applied = CODEX_HARNESS_ADAPTER.apply({
+      plan: pending.plan,
+      approved: true,
+      operationId: pending.operationId,
+      appliedVersion: pending.appliedVersion,
+      verifiedAt: pending.verifiedAt,
+    });
+    recordHarnessIntegrationReceipt(input.targetRoot, input.storeRoot, applied.receipt);
+    completeHarnessSystemOperation(
+      input.targetRoot,
+      input.storeRoot,
+      pending,
+      applied.receipt,
+    );
+
+    expect(readPendingHarnessSystemOperation(input.targetRoot, input.storeRoot)).toBeNull();
+    expect(readInstallationStatus(otherTarget, input.storeRoot).status).toBe("recovery-required");
   });
 
   it("journals only a drift repair proved by the exact prior ownership receipt", () => {

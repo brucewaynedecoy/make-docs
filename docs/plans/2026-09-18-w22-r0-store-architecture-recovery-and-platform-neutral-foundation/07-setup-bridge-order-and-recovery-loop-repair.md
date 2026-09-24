@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 P7 Setup Bridge Order and Recovery Loop Repair"
 kind: "plan"
-status: "active"
+status: "draft"
 coordinate: "W22 R0 P7"
 source:
   type: "design"
@@ -25,6 +25,8 @@ A later installed run disproved the first P7 Stage 1 repair. After rollback, `pr
 The schema 6 traces came from the later `make-docs-v2` line after W23 Store work was present. They are historical defect evidence. The isolated P7 branch started from `main` and targeted Store schema 5. Its installed proof used that exact schema-5 candidate and did not run against the owner's schema-6 Store. This integrated `make-docs-v2` line targets Store schema 6. It needs its own exact schema-6 proof before live setup.
 
 This installed trace withdrew the first Stage 1 completion claim. The corrective review then found approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. Stage 1 fixed those gaps. The failed installed trace and interim review remain historical evidence for the defect and repair boundary.
+
+A later live run with the installed `2.0.1` CLI found a third failure after setup restored the incomplete Make Docs project operation. The owner approved the reviewed computer and project plans. Setup then stopped at machine scope and claimed that a Store operation was pending. Immediate readback showed the Make Docs project as `ready` with no pending operation. Read-only Store history found the pending installation operation under a different checkout. The machine setup guard treated any pending project operation or project lock in the shared Store as a global conflict. This let unrelated project work block the current project and produced recovery guidance for an operation that did not belong to the current target. The same run also exposed the malformed prompt `Apply the reviewed This computer changes?`.
 
 ## Authority Disposition
 
@@ -57,6 +59,10 @@ Direct system setup remains a machine-level operation. It does not take ownershi
 - Keep direct system setup callable without a current Store or working MCP route. Do not make it a second owner of project migration.
 - Persist new harness intent only after its required prerequisite and owned machine change can complete. A failure must preserve the prior intent or return an explicit, recorded, and resumable partial result.
 - Derive each recovery action from the failed condition and the operation that can change it. Never direct two commands back to each other when neither changes the prerequisite.
+- Scope pending project operations and project locks to the exact target checkout. Keep tool-level operations global when their effect is machine-wide. Never change or clear unrelated project work to let the current project continue.
+- Rebuild the computer plan after an approved Store prerequisite changes Store state. If the visible computer review changes, show the current review and require computer approval again before native changes.
+- Read the current target state before setup gives project recovery guidance. Do not direct a ready project with no pending operation to deep project-state commands.
+- Ask `Apply the reviewed changes to this computer?` for the computer approval.
 - Make plain setup the normal recovery entry point. When an operation can resume or restore, show those choices in setup. Keep deep project-state recovery commands as support and automation controls.
 - Preserve separate machine and project approvals. Do not let the order repair widen a selection, method, permission, capability, ownership claim, or project write.
 - Preserve Store backup, journal, rollback, opaque-data, user-file, and changed-native-entry rules. Do not edit SQLite by hand or add project-local operational state.
@@ -81,4 +87,10 @@ Performance Testing is `not-needed-now`. No accepted performance target or curre
 
 P7 can close only after one exact candidate passes the focused and full source gates and the same authentic legacy-package regression contract on Windows, macOS, and Linux. The comparison must reject a missing host, repeated host, different candidate, source-checkout execution, extract-only proof, different public result, deep-command requirement in a normal upgrade, or an operation created before a predictable safety failure. Human Experience Review must record the visible state, next action, recovery path, observations, conclusions, and limits. No explicit human acceptance gate applies unless the owner later creates one.
 
-Stage 1 tasks t1 through t8 and A45 through A49 are complete. P7 and D-038 remain open for Stage 2 tasks t9 through t15 and A50 through A52. The next gate records one exact candidate identity and runs installed proof on Windows, macOS, and Linux. Local CLI installation and the live plain-setup retry remain separate later actions.
+The live `2.0.1` result reopens the source gate. The earlier source and platform results remain historical evidence for their exact candidates. They do not close the cross-project Store isolation failure. The reopened source repair must prove that unrelated project work remains unchanged and does not block the current target. It must also prove the post-Store computer replan, current-target recovery guidance, and corrected prompt.
+
+The required source checks passed. The final P7 and P8 candidate then passed the source and installed-package contracts on Ubuntu, macOS, and Windows in Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304). The approved live setup checks completed without cross-project interference or deep-command recovery.
+
+The final Human Experience Review supports HX-2 and HX-5 within the recorded limits. The live final North Atlantic check began from an already-current `2.0.1` project state. Authentic schema-3 fixtures remain the evidence for the initial older-package transition.
+
+The owner authorized closeout on 2026-09-23. P7 and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.

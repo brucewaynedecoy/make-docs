@@ -499,10 +499,10 @@ describe("selection wizard", () => {
     expect(result?.selectedSkills).toEqual([]);
   });
 
-  test("re-prompts harness selection when all harnesses are deselected", async () => {
+  test("allows setup to continue when all harnesses are deselected", async () => {
     const renderer = new MockWizardRenderer(
       [["designs", "plans", "prd", "work"]],
-      [[], ["codex"]],
+      [[]],
       [
         {
           skills: false,
@@ -512,17 +512,28 @@ describe("selection wizard", () => {
       ],
       ["apply"],
     );
+    const afterHarnessSelection = vi.fn(async () => true);
 
     const result = await runSelectionWizardWithRenderer(renderer, {
       initialSelections: defaultSelections(),
       introTitle: "Configure make-docs",
+      afterHarnessSelection,
     });
 
-    expect(renderer.seenHarnessStates).toHaveLength(2);
+    expect(renderer.seenHarnessStates).toHaveLength(1);
+    expect(renderer.seenOptionStates).toHaveLength(1);
     expect(result?.harnesses).toEqual({
       "claude-code": false,
-      codex: true,
+      codex: false,
     });
+    expect(afterHarnessSelection).toHaveBeenCalledWith(
+      expect.objectContaining({
+        harnesses: {
+          "claude-code": false,
+          codex: false,
+        },
+      }),
+    );
   });
 
   test("runs method screens after harness selection and before shared Skill options", async () => {

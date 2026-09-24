@@ -1,1 +1,9 @@
 projectId: 831ddb50-b97a-47e2-9f2c-f491b27b8759
+harnessIntegrations:
+  - harness: claude-code
+    mode: narrow
+    method: mcp
+    accessCeiling:
+      store: write
+      project: write
+      hostConfig: none
