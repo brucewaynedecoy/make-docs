@@ -1194,19 +1194,29 @@ export function executeInstallPlanMigration(input: InstallPlanMigrationInput): I
   });
 }
 
+export function assertInstallPlanMigrationReviewReady(
+  installPlan: InstallPlan,
+): void {
+  const unresolved = findReviewableManagedFileConflicts(installPlan);
+  if (
+    unresolved.length > 0 ||
+    (installPlan.stops?.length ?? 0) > 0 ||
+    installPlan.actions.some((action) => action.type === "skip-conflict")
+  ) {
+    throw new MigrationSafetyError(
+      "ambiguous-ownership",
+      "The reviewed plan does not permit migration (ambiguous-ownership).",
+    );
+  }
+}
+
 function prepareInstallPlanMigration(
   input: InstallPlanMigrationInput,
 ): PreparedInstallPlanMigration {
   const projectRoot = realpathSync(path.resolve(input.projectRoot));
   assertInstallPlanMigrationInputsCurrent(projectRoot, input);
   assertStoreCheckpoint9SetupSafe(input.storeRoot);
-  const unresolved = findReviewableManagedFileConflicts(input.installPlan);
-  if (unresolved.length > 0 || (input.installPlan.stops?.length ?? 0) > 0) {
-    throw new MigrationSafetyError(
-      "ambiguous-ownership",
-      "The install plan still has unresolved ownership or safety stops.",
-    );
-  }
+  assertInstallPlanMigrationReviewReady(input.installPlan);
   const productPlan = createFixedMigrationProductPlan(
     projectRoot,
     input.storeRoot,

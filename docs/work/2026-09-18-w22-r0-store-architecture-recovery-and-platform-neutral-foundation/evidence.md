@@ -1652,3 +1652,33 @@ The existing `modified-v1` fixture is not authentic for this case. It installs c
 The owner approved the P8 and D-038 authority update and this backlog commit on 2026-09-24. Task t20 is complete. Tasks t21 through t28 and acceptance criteria A66 through A70 are open.
 
 Implementation has not started. It requires separate owner approval. A new exact-candidate install and the live Videos Matter upgrade also retain their applicable approval gates. P7 remains closed. P8 and D-038 remain open. W22 remains open.
+
+### Stage 4 Source Implementation
+
+The owner approved P8 Stage 4 implementation on 2026-09-24. The repair uses the archived `make-docs@0.1.0` package that produced the Videos Matter schema-1 installation form. The fixture has exact whole-file router hashes and no V2 managed-block markers.
+
+Compatibility and install planning now select the hash rule from the source manifest schema. A schema-1 instruction file is trusted only when its full bytes match the manifest entry for that path and no V2 marker is present. Later schemas keep managed-block body hashing.
+
+Whole-file hash mismatch and partial, malformed, duplicated, nested, or otherwise contradictory V2 marker evidence create an unresolved ownership stop. The CLI now enforces that stop before machine approval, Store conversion, legacy transfer, backup, project configuration, or operation creation. The blocked cases keep the complete project tree and home tree unchanged and do not create the Store path.
+
+The authentic schema-1 fixture completes one reviewed plain setup. It preserves a project-owned source router that is outside the Make Docs plan. It then runs plain setup again with the same reviewed choices and proves that every project file and symlink is unchanged.
+
+The deterministic and agentic business-logic review found no safe agentic twin for this rule. Source schema, exact bytes, hashes, marker structure, and the pre-write gate must stay deterministic. An instruction-only agent decision would weaken the fail-closed ownership boundary.
+
+The first full CLI run found one synthetic test that labeled current managed-block routers as schema 1. That state contradicts the approved schema-1 whole-file contract. The fixture now uses schema 2 for its block-model refresh case. The same review expanded the authentic hard-stop proof to cover all approved marker forms and full state preservation.
+
+| Check | Result |
+| --- | --- |
+| Authentic schema-1 upgrade and safety fixture | Passed: 9 of 9 tests. |
+| Focused compatibility and install regression set | Passed in the final full run: 109 tests across the authentic-upgrade, compatibility, compatibility-fixture, and installer files. |
+| Full CLI source suite | Passed: 93 test files and 1,501 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
+| TypeScript check | Passed with `npm exec -w packages/cli tsc -- --noEmit`. |
+| Package build | Passed with `npm run build`. |
+| Default validation | Passed: 53 of 53 tests. |
+| Package smoke-harness tests | Passed: 19 of 19 tests. |
+| PRD authority, links, and path hygiene | Passed after the evidence update: 81 of 81 focused tests. |
+| Diff whitespace check | Passed with `git diff --check` after the source and evidence update. |
+
+Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
+
+The shared checkout also contains separate uncommitted Backlog Review work. Stage 4 did not edit, stage, or commit those files.

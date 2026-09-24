@@ -35,6 +35,7 @@ import {
 } from "./install";
 import { loadManifest, validateAndMigrateManifest } from "./manifest";
 import {
+  assertInstallPlanMigrationReviewReady,
   Checkpoint9ReceiptProjectionError,
   executeInstallPlanMigration,
   executeStoreCheckpoint9Migration,
@@ -1208,6 +1209,14 @@ export async function runCli(
         ),
       ].join("\n"),
     );
+  }
+
+  if (
+    !freshInstallTarget &&
+    hasInstallMutation &&
+    completedRemovalHandoff.status !== "ready"
+  ) {
+    assertInstallPlanMigrationReviewReady(plan);
   }
 
   let systemApproved = parsed.yes || !hasMachineMutation;

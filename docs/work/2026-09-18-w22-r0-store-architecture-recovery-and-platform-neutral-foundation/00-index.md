@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P8 is reopened for the authentic schema-1 router transition. Implementation requires separate owner approval."
-  coordinate_handoff: "After this authority commit, request owner approval before P8 implementation. Keep revision closeout, publication, and release separate."
+  why: "P8 Stage 4 source implementation passes. One exact installed candidate must now pass Windows, macOS, and Linux before the separately approved live Videos Matter test."
+  coordinate_handoff: "Keep P8 and D-038 open. Build and prove one exact candidate before any live Videos Matter action. Keep revision closeout, publication, and release separate."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -25,7 +25,7 @@ The repaired CLI completed plain setup in the Make Docs project. The North Atlan
 
 P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change.
 
-Videos Matter then proved that authentic schema-1 whole-file routers are still rejected because they do not contain V2 managed-block markers. P8 and D-038 are reopened for this bounded defect. Task t20 is complete. Tasks t21 through t28 await separate implementation approval.
+Videos Matter then proved that authentic schema-1 whole-file routers were still rejected because they do not contain V2 managed-block markers. P8 and D-038 remain open for this bounded defect. Tasks t20 through t25 are complete. Source evidence satisfies A66 through A68. The exact candidate, three-platform installed proof, live Videos Matter test, and closeout remain open.
 
 ## Human Experience Trace
 
@@ -35,7 +35,7 @@ Videos Matter then proved that authentic schema-1 whole-file routers are still r
 | HX-2: clear state and one next safe action | Same | PRDs 07, 38, and 39 after P2 reconciliation | [P4](04-harness-trust-setup-and-resource-simplification.md), [P6](06-real-platform-package-proof-and-closeout.md), and [P7](07-setup-bridge-order-and-recovery-loop-repair.md) | Output fixtures, installed transcripts, and Human Experience Review | A20-A27, A40-A44, and A45-A52 pass | None |
 | HX-3: independent work continues without Store access | Same | PRDs 07, 25, 38, and 39 after P2 reconciliation | [P2](02-product-authority-and-minimal-state-model.md), [P4](04-harness-trust-setup-and-resource-simplification.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Access matrix and installed absent/denied/unavailable cases | A10, A23-A24, and A39 pass | None |
 | HX-4: checkout moves and valid package updates do not fail only because low-level identity changed | Same | PRDs 16, 18, 28, and 38 after P2 reconciliation | [P2](02-product-authority-and-minimal-state-model.md), [P3](03-platform-neutral-filesystem-and-checkout-safety.md), and [P5](05-compatibility-bridge-and-symptom-closure.md) | Schema, move, update, and bridge cases | A9, A14-A16, and A28-A35 pass | None |
-| HX-5: setup and repair use one open recovery path | Same | PRDs 07, 18, 38, and 39 after P8 authority maintenance | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), [P7](07-setup-bridge-order-and-recovery-loop-repair.md), and [P8](08-router-ownership-and-reviewed-reinstall-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, router-preservation proof, three-platform installed proof, and live setup results | A22-A26, A31-A34, and A45-A65 pass. | None |
+| HX-5: setup and repair use one open recovery path | Same | PRDs 07, 18, 38, and 39 after P8 authority maintenance | [P4](04-harness-trust-setup-and-resource-simplification.md), [P5](05-compatibility-bridge-and-symptom-closure.md), [P7](07-setup-bridge-order-and-recovery-loop-repair.md), and [P8](08-router-ownership-and-reviewed-reinstall-repair.md) | State-transition tests, interruption/restart proof, exact loop regression, router-preservation proof, three-platform installed proof, and live setup results | A22-A26, A31-A34, A45-A65, and A66-A68 pass. A69-A70 remain open. | None |
 | HX-6: every retained mechanism has a clear purpose and authority class | Same | PRDs 02, 03, 25, 28, and 38 after P2 reconciliation | [P1](01-architecture-inventory-and-decision-gates.md), [P2](02-product-authority-and-minimal-state-model.md), and [P6](06-real-platform-package-proof-and-closeout.md) | Decision ledger, PRD validation, and final review | A1-A12 and A42 pass | None |
 
 ## Phase Map
@@ -49,11 +49,11 @@ Videos Matter then proved that authentic schema-1 whole-file routers are still r
 | P5 | [Compatibility Bridge and Symptom Closure](05-compatibility-bridge-and-symptom-closure.md) | Safe conversion or quarantine for supported old state and close evidence for every symptom. |
 | P6 | [Real Platform Package Proof and Closeout](06-real-platform-package-proof-and-closeout.md) | One package passes comparable installed cases on Windows, macOS, and Linux. |
 | P7 | [Setup Bridge Order and Recovery Loop Repair](07-setup-bridge-order-and-recovery-loop-repair.md) | Plain setup uses one final post-prerequisite plan, passes every safety check before operation creation, and provides normal resume or restore without deep recovery commands. |
-| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Reopened. Preserve target-scoped reviewed reinstall behavior and repair the authentic schema-1 whole-file router transition. |
+| P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Reopened. Stage 4 source repair passes. The exact candidate, three-platform installed proof, live Videos Matter test, and closeout remain open. |
 
 ## Usage Notes
 
-- P1 through P8 are completed records for their exact evidence. Preserve the rejected candidates and failed live attempts as historical evidence.
+- P1 through P7 are completed records. P8 preserves its prior accepted evidence and remains open for Stage 4 candidate and live proof. Preserve the rejected candidates and failed live attempts as historical evidence.
 - The source, isolated fixture, exact package, installed, and approved live North Atlantic BuildOS gates passed for P7 and P8.
 - Keep the P8 closeout bound to the recorded exact candidate and its Ubuntu, macOS, Windows, and live-project evidence.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
@@ -70,9 +70,9 @@ Videos Matter then proved that authentic schema-1 whole-file routers are still r
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Request owner approval before P8 implementation.
+- Next step: Build one exact P8 Stage 4 candidate and run the installed-package contract on Windows, macOS, and Linux.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: P8 and D-038 are reopened for the authentic schema-1 router transition. This authority update does not authorize implementation.
-- Coordinate Handoff: Keep P1 through P7 complete, preserve prior P8 evidence, and implement only after separate owner approval.
+- Why: The Stage 4 source repair and local gates pass. The exact installed candidate must prove the same transition before the live Videos Matter test.
+- Coordinate Handoff: Keep P1 through P7 complete. Keep P8 and D-038 open. Preserve prior P8 evidence and do not run the live Videos Matter action before its candidate gate and applicable approval.
 
 Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded each defect without rewriting prior phase history. The owner approved the prior exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Videos Matter reopened P8 and D-038 on 2026-09-24. P7 remains closed. W22 remains open.

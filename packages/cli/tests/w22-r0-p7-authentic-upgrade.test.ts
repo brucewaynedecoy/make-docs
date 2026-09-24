@@ -5,7 +5,9 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
+  readlinkSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -14,9 +16,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { loadManifest } from "../src/manifest";
+import { parseManagedBlock, renderManagedBlock } from "../src/managed-block";
 import { defaultSelections } from "../src/profile";
 import { CURRENT_STORE_SCHEMA_VERSION } from "../src/store";
 import { readInstallationStatus } from "../src/store/installation-state";
+import { hashText } from "../src/utils";
 
 const runSelectionWizardMock = vi.fn();
 const promptForManagedFileConflictResolutionsMock = vi.fn();
@@ -50,6 +54,7 @@ interface LegacyPackageCase {
   archive: string;
   sha256: string;
   manifestSchema: number;
+  expectedWholeFileRouter?: string;
   args: (targetDir: string) => string[];
 }
 
@@ -60,13 +65,12 @@ const LEGACY_PACKAGES: LegacyPackageCase[] = [
     archive: "make-docs-0.1.0.tgz",
     sha256: "aa9c10e20a49dfeb5afbcd3e26fd9873d4362311fe277145be5a4332a80d6acb",
     manifestSchema: 1,
+    expectedWholeFileRouter: "AGENTS.md",
     args: (targetDir) => [
       "--yes",
       "--target",
       targetDir,
       "--no-skills",
-      "--no-codex",
-      "--no-claude-code",
     ],
   },
   {
@@ -121,9 +125,37 @@ function digest(file: string): string {
   return createHash("sha256").update(readFileSync(file)).digest("hex");
 }
 
+function snapshotProjectFiles(targetDir: string): Record<string, string> {
+  const entries: Array<[string, string]> = [];
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const absolutePath = path.join(directory, entry.name);
+      const relativePath = path.relative(targetDir, absolutePath);
+      if (entry.isDirectory()) {
+        visit(absolutePath);
+      } else if (entry.isSymbolicLink()) {
+        entries.push([relativePath, `symlink:${readlinkSync(absolutePath)}`]);
+      } else if (entry.isFile()) {
+        entries.push([relativePath, digest(absolutePath)]);
+      }
+    }
+  };
+  visit(targetDir);
+  return Object.fromEntries(entries.sort(([left], [right]) => left.localeCompare(right)));
+}
+
 function setTTY(value: boolean): void {
   Object.defineProperty(process.stdin, "isTTY", { configurable: true, value });
   Object.defineProperty(process.stdout, "isTTY", { configurable: true, value });
+}
+
+function createAuthenticUpgradeSelections() {
+  const selections = defaultSelections();
+  selections.harnesses = { "claude-code": true, codex: true };
+  selections.skills = false;
+  selections.selectedSkills = [];
+  selections.resourceProjection = [];
+  return selections;
 }
 
 function createLegacyProject(input: {
@@ -152,7 +184,7 @@ function createLegacyProject(input: {
   });
 }
 
-describe("W22 R0 P7 authentic older-package upgrades", () => {
+describe("W22 R0 P7 and P8 authentic older-package upgrades", () => {
   let fixtureRoot: string;
   let previousHome: string | undefined;
   let previousMakeDocsHome: string | undefined;
@@ -193,19 +225,34 @@ describe("W22 R0 P7 authentic older-package upgrades", () => {
         schemaVersion: number;
         packageName: string;
         packageVersion: string;
+        files: Record<string, { hash: string; sourceId: string }>;
       };
       expect(legacyManifest).toMatchObject({
         schemaVersion: legacy.manifestSchema,
         packageName: legacy.packageName,
         packageVersion: legacy.version,
       });
+      if (legacy.expectedWholeFileRouter) {
+        const legacyRouterPath = path.join(targetDir, legacy.expectedWholeFileRouter);
+        const legacyRouter = readFileSync(legacyRouterPath, "utf8");
+        expect(parseManagedBlock(legacyRouter).state).toBe("absent");
+        expect(legacyManifest.files[legacy.expectedWholeFileRouter]).toEqual({
+          hash: digest(legacyRouterPath),
+          sourceId: `build:${legacy.expectedWholeFileRouter}`,
+        });
+      }
 
       const userFile = path.join(targetDir, "README.md");
       writeFileSync(userFile, `# User file from ${legacy.version}\n`, "utf8");
+      const unrelatedRouter = path.join(targetDir, "src/AGENTS.md");
+      mkdirSync(path.dirname(unrelatedRouter), { recursive: true });
+      writeFileSync(unrelatedRouter, "# Project-owned source router\n", "utf8");
       process.env.HOME = homeDir;
       process.env.MAKE_DOCS_HOME = storeRoot;
       vi.spyOn(os, "homedir").mockReturnValue(homeDir);
-      runSelectionWizardMock.mockResolvedValue(defaultSelections());
+      runSelectionWizardMock.mockImplementation(async () =>
+        createAuthenticUpgradeSelections(),
+      );
       selectMock.mockResolvedValueOnce("backup-and-install").mockResolvedValue("none");
       const outputSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
@@ -216,18 +263,30 @@ describe("W22 R0 P7 authentic older-package upgrades", () => {
         "none",
         "--claude-code-method",
         "none",
+        "--project-resources",
+        "none",
         "--target",
         targetDir,
       ]);
 
       expect(outputSpy).toHaveBeenCalled();
       expect(readFileSync(userFile, "utf8")).toBe(`# User file from ${legacy.version}\n`);
+      expect(readFileSync(unrelatedRouter, "utf8")).toBe(
+        "# Project-owned source router\n",
+      );
       expect(loadManifest(targetDir)).toMatchObject({ schemaVersion: 4 });
       expect(readInstallationStatus(targetDir, storeRoot)).toMatchObject({
         status: "ready",
         pendingOperation: null,
       });
       expect(existsSync(path.join(targetDir, ".make-docs/state"))).toBe(false);
+      if (legacy.expectedWholeFileRouter) {
+        expect(
+          parseManagedBlock(
+            readFileSync(path.join(targetDir, legacy.expectedWholeFileRouter), "utf8"),
+          ).state,
+        ).toBe("valid");
+      }
 
       const database = new DatabaseSync(path.join(storeRoot, "store.db"), { readOnly: true });
       try {
@@ -236,6 +295,114 @@ describe("W22 R0 P7 authentic older-package upgrades", () => {
       } finally {
         database.close();
       }
+
+      const firstRunFiles = snapshotProjectFiles(targetDir);
+      await runCli([
+        "setup",
+        "--codex-method",
+        "none",
+        "--claude-code-method",
+        "none",
+        "--project-resources",
+        "none",
+        "--target",
+        targetDir,
+      ]);
+      expect(snapshotProjectFiles(targetDir)).toEqual(firstRunFiles);
+      expect(readInstallationStatus(targetDir, storeRoot)).toMatchObject({
+        status: "ready",
+        pendingOperation: null,
+      });
+    },
+    60_000,
+  );
+
+  test.each([
+    {
+      label: "a changed whole-file router",
+      change: (content: string) => `${content}\nProject-owned change.\n`,
+      updateManifestHash: false,
+    },
+    {
+      label: "a partial V2 marker",
+      change: (content: string) => `${content}\n<!-- make-docs:begin -->\n`,
+      updateManifestHash: true,
+    },
+    {
+      label: "a malformed V2 end marker",
+      change: (content: string) => `${content}\n<!-- make-docs:end -->\n`,
+      updateManifestHash: true,
+    },
+    {
+      label: "duplicated V2 blocks",
+      change: (content: string) =>
+        `${renderManagedBlock(content)}${renderManagedBlock(content)}`,
+      updateManifestHash: true,
+    },
+    {
+      label: "nested V2 blocks",
+      change: (content: string) => renderManagedBlock(renderManagedBlock(content)),
+      updateManifestHash: true,
+    },
+    {
+      label: "a contradictory complete V2 block",
+      change: (content: string) => renderManagedBlock(content),
+      updateManifestHash: true,
+    },
+  ])(
+    "stops authentic schema-1 ownership for $label before managed mutation",
+    async ({ change, updateManifestHash }) => {
+      const legacy = LEGACY_PACKAGES[0]!;
+      const targetDir = path.join(fixtureRoot, "project");
+      const homeDir = path.join(fixtureRoot, "home");
+      const storeRoot = path.join(fixtureRoot, "store");
+      mkdirSync(targetDir, { recursive: true });
+      mkdirSync(homeDir, { recursive: true });
+      createLegacyProject({ legacy, fixtureRoot, targetDir, homeDir, storeRoot });
+
+      const routerPath = path.join(targetDir, legacy.expectedWholeFileRouter!);
+      const changedRouter = change(readFileSync(routerPath, "utf8"));
+      writeFileSync(routerPath, changedRouter, "utf8");
+      if (updateManifestHash) {
+        const manifestPath = path.join(targetDir, ".make-docs/manifest.json");
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+          files: Record<string, { hash: string }>;
+        };
+        manifest.files[legacy.expectedWholeFileRouter!]!.hash = hashText(changedRouter);
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+      }
+      const projectBefore = snapshotProjectFiles(targetDir);
+      const homeBefore = snapshotProjectFiles(homeDir);
+      expect(existsSync(storeRoot)).toBe(false);
+
+      process.env.HOME = homeDir;
+      process.env.MAKE_DOCS_HOME = storeRoot;
+      vi.spyOn(os, "homedir").mockReturnValue(homeDir);
+      runSelectionWizardMock.mockImplementation(async () =>
+        createAuthenticUpgradeSelections(),
+      );
+      selectMock.mockResolvedValueOnce("backup-and-install").mockResolvedValue("none");
+      vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+      vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+      const { runCli } = await import("../src/cli");
+      await expect(
+        runCli([
+          "setup",
+          "--codex-method",
+          "none",
+          "--claude-code-method",
+          "none",
+          "--project-resources",
+          "none",
+          "--target",
+          targetDir,
+        ]),
+      ).rejects.toThrow(/does not permit migration \(ambiguous-ownership\)/i);
+      expect(snapshotProjectFiles(targetDir)).toEqual(projectBefore);
+      expect(snapshotProjectFiles(homeDir)).toEqual(homeBefore);
+      expect(existsSync(storeRoot)).toBe(false);
+      expect(readFileSync(routerPath, "utf8")).toBe(changedRouter);
     },
     60_000,
   );

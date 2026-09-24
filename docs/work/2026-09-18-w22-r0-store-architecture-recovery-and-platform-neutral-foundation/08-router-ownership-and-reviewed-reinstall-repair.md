@@ -186,11 +186,11 @@ Performance evidence lifecycle fields:
 ### Tasks
 
 - [x] t20: Record the Videos Matter counterevidence. Reopen P8 and D-038. Update PRDs 18 and 39 with the source-schema ownership and one-command upgrade contract.
-- [ ] t21: Add an authentic older-package fixture. Use the actual schema-1 manifest form, exact whole-file router hashes, and router bytes without V2 managed-block markers.
-- [ ] t22: Make router ownership classification source-schema aware. Trust an exact schema-1 whole-file hash. Treat missing V2 markers as expected only for that exact legacy state.
-- [ ] t23: Preserve the hard stop for whole-file hash mismatch and partial, malformed, duplicated, nested, or contradictory V2 markers. A blocked plan must create no operation and change no Store, project, backup, router, or native file.
-- [ ] t24: Prove one direct plain-setup upgrade from authentic schema 1 and one immediate all-no-op repeat. Require no removal, reset, manual Store edit, hidden command, or unrelated-router movement.
-- [ ] t25: Run the focused compatibility, migration, router, setup, authentic-upgrade, and packed-CLI suites. Run the full CLI suite, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`.
+- [x] t21: Add an authentic older-package fixture. Use the actual schema-1 manifest form, exact whole-file router hashes, and router bytes without V2 managed-block markers.
+- [x] t22: Make router ownership classification source-schema aware. Trust an exact schema-1 whole-file hash. Treat missing V2 markers as expected only for that exact legacy state.
+- [x] t23: Preserve the hard stop for whole-file hash mismatch and partial, malformed, duplicated, nested, or contradictory V2 markers. A blocked plan must create no operation and change no Store, project, backup, router, or native file.
+- [x] t24: Prove one direct plain-setup upgrade from authentic schema 1 and one immediate all-no-op repeat. Require no removal, reset, manual Store edit, hidden command, or unrelated-router movement.
+- [x] t25: Run the focused compatibility, migration, router, setup, authentic-upgrade, and packed-CLI suites. Run the full CLI suite, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`.
 - [ ] t26: Build one exact package candidate. Record its source commit, package identity, digest, and size. Run the same installed-package contract on Windows, macOS, and Linux with the source checkout unavailable.
 - [ ] t27: After separate owner approval, install the exact accepted candidate and run plain setup once in Videos Matter. Verify the direct upgrade, preserved project content, project and checkout identities, Store state, backup evidence, router bytes, and no pending operation. Run immediate repeat setup and require no project change.
 - [ ] t28: Complete Human Experience Review, corrective review, evidence, owner acceptance, and P8 and D-038 closeout. Keep W22 revision closeout, publication, and release separate.
@@ -217,4 +217,4 @@ Performance evidence lifecycle fields:
 - Optional experience handoff: Offer plain setup as the normal path only after the exact installed candidate passes.
 - Explicit human acceptance gate: The owner must approve implementation. The live Videos Matter action also requires approval after source and installed gates pass.
 - Evidence report: Add the Stage 4 source, exact-candidate, three-platform, and live results to `evidence.md` without replacing prior P8 evidence.
-- Phase / capability status: Authority and backlog update approved on 2026-09-24. Task t20 is complete. Tasks t21 through t28 and A66 through A70 are open. Implementation has not started.
+- Phase / capability status: The owner approved Stage 4 implementation on 2026-09-24. Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. P8 and D-038 remain open.

@@ -7,6 +7,7 @@ import { createAuditReport } from "./audit";
 import { parseManagedBlock } from "./managed-block";
 import {
   getManifestFileHash,
+  getManifestFileHashForSourceSchema,
   getManifestPath,
   validateAndMigrateManifest,
   MANIFEST_RELATIVE_PATH,
@@ -429,7 +430,11 @@ function evaluateFilesystemTrust(
     }
 
     const content = readFileSync(absolutePath, "utf8");
-    const currentHash = getManifestFileHash(relativePath, content);
+    const currentHash = getManifestFileHashForSourceSchema(
+      relativePath,
+      content,
+      manifest.schemaVersion,
+    );
     if (currentHash === null) {
       malformedManagedBlockPaths.push(relativePath);
       continue;
