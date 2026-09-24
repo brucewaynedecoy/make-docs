@@ -2552,7 +2552,7 @@ function writeCanonicalSetupResult(input: {
               ? "applied"
               : "none"
           : plan.changed
-            ? (input.dryRun ? "planned" : "applied")
+            ? (input.dryRun ? "planned" : "none")
             : "none",
         detail: plan.detail,
       })),
