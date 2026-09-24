@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 P7 Setup Bridge Order and Recovery Loop Repair"
 kind: "plan"
-status: "active"
+status: "draft"
 coordinate: "W22 R0 P7"
 source:
   type: "design"
@@ -89,4 +89,8 @@ P7 can close only after one exact candidate passes the focused and full source g
 
 The live `2.0.1` result reopens the source gate. The earlier source and platform results remain historical evidence for their exact candidates. They do not close the cross-project Store isolation failure. The reopened source repair must prove that unrelated project work remains unchanged and does not block the current target. It must also prove the post-Store computer replan, current-target recovery guidance, and corrected prompt.
 
-P7 and D-038 remain open. The reopened source repair is complete only after its focused tests, full repository test gate, package build, and diff checks pass. A new exact candidate must then pass Windows, macOS, and Linux installed proof before another live plain-setup retry or closeout claim.
+The required source checks passed. The final P7 and P8 candidate then passed the source and installed-package contracts on Ubuntu, macOS, and Windows in Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304). The approved live setup checks completed without cross-project interference or deep-command recovery.
+
+The final Human Experience Review supports HX-2 and HX-5 within the recorded limits. The live final North Atlantic check began from an already-current `2.0.1` project state. Authentic schema-3 fixtures remain the evidence for the initial older-package transition.
+
+The owner authorized closeout on 2026-09-23. P7 and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.

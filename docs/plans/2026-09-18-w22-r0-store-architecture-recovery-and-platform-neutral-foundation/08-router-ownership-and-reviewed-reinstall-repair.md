@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 P8 Router Ownership and Reviewed Reinstall Repair"
 kind: "plan"
-status: "active"
+status: "draft"
 coordinate: "W22 R0 P8"
 source:
   type: "design"
@@ -26,7 +26,7 @@ The fallback scan treated 52 router files inside the Make Docs backup and 36 unr
 
 The first repaired candidate then completed the live plain-setup reinstall. A later setup review exposed two remaining continuity defects. The completed-removal ledger did not retain the prior local resource selection, so setup treated the selected local resources as unselected. The reinstall also did not recreate proved `docs/assets/` routers when removal had deleted the directory. A reviewed reconfigure restored the live project, but the first plain setup was not stable on immediate repeat.
 
-This evidence extends [D-038](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop). P7 remains open. P8 owns the new bounded repair and the proof needed before P7 can resume its live acceptance path.
+This evidence extended [D-038](../../prd/03-open-questions-and-risk-register.md#d-038-setup-and-store-access-form-a-closed-recovery-loop). P7 remained open at this point. P8 owned the bounded repair and the proof needed before the live acceptance path could resume.
 
 ## Authority Disposition
 
@@ -81,7 +81,7 @@ The normal result requires no manual Store edit, hidden command, repository-wide
 - Do not weaken missing-manifest safety for files that the plan will change and cannot classify.
 - Do not remove or rewrite the North Atlantic BuildOS backup during source implementation or isolated tests.
 - Do not apply the repaired candidate to the live North Atlantic BuildOS project until source, package, and isolated installed gates pass and the owner authorizes that live action.
-- Do not close P7, P8, D-038, or W22 from this authority update.
+- Do not close P7, P8, D-038, or W22 from the authority update alone. Closeout requires the exact package and live evidence below.
 
 ## Verification And Approval Gate
 
@@ -95,4 +95,8 @@ After those gates pass, a separately approved live run must continue from the cu
 
 Human Experience Review must inspect the actual preview, approval, success, blocked, and repeat surfaces. The result must make the subject, ownership boundary, preserved content, effect, and next action clear without requiring the person to learn Store internals.
 
-The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, and the first live North Atlantic BuildOS test. The owner approved the additional resource-intent and surface-router repair after that live test exposed the remaining defect. Pull-request review of the next candidate found that unknown resource intent could still avoid the interactive wizard and that fresh-install detection could re-enable disabled capabilities. The owner approved this bounded correction. A new exact candidate, repeated live acceptance, merge, and closeout retain separate gates.
+The owner approved Stage 1 implementation on 2026-09-23. Stage 1 source and isolated proof completed. The owner later approved staging, commit, push, pull-request review, and the first live North Atlantic BuildOS test. The owner approved the additional resource-intent and surface-router repair after that live test exposed the remaining defect. Pull-request review of the next candidate found that unknown resource intent could still avoid the interactive wizard and that fresh-install detection could re-enable disabled capabilities. The owner approved this bounded correction.
+
+The final candidate passed the complete source and installed-package workflow on Ubuntu, macOS, and Windows in Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304). The approved live North Atlantic setup completed with status 0, stable project and checkout identities, no pending recovery, and no project file change. The final live run began from an already-current `2.0.1` project state. Authentic schema-3 fixtures retain responsibility for proving the initial legacy transition.
+
+The owner authorized closeout and pull-request merge on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.

@@ -1,7 +1,7 @@
 ---
 title: "Phase 8: Router Ownership and Reviewed Reinstall Repair"
 kind: "work"
-status: "active"
+status: "draft"
 coordinate: "W22 R0 P8"
 source:
   type: "prd"
@@ -18,7 +18,7 @@ Make plain setup complete a reviewed reinstall after a verified project removal.
 
 P8 repairs the defect found during the North Atlantic BuildOS acceptance test. The current CLI scans router names across the repository, including its own backup tree and unrelated BuildOS control files. After a successful reviewed removal, it then requires a `backup-and-reinstall` path that the public CLI does not expose.
 
-P8 uses the completed removal operation and verified backup as the handoff into a new reviewed setup plan for the same project and checkout. It does not add a broad reset or force command. P7 remains open, and its live acceptance path resumes only after P8 passes its source, package, and isolated installed gates.
+P8 uses the completed removal operation and verified backup as the handoff into a new reviewed setup plan for the same project and checkout. It does not add a broad reset or force command. P8 is closed after source proof, one exact three-platform installed-package result, and the approved live North Atlantic BuildOS setup result.
 
 ## Human Experience Outcome
 
@@ -36,12 +36,12 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 | Testing type | Current decision | Decision record or `not-needed-now` reason |
 | --- | --- | --- |
-| Automated Implementation Testing | Required and blocking | Source, Store, compatibility, setup, router, JSON, installed-package, and repeat-setup cases must pass. |
+| Automated Implementation Testing | Passed | Source, Store, compatibility, setup, router, JSON, installed-package, and repeat-setup cases pass. |
 | Performance Testing | `not-needed-now` | No accepted performance target or current decision depends on scan or setup duration. |
-| Guided Progress Review | Required for the public flow | Review the real preview, approval, blocked, success, and repeat outputs before package acceptance. |
+| Guided Progress Review | Passed | The review covered the real preview, approval, blocked, success, and repeat outputs before closeout. |
 | Unassisted Goal Testing | `not-needed-now` | The exact deterministic state and installed-project contract can answer this recovery question. |
 
-Human Experience Review is separate. It must inspect the real installed flow and record observations, conclusions, limits, and next actions for HX-2 and HX-5. No explicit human acceptance gate applies unless the owner later creates one.
+Human Experience Review is separate. The installed and live results support HX-2 and HX-5 within the recorded limits. The owner approved phase closeout on 2026-09-23. No separate human acceptance gate applied.
 
 Performance evidence lifecycle fields:
 
@@ -111,11 +111,11 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [ ] t8: Build one exact package candidate after Stage 1 passes. Record the source commit, package identity, digest, and size.
-- [ ] t9: Install the same candidate on Windows, macOS, and Linux with the source checkout unavailable. Run the completed-removal, router-ownership, plain-reinstall, blocked, interrupted, recovery, repeat, and no-op contract on each host.
-- [ ] t10: Compare the three runs. Reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, different ownership result, or unavailable public recovery path.
-- [ ] t11: After separate owner approval, install the exact accepted candidate and run plain setup against the current North Atlantic BuildOS removed state. Preserve the backup and all BuildOS-owned router content.
-- [ ] t12: Verify Store and project results. Run immediate repeat setup. Complete Human Experience Review, coverage, evidence, and corrective review. Return P7 to its remaining acceptance and closeout gates.
+- [x] t8: Build one exact package candidate after Stage 1 passes. Record the source commit, package identity, digest, and size.
+- [x] t9: Install the same candidate on Windows, macOS, and Linux with the source checkout unavailable. Run the completed-removal, router-ownership, plain-reinstall, blocked, interrupted, recovery, repeat, and no-op contract on each host.
+- [x] t10: Compare the three runs. Reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, different ownership result, or unavailable public recovery path.
+- [x] t11: After separate owner approval, install the exact accepted candidate and run plain setup against the current North Atlantic BuildOS removed state. Preserve the backup and all BuildOS-owned router content.
+- [x] t12: Verify Store and project results. Run immediate repeat setup. Complete Human Experience Review, coverage, evidence, and corrective review. Return P7 to its remaining acceptance and closeout gates.
 
 ### Acceptance criteria
 
@@ -130,13 +130,13 @@ Performance evidence lifecycle fields:
 
 ### Closeout Notes
 
-- Four testing decisions: Record final Automated Implementation Testing and Guided Progress Review results. Performance and Unassisted Goal Testing remain `not-needed-now` unless later authority changes them.
+- Four testing decisions: Automated Implementation Testing and Guided Progress Review passed. Performance and Unassisted Goal Testing remain `not-needed-now`.
 - Performance evidence: None.
-- Human Experience Review: Link per-promise observations, conclusions, reviewer, evidence, and limits from the installed output.
+- Human Experience Review: The central evidence records the installed and live observations, conclusions, evidence, and limits for HX-2 and HX-5.
 - Optional experience handoff: Offer plain setup as the normal path. State what preserved router content and completed Store state should look like. Invite optional feedback.
 - Explicit human acceptance gate: None unless the owner creates one before the live run.
-- Evidence report: Link the P8 central evidence section and exact three-platform workflow.
-- Phase / capability status: P8, P7, D-038, and W22 remain open until A57 through A62 pass and the owner authorizes closeout.
+- Evidence report: The P8 central evidence section links the final exact candidate, three-platform workflow, and approved live North Atlantic result.
+- Phase / capability status: A57 through A62 pass. The owner authorized closeout on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout.
 
 ## Stage 3 - Live Acceptance Correction
 
@@ -147,8 +147,8 @@ Performance evidence lifecycle fields:
 - [x] t15: Let the completed-removal handoff recreate exact on-demand surface routers from proved manifest file records even when removal deleted the former surface directory.
 - [x] t16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, interactive state review for unknown intent, disabled-capability preservation, and an immediate all-no-op repeat.
 - [x] t17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, documentation validation, and diff whitespace check against the final reviewed source.
-- [ ] t18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
-- [ ] t19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
+- [x] t18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
+- [x] t19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
 
 ### Acceptance criteria
 
@@ -165,10 +165,10 @@ Performance evidence lifecycle fields:
 
 ### Closeout Notes
 
-- Four testing decisions: Automated Implementation Testing and Guided Progress Review remain required. Performance and Unassisted Goal Testing remain `not-needed-now`.
+- Four testing decisions: Automated Implementation Testing and Guided Progress Review passed. Performance and Unassisted Goal Testing remain `not-needed-now`.
 - Performance evidence: None.
-- Human Experience Review: Inspect the new first-run and repeat output. Confirm that preserved resource intent and recreated surface routers are visible without requiring Store knowledge.
+- Human Experience Review: The final installed and live reviews showed one clear setup path, stable project identity, preserved saved intent, and no recovery loop. The final live run began from an already-current `2.0.1` project state, so authentic legacy fixtures remain the evidence for the initial upgrade transition.
 - Optional experience handoff: State that plain setup preserves the reviewed local resource set and that immediate repeat should need no project change.
 - Explicit human acceptance gate: None. The live run still requires the approved exact-candidate action.
-- Evidence report: Add the source correction and later exact-candidate results to the P8 section in `evidence.md`.
-- Phase / capability status: Stage 3 source work passes. A65, P8, P7, D-038, and W22 remain open.
+- Evidence report: The P8 section in `evidence.md` records the source correction, final exact candidate, three-platform installed result, live North Atlantic result, and evidence limit.
+- Phase / capability status: Stage 3 tasks t13 through t19 and A63 through A65 pass. The owner authorized closeout on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout.

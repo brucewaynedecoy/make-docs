@@ -1168,7 +1168,7 @@ The owner authorized closeout on 2026-09-19. P6 and W22 R0 are closed. Publicati
 
 ### Status
 
-P7 is open. A live installed `2.0.1` run found a cross-project Store isolation failure after the earlier source and platform work. The reopened Stage 3 source repair passes tasks t16 through t19 and A53 through A55. Task t20, A56, a new exact three-platform candidate, and the live retry remain open.
+P7 is closed after the final P7 and P8 candidate passed the three-platform installed workflow and the approved live setup checks. The live installed `2.0.1` counterevidence and intermediate open gates below remain as historical repair evidence.
 
 The first Stage 2 candidate at `f0846d58f5ebfca2d2485362f1cc324b8934dc0a` passed the three-platform workflow in run `35775207319`. Pull-request review then found seven material defects. That candidate is rejected for P7 acceptance. The corrective source result fixes those defects and passes local validation. It makes no live CLI installation or live Store change. A new exact package run is still required.
 
@@ -1379,13 +1379,13 @@ This review supports Stage 1 closeout only. It does not claim real-platform inst
 
 ### P7 Gate
 
-Tasks t1 through t8 are complete. Acceptance criteria A45 through A49 are satisfied by the final Stage 1 source result. The earlier failure evidence and interim review gaps remain part of the record.
+Tasks t1 through t20 are complete. Acceptance criteria A45 through A56 pass. The earlier failure evidence, rejected candidates, and interim review gaps remain part of the record.
 
-Tasks t9 through t15 remain open. Acceptance criteria A50 through A52 remain open. The first exact P7 candidate and workflow run are rejected because later review found material defects. No exact corrected package identity, corrected three-platform installed run, final comparison, installed Human Experience Review, or corrective closeout exists yet.
+The final exact candidate and live result are recorded in the P8 final acceptance section below because the accepted P8 corrections completed the same public recovery path. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source, exact candidate, installed Ubuntu, installed macOS, installed Windows, and final comparison jobs. The live Make Docs and North Atlantic results completed without cross-project interference or deep-command recovery.
 
-The next gate is Stage 2. Build one exact repaired candidate with recorded package and install identity. Then run comparable installed proof on Windows, macOS, and Linux. Local `just install-cli` and the live plain-setup retry remain separate later owner actions.
+The final Human Experience Review supports HX-2 and HX-5. Setup shows the current target, keeps machine and project review separate, preserves unrelated project work, and returns one normal action. The final North Atlantic run began from an already-current `2.0.1` state. The authentic schema-3 fixtures remain the proof for the initial older-package transition.
 
-P7 and D-038 remain open. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside P7 without separate owner approval. Staging, commit, push, external workflow execution, live owner-Store verification, and closeout each require their applicable next authority.
+The owner authorized closeout on 2026-09-23. P7 and D-038 are closed. A reset, detach, quarantine-and-reinstall, or forced reinstall capability remains outside the accepted product scope.
 
 ### Live 2.0.1 Counterevidence - Cross-Project Store Isolation
 
@@ -1441,9 +1441,9 @@ Reviewer: Codex agent.
 
 ### Reopened P7 Gate
 
-Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 pass in source. Task t20 and A56 remain open. The next gate is one exact repaired package with comparable Windows, macOS, and Linux results. Installation into the owner's local CLI and the live plain-setup retry remain separate later actions.
+At this intermediate gate, Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 passed in source. Task t20 and A56 remained open. The next gate was one exact repaired package with comparable Windows, macOS, and Linux results, followed by separately approved local installation and live setup.
 
-P7 and D-038 remain open. This repair does not authorize staging, commit, push, pull-request work, installation, live Store mutation, or closeout.
+P7 and D-038 remained open at this point. The later final candidate and live evidence below close them.
 
 ## P8 Router Ownership and Reviewed Reinstall Repair
 
@@ -1486,7 +1486,7 @@ Reviewer: Codex agent.
 | --- | --- | --- | --- |
 | HX-2: clear state and one next safe action | Human preview names `migrate-with-review`. Blocked backup and identity cases state the failed evidence and one setup retry action after restoration. | Satisfied for the isolated source boundary. | Review the same output from one exact installed candidate on Windows, macOS, and Linux. |
 | HX-5: setup and repair use one open recovery path | Plain setup previews, applies, resumes, rolls back, retries, and reaches repeat no-op state. It does not require a hidden reinstall command or Store edit. | Satisfied for the isolated source boundary. | Prove the installed package and then run the separately approved live North Atlantic BuildOS test. |
-| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same plan keeps backup evidence, unrelated routers, project identity, checkout identity, Store integrity, and earlier safety stops. | Preserved in source tests. | Three-platform installed proof remains open. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same plan keeps backup evidence, unrelated routers, project identity, checkout identity, Store integrity, and earlier safety stops. | Preserved in source tests. | Three-platform installed proof was still open at this intermediate gate. |
 
 ### Pull-Request Review Correction
 
@@ -1497,7 +1497,7 @@ The corrective source result keeps the strict handoff only when exact backup evi
 The same review corrected five smaller evidence and test defects:
 
 - Plan, backlog, risk, and evidence records now state the approved Stage 2 boundary.
-- HX-5 claims only A57 through A60. A61 and A62 remain open.
+- HX-5 claimed only A57 through A60 at this intermediate gate. A61 and A62 remained open.
 - JSON action assertions use the emitted `path` field.
 - Package-version assertions read current package metadata instead of a fixed version string.
 - The active D-038 next action no longer asks for approval that the owner already gave.
@@ -1595,12 +1595,44 @@ The corrected wizard applies the empty harness set and continues. The system met
 | TypeScript and package build | Passed. |
 | Product authority and documentation checks | PRD authority, path hygiene, instruction routers, and wave numbering passed. |
 | Diff whitespace check | Passed. |
-| Exact-candidate three-platform proof | Open. A new workflow run must pass for this corrected source. |
+| Exact-candidate three-platform proof | Passed in the final workflow recorded below. |
+
+### Final Exact Candidate And Live Acceptance
+
+Pull request [#15](https://github.com/brucewaynedecoy/make-docs/pull/15) tested head commit `9e57667a0329324fa7e437c4f84422e2b33c51de`. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the Ubuntu, macOS, and Windows source contracts, one candidate build, the installed-package contract on all three hosts, and the final evidence comparison. The CodeRabbit check also passed.
+
+The workflow candidate record identifies merge revision `7b5346887ab6ad730b93ddd4ae5424bc4934c7ba`, whose parents include the approved pull-request head. The exact package identity is:
+
+| Field | Value |
+| --- | --- |
+| Package | `@brucewaynedecoy/make-docs@2.0.1` |
+| File | `brucewaynedecoy-make-docs-2.0.1.tgz` |
+| Size | 1,715,101 bytes |
+| SHA-256 | `ec5bb32e962bb7c35fa47e47c40007b241ea8db75d0b845da926375ae34d142e` |
+| Installed executable SHA-256 | `1cbb16b9e6b1270653f69c06533672d193540b85570b2355992324a1162ac0d9` |
+
+The exact package was installed through the normal global package-manager path. `make-docs --version` returned `2.0.1`. The installed executable digest matched the refreshed Claude Code MCP receipt.
+
+The approved North Atlantic BuildOS live check ran plain `make-docs setup` once with the final candidate and exited with status 0. The review reported a `clean-v2-provider-backed` project state, package and installed version `2.0.1`, 90 managed files evaluated, 90 already current, no planned project file changes, and no safety stop. Setup refreshed the drifted Claude Code MCP entry to the exact installed executable. It preserved the user-owned Codex MCP entry.
+
+Store readback remained `ready`. Project `423f49d6-c28d-4ba5-b99f-3049a31efcb8` and checkout `ff0e0216-fd25-4b5e-b896-aa63beed415d` did not change. No pending recovery remained. The project Git change set was identical before and after setup. The backup and project-owned router content remained unchanged.
+
+The live project already reported `2.0.1` before this final command. This run proves that the exact final candidate completes the normal setup and repeat path against the formerly failing live project state. It does not by itself replay the initial legacy file migration. The authentic schema-3 completed-removal fixture supplies that transition evidence and proves resource-selection recovery, surface-router recreation, disabled-capability preservation, explicit review for unknown resource intent, and an immediate all-no-op repeat.
+
+A separate North Atlantic path-hygiene validation reported 307 existing findings across 92,091 files. It reported no changed files and no input or output errors. The findings are in earlier BuildOS evidence and synthetic test artifacts. They are not setup changes and do not block P7 or P8 closeout.
+
+Final Human Experience Review:
+
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| HX-2: clear state and one next safe action | Plain setup showed the current project and computer reviews, completed with status 0, and returned control to the terminal without a recovery loop. Store readback was `ready` with no pending operation. | Satisfied for the accepted P7 and P8 scope. | Existing North Atlantic content-hygiene findings remain separate project work. |
+| HX-5: setup and repair use one open recovery path | The final candidate preserved project and checkout identity, backup evidence, saved intent, project-owned router content, and the user-owned Codex entry. The authentic fixture proves the initial reviewed reinstall and immediate no-op repeat. | Satisfied for the accepted P7 and P8 scope. | The live final run began from an already-current `2.0.1` state, so the initial legacy transition claim stays bound to the authentic fixture and three-platform installed contract. |
+| HX-1, HX-3, HX-4, and HX-6 preserved boundaries | The same candidate passed the installed contract on Ubuntu, macOS, and Windows. Store-free, identity, ownership, and retained-mechanism checks passed in the recorded source and installed suites. | Preserved within the tested scope. | Publication and release remain separate actions. |
 
 ### P8 Gate
 
-Stage 1 tasks t1 through t7 and acceptance criteria A57 through A60 pass in source and isolated fixtures. Stage 3 source tasks t13 through t17 and acceptance criteria A63 through A64 pass. Stage 2 tasks t8 through t12, Stage 3 tasks t18 through t19, and acceptance criteria A61, A62, and A65 remain open for the new exact source.
+Stage 1 tasks t1 through t7, Stage 2 tasks t8 through t12, and Stage 3 tasks t13 through t19 are complete. Acceptance criteria A57 through A65 pass.
 
-The owner approved the additional P8 source repair. Staging, commit, push, a new workflow run, exact-candidate installation, repeated live North Atlantic BuildOS setup, merge, closeout, publication, and release remain separate gates.
+The source and authentic fixtures passed. One exact candidate passed the same installed-package contract on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with status 0, stable Store and project identities, no pending recovery, and no project file change. The recorded limit does not weaken the initial-upgrade proof because the authentic legacy fixture and three-platform installed contract own that transition.
 
-P7, P8, D-038, and W22 remain open.
+The owner authorized closeout and pull-request merge on 2026-09-23. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout. Publication and release remain separate gates.

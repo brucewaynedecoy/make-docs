@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P8 Stage 1 source work is complete. The owner approved Stage 2 exact-package and three-platform proof. Local installation and live-project proof remain separately gated."
-  coordinate_handoff: "Carry W22 R0 P8 through the approved Stage 2 package proof. Stop before local installation or live-project setup without separate owner approval."
+  why: "P7 and P8 are closed from the final exact candidate, three-platform installed proof, and approved live setup results. W22 remains open for revision-level closeout."
+  coordinate_handoff: "Review the complete W22 R0 evidence and request separate owner authority before revision closeout, publication, or release."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Plan
@@ -19,9 +19,9 @@ follow_on:
 
 Plan the architecture recovery defined by the [source design](../../designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md). The plan first tests the value of each current mechanism. It then settles current authority, creates a platform-neutral safety boundary, simplifies Store and harness state, migrates existing installations, closes known symptoms, and proves installed results on Windows, macOS, and Linux.
 
-P1 through P6 remain completed records for their exact accepted evidence. P7 remains open. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The current target was `ready` and had no pending operation. The P7 source repair passes, and the Make Docs project completed plain setup with the repaired CLI.
+P1 through P8 are completed records for their exact accepted evidence. A later live installed `2.0.1` run proved that a pending operation from another checkout could block machine setup for the current target. The P7 repair corrected that scope and the Make Docs project completed plain setup with the repaired CLI.
 
-The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 Stage 1 source work is approved and complete. The owner also approved Stage 2 exact-package and three-platform proof. Local installation, live North Atlantic BuildOS setup, and closeout remain separately gated.
+The North Atlantic BuildOS acceptance test then exposed a separate ownership and reinstall defect. After a reviewed removal, plain setup scanned backup copies and unrelated BuildOS routers as active ownership collisions. It required an explicit `backup-and-reinstall` flow that the public CLI does not expose. P8 corrected that behavior. One final exact candidate passed the three-platform installed-package workflow and the approved live North Atlantic setup result. P7, P8, and D-038 are closed.
 
 ## Objective
 
@@ -64,7 +64,7 @@ W22 R0 revisits the build segment after its prior close. This is an explicit lif
 
 P7 owns the setup-order, cross-project Store isolation, computer-replan, recovery-guidance, and approval-wording corrections. It does not reopen the accepted architecture decisions, prior phase implementation history, or P6 proof for its exact package candidate. Three authentic older-package fixtures still pass through plain setup.
 
-P8 owns the later router-ownership and reviewed-reinstall defect. This is another explicit lifecycle revisit under the straddle rule. P8 does not add a broad force, reset, detach, or quarantine command. It updates the existing compatibility, Store transfer, setup, and D-038 authority so plain setup can continue from a completed reviewed removal. P7, P8, D-038, and W22 remain open.
+P8 owns the later router-ownership and reviewed-reinstall defect. This is another explicit lifecycle revisit under the straddle rule. P8 does not add a broad force, reset, detach, or quarantine command. It updates the existing compatibility, Store transfer, setup, and D-038 authority so plain setup can continue from a completed reviewed removal. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.
 
 ## Maintenance Inputs
 
@@ -80,7 +80,7 @@ P8 owns the later router-ownership and reviewed-reinstall defect. This is anothe
 | Change history | Commits `dabd0b36`, `7ca65f40`, `afbeaab2`, `56800c35`, and `0e5e90be` | High confidence for growth, correction, removal, and repair sequence. It is evidence for review, not proof of a defect by itself. |
 | Symptom inventory | P1 ledger plus later owner evidence | P1 is complete. P7 reopens D-038 for the exact installed loop without creating a competing symptom list. |
 | Installed setup transcripts and current source trace, 2026-09-22 | Owner-provided terminal evidence plus current CLI source and Store classification | High confidence for the P7 trigger. The first trace showed reciprocal setup commands on supported legacy schema 3. The second trace showed approved `partial-install` work rejected later as `ambiguous-ownership` after operation creation. |
-| P7 Stage 1 source evidence, 2026-09-22 | Current repair source, checkpoint-3 regression, three authentic package fixtures, validation results, independent read-only audit, and corrective review findings | Stage 1 tasks t1 through t8 and A45 through A49 pass. The exact Stage 2 candidate and real-platform proof remain open. |
+| P7 and P8 final evidence, 2026-09-23 | Authentic package fixtures, current repair source, exact candidate identity, Platform Safety run 35932516304, installed-package results, Store readback, and approved live setup results | P7 tasks t1 through t20 and A45 through A56 pass. P8 tasks t1 through t19 and A57 through A65 pass. The live final North Atlantic run began from an already-current `2.0.1` state, so authentic fixtures remain the initial-transition evidence. |
 | North Atlantic BuildOS installed acceptance trace, 2026-09-23 | Installed `2.0.1` CLI, reviewed removal result, exact 67-file backup, Store status, project Git state, and source trace | High confidence for P8. Plain setup treated 52 backup routers and 36 unrelated active routers as collisions after a completed reviewed removal, then required a public flow that does not exist. |
 
 ## Human Experience Propagation
@@ -154,9 +154,9 @@ The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a
 | Surface | Artifact | Required maintenance | Authority role |
 | --- | --- | --- | --- |
 | Links and index | [PRD index](../../prd/00-index.md) | Update relationships only when the accepted target changes navigation. | Navigation only. |
-| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and extend open D-038 with the P8 counterevidence and close condition. | Living risk and decision register. |
+| Risks and decisions | [PRD 03](../../prd/03-open-questions-and-risk-register.md) | Preserve the P2 decisions and close D-038 with the final P7 and P8 evidence and recorded limit. | Living risk and decision register. |
 | Plan | This directory | Keep decision order, limits, and phase dependencies current. | Sequencing and rationale. |
-| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P6 as completed records, P7 open, and P8 active. Record the approved Stage 1 source result without starting Stage 2. | Current implementation queue. |
+| Work | [W22 R0 backlog](../../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md) | Keep P1 through P8 as completed records. Preserve rejected candidates and failed live attempts as historical evidence. | Current implementation queue. |
 | Prior plans and work | W19 Store, setup, harness, and recovery packages | Link as evidence. Do not rewrite completed records. | Historical context and prior proof. |
 | History | Future W22 phase records | Create only during authorized phase closeout. | Execution provenance. |
 
@@ -178,9 +178,9 @@ The accepted P2 authority retains its `2026-09-18 — W22 R0` entries. P8 adds a
 - Design: `docs/designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md`.
 - Plan: this directory with `00-overview.md` and eight phase files.
 - PRDs: surgical maintenance of existing owners only after P1 decisions are accepted.
-- Risk register: keep D-038 open for the P7 and P8 defects. P8 adds no new broad reset or force capability.
+- Risk register: D-038 is closed by the final P7 and P8 evidence. P8 adds no new broad reset or force capability.
 - Delta backlog: `docs/work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/` with `00-index.md` and eight phase files.
-- The owner approved P8 Stage 1 implementation on 2026-09-23. Source and isolated proof are complete. The owner later approved staging, commit, push, pull-request review, candidate packaging, and installed three-platform proof. Local installation, live setup, closeout, publication, and release retain their separate gates.
+- The owner approved the final exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Publication and release retain their separate gates.
 
 ## Worker Ownership
 
@@ -206,9 +206,9 @@ Use jdocmunch for project documents and jcodemunch for code and function signatu
 
 P1 through P6 retain their completed historical results. P7 depends on their accepted authority and implementation. It also depends on the 2026-09-22 installed failure traces and the reopened D-038 finding.
 
-P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. The owner approved Stage 1 implementation on 2026-09-23. Source and isolated proof pass. The owner later approved Stage 2 tasks t8 through t10. Local installation and the live North Atlantic BuildOS action remain separately gated.
+P8 depends on the North Atlantic BuildOS installed trace, the completed reviewed removal and backup evidence, and the accepted current authority in PRDs 18, 38, and 39. Source, isolated, three-platform installed-package, and approved live proof pass.
 
-P7 and P8 remain bounded repairs. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Any finding that changes that product target returns to the owner.
+P7 and P8 are closed bounded repairs. They do not add a broad force, reset, detach, quarantine, or repository-cleaning capability. Any later finding that changes that product target returns to the owner.
 
 ## Validation
 
@@ -221,9 +221,9 @@ The agent must complete a Human Experience Review for the installed result. Huma
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: Review the P8 Stage 1 source result. Start exact package and three-platform proof only after separate owner approval.
+- Next step: Review the complete W22 R0 evidence before any revision-level closeout.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: The North Atlantic BuildOS test found a product defect that blocks the public reinstall path after a completed reviewed removal.
-- Coordinate Handoff: Carry W22 R0 P8 into Stage 2 only after separate owner approval.
+- Why: P7 and P8 are closed. W22 revision closeout, publication, and release retain separate authority gates.
+- Coordinate Handoff: Keep P1 through P8 as completed records and request owner authority before closing W22 R0.
 
-This direct return from a reopened plan to product-authority maintenance and then the implementation loop is an explicit lifecycle departure. P8 updates existing PRD owners and D-038. Stage 1 source work is complete. P7, P8, D-038, and W22 remain open. No Stage 2 or live-project action is authorized by the Stage 1 result.
+This direct return from a reopened plan to product-authority maintenance and then implementation was an explicit lifecycle departure. P8 updated existing PRD owners and D-038. P7, P8, and D-038 are closed. W22 remains open for its revision-level closeout.

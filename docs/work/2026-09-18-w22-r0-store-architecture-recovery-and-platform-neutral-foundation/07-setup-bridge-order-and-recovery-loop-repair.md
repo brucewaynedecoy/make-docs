@@ -1,7 +1,7 @@
 ---
 title: "Phase 7: Setup Bridge Order and Recovery Loop Repair"
 kind: "work"
-status: "active"
+status: "draft"
 coordinate: "W22 R0 P7"
 source:
   type: "prd"
@@ -18,7 +18,7 @@ Repair the complete upgrade path for supported older installations. Plain setup 
 
 P7 corrects the dependency order in full setup, builds one final plan from predicted post-prerequisite state, completes every safety check before operation creation, requires planner-classifier-executor agreement, preserves direct machine setup independence, delays new harness intent until its owned change can succeed, and keeps normal resume or restore in plain setup. It proves both reported installed failures with authentic supported older-package fixtures and one exact installed package on Windows, macOS, and Linux.
 
-P7 is the only active W22 phase. P1 through P6 remain completed records for their exact prior evidence. A live installed `2.0.1` run found that one project could block another project during machine setup. P7 is reopened for this cross-project Store isolation repair. The earlier source and platform results remain historical evidence for their exact candidates. They do not close this new failure.
+P7 is closed. P1 through P6 remain completed records for their exact prior evidence. The final P7 and P8 candidate passed the comparable three-platform installed-package workflow. The live Make Docs and North Atlantic BuildOS results proved that unrelated project work no longer blocks the current target and that plain setup can finish without deep-command recovery.
 
 ## Human Experience Outcome
 
@@ -36,12 +36,12 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 | Testing type | Current decision | Decision record or `not-needed-now` reason |
 | --- | --- | --- |
-| Automated Implementation Testing | Required; reopened source repair passed; new installed proof blocking | The exact cross-project, computer-replan, current-target guidance, and prompt tests pass. The full repository test gate passes. One new exact candidate still needs comparable Windows, macOS, and Linux proof. |
+| Automated Implementation Testing | Passed | The exact cross-project, computer-replan, current-target guidance, prompt, source, and installed-package checks pass. One final candidate passed on Windows, macOS, and Linux. |
 | Performance Testing | `not-needed-now` | No accepted performance target or current decision depends on setup duration. |
-| Guided Progress Review | Stage 1 corrective review passed | The review found and closed approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, and retired-resource gaps. Review remains useful for Stage 2 installed output. |
+| Guided Progress Review | Passed | The review found and closed approval-order, migration backup preflight, one-recovery guard, post-import recovery routing, JSON mutation-state, retired-resource, cross-project Store isolation, and computer-review gaps. |
 | Unassisted Goal Testing | `not-needed-now` | Deterministic state assertions and installed workflow evidence can answer the current recovery question. |
 
-Human Experience Review is separate. Stage 1 source evidence supports HX-2 and HX-5 within the isolated source boundary. Inspect the exact installed preview, blocked, failed, resumed, restored, successful, and repeated results during Stage 2. No explicit human acceptance gate applies unless the owner later creates one.
+Human Experience Review is separate. The source, installed-package, and live setup results support HX-2 and HX-5 within the recorded limits. The owner approved phase closeout on 2026-09-23. No separate human acceptance gate applied.
 
 Performance evidence lifecycle fields:
 
@@ -116,13 +116,13 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [ ] t9: Build one exact package candidate after all required source checks pass. Record its package identity, digest, size, and source commit.
-- [ ] t10: Install the same candidate into isolated Windows, macOS, and Linux environments with the source checkout unavailable to product execution.
-- [ ] t11: Run the authentic supported older-package regression contract on every host. Include full setup, direct system setup, block-before-write, failure, interruption, resume, restore, repeat, no-op, and normal-operation-without-deep-recovery cases.
-- [ ] t12: Compare the three runs and reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, or different public result.
-- [ ] t13: Complete the Human Experience Review from the installed output. Record observations, conclusions, evidence limits, and next actions for HX-2 and HX-5.
-- [ ] t14: Run the coverage pass, full source suite, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check`.
-- [ ] t15: Update the P7 evidence record and close D-038 only after every required case passes. Preserve the prior W19 R8 and W22 P1 through P6 results as historical evidence.
+- [x] t9: Build one exact package candidate after all required source checks pass. Record its package identity, digest, size, and source commit.
+- [x] t10: Install the same candidate into isolated Windows, macOS, and Linux environments with the source checkout unavailable to product execution.
+- [x] t11: Run the authentic supported older-package regression contract on every host. Include full setup, direct system setup, block-before-write, failure, interruption, resume, restore, repeat, no-op, and normal-operation-without-deep-recovery cases.
+- [x] t12: Compare the three runs and reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, or different public result.
+- [x] t13: Complete the Human Experience Review from the installed output. Record observations, conclusions, evidence limits, and next actions for HX-2 and HX-5.
+- [x] t14: Run the coverage pass, full source suite, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check`.
+- [x] t15: Update the P7 evidence record and close D-038 only after every required case passes. Preserve the prior W19 R8 and W22 P1 through P6 results as historical evidence.
 
 ### Acceptance criteria
 
@@ -138,13 +138,13 @@ Performance evidence lifecycle fields:
 
 ### Closeout Notes
 
-- Four testing decisions: Record final Automated Implementation Testing and Guided Progress Review results. Performance and Unassisted Goal Testing remain `not-needed-now` unless later authority changes the decision.
+- Four testing decisions: Automated Implementation Testing and Guided Progress Review passed. Performance and Unassisted Goal Testing remain `not-needed-now`.
 - Performance evidence: None.
-- Human Experience Review: Link the per-promise installed observations, conclusions, reviewer, evidence, and limits.
+- Human Experience Review: The central evidence records the installed and live observations, conclusions, evidence, and limits for HX-2 and HX-5.
 - Optional experience handoff: Offer one to three normal-use steps for the repaired setup path. State the expected non-circular result and invite optional feedback.
 - Explicit human acceptance gate: None unless the owner creates one before closeout.
-- Evidence report: Link the P7 section in `evidence.md` plus the exact cross-platform workflow results.
-- Phase / capability status: Stage 2 is the next open P7 stage. P7 and W22 remain open until A50 through A52 pass and the owner authorizes closeout.
+- Evidence report: The P7 section in `evidence.md` links the final exact candidate, three-platform workflow, live Make Docs result, and North Atlantic result.
+- Phase / capability status: A50 through A52 pass. The owner authorized closeout on 2026-09-23. P7 and D-038 are closed. W22 remains open for its revision-level closeout.
 
 ## Stage 3 - Cross-Project Store Isolation And Live Acceptance Repair
 
@@ -154,7 +154,7 @@ Performance evidence lifecycle fields:
 - [x] t17: Scope installation-operation and project-lock conflicts to the exact target checkout. Keep machine-wide tool operations global. Preserve the unrelated project operation without change.
 - [x] t18: Rebuild the computer plan after the Store prerequisite. Show and reapprove a changed computer review. Read the current target before recovery guidance. Use the approved computer prompt wording.
 - [x] t19: Add the exact combined plain-setup regression plus focused component tests. Pass the full repository test command, package build, and diff check.
-- [ ] t20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
+- [x] t20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
 
 ### Acceptance criteria
 
@@ -171,4 +171,4 @@ Performance evidence lifecycle fields:
 
 ### Current Result
 
-Tasks t16 through t19 pass in source. The focused repair run passed four tests. The package build passed. The full repository command passed 92 test files, skipped one test file under its normal guard, passed 1,479 tests, and skipped five installed-platform tests under their normal guard. Task t20 and A56 remain open. P7 and D-038 remain open.
+Tasks t16 through t20 and A53 through A56 pass. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source contract, one exact package build, installed-package proof on Ubuntu, macOS, and Windows, and final evidence comparison. The live setup results completed without cross-project interference or deep-command recovery. P7 and D-038 are closed. The central evidence records the live-run limit that the final North Atlantic check began from an already-current `2.0.1` project state.
