@@ -202,6 +202,8 @@ npm run smoke:pack
 
 The package is published from `packages/cli/` as `@brucewaynedecoy/make-docs`. The package allowlist in [`package.json`](../package.json) ships `dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, and the package README; npm also includes package metadata and license files. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not tarball-root package contents.
 
+For the current release process and npm trusted publishing setup, use [RELEASING.md](../../../RELEASING.md). The checks below provide local package evidence before a release pull request.
+
 Recommended release-validation checklist:
 
 1. Update the version.
@@ -223,7 +225,7 @@ npm pack --dry-run --json --ignore-scripts
 npm publish --dry-run --access public --tag next
 ```
 
-The package is scoped, so public publish validation and any separately authorized real publish must include `--access public`. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
+The package is scoped, so public publish validation uses `--access public`. The GitHub Release workflow performs the real publish after the release is approved. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
 
 First-party Skill source lives only under `packages/skills/`. Compare the registry allowlist and source bytes with the compiled payload and extracted-package installs, including independent offline installs of all eight Skills. Never create a separate generated Skill tree as package input.
 

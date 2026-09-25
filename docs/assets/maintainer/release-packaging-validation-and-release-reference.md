@@ -92,14 +92,14 @@ When link validation changes or appears to regress:
 
 ## Release Procedure
 
-Use this order for release work:
+Follow [RELEASING.md](../../../RELEASING.md) for the current GitHub Release and npm trusted publishing process. Use this order for local release checks:
 
 1. Run `npm test`.
 2. Run `npm run validate:defaults -w packages/cli`.
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
 4. Run `npm run smoke:pack` in an environment with package registry access.
 5. Inspect a tarball with `npm pack --json -w packages/cli` when package contents need manual review. The smoke pack already exercises `npx`, `pnpm dlx`, and Bun package-runner installs from the tarball.
-6. Publish from `packages/cli/`, not from `packages/docs` or `packages/skills`.
+6. Open a release pull request. After it merges, publish a GitHub Release. The release workflow publishes only `packages/cli`.
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md).
 

@@ -1,0 +1,101 @@
+name: Publish npm package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish CLI to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Use an npm version that supports trusted publishing
+        run: npm install --global npm@11.17.0
+
+      - name: Check tag, main, and package version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor HEAD origin/main
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const { name, version } = JSON.parse(readFileSync('packages/cli/package.json', 'utf8'));
+          const tag = process.env.RELEASE_TAG;
+          const isPrerelease = process.env.RELEASE_PRERELEASE === 'true';
+          if (name !== '@brucewaynedecoy/make-docs') throw new Error('Unexpected package name');
+          if (!/^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
+            throw new Error('Release tag must be a version starting with v');
+          }
+          if (tag !== `v${version}`) throw new Error('Tag and package version differ');
+          if (isPrerelease !== version.includes('-')) throw new Error('Release prerelease flag and version differ');
+          NODE
+
+      - name: Check that this version is new to npm
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const { name, version } = JSON.parse(readFileSync('packages/cli/package.json', 'utf8'));
+          const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/${encodeURIComponent(version)}`;
+          const response = await fetch(url, { cache: 'no-store' });
+          if (response.status === 200) throw new Error(`${name}@${version} is already on npm`);
+          if (response.status !== 404) throw new Error(`npm registry returned ${response.status}`);
+          NODE
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build and test the CLI
+        run: |
+          npm run prepack -w packages/cli
+          npm run test:smoke-harness
+          npm test -w packages/cli -- --testTimeout=120000
+          npm run validate:defaults
+
+      - name: Pack and inspect the exact package
+        id: pack
+        env:
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          cd packages/cli
+          npm pack --json --ignore-scripts --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/make-docs-pack.json"
+          cd ../..
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const [packed] = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/make-docs-pack.json`, 'utf8'));
+          const { name, version } = JSON.parse(readFileSync('packages/cli/package.json', 'utf8'));
+          if (packed.name !== name || packed.version !== version) throw new Error('Packed package identity differs');
+          const files = new Set(packed.files.map(file => file.path));
+          for (const path of ['package.json', 'README.md', 'LICENSE', 'dist/index.js']) {
+            if (!files.has(path)) throw new Error(`Package is missing ${path}`);
+          }
+          if (![...files].some(path => path.startsWith('template/'))) throw new Error('Package is missing the template');
+          appendFileSync(process.env.GITHUB_OUTPUT, `filename=${packed.filename}\n`);
+          appendFileSync(process.env.GITHUB_OUTPUT, `dist_tag=${process.env.RELEASE_PRERELEASE === 'true' ? 'next' : 'latest'}\n`);
+          NODE
+
+      - name: Publish the inspected package with npm OIDC
+        env:
+          TARBALL: ${{ runner.temp }}/${{ steps.pack.outputs.filename }}
+          DIST_TAG: ${{ steps.pack.outputs.dist_tag }}
+        run: npm publish "$TARBALL" --access public --tag "$DIST_TAG" --provenance

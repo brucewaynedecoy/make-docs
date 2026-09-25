@@ -235,4 +235,4 @@ Template changes propagate to the CLI tarball at publish time via the `prepack` 
 
 ## License
 
-Apache-2.0
+MIT. See [LICENSE](LICENSE).
