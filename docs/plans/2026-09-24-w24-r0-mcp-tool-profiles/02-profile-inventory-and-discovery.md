@@ -15,7 +15,7 @@ Assign every current MCP-ready tool by user intent and make profile selection a 
 
 ## Descriptor Contract
 
-Add `mcp: { profiles: McpProfile[], defaultExposure: "eager" | "deferred" }` to each ready tool descriptor. Put this metadata on the six hand-defined descriptors and on each canonical operation definition for derived tools. Derive the MCP descriptor from that operation definition. Keep one operation ID, tool name, schema, description, handler, access fact, and write policy across all profiles. `defaultExposure` is advice for hosts that can defer tools. It does not change MCP visibility on its own.
+Add `mcp: { profiles: McpProfile[], defaultExposure: "eager" | "deferred" }` to each ready tool descriptor. Put this metadata on the six hand-defined descriptors and on each canonical operation definition for derived tools. Derive the MCP descriptor from that operation definition. For registry-derived tools, keep one operation ID, tool name, schema, description, handler, access fact, and write policy across all profiles. For hand-defined tools, keep one tool name, schema, description, access fact, handler, and write policy across all profiles. `defaultExposure` is advice for hosts that can defer tools. It does not change MCP visibility on its own.
 
 Reject an empty or unknown profile assignment at build or server initialization. Reject a ready tool that lacks metadata. Keep `mcpReady` admission independent of profile membership. If a new operation becomes MCP-ready, its profile assignment must land in the same change. A profile filter selects from the ready catalog; it does not change the registry or caller admission rules. Tools assigned to several profiles appear once in `all`.
 

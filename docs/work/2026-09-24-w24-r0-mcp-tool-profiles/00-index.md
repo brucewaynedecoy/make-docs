@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The work is dependency ordered and each phase has observable acceptance."
-  coordinate_handoff: "W24 R0 P1 starts profile implementation. The separate Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1 reconciles PRD authority. W24 R0 P2 starts profile implementation only after separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
 source:
   type: "prd"
   path: "docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -50,4 +50,4 @@ P4 owns the bounded context and latency characterization. It does not set a hard
 - Next step: execute P1 through P4 from the current PRDs and record phase evidence.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The work is dependency ordered and each phase has observable acceptance.
-- Coordinate Handoff: W24 R0 P1 starts profile implementation. The separate Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1 reconciles PRD authority. W24 R0 P2 starts profile implementation only after separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
