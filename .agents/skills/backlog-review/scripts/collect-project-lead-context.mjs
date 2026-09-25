@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 
 const excerptLimit = 2_000;
@@ -51,7 +51,12 @@ function sourceFile(targetRoot, relativePath) {
     usage(`Project path escapes the target root: ${relativePath}`);
   }
   if (!existsSync(absolutePath)) return null;
-  const content = readFileSync(absolutePath, "utf8");
+  const realRoot = realpathSync(targetRoot);
+  const realPath = realpathSync(absolutePath);
+  if (realPath !== realRoot && !realPath.startsWith(`${realRoot}${path.sep}`)) {
+    usage(`Project path escapes the target root: ${relativePath}`);
+  }
+  const content = readFileSync(realPath, "utf8");
   return {
     relativePath,
     content,

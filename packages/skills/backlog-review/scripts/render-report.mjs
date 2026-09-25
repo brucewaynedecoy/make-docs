@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const templatePath = path.join(skillRoot, "assets", "backlog-review-report.html");
@@ -116,6 +117,7 @@ function validateReport(report) {
   validateProjectLead(report.projectLead);
   const paths = report.records.map((record) => record?.recordPath);
   const snapshotPaths = report.snapshot.records.map((record) => record?.recordPath);
+  const snapshotByPath = new Map(report.snapshot.records.map((record) => [record?.recordPath, record]));
   if (
     paths.some((value) => typeof value !== "string" || value.length === 0) ||
     new Set(paths).size !== paths.length ||
@@ -125,6 +127,14 @@ function validateReport(report) {
     throw new Error("The report must preserve every snapshot record exactly once.");
   }
   for (const record of report.records) {
+    const source = snapshotByPath.get(record.recordPath);
+    if (
+      record.scope !== source.scope ||
+      !isDeepStrictEqual(record.createdAt, source.createdAt) ||
+      !isDeepStrictEqual(record.lastUpdatedAt, source.lastUpdatedAt)
+    ) {
+      throw new Error(`Record ${record.recordPath} must preserve its snapshot scope and dates.`);
+    }
     if (record.scope === "live" && !fixedStatuses.has(record.waveStatus)) {
       throw new Error(`Live record ${record.recordPath} needs one fixed wave status.`);
     }
@@ -161,6 +171,14 @@ function validateReport(report) {
       paths.filter((recordPath) => recordPath === item.recordPath).length !== 1
     ) {
       throw new Error(`Next item ${index + 1} must refer to exactly one included report record.`);
+    }
+    if (
+      !Number.isInteger(item.rank) || item.rank < 1 ||
+      !isObject(item.claim) || item.claim.class !== "recommendation" ||
+      typeof item.claim.text !== "string" || item.claim.text.trim().length === 0 ||
+      typeof item.claim.rationale !== "string" || item.claim.rationale.trim().length === 0
+    ) {
+      throw new Error(`Next item ${index + 1} needs a ranked recommendation claim.`);
     }
   }
   const archived = report.records.filter((record) => record.scope === "archived").length;

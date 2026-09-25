@@ -451,7 +451,11 @@
       const parts = full.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part).replace("%3A", ":"));
       return `${full.startsWith("/") ? "file://" : "file:///"}${parts.join("/")}`;
     };
-    const sourceHref = (record) => fileHref(`${record.recordPath.replace(/\/$/, "")}/00-index.md`);
+    const sourceHref = (record) => {
+      const indexPath = `${record.recordPath.replace(/\/$/, "")}/00-index.md`;
+      const snapshot = snapshotByPath.get(record.recordPath);
+      return fileHref(snapshot?.discoveredFiles?.includes(indexPath) ? indexPath : record.recordPath);
+    };
     const claimText = (claim) => claim?.text || "No review text supplied.";
     const firstSummary = (record) => record.inferences?.[0]?.text || record.facts?.[0]?.text || record.statusReason;
 
