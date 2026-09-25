@@ -2,21 +2,48 @@ name: Platform safety
 
 on:
   pull_request:
-    paths:
-      - "packages/cli/**"
-      - "packages/docs/template/**"
-      - "scripts/**"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/platform-safety.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect package changes
+    runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.detect.outputs.package }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find changes that need package proof
+        id: detect
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "package=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --quiet HEAD^1 HEAD -- \
+            packages/cli packages/docs/template packages/skills scripts \
+            package.json package-lock.json .github/workflows; then
+            echo "package=false" >> "$GITHUB_OUTPUT"
+          else
+            result=$?
+            if [ "$result" -ne 1 ]; then
+              exit "$result"
+            fi
+            echo "package=true" >> "$GITHUB_OUTPUT"
+          fi
+
   platform-contract:
     name: ${{ matrix.os }} platform contract
+    needs: changes
+    if: needs.changes.outputs.package == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -68,6 +95,8 @@ jobs:
 
   package-candidate:
     name: Build one installed-package candidate
+    needs: changes
+    if: needs.changes.outputs.package == 'true'
     runs-on: ubuntu-latest
     outputs:
       tarball_name: ${{ steps.package.outputs.tarball_name }}
@@ -123,7 +152,7 @@ jobs:
 
   installed-package:
     name: ${{ matrix.platform }} installed package
-    needs: [platform-contract, package-candidate]
+    needs: [changes, platform-contract, package-candidate]
     strategy:
       fail-fast: false
       matrix:
@@ -231,3 +260,29 @@ jobs:
           path: .p6-comparison/
           include-hidden-files: true
           if-no-files-found: error
+
+  pr-merge-gate:
+    name: PR merge gate
+    needs: [changes, platform-contract, package-candidate, installed-package, compare-installed-package]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require package proof when package files change
+        shell: bash
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          PACKAGE_CHANGED: ${{ needs.changes.outputs.package }}
+          PLATFORM_RESULT: ${{ needs.platform-contract.result }}
+          CANDIDATE_RESULT: ${{ needs.package-candidate.result }}
+          INSTALLED_RESULT: ${{ needs.installed-package.result }}
+          COMPARE_RESULT: ${{ needs.compare-installed-package.result }}
+        run: |
+          test "$CHANGES_RESULT" = success
+          if [ "$PACKAGE_CHANGED" = true ]; then
+            test "$PLATFORM_RESULT" = success
+            test "$CANDIDATE_RESULT" = success
+            test "$INSTALLED_RESULT" = success
+            test "$COMPARE_RESULT" = success
+          else
+            test "$PACKAGE_CHANGED" = false
+          fi
