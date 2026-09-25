@@ -57,6 +57,16 @@ Parity includes manifest reads, config interpretation, resource identity and pro
 
 Packed-package validation executes the generated tarball through `npx --package`, `pnpm dlx`, and `bun x --package` in isolated temporary roots before support claims rely on remote package-runner behavior.
 
+### MCP Profile Exposure
+
+- R-MCP-PROFILE-1 (MUST): one Make Docs CLI, operation registry, operation core, resource resolver, and access policy serve all MCP profiles. Profile selection narrows exposure only. It does not grant Store, project, or host-configuration access or change operation inputs, outputs, write gates, approvals, or typed errors.
+- R-MCP-PROFILE-2 (MUST): the intent profiles are `core`, `setup`, `workflow`, `quality`, and `backlog`. `core` covers installed state, manifest, config, common system resources, and operation-domain discovery. `setup` covers install, sync, repair, compatibility, and layout. `workflow` covers lifecycle, project-state context, and work evidence. `quality` covers PRD, performance-evidence, UAT, and related validation. `backlog` covers backlog snapshots, the backlog review cache, and the Backlog Review MCP App. A tool or resource may belong to more than one intent profile.
+- R-MCP-PROFILE-3 (MUST): `all` is the exact deduplicated union of the five intent profiles for ready tools and native MCP resources. `make-docs mcp` defaults to `all` over stdio and preserves the existing single-server connection. `make-docs mcp --profile core|setup|workflow|quality|backlog|all` selects a filtered stdio server. Unknown profiles fail before startup with the allowed choices.
+- R-MCP-PROFILE-4 (MUST): each ready tool and native MCP resource has an explicit nonempty profile assignment. `tools/list` and `resources/list` return only assigned entries for a selected profile. Calls and reads outside that profile fail without running the hidden tool or exposing the hidden resource bytes. An allowed resource returns the same bytes and provenance in each profile and in `all`. CLI resource operations keep their full canonical inventory.
+- R-MCP-PROFILE-5 (MUST): the `backlog` profile includes `work.backlog.snapshot`, `work.backlog-cache.lookup`, and `work.backlog-cache.write` regardless of the cache's Store access. It owns the Backlog Review UI resource. When the app operations `backlog.review.open` and `backlog.review.refresh` are admitted, their derived tools `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh` belong to `backlog` and `all`. The app's owning authority defines their detailed behavior. Profile membership does not change cache write access.
+- R-MCP-PROFILE-6 (MUST): the same server factory may serve fixed Streamable HTTP paths `/mcp/core`, `/mcp/setup`, `/mcp/workflow`, `/mcp/quality`, `/mcp/backlog`, and `/mcp/all` where a supported MCP App or host needs HTTP. Stdio remains supported. Transport and route selection do not bypass caller identity, operation admission, authorization, or write permission. Local HTTP binds to loopback by default; public deployment needs separate authority.
+- R-MCP-PROFILE-7 (SHOULD): hosts that support tool search or deferred loading should use them with short, task-specific profile descriptions. A profile reduces model-visible context only when the host selectively connects or defers definitions. About ten functions per namespace is a design target, not a protocol limit. Profile metadata does not force a host to defer tools.
+
 ### Current MCP Surface
 
 The current MCP surface must:
@@ -211,6 +221,8 @@ Bounded lifecycle operations use the Store's general `runs` and `run_evidence` r
 - Pending P4, P6, and P7 registrations carry exact phase lineage and do not claim that handlers exist.
 - Existing legacy Playbook and Protocol registry, implementation, CLI, and MCP surfaces remain unchanged through P3. P3 adds no legacy behavior or support claim.
 - MCP writes require explicit permission and registry-parity proof.
+- MCP profile tests prove assignment completeness, the exact `all` union, unchanged contracts and access behavior across shared tools, scoped native resources, and compatibility of the existing one-server configuration.
+- Context and startup or discovery measurements name the host mode and method; they do not claim savings from endpoint count alone.
 - Bounded lifecycle operations use general run/evidence records and return surface-neutral typed receipts without Playbook-specific state.
 - Operation-domain logic is modular, testable without the parser or MCP transport, and mirrored by CLI/MCP command domains where practical.
 - Performance evidence validation preserves one read-only TypeScript core across CLI and MCP, one canonical agent method in installed resources, one mapped rule catalog, and distinct proof states that prevent either method from certifying the other.
@@ -337,6 +349,8 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 
 ## Source Anchors
 
+- [W24 R0 MCP tool profiles design](../designs/2026-09-24-mcp-tool-profiles.md)
+- [W24 R0 MCP tool profiles plan](../plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md)
 - [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
 - [W19 R8 plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
 - [Accepted recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md)

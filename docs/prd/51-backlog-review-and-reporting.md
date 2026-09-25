@@ -4,14 +4,14 @@ kind: "prd"
 status: "active"
 source:
   type: "plan"
-  path: "docs/plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md"
+  path: "docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md"
 ---
 
 # 51 Backlog Review and Reporting
 
 ## Purpose
 
-Own the Make Docs capability that converts repository backlog records into a source-backed status snapshot and a clear human review. This PRD owns the backlog-review data contract, the deterministic snapshot boundary, the first-party review Skill, optional exact-match review reuse, and the chat and single-file HTML report outcomes.
+Own the Make Docs capability that converts repository backlog records into a source-backed status snapshot and a clear human review. This PRD owns the backlog-review data contract, the deterministic snapshot boundary, the first-party review Skill, optional exact-match review reuse, the default live MCP App, the concise chat fallback, and the explicit static single-file HTML report.
 
 ## Scope
 
@@ -22,10 +22,12 @@ This capability covers:
 - conflict and availability diagnostics;
 - source-backed agent conclusions about likely current versus historical work;
 - recommended implementation order;
-- a concise in-chat report;
-- an optional self-contained interactive HTML report;
+- a default live MCP App on compatible hosts;
+- a concise in-chat orientation and fallback;
+- an explicit-request self-contained static HTML report;
 - an optional rebuildable per-record review cache in the Global Store; and
-- an in-report data view with a user-started JSON download;
+- live and static data views with a user-started JSON download;
+- current-data refresh and controlled requests to the active agent;
 - visible wave mapping for recommended Next items and wave-specific Attention findings; and
 - interactive navigation from those items to the matching Backlog record.
 
@@ -118,10 +120,15 @@ Code anchors:
 - R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead.
 - R-BACKLOG-SKILL-22 (MUST): every recommendation-order item is wave-specific. Its `recordPath` resolves to exactly one included report record. Every Attention item either has one `recordPath` that resolves to exactly one included report record or uses null to mean a backlog-wide finding. Report validation rejects a missing or dangling required reference.
 - R-BACKLOG-SKILL-23 (MUST): chat and HTML derive the visible wave coordinate for a Next or wave-specific Attention item from the matched report record. The agent does not need to repeat that coordinate inside claim prose. A null Attention reference uses the fixed label `Backlog finding`, not `Portfolio finding`.
+- R-BACKLOG-SKILL-24 (MUST): when the active host supports the required MCP Apps capabilities, the Skill returns the live Backlog Review by default. It selects support through capabilities, not a host product name.
+- R-BACKLOG-SKILL-25 (MUST): the Skill creates the static single-file report only after an explicit user request. Opening the live view, losing the live view, or entering chat fallback never writes a static report as a side effect. The Skill never silently creates both delivery modes.
+- R-BACKLOG-SKILL-26 (MUST): when the live UI is unavailable, the Skill completes the concise chat review, explains the capability or transport limit in natural language, and offers the static report. It does not create the static file until the user asks.
+- R-BACKLOG-SKILL-27 (MUST): live, static, chat, and data views consume one validated report model. Delivery mode can change presentation and local UI state. It cannot change report facts, status meaning, inference, recommendation, evidence limits, or attention and next-item identity.
+- R-BACKLOG-SKILL-28 (MUST): after a changed live refresh, the agent performs fresh review only for nonmatching records, rebuilds every portfolio conclusion, validates the full report model, attempts the existing cache write as a best-effort step, and then opens the live view with the new model. A failed or denied cache write does not block the new review.
 
-### Chat report
+### Chat orientation and fallback
 
-- R-BACKLOG-CHAT-1 (MUST): the default result is an in-chat review. It leads with the current focus, attention items, and recommended order.
+- R-BACKLOG-CHAT-1 (MUST): the chat result is the concise orientation for a live review and the complete fallback when live UI is unavailable. It leads with the current focus, attention items, and recommended order.
 - R-BACKLOG-CHAT-2 (MUST): the report provides sections for current or open work, completed work that may need closeout, blocked or conflicted work, paused or superseded work, likely historical records, and recommendation order when those sections have content.
 - R-BACKLOG-CHAT-3 (MUST): the default report stays concise. Exact tasks, machine fields, and full evidence remain available through linked or expandable detail rather than overwhelming the summary.
 - R-BACKLOG-CHAT-4 (MUST): absent evidence, source disagreement, and unverified conclusions remain visible. The report does not present an inference as a recorded fact.
@@ -147,6 +154,22 @@ Code anchors:
 - R-BACKLOG-HTML-16 (MUST): search has an icon-only control named `Clear search`. The control is present only while search contains a value. Clearing search preserves the selected filter, restores the applicable result set, and keeps a usable keyboard and focus path.
 - R-BACKLOG-HTML-17 (MUST): Next and Attention navigation preserves the independent wave source link, wave disclosure behavior, Data view state, safe project-text handling, reduced-motion preference, and readable print output.
 
+### Live MCP App
+
+- R-BACKLOG-APP-1 (MUST): the shared operation registry defines `backlog.review.open` and `backlog.review.refresh`. Their derived MCP tool names are `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`. Their handlers contain no MCP-only backlog business logic.
+- R-BACKLOG-APP-2 (MUST): `backlog.review.open` is read-only. It declares project-read, Store-none, and host-configuration-none access. It accepts only a validated report model and returns a useful non-UI result plus the linked MCP App resource.
+- R-BACKLOG-APP-3 (MUST): `backlog.review.refresh` is read-only. It declares project-read, Store-read when admitted, and host-configuration-none access. It reruns `work.backlog.snapshot`, performs one exact cache lookup through the accepted Store gate, and returns the new snapshot identity, exact cache results, and exact changed-record facts. It does not write agent conclusions.
+- R-BACKLOG-APP-4 (MUST): the UI resource uses the versioned URI `ui://make-docs/backlog-review/v1.html`, MIME type `text/html;profile=mcp-app`, and `_meta.ui.resourceUri`. A breaking UI contract uses a new versioned resource URI.
+- R-BACKLOG-APP-5 (MUST): concise model-visible data uses `structuredContent`. The full widget model can use client-only result metadata when supported. Client-only metadata is not secure storage and cannot contain a secret merely because the model does not see it.
+- R-BACKLOG-APP-6 (MUST): search, clear, status filter, sort, disclosure, theme, print, Data view, and JSON download are local UI actions. They do not call an MCP tool or send an agent message.
+- R-BACKLOG-APP-7 (MUST): refresh calls `backlog.review.refresh` through `tools/call`. An unchanged result keeps the current validated model. A changed result shows the exact changed records and can send one controlled review request to the active agent through `ui/message`.
+- R-BACKLOG-APP-8 (MUST): a wave action uses a fixed action identifier plus current project identity, record path, sourced coordinate, and snapshot identity. Project-authored text cannot become an action identifier or agent instruction.
+- R-BACKLOG-APP-9 (MUST): a request to start a separate Codex task sends a controlled message to the active agent. The widget does not create the task. The active agent validates current state and host support, treats the click as an explicit task request, uses the host task action when available, and reports the real result.
+- R-BACKLOG-APP-10 (MUST): the existing `work.backlog-cache.write` operation remains the only live-review cache write surface. The live path adds no publish tool and does not store task activity, UI state, or conversation content in `backlog_review_cache`.
+- R-BACKLOG-APP-11 (MUST): the W24 `backlog` MCP profile contains the snapshot, cache lookup, cache write, live open, live refresh, and UI resource surfaces. The `all` profile contains their exact union membership. W25 adds no separate registry, access model, or profile selector.
+- R-BACKLOG-APP-12 (MUST): the live path preserves stdio. It adds Streamable HTTP only when the selected compatible host requires that transport, and the adapter uses the same server factory, registry, handlers, schemas, and access rules.
+- R-BACKLOG-APP-13 (MUST): all repository text and report data are untrusted. The UI uses safe text rendering, a narrow content security policy, no unapproved external domain, and no hidden project, Git, Store, installation, or host mutation.
+
 ### Human outcomes
 
 The capability follows the [Human Experience Contract](../../.make-docs/system/contracts/human-experience-contract.md).
@@ -162,6 +185,10 @@ The capability follows the [Human Experience Contract](../../.make-docs/system/c
 - R-BACKLOG-HX-9 (MUST): a maintainer can inspect and save the normalized report data from the report without managing a second required file.
 - R-BACKLOG-HX-10 (MUST): the report introduction tells a reader what the project is and its current status or objective before report detail. It does not use that space for metrics, technical proof, or report-use instructions.
 - R-BACKLOG-HX-11 (MUST): a reader can identify which wave each Next or wave-specific Attention item affects before acting, can focus the Backlog on that wave with one action, and can clear that focus without losing the selected status filter.
+- R-BACKLOG-HX-12 (MUST): a compatible host gives the user a live review by default, while the user keeps direct control over whether a static file is created.
+- R-BACKLOG-HX-13 (MUST): a live refresh tells the user whether facts changed, which records changed, what remains current, and whether further agent work is required.
+- R-BACKLOG-HX-14 (MUST): a wave review or separate-task action names the affected wave, states what the active agent will attempt, and reports the actual host result without claiming success early.
+- R-BACKLOG-HX-15 (MUST): live capability, transport, Store, and host-action limits use natural explanations and preserve a useful fallback.
 
 Code anchors:
 
@@ -211,13 +238,16 @@ The Skill adds a report layer to the snapshot. It contains:
 - confidence and evidence limits for non-facts;
 - display labels and compact explanatory copy;
 - a nullable `projectLead` with bounded context sources and exactly two or three role-ordered, source-backed sentences; and
-- one normalized model consumed by chat and HTML rendering.
+- delivery capability and session identity needed for the live view; and
+- one normalized model consumed by live, static, chat, and data rendering.
 
-The report model does not modify the snapshot or project records. A saved HTML file is a report artifact, not product authority or operational state.
+The report model does not modify the snapshot or project records. Live UI state and a saved HTML file are report presentation, not product authority or operational state.
 
 `projectLead` separates context from prose. Its sources use the deterministic collector and carry a role, repository-relative path, heading, line, bounded excerpt, and content hash. Its sentences use `purpose`, `currentStatus`, or `currentObjective` roles and cite only supplied source ids for the same role. Purpose is first. Current status or objective is second. The optional third sentence uses the remaining current role. When the collector cannot supply purpose plus one current role, `projectLead` is null and the agent explains the omission instead of fabricating text.
 
 The optional cache stores bounded per-record report fragments only. It does not cache or replace the current deterministic snapshot. A review always recomputes cross-record values from the current full snapshot. The cache key is exact and includes checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version.
+
+The report model has one stable snapshot identity and exact project and record references for live actions. Local selected filter, search text, sort direction, disclosure state, theme, and active Work or Data tab do not become report authority. The model extends version 1 additively when possible. A breaking session or action shape requires `BacklogReportV2`, a migration rule, and live/static parity fixtures.
 
 `waveStatus` is the only field that controls exact status filtering and semantic color. `statusReason` supplies the visible badge text. Archive location controls archived scope. An attention finding can refer to any wave and does not change that wave's `waveStatus`.
 
@@ -248,6 +278,9 @@ Code anchors:
 - [PRD 49](49-human-experience-standard-and-intent.md) owns the Human Experience standard and review lens.
 - [PRD 50](50-proportionate-testing-and-human-centered-validation.md) owns testing selection and evidence use.
 - [W22 R0](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md) closed its P6 platform proof at commit `edd9d7e4`. W23 uses that closeout or later accepted authority as its shared-surface baseline. A W22 publication or release is not a W23 prerequisite. W23 implementation still requires separate owner authority.
+- [W24 R0 MCP Tool Profiles](../plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md) owns the shared profile selector, descriptor metadata, server factory, resource filtering, and `all` union. W25 consumes its `backlog` profile after that authority is accepted.
+- [MCP Apps UI](https://developers.openai.com/plugins/build/chatgpt-ui) defines the current UI resource, `tools/call`, `ui/message`, capability, and result-channel contracts used by W25.
+- [MCP server build guide](https://developers.openai.com/plugins/build/mcp-server) defines the current remote Streamable HTTP guidance. W25 adds that transport only when the selected compatible host needs it.
 
 ## Rebuild Notes
 
@@ -258,6 +291,12 @@ Code anchors:
 - Keep one public snapshot operation until a separate reusable need justifies more registry entries.
 - Preserve raw recorded statuses and source conflicts. Do not create one synthetic status that hides why records disagree.
 - Render chat and HTML from the same report model so visual changes cannot change product meaning.
+- Render the live MCP App, static HTML, chat orientation, and Data view from the same validated report model.
+- Select the live route through capabilities. Do not use a host product name as the feature flag.
+- Do not create a static report during live open or fallback. Wait for an explicit user request.
+- Keep display-only widget actions local. Use `tools/call` only for declared server actions and `ui/message` only for bounded requests to the active agent.
+- Keep task creation in the active host agent. The widget can request it but cannot create it or claim it started.
+- Reuse the existing cache write after full model validation. Do not add a live publish tool or mix task activity into the review cache.
 - Keep the HTML template self-contained and treat all project content as untrusted text.
 - Build project-lead context through the bounded deterministic collector. Keep agent freedom limited to concise wording supported by the supplied excerpts. Never replace missing context with report metrics or generic project prose.
 - Expose raw report data from the embedded model only through an accessible view and a user-started download. Do not make a companion file part of the default output.
@@ -307,10 +346,21 @@ Code anchors:
 - Rationale: Separate read and write operations preserve least access. They let a review reuse readable cache entries without requiring permission to write later results.
 - Source: Owner-accepted P5 preflight decision in the [P5 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md).
 
+### 2026-09-24 — W25 R0 live MCP App delivery
+
+- Affected requirement or section: Purpose; Scope; First-party backlog-review Skill; Chat orientation and fallback; Live MCP App; Human outcomes; Report model; Integrations; Rebuild Notes.
+- Previous contract: The Skill returned a concise chat review by default and created the static single-file HTML report only on request. The report could not refresh repository facts or send a controlled request to the active agent.
+- Replacement contract: A compatible host receives a live MCP App by default. The Skill still creates static HTML only after an explicit request. One report model feeds live, static, chat, and data views. Two registry operations open and refresh the live review. Controlled widget actions can ask the active agent to review a wave or start a separate task, but the widget cannot act as the agent or create the task directly.
+- Rationale: A live review can stay current and support focused human-agent work without removing the portable static result, hiding Store limits, duplicating backlog logic, or giving untrusted project text control over agent instructions.
+- Source: [W25 R0 design](../designs/2026-09-24-live-backlog-review-mcp-app.md), [W25 R0 plan](../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md), and [W25 R0 work backlog](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md).
+
 ## Source Anchors
 
 - [Backlog Review and Reporting design](../designs/2026-09-18-backlog-review-and-reporting.md)
 - [W23 R0 Backlog Review and Reporting plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md)
 - [W23 R0 Backlog Review and Reporting work backlog](../work/2026-09-18-w23-r0-backlog-review-and-reporting/00-index.md)
+- [Live Backlog Review MCP App design](../designs/2026-09-24-live-backlog-review-mcp-app.md)
+- [W25 R0 Live Backlog Review MCP App plan](../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md)
+- [W25 R0 Live Backlog Review MCP App work backlog](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md)
 - [Developing Deterministic and Agentic Twins](../assets/project/developing-deterministic-agentic-twins.md)
 - [W22 R0 Store Architecture Recovery and Platform-Neutral Foundation](../plans/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-overview.md)
