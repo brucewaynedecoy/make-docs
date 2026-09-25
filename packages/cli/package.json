@@ -1,7 +1,7 @@
 {
   "name": "@brucewaynedecoy/make-docs",
   "version": "2.0.2",
-  "description": "Drop-in documentation structure, templates, and AI agent instructions with an NPX installer.",
+  "description": "Plan and maintain project docs with a CLI, MCP server, templates, and optional agent Skills.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

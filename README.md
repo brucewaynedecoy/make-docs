@@ -1,237 +1,141 @@
 # Make Docs
 
-Drop-in documentation structure, templates, and AI agent instructions for any project. Install the system with `npx @brucewaynedecoy/make-docs@next` to get a ready-made setup for generating PRDs, implementation backlogs, architectural designs, and plans with consistent naming conventions and enforced section contracts.
+Make Docs helps teams plan, build, and keep project documentation current with AI agents. It provides routes for designs, plans, product requirements (PRDs), and work backlogs. Its TypeScript CLI and MCP server use the same set of operations and system resources. Project knowledge stays in the repository. A global Make Docs Store keeps managed install and recovery records.
 
-## Repository Layout
+> **Source and release status (2026-09-24):** This checkout declares version `2.0.2`. The public npm `next` and `latest` tags still point to `1.0.0-rc.1`. The features and commands below describe this checkout. Check `npm view @brucewaynedecoy/make-docs dist-tags --json` before using a public package for them.
 
-This repo is a pseudo-monorepo organized under `packages/`:
+## Quick Start from This Checkout
 
-```
-packages/
-  cli/           # The publishable installer CLI (npm package: @brucewaynedecoy/make-docs; bin: make-docs)
-  docs/          # The shippable documentation template
-    template/    # The template tree that gets copied into consumer projects
-  skills/        # Sole authoring source for the seven optional first-party Skills
-docs/            # This repo's own dogfood docs (design, planning, work tracking for make-docs itself)
-scripts/         # Repo-level orchestration (template sync, smoke-pack, router checks)
-```
+Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a target project directory. From this repository's root, replace `../your-project` with an existing project path:
 
-The CLI build reads system resources from `packages/docs/template/`. The packed CLI includes them in its generated `template/` directory. Skill files have a separate source: `packages/skills/<name>/`. The build embeds their declared bytes in compiled CLI output without creating Skill mirrors in the docs or CLI packages.
-
-This repository is also a **dogfood instance**: Make Docs uses its own documentation system. Author system changes upstream in `packages/docs/template/`, rebuild and install the CLI with `just install-cli-pack`, then use the installed CLI's `make-docs setup --dry-run` and `make-docs setup` commands to review and apply them here. Edit project designs, plans, PRDs, work backlogs, and guides in place. See [Dogfood and Maintainer Operations](docs/assets/maintainer/maintainer-dogfood-and-maintainer-operations.md).
-
-The npm package boundary is narrower than the repository layout. The packed `@brucewaynedecoy/make-docs` tarball contains npm metadata and license files, the package README, built CLI output under `dist/`, the bundled `template/`, and the skill registry/schema files. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source packages, scripts, and scratch planning material are not shipped as tarball-root package contents.
-
-## What's Included
-
-The selected setup creates the documentation and system instruction directories below. Resource bodies can stay in the installed CLI or be copied locally when selected. Assets and archives are created only when needed:
-
-```
-.make-docs/
-  config.yaml         # Portable project settings, including Persona overrides
-  system/             # System instructions and optional local resource bodies
-    contracts/        # Rules for documents and workflows
-    prompts/          # Reusable prompt starters
-    references/       # Workflow and reference material
-    templates/        # Document starters
-  archive/            # Archived project content, created on demand
-    history/          # Work history records, created on demand
-docs/
-  assets/             # Created on demand, with selected agent instruction files
-    project/          # Shared project assets, only when needed
-    user/             # End-user assets, only when needed
-    maintainer/       # Maintainer assets, only when needed
-    <persona>/        # Assets for a configured custom Persona, only when needed
-  designs/            # Architectural decisions and design rationale (ADRs)
-  plans/              # Approach and strategy documents (created before execution)
-  prd/                # Product requirement documents (descriptive: what the product is)
-  work/               # Work backlogs and task lists (prescriptive: what to do)
-CLAUDE.md             # Root instructions when Claude Code is selected
-AGENTS.md             # Root instructions when Codex is selected
+```bash
+npm install
+npm run build -w packages/cli
+node packages/cli/dist/index.js setup --target ../your-project --dry-run
+node packages/cli/dist/index.js setup --target ../your-project
 ```
 
-Instruction files match the selected agent tools. The always-present docs instructions explain asset paths and Persona defaults. `user` and `maintainer` are built in; `.make-docs/config.yaml` can override their display fields and define custom Personas. Use `make-docs project persona list` to inspect the effective settings without Store access.
+The dry run shows the proposed changes. The next command opens guided setup. Setup reviews changes to **this computer** and **this project** in separate groups when both have changes. It asks for approval before it applies each group.
 
-Setup does not create `docs/assets/`. When an asset is needed, `make-docs project surface ensure assets` creates only that root and its selected instruction files. Shared and Persona subdirectories are created only when content needs them; they do not receive managed instruction files.
+A fresh setup selects all four document areas and project instructions for Codex and Claude Code. It installs no Skills unless you select them. System resource files can stay in the installed CLI; local copies are optional. You can select `none` for machine-level agent access and still use project instructions and resource reads.
 
-Read system resources through stable `make-docs://system/<type>/<path>` identities with `make-docs resource read`. Local resource bodies belong under `.make-docs/system/`. Installation, upgrade, migration, ownership, and recovery state belong only in the global Make Docs Store. Local backup and conflict copies preserve content; their operation records stay in the Store.
+Run bare `make-docs` to start guided setup in a project with no install. In an installed project, bare `make-docs` shows status and help. It does not sync files. Use `make-docs setup` to sync saved selections, `make-docs setup reconfigure` to change them, and `make-docs setup --dry-run` to preview a sync.
 
-### Optional Skills
+The public npm package currently provides the older release candidate. Use [Building and Installing the CLI Locally](docs/assets/maintainer/cli-development-local-build-and-install.md) to test this source checkout. Use [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) for the full setup choices and review steps.
 
-The CLI includes `archive-docs`, `cleanup-docs`, `decompose-codebase`, `preflight`, `software-factory`, `human-experience`, and `naive-uat` (Unassisted Goal Testing). Skills are optional and install from embedded package bytes. The three promoted guidance Skills—`preflight`, `software-factory`, and `human-experience`—require an explicit request to run.
+## How Work Moves
 
-| Scope and selected tools | Skill files | Other access |
+The usual planning path is **design → plan → PRD → work backlog**. A team can start from a design, an existing codebase, or an active PRD set. An agent can create a full PRD set for a new product or update the owning PRDs and make a smaller backlog for a change. Implementation, review, release, and archive work then follow the approved backlog.
+
+| Directory | Purpose | Common name |
 | --- | --- | --- |
-| Project, Claude Code only | `.claude/skills/<name>/` | No `.agents/skills/` is created. |
-| Project, Codex only | `.agents/skills/<name>/` | No `.claude/skills/` is created. |
-| Project, both | `.agents/skills/<name>/` | Claude links or supported managed copies. |
-| Global | `~/.agents/skills/<name>/` | Links or supported copies for selected tools: `CODEX_HOME/skills` (default `~/.codex/skills`) and `CLAUDE_CONFIG_DIR/skills` (default `~/.claude/skills`). |
+| `docs/designs/` | Record a decision and its reasons. | `YYYY-MM-DD-<slug>.md` |
+| `docs/plans/` | Explain the approach before execution. | `YYYY-MM-DD-w{W}-r{R}-<slug>/` |
+| `docs/prd/` | Describe the current product. | `NN-<slug>.md` |
+| `docs/work/` | Record what to do and in what order. | `YYYY-MM-DD-w{W}-r{R}-<slug>/` |
 
-Use `make-docs setup skills` to manage Skills. Existing unmanaged copies require the reviewed `--adopt-existing` flow. There is no private Make Docs Skill installation directory. See [Installing and Managing Skills](docs/assets/user/skills-installing-and-managing-skills.md).
+A new PRD set starts with `00-index.md`, `01-product-overview.md`, `02-architecture-overview.md`, `03-open-questions-and-risk-register.md`, and `04-glossary.md`. Add subsystem PRDs as needed. See [How Make Docs Stages Fit Together](docs/assets/user/workflows-how-make-docs-stages-fit-together.md) and [Understanding W/R/P Coordinates](docs/assets/user/concepts-wave-revision-phase-coordinates.md).
 
-## Guide Discovery
+## What Setup Creates
 
-If you are using or maintaining `make-docs`, start with the guide that matches the job at hand:
+Setup writes only the selected project files. The default profile enables `designs`, `plans`, `prd`, and `work`. The profile keeps dependencies in order: `prd` needs `plans`; `work` needs both `plans` and `prd`.
 
-- Onboarding: [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) for first install and initial profile choices, then [Managing Installations with the Make Docs CLI](docs/assets/user/cli-lifecycle-managing-installations.md) for apply or sync, reconfigure, backup, removal, and recovery.
-- Workflows and concepts: [How Make Docs Stages Fit Together](docs/assets/user/workflows-how-make-docs-stages-fit-together.md), [Understanding W/R/P Coordinates](docs/assets/user/concepts-wave-revision-phase-coordinates.md), [Choosing the Right Route for Your Project](docs/assets/user/workflows-choosing-the-right-route-for-your-project.md), and [Development Workflows](docs/assets/maintainer/development-workflows-stage-model-and-artifact-relationships.md).
-- CLI and skills: [Installing and Managing Skills](docs/assets/user/skills-installing-and-managing-skills.md), [Decomposing an Existing Codebase](docs/assets/user/skills-decomposing-an-existing-codebase.md), [Skills Catalog and Distribution Model](docs/assets/maintainer/skills-catalog-and-distribution-model.md), and [Building and Installing the CLI Locally](docs/assets/maintainer/cli-development-local-build-and-install.md).
-- Maintainer and release operations: [Guide Contracts and Authoring for make-docs](docs/assets/maintainer/template-contracts-guide-authoring.md), [Template Assets and Generated Routers](docs/assets/maintainer/template-assets-and-generated-routers.md), [Docs Assets and Runtime State Boundaries](docs/assets/maintainer/maintainer-docs-assets-and-runtime-state-boundaries.md), [Dogfood and Maintainer Operations](docs/assets/maintainer/maintainer-dogfood-and-maintainer-operations.md), and [Packaging, Validation, and Release Reference](docs/assets/maintainer/release-packaging-validation-and-release-reference.md).
-
-## Quick Start
-
-### Install with `npx` (recommended)
-
-From your project root:
-
-```bash
-npx @brucewaynedecoy/make-docs@next
+```text
+.make-docs/
+  config.yaml          # Project identity and portable settings
+  system/              # Agent routes and optional local resource files
+  archive/             # Project archives and history, created when needed
+docs/
+  designs/             # Design decisions
+  plans/               # Plans
+  prd/                 # Current product requirements
+  work/                # Work backlogs
+  assets/              # Shared and audience assets, created when needed
+AGENTS.md              # Root Codex instructions when selected
+CLAUDE.md              # Root Claude Code instructions when selected
 ```
 
-Use the scoped npm package name for `npx` lookup and installation. The executable exposed by that package is `make-docs`, and the same TypeScript package owns install, maintenance, deterministic operation, and MCP behavior.
+The configured agent tools get short instruction files at the project root and in relevant directories. `docs/assets/` and archive folders are created only when needed. Built-in `user` and `maintainer` Personas describe the intended audience; `.make-docs/config.yaml` can set display fields and add custom Personas.
 
-The current `npx` package ships the TypeScript installer-maintainer CLI plus a read-first MCP stdio server available through `make-docs mcp`. MCP tools inspect installed state, read Store installation records and declarative project config, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry used by `make-docs run`.
+The global Make Docs Store records installed selections, file ownership, applied hashes, operation progress, and recovery state. It lives outside the project. The CLI does not create a current project-local manifest or state folder. Managed setup stops if it cannot record the required Store state. Ordinary document work can continue without the CLI or optional state capture.
 
-Bare `make-docs` is context-aware: with no install present it starts a guided setup, and with an install present it shows status and help without syncing. Install and sync live under `make-docs setup`.
+Setup preserves local edits and unmanaged files. It asks for review when a managed file has changed or a path conflicts. Backup and conflict copies keep content local; the Store keeps their operation records.
 
-The default documentation profile includes:
+## CLI and MCP
 
-- all capabilities are selected by default: `designs`, `plans`, `prd`, and `work`
-- instruction files for the selected tools, with both Codex and Claude Code selected by default
-- optional local system resource bodies; project assets and archives remain on demand
+The CLI has seven top-level commands. Run `make-docs <command> --help` for exact options.
 
-Skills are a separate optional selection. A new default setup installs no Skills. Choose named Skills or `--selected-skills all` to include them. You can opt out of documentation capabilities and tools you do not need.
+| Command | Main use |
+| --- | --- |
+| `setup` | Install, sync, reconfigure, manage Skills, back up, or remove project assets. `setup system` reviews machine-level agent access. |
+| `project` | Inspect and manage project surfaces and settings. |
+| `resource` | List, read, or ensure system resources. |
+| `run` | Run admitted project and workflow operations. |
+| `mcp` | Start the MCP server for agent tools. |
+| `update` | Update the installed tool. |
+| `uninstall` | Remove the machine-level tool footprint. |
 
-The capability graph is dependency-aware:
+The MCP server gives agents tools and resource reads from the same operation core as the CLI. System resources use stable `make-docs://system/<type>/<path>` names for contracts, prompts, references, and templates. MCP writes require an explicit write setting. Dry runs and named approvals follow the same rules as CLI operations.
 
-- `designs` is independent
-- `plans` is independent
-- `prd` requires `plans`
-- `work` requires both `plans` and `prd`
+## Optional Skills
 
-If you opt out of a prerequisite, downstream capabilities stay selected for later but become disabled until the prerequisite is turned back on.
+The CLI package embeds these eight first-party Skills. A fresh setup selects none. Use `make-docs setup skills` to select or manage them.
 
-Useful non-interactive forms:
+| Skill | Use |
+| --- | --- |
+| `archive-docs` | Archive completed project documents. |
+| `backlog-review` | Review the work backlog and explain current focus and attention. |
+| `cleanup-docs` | Clean up project documentation. |
+| `decompose-codebase` | Map an existing codebase into PRDs and a rebuild backlog. |
+| `factory` | Coordinate implementation and review when requested. |
+| `human-experience` | Review a human-facing result when requested. |
+| `naive-uat` | Guide Unassisted Goal Testing. |
+| `preflight` | Review readiness before execution when requested. |
 
-```bash
-# Install the default documentation profile without Skills
-npx @brucewaynedecoy/make-docs@next setup --yes
+Project Skills use standard Codex or Claude Code Skill paths for the selected tools. Global Skills use a shared home location with selected tool access. The built-in Skill files come from the CLI package, so installing one does not need a separate source download. See [Installing and Managing Skills](docs/assets/user/skills-installing-and-managing-skills.md).
 
-# Default documentation profile except work docs
-npx @brucewaynedecoy/make-docs@next setup --yes --no-work
+## System Resources and Customization
 
-# Sync an existing install using its saved Store selections
-npx @brucewaynedecoy/make-docs@next setup
+`packages/docs/template/` is the upstream source for shipped system resources. The CLI serves their bytes even when it has not copied resource files into a project. Use `make-docs resource list` and `make-docs resource read <uri>` to find and read them.
 
-# Reconfigure an existing install
-npx @brucewaynedecoy/make-docs@next setup reconfigure
+A project can select local system-resource copies under `.make-docs/system/{contracts,prompts,references,templates}/`. Edit a project-owned local override only when the project needs different rules or text. Use `docs/assets/project/` for shared project knowledge and `docs/assets/<persona>/` for audience material. Use `make-docs setup reconfigure` when you change which document areas or resources the CLI manages.
 
-# Preview changes without writing files
-npx @brucewaynedecoy/make-docs@next setup --dry-run
+Changes to Make Docs defaults belong upstream in `packages/docs/template/`. This repository is also a consumer of that template, so maintainers then apply the upstream changes to its root `.make-docs/` and `docs/` instance. See [Dogfood and Maintainer Operations](docs/assets/maintainer/maintainer-dogfood-and-maintainer-operations.md).
+
+## Guides
+
+- Start and manage an install: [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) and [Managing Installations](docs/assets/user/cli-lifecycle-managing-installations.md).
+- Choose a work path: [How Stages Fit Together](docs/assets/user/workflows-how-make-docs-stages-fit-together.md) and [Choosing the Right Route](docs/assets/user/workflows-choosing-the-right-route-for-your-project.md).
+- Use Skills: [Installing and Managing Skills](docs/assets/user/skills-installing-and-managing-skills.md) and [Decomposing an Existing Codebase](docs/assets/user/skills-decomposing-an-existing-codebase.md).
+- Maintain the package: [Template Assets and Generated Routers](docs/assets/maintainer/template-assets-and-generated-routers.md), [Building the CLI Locally](docs/assets/maintainer/cli-development-local-build-and-install.md), and [Packaging and Release](docs/assets/maintainer/release-packaging-validation-and-release-reference.md).
+
+## Repository Layout and Contributing
+
+This repository uses npm workspaces:
+
+```text
+packages/
+  cli/           # Publishable TypeScript CLI and MCP server
+  docs/template/ # Upstream project template and system resources
+  skills/        # Upstream first-party Skill files
+docs/            # This repository's project documents and dogfood instance
+scripts/         # Packaging, sync, and validation scripts
 ```
 
-### What the installer writes
+The CLI build uses `packages/docs/template/`. Package preparation copies that template into the CLI tarball and embeds declared first-party Skill files in the built CLI. The tarball does not include the repository root's dogfood docs, root agent instructions, or source packages.
 
-The installer writes only the files that match your selected profile:
-
-- visible capability directories such as `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`
-- only the prompt starters, templates, and reference files that are valid for that profile
-- generated instruction routers and support files that avoid pointing agents at missing directories or prompt files
-- `.make-docs/config.yaml`, which holds portable project identity and desired settings
-
-The global Make Docs Store holds the installed profile, applied hashes, ownership, migration progress, locks, and recovery records. The CLI manages those records. It never creates a project-local operational manifest or state folder. Existing `.make-docs/manifest.json` and `.make-docs/state/` files are legacy transfer inputs; let the corrected CLI review and transfer them. Do not recreate or delete them by hand.
-
-Project documents, history, work backlog updates, and approved backup file copies remain local. If the CLI is unavailable or optional lifecycle capture fails, ordinary project work can continue with a clear unavailable-capture notice. Do not use direct Store writes, queued writes, local fallback state, or false capture claims. CLI-managed installs, upgrades, and migrations still require durable Store records and stop safely when recording fails.
-
-Apply/sync behavior is intentionally non-destructive:
-
-- unchanged managed files are updated in place
-- locally modified managed files are skipped
-- unmanaged conflicting files are never overwritten
-- proposed replacements are staged under `.make-docs/conflicts/<run-id>/`
-
-### Working without the CLI
-
-Ordinary document work can continue without the CLI. Follow the project's agent instructions and valid local system resources. Persona settings remain in `.make-docs/config.yaml`; when no Personas are configured, use the built-in `user` and `maintainer` defaults.
-
-The files in `packages/docs/template/` are authoring sources. Copying them does not produce a profile-specific installation or establish managed ownership. Use the CLI for managed setup, upgrades, and migrations. If optional state capture is unavailable during document work, report that limit and continue without recording fallback state locally.
-
-### What you'll get
-
-After CLI setup, your project has the selected documentation and instructions. Asset and history folders remain on demand:
-
-- **`docs/`** -- A structured documentation directory with templates and agent instructions ready to use.
-- **`CLAUDE.md` / `AGENTS.md`** -- Root-level agent instructions that point AI agents to the documentation system. The installer can generate these to match the selected capability profile and will not overwrite conflicting files automatically.
-- **Global Make Docs Store** -- Records the applied installation, ownership, managed file hashes, operation progress, and recovery state. Local `.make-docs/config.yaml` holds portable project identity and desired settings.
-- **`docs/assets/project/` and `docs/assets/<persona>/`** -- Shared and audience-specific assets, created only when needed.
-- **`.make-docs/archive/history/`** -- Work history records, created on demand.
-
-## How It Works
-
-This system supports two primary workflows, both driven by AI agents:
-
-1. **Planning** -- Settle the document tree shape, determine which PRD sections are needed, and produce a reviewable plan before any documents are written.
-2. **Execution** -- Generate a full PRD set and linked work backlog from an approved plan, with support for single-agent or delegated multi-agent execution.
-
-### Document Types
-
-| Directory | Purpose | Naming Convention |
-|-----------|---------|-------------------|
-| `prd/` | Describe what the product is and how it works | `NN-<slug>.md` (e.g., `01-product-overview.md`) |
-| `work/` | Prescribe what to build, in what order | `YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-index.md` and phase files |
-| `plans/` | Capture approach and rationale before execution | `YYYY-MM-DD-w{W}-r{R}-<slug>/` with `00-overview.md` and phase files |
-| `designs/` | Record architectural decisions and trade-offs | `YYYY-MM-DD-<slug>.md` |
-
-### PRD Structure
-
-Every PRD set includes a fixed core:
-
-| File | Purpose |
-|------|---------|
-| `00-index.md` | Table of contents and PRD overview |
-| `01-product-overview.md` | What the product does and why |
-| `02-architecture-overview.md` | System architecture and key components |
-| `03-open-questions-and-risk-register.md` | Unknowns, risks, and mitigations |
-| `04-glossary.md` | Domain-specific terminology |
-
-Additional subsystem documents (`05-*` through `99-*`) are added as needed for features, services, or reference material.
-
-## Customization
-
-- **Prompt resources** (`make-docs://system/prompt/<posix-relative-path>`) -- Read installed prompt bytes with `make-docs resource read`. Select a local projection only when the project needs one.
-- **Templates** (`.make-docs/system/templates/`) -- Modify these to change the structure of generated documents.
-- **Contracts and references** (`.make-docs/system/contracts/` and `.make-docs/system/references/`) -- Adjust naming conventions, required sections, lifecycle rules, and structural guidance.
-- **Project and Persona assets** (`docs/assets/project/` and `docs/assets/<persona>/`) -- Maintain shared material, guides, and procedures for the intended audience.
-- **Agent instructions** (`CLAUDE.md`, `AGENTS.md`, and per-directory variants) -- Tailor agent behavior to your team's conventions.
-
-If you used the installer, rerun `npx @brucewaynedecoy/make-docs@next setup reconfigure` after changing which capability families you want managed locally. The installer will regenerate profile-aware router files so they stay aligned with the directories you keep.
-
-## Contributing
-
-This repo uses npm workspaces. The publishable CLI is at `packages/cli/`; the shippable template is at `packages/docs/template/`. All repo-level orchestration scripts live at `scripts/`.
-
-Common commands (from the repo root):
+Common maintainer checks from the repository root:
 
 ```bash
-npm install                 # install all workspaces
-just build                  # build the CLI
-just test                   # run all CLI tests
-just smoke-pack             # pack the CLI and exercise the installer end-to-end
-just check-instruction-routers  # validate AGENTS.md / CLAUDE.md pairs across the repo
-```
-
-Fallbacks without `just`:
-
-```bash
+npm install
 npm run build -w packages/cli
 npm test -w packages/cli
-node scripts/smoke-pack.mjs
+npm run validate:defaults -w packages/cli
+npm run smoke:pack
 bash scripts/check-instruction-routers.sh
 ```
 
-The instruction-router check enforces that every `AGENTS.md` has an identical `CLAUDE.md` sibling, that both stay within the per-directory line budget, and that neither reintroduces heavy headings like `## Files` or `## Templates`. Run it after editing any router before committing.
-
-Template changes propagate to the CLI tarball at publish time via the `prepack` script in `packages/cli/package.json`, which copies `packages/docs/template/` into `packages/cli/template/` before `npm pack` runs.
+Read [Packaging, Validation, and Release Reference](docs/assets/maintainer/release-packaging-validation-and-release-reference.md) before release work. The instruction-router check keeps paired `AGENTS.md` and `CLAUDE.md` files aligned.
 
 ## License
 
