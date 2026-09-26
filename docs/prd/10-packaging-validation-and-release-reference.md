@@ -58,14 +58,11 @@ For Performance Evidence Governance changes, the validation matrix also requires
 
 ### Maintainer Release Procedure
 
-The current maintainer runbook is spread across `packages/cli/src/README.md:179-204`, the repo-root workspace scripts in `package.json:13-18`, and the first-publish design in `docs/designs/2026-04-15-cli-publishing.md`. The current procedural baseline is:
+The maintainer runbook is now `RELEASING.md` at the repository root. A reviewed version change reaches `main` through a pull request. Publishing a GitHub Release with a matching `v` tag starts `.github/workflows/publish-npm.yml`. That workflow checks that the tag is on `main`, that the version has not been published, and that the release type matches the version. It builds, tests, and inspects the CLI tarball. It publishes only `packages/cli` through npm trusted publishing. Stable versions use `latest`; prereleases use `next`.
 
-1. Run the validation chain from the repo root: `npm test`, `npm run validate:defaults`, `npm run build`, `npm run smoke:pack`, and the router/wave checks when docs assets or W/R folders changed.
-2. Create and inspect a tarball with `npm pack --json` or `npm pack --dry-run -w packages/cli` before publish (`packages/cli/src/README.md:183-201`, `designs/2026-04-15-cli-publishing.md`).
-3. Treat `npm run smoke:pack` as the maintained release proof because it runs local packed-CLI checks and the packed tarball through `npx`, `pnpm dlx`, and Bun. Use `npm run smoke:pack:local` only for bounded local evidence when registry access is unavailable.
-4. Publish from the CLI workspace with `npm publish --access public --tag next -w packages/cli`, not from `packages/docs` or `packages/skills`, because those workspaces remain `private` (`packages/cli/package.json`, `packages/docs/package.json:2-5`, `packages/skills/package.json:2-5`).
+`npm run smoke:pack` remains the extended package proof across install tools and platforms. The release workflow runs its own source and package checks before publication. `packages/docs` and `packages/skills` remain private workspaces.
 
-The current prerelease state uses Apache-2.0 licensing, scoped package identity, repository metadata, version `2.0.0-rc`, and the `next` dist-tag strategy (`docs/designs/2026-04-15-cli-publishing.md`, `packages/cli/package.json` (`name`, `version`, `license`, `repository`, `publishConfig`)).
+The earlier npm prerelease `1.0.0-rc.1` remains under Apache-2.0. The package version and license metadata come from `packages/cli/package.json`; new releases use MIT. The first-publish design in `docs/designs/2026-04-15-cli-publishing.md` remains a record of the earlier decision.
 
 ### Current Drift and Risk-Register Candidates
 

@@ -139,4 +139,4 @@ Read [Packaging, Validation, and Release Reference](docs/assets/maintainer/relea
 
 ## License
 
-Apache-2.0
+MIT. See [LICENSE](LICENSE).

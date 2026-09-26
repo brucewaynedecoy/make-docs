@@ -2,7 +2,7 @@
   "name": "@brucewaynedecoy/make-docs",
   "version": "2.0.2",
   "description": "Plan and maintain project docs with a CLI, MCP server, templates, and optional agent Skills.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brucewaynedecoy/make-docs.git"
