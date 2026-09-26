@@ -11,7 +11,7 @@ Thanks for helping improve Make Docs. Open an issue before starting a large chan
 
 Make Docs keeps the published CLI in `packages/cli` and its shipped template in `packages/docs/template`. Changes to shipped Make Docs resources belong in the template first. The maintainer repo also uses an installed copy of that template. See [AGENTS.md](AGENTS.md) for that source rule.
 
-Pull requests need a passing **PR merge gate** check. A maintainer must approve before merge. The code owners may ask for changes. Outside contributor workflows need maintainer approval before they run.
+Pull requests run automated checks. Code owners may review and ask for changes. GitHub does not require an approving review or a passing check to merge. A maintainer decides when a change is ready. Outside contributor workflows need maintainer approval before they run.
 
 Maintainers can follow [RELEASING.md](RELEASING.md) to publish a new npm version.
 

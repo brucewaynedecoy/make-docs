@@ -99,7 +99,7 @@ Follow [RELEASING.md](../../../RELEASING.md) for the current GitHub Release and 
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
 4. Run `npm run smoke:pack` in an environment with package registry access.
 5. Inspect a tarball with `npm pack --json -w packages/cli` when package contents need manual review. The smoke pack already exercises `npx`, `pnpm dlx`, and Bun package-runner installs from the tarball.
-6. Open a release pull request. After it merges, publish a GitHub Release. The release workflow publishes only `packages/cli`.
+6. Open a release pull request. After it merges, publish a GitHub Release. The release workflow stages only `packages/cli` on npm. A maintainer reviews and approves the staged package with two-factor authentication before it becomes public.
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md).
 

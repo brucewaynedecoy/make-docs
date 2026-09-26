@@ -94,8 +94,16 @@ jobs:
           appendFileSync(process.env.GITHUB_OUTPUT, `dist_tag=${process.env.RELEASE_PRERELEASE === 'true' ? 'next' : 'latest'}\n`);
           NODE
 
-      - name: Publish the inspected package with npm OIDC
+      - name: Stage the inspected package with npm OIDC
         env:
           TARBALL: ${{ runner.temp }}/${{ steps.pack.outputs.filename }}
           DIST_TAG: ${{ steps.pack.outputs.dist_tag }}
-        run: npm publish "$TARBALL" --access public --tag "$DIST_TAG" --provenance
+        run: npm stage publish "$TARBALL" --access public --tag "$DIST_TAG" --provenance
+
+      - name: Record the npm approval step
+        run: |
+          {
+            echo '### npm approval required'
+            echo 'The package is staged. It is not public yet.'
+            echo 'Open npmjs.com > Staged Packages. Review this version and approve it with two-factor authentication.'
+          } >> "$GITHUB_STEP_SUMMARY"

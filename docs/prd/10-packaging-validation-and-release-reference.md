@@ -58,9 +58,9 @@ For Performance Evidence Governance changes, the validation matrix also requires
 
 ### Maintainer Release Procedure
 
-The maintainer runbook is now `RELEASING.md` at the repository root. A reviewed version change reaches `main` through a pull request. Publishing a GitHub Release with a matching `v` tag starts `.github/workflows/publish-npm.yml`. That workflow checks that the tag is on `main`, that the version has not been published, and that the release type matches the version. It builds, tests, and inspects the CLI tarball. It publishes only `packages/cli` through npm trusted publishing. Stable versions use `latest`; prereleases use `next`.
+The maintainer runbook is now `RELEASING.md` at the repository root. A reviewed version change reaches `main` through a pull request. Publishing a GitHub Release with a matching `v` tag starts `.github/workflows/publish-npm.yml`. That workflow checks that the tag is on `main`, that the version has not been published, and that the release type matches the version. It builds, tests, and inspects the CLI tarball. It stages only `packages/cli` through npm trusted publishing. An npm maintainer approves the staged package with two-factor authentication before it becomes public. Stable versions use `latest`; prereleases use `next`.
 
-`npm run smoke:pack` remains the extended package proof across install tools and platforms. The release workflow runs its own source and package checks before publication. `packages/docs` and `packages/skills` remain private workspaces.
+`npm run smoke:pack` remains the extended package proof across install tools and platforms. The release workflow runs its own source and package checks before staging. `packages/docs` and `packages/skills` remain private workspaces.
 
 The earlier npm prerelease `1.0.0-rc.1` remains under Apache-2.0. The package version and license metadata come from `packages/cli/package.json`; new releases use MIT. The first-publish design in `docs/designs/2026-04-15-cli-publishing.md` remains a record of the earlier decision.
 
