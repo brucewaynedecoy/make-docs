@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
@@ -43,6 +44,7 @@ describe("backlog-review first-party Skill", () => {
       supportedHarnesses: ["claude-code", "codex"],
     });
     expect(entry?.assets.map((asset) => asset.source)).toEqual([
+      "README.md",
       "agents/openai.yaml",
       "references/review-method.md",
       "references/report-model.md",
@@ -64,6 +66,18 @@ describe("backlog-review first-party Skill", () => {
     expect(Object.keys(bundle.payloads["backlog-review"].files).sort()).toEqual(
       [entry!.entryPoint, ...entry!.assets.map((asset) => asset.source)].sort(),
     );
+  });
+
+  test("keeps README source links on durable Make Docs GitHub paths", () => {
+    const body = read("README.md");
+    const links = [...body.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]!);
+    const prefix = "https://github.com/brucewaynedecoy/make-docs/blob/main/";
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.startsWith(prefix)).toBe(true);
+      const relativePath = decodeURIComponent(link.slice(prefix.length).split("#")[0]!);
+      expect(existsSync(path.resolve(PACKAGE_ROOT, "../..", relativePath))).toBe(true);
+    }
   });
 
   test("keeps every Skill link inside the extracted package", () => {
@@ -343,6 +357,35 @@ describe("backlog-review first-party Skill", () => {
     }
   });
 
+  test("rejects changed source facts and incomplete Next claims before writing HTML", () => {
+    const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-backlog-validation-"));
+    try {
+      const inputPath = path.join(temporaryRoot, "report.json");
+      const outputPath = path.join(temporaryRoot, "report.html");
+      const rendererPath = path.join(SKILL_ROOT, "scripts/render-report.mjs");
+      const cases = [
+        (report: typeof mixedPortfolioFixture.report) => { report.records[0]!.scope = "archived"; },
+        (report: typeof mixedPortfolioFixture.report) => { report.records[0]!.createdAt = null as never; },
+        (report: typeof mixedPortfolioFixture.report) => { report.records[0]!.lastUpdatedAt = null as never; },
+        (report: typeof mixedPortfolioFixture.report) => { report.recommendationOrder[0]!.claim = null as never; },
+      ];
+      for (const change of cases) {
+        const report = structuredClone(mixedPortfolioFixture.report);
+        change(report);
+        writeFileSync(inputPath, JSON.stringify(report), "utf8");
+        const result = spawnSync(
+          process.execPath,
+          [rendererPath, "--input", inputPath, "--output", outputPath],
+          { encoding: "utf8" },
+        );
+        expect(result.status).not.toBe(0);
+        expect(existsSync(outputPath)).toBe(false);
+      }
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
   test("collects bounded project-purpose and current-objective context", () => {
     const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-project-lead-"));
     const currentRecord = "docs/work/2042-06-01-w1-r1-current-review";
@@ -396,6 +439,47 @@ describe("backlog-review first-party Skill", () => {
     } finally {
       rmSync(temporaryRoot, { recursive: true, force: true });
     }
+  });
+
+  test("does not collect context through a link outside the project", () => {
+    const temporaryRoot = mkdtempSync(path.join(os.tmpdir(), "make-docs-project-boundary-"));
+    try {
+      const projectRoot = path.join(temporaryRoot, "project");
+      const outsidePath = path.join(temporaryRoot, "outside.md");
+      mkdirSync(path.join(projectRoot, "docs/prd"), { recursive: true });
+      writeFileSync(outsidePath, "# Outside\n\n## Purpose\n\nPrivate text.\n", "utf8");
+      symlinkSync(outsidePath, path.join(projectRoot, "docs/prd/01-product-overview.md"));
+      const result = spawnSync(
+        process.execPath,
+        [path.join(SKILL_ROOT, "scripts/collect-project-lead-context.mjs"), "--target-root", projectRoot],
+        { encoding: "utf8" },
+      );
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain("Project path escapes the target root");
+      expect(result.stdout).not.toContain("Private text");
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("links inventory-only waves to their directory", () => {
+    const template = read("assets/backlog-review-report.html");
+    const sourceLogic = template.match(
+      /const snapshotByPath = [\s\S]*?(?=    const claimText =)/,
+    )?.[0];
+    expect(sourceLogic).toBeDefined();
+    const recordPath = "docs/work/2042-06-01-w1-r1-current-review";
+    const indexPath = `${recordPath}/00-index.md`;
+    const report = {
+      targetRoot: "/tmp/example-project",
+      records: [{ recordPath }],
+      snapshot: { records: [{ recordPath, discoveredFiles: [indexPath] }] },
+    };
+    const context = { report } as { report: typeof report; sourceHref?: (record: { recordPath: string }) => string };
+    runInNewContext(`${sourceLogic}; globalThis.sourceHref = sourceHref;`, context);
+    expect(context.sourceHref?.({ recordPath })).toContain("/00-index.md");
+    report.snapshot.records[0]!.discoveredFiles = [];
+    expect(context.sourceHref?.({ recordPath })).toBe(`file:///tmp/example-project/${recordPath}`);
   });
 
   test("derives the wave display name without agent-written document labels", () => {

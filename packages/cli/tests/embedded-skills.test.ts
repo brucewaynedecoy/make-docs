@@ -52,6 +52,14 @@ describe("embedded first-party Skills", () => {
     expect(existsSync(path.join(PACKAGE_ROOT, "../docs/template/.make-docs/agentics"))).toBe(false);
   });
 
+  test("ships the Backlog Review README as a managed first-party Skill file", () => {
+    const entry = loadSkillRegistry(PACKAGE_ROOT).skills.find((item) => item.name === "backlog-review")!;
+    expect(entry.assets).toContainEqual({ source: "README.md", installPath: "README.md" });
+    const payload = buildEmbeddedSkillBundle(PACKAGE_ROOT).payloads[entry.name];
+    const source = readFileSync(path.join(PACKAGE_ROOT, "../skills/backlog-review/README.md"));
+    expect(Buffer.from(payload.files["README.md"]!.base64, "base64")).toEqual(source);
+  });
+
   test.each(names)("resolves %s from embedded bytes with first-party fetch unavailable", async (name) => {
     const fetch = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network disabled"));
     const entry = loadSkillRegistry(PACKAGE_ROOT).skills.find((entry) => entry.name === name)!;

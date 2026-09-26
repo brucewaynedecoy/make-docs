@@ -168,6 +168,10 @@
       },
       "assets": [
         {
+          "source": "README.md",
+          "installPath": "README.md"
+        },
+        {
           "source": "agents/openai.yaml",
           "installPath": "agents/openai.yaml"
         },

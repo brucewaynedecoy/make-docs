@@ -29,6 +29,8 @@ related:
 
 Use this guide for the first install only: prerequisites, the initial `make-docs setup` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, removal, and recovery flows are covered in [Managing Installations with the Make Docs CLI](cli-lifecycle-managing-installations.md).
 
+**Source and release status (2026-09-24):** This guide describes the current source checkout, which declares version `2.0.2`. The public npm `next` and `latest` tags still point to `1.0.0-rc.1`. The `npx` examples below will fetch that older release until a matching package is published. Use the [root README Quick Start](../../../README.md#quick-start-from-this-checkout) to build and run the current source.
+
 ## Before You Start
 
 You need:
@@ -36,14 +38,14 @@ You need:
 | Requirement | Why it matters |
 | --- | --- |
 | Node.js with built-in SQLite available | Managed installs require the Make Docs Store. An older Node version without SQLite cannot complete the install. |
-| npm and `npx` | `npx @brucewaynedecoy/make-docs@next setup` is the main RC install entry point. |
+| npm and `npx` | npm builds the current source. `npx @brucewaynedecoy/make-docs@next` still fetches the older public release candidate. |
 | A target project directory | The installer writes the selected docs scaffold into that repo. |
 
 Run the installer from the root of the project you want to set up.
 
 ## First Install
 
-The standard entry point is:
+After a matching v2 package is published, its package entry point is:
 
 ```bash
 npx @brucewaynedecoy/make-docs@next setup

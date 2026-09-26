@@ -51,21 +51,21 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 | `22` | [Project Documentation Asset Model](22-project-documentation-asset-model.md) | subsystem | Current | 06, 14, 21, 23, 24, 46, 47 | Archives, shared project material, on-demand Persona assets and testing evidence, reviewed legacy destinations, and template/package/dogfood proof. |
 | `23` | [Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md) | capability | Current | 14, 17, 21, 22, 24, 46, 47, 49, 50 | Current document/resource metadata, source relationships, lifecycle fields, Human Experience and testing body authority, and follow-on handoffs without Playbook or Protocol kinds. |
 | `24` | [Project Configuration and Convention Overlay](24-project-configuration-and-convention-overlay.md) | capability | Current | 17, 21-23, 25, 28, 30, 38, 46, 47 | Declarative project identity and settings, resource and router selection, presentation, and Persona configuration without installation progress or ownership records. |
-| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 17, 21, 24, 28, 30, 38, 39, 46, 51 | Shared typed operations, CLI/MCP parity, deterministic and agentic twin boundaries, and the no-scripts boundary. |
+| `25` | [TypeScript Runtime, CLI, MCP, and Operation Boundaries](25-typescript-runtime-cli-mcp-operation-boundaries.md) | subsystem | Current | 07, 16, 17, 21, 24, 28, 30, 38, 39, 46, 51 | Shared typed operations, CLI/MCP parity, deterministic and agentic twin boundaries, profile-filtered MCP exposure, shared transport rules, and the no-scripts boundary. |
 | `28` | [Shared Agentics Installation and Harness Exposure](28-shared-agentics-installation-and-harness-exposure.md) | subsystem | Current | 08, 10, 16-18, 25, 30, 36, 39, 50 | Explicitly selected Skills, source-owned static harness adapters, native exposure, ownership, access boundaries, and direct installed-product proof. |
 | `30` | [Agentic Extensibility Boundary](30-plugin-substrate-and-workflow-bundles.md) | subsystem | Current | 08, 10, 16, 25, 28, 36, 39, 50 | No general plugin or workflow-bundle product; only explicitly selected, traced optional integrations over the typed core. |
 | `34` | [Procedural Asset Boundary and Legacy Compatibility](34-playbook-authoring-contract-and-model.md) | subsystem | Current | 18, 22-24, 30, 35, 36 | No Playbook or Protocol authoring capability; current reusable procedure authority lives in peer system resources, with legacy inputs classified conservatively. |
 | `35` | [Workflow Execution and Legacy Run Boundary](35-run-playbook-state-machine-and-portability.md) | subsystem | Current | 18, 25, 30, 34, 36, 38, 39 | No Playbook execution state machine; typed general lifecycle runs remain current while legacy Playbook state stays opaque. |
 | `36` | [Agentic Packaging and Adapter Boundary](36-playbook-packaging-compiler-and-harness-adapters.md) | subsystem | Current | 10, 16, 25, 28, 30, 34, 35, 39, 50 | No Playbook packaging compiler; optional Skill/package/adapter behavior requires a traced non-Playbook purpose and direct installed-product evidence. |
 | `38` | [Global Store and Project State](38-global-store-and-project-state.md) | subsystem | Current | 05, 18, 21, 24, 25, 35, 39, 45, 46, 48 | Store-only installation and migration authority, project and checkout identity, locks, verified transfer and recovery, general runs and evidence, opaque legacy records, and scoped cleanup. |
-| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 17, 25, 35, 36, 38, 46, 51 | Command grammar, registry admission, derived MCP tools, and shared human, JSON, and agent results. |
+| `39` | [CLI Command Model and Operation Registry](39-cli-command-model-and-operation-registry.md) | subsystem | Current | 07, 16, 17, 25, 35, 36, 38, 46, 51 | Command grammar, registry admission, derived MCP tools, explicit profile assignments, exact `all` union, and shared human, JSON, and agent results. |
 | `45` | [Deferred Obligation Governance](45-deferred-obligation-governance.md) | capability | Current | 03, 14, 38, 46-48, 50 | Durable obligation identity, finding routing, triggers, testing deferral boundaries, phase-close consumption, and anti-orphan governance. |
 | `46` | [Unassisted Goal Testing](46-naive-end-user-acceptance-testing.md) | capability | Current | 14, 22, 38, 45, 47-50 | Conditional qualified-human attempts, public goals, anti-coaching, Human Experience inputs, stable `NUAT-###` scenarios, diagnostic findings, explicit gate effects, and valid `not-needed-now`. |
 | `47` | [Persona Model](47-persona-model.md) | capability | Current | 22-24, 46, 49, 50 | Two fixed audience defaults, merged custom Personas, CLI-free discovery, affected-human linkage, guided-review roles, unassisted audience resolution, evidence-path routing, and the independent tester boundary. |
 | `48` | [Performance Evidence Governance](48-performance-evidence-governance.md) | capability | Current | 06, 10, 14, 18, 21, 28, 38, 45, 46, 50 | Performance applicability, maturity, target authority, versioned `PERF-###` profiles, comparable bounded evidence, finite budgets, gate effects, expiry, and proof-mode boundaries. |
 | `49` | [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) | capability | Current | 01, 06, 14, 15, 23, 46, 47, 50 | Canonical Human Experience Standard, impact classification, conditional design intent, lifecycle propagation, human and machine surface boundary, evidence-review lens, and prospective adoption. |
 | `50` | [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) | capability | Current | 01, 06, 10, 14-16, 23, 28, 39, 45-49 | Four-type testing taxonomy, current-decision selection, automated-test levels, direct installed-harness proof, human testing experience, effort and stop rules, evidence reuse, and explicit gate effects. |
-| `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots, deterministic and agentic review twins, optional rebuildable per-record review reuse, concise chat reports, and self-contained interactive HTML reports with raw-data access. |
+| `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots, deterministic and agentic review twins, optional rebuildable per-record review reuse, a default live MCP App on compatible hosts, concise chat fallback, and explicit-request static HTML reports. |
 
 ## Source Anchors
 
@@ -78,6 +78,12 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 - [Backlog Review and Reporting design](../designs/2026-09-18-backlog-review-and-reporting.md)
 - [W23 R0 Backlog Review and Reporting plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md)
 - [Backlog Review and Reporting](51-backlog-review-and-reporting.md)
+- [Live Backlog Review MCP App design](../designs/2026-09-24-live-backlog-review-mcp-app.md)
+- [W25 R0 Live Backlog Review MCP App plan](../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md)
+- [W25 R0 Live Backlog Review MCP App work backlog](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md)
+- [MCP Tool Profiles design](../designs/2026-09-24-mcp-tool-profiles.md)
+- [W24 R0 MCP Tool Profiles plan](../plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md)
+- [W24 R0 MCP Tool Profiles work backlog](../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md)
 - [Product overview](01-product-overview.md)
 - [Architecture overview](02-architecture-overview.md)
 - [Open questions and risk register](03-open-questions-and-risk-register.md)
@@ -118,7 +124,7 @@ Resolve product authority from this active map, not from a historical action-nam
 
 ## Intended Follow-On
 
-W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions. W23 R0 is a draft product package. Its implementation must wait for the applicable W22 R0 Store, CLI, registry, and MCP decisions plus separate owner implementation authority.
+W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions. W23 R0 P1-P6 are complete, and P7 has not started. W24 R0 and W25 R0 are draft product packages. Their implementation requires separate owner authority. W25 profile registration also requires accepted W24 profile authority.
 
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.
