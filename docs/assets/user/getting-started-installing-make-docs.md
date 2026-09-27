@@ -29,7 +29,7 @@ related:
 
 Use this guide for the first install only: prerequisites, the initial `make-docs setup` run, your first apply, and the main capability choices. Ongoing sync, reconfigure, backup, removal, and recovery flows are covered in [Managing Installations with the Make Docs CLI](cli-lifecycle-managing-installations.md).
 
-**Source and release status (2026-09-24):** This guide describes the current source checkout, which declares version `2.0.2`. The public npm `next` and `latest` tags still point to `1.0.0-rc.1`. The `npx` examples below will fetch that older release until a matching package is published. Use the [root README Quick Start](../../../README.md#quick-start-from-this-checkout) to build and run the current source.
+Use the npm `latest` tag for the current stable release. Use the [root README Quick Start from This Checkout](../../../README.md#quick-start-from-this-checkout) when you need to build and run the source instead.
 
 ## Before You Start
 
@@ -37,18 +37,18 @@ You need:
 
 | Requirement | Why it matters |
 | --- | --- |
-| Node.js with built-in SQLite available | Managed installs require the Make Docs Store. An older Node version without SQLite cannot complete the install. |
-| npm and `npx` | npm builds the current source. `npx @brucewaynedecoy/make-docs@next` still fetches the older public release candidate. |
+| Node.js 22.5 or newer with built-in SQLite | Managed installs require the Make Docs Store. An older Node version without SQLite cannot complete the install. |
+| npm and `npx` | `npx` runs the published CLI package. |
 | A target project directory | The installer writes the selected docs scaffold into that repo. |
 
 Run the installer from the root of the project you want to set up.
 
 ## First Install
 
-After a matching v2 package is published, its package entry point is:
+Run the stable package from the target project directory:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next setup
+npx @brucewaynedecoy/make-docs@latest setup
 ```
 
 On a first install, `make-docs setup` opens the setup flow and walks you through:
@@ -58,18 +58,18 @@ On a first install, `make-docs setup` opens the setup flow and walks you through
 3. optional Skills and resource placement
 4. one grouped review with separate computer and project approvals
 
-Running bare `make-docs` (or bare `npx @brucewaynedecoy/make-docs@next`) is context-aware: in a project with no install, an interactive run starts the same guided setup; in a project that already has an install, it shows the current installation status and help, and never syncs or writes files. All non-interactive and flag-driven installs go through `setup`.
+Running bare `make-docs` (or bare `npx @brucewaynedecoy/make-docs@latest`) is context-aware: in a project with no install, an interactive run starts the same guided setup; in a project that already has an install, it shows the current installation status and help, and never syncs or writes files. All non-interactive and flag-driven installs go through `setup`.
 
 If you want the default first install without prompts, run:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next setup --yes
+npx @brucewaynedecoy/make-docs@latest setup --yes
 ```
 
 If you want to preview the first install without writing files, run:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next setup --dry-run
+npx @brucewaynedecoy/make-docs@latest setup --dry-run
 ```
 
 `make-docs setup` checks the installation record in the global Make Docs Store. A fresh target with no prior installation evidence uses the first-install flow. Legacy or ambiguous local evidence needs the CLI's reviewed migration path. A successful apply saves installation ownership and selections in the Store and keeps the project identity in `.make-docs/config.yaml`; it does not create a project-local manifest.
@@ -119,13 +119,13 @@ Examples:
 
 ```bash
 # Install only the Codex harness
-npx @brucewaynedecoy/make-docs@next setup --yes --no-claude-code
+npx @brucewaynedecoy/make-docs@latest setup --yes --no-claude-code
 
 # Skip skills on the first install
-npx @brucewaynedecoy/make-docs@next setup --yes --no-skills
+npx @brucewaynedecoy/make-docs@latest setup --yes --no-skills
 
 # Select a specific skill during install
-npx @brucewaynedecoy/make-docs@next setup --yes --selected-skills decompose-codebase
+npx @brucewaynedecoy/make-docs@latest setup --yes --selected-skills decompose-codebase
 ```
 
 Detection does not prove support. Setup can show detected, configured, drifted, blocked, or unsupported state. Pi is unsupported.

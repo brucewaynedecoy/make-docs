@@ -1,102 +1,57 @@
 # Make Docs
 
-Install a structured documentation system into any project with a single CLI command. `make-docs` creates a documentation tree for PRDs, plans, design records, work backlogs, reusable templates, prompt starters, and AI agent instruction routers.
+Make Docs helps teams plan, build, and keep project documentation current with AI agents. It provides a CLI, an MCP server, document templates, system resources, and optional agent Skills. Project knowledge stays in the project repository.
 
 ## Quick Start
 
-From the root of the project you want to equip:
+Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a project directory. Run these commands from the project directory:
 
 ```bash
-npx @brucewaynedecoy/make-docs@next
+npx @brucewaynedecoy/make-docs@latest setup --dry-run
+npx @brucewaynedecoy/make-docs@latest setup
 ```
 
-Bare `make-docs` is context-aware: with no install present it starts a guided setup, and with an install present it shows status and help without syncing. For a non-interactive install with the default profile:
+The first command previews the changes. The second opens guided setup. Setup shows computer and project changes in separate groups and asks for approval before it applies each group. A fresh setup selects designs, plans, product requirements (PRDs), and work backlogs. It selects no optional Skills unless you choose them.
 
-```bash
-npx @brucewaynedecoy/make-docs@next setup --yes
-```
+You can also run `npx @brucewaynedecoy/make-docs@latest` without a command. In a project with no Make Docs install, it starts guided setup. In a project with an install, it shows status and help without changing files. Run `setup` to sync saved choices.
 
-The installer writes a profile-aware documentation system and records managed files in `.make-docs/manifest.json` so later runs can update generated files without overwriting local edits.
+## Main Commands
 
-## Common Commands
+Run `npx @brucewaynedecoy/make-docs@latest <command> --help` for options.
 
-```bash
-# Install the default documentation system
-npx @brucewaynedecoy/make-docs@next setup --yes
+| Command | Use |
+| --- | --- |
+| `setup` | Install, sync, reconfigure, manage Skills, back up, or remove project assets. |
+| `project` | Inspect and manage project settings and surfaces. |
+| `resource` | List, read, or ensure system resources. |
+| `run` | Run available project and workflow operations. |
+| `mcp` | Start the MCP server for agent tools. |
+| `update` | Update a persistent tool install. |
+| `uninstall` | Remove the machine-level tool install. |
 
-# Preview changes without writing files
-npx @brucewaynedecoy/make-docs@next setup --dry-run
+The npm package exposes the `make-docs` executable. If you install it globally, you can use `make-docs` in place of the `npx` command. The MCP server and CLI use the same operation core. MCP writes require an explicit write setting and follow the CLI's dry-run and approval rules.
 
-# Reconfigure an existing installation
-npx @brucewaynedecoy/make-docs@next setup reconfigure
+## What Setup Adds
 
-# Back up a managed installation
-npx @brucewaynedecoy/make-docs@next setup backup
+Setup creates instruction routes and document areas under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. It creates project or audience assets only when needed. The installed CLI can serve system resources without copying them into the project; local copies are optional.
 
-# Remove this project's managed make-docs files while preserving unmanaged files
-npx @brucewaynedecoy/make-docs@next setup remove
+The global Make Docs Store holds managed install and recovery records. The project can keep its identity and choices in `.make-docs/config.yaml`. Managed writes stop if the Store cannot record them. Ordinary document work can continue without the CLI or Store.
 
-# Manage installable skill packs
-npx @brucewaynedecoy/make-docs@next setup skills
+## Optional Skills
 
-# Run deterministic registry operations
-npx @brucewaynedecoy/make-docs@next run playbook catalog
-
-# Run the MCP stdio server
-npx @brucewaynedecoy/make-docs@next mcp
-```
-
-Use the scoped npm package name for package-runner lookup and installation. The executable exposed by that package is `make-docs`; install, maintenance, deterministic operation, and MCP behavior all live in the TypeScript package.
-
-The current npm package ships a read-first MCP stdio surface through `make-docs mcp`. The shipped MCP tools inspect installed state, read manifest/config state, classify compatibility, build dry-run plans, and delegate deterministic operations to the same operation registry and core used by `make-docs run`. Mutation-oriented MCP behavior remains gated by explicit approval or outside the first shipped surface.
+The package includes eight first-party Skills: `archive-docs`, `backlog-review`, `cleanup-docs`, `decompose-codebase`, `factory`, `human-experience`, `naive-uat`, and `preflight`. A fresh setup installs none of them. Use `make-docs setup skills` to select or manage Skills. The built-in Skills need no separate source download.
 
 ## Package Contents
 
-All eight optional first-party Skills are embedded in the compiled `dist/` output. Selecting a first-party Skill needs no network fetch or source checkout. A missing or corrupt embedded payload stops safely; it does not fall back to a remote copy. `backlog-review` adds the guided full-portfolio review. `preflight`, `factory`, and `human-experience` activate only on explicit request. `naive-uat` keeps the Unassisted Goal Testing workflow and CLI interface.
+The npm package contains this README, the license, the built CLI in `dist/`, the documentation template, and the Skill registry files. Repository plans, work records, source workspaces, and local project assets are not part of the published package.
 
-The published npm tarball contains npm metadata and license files, this README, built CLI output under `dist/`, the bundled `template/`, `skill-registry.json`, and `skill-registry.schema.json`. Repo-root `docs/`, root `AGENTS.md`, root `CLAUDE.md`, source workspaces, scripts, and scratch planning material are not shipped as tarball-root package contents.
+## More Help
 
-## What Gets Installed
-
-The selected setup manages root and lifecycle instruction routers for `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. System resources resolve through the installed CLI; local `.make-docs/system/` bodies are optional selected projections.
-
-Project assets are created on demand under `docs/assets/project/` or `docs/assets/<persona>/`. The default audiences are `user` and `maintainer`. Archive and history content lives under `.make-docs/archive/`. Empty asset children are not scaffolded.
-
-Selected Skills use standard agent locations. Project Claude-only installs directly under `.claude/skills/<name>`; Codex-only installs directly under `.agents/skills/<name>`; both use `.agents/skills` plus Claude links or supported native copies. Global scope uses `~/.agents/skills` plus selected harness access. Do not create unselected project Skill roots or an active `.make-docs/agentics` layer. Skills are optional: bare setup and `--selected-skills none` install no Skill files. `--selected-skills all` selects the effective registry. Existing unmanaged copies need the reviewed `setup skills --adopt-existing` path before the CLI may own them.
-
-The global Make Docs Store owns installation, upgrade, backup metadata, migration, and recovery state. `.make-docs/config.yaml` may retain project identity and configuration. Local backup payload copies may live under `.make-docs/backup/`; they do not replace Store records. Required recording failure stops a managed write safely. Ordinary document work can continue without the CLI or optional lifecycle capture.
-
-Clean managed files can update in place. Local edits and unmanaged conflicts remain protected. Review the CLI's conflict and recovery output before an affected apply.
-
-## Capability Profile
-
-The default install includes `designs`, `plans`, `prd`, and `work`. You can opt out of capability families during the interactive wizard or with flags:
-
-```bash
-npx @brucewaynedecoy/make-docs@next setup --yes --no-work
-npx @brucewaynedecoy/make-docs@next setup --yes --no-prd
-npx @brucewaynedecoy/make-docs@next setup --yes --no-plans
-npx @brucewaynedecoy/make-docs@next setup --yes --no-designs
-```
-
-The capability graph is dependency-aware:
-
-- `designs` is independent
-- `plans` is independent
-- `prd` requires `plans`
-- `work` requires both `plans` and `prd`
-
-If you disable a prerequisite, downstream capabilities stay selected for later but are disabled until the prerequisite is enabled again.
-
-## Requirements
-
-- Node.js 18 or newer
-- npm with `npx` / `npm exec`
-
-## Repository
-
-Source, issues, and maintainer documentation live at [github.com/brucewaynedecoy/make-docs](https://github.com/brucewaynedecoy/make-docs).
+- [Installing Make Docs](https://github.com/brucewaynedecoy/make-docs/blob/main/docs/assets/user/getting-started-installing-make-docs.md)
+- [Managing Installations](https://github.com/brucewaynedecoy/make-docs/blob/main/docs/assets/user/cli-lifecycle-managing-installations.md)
+- [Installing and Managing Skills](https://github.com/brucewaynedecoy/make-docs/blob/main/docs/assets/user/skills-installing-and-managing-skills.md)
+- [Source code and issues](https://github.com/brucewaynedecoy/make-docs)
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT
