@@ -1,4 +1,4 @@
-import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, realpathSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { callMakeDocsMcpTool } from "../src/mcp/tools";
@@ -7,6 +7,18 @@ import { invokeOperation } from "../src/operations/registry";
 import { validatePrdAuthority } from "../src/operations/prd";
 import { runRunCommand } from "../src/run/cli";
 import { cleanupTempDir, createTempDir } from "./helpers";
+
+const readFilePaths = vi.hoisted(() => [] as string[]);
+vi.mock("node:fs", async (importOriginal) => {
+  const original = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...original,
+    readFileSync: (...args: Parameters<typeof original.readFileSync>) => {
+      readFilePaths.push(String(args[0]));
+      return original.readFileSync(...args);
+    },
+  };
+});
 
 function writeMarkdown(root: string, relativePath: string, lines: string[]): void {
   const absolutePath = path.join(root, relativePath);
@@ -310,15 +322,15 @@ describe("authoritative PRD validation", () => {
     ]);
   });
 
-  test("checks named JSON, JSONL, and YAML authority fields without scanning arbitrary prose", () => {
+  test("does not open standalone structured evidence", () => {
     const root = createTempDir("make-docs-prd-authority-structured-");
     tempRoots.push(root);
+    writeMarkdown(root, "docs/prd/00-index.md", ["# Product Requirements Index"]);
     writeStructured(
       root,
       "docs/conformance/map.json",
       JSON.stringify({
         sourcePrds: ["docs/prd/12-revise-search.md"],
-        comment: "docs/prd/13-revise-comments.md",
       }),
     );
     writeStructured(
@@ -326,35 +338,30 @@ describe("authoritative PRD validation", () => {
       "docs/conformance/map.yaml",
       "authority_path: .make-docs/archive/prds/2026/14-revise-archive.md\n",
     );
+    writeStructured(root, "docs/conformance/map.yml", "source_prd: docs/prd/14-revise-source.md\n");
     writeStructured(
       root,
-      "docs/conformance/map.jsonl",
+      "docs/plans/current/implementation-evidence/events.jsonl",
       [
         JSON.stringify({ source_prd: "docs/prd/15-revise-jsonl.md" }),
-        JSON.stringify({ note: "docs/prd/16-revise-note.md" }),
         "",
       ].join("\n"),
     );
-    writeStructured(
-      root,
-      "docs/conformance/provenance.yaml",
-      "provenance:\n  source_prds:\n    - docs/prd/17-revise-history.md\n",
-    );
-    writeStructured(
-      root,
-      ".make-docs/archive/conformance.yaml",
-      "sourcePrds:\n  - docs/prd/18-revise-archived-source.md\n",
-    );
+    readFilePaths.length = 0;
+    const report = validatePrdAuthority(root);
+    const resolvedRoot = realpathSync(root);
 
-    const diagnostics = validatePrdAuthority(root).diagnostics.filter(
-      (diagnostic) => diagnostic.code === "PRD-AUTH-005",
-    );
-
-    expect(diagnostics.map((diagnostic) => diagnostic.path)).toEqual([
+    expect(report.status).toBe("passed");
+    expect(report.structuredFilesScanned).toBe(0);
+    expect(readFilePaths).toContain(path.join(resolvedRoot, "docs/prd/00-index.md"));
+    for (const relativePath of [
       "docs/conformance/map.json",
-      "docs/conformance/map.jsonl",
       "docs/conformance/map.yaml",
-    ]);
+      "docs/conformance/map.yml",
+      "docs/plans/current/implementation-evidence/events.jsonl",
+    ]) {
+      expect(readFilePaths).not.toContain(path.join(resolvedRoot, relativePath));
+    }
   });
 
   test("distinguishes an absent PRD set from invalid and escaping target roots", () => {

@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Validator Selection and Regression"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W18 R16 P1"
 source:
   type: "prd"
@@ -54,10 +54,10 @@ Human Experience Review: Inspect the CLI or MCP result after the tests. Record t
 
 ### Tasks
 
-- [ ] t1: Confirm the PRD source rule and review `docs/assets/project/developing-deterministic-agentic-twins.md` before changing business logic.
-- [ ] t2: Remove the whole-project structured-file walk and read from `packages/cli/src/operations/prd/authority.ts`. Keep the report field `structuredFilesScanned` with value zero.
-- [ ] t3: Replace the synthetic standalone structured-authority fixture in `packages/cli/tests/prd-authority.test.ts`. Prove that an excluded structured file is not opened, including one under plan evidence.
-- [ ] t4: Verify `PRD-AUTH-005` still covers live Markdown authority links and frontmatter. Run the relevant CLI and MCP operation tests.
+- [x] t1: Confirm the PRD source rule and review `docs/assets/project/developing-deterministic-agentic-twins.md` before changing business logic.
+- [x] t2: Remove the whole-project structured-file walk and read from `packages/cli/src/operations/prd/authority.ts`. Keep the report field `structuredFilesScanned` with value zero.
+- [x] t3: Replace the synthetic standalone structured-authority fixture in `packages/cli/tests/prd-authority.test.ts`. Prove that an excluded structured file is not opened, including one under plan evidence.
+- [x] t4: Verify `PRD-AUTH-005` still covers live Markdown authority links and frontmatter. Run the relevant CLI and MCP operation tests.
 
 ### Acceptance criteria
 
@@ -72,4 +72,10 @@ Human Experience Review: Inspect the CLI or MCP result after the tests. Record t
 
 ### Closeout Notes
 
-Open. Record the changed files, test commands, results, and any remaining limit here when the phase runs.
+2026-09-26: P1 implementation is complete. `packages/cli/src/operations/prd/authority.ts` no longer walks or reads standalone structured files. The report keeps `structuredFilesScanned` and returns zero. `packages/cli/tests/prd-authority.test.ts` now watches file reads. It proves that the validator reads an active PRD but does not open JSON, JSONL, YAML, or YML evidence with authority-like fields. The new test failed against the old selection rule and passed after the change.
+
+`npm test -- tests/prd-authority.test.ts` passed 21 tests. These tests include CLI, MCP, Markdown authority-link, frontmatter, and root-safety cases. `npm run build -w packages/cli` and `./node_modules/.bin/tsc --noEmit -p packages/cli/tsconfig.json` passed. The built CLI returned `passed` on this repo with 37 PRDs, 650 Markdown files, zero structured files, 1,127 authority links, and no diagnostics.
+
+Human Experience Review by the implementing agent: The built CLI returned a clear report, and the access test showed that unrelated structured evidence was not opened. This supports the P1 source-selection promise. The full North Atlantic BuildOS run and shipped-guidance check belong to P2. This review does not prove a person's ease of use or that the full-project check passes. [D-042](../../prd/03-open-questions-and-risk-register.md) stays open.
+
+P1 is closed. See the [P1 history record](../../../.make-docs/archive/history/2026-09-26-w18-r16-p1-prd-authority-source-selection.md) for the change summary.

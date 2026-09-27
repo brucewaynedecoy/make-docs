@@ -32,7 +32,7 @@ The source decision is in the [design](../../designs/2026-09-26-prd-authority-so
 
 | Phase | Work | State |
 | --- | --- | --- |
-| P1 | [Validator selection and regression](01-validator-selection-and-regression.md) | Open. |
+| P1 | [Validator selection and regression](01-validator-selection-and-regression.md) | Complete for P1 scope. Full-project proof remains in P2. |
 | P2 | [Guidance and project proof](02-guidance-and-project-proof.md) | Open. |
 
 ## Usage Notes

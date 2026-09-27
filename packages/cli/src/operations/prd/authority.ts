@@ -175,9 +175,6 @@ const STRUCTURED_PROVENANCE_CONTAINER_KEYS = new Set([
   "archiveprovenance",
 ]);
 
-const STRUCTURED_EXTENSIONS = new Set([".json", ".jsonl", ".yaml", ".yml"]);
-const SKIPPED_SCAN_DIRECTORIES = new Set([".git", "node_modules", "dist", "coverage"]);
-
 interface ScanRoot {
   status: "present" | "absent" | "unsafe";
   realPath: string | null;
@@ -187,7 +184,7 @@ interface ScanRoot {
 interface AuthorityReference {
   target: string;
   line: number;
-  context: "frontmatter" | "structured";
+  context: "frontmatter";
 }
 
 interface HeadingContext {
@@ -256,7 +253,6 @@ function inspectScanRoot(targetRoot: string, requestedRoot: string): ScanRoot {
 function listFiles(
   root: string | null,
   accepts: (fileName: string) => boolean,
-  skipDirectories = false,
 ): string[] {
   if (!root) {
     return [];
@@ -264,9 +260,6 @@ function listFiles(
   const files: string[] = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory).sort()) {
-      if (skipDirectories && SKIPPED_SCAN_DIRECTORIES.has(entry)) {
-        continue;
-      }
       const absolutePath = path.join(directory, entry);
       const stats = lstatSync(absolutePath);
       if (stats.isSymbolicLink()) {
@@ -285,14 +278,6 @@ function listFiles(
 
 function markdownFiles(root: string | null): string[] {
   return listFiles(root, (fileName) => fileName.toLowerCase().endsWith(".md"));
-}
-
-function structuredFiles(root: string): string[] {
-  return listFiles(
-    root,
-    (fileName) => STRUCTURED_EXTENSIONS.has(path.extname(fileName).toLowerCase()),
-    true,
-  );
 }
 
 function fencedLineMask(lines: string[]): boolean[] {
@@ -855,35 +840,6 @@ export function validatePrdAuthority(targetRootInput: string): PrdAuthorityValid
     }
   }
 
-  const structuredDocs = structuredFiles(targetRoot);
-  for (const absolutePath of structuredDocs) {
-    const relativePath = posixPath(path.relative(targetRoot, absolutePath));
-    if (isCanonicalArchiveSource(relativePath)) {
-      continue;
-    }
-    const contents = readFileSync(absolutePath, "utf8");
-    const references: AuthorityReference[] = [];
-    if (path.extname(absolutePath).toLowerCase() === ".jsonl") {
-      for (const [index, line] of contents.split(/\r?\n/).entries()) {
-        if (line.trim()) {
-          references.push(...yamlAuthorityReferences(line, "structured", index));
-        }
-      }
-    } else {
-      references.push(...yamlAuthorityReferences(contents, "structured"));
-    }
-    linksScanned += references.length;
-    for (const reference of references) {
-      validateAuthorityReference(
-        diagnostics,
-        targetRoot,
-        absolutePath,
-        relativePath,
-        reference,
-      );
-    }
-  }
-
   diagnostics.sort(
     (left, right) =>
       left.path.localeCompare(right.path) ||
@@ -898,7 +854,7 @@ export function validatePrdAuthority(targetRootInput: string): PrdAuthorityValid
     prdSetStatus: prdScanRoot.status,
     prdFilesScanned: prdFiles.length,
     markdownFilesScanned: markdownDocs.length,
-    structuredFilesScanned: structuredDocs.length,
+    structuredFilesScanned: 0,
     linksScanned,
     diagnostics,
   };
