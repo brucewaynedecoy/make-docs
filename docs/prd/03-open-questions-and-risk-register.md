@@ -944,6 +944,20 @@ Code anchors:
 
 **Resolution**: P6 workflow 35483206273 installed the same package candidate into isolated Windows, macOS, and Linux environments. Each host passed the required source safety matrix and the same installed public contract. The final comparison passed with no platform exception or reduced parity claim.
 
+### D-042 PRD Authority Validation Reads Unrelated Structured Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) defines supported Markdown authority sources. It identifies no current standalone structured authority source. | Change the validator and shipped guidance, then prove the full-project result. |
+
+**Issue**: `prd.authority.validate` enumerates JSON, JSONL, YAML, and YML across a project and reads each selected file before it knows whether the file can state current PRD authority. A reported run included large stored test evidence and ended without an authority report.
+
+**Why it matters**: Unrelated evidence can cause a time or string-size failure. A user then cannot tell whether the active PRD set passed validation.
+
+**Recommendation**: Select only product-defined authority sources before reading. Keep the current Markdown checks. Add a standalone structured source only after its path and schema are defined in product authority.
+
+**To close**: The validator and shipped guidance match [PRD 39](39-cli-command-model-and-operation-registry.md). Tests prove that unrelated structured evidence is not opened. A full run against the reported project shape returns an authority report, and any remaining failure has a separate recorded cause.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

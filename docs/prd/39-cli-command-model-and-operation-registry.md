@@ -111,7 +111,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### PRD Authority Validator (R-PRD-AUTH)
 
-- R-PRD-AUTH-1 (MUST): `prd.authority.validate` is a read-only registry operation exposed as `make-docs run prd authority validate --target-root <project>` and the derived MCP tool `make_docs_prd_authority_validate`. It scans active `docs/prd/**/*.md` plus live documentation links and structured authority fields before downstream work consumes the PRD set.
+- R-PRD-AUTH-1 (MUST): `prd.authority.validate` is a read-only registry operation exposed as `make-docs run prd authority validate --target-root <project>` and the derived MCP tool `make_docs_prd_authority_validate`. It scans active `docs/prd/**/*.md` plus authority-bearing links and frontmatter fields in live Markdown documentation before downstream work consumes the PRD set. It selects supported sources before it reads file contents.
 - R-PRD-AUTH-2 (MUST): active filenames and first-H1 subjects reject the case-insensitive stems `revise`, `revision`, `add`, `addition`, `enhance`, `enhancement`, `remove`, `removal`, `deprecate`, `deprecation`, `reconcile`, and `reconciliation`. Product subjects such as Update Delivery, Replacement Policy, and Migration Safety remain valid. Frontmatter and PRD-index editorial kinds reject those twelve stems plus `update`, `replace`, `replacement`, `migrate`, and `migration`.
 - R-PRD-AUTH-3 (MUST): diagnostics have stable meanings:
 
@@ -121,15 +121,15 @@ The requirements below are the normative authority. Their stable identifiers pre
   | `PRD-AUTH-002` | First H1 subject begins with a prohibited editorial stem after an optional PRD number. |
   | `PRD-AUTH-003` | Active frontmatter or the PRD index's `Kind`, `Document Kind`, or `Type` cell uses a prohibited editorial kind. |
   | `PRD-AUTH-004` | Active PRD uses a retired editorial heading: `Change Type`, `Capability Addition or Enhancement`, `Affected Baseline Docs`, `Baseline Being Revised or Removed`, or `Required Baseline Annotations`. |
-  | `PRD-AUTH-005` | A live authority-bearing Markdown link or structured authority field treats an action-prefixed PRD as current authority. |
+  | `PRD-AUTH-005` | A live authority-bearing Markdown link or Markdown frontmatter authority field treats an action-prefixed PRD as current authority. |
   | `PRD-AUTH-006` | An active product PRD uses top-level `coordinate` frontmatter as document identity. |
   | `PRD-AUTH-007` | Requested target root is missing, unreadable, or not a directory. |
   | `PRD-AUTH-008` | `docs/` or `docs/prd/` is a symlink, escapes the target project, or is otherwise unsafe. |
 
 - R-PRD-AUTH-4 (MUST): Markdown authority enforcement applies to the PRD index `Document Map` and sections named `Source PRD Docs`, `Source PRDs`, `Source PRD Documents`, `PRD Authority`, `Product Authority`, `Current PRD Authority`, `Authoritative PRDs`, `Authoritative PRD Docs`, `Source Authority`, `Authority Sources`, or `Active Authority Baseline`. `Requirement History`, `Provenance`, `Lineage`, `Source Anchors`, `Design Provenance`, `Migration Provenance`, `Migration History`, `Historical Provenance`, and `Archive Provenance` are provenance contexts, not current authority.
-- R-PRD-AUTH-5 (MUST): outside the sole managed-archive path exemption `.make-docs/archive/**`, JSON, JSONL, YAML, and YML authority/source/PRD fields are checked. After camel/snake/hyphen normalization, the controlled fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching R-PRD-AUTH-4 are exempt. Provenance never exempts an invalid active filename, H1, kind, retired heading, or document-level coordinate.
+- R-PRD-AUTH-5 (MUST): the validator does not select standalone JSON, JSONL, YAML, or YML files by extension or by apparent field name. Make Docs currently defines no standalone structured file as a current PRD authority source, so the eligible standalone structured set is empty. In live Markdown frontmatter, after camel/snake/hyphen normalization, the controlled authority fields remain `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching R-PRD-AUTH-4 are exempt. Provenance never exempts an invalid active filename, H1, kind, retired heading, or document-level coordinate. A future standalone structured source requires a product requirement that names its bounded path or path family, schema, current-authority field, and provenance rule before a selector is added.
 - R-PRD-AUTH-6 (MUST): invalid or unsafe roots fail closed before scanning. Interactive TTY output presents a human summary plus all diagnostics and remediations; `--json` and non-TTY output emit the complete structured report. Failed reports exit nonzero after printing the full result; passed reports exit zero.
-- R-PRD-AUTH-7 (MUST): tests prove surgical in-place PRD updates, standardized Requirement History, and genuinely new capability PRDs pass; action filenames/H1s/kinds, retired headings, current-authority links to retired records, document-level coordinates, invalid roots, and internal or escaping scan-root symlinks fail. Positive fixtures cover legitimate leading product nouns such as Update, Replacement, and Migration.
+- R-PRD-AUTH-7 (MUST): tests prove surgical in-place PRD updates, standardized Requirement History, and genuinely new capability PRDs pass; action filenames/H1s/kinds, retired headings, current-authority Markdown links and frontmatter fields to retired records, document-level coordinates, invalid roots, and internal or escaping scan-root symlinks fail. Fixtures prove that unrelated standalone structured evidence is not opened, even when it contains authority-like field names. Positive fixtures cover legitimate leading product nouns such as Update, Replacement, and Migration. The report keeps `structuredFilesScanned`; it is zero while no standalone structured source is defined.
 
 ### Performance Evidence Validation Twin (R-PERF-VALIDATE)
 
@@ -482,8 +482,17 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: Current PRD authority must match the admitted registry and its accepted implementation. Historical admission records remain unchanged.
 - Source: owner-approved W19 R2 P5 final correction attempt and independent review task `01a0b4b4-1e12-7cd0-95ee-51f2305c398a`.
 
+### 2026-09-26 — W18 R16
+
+- Affected requirement or section: `R-PRD-AUTH-1`, `R-PRD-AUTH-3`, `R-PRD-AUTH-5`, and `R-PRD-AUTH-7`
+- Previous contract: The validator read JSON, JSONL, YAML, and YML files across the project and treated their authority-like fields as possible current PRD authority.
+- Replacement contract: The validator reads active PRD Markdown and supported live Markdown authority links and frontmatter fields. No standalone structured file is in scope until product authority names its path and schema.
+- Rationale: Extension and field-name matching made stored project evidence part of an authority scan. The reported full-project run could not return a result.
+- Source: [PRD Authority Source Scope](../designs/2026-09-26-prd-authority-source-scope.md)
+
 ## Source Anchors
 
+- [W18 R16 PRD authority source-scope plan](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/00-overview.md)
 - [W24 R0 MCP tool profiles design](../designs/2026-09-24-mcp-tool-profiles.md)
 - [W24 R0 MCP tool profiles plan](../plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md)
 - [W19 R8 Store Access Bootstrap and Remediation](../designs/2026-09-16-store-access-bootstrap-and-remediation.md)
