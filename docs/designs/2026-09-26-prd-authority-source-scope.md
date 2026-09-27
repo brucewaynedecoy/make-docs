@@ -24,6 +24,8 @@ In the reported North Atlantic BuildOS run, this scan included stored test evide
 
 The validator has a different reason to read Markdown. Current PRD identity lives in `docs/prd/**/*.md`. Authority claims can also appear in named sections and frontmatter of live Markdown documents. Those checks still have a defined source and meaning.
 
+The P2 full-project run passed after the structured-file fix. It also counted 73,372 Markdown files under `docs/`. A read-only path count found 73,242 Markdown files under one plan's `implementation-evidence/` directory. The validator reads those files before it checks for authority contexts. [D-043](../prd/03-open-questions-and-risk-register.md) records this separate source-scope issue.
+
 ## Human Experience Intent
 
 Impact: `indirect`
@@ -35,6 +37,7 @@ Human goal or effect: A validation run gives a usable result for current PRD aut
 Experience promises:
 
 - The command finishes its defined authority check without opening unrelated structured evidence.
+- The command does not enter or read stored Markdown evidence under the named evidence directories.
 - The report still identifies action-named PRDs used as current authority in supported Markdown links and frontmatter fields.
 
 Complexity kept out of the human path:
@@ -43,14 +46,14 @@ Complexity kept out of the human path:
 
 Evidence required:
 
-- Code and test evidence show that file selection happens before file reads.
-- A full North Atlantic BuildOS run completes and returns its authority report, or its remaining limit is recorded with a separate cause.
+- Code and test evidence show that file selection happens before file reads. P3 tests also show that excluded Markdown directories are not traversed.
+- A full North Atlantic BuildOS run completes and returns its authority report, records the selected Markdown count, and keeps supported live-document diagnostics. Any remaining limit receives a separate cause check.
 
 ## Performance Evidence Candidates
 
 | Candidate | Base maintenance action | Performance applicability | Protected outcome | Decision informed | Canonical owner or next record |
 | --- | --- | --- | --- | --- | --- |
-| A fixed elapsed-time target for authority validation | `none` | `not-needed` | A complete and correct authority report | No speed target is needed to decide the file-scope fix. A full-project completion check and excluded-file access check are required. | None. Reassess only if the narrowed run still has a time or resource failure. |
+| A fixed elapsed-time target for authority validation | `none` | `not-needed` | A complete and correct authority report | No speed target is needed to decide the file-scope fix. Record full-project completion, selected-file counts, elapsed time, and excluded-file access. | None. Reassess only if the narrowed run still has a time or resource failure. |
 
 ## Decision
 
@@ -60,23 +63,28 @@ Make Docs currently defines no standalone structured file as a current PRD autho
 
 Keep the public report shape and diagnostic codes. `structuredFilesScanned` stays present and reports zero while no standalone structured source is defined. `PRD-AUTH-005` still applies to the supported Markdown authority links and frontmatter fields. Do not add a size cutoff as a substitute for file selection.
 
+For P3, live Markdown under `docs/` remains an eligible source family, including custom live paths such as `docs/history/current.md`. A path beneath a directory segment named exactly `evidence` or `implementation-evidence`, matched without case sensitivity, is stored proof and cannot state current PRD authority. This rule applies to both active PRD discovery and the live Markdown authority scan. It does not exclude a file merely because its name contains `evidence`. Prune an excluded directory before entering it or reading any file in it. Keep root and symlink safety, the existing diagnostic codes, and the report shape. `markdownFilesScanned` counts only selected Markdown files.
+
 ## Alternatives Considered
 
 - Keep the whole-project structured scan and stream JSONL line by line. This would avoid one string limit, but it would still read unrelated evidence and leave the source rule too broad.
 - Skip only `implementation-evidence` or files above a size limit. This would fix one observed path but would leave other unrelated structured files in scope.
 - Add a project-wide authority-file registry now. No current standalone structured authority schema needs it. A registry would add setup work without a defined user need.
+- Skip only the observed plan's `implementation-evidence/` path. That would leave other evidence directories in scope.
+- Restrict Markdown to a fixed list of top-level documentation directories. That would stop checks in custom live paths such as `docs/history/current.md`, which the current validator tests cover.
+- Stream or size-limit every Markdown file under `docs/`. That would still read stored evidence instead of selecting sources by role.
 
 ## Consequences
 
 The validator will no longer flag an action-named PRD path inside an arbitrary standalone structured file. That is an intentional scope change. Make Docs has no documented current-authority file type for that case. A project that needs one can define it through a later product-authority change.
 
-The validator will still read Markdown under `docs/` to find the named authority contexts. This package changes the unrelated structured-file scan. A separate Markdown evidence-scope problem, if shown, needs its own evidence and decision.
+The validator will still read eligible Markdown under `docs/` to find the named authority contexts. P3 excludes the two named evidence directory families before traversal. An authority-looking heading or field inside either family does not grant it current authority. Other Markdown paths remain in scope to preserve custom live-document checks. A new excluded path family needs its own product-authority decision.
 
 ## Intended Follow-On
 
 Route: `prd-change-plan`.
 
-Next step: Use the [W18 R16 plan](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/00-overview.md) to update the [CLI owner PRD](../prd/39-cli-command-model-and-operation-registry.md), the validator, tests, and shipped guidance.
+Next step: Use [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) and the [CLI owner PRD](../prd/39-cli-command-model-and-operation-registry.md) to exclude stored Markdown evidence while preserving live-document checks.
 
 Why: The source rule must be clear in product authority before code and templates use it.
 

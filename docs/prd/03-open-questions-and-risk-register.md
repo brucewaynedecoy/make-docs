@@ -964,15 +964,15 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) keeps the current Markdown scan and calls for a separate decision if Markdown evidence is shown to be in scope. The P2 full-project run showed that case. | Define which Markdown paths can state current PRD authority before changing the selector. Keep this issue separate from the closed JSONL defect. |
+| Open | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) defines live Markdown under `docs/` as eligible except paths beneath a directory segment named `evidence` or `implementation-evidence`. Match whole segments without case sensitivity. Keep other live paths, including custom directories, in scope. | Implement the P3 selector, tests, and shipped guidance. Prove the full-project result before closing this item. |
 
 **Issue**: `markdownFiles` recursively selects every Markdown file under `docs/`. The validator reads each selected file before checking for authority contexts. The [North Atlantic BuildOS report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) counted 73,372 Markdown files. A [read-only path count](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-markdown-path-counts.txt) found 73,242 of them under one plan's `implementation-evidence/` directory. These are stored evidence files, and no current product rule names that directory as an authority source.
 
 **Why it matters**: The full run passed, so this scan did not block the P2 check. The broad read still spends work on stored evidence and could face a separate size or time limit in another project.
 
-**Recommendation**: Decide which live Markdown path families can state current PRD authority. Then select only those paths before reading file contents. Keep the supported authority-link and frontmatter checks for those sources.
+**Recommendation**: Treat named evidence directories as stored proof, not current PRD authority. Prune them before directory traversal and file reads. Keep the supported authority-link and frontmatter checks for all other Markdown under `docs/`.
 
-**To close**: Product authority defines the eligible Markdown paths and evidence rule. The validator and tests enforce that rule, and a full-project run proves the selected source set.
+**To close**: [PRD 39](39-cli-command-model-and-operation-registry.md), the validator, and shipped guidance state the same path rule. Tests prove that the validator neither enters nor reads the two excluded directory families and still reports authority claims in other live Markdown paths. A full-project run proves the selected source set and returns an authority report.
 
 ## Open Questions
 
