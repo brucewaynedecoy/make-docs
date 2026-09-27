@@ -1,0 +1,11 @@
+North Atlantic BuildOS Markdown path count
+Date: 2026-09-26
+Target docs root: /Volumes/TylerT9/Work/HSL/North Atlantic/north-atlantic-buildos/docs
+Target evidence root: /Volumes/TylerT9/Work/HSL/North Atlantic/north-atlantic-buildos/docs/plans/2026-09-06-w1-r2-control-history-storage-and-safe-conversion/implementation-evidence
+
+Method: find each root -type f -iname '*.md' -print | wc -l
+docs_markdown=73372
+implementation_evidence_markdown=73242
+
+The authority report states markdownFilesScanned=73372. These path counts show
+where the selected Markdown files sit. They are not a file-access trace.

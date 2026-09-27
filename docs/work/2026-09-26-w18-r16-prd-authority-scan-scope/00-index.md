@@ -1,16 +1,11 @@
 ---
 title: "W18 R16 PRD Authority Scan Scope Work"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W18 R16"
 source:
   type: "prd"
   path: "docs/prd/39-cli-command-model-and-operation-registry.md"
-follow_on:
-  route: "implementation-loop"
-  next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "The backlog tracks the code and guidance needed to meet the PRD source rule."
-  coordinate_handoff: "Carry W18 R16 and the active P number into phase history and commits."
 ---
 
 # W18 R16 PRD Authority Scan Scope Work
@@ -32,8 +27,8 @@ The source decision is in the [design](../../designs/2026-09-26-prd-authority-so
 
 | Phase | Work | State |
 | --- | --- | --- |
-| P1 | [Validator selection and regression](01-validator-selection-and-regression.md) | Complete for P1 scope. Full-project proof remains in P2. |
-| P2 | [Guidance and project proof](02-guidance-and-project-proof.md) | Open. |
+| P1 | [Validator selection and regression](01-validator-selection-and-regression.md) | Complete. |
+| P2 | [Guidance and project proof](02-guidance-and-project-proof.md) | Complete. The full-project check passed. |
 
 ## Usage Notes
 

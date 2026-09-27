@@ -948,7 +948,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) defines supported Markdown authority sources. It identifies no current standalone structured authority source. | Change the validator and shipped guidance, then prove the full-project result. |
+| Closed | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) defines supported Markdown authority sources. P1 removed the project-wide structured-file read and added a file-access regression. P2 aligned upstream, dogfood, and packed guidance. The [full-project report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) passed with zero structured files scanned. | None for this defect. A future structured authority source needs its own product requirement. |
 
 **Issue**: `prd.authority.validate` enumerates JSON, JSONL, YAML, and YML across a project and reads each selected file before it knows whether the file can state current PRD authority. A reported run included large stored test evidence and ended without an authority report.
 
@@ -957,6 +957,22 @@ Code anchors:
 **Recommendation**: Select only product-defined authority sources before reading. Keep the current Markdown checks. Add a standalone structured source only after its path and schema are defined in product authority.
 
 **To close**: The validator and shipped guidance match [PRD 39](39-cli-command-model-and-operation-registry.md). Tests prove that unrelated structured evidence is not opened. A full run against the reported project shape returns an authority report, and any remaining failure has a separate recorded cause.
+
+**Resolution**: Closed by [P1](../work/2026-09-26-w18-r16-prd-authority-scan-scope/01-validator-selection-and-regression.md) and [P2](../work/2026-09-26-w18-r16-prd-authority-scan-scope/02-guidance-and-project-proof.md). The full North Atlantic BuildOS run returned `passed` in 17.79 seconds with no diagnostics. The P1 regression shows that unrelated structured evidence is not opened. D-043 tracks the separate Markdown evidence scan.
+
+### D-043 PRD Authority Validation Reads Stored Markdown Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) keeps the current Markdown scan and calls for a separate decision if Markdown evidence is shown to be in scope. The P2 full-project run showed that case. | Define which Markdown paths can state current PRD authority before changing the selector. Keep this issue separate from the closed JSONL defect. |
+
+**Issue**: `markdownFiles` recursively selects every Markdown file under `docs/`. The validator reads each selected file before checking for authority contexts. The [North Atlantic BuildOS report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) counted 73,372 Markdown files. A [read-only path count](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-markdown-path-counts.txt) found 73,242 of them under one plan's `implementation-evidence/` directory. These are stored evidence files, and no current product rule names that directory as an authority source.
+
+**Why it matters**: The full run passed, so this scan did not block the P2 check. The broad read still spends work on stored evidence and could face a separate size or time limit in another project.
+
+**Recommendation**: Decide which live Markdown path families can state current PRD authority. Then select only those paths before reading file contents. Keep the supported authority-link and frontmatter checks for those sources.
+
+**To close**: Product authority defines the eligible Markdown paths and evidence rule. The validator and tests enforce that rule, and a full-project run proves the selected source set.
 
 ## Open Questions
 
