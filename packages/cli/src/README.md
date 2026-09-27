@@ -225,7 +225,7 @@ npm pack --dry-run --json --ignore-scripts
 npm publish --dry-run --access public --tag next
 ```
 
-The package is scoped, so public publish validation uses `--access public`. The GitHub Release workflow performs the real publish after the release is approved. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
+The package is scoped, so public publish validation uses `--access public`. The GitHub Release workflow stages the package on npm. An npm maintainer reviews and approves the staged package with two-factor authentication before it becomes public. Do not perform a real publish, registry reservation, tag, or promotion unless that irreversible action is explicitly authorized.
 
 First-party Skill source lives only under `packages/skills/`. Compare the registry allowlist and source bytes with the compiled payload and extracted-package installs, including independent offline installs of all eight Skills. Never create a separate generated Skill tree as package input.
 

@@ -2,7 +2,18 @@
 
 Make Docs helps teams plan, build, and keep project documentation current with AI agents. It provides routes for designs, plans, product requirements (PRDs), and work backlogs. Its TypeScript CLI and MCP server use the same set of operations and system resources. Project knowledge stays in the repository. A global Make Docs Store keeps managed install and recovery records.
 
-> **Source and release status (2026-09-24):** This checkout declares version `2.0.2`. The public npm `next` and `latest` tags still point to `1.0.0-rc.1`. The features and commands below describe this checkout. Check `npm view @brucewaynedecoy/make-docs dist-tags --json` before using a public package for them.
+The CLI is published as [`@brucewaynedecoy/make-docs`](https://www.npmjs.com/package/@brucewaynedecoy/make-docs). The `latest` npm tag selects the current stable release. The `next` tag selects a prerelease.
+
+## Quick Start with npm
+
+Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a target project directory. Run these commands from the project directory:
+
+```bash
+npx @brucewaynedecoy/make-docs@latest setup --dry-run
+npx @brucewaynedecoy/make-docs@latest setup
+```
+
+The dry run previews changes. The next command opens guided setup and asks for approval before it applies changes. See [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) for the full setup choices.
 
 ## Quick Start from This Checkout
 
@@ -21,7 +32,7 @@ A fresh setup selects all four document areas and project instructions for Codex
 
 Run bare `make-docs` to start guided setup in a project with no install. In an installed project, bare `make-docs` shows status and help. It does not sync files. Use `make-docs setup` to sync saved selections, `make-docs setup reconfigure` to change them, and `make-docs setup --dry-run` to preview a sync.
 
-The public npm package currently provides the older release candidate. Use [Building and Installing the CLI Locally](docs/assets/maintainer/cli-development-local-build-and-install.md) to test this source checkout. Use [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) for the full setup choices and review steps.
+Use [Building and Installing the CLI Locally](docs/assets/maintainer/cli-development-local-build-and-install.md) to test this source checkout. Use [Installing Make Docs](docs/assets/user/getting-started-installing-make-docs.md) for the full setup choices and review steps.
 
 ## How Work Moves
 
