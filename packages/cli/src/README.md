@@ -4,7 +4,7 @@ This file is for contributors working on the `make-docs` package itself. The roo
 
 ## Prerequisites
 
-- Node.js `>=18`
+- Node.js `>=24.0.0`
 - npm
 - a normal terminal with TTY support for interactive wizard testing
 

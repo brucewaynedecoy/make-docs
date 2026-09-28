@@ -1,0 +1,10 @@
+W18 R16 P3 final working-source authority check
+Command: node packages/cli/dist/index.js run prd authority validate --target-root <North Atlantic BuildOS project> --json
+Input: Full North Atlantic BuildOS project on /Volumes/TylerT9; read-only.
+Exit code: 0
+Observed command wall time: 0.14 seconds
+Report: 6 direct numbered PRDs; 89 Markdown bodies; 0 structured files; 142 authority links; no diagnostics.
+Coverage: 6 PRDs, 5 designs, 41 plan files, 37 work files, 0 custom files.
+PRD count: The former broad scan counted AGENTS.md and CLAUDE.md under docs/prd in addition to the six numbered PRDs. They are not product PRDs.
+P2 baseline: 73,372 Markdown files; 17.79 seconds. The earlier directory-name P3 candidate counted 109 Markdown files in 0.09 seconds. These runs used different source rules.
+Limit: One full-project run proves this result. Access tests prove that stored copies under plan and work packages are not entered or read in fixtures. The project run is not a file-access trace or a fixed product speed target.

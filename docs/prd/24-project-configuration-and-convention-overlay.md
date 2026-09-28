@@ -47,6 +47,20 @@ Configuration must not rename or redirect canonical structure:
 - Persona schema keys or primitive values.
 - W/R/P lineage as the machine-readable coordinate contract.
 
+### PRD Authority Markdown Sources
+
+- R-CONFIG-PRD-AUTH-1 (MUST): optional project-owned `.make-docs/config.yaml` may declare `prd_authority.markdown_sources` as a list of exact, repository-relative `.md` file paths under `docs/`. This list adds custom working Markdown sources to the default paths in PRD 39. It does not accept directory entries, glob patterns, archive paths, symlinks, or paths that resolve outside the target project. An absent list adds no custom source.
+- R-CONFIG-PRD-AUTH-2 (MUST): `prd.authority.validate` reads this declaration without changing it. It reports invalid entries as validation failures. It does not infer entries from document text, copied frontmatter, Store records, installed-package ownership, or past lifecycle evidence. The same selection and result apply when the validator runs against an initialized target project with no local CLI installation or Store access.
+- R-CONFIG-PRD-AUTH-3 (MUST): setup and managed updates preserve this project-owned declaration under R-CONFIG-STATE-2. A project adds or removes an exact custom source through its normal reviewed config edit. Removing an entry changes the validator's coverage and must be visible in guidance and the validation report.
+
+For example, a project can add one custom working document without adding the whole directory:
+
+```yaml
+prd_authority:
+  markdown_sources:
+    - docs/history/current.md
+```
+
 ### Persona Configuration
 
 Configured Persona entries follow [PRD 47](47-persona-model.md#persona-schema) and retain `slug`, `label`, `description`, and `primitive`. `slug` is the stable value; `label` and `description` are display fields; `primitive` is either `user` or `maintainer`. Either audience role can be filled by a person or an agent.
@@ -191,6 +205,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: project setup writes exact reviewed `harnessIntegrations` state through one preserving writer and proves its repeat and failure behavior.
 - Rationale: a shareable project choice is not a product capability if only tests or manual edits can create it.
 - Source: [corrected W19 R6 design](../designs/2026-09-12-unified-setup-and-harness-access.md) and [W19 R6 P2 plan](../plans/2026-09-12-w19-r6-unified-setup-and-harness-access/02-corrective-production-path-and-acceptance.md)
+
+### 2026-09-28 — W18 R16
+
+- Affected requirement or section: `R-CONFIG-PRD-AUTH-1` through `R-CONFIG-PRD-AUTH-3`
+- Previous contract: Project config did not declare custom Markdown paths for PRD authority validation.
+- Replacement contract: Project config may list exact custom working Markdown files. The validator uses that repository-owned list with its default source paths and gives the same result without Store access.
+- Rationale: Custom working files need a positive source declaration. Copied frontmatter and optional Store records cannot identify the working copy.
+- Source: [PRD Authority Source Scope](../designs/2026-09-26-prd-authority-source-scope.md)
 
 ## Source Anchors
 

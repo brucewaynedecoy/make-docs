@@ -63,6 +63,14 @@ function renderPrdAuthorityValidation(value: JsonValue): string[] | null {
   const lines = [
     `PRD authority validation: ${text(report, "status") ?? "unknown"} (${String(report.prdFilesScanned ?? "?")} PRD files, ${diagnostics.length} errors).`,
   ];
+  const coverage = asRecord(report.markdownSourceCoverage);
+  if (coverage) {
+    lines.push(
+      `Markdown checked: ${String(report.markdownFilesScanned ?? "?")} (PRD ${String(coverage.prd ?? 0)}, design ${String(coverage.design ?? 0)}, plan ${String(coverage.plan ?? 0)}, work ${String(coverage.work ?? 0)}, custom ${String(coverage.custom ?? 0)}).`,
+    );
+    const customPaths = stringList(coverage, "customPaths");
+    if (customPaths.length > 0) lines.push(`Custom sources: ${customPaths.join(", ")}`);
+  }
   for (const diagnostic of diagnostics) {
     lines.push(
       `${text(diagnostic, "code") ?? "PRD-AUTH-?"} ${text(diagnostic, "path") ?? "?"}:${String(diagnostic.line ?? "?")} ${text(diagnostic, "message") ?? "Validation error."}`,

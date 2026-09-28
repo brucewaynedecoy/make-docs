@@ -1,0 +1,8 @@
+W18 R16 P3 full-project authority check
+Command: node packages/cli/dist/index.js run prd authority validate --target-root <North Atlantic BuildOS project> --json
+Input: Full North Atlantic BuildOS project on /Volumes/TylerT9; read-only.
+Exit code: 0
+Observed command wall time: 0.09 seconds
+Report: 8 PRDs; 109 Markdown files; 0 structured files; 142 authority links; no diagnostics.
+P2 baseline: 73,372 Markdown files; 17.79 seconds. The P3 selected count is 73,263 lower.
+Limit: One run proves this full-project result. It does not set a product speed target.

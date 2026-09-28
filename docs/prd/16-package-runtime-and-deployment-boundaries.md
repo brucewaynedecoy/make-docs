@@ -44,6 +44,7 @@ These W19 R5 Skill package requirements record accepted direction. The owner acc
 
 Remote execution and runtime boundary:
 
+- The Make Docs 2.0.4 CLI package and root workspace require Node.js `>=24.0.0`. The published package `engines.node`, the workspace engine, and install guidance must state this floor. It covers unflagged access to the Store's built-in `node:sqlite` module and the supported prompt dependencies. The published package pins `@clack/core` to `1.5.1` and `@clack/prompts` to `1.8.1` so remote installs use the tested pair without relying on the workspace lockfile.
 - `npx`, `pnpm dlx`, and `bunx` / `bun x` are first-class remote execution targets.
 - Persistent local installation is not the primary user posture, and future docs should not require users to install the CLI globally before using v2.
 - Rust, Homebrew, Crates, same-command dual-runtime behavior, and PATH-order runtime selection are not v2 implementation or validation targets.
@@ -162,6 +163,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The CLI package contains the complete registry-declared seven-Skill bundle with version/hash evidence and offline extracted-package proof. The source workspace and installed paths remain unchanged; no plugin contract is introduced.
 - Rationale: Make the published artifact the verifiable delivery source and remove duplicate authoring during implementation.
 - Source: [R5 design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md). The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
+
+### 2026-09-28 — Not assigned
+
+- Affected requirement or section: `Requirements` → `Remote execution and runtime boundary`
+- Previous contract: The package and root workspace declared Node.js `>=18`. Install guides claimed Node.js 22.5 supported managed setup, although SQLite still needed a flag at that version.
+- Replacement contract: Make Docs 2.0.4 requires Node.js `>=24.0.0` for the CLI package and root workspace. The package and install guidance must agree. The published CLI package pins `@clack/core` to `1.5.1` and `@clack/prompts` to `1.8.1`.
+- Rationale: The owner chose Node.js 24 as the minimum supported release. It provides unflagged `node:sqlite` and meets the new Clack versions' Node.js `>=20.12.0` requirement. Exact Clack versions keep remote installs on the tested pair because the workspace lockfile does not ship in the package.
+- Source: [Make Docs 2.0.4 pull request](https://github.com/brucewaynedecoy/make-docs/pull/31), [Node.js SQLite version history](https://nodejs.org/download/release/v22.13.0/docs/api/sqlite.html), and [Node.js release schedule](https://nodejs.org/en/about/previous-releases)
 
 ## Source Anchors
 

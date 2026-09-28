@@ -37,7 +37,7 @@ You need:
 
 | Requirement | Why it matters |
 | --- | --- |
-| Node.js 22.5 or newer with built-in SQLite | Managed installs require the Make Docs Store. An older Node version without SQLite cannot complete the install. |
+| Node.js 24 or newer with built-in SQLite | Make Docs 2.0.4 requires this version. Managed installs require the Make Docs Store. |
 | npm and `npx` | `npx` runs the published CLI package. |
 | A target project directory | The installer writes the selected docs scaffold into that repo. |
 

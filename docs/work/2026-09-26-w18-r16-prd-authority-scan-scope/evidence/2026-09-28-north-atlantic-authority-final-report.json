@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "targetRoot": "/Volumes/TylerT9/Work/HSL/North Atlantic/north-atlantic-buildos",
+  "targetRootStatus": "valid",
+  "prdRoot": "/Volumes/TylerT9/Work/HSL/North Atlantic/north-atlantic-buildos/docs/prd",
+  "prdSetStatus": "present",
+  "prdFilesScanned": 6,
+  "markdownFilesScanned": 89,
+  "markdownSourceCoverage": {
+    "prd": 6,
+    "design": 5,
+    "plan": 41,
+    "work": 37,
+    "custom": 0,
+    "customPaths": []
+  },
+  "structuredFilesScanned": 0,
+  "linksScanned": 142,
+  "diagnostics": []
+}

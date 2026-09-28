@@ -944,6 +944,38 @@ Code anchors:
 
 **Resolution**: P6 workflow 35483206273 installed the same package candidate into isolated Windows, macOS, and Linux environments. Each host passed the required source safety matrix and the same installed public contract. The final comparison passed with no platform exception or reduced parity claim.
 
+### D-042 PRD Authority Validation Reads Unrelated Structured Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The [W18 R16 source-scope design](../designs/2026-09-26-prd-authority-source-scope.md) defines supported Markdown authority sources. P1 removed the project-wide structured-file read and added a file-access regression. P2 aligned upstream, dogfood, and packed guidance. The [full-project report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) passed with zero structured files scanned. | None for this defect. A future structured authority source needs its own product requirement. |
+
+**Issue**: `prd.authority.validate` enumerates JSON, JSONL, YAML, and YML across a project and reads each selected file before it knows whether the file can state current PRD authority. A reported run included large stored test evidence and ended without an authority report.
+
+**Why it matters**: Unrelated evidence can cause a time or string-size failure. A user then cannot tell whether the active PRD set passed validation.
+
+**Recommendation**: Select only product-defined authority sources before reading. Keep the current Markdown checks. Add a standalone structured source only after its path and schema are defined in product authority.
+
+**To close**: The validator and shipped guidance match [PRD 39](39-cli-command-model-and-operation-registry.md). Tests prove that unrelated structured evidence is not opened. A full run against the reported project shape returns an authority report, and any remaining failure has a separate recorded cause.
+
+**Resolution**: Closed by [P1](../work/2026-09-26-w18-r16-prd-authority-scan-scope/01-validator-selection-and-regression.md) and [P2](../work/2026-09-26-w18-r16-prd-authority-scan-scope/02-guidance-and-project-proof.md). The full North Atlantic BuildOS run returned `passed` in 17.79 seconds with no diagnostics. The P1 regression shows that unrelated structured evidence is not opened. D-043 tracks the separate Markdown evidence scan.
+
+### D-043 PRD Authority Validation Reads Stored Markdown Evidence
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working Markdown by canonical document path or an exact custom path declared in project config. It then checks bounded frontmatter before an eligible body read. Directory names and copied headers do not establish source role. | The corrected validator, tests, shipped guidance, and [full-project report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) complete the P3 proof. |
+
+**Issue**: `markdownFiles` recursively selects every Markdown file under `docs/`. The validator reads each selected file before checking for authority contexts. The [North Atlantic BuildOS report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) counted 73,372 Markdown files. A [read-only path count](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-markdown-path-counts.txt) found 73,242 of them under one plan's `implementation-evidence/` directory. These are stored evidence files, and no current product rule names that directory as an authority source.
+
+**Why it matters**: The full run passed, so this scan did not block the P2 check. The broad read still spends work on stored evidence and could face a separate size or time limit in another project.
+
+**Recommendation**: Select working documents from Make Docs path shapes and exact declared custom paths. Read a bounded YAML header after path selection. Keep selected older documents without frontmatter in scope. A stored copy does not become a current source because it carries the same `kind` and `status`. The P3 candidate that prunes two named directories passed one project run, but that result does not prove the revised rule.
+
+**To close**: [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 24](24-project-configuration-and-convention-overlay.md), the validator, and shipped guidance state the same source rule. Tests prove that stored copies are not entered or read regardless of their directory names; selected standard, custom, and older documents keep the intended authority checks; invalid custom declarations fail; and validation works without Store access. A fresh full-project run proves the revised selected set and returns an authority report.
+
+**Closeout evidence**: The focused authority and config tests passed all 36 cases. The default consistency, link, and package safety tests passed all 53 cases. The built validator passed against this Make Docs checkout and the North Atlantic BuildOS project. The [North Atlantic report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) counted 6 numbered PRDs and 89 selected Markdown files with no findings. Its [run record](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-run.txt) records the read-only project check and its limits.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

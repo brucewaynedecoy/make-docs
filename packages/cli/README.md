@@ -4,7 +4,7 @@ Make Docs helps teams plan, build, and keep project documentation current with A
 
 ## Quick Start
 
-Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a project directory. Run these commands from the project directory:
+Make Docs 2.0.4 needs Node.js 24 or newer with built-in SQLite, npm, and a project directory. Run these commands from the project directory:
 
 ```bash
 npx @brucewaynedecoy/make-docs@latest setup --dry-run

@@ -34,7 +34,7 @@ This guide covers the current TypeScript npm package, including the CLI and the 
 
 | Requirement | Notes |
 | --- | --- |
-| Node.js `>=18` | Required for workspace install, build, and tests. |
+| Node.js `>=24.0.0` | Required for workspace install, build, tests, and the Store. |
 | npm | Used for workspace scripts and local pack/install checks. |
 | repo-root install | Run `npm install` once from the repo root. |
 

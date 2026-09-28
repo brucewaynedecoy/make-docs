@@ -52,6 +52,16 @@ describe("make-docs project config", () => {
     ]);
   });
 
+  test("accepts the project-owned PRD authority source declaration", () => {
+    const targetDir = createTempDir();
+    writeConfig(targetDir, "prd_authority:\n  markdown_sources:\n    - docs/history/current.md\n");
+
+    const loaded = loadMakeDocsConfig(targetDir);
+
+    expect(loaded.valid).toBe(true);
+    expect(loaded.diagnostics).toEqual([]);
+  });
+
   test("accepts valid display labels, generated prose defaults, and persona overlays", () => {
     const targetDir = createTempDir();
     writeConfig(
@@ -232,6 +242,9 @@ harnessNames:
 appearance:
   theme: docs
 projectId: sample
+prd_authority:
+  markdown_sources:
+    - docs/history/current.md
 `;
     writeConfig(targetDir, before);
 
@@ -250,6 +263,7 @@ projectId: sample
     expect(plan.content).toContain("# project comment");
     expect(plan.content).toContain("appearance:");
     expect(plan.content).toContain("theme: docs");
+    expect(plan.content).toContain("    - docs/history/current.md");
     expect(plan.content).toContain("harnessIntegrations:");
     expect(readFileSync(plan.configPath, "utf8")).toBe(before);
   });

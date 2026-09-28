@@ -141,7 +141,19 @@ Before closing PRD authority maintenance, confirm:
 
 ## Deterministic Authority Validation
 
-Run `make-docs run prd authority validate --target-root <project>` against the project root after PRD maintenance and before downstream work treats the set as authority. The read-only operation scans active `docs/prd/**/*.md` files plus live documentation links and source fields.
+Run `make-docs run prd authority validate --target-root <project>` against the project root after PRD maintenance and before downstream work treats the set as authority. The read-only operation scans selected working PRD and other Markdown documents for current PRD authority claims.
+
+Default sources are direct numbered Markdown files in `docs/prd/`, dated designs directly in `docs/designs/`, direct overview and phase files in dated W/R plan packages, and direct index and phase files in dated W/R work packages. The validator does not enter other descendants of a plan or work package. A stored copy with a copied header remains outside the source set, whatever its directory name. A completed work record at its working path remains in scope.
+
+For a custom working document, add its exact repository-relative `.md` path under `docs/` to `.make-docs/config.yaml`:
+
+```yaml
+prd_authority:
+  markdown_sources:
+    - docs/history/current.md
+```
+
+The list accepts files, not directories or globs. Invalid, missing, escaping, archive, or symlinked paths report `PRD-AUTH-009`. After selection, the validator reads a bounded YAML header to check `kind` and `status` where they have a defined meaning. An older selected document without frontmatter remains in scope. Present malformed, over-limit, or role-inconsistent frontmatter reports `PRD-AUTH-010`; it cannot silently remove a source. The report's `markdownFilesScanned` counts bodies checked. `markdownSourceCoverage` shows checked source classes and custom paths. Source selection and results do not depend on a local Store or CLI installation in the target project.
 
 The validator uses two finite, case-insensitive sets. Filenames and H1 subjects prohibit only `revise`, `revision`, `add`, `addition`, `enhance`, `enhancement`, `remove`, `removal`, `deprecate`, `deprecation`, `reconcile`, and `reconciliation`. Product subjects such as Update Delivery, Replacement Policy, and Migration Safety therefore remain valid. Frontmatter and PRD-index editorial kinds prohibit those twelve terms plus `update`, `replace`, `replacement`, `migrate`, and `migration`.
 
@@ -158,7 +170,7 @@ The validator uses two finite, case-insensitive sets. Filenames and H1 subjects 
 
 Markdown links are authority-bearing only within `Source PRD Docs`, `Source PRDs`, `Source PRD Documents`, `PRD Authority`, `Product Authority`, `Current PRD Authority`, `Authoritative PRDs`, `Authoritative PRD Docs`, `Source Authority`, `Authority Sources`, or `Active Authority Baseline`, plus the PRD index's `Document Map`. The provenance sections `Requirement History`, `Provenance`, `Lineage`, `Source Anchors`, `Design Provenance`, `Migration Provenance`, `Migration History`, `Historical Provenance`, and `Archive Provenance` are exempt from authority-link enforcement.
 
-Outside the only canonical path exemption, `.make-docs/archive/**`, the validator also reads JSON, JSONL, YAML, and YML. After punctuation removal and lowercasing, authority fields are `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching the provenance section vocabulary are exempt.
+The validator does not select standalone JSON, JSONL, YAML, or YML files by extension or apparent field name. Make Docs currently defines no standalone structured file as a current PRD authority source. The report keeps `structuredFilesScanned` at zero while that set is empty. In live Markdown frontmatter, after camel/snake/hyphen normalization, authority fields remain `source(s)`, `sourcePath(s)`, `sourcePrd(s)`, `sourcePrdPath(s)`, `sourcePrdDoc(s)`, `authority/authorities`, `authorityPath(s)`, `authorityPrd(s)`, `prd(s)`, `prdPath(s)`, and `prdDoc(s)`, including nested `path(s)` under source, authority, or PRD containers. Standardized provenance containers matching the provenance section vocabulary are exempt. A future standalone structured source needs a product requirement that names its bounded path or path family, schema, current-authority field, and provenance rule before a selector is added.
 
 These provenance exemptions do not permit an active PRD filename, H1, kind, retired heading, or document-level coordinate to violate current-authority rules. The validator resolves the target root and documentation scan roots before reading; an absent or invalid root fails with `PRD-AUTH-007`, while an escaping or otherwise unsafe `docs/` or `docs/prd/` root fails closed with `PRD-AUTH-008`.
 

@@ -25,9 +25,9 @@ import { getStoreDatabasePath } from "./paths";
  * SQLite operational database for the global store (R-DB-1 through R-DB-4).
  *
  * Driver: the Node built-in `node:sqlite` module, loaded lazily via
- * `createRequire` so the CLI still loads on runtimes that predate it
- * (`node:sqlite` requires Node >= 22.5). On such runtimes the store database
- * reports `unavailable` through the same graceful-degradation path that
+ * `createRequire` so the CLI still loads on runtimes without it.
+ * The package requires Node >= 24.0.0, where `node:sqlite` needs no flag. If a runtime
+ * lacks the module, the store database reports `unavailable` through the same path that
  * R-DB-4 mandates for a missing database; nothing else in the CLI is
  * affected. See the module README for the full driver tradeoff record.
  *
@@ -521,7 +521,7 @@ export function loadSqliteDriver(): SqliteDriverResult {
   } catch {
     cachedDriver = {
       available: false,
-      reason: `this Node runtime (${process.version}) does not provide the built-in node:sqlite module (requires Node >= 22.5).`,
+      reason: `this Node runtime (${process.version}) does not provide the built-in node:sqlite module (Make Docs requires Node >= 24.0.0 with node:sqlite enabled).`,
     };
   }
   return cachedDriver;

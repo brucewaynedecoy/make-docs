@@ -24,7 +24,7 @@ The design's D10 section fixes the store location, contents, identity keying, si
 Chosen: the Node built-in `node:sqlite` module, loaded lazily via `createRequire` (`database.ts`).
 
 - `better-sqlite3` was rejected because it is a native (node-gyp) dependency; for an npx-distributed CLI this adds install-time compilation or platform-prebuilt weight and a failure mode outside our control on unusual platforms. The CLI currently has zero native dependencies and this keeps it that way.
-- `node:sqlite` requires Node >= 22.5 while the package engine floor is `>=18`. On runtimes without the module (Node 18/20, both end-of-life), the database reports `unavailable` through the same graceful-degradation path R-DB-4 mandates for a missing database: the config and manifest are still created, repository operations are unaffected, and a diagnostic names the runtime requirement. This is a deliberate tradeoff — the pre-EOL runtimes lose only optional operational-state recording, not any repository behavior.
+- `node:sqlite` was added in Node 22.5 behind a flag. Node 22.13 makes it available without the flag. The package engine floor is `>=24.0.0`. If a runtime lacks the module, the database reports `unavailable` through the same graceful-degradation path R-DB-4 mandates for a missing database. The diagnostic names the runtime requirement.
 - Pure-JS/WASM drivers (`sql.js`) were rejected because they cannot provide real cross-process WAL concurrency (R-DB-3).
 
 ### Global config and manifest file formats: JSON
