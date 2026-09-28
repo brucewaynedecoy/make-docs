@@ -6,7 +6,7 @@ The CLI is published as [`@brucewaynedecoy/make-docs`](https://www.npmjs.com/pac
 
 ## Quick Start with npm
 
-Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a target project directory. Run these commands from the project directory:
+Make Docs 2.0.4 needs Node.js 24 or newer with built-in SQLite, npm, and a target project directory. Run these commands from the project directory:
 
 ```bash
 npx @brucewaynedecoy/make-docs@latest setup --dry-run
@@ -17,7 +17,7 @@ The dry run previews changes. The next command opens guided setup and asks for a
 
 ## Quick Start from This Checkout
 
-Managed setup needs Node.js 22.5 or newer with built-in SQLite, npm, and a target project directory. From this repository's root, replace `../your-project` with an existing project path:
+Make Docs 2.0.4 needs Node.js 24 or newer with built-in SQLite, npm, and a target project directory. From this repository's root, replace `../your-project` with an existing project path:
 
 ```bash
 npm install

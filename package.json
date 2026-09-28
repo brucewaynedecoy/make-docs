@@ -5,7 +5,7 @@
   "description": "Monorepo root for make-docs. The publishable CLI lives at packages/cli; the template lives at packages/docs/template.",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=24.0.0"
   },
   "workspaces": [
     "packages/*"

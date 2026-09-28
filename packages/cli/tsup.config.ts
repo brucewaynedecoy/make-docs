@@ -9,7 +9,7 @@ const repoRoot = path.resolve(packageDir, "../..");
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["esm"],
-  target: "node18",
+  target: "node24",
   platform: "node",
   sourcemap: true,
   clean: true,
