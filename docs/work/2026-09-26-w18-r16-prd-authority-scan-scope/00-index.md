@@ -36,11 +36,11 @@ The source decision is in the [design](../../designs/2026-09-26-prd-authority-so
 | --- | --- | --- |
 | P1 | [Validator selection and regression](01-validator-selection-and-regression.md) | Complete. |
 | P2 | [Guidance and project proof](02-guidance-and-project-proof.md) | Complete. The full-project check passed. |
-| P3 | [Markdown evidence source selection](03-markdown-evidence-source-selection.md) | Open. The directory-name candidate is superseded. Working-path selection, bounded frontmatter checks, and fresh full-project proof remain. D-043 stays open. |
+| P3 | [Markdown evidence source selection](03-markdown-evidence-source-selection.md) | Complete. The full-project check passed, and D-043 is closed. |
 
 ## Usage Notes
 
-P1 and P2 are complete, and [D-042](../../prd/03-open-questions-and-risk-register.md) is closed. Start the remaining P3 work from PRDs 39 and 24. The directory-name candidate is superseded. Keep [D-043](../../prd/03-open-questions-and-risk-register.md) open until revised code, guidance, tests, and fresh full-project proof agree. Keep the North Atlantic BuildOS project read-only during proof. Record any remaining failure as a separate finding with its own cause check.
+P1, P2, and P3 are complete. [D-042](../../prd/03-open-questions-and-risk-register.md) and [D-043](../../prd/03-open-questions-and-risk-register.md) are closed. The directory-name candidate is superseded. The revised P3 code, guidance, tests, and full-project report agree in this checkout. The North Atlantic BuildOS project remained read-only during proof.
 
 This backlog is an implementation queue. The PRD remains the product rule. The observed 180-second timeout is evidence of an incomplete run, not a fixed product speed target.
 
@@ -48,8 +48,8 @@ This backlog is an implementation queue. The PRD remains the product rule. The o
 
 Route: `implementation-loop`.
 
-Next step: Implement [P3](03-markdown-evidence-source-selection.md) from the updated [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) and [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md) rules.
+Next step: Consume the completed [P3](03-markdown-evidence-source-selection.md) source rule in later authority work when needed.
 
-Why: The P2 result exposed a separate Markdown evidence scan. P3 must select working sources before reads and keep stored copies outside the selected set.
+Why: The revised validator selects working sources before reads and passed the full-project check.
 
 Coordinate handoff: W18 R16 P3.

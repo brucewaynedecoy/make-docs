@@ -964,7 +964,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working Markdown by canonical document path or an exact custom path declared in project config. It then checks bounded frontmatter before an eligible body read. Directory names and copied headers do not establish source role. | Replace the narrow directory-name P3 candidate. Prove standard, custom, legacy, copied-evidence, and Store-free cases before closing this item. |
+| Closed | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working Markdown by canonical document path or an exact custom path declared in project config. It then checks bounded frontmatter before an eligible body read. Directory names and copied headers do not establish source role. | The corrected validator, tests, shipped guidance, and [full-project report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) complete the P3 proof. |
 
 **Issue**: `markdownFiles` recursively selects every Markdown file under `docs/`. The validator reads each selected file before checking for authority contexts. The [North Atlantic BuildOS report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) counted 73,372 Markdown files. A [read-only path count](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-markdown-path-counts.txt) found 73,242 of them under one plan's `implementation-evidence/` directory. These are stored evidence files, and no current product rule names that directory as an authority source.
 
@@ -973,6 +973,8 @@ Code anchors:
 **Recommendation**: Select working documents from Make Docs path shapes and exact declared custom paths. Read a bounded YAML header after path selection. Keep selected older documents without frontmatter in scope. A stored copy does not become a current source because it carries the same `kind` and `status`. The P3 candidate that prunes two named directories passed one project run, but that result does not prove the revised rule.
 
 **To close**: [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 24](24-project-configuration-and-convention-overlay.md), the validator, and shipped guidance state the same source rule. Tests prove that stored copies are not entered or read regardless of their directory names; selected standard, custom, and older documents keep the intended authority checks; invalid custom declarations fail; and validation works without Store access. A fresh full-project run proves the revised selected set and returns an authority report.
+
+**Closeout evidence**: The focused authority and config tests passed all 36 cases. The default consistency, link, and package safety tests passed all 53 cases. The built validator passed against this Make Docs checkout and the North Atlantic BuildOS project. The [North Atlantic report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) counted 6 numbered PRDs and 89 selected Markdown files with no findings. Its [run record](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-run.txt) records the read-only project check and its limits.
 
 ## Open Questions
 

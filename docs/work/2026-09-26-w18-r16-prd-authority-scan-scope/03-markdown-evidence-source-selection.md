@@ -16,7 +16,7 @@ Apply the working Markdown source rule in [PRD 39](../../prd/39-cli-command-mode
 
 ## Overview
 
-The P2 full-project check passed, but it read 73,242 Markdown files under one plan's `implementation-evidence/` directory. An initial P3 candidate skipped two directory names. That candidate passed one full-project run, but its rule is too narrow. The [revised P3 plan](../../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working documents from canonical path shapes and exact declared custom paths, then checks bounded frontmatter before eligible body reads. The old candidate code and guidance remain uncommitted and are not accepted implementation.
+The P2 full-project check passed, but it read 73,242 Markdown files under one plan's `implementation-evidence/` directory. An initial P3 candidate skipped two directory names. That candidate passed one full-project run, but its rule was too narrow. The [revised P3 plan](../../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working documents from canonical path shapes and exact declared custom paths, then checks bounded frontmatter before eligible body reads. Stage 2 replaced the candidate code and guidance. Its run remains historical evidence only.
 
 ## Human Experience Outcome
 
@@ -96,19 +96,19 @@ This review checks the command result and tests. It makes no claim about a perso
 
 ### Closeout Notes
 
-This candidate is superseded. Its code, tests, and guidance are still uncommitted. The passing 109-file run is historical evidence for the directory-name rule only. D-043 and P3 remain open. Stage 2 owns the accepted fix and fresh proof.
+This candidate is superseded. Stage 2 replaced its code, tests, and guidance. The passing 109-file run is historical evidence for the directory-name rule only. Stage 2 owns the corrected fix and fresh proof.
 
 ## Stage 2 - Working Markdown Source Selection and Proof
 
 ### Tasks
 
-- [ ] t1: Replace directory-name pruning with default source selection from direct PRD, design, plan, and work document shapes. Do not enter unrelated descendants beneath plan or work packages. Keep root and symlink safety.
-- [ ] t2: Add the optional `prd_authority.markdown_sources` exact-path reader in project config. Reject directories, globs, archive paths, symlinks, unsafe paths, and missing declared files with clear validation results. Do not write config or require Store access.
-- [ ] t3: Read a finite YAML header after path selection and before any body read. Use `kind` and `status` as role checks where contracts define them. Keep selected older documents without frontmatter in scope. Fail clearly when malformed or over-limit metadata prevents a required check.
-- [ ] t4: Add access and diagnostic tests for default paths, arbitrary stored-copy directory names, copied frontmatter, standard and custom working paths, older files, invalid declarations, Store absence, report coverage, and existing CLI/MCP behavior.
-- [ ] t5: Update shipped guidance upstream, dogfood it, and check the packed CLI copy. Explain how a project declares a custom working document and how a user reads the coverage result.
-- [ ] t6: Run the built validator against North Atlantic BuildOS as read-only input. Save the fresh report, selected-source classes, counts, elapsed time, and limits. Compare with P2 and the superseded P3 candidate without treating their rules as equivalent.
-- [ ] t7: Complete the agent Human Experience Review from the fresh result. Run relevant tests and link checks. Close D-043 only when runtime, tests, shipped guidance, and full-project proof meet the revised PRDs.
+- [x] t1: Replace directory-name pruning with default source selection from direct PRD, design, plan, and work document shapes. Do not enter unrelated descendants beneath plan or work packages. Keep root and symlink safety.
+- [x] t2: Add the optional `prd_authority.markdown_sources` exact-path reader in project config. Reject directories, globs, archive paths, symlinks, unsafe paths, and missing declared files with clear validation results. Do not write config or require Store access.
+- [x] t3: Read a finite YAML header after path selection and before any body read. Use `kind` and `status` as role checks where contracts define them. Keep selected older documents without frontmatter in scope. Fail clearly when malformed or over-limit metadata prevents a required check.
+- [x] t4: Add access and diagnostic tests for default paths, arbitrary stored-copy directory names, copied frontmatter, standard and custom working paths, older files, invalid declarations, Store absence, report coverage, and existing CLI/MCP behavior.
+- [x] t5: Update shipped guidance upstream, dogfood it, and check the packed CLI copy. Explain how a project declares a custom working document and how a user reads the coverage result.
+- [x] t6: Run the built validator against North Atlantic BuildOS as read-only input. Save the fresh report, selected-source classes, counts, elapsed time, and limits. Compare with P2 and the superseded P3 candidate without treating their rules as equivalent.
+- [x] t7: Complete the agent Human Experience Review from the fresh result. Run relevant tests and link checks. Close D-043 only when runtime, tests, shipped guidance, and full-project proof meet the revised PRDs.
 
 ### Acceptance criteria
 
@@ -126,12 +126,22 @@ This candidate is superseded. Its code, tests, and guidance are still uncommitte
 
 ### Implementation Evidence
 
-Pending Stage 2 implementation and a fresh full-project report. Stage 1 evidence does not satisfy this stage.
+- The validator now selects direct working PRDs, designs, plan files, and work files. It resolves exact custom files from project config. It does not enter package descendants to search for evidence. The old directory-name filter is gone.
+- A 64 KiB header read precedes each selected body read. Invalid custom paths report `PRD-AUTH-009`. A malformed, over-limit, or role-inconsistent selected header reports `PRD-AUTH-010`. Selected older files without frontmatter stay in scope.
+- The focused authority and config suites passed all 36 tests. Access checks cover stored copies under several names, copied headers, selected standard and custom files, old files, unsafe declarations, Store-free operation, and CLI/MCP output. TypeScript checking passed. The default consistency, link, and package safety suites passed all 53 tests.
+- Upstream and dogfood guidance match byte for byte. A packed CLI archive contains byte-matching copies of both changed guidance files. The changed guidance has no broken links.
+- The [revised full-project report](evidence/2026-09-28-north-atlantic-authority-final-report.json) passed with 6 direct numbered PRDs, 89 Markdown bodies, 0 structured files, 142 authority links, and no findings. The [run record](evidence/2026-09-28-north-atlantic-authority-final-run.txt) states the 0.14-second wall time and comparison limits. This Make Docs checkout also passed the built validator with 35 PRDs and 586 selected Markdown bodies.
 
 ### Human Experience Review
 
-Pending the fresh report and access tests. Review the actual selected-source coverage, preserved diagnostics, limits, and next action for each promise.
+| Promise | Observation | Conclusion | Limit and next action |
+| --- | --- | --- | --- |
+| A user receives an authority report without reading stored copies under working packages. | The North Atlantic command passed with 89 selected bodies. Access tests showed no entry or read beneath stored-copy directories with several names. | Satisfied for the tested path shapes. | The project run is not a file-access trace. Keep access tests when source shapes change. |
+| Current authority claims in selected standard, custom, and older documents still receive diagnostics. | The fixture reported `PRD-AUTH-005` for all three source cases. Invalid config and headers reported `PRD-AUTH-009` and `PRD-AUTH-010`. | Satisfied in fixtures. | The full project had no diagnostic to inspect. Use the codes on a future failing project. |
+| The report states its actual coverage without Store access. | JSON and human CLI reports include selected-source counts. A fixture with no Store used the custom path list in project config. | Satisfied in fixtures and the full-project JSON report. | Custom files require an exact project-owned declaration. |
+
+This review checks command results and tests. It makes no claim about a person's lived experience. No human acceptance gate is defined for P3.
 
 ### Closeout Notes
 
-Stage 2 is not implemented. P3 and D-043 remain open.
+P3 is complete, and D-043 is closed. The corrected validator selects working Markdown sources before it reads their bodies. Tests cover standard and exact custom paths, stored copies, copied headers, older documents, invalid declarations, and operation without Store access. Shipped guidance matches the source rule. The North Atlantic BuildOS check passed with 6 numbered PRDs and 89 selected Markdown files. It reported no findings. The run record states the proof limits.

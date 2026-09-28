@@ -1,13 +1,16 @@
 import {
+  closeSync,
   existsSync,
   lstatSync,
+  openSync,
   readdirSync,
   readFileSync,
+  readSync,
   realpathSync,
   statSync,
 } from "node:fs";
 import path from "node:path";
-import { isMap, isScalar, isSeq, parseAllDocuments } from "yaml";
+import { isMap, isScalar, isSeq, parseAllDocuments, parseDocument } from "yaml";
 import type { Node, Pair, YAMLMap, YAMLSeq } from "yaml";
 
 export const PRD_AUTHORITY_DIAGNOSTIC_CODES = [
@@ -19,6 +22,8 @@ export const PRD_AUTHORITY_DIAGNOSTIC_CODES = [
   "PRD-AUTH-006",
   "PRD-AUTH-007",
   "PRD-AUTH-008",
+  "PRD-AUTH-009",
+  "PRD-AUTH-010",
 ] as const;
 
 export type PrdAuthorityDiagnosticCode = (typeof PRD_AUTHORITY_DIAGNOSTIC_CODES)[number];
@@ -40,6 +45,14 @@ export interface PrdAuthorityValidationReport {
   prdSetStatus: "present" | "absent" | "unsafe";
   prdFilesScanned: number;
   markdownFilesScanned: number;
+  markdownSourceCoverage: {
+    prd: number;
+    design: number;
+    plan: number;
+    work: number;
+    custom: number;
+    customPaths: string[];
+  };
   structuredFilesScanned: number;
   linksScanned: number;
   diagnostics: PrdAuthorityDiagnostic[];
@@ -250,34 +263,147 @@ function inspectScanRoot(targetRoot: string, requestedRoot: string): ScanRoot {
   }
 }
 
-function listFiles(
-  root: string | null,
-  accepts: (fileName: string) => boolean,
-): string[] {
+type MarkdownSourceKind = "prd" | "design" | "plan" | "work" | "custom";
+
+const FRONTMATTER_BYTE_LIMIT = 64 * 1024;
+const NUMBERED_MARKDOWN = /^\d{2,}-.+\.md$/i;
+const DATED_DESIGN = /^\d{4}-\d{2}-\d{2}-.+\.md$/i;
+const DATED_PACKAGE = /^\d{4}-\d{2}-\d{2}-w\d+-r\d+-.+$/i;
+const PLAN_DOCUMENT = /^(?:00-overview|(?:0[1-9]|[1-9]\d+)-.+)\.md$/i;
+const WORK_DOCUMENT = /^(?:00-index|(?:0[1-9]|[1-9]\d+)-.+)\.md$/i;
+
+function directMarkdownFiles(root: string | null, filePattern: RegExp): string[] {
   if (!root) {
     return [];
   }
-  const files: string[] = [];
-  const visit = (directory: string): void => {
-    for (const entry of readdirSync(directory).sort()) {
-      const absolutePath = path.join(directory, entry);
-      const stats = lstatSync(absolutePath);
-      if (stats.isSymbolicLink()) {
-        continue;
-      }
-      if (stats.isDirectory()) {
-        visit(absolutePath);
-      } else if (stats.isFile() && accepts(entry)) {
-        files.push(absolutePath);
-      }
-    }
-  };
-  visit(root);
-  return files;
+  return readdirSync(root).sort().flatMap((entry) => {
+    if (!filePattern.test(entry)) return [];
+    const absolutePath = path.join(root, entry);
+    const stats = lstatSync(absolutePath);
+    return stats.isFile() && !stats.isSymbolicLink() ? [absolutePath] : [];
+  });
 }
 
-function markdownFiles(root: string | null): string[] {
-  return listFiles(root, (fileName) => fileName.toLowerCase().endsWith(".md"));
+function packageMarkdownFiles(
+  docsRoot: string | null,
+  family: "plans" | "work",
+): string[] {
+  if (!docsRoot) return [];
+  const familyRoot = path.join(docsRoot, family);
+  if (!existsSync(familyRoot) || lstatSync(familyRoot).isSymbolicLink()) return [];
+  if (!statSync(familyRoot).isDirectory()) return [];
+  const pattern = family === "plans" ? PLAN_DOCUMENT : WORK_DOCUMENT;
+  return readdirSync(familyRoot).sort().flatMap((entry) => {
+    if (!DATED_PACKAGE.test(entry)) return [];
+    const packageRoot = path.join(familyRoot, entry);
+    const stats = lstatSync(packageRoot);
+    if (stats.isSymbolicLink() || !stats.isDirectory()) return [];
+    return directMarkdownFiles(packageRoot, pattern);
+  });
+}
+
+function addInvalidCustomSource(
+  diagnostics: PrdAuthorityDiagnostic[],
+  message: string,
+): void {
+  addDiagnostic(diagnostics, {
+    code: "PRD-AUTH-009",
+    severity: "error",
+    path: ".make-docs/config.yaml",
+    line: 1,
+    message,
+    remediation: "Declare exact existing Markdown files under docs/ in prd_authority.markdown_sources.",
+  });
+}
+
+function declaredMarkdownSources(
+  targetRoot: string,
+  diagnostics: PrdAuthorityDiagnostic[],
+): string[] {
+  const configDirectory = path.join(targetRoot, ".make-docs");
+  const configPath = path.join(configDirectory, "config.yaml");
+  if (!existsSync(configDirectory)) return [];
+  if (lstatSync(configDirectory).isSymbolicLink()) {
+    addInvalidCustomSource(diagnostics, "Project config directory is a symbolic link.");
+    return [];
+  }
+  if (!existsSync(configPath)) return [];
+  if (lstatSync(configPath).isSymbolicLink()) {
+    addInvalidCustomSource(diagnostics, "Project config file is a symbolic link.");
+    return [];
+  }
+  let parsed: unknown;
+  let emptyDocument = false;
+  try {
+    const document = parseDocument(readFileSync(configPath, "utf8"));
+    if (document.errors.length > 0) throw new Error(document.errors[0]!.message);
+    emptyDocument = document.contents === null;
+    parsed = document.toJS({ maxAliasCount: 100 });
+  } catch (error) {
+    addInvalidCustomSource(diagnostics, `Project config cannot be read as YAML: ${error instanceof Error ? error.message : String(error)}.`);
+    return [];
+  }
+  if (emptyDocument) return [];
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    addInvalidCustomSource(diagnostics, "Project config must be a YAML map.");
+    return [];
+  }
+  const section = (parsed as Record<string, unknown>).prd_authority;
+  if (section === undefined) return [];
+  if (section === null || typeof section !== "object" || Array.isArray(section)) {
+    addInvalidCustomSource(diagnostics, "prd_authority must be a YAML map.");
+    return [];
+  }
+  const values = (section as Record<string, unknown>).markdown_sources;
+  if (!Array.isArray(values)) {
+    addInvalidCustomSource(diagnostics, "prd_authority.markdown_sources must be a list of exact paths.");
+    return [];
+  }
+  const paths: string[] = [];
+  for (const [index, value] of values.entries()) {
+    if (typeof value !== "string" || !/^docs\//.test(value) || !value.endsWith(".md") ||
+        /[\\*?\[\]{}]/.test(value) || value.split("/").some((part) => ["", ".", "..", "archive", "archives"].includes(part.toLowerCase()))) {
+      addInvalidCustomSource(diagnostics, `Custom source at index ${index} must be an exact .md path under docs/ without glob or archive segments.`);
+      continue;
+    }
+    const absolutePath = path.join(targetRoot, value);
+    try {
+      let currentPath = targetRoot;
+      for (const part of value.split("/")) {
+        currentPath = path.join(currentPath, part);
+        if (lstatSync(currentPath).isSymbolicLink()) throw new Error("path contains a symbolic link");
+      }
+      if (!isWithinRoot(targetRoot, realpathSync(absolutePath)) || !statSync(absolutePath).isFile()) {
+        throw new Error("path is not a regular file inside the project");
+      }
+      paths.push(absolutePath);
+    } catch (error) {
+      addInvalidCustomSource(diagnostics, `Custom source ${value} is missing or unsafe: ${error instanceof Error ? error.message : String(error)}.`);
+    }
+  }
+  return paths;
+}
+
+function workingMarkdownSources(
+  targetRoot: string,
+  docsRoot: string | null,
+  prdFiles: string[],
+  diagnostics: PrdAuthorityDiagnostic[],
+): Map<string, MarkdownSourceKind> {
+  const sources = new Map<string, MarkdownSourceKind>();
+  for (const file of prdFiles) sources.set(file, "prd");
+  if (docsRoot) {
+    const designRoot = path.join(docsRoot, "designs");
+    if (existsSync(designRoot) && !lstatSync(designRoot).isSymbolicLink() && statSync(designRoot).isDirectory()) {
+      for (const file of directMarkdownFiles(designRoot, DATED_DESIGN)) sources.set(file, "design");
+    }
+    for (const file of packageMarkdownFiles(docsRoot, "plans")) sources.set(file, "plan");
+    for (const file of packageMarkdownFiles(docsRoot, "work")) sources.set(file, "work");
+  }
+  for (const file of declaredMarkdownSources(targetRoot, diagnostics)) {
+    if (!sources.has(file)) sources.set(file, "custom");
+  }
+  return new Map([...sources].sort(([left], [right]) => left.localeCompare(right)));
 }
 
 function fencedLineMask(lines: string[]): boolean[] {
@@ -327,11 +453,6 @@ function editorialKind(value: string): string | null {
   return normalized
     .split(/[^a-z]+/)
     .find((part) => INDEX_EDITORIAL_KINDS.has(part)) ?? null;
-}
-
-function isCanonicalArchiveSource(relativePath: string): boolean {
-  const normalized = posixPath(relativePath).toLowerCase();
-  return normalized.startsWith(".make-docs/archive/");
 }
 
 function resolveMarkdownTarget(
@@ -481,7 +602,7 @@ function yamlAuthorityReferences(
 }
 
 function markdownFrontmatter(lines: string[]): { contents: string; endLineIndex: number } | null {
-  if (lines[0]?.trim() !== "---") {
+  if (lines[0]?.replace(/^\uFEFF/, "").trim() !== "---") {
     return null;
   }
   const endLineIndex = lines.findIndex((line, index) => index > 0 && line.trim() === "---");
@@ -489,6 +610,84 @@ function markdownFrontmatter(lines: string[]): { contents: string; endLineIndex:
     return null;
   }
   return { contents: lines.slice(1, endLineIndex).join("\n"), endLineIndex };
+}
+
+function frontmatterMetadataProblem(
+  contents: string,
+  sourceKind: MarkdownSourceKind,
+): { message: string; fatal: boolean } | null {
+  let metadata: unknown;
+  try {
+    const document = parseDocument(contents);
+    if (document.errors.length > 0) throw new Error(document.errors[0]!.message);
+    metadata = document.toJS({ maxAliasCount: 100 });
+  } catch (error) {
+    return { message: `Frontmatter is malformed: ${error instanceof Error ? error.message : String(error)}`, fatal: true };
+  }
+  if (metadata === null || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return { message: "Frontmatter must be a YAML map", fatal: true };
+  }
+  const values = metadata as Record<string, unknown>;
+  const kind = values.kind;
+  if (kind !== undefined && (typeof kind !== "string" || !kind.trim())) {
+    return { message: "Frontmatter kind must be a non-empty string", fatal: false };
+  }
+  if (typeof kind === "string" && sourceKind !== "custom" && kind.toLowerCase() !== sourceKind) {
+    return { message: `Frontmatter kind ${kind} conflicts with the ${sourceKind} working path`, fatal: false };
+  }
+  if (typeof kind === "string" && sourceKind === "custom" &&
+      !["design", "plan", "prd", "work", "history", "guide"].includes(kind.toLowerCase())) {
+    return { message: `Frontmatter kind ${kind} is not a Make Docs document kind`, fatal: false };
+  }
+  const status = values.status;
+  if (status !== undefined && (typeof status !== "string" || !status.trim())) {
+    return { message: "Frontmatter status must be a non-empty string", fatal: false };
+  }
+  return null;
+}
+
+function frontmatterProblem(
+  absolutePath: string,
+  sourceKind: MarkdownSourceKind,
+): { message: string; fatal: boolean } | null {
+  const descriptor = openSync(absolutePath, "r");
+  const chunks: Buffer[] = [];
+  let byteCount = 0;
+  let sample = "";
+  let reachedEnd = false;
+  try {
+    while (byteCount <= FRONTMATTER_BYTE_LIMIT) {
+      const buffer = Buffer.alloc(Math.min(4096, FRONTMATTER_BYTE_LIMIT + 1 - byteCount));
+      const count = readSync(descriptor, buffer, 0, buffer.length, null);
+      if (count === 0) {
+        reachedEnd = true;
+        break;
+      }
+      chunks.push(buffer.subarray(0, count));
+      byteCount += count;
+      sample = Buffer.concat(chunks).toString("utf8");
+      if (sample.length >= 5 && !/^(?:\uFEFF)?---\r?\n/.test(sample)) return null;
+      const match = sample.match(/^(?:\uFEFF)?---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+      if (match) {
+        if (Buffer.byteLength(match[0], "utf8") > FRONTMATTER_BYTE_LIMIT) break;
+        return frontmatterMetadataProblem(match[1]!, sourceKind);
+      }
+    }
+  } finally {
+    closeSync(descriptor);
+  }
+  if (reachedEnd) {
+    const terminalMatch = sample.match(/^(?:\uFEFF)?---\r?\n([\s\S]*?)\r?\n---$/);
+    if (terminalMatch && Buffer.byteLength(terminalMatch[0], "utf8") <= FRONTMATTER_BYTE_LIMIT) {
+      return frontmatterMetadataProblem(terminalMatch[1]!, sourceKind);
+    }
+    if (/^(?:\uFEFF)?---\r?$/.test(sample)) {
+      return { message: "Frontmatter has no closing delimiter", fatal: true };
+    }
+  }
+  return /^(?:\uFEFF)?---\r?\n/.test(sample)
+    ? { message: `Frontmatter has no closing delimiter within ${FRONTMATTER_BYTE_LIMIT} bytes`, fatal: true }
+    : null;
 }
 
 function validateAuthorityReference(
@@ -616,6 +815,7 @@ function emptyReport(
     prdSetStatus,
     prdFilesScanned: 0,
     markdownFilesScanned: 0,
+    markdownSourceCoverage: { prd: 0, design: 0, plan: 0, work: 0, custom: 0, customPaths: [] },
     structuredFilesScanned: 0,
     linksScanned: 0,
     diagnostics,
@@ -681,8 +881,44 @@ export function validatePrdAuthority(targetRootInput: string): PrdAuthorityValid
     });
   }
 
-  const prdFiles = markdownFiles(prdScanRoot.realPath);
+  const prdFiles = directMarkdownFiles(prdScanRoot.realPath, NUMBERED_MARKDOWN);
+  const markdownSources = workingMarkdownSources(
+    targetRoot,
+    docsScanRoot.realPath,
+    prdFiles,
+    diagnostics,
+  );
+  const readableMarkdown = new Set<string>();
+  for (const [absolutePath, sourceKind] of markdownSources) {
+    const relativePath = posixPath(path.relative(targetRoot, absolutePath));
+    try {
+      const problem = frontmatterProblem(absolutePath, sourceKind);
+      if (problem) {
+        addDiagnostic(diagnostics, {
+          code: "PRD-AUTH-010",
+          severity: "error",
+          path: relativePath,
+          line: 1,
+          message: problem.message,
+          remediation: "Repair the selected document frontmatter or remove an invalid custom source declaration.",
+        });
+      }
+      if (!problem?.fatal) {
+        readableMarkdown.add(absolutePath);
+      }
+    } catch (error) {
+      addDiagnostic(diagnostics, {
+        code: "PRD-AUTH-010",
+        severity: "error",
+        path: relativePath,
+        line: 1,
+        message: `Selected Markdown header cannot be read: ${error instanceof Error ? error.message : String(error)}`,
+        remediation: "Make the selected document readable and repair its frontmatter.",
+      });
+    }
+  }
   for (const absolutePath of prdFiles) {
+    if (!readableMarkdown.has(absolutePath)) continue;
     const relativePath = posixPath(path.relative(targetRoot, absolutePath));
     const fileName = path.basename(absolutePath);
     const contents = readFileSync(absolutePath, "utf8");
@@ -775,12 +1011,14 @@ export function validatePrdAuthority(targetRootInput: string): PrdAuthorityValid
   }
 
   let linksScanned = 0;
-  const markdownDocs = markdownFiles(docsScanRoot.realPath);
-  for (const absolutePath of markdownDocs) {
+  const markdownSourceCoverage: PrdAuthorityValidationReport["markdownSourceCoverage"] = {
+    prd: 0, design: 0, plan: 0, work: 0, custom: 0, customPaths: [],
+  };
+  for (const [absolutePath, sourceKind] of markdownSources) {
+    if (!readableMarkdown.has(absolutePath)) continue;
     const relativePath = posixPath(path.relative(targetRoot, absolutePath));
-    if (isCanonicalArchiveSource(relativePath)) {
-      continue;
-    }
+    markdownSourceCoverage[sourceKind] += 1;
+    if (sourceKind === "custom") markdownSourceCoverage.customPaths.push(relativePath);
     const contents = readFileSync(absolutePath, "utf8");
     const lines = contents.split(/\r?\n/);
     const fencedLines = fencedLineMask(lines);
@@ -853,7 +1091,8 @@ export function validatePrdAuthority(targetRootInput: string): PrdAuthorityValid
     prdRoot: path.join(requestedTargetRoot, "docs", "prd"),
     prdSetStatus: prdScanRoot.status,
     prdFilesScanned: prdFiles.length,
-    markdownFilesScanned: markdownDocs.length,
+    markdownFilesScanned: readableMarkdown.size,
+    markdownSourceCoverage,
     structuredFilesScanned: 0,
     linksScanned,
     diagnostics,
