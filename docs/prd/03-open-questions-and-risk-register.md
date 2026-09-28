@@ -964,15 +964,15 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) defines live Markdown under `docs/` as eligible except paths beneath a directory segment named `evidence` or `implementation-evidence`. Match whole segments without case sensitivity. Keep other live paths, including custom directories, in scope. | Implement the P3 selector, tests, and shipped guidance. Prove the full-project result before closing this item. |
+| Open | [W18 R16 P3](../plans/2026-09-26-w18-r16-prd-authority-scan-scope/03-markdown-evidence-source-selection.md) selects working Markdown by canonical document path or an exact custom path declared in project config. It then checks bounded frontmatter before an eligible body read. Directory names and copied headers do not establish source role. | Replace the narrow directory-name P3 candidate. Prove standard, custom, legacy, copied-evidence, and Store-free cases before closing this item. |
 
 **Issue**: `markdownFiles` recursively selects every Markdown file under `docs/`. The validator reads each selected file before checking for authority contexts. The [North Atlantic BuildOS report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-authority-report.json) counted 73,372 Markdown files. A [read-only path count](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-26-north-atlantic-markdown-path-counts.txt) found 73,242 of them under one plan's `implementation-evidence/` directory. These are stored evidence files, and no current product rule names that directory as an authority source.
 
 **Why it matters**: The full run passed, so this scan did not block the P2 check. The broad read still spends work on stored evidence and could face a separate size or time limit in another project.
 
-**Recommendation**: Treat named evidence directories as stored proof, not current PRD authority. Prune them before directory traversal and file reads. Keep the supported authority-link and frontmatter checks for all other Markdown under `docs/`.
+**Recommendation**: Select working documents from Make Docs path shapes and exact declared custom paths. Read a bounded YAML header after path selection. Keep selected older documents without frontmatter in scope. A stored copy does not become a current source because it carries the same `kind` and `status`. The P3 candidate that prunes two named directories passed one project run, but that result does not prove the revised rule.
 
-**To close**: [PRD 39](39-cli-command-model-and-operation-registry.md), the validator, and shipped guidance state the same path rule. Tests prove that the validator neither enters nor reads the two excluded directory families and still reports authority claims in other live Markdown paths. A full-project run proves the selected source set and returns an authority report.
+**To close**: [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 24](24-project-configuration-and-convention-overlay.md), the validator, and shipped guidance state the same source rule. Tests prove that stored copies are not entered or read regardless of their directory names; selected standard, custom, and older documents keep the intended authority checks; invalid custom declarations fail; and validation works without Store access. A fresh full-project run proves the revised selected set and returns an authority report.
 
 ## Open Questions
 
