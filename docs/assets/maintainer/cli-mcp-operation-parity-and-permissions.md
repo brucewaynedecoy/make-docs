@@ -179,6 +179,22 @@ Required fixture families:
 
 Package smoke tests prove package behavior. They do not prove MCP support by themselves. Direct installed-product checks must exercise each declared static adapter method.
 
+## Live Backlog Host Proof
+
+The production live Backlog Review path remains planned under [PRD 51](../../prd/51-backlog-review-and-reporting.md). Source delivery, identity, action, and refresh contracts exist. A bounded [host proof](../../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/02-host-and-transport-proof.md) must establish the resource, tool call, fixed agent message, capability, and selected transport behavior before product integration depends on them.
+
+Record the selected host, transport, test-resource identity, and observed result. A protocol fixture can prove a message or resource shape. It cannot prove that a real host displayed the page or delivered the follow-up to the active conversation. Inspect the real result before making that support claim. Keep owner feedback advisory. Required host evidence and agent Human Experience Review remain separate.
+
+The [P2 evidence](../../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md#p2-current-evidence) covers Claude Desktop `2.16120.0` and stdio with an unshipped synthetic fixture. The host displayed `ui://make-docs/host-proof/v1.html`. The page received one read-only tool result. A fixed message reached the conversation after the host's Send action. The no-bridge page gave a clear chat fallback and disabled its actions. This is one bounded host result. Product integration and broader host support still need their own evidence.
+
+Host acceptance of `ui/message` can create a draft. It does not establish chat delivery. Keep a required Send action under direct user control. Check the visible conversation receipt before reporting delivery. The proof created no task. Its temporary host connection was removed and prior settings were restored.
+
+The proof must use the accepted server factory and shared access rules. It must create no second operation registry, permission model, or backlog business-logic path. Preserve stdio. Add a bounded Streamable HTTP proof only when the selected host requires it. Do not treat a proof-only resource or tool as a shipped production surface.
+
+P2 keeps the existing SDK registry, core, and native handlers. The generic validated static-resource seam is shared. Proof registration stays in test fixtures. The default factory exposes no proof tool or UI extension. The package dry-run excludes test and proof assets. Streamable HTTP was not needed or proved. The loopback fallback check served only HTML and was not an HTTP MCP adapter.
+
+Production live tools, UI delivery, and refresh remain later work. If live support or transport is unavailable, explain the exact effect and complete the available review in chat. A saved report still needs an explicit request. Do not claim a displayed app or a created task from a selected route alone.
+
 ## Change Checklist
 
 Before implementing an MCP tool or CLI operation:

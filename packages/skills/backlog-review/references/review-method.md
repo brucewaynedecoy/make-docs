@@ -24,7 +24,13 @@ The live delivery contract defines three results: `live`, `static`, and `chat-fa
 
 Separate-task support is optional. Its absence does not prevent a live review. Do not select support from a host product name. Do not write a static file during live open or fallback. Never create both modes silently.
 
-Selection states the intended route. It does not prove that the host displayed the app. The pure contract helpers define this choice. Host proof, model delivery, live tools, and widget actions remain planned work until their later phases connect them. Do not claim a working live app from a contract result.
+Selection states the intended route. It does not prove that the host displayed the app. The pure contract helpers define this choice. A bounded host proof now exists. Production model delivery, live tools, and widget actions remain planned work until later phases connect them. Do not claim a working production live review from a contract result.
+
+The host proof must observe a real compatible host. A protocol fixture alone does not prove that the host displayed a resource, returned a tool result to the page, or delivered a fixed message to the active conversation. Record only the selected host and transport that the proof actually covers. Production live tools, UI delivery, and refresh remain planned until later phases connect them.
+
+The W25 R0 P2 proof on 2026-09-30 covers one unshipped synthetic resource in Claude Desktop `2.16120.0` through stdio. It observed the resource, one page tool action, a fixed message, and missing-bridge fallback. It establishes no production Backlog Review or broad host support. Use capability facts for selection.
+
+A successful `ui/message` result can mean that the host accepted a draft. Check the host state. If the host needs Send, keep that step under direct user control. Confirm visible receipt in the active conversation before saying that the message reached it. The proof's fixed message requested no task.
 
 When live delivery cannot run, complete the concise chat review from the current validated report. Offer the saved static report as an option. Write it only after an explicit request. If source facts cannot be read, explain that separate source limit. Do not call an old review a current review.
 

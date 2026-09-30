@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Make Docs host proof</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px/1.5 system-ui, sans-serif; }
+    body { margin: 0; padding: 20px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    p { margin: 10px 0; overflow-wrap: anywhere; }
+    button { font: inherit; margin: 8px 8px 0 0; padding: 8px 12px; cursor: pointer; }
+    button:disabled { cursor: default; opacity: .6; }
+    #project { border: 1px solid; border-radius: 4px; padding: 10px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Make Docs host proof</h1>
+  <p>This test uses synthetic data. It does not read project or Store data.</p>
+  <p id="status" role="status" data-state="connecting">Waiting for the host bridge.</p>
+  <p id="project">No tool result received.</p>
+  <p id="summary"></p>
+  <p id="facts">Host capabilities are unknown.</p>
+  <button id="read" disabled>Read the test result</button>
+  <button id="message" disabled>Send the fixed message</button>
+  <p>The message asks this chat to confirm receipt. It does not request a new task.</p>
+  <p id="message-status" role="status">No message sent.</p>
+  <script>
+  (() => {
+    "use strict";
+    const toolName = "make_docs_mcp_app_proof";
+    const fixedMessage = "W25 R0 P2 proof: confirm this fixed message reached the active conversation. No task is requested.";
+    const version = "2026-01-26";
+    const status = document.getElementById("status");
+    const project = document.getElementById("project");
+    const summary = document.getElementById("summary");
+    const facts = document.getElementById("facts");
+    const readButton = document.getElementById("read");
+    const messageButton = document.getElementById("message");
+    const messageStatus = document.getElementById("message-status");
+    let nextId = 1;
+    let ready = false;
+    let closed = false;
+    const pending = new Map();
+    const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
+    const exactKeys = (value, keys) => object(value) && Object.keys(value).every(key => keys.includes(key));
+    const capability = value => object(value);
+
+    function fallback(code, text) {
+      ready = false;
+      readButton.disabled = true;
+      messageButton.disabled = true;
+      status.dataset.state = "chat-fallback";
+      status.dataset.code = code;
+      status.textContent = text + " Continue the review in chat. No task was created.";
+    }
+    function send(method, params) {
+      if (closed) return Promise.reject(new Error("closed"));
+      const id = nextId++;
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error("bridge-timeout"));
+        }, 5000);
+        pending.set(id, { resolve, reject, timer });
+        window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+      });
+    }
+    function render(result) {
+      const data = object(result) && result.structuredContent;
+      if (!object(result) || result.isError === true || !exactKeys(data, ["schemaVersion", "kind", "projectLabel", "summary"]) ||
+          data.schemaVersion !== 1 || data.kind !== "mcp-app-proof" || typeof data.projectLabel !== "string" ||
+          data.projectLabel.length > 500 || data.summary !== "One read-only synthetic tool result. No project or Store data was read.") {
+        fallback("invalid-tool-result", "The test result is not valid. The last displayed result is limited.");
+        return false;
+      }
+      project.textContent = data.projectLabel;
+      summary.textContent = data.summary;
+      if (ready) {
+        status.dataset.state = "live";
+        status.textContent = "The widget received one valid test result. Host display and message receipt need separate proof.";
+      }
+      return true;
+    }
+    function stop() {
+      closed = true;
+      ready = false;
+      for (const request of pending.values()) {
+        clearTimeout(request.timer);
+        request.reject(new Error("closed"));
+      }
+      pending.clear();
+      readButton.disabled = true;
+      messageButton.disabled = true;
+      window.removeEventListener("message", receive);
+    }
+    function receive(event) {
+      if (event.source !== window.parent) return;
+      const data = event.data;
+      if (!object(data) || data.jsonrpc !== "2.0") return;
+      if (data.method === "ui/resource-teardown" && "id" in data) {
+        window.parent.postMessage({ jsonrpc: "2.0", id: data.id, result: {} }, "*");
+        stop();
+        return;
+      }
+      if ("method" in data) {
+        if (data.method === "ui/notifications/tool-result" && ready) render(data.params);
+        else if (data.method === "ui/notifications/tool-cancelled") fallback("tool-cancelled", "The host cancelled the test.");
+        else if ("id" in data) window.parent.postMessage({
+          jsonrpc: "2.0", id: data.id, error: { code: -32601, message: "Unsupported proof method." },
+        }, "*");
+        return;
+      }
+      if (!exactKeys(data, ["jsonrpc", "id", "result", "error"]) ||
+          ("result" in data) === ("error" in data)) return;
+      const request = pending.get(data.id);
+      if (!request) return;
+      pending.delete(data.id);
+      clearTimeout(request.timer);
+      if ("error" in data) request.reject(new Error("bridge-rejected"));
+      else request.resolve(data.result);
+    }
+    window.addEventListener("message", receive);
+    readButton.addEventListener("click", async () => {
+      if (!ready || readButton.disabled) return;
+      readButton.disabled = true;
+      try { render(await send("tools/call", { name: toolName, arguments: {} })); }
+      catch { fallback("tool-call-failed", "The host could not return the test result. The last displayed result is limited."); }
+      finally { if (ready) readButton.disabled = false; }
+    });
+    messageButton.addEventListener("click", async () => {
+      if (!ready || messageButton.disabled) return;
+      messageButton.disabled = true;
+      messageStatus.textContent = "Waiting for the host to accept the fixed message.";
+      try {
+        const result = await send("ui/message", { role: "user", content: [{ type: "text", text: fixedMessage }] });
+        if (!object(result) || result.isError === true) throw new Error("message-rejected");
+        messageStatus.textContent = "The host accepted the request. Check this chat to confirm receipt. No task was requested.";
+      } catch {
+        messageStatus.textContent = "Message receipt is not confirmed. Send the request in chat. No task was created.";
+        fallback("message-failed", "The host did not confirm the message request.");
+      }
+    });
+    if (window.parent === window) {
+      fallback("bridge-unavailable", "This page has no MCP Apps host bridge.");
+      return;
+    }
+    send("ui/initialize", {
+      appInfo: { name: "make-docs-host-proof", version: "1.0.0" },
+      appCapabilities: { availableDisplayModes: ["inline"] },
+      protocolVersion: version,
+    }).then(result => {
+      if (!object(result) || result.protocolVersion !== version || !object(result.hostCapabilities)) {
+        fallback("unsupported-protocol", "The host did not confirm the UI protocol.");
+        return;
+      }
+      window.parent.postMessage({ jsonrpc: "2.0", method: "ui/notifications/initialized", params: {} }, "*");
+      const capabilities = result.hostCapabilities;
+      facts.textContent = JSON.stringify({
+        protocolVersion: result.protocolVersion,
+        appResource: true,
+        toolCalls: capability(capabilities.serverTools),
+        agentMessages: capability(capabilities.message) && capability(capabilities.message.text),
+        separateTasks: "unknown",
+      });
+      if (!capability(capabilities.serverTools) || !capability(capabilities.message) || !capability(capabilities.message.text)) {
+        fallback("missing-capability", "The host did not confirm tool calls and text messages.");
+        return;
+      }
+      ready = true;
+      readButton.disabled = false;
+      messageButton.disabled = false;
+      status.dataset.state = "live";
+      status.textContent = "The host bridge is ready. Read the test result or send the fixed message.";
+    }).catch(() => fallback("bridge-unavailable", "The host bridge did not respond."));
+  })();
+  </script>
+</body>
+</html>

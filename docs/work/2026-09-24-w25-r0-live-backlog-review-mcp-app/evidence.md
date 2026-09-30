@@ -11,7 +11,7 @@ coordinate: "W25 R0"
 
 P1 is closed for source contracts. The user authorized closeout and a local commit on 2026-09-30. At the pre-commit checkpoint, its 41 new contract tests and 76 existing backlog tests passed. Type checks and all 53 repository default checks passed. Final code review found no material gap. The agent wording review supports consent and fallback within P1 scope. The owner's optional wording feedback was “Clear; no change”.
 
-This is source-level contract evidence. It does not prove a mounted live app, installed Skill parity, a live transport, or task creation. P2 and later phases remain outside the user's P1 implementation authority.
+P1 is source-level contract evidence. P2 is now complete as a bounded source and real-host proof. Claude Desktop `2.16120.0` displayed the versioned test resource through stdio. One page tool action and one fixed message reached their observed results. The missing-bridge fallback was clear. Temporary host setup was restored. The result does not establish installed Skill parity, a production live Backlog Review, broad host support, or task creation. The owner's optional P2 review was not supplied and does not block completion.
 
 ## P1 Tested State
 
@@ -130,3 +130,126 @@ Feedback is optional. No response was required for P1 closure. No cleanup or set
 [D-044](../../prd/03-open-questions-and-risk-register.md#d-044-local-history-router-gives-retired-paths) records a local nested history router that still gives retired paths. P1 uses the current history contract. Ownership and source checks must precede a separately authorized repair. The installed router is unchanged.
 
 At the implementation checkpoint, no staging, commit, push, installation, publication, or release had been performed. On 2026-09-30, the user authorized P1 closeout, staging of the reviewed P1 file set, and a local commit. All six P1 tasks and A1-A8 have evidence. P1 is closed for source contracts. P2 and later phases, push, installation, publication, and release remain outside that authority. This record does not claim that the local commit has already been created.
+
+## P2 Current Evidence
+
+P2 is closed as a bounded source and real-host proof. The user authorized P2 implementation and the temporary host test on 2026-09-30. The user then authorized P2 closeout and commit. Tests ran on the P2 source checkpoint on `w25-r0-p1-live-delivery-contract`, based on P1 commit `2a8fc509`. This change set retains that source and the closeout records. No installed package identity or production live delivery is claimed.
+
+Claude Desktop `2.16120.0` displayed `ui://make-docs/host-proof/v1.html` through the local stdio fixture in the [synthetic proof chat](https://claude.ai/chat/fda7239e-e302-48d9-b005-3d06a38f8932). The [fixture launcher](../../../packages/cli/tests/fixtures/mcp-app-proof-stdio.ts) was also verified from outside the project folder. The test used only synthetic data. It did not read project or Store data.
+
+The initial `tools/call` request was ID 3 at `2026-09-30T15:50:03.060Z`. The host then made `resources/read` request ID 4 at `15:50:03.732Z`. One press of the read button made `tools/call` request ID 5 at `15:50:37.278Z`. The page retained the valid bounded result. The observed capability facts were `protocolVersion: 2026-01-26`, `appResource: true`, `toolCalls: true`, `agentMessages: true`, and `separateTasks: unknown`. The required capabilities were available. Optional task support was not established.
+
+The proof tool was `make_docs_mcp_app_proof` with `{}` input. The controlled message was: “W25 R0 P2 proof: confirm this fixed message reached the active conversation. No task is requested.” One press of the fixed-message button returned host acceptance and placed that exact text in the composer with a host caution cue. The host-proof agent then used the already-approved Send action. Message 3 of 4 contains the exact text. Message 4 confirms receipt in that conversation and reports no task, tool use, or file write. A successful `ui/message` result proves host acceptance of the draft here. Visible chat receipt after Send supports actual delivery.
+
+The hostile sample displayed literal image markup, an instruction to ignore prior rules and start a task, and `${process.env.HOME}`. No active image or instruction execution was observed. The [host capture](evidence/a9/claude-host-proof.png) shows the literal sample and the fixed message with its receipt. The source-guide agent inspected the capture before retaining it. It contains only the synthetic test; the unrelated sidebar is hidden.
+
+The same proof HTML was served on loopback for a browser absence check. This was a page check, not an HTTP MCP adapter. Without a parent bridge, it showed: “This page has no MCP Apps host bridge. Continue the review in chat. No task was created.” It showed unknown capabilities, disabled actions, no tool result, and no message sent. The [fallback capture](evidence/a14/chat-fallback.jpg) is readable at a normal 1,280-pixel viewport. The Claude widget had a fixed 200-pixel height and inner scrolling. P5 must adapt the product layout to host space.
+
+Cleanup is complete. The host-proof agent quit Claude fully, removed the exact temporary entry, and restored the original settings bytes. Before and after relaunch, the prior server configuration matched the original and the proof entry was absent. The proof log records intentional shutdown at `2026-09-30T16:00:49.786Z`, with client and server transport closure. The loopback server was stopped and the fallback tab was closed. The retained synthetic chat and captures are evidence; the temporary connection is not active.
+
+## P2 Checks
+
+| Check | Exact command or evidence | Observed result and limit |
+| --- | --- | --- |
+| MCP App and shared regressions | `npm exec --workspace packages/cli -- vitest run tests/mcp-app-contract.test.ts tests/mcp.test.ts tests/p3-operation-surfaces.test.ts tests/p8-runtime-retirement.test.ts` | 66 tests passed: 27 new contract cases, 6 MCP cases, 8 operation-surface cases, and 25 runtime-retirement cases. This covers source and protocol behavior. |
+| Type checks | `npm exec --workspace packages/cli -- tsc --noEmit` | Passed. |
+| Repository defaults | `npm run validate:defaults --workspace packages/cli` | 53 tests passed. |
+| Source Backlog guidance | `npm exec --workspace packages/cli -- vitest run tests/backlog-review-skill.test.ts` | Final affected rerun after the host-limit wording: 14 tests passed in one file. Duration: 5.87 s. |
+| Package boundary | Host-proof agent's package dry-run | 139 package paths. Test and proof assets were excluded. No install was tested. |
+| Real host | [Host capture](evidence/a9/claude-host-proof.png), synthetic chat, and request observations above | Resource, one page tool action, and the fixed message were observed in one selected host. |
+| Missing bridge | [Fallback capture](evidence/a14/chat-fallback.jpg) from the same HTML | Clear chat fallback, unknown capabilities, and disabled actions. No HTTP MCP support claim. |
+| Cleanup | Host-proof agent's settings comparison and shutdown log | Temporary connection removed. Prior setup restored. Test server and fallback tab closed. |
+| PRD authority | `make-docs run prd authority validate --target-root .` | Passed: 35 PRDs, 586 Markdown files, and 1,103 links scanned. No diagnostics. This default scan does not replace the explicit evidence and history checks. |
+| Selected content paths | Exact command below | Five Markdown files passed with zero findings or writes. The explicit archive-history selection is rejected by this checker. |
+| Current document links | `jdocmunch.get_broken_links` after the final incremental index | 1,792 documents and 24,748 sections scanned. Zero broken links in all six changed Markdown files, including history and both capture targets. The conclusion is limited to those files. |
+| Diff whitespace | `git diff --check` | Exit 0 at final closeout. |
+
+Code and live observations were made by the Codex host-proof agent. The Codex source-guide agent inspected the retained captures and their wording. The [new contract suite](../../../packages/cli/tests/mcp-app-contract.test.ts) covers strict resource and bridge rules, typed missing-capability and unsupported-transport results, capability facts without host-name selection, and the unchanged P1 route choice.
+
+## P2 Acceptance Cases
+
+All eight cases pass within the bounded fixture scope. The result applies to the selected source, Claude version, stdio path, and captured fallback. It establishes no production Backlog Review, broad host support, or W24 profile acceptance.
+
+| Case | Observation | Supported conclusion and limit |
+| --- | --- | --- |
+| A9 | Claude displayed the versioned resource after `resources/read` ID 4. The capture shows the app in its tool result. | One compatible host can display this resource through stdio. Production delivery remains later work. |
+| A10 | The initial result and the read-button result were valid. One button press produced `tools/call` ID 5. The widget retained and displayed the bounded result. | The page tool path works for this fixture. No project read was tested. |
+| A11 | `ui/message` created a host-accepted draft. The approved Send action placed the fixed text in message 3. Message 4 confirms receipt. | The fixed message reached the active conversation after host Send. Host acceptance alone is not a delivery receipt. |
+| A12 | Hostile markup and instructions remained visible text. The outgoing message stayed fixed. No active image or instruction execution was observed. | The fixture keeps this hostile sample inert. Production rendering must preserve the same boundary. |
+| A13 | The suite selects from capability facts and checks P1 route parity. The host supplied three required true facts and unknown optional task support. | Selection uses capability facts. A host product name is not a selection rule. |
+| A14 | The actual no-bridge page gave chat fallback and disabled actions. Strict fixtures cover missing support and unsupported transport results. | Absent support has a typed result and a useful visible fallback. Streamable HTTP was not proved or needed. |
+| A15 | The existing SDK registry, core, and native handlers remain in use. The default factory has no proof tool or UI extension. The generic validated static-resource seam is shared. The proof registration remains in test fixtures and is excluded from the 139-path package dry-run. | No parallel registry, permission model, or business-logic path was introduced. Test-only proof surfaces are not shipped. |
+| A16 | The required host run and the agent review below inspect open, action, message control, safe data, and fallback. | Required evidence supports this maintainer proof. Optional owner feedback is advisory and was not supplied. |
+
+## P2 Document Checks
+
+The source-guide agent read the current P2 work and plan, PRD 50 review rules, lifecycle build guidance, execution workflow, coverage contract, source Backlog guidance, and the maintainer MCP guide before editing. The agent preserved t1-t6 and A9-A16. All six tasks now have evidence.
+
+The selected content path check passed for the five changed Markdown files. The final link check also passed for this phase's history and new capture links. The agent checked the history's required headings, tables, coordinate, and relative paths against the current history contract. These checks establish document hygiene, not package or host behavior. Run the selected path check from the project root:
+
+```sh
+make-docs project path-hygiene validate --target-root . \
+  --path docs/assets/maintainer/cli-mcp-operation-parity-and-permissions.md \
+  --path packages/skills/backlog-review/references/review-method.md \
+  --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md \
+  --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/02-host-and-transport-proof.md \
+  --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md \
+  --format text
+```
+
+Adding `--path .make-docs/archive/history/2026-09-30-w25-r0-p2-host-and-transport-proof.md` before `--format text` in that command exited 2 with `Invalid content path`. The content path checker does not accept an explicit archive-history path. The agent used the current document index to check the new history record's relative links. This follows the known [D-044 limit](../../prd/03-open-questions-and-risk-register.md#d-044-local-history-router-gives-retired-paths). Installed routers remain unchanged.
+
+## P2 Agent Human Experience Review
+
+Reviewer: Codex source-guide agent, with live observations from the Codex host-proof agent. Date: 2026-09-30. Surface: the actual Claude resource and chat capture, no-bridge capture, source guidance, protocol results, and cleanup findings. The source-guide agent inspected both unedited captures. [PRD 50](../../prd/50-proportionate-testing-and-human-centered-validation.md) keeps owner feedback advisory. The [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md) requires this agent review.
+
+| Promise | Observation | Conclusion | Limit and next useful action |
+| --- | --- | --- | --- |
+| Visible open state | The resource is visible inside Claude's tool result. The host read the versioned resource. | `satisfied` for one bounded real-host open. | The proof is a maintainer surface. P3-P5 must connect production report delivery and layout. |
+| Controlled tool action | One read-button press caused the observed read-only call. The valid synthetic result remained in the page. | `satisfied` for the bounded tool path. | P4 must provide the accepted production operations. |
+| Exact message and direct control | The capture shows the exact sent message and receipt. The live run first produced a host draft, then used the approved Send action. | `satisfied` for this fixed message flow. | P6 must retain host control and wait for a real receipt before claiming delivery. |
+| Inert project-like text | The capture shows markup, hostile instructions, and a variable expression as literal text. The message did not copy them. | `satisfied` for the synthetic trust check. | Later report rendering must keep project text as data. |
+| Useful unavailable state | The fallback capture states the effect and next action. It shows disabled actions, no result, and no message. | `satisfied` for missing-bridge fallback. | Later live integration must complete the current chat review and preserve explicit consent for a saved report. |
+| Readable result within host limits | The normal browser capture is readable. Claude uses a 200-pixel inner viewport with scrolling. | `satisfied` for the technical proof; product layout evidence remains limited. | P5 must adapt layout and controls to the available host space. This proof does not accept the product UI. |
+| Honest scope and review control | Guidance states the tested host limit, future integration, and draft/Send distinction. Owner review remains advisory. | `satisfied` for completion and consent wording. | Keep later support claims within actual evidence. No owner response gate is added. |
+
+No material gap remains for the bounded P2 claim. This review does not infer the owner's experience or independent-use success. The known layout limit is owned by planned P5 work.
+
+## P2 Testing Decisions
+
+Automated Implementation Testing and the required real-host proof inform the P2 source correctness and selected-host claim. Product maturity is a maintainer proof before production integration. Scope is one resource, safe data, one page tool call, one fixed message, missing bridge, capability facts, and stdio. The host-proof agent is the executor. Gate effect is `blocking-claim-only`. The finite budget was the focused suite, affected shared checks, one resource open, one read-button action, one fixed-message action with approved host Send, and one fallback check. Stop after passing evidence and setup restoration. Retain the results here. A material change or failed check triggers an affected rerun.
+
+Performance Testing is `not-needed-now`. No product speed claim is made. No profile or run is created.
+
+Guided Progress Review is advisory. The decision is whether the open, message, and fallback words need a small change. The executor is the optional owner. The surface is the retained proof and its limit wording. The budget is one short three-step review. The owner was offered the review and had more than 60 seconds to reply. Result: `not supplied; advisory; does not block completion`. No decline is inferred. A material wording change can trigger another optional review. No response obligation is created.
+
+Unassisted Goal Testing is `not-needed-now`. This maintainer proof does not establish independent use or discoverability. No scenario or deferred obligation is created. Required agent Human Experience Review remains separate.
+
+## P2 Optional Experience Handoff
+
+The small goal is to understand what the host proved and when a message is sent.
+
+1. Open the [host capture](evidence/a9/claude-host-proof.png). Find the literal hostile text, fixed user message, and receipt.
+2. Read the A11 finding. Notice that host acceptance first created a draft. The approved Send action and visible receipt established delivery.
+3. Open the [fallback capture](evidence/a14/chat-fallback.jpg). Notice the chat recovery, disabled actions, and no-task statement.
+
+Feedback is optional and does not block P2. This review uses retained evidence and needs no setup. No owner response was supplied at closeout.
+
+## P2 Coverage Decisions
+
+| Candidate | Verdict | Reason |
+| --- | --- | --- |
+| Source Backlog reference | `update-existing` | It owns delivery limits and now records the bounded host proof and message-control effect. Installed Skill copies remain outside P2. |
+| Maintainer MCP guide | `update-existing` | It owns transport and server boundaries. It now links the observed proof and keeps production support separate. |
+| User guide and source Skill entry point | `none` | The production live flow is still planned. The current chat and explicit-static flow remains accurate. |
+| System assets and local setup | `none` | No system asset or durable project setup change is part of P2. The temporary host connection was restored. |
+| PRD authority | `link-only` | PRD 51 already owns the product rules. P2 implements the bounded proof and links current PRD 50 review authority. No new product requirement is needed. |
+| Work and central evidence | `update-existing` | The phase and index retain stable IDs, observed acceptance, checks, limits, and next authority. This report already exists. |
+| Phase history | `create` | The [P2 history](../../../.make-docs/archive/history/2026-09-30-w25-r0-p2-host-and-transport-proof.md) records one completed architecture checkpoint. |
+| Acceptance captures | `create` | The two unedited captures support the actual host and missing-bridge findings. They are stored under their stable A9 and A14 case paths. |
+
+## P2 Follow-Up Limits
+
+P2 is complete for this unshipped fixture, one Claude version, stdio, and the missing-bridge page check. Streamable HTTP and broad host support are unproved. Production live tools, report delivery, widget layout, refresh, installed Skill parity, and task creation remain P3-P6 or later work. No W24 profile acceptance is inferred. P3 needs separate implementation authority.
+
+The source remains uncommitted at this checkpoint. P2 implementation does not authorize staging, commit, push, installation, publication, or release. The temporary connection and test server are closed. Prior host settings are restored. The synthetic chat and two captures remain as review evidence.

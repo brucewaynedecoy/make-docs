@@ -6,10 +6,17 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { serializeOperationError } from "../operations/context";
 import { readPackageMeta } from "../utils";
+import { createAppResourceCatalog, MCP_APP_MIME_TYPE, type AppResource } from "./app-resources";
 import { listNativeMcpResources, readNativeMcpResource } from "./resources";
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "./tools";
 
-export function createMakeDocsMcpServer(): McpServer {
+export interface MakeDocsMcpServerOptions {
+  /** Static UI assets. Tool handlers still use the existing SDK tool registry. */
+  appResources?: readonly AppResource[];
+}
+
+export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}): McpServer {
+  const appResources = createAppResourceCatalog(options.appResources ?? []);
   const packageMeta = readPackageMeta();
   const server = new McpServer({
     name: packageMeta.name,
@@ -34,12 +41,17 @@ export function createMakeDocsMcpServer(): McpServer {
     );
   }
 
-  server.server.registerCapabilities({ resources: {} });
-  server.server.setRequestHandler(ListResourcesRequestSchema, async () =>
-    listNativeMcpResources(),
-  );
+  server.server.registerCapabilities({
+    resources: {},
+    ...(options.appResources?.length ? {
+      extensions: { "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] } },
+    } : {}),
+  });
+  server.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+    resources: [...(await listNativeMcpResources()).resources, ...appResources.list()],
+  }));
   server.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
-    readNativeMcpResource(request.params.uri),
+    appResources.read(request.params.uri) ?? readNativeMcpResource(request.params.uri),
   );
 
   return server;
