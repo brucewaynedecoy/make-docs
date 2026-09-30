@@ -2,11 +2,13 @@
 
 Use this path only when the user asks for a saved interactive report.
 
-The delivery contract selects `static` only for that explicit request. A failed live open and chat fallback do not authorize file creation. Selecting a route does not create a file. P1 defines the route; later phases connect live delivery to this existing renderer.
+The delivery contract selects `static` only for that explicit request. A failed live open and chat fallback do not authorize file creation. Selecting a route does not create a file. The shared model and live payload boundaries preserve this renderer's report meaning. Later phases connect production live delivery.
 
 ## Prepare the report
 
 Build and validate the complete version 1 report model described in [report-model.md](report-model.md). The HTML report uses that same model. Do not remove records, rewrite statuses, or calculate different tallies for the HTML view.
+
+Use the portable validator generated from the shared report contracts. The static renderer, full live payload, Data view, and JSON download use the same normalized V1 report. The separate live envelope supplies delivery and action identity. It does not change the static report's input schema.
 
 Collect the bounded project-summary context and complete `projectLead` before rendering. The renderer displays those source-backed sentences exactly as inert text. It does not create project prose, report metrics, or report-use instructions. When `projectLead` is null, it hides the lead instead of inventing fallback copy.
 

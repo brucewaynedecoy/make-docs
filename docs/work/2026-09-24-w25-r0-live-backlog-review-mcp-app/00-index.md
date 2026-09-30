@@ -23,6 +23,8 @@ The user authorized P1 implementation on 2026-09-30. The user then authorized P1
 
 The user separately authorized P2 implementation on 2026-09-30. It uses the current branch after P1 commit `2a8fc509`. The user then authorized P2 closeout and a local commit on that date. This includes staging the reviewed P2 file set. P3 and later phases, push, publication, installation, and release remain outside that authority.
 
+The user separately authorized P3 implementation on 2026-09-30. Its tested source checkpoint uses the current branch after P2 commit `0c112e57`. The user then authorized P3 closeout and a local commit on that date. This includes staging the reviewed P3 file set. These records belong to the P3 phase closeout commit. P3 keeps the unchanged V1 report and separate P1 live envelope. P4 and later phases, branch changes, push, publication, installation, and release remain outside that authority.
+
 ## Human Experience Trace
 
 | Promise | Source | Owner | Phase | Evidence | Gate |
@@ -40,7 +42,7 @@ The user separately authorized P2 implementation on 2026-09-30. It uses the curr
 | --- | --- | --- | --- |
 | P1 | Closed: source contracts | [Authority and Live Delivery Contract](01-authority-and-live-delivery-contract.md) | Tested pure delivery, model, action, and fallback contracts. Live integration remains later work. |
 | P2 | Closed: bounded host proof | [Host and Transport Proof](02-host-and-transport-proof.md) | Claude Desktop `2.16120.0` passed the unshipped resource, tool, fixed message, capability, stdio, and fallback proof. Temporary host setup was restored. Production integration remains later work. |
-| P3 | Not started | [Shared Model and Dual Renderer](03-shared-model-and-dual-renderer.md) | One validated model with live and explicit-static meaning parity. |
+| P3 | Closed: shared source model | [Shared Model and Dual Renderer](03-shared-model-and-dual-renderer.md) | Unchanged V1 with the separate P1 envelope, shared static rendering, concise chat/live payloads, and exact meaning parity. User-authorized closeout and local commit. No production live widget is claimed. |
 | P4 | Not started | [Backlog Profile Tools and UI Resource](04-backlog-profile-tools-and-ui-resource.md) | Two derived tools and one versioned UI resource in the accepted profiles. |
 | P5 | Not started | [Live Widget and Local Interaction](05-live-widget-and-local-interaction.md) | Accepted report UX in a live widget with local display controls. |
 | P6 | Not started | [Refresh Cache and Agent Actions](06-refresh-cache-and-agent-actions.md) | Safe refresh, cache reuse, agent review, and explicit task-request flow. |
@@ -59,12 +61,12 @@ The user separately authorized P2 implementation on 2026-09-30. It uses the curr
 - Recheck branch, HEAD, dirty files, profile authority, package state, and concurrent work before each phase.
 - Never create or switch a branch or worktree without explicit user permission.
 - Create one central `evidence.md` only after evidence exists.
-- [Evidence report](evidence.md): P1 contracts and checks, plus the completed bounded P2 source and host proof with exact limits.
+- [Evidence report](evidence.md): P1 contracts, the bounded P2 host proof, and P3 shared-model checks and built-output review with exact limits.
 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: P2 is closed. P3 implementation needs separate owner authority.
+- Next step: complete the authorized P3 local closeout commit. P4 implementation needs separate owner authority and accepted W24 MCP profile authority.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan.
 - Coordinate Handoff: Carry W25 R0 into phase history and commits, adding the active P coordinate.

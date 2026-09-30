@@ -20,6 +20,7 @@ import {
   AgentResponseSemanticExpectationSchema,
   BACKLOG_RULES,
   BacklogReportV1Schema,
+  createBacklogPresentation,
 } from "../src/operations/work/backlog";
 import { loadSkillRegistry } from "../src/skill-registry";
 import { PACKAGE_ROOT } from "../src/utils";
@@ -55,6 +56,7 @@ describe("backlog-review first-party Skill", () => {
       "examples/human-errors.json",
       "references/html-report.md",
       "scripts/render-report.mjs",
+      "scripts/report-contract.mjs",
       "scripts/collect-project-lead-context.mjs",
       "assets/backlog-review-report.html",
     ]);
@@ -232,7 +234,7 @@ describe("backlog-review first-party Skill", () => {
         ':root[data-theme="dark"] .masthead { border-top-color: var(--line-strong); }',
       );
       expect(html).toContain("#projectLink, #projectFooterLink { color: var(--accent); }");
-      expect(html).toContain("Work Backlog|Work");
+      expect(html).toContain("const recordTitle = (record) => presentationByPath.get(record.recordPath).title;");
       expect(html).toContain('kind === "error" ? "Error"');
       expect(html).not.toContain("function appendEvidence");
       expect(html).not.toContain("<strong>Evidence boundary.</strong>");
@@ -335,7 +337,7 @@ describe("backlog-review first-party Skill", () => {
       );
       expect(attentionResult.status).not.toBe(0);
       expect(attentionResult.stderr).toContain(
-        "Attention item 1 must refer to exactly one included report record.",
+        "A wave-specific Attention item must refer to exactly one included report record.",
       );
       expect(existsSync(attentionOutputPath)).toBe(false);
 
@@ -349,7 +351,7 @@ describe("backlog-review first-party Skill", () => {
       );
       expect(nextResult.status).not.toBe(0);
       expect(nextResult.stderr).toContain(
-        "Next item 1 must refer to exactly one included report record.",
+        "Every Next item must refer to exactly one included report record.",
       );
       expect(existsSync(nextOutputPath)).toBe(false);
     } finally {
@@ -468,18 +470,23 @@ describe("backlog-review first-party Skill", () => {
       /const snapshotByPath = [\s\S]*?(?=    const claimText =)/,
     )?.[0];
     expect(sourceLogic).toBeDefined();
-    const recordPath = "docs/work/2042-06-01-w1-r1-current-review";
+    const report = structuredClone(mixedPortfolioFixture.report);
+    report.targetRoot = "/tmp/example-project";
+    report.snapshot.targetRoot = report.targetRoot;
+    const recordPath = report.records[0].recordPath;
     const indexPath = `${recordPath}/00-index.md`;
-    const report = {
-      targetRoot: "/tmp/example-project",
-      records: [{ recordPath }],
-      snapshot: { records: [{ recordPath, discoveredFiles: [indexPath] }] },
+    report.snapshot.records[0].discoveredFiles = [indexPath];
+    const sourceLink = () => {
+      const context = { report, presentation: createBacklogPresentation(report).display } as {
+        report: typeof report; presentation: ReturnType<typeof createBacklogPresentation>["display"];
+        sourceHref?: (record: { recordPath: string }) => string;
+      };
+      runInNewContext(`${sourceLogic}; globalThis.sourceHref = sourceHref;`, context);
+      return context.sourceHref?.({ recordPath });
     };
-    const context = { report } as { report: typeof report; sourceHref?: (record: { recordPath: string }) => string };
-    runInNewContext(`${sourceLogic}; globalThis.sourceHref = sourceHref;`, context);
-    expect(context.sourceHref?.({ recordPath })).toContain("/00-index.md");
+    expect(sourceLink()).toContain("/00-index.md");
     report.snapshot.records[0]!.discoveredFiles = [];
-    expect(context.sourceHref?.({ recordPath })).toBe(`file:///tmp/example-project/${recordPath}`);
+    expect(sourceLink()).toBe(`file:///tmp/example-project/${recordPath}`);
   });
 
   test("derives the wave display name without agent-written document labels", () => {
@@ -498,7 +505,10 @@ describe("backlog-review first-party Skill", () => {
       throw new Error("Synthetic report record is missing its coordinate.");
     }
     snapshotRecord.title.value = `${snapshotRecord.coordinate.value} Backlog Review and Reporting Work Backlog`;
-    const context = { report } as { report: typeof report; recordTitle?: (value: typeof record) => string };
+    const context = { report, presentation: createBacklogPresentation(report).display } as {
+      report: typeof report; presentation: ReturnType<typeof createBacklogPresentation>["display"];
+      recordTitle?: (value: typeof record) => string;
+    };
     runInNewContext(`${titleLogic}; globalThis.recordTitle = recordTitle;`, context);
     expect(context.recordTitle?.(record)).toBe("Backlog Review and Reporting");
   });

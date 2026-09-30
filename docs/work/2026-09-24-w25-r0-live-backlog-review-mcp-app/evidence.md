@@ -13,6 +13,8 @@ P1 is closed for source contracts. The user authorized closeout and a local comm
 
 P1 is source-level contract evidence. P2 is now complete as a bounded source and real-host proof. Claude Desktop `2.16120.0` displayed the versioned test resource through stdio. One page tool action and one fixed message reached their observed results. The missing-bridge fallback was clear. Temporary host setup was restored. The result does not establish installed Skill parity, a production live Backlog Review, broad host support, or task creation. The owner's optional P2 review was not supplied and does not block completion.
 
+The user separately authorized P3 implementation on 2026-09-30. Its tested source checkpoint uses the same branch after P2 commit `0c112e57`. The user then authorized P3 closeout and a local commit on that date. P3 is closed for shared source integration. These records belong to the P3 phase closeout commit. All 147 affected tests, 53 default checks, and the type check pass. Final mixed, small, limited, and large output comparisons preserve report meaning and accepted layout. Required agent review finds no material gap within the local browser limit. The owner's optional feedback was “Clear; no change” on an earlier generated sample. No production live widget or new browser review is claimed.
+
 ## P1 Tested State
 
 - Date: 2026-09-30.
@@ -253,3 +255,182 @@ Feedback is optional and does not block P2. This review uses retained evidence a
 P2 is complete for this unshipped fixture, one Claude version, stdio, and the missing-bridge page check. Streamable HTTP and broad host support are unproved. Production live tools, report delivery, widget layout, refresh, installed Skill parity, and task creation remain P3-P6 or later work. No W24 profile acceptance is inferred. P3 needs separate implementation authority.
 
 The source remains uncommitted at this checkpoint. P2 implementation does not authorize staging, commit, push, installation, publication, or release. The temporary connection and test server are closed. Prior host settings are restored. The synthetic chat and two captures remain as review evidence.
+
+## P3 Tested State
+
+P3 is closed for the shared source model and renderer boundaries. The user authorized implementation on 2026-09-30. Tests ran on the prior uncommitted source checkpoint on `w25-r0-p1-live-delivery-contract`, based on `0c112e57fb0c197105c4eabe9d60395f772ab198`. The user then authorized P3 closeout and a local commit on that date. These records belong to the P3 phase closeout commit. The new authority includes staging the reviewed P3 file set. Installation, push, publication, release, and P4 implementation remain outside that authority.
+
+The first-step records keep `BacklogReportV1` unchanged. Live identity stays in the separate P1 `BacklogLiveEnvelopeV1`. A24 keeps its ID and requires agent Human Experience Review. Guided owner review is advisory. The test scope uses the PRD 50 common decision record and a finite affected-first pass.
+
+The shared entry points are `createBacklogPresentation(report)`, `renderBacklogStaticHtml(report, template)`, `renderBacklogChatSummary(report)`, and `createBacklogLivePayload(report, sessionId)`. Presentation returns the validated report, shared display data, and concise model data. The live payload returns narration in `content`, concise `structuredContent`, and `_meta.backlog` with schema version, data boundary, envelope, display data, and fixed actions. The live builder performs no file or host operation.
+
+The coordinator checked the source identities after the full test pass. They identify the prior tested implementation checkpoint before the closeout prose edits. The generated portable contract row now records the later whitespace rebuild. That rebuild passed the bounded 30-case rerun recorded below.
+
+| Tested source | SHA-256 |
+| --- | --- |
+| [Shared presentation](../../../packages/cli/src/operations/work/backlog/presentation.ts) | `fc9750ca302cb059ee0ccf16825acd0de0f0ebfa147968ef243098064996130a` |
+| [Generated portable contract](../../../packages/skills/backlog-review/scripts/report-contract.mjs) | `b8a45557bbbed21ef8085fd082b4e2757f1da3d31dc497b2e31a27f2d0937d8e` |
+| [Static render script](../../../packages/skills/backlog-review/scripts/render-report.mjs) | `580291199e34b4d6748d1a1b77027a53b73798b7a4b5fa37cc2d51b50b5bc6bd` |
+| [HTML template](../../../packages/skills/backlog-review/assets/backlog-review-report.html) | `118b2611be0e2b39f6c0d6c69f4282fde8e0144dfb7af39511db70fb3e7c54e2` |
+| [New tests](../../../packages/cli/tests/backlog-presentation.test.ts) | `9af20e553da10ef0f8d526c78b2a3781ad5e993752314109b3674d35350a07b2` |
+| [Golden fixtures](../../../packages/cli/tests/fixtures/backlog-presentation.ts) | `ad457a91c99bc30f9d3bd5ce4accdc9c64f562589b16fa5383fa17519b325a8b` |
+
+The payload boundary follows the current [OpenAI MCP server result guidance](https://developers.openai.com/apps-sdk/build/mcp-server), read by the coordinator on 2026-09-30. `structuredContent` gives concise model-visible data. `content` carries narration. `_meta` carries full client data outside the model's normal result view. That placement supplies no secure storage or action authority. The retained examples are synthetic. P3 adds no production live widget or host scaffold.
+
+## P3 Checks
+
+| Check | Result | Scope |
+| --- | --- | --- |
+| New shared-model suite | 30 passed | Strict validation, portable runtime, exact static/live/chat/Data meaning, summary bounds, literal text, phase mapping, and actual `renderWave` behavior with a DOM stub. |
+| Final affected regression pass | 147 passed in five files | The 30 new cases plus 117 existing contract, live contract, Skill, and cache cases. |
+| Repository defaults | 53 passed | Template consistency, template links, and package safety. |
+| Type check | Passed | CLI source types. |
+| Independent output comparison | Passed within the stated limit | Final mixed, small, limited, and large outputs match their complete live report and display payloads. Accepted layout and CSS stay unchanged. |
+| Portable Skill boundary | Passed | Generated module works without installed CLI, Store, local `node_modules`, or network access. The final whitespace rebuild is 478,122 bytes. |
+| Bounded whitespace rebuild | 30 passed | Deterministic drift and portable/full-source parity pass after the generator fix. Mixed static HTML and validation error messages equal the old staged runtime's results. |
+
+The final code commands were:
+
+```sh
+npm exec --workspace packages/cli -- vitest run tests/backlog-presentation.test.ts tests/backlog-contract.test.ts tests/backlog-live-contract.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts
+npm run validate:defaults --workspace packages/cli
+npm exec --workspace packages/cli -- tsc --noEmit
+git diff --check
+```
+
+The first focused run had 12 passes and 9 failures from a key-order-sensitive comparison and two test setup errors. An interim repaired run passed 21 cases. Later code review added actual phase-rendering coverage. The final affected run passes all 147 cases. Two new README links were changed to the existing durable source URL form after the Skill test found them. CLI validation errors remain concise after the generated validator replaced the partial validator. These affected failures received focused fixes and reruns.
+
+Template insertion now checks the original slots and replaces them in one callback pass. Literal dollar replacement tokens and marker-looking project values round-trip exactly. Phase display uses the record and phase index. It preserves the original title whitespace rule. The old and new serializers already agreed on special-character escaping; [the retained comparison](evidence/p3/serializer-parity.json) confirms this. No Unicode escape defect or repair is claimed.
+
+The first full staged check found four trailing-whitespace lines in the generated module's bundled Zod template strings. The earlier unstaged `git diff --check` did not include that untracked file. The code agent made a narrow generator fix and rebuilt the module. No TypeScript or test source changed. The exact rerun command was:
+
+```sh
+npm exec --workspace packages/cli -- vitest run tests/backlog-presentation.test.ts
+```
+
+All 30 cases passed, including deterministic drift and portable/full-source parity. The code agent found no remaining trailing-whitespace lines. Its direct old staged-runtime/new-runtime comparison kept mixed static HTML and validation error messages unchanged. `git diff --check` and a HEAD diff check for both changed files passed. The prior 147-case regression pass, 53 default checks, type check, and independent output review remain valid. These are 30 rerun cases, not 30 new cases. The coordinator owns restaging and the final staged check before commit.
+
+## P3 Output Review
+
+The code agent built the synthetic mixed baseline from `mixedPortfolioFixture.report` with generation time `2042-06-15T12:00:00.000Z`. The coordinator compared that baseline with the final output. [The baseline](evidence/p3/mixed-before.html) is 68,886 bytes. [The final mixed output](evidence/p3/mixed-after.html) is 68,798 bytes. It retains Aurora Notes, all seven records, two Attention findings, and one Next item. Parsed embedded V1 equals [the original report JSON](evidence/p3/mixed-report.json).
+
+| Identity | SHA-256 |
+| --- | --- |
+| Mixed report JSON | `63648b38cb2e0f44260dce41e4f52b3865d9c7d9e79914adc362f7a1e880f7a5` |
+| Baseline and final style block | `d3c00b34acd6291e6a8691058334ea6e65bc6e8d5c068cc0d6bd8686551b83db` |
+| Baseline markup after removing script tags | `67f144851cfd6e0feedba8a460edcb0ff91cb5a95173742a684511bd85719589` |
+| Final mixed HTML | `e8af7560bf74d860b3cb5a2a0cbc6cee2bb8e1832a8645f05f38ee5dcb327334` |
+
+Final CSS is byte-identical to the baseline. Markup with scripts removed is equal after blank-line removal for the added inert data slot. The final file has one executable script and two inert scripts. It has no remote `src` or `href` assets. [The full live payload](evidence/p3/mixed-live-payload.json) has the same report and display values. [The output comparison](evidence/p3/output-parity.json) retains the coordinator's exact findings.
+
+| Case | Tallies: found / in scope / historical / archived | Observed result |
+| --- | --- | --- |
+| [Mixed](evidence/p3/mixed-after.html) | 7 / 5 / 1 / 1 | All six live statuses and archived evidence remain. |
+| [Small](evidence/p3/small/after.html) | 1 / 1 / 0 / 0 | The 55,224-byte file keeps Orbit Notes, full W1 R1 P1 phase details, claim classes, high confidence, rationale, and limits. |
+| [Limited](evidence/p3/limited/after.html) | 2 / 1 / 0 / 1 | `BACKLOG-VAL-003` and `BACKLOG-VAL-004` remain explicit. |
+| [Large](evidence/p3/large/after.html) | 140 / 100 / 20 / 20 | The concise summary states that 15 current items, 35 Attention findings, and 15 Next items were omitted. Full client data retains all 140 records. |
+
+The coordinator compared each final HTML report and display block with its full live payload. All values are exact. The concise project name is bounded to 600 characters and has `projectNameTruncated`. The summary excludes a duplicate unbounded name. These bounds do not reduce the complete report.
+
+The 15 retained synthetic files were copied from `/private/tmp/w25-p3-review-FzoJPJ` to `evidence/p3/`. They contain mixed before and after HTML, source report, full live payload, two parity records, and the small, limited, and large HTML/report/live payload sets. No screenshot is included.
+
+The native browser tool rejected the local baseline file URL. No other route was used to bypass that limit. This review is generated-output inspection and tested script behavior. It is not a new browser, screenshot, or live widget review. The agent also read the accepted [W23 P4 review](../2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md#p4-single-file-interactive-report) and [W23 P6 review](../2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md#p6-report-item-traceability-and-navigation). Those records retain prior visual and owner findings. No retained W23 screenshot was found or inspected. W23 P4 also records its local-file browser limit.
+
+## P3 Acceptance Cases
+
+| ID | Result | Evidence and limit |
+| --- | --- | --- |
+| A17 | Passed | All four presentation boundaries validate the unchanged complete V1. The portable static module uses the same generated strict contracts. Golden payloads retain exact report and display values. |
+| A18 | Passed | Claim classes remain distinct. Existing cache contracts stay separate and unchanged. V1 has no cache fields; strict validation rejects an injected cache key. Display data has no local filter, search, sort, theme, tab, or disclosure authority. |
+| A19 | Passed | Report schema stays at V1. The P1 envelope is separate. Existing V1 and live contract cases pass. No breaking report change or migration is needed. |
+| A20 | Passed | The source guide and `dataBoundary` state that full client metadata is not secure storage. Retained examples contain synthetic project data. |
+| A21 | Passed | Mixed, small, limited, and large parity keeps titles, tallies, findings, order, statuses, reasons, phase tracks, details, rationale, and limits. Record-plus-phase mapping prevents shared path text from choosing another record's phase. |
+| A22 | Passed within source scope | Static output stays one offline file. Inert data, literal text tests, lazy Data, and user-started download remain. Portable Skill tests pass without Store or installed CLI. No new browser claim is made. |
+| A23 | Passed | The live builder returns data only. The code tests cover the pure payload boundary. No static report is written during live construction. |
+| A24 | Passed within the review limit | Required agent review finds no material meaning or static-layout regression. Actual generated outputs, unchanged markup/styles, accepted W23 review, and affected tests support that claim. Optional owner feedback supports the earlier sample's words and controls only. |
+
+## P3 Agent Human Experience Review
+
+Reviewer: Codex source-guide agent. Independent generated-output reviewer: Codex coordinator. Date: 2026-09-30. Inputs are current authority and source guides, final code results, retained built outputs, parity findings, and accepted W23 P4/P6 review records.
+
+| Promise | Observation | Conclusion | Limit and next useful action |
+| --- | --- | --- | --- |
+| Each mode keeps the same project state. | Four synthetic cases have exact complete report and display values across static and full live payloads. Chat uses the shared summary. | Sufficient for P3 source meaning parity. | P4-P5 must connect the payload to a real production tool and widget. |
+| Users can choose the first work item and read its details. | The accepted Attention-before-Next markup and CSS remain. Titles, reasons, phase details, confidence, and limits stay present. Actual phase rendering has a tested record-plus-index lookup. | No material source or layout regression found. | Local-file browser access was blocked. P5 and P7 must supply live interaction and installed review. |
+| Short summaries state their limits. | Large output reports omitted counts and retains all 140 records in full client data. Long project names have an explicit truncation flag. | The summary supports orientation without a false completeness claim. | Read full client or Data content for details omitted from the summary. |
+| Project text stays data. | Dollar tokens, marker-looking text, and hostile values round-trip as inert data. Full client metadata is described as readable by the host and client. | The reviewed source keeps trust and display boundaries clear. | Production actions must keep the P1 resolver and recheck current identity in P6. Metadata supplies no permission. |
+| Saved files and tasks stay under user control. | Static creation remains an explicit Skill request. The live builder has no file or host operation. The source entry point still completes the current review in chat. | Consent and delivery wording match the implemented boundary. | Live default selection remains a contract for later integration. A host message or task needs its own observed result. |
+
+The agent review is required work. It uses observations and bounded conclusions. It does not treat test quantity or owner feedback as a substitute for the review.
+
+## P3 Optional Owner Review
+
+The coordinator offered the synthetic sample at `/private/tmp/w25-p3-review-FzoJPJ/after.html`. The small goal was to choose the first wave through Attention and Next, then open its details. The steps were to open the sample, use Attention or Next, and read the selected wave's detail. The question was whether the words and controls made that choice clear. The owner answered “Clear; no change”.
+
+Record `feedback-recorded` with an advisory effect. No change resulted. This review used the earlier 68,950-byte sample at that path. The final sample is 68,798 bytes after shared helper and phase-lookup changes. The final markup, styles, and words remain equal within the output comparison above. Do not treat the response as owner review of the final exact bytes. It supports only the offered words and controls. It does not certify code, parity, a new browser run, production live delivery, or all acceptance. No owner response gate was added.
+
+## P3 Testing Decisions
+
+Automated Implementation Testing is required with gate effect `blocking-claim-only`. The finite pass starts with the changed shared boundary, then the nearest contracts and smallest affected Skill/cache regressions. Failed cases and material fixes received affected reruns. The final 147 cases and source type/default checks pass. Stop after these pass and independent output review finds no material gap.
+
+Guided Progress Review is advisory. One small three-step goal was offered after a real static sample existed. Actual feedback is retained above. No reply was required. Human Experience Review is separate required agent work and has its own findings above.
+
+Performance Testing and Unassisted Goal Testing remain `not-needed-now`. Their scope and budget are zero runs. No profile, scenario, or deferred obligation is created. Recheck only if current authority adds a speed or independent-use claim, or a new material finding needs one.
+
+## P3 Coverage Decisions
+
+| Candidate | Verdict | Result |
+| --- | --- | --- |
+| Guide and resource coverage | `update-existing` | Upstream README and report-model, HTML-report, and review-method references explain shared validation, payload meaning, user control, and planned live integration. Source `SKILL.md` remains accurate and unchanged. |
+| History coverage | `create` | One [P3 history record](../../../.make-docs/archive/history/2026-09-30-w25-r0-p3-shared-model-and-dual-renderer.md) records the supported checkpoint. |
+| PRD reconciliation | `link-only` | Current PRD 51 already owns unchanged V1, the separate envelope, model parity, and honest metadata limits. The work, plan, and design now agree. |
+| Maintainer and user guide coverage | `update-existing` | Existing upstream Skill sources own this route. Installed copies and project setup remain outside this phase. |
+
+## P3 Document Checks
+
+| Check | Result |
+| --- | --- |
+| PRD authority | Passed: 35 PRDs, 586 Markdown source files, 1,103 links, zero diagnostics. |
+| Selected path hygiene | Passed: nine normal Markdown paths, zero findings, zero writes. |
+| Current indexed links | 1,808 documents and 26,136 sections scanned. Zero broken links in the ten changed Markdown files or 15 retained result files. The 525 unrelated existing broken links are outside P3. |
+| Phase history content path check | Exit 2: the validator rejects the archive path as `Invalid content path`. The current history contract owns that path. Indexed history links resolve. No router rewrite or test exemption is added. |
+| Diff hygiene | `git diff --check` passed with no output. |
+
+The exact normal-path command is:
+
+```sh
+make-docs project path-hygiene validate --target-root . --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/03-shared-model-and-dual-renderer.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/03-shared-model-and-dual-renderer.md --path docs/designs/2026-09-24-live-backlog-review-mcp-app.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path packages/skills/backlog-review/README.md --path packages/skills/backlog-review/references/report-model.md --path packages/skills/backlog-review/references/html-report.md --path packages/skills/backlog-review/references/review-method.md --format text
+make-docs run prd authority validate --target-root .
+make-docs project path-hygiene validate --target-root . --path .make-docs/archive/history/2026-09-30-w25-r0-p3-shared-model-and-dual-renderer.md --format text
+git diff --check
+```
+
+The link check used `jdocmunch.index_local` with the repository root, name `make-docs-w23-r0-p6-20260922`, `include_dot_dirs: [".make-docs"]`, and `incremental: true`. It then used `jdocmunch.get_broken_links` on `local/make-docs-w23-r0-p6-20260922`. Results were filtered by exact source paths for the nine normal Markdown files, new P3 history, and retained result folder.
+
+Closeout prose checks on 2026-09-30 passed for the five changed records. The four normal Markdown paths had zero findings or writes. The refreshed index scanned 1,808 documents and 26,136 sections. It found zero broken links in the five closeout records, including history. `git diff --check` passed. The earlier archive-path rejection remains a recorded validator limit and was not rerun. These prose edits reused all 200 passing automated cases and the type check. No code, test, or retained result changed during that prose pass.
+
+The closeout path command was:
+
+```sh
+make-docs project path-hygiene validate --target-root . --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/03-shared-model-and-dual-renderer.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/03-shared-model-and-dual-renderer.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --format text
+git diff --check
+```
+
+The closeout link check used the same `jdocmunch.index_local` and `jdocmunch.get_broken_links` arguments above. Its exact source filter was the four paths in this command plus `.make-docs/archive/history/2026-09-30-w25-r0-p3-shared-model-and-dual-renderer.md`.
+
+After the generated-module correction, the affected evidence path check passed with zero findings or writes. Fresh indexed links had zero broken links in the evidence and P3 history. `git diff --check` passed. The index still scanned 1,808 documents and 26,136 sections. The exact affected-path command was:
+
+```sh
+make-docs project path-hygiene validate --target-root . --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --format text
+git diff --check
+```
+
+The scoped link filter was `docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md` and `.make-docs/archive/history/2026-09-30-w25-r0-p3-shared-model-and-dual-renderer.md`. The coordinator will restage the owned changes and run `git diff --cached --check` before commit.
+
+## P3 Follow-Up Limits
+
+P3 is closed for shared source integration under the user's 2026-09-30 closeout and local commit authority. Production live tools, widget layout and controls, refresh, host task requests, installed parity, payload performance, and broader host support remain P4-P7 work. P4 still needs separate owner authority and accepted W24 MCP profile authority. This phase makes no new W24 acceptance claim.
+
+The source Skill keeps its current chat review and explicit-static path. Its references label the live route contract and payload as source definitions for later connection. Earlier P3 implementation authority did not include staging or commit. The new closeout authority includes staging the reviewed P3 file set and creating a local commit. Branch changes, installation, push, publication, release, and later-phase work remain outside that authority.
+
+The user prefers computer use or the built-in browser for future local-file reviews. This preference does not change the past browser restriction or create a new response or review gate. No browser workaround or new browser review was performed at closeout.

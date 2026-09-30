@@ -14,7 +14,7 @@ An unavailable surface permits the next method. A material failure from an avail
 
 ## Select one delivery route
 
-This section defines the route for later live integration. The current source Skill still delivers its chat review and writes static HTML only after a request. P1 does not connect live delivery to that Skill entry point.
+This section defines the route for later live integration. The current source Skill still delivers its chat review and writes static HTML only after a request. The source contracts and shared payload builder do not connect production live delivery to that Skill entry point.
 
 The live delivery contract defines three results: `live`, `static`, and `chat-fallback`. It selects one result for each request.
 

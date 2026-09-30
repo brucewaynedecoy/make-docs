@@ -401,10 +401,13 @@
     <footer><p><a id="projectFooterLink">Open the project</a></p></footer>
   </main>
   <script id="backlog-report-data" type="application/json">__MAKE_DOCS_BACKLOG_REPORT_DATA__</script>
+  <script id="backlog-presentation-data" type="application/json">__MAKE_DOCS_BACKLOG_PRESENTATION_DATA__</script>
   <script>
     "use strict";
     const report = JSON.parse(document.querySelector("#backlog-report-data").textContent);
+    const presentation = JSON.parse(document.querySelector("#backlog-presentation-data").textContent);
     const snapshotByPath = new Map(report.snapshot.records.map((record) => [record.recordPath, record]));
+    const presentationByPath = new Map(presentation.records.map((record) => [record.recordPath, record]));
     const reportByPath = new Map(report.records.map((record) => [record.recordPath, record]));
     const fixedFilters = [
       ["in-scope", "In Scope", false], ["attention", "Attention", true],
@@ -423,53 +426,16 @@
       return element;
     };
     const valueOf = (field, fallback = null) => field && typeof field === "object" && "value" in field ? field.value ?? fallback : fallback;
-    const recordName = (record) => {
-      const snapshot = snapshotByPath.get(record.recordPath);
-      return valueOf(snapshot?.coordinate) || record.recordPath.match(/w\d+-r\d+/i)?.[0]?.replace(/-/g, " ").toUpperCase() || record.recordPath;
-    };
-    const escapePattern = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const titleFromPath = (record) => {
-      const name = record.recordPath.split("/").filter(Boolean).at(-1) || "";
-      const slug = name
-        .replace(/^\d{4}-\d{2}-\d{2}-/i, "")
-        .replace(/^w\d+-r\d+-/i, "");
-      const smallWords = new Set(["a", "an", "and", "as", "at", "but", "by", "for", "in", "of", "on", "or", "the", "to", "via"]);
-      return slug.split("-").filter(Boolean).map((part, index) => {
-        const lower = part.toLowerCase();
-        return index > 0 && smallWords.has(lower) ? lower : lower.charAt(0).toUpperCase() + lower.slice(1);
-      }).join(" ");
-    };
-    const recordTitle = (record) => {
-      const coordinate = recordName(record);
-      const sourced = String(valueOf(snapshotByPath.get(record.recordPath)?.title, "")).trim();
-      const withoutCoordinate = sourced.replace(new RegExp(`^${escapePattern(coordinate)}\\s+`, "i"), "");
-      const normalized = withoutCoordinate.replace(/\s+(?:Work Backlog|Work)$/i, "").trim();
-      return normalized || titleFromPath(record) || "Unsupported work record";
-    };
+    const recordName = (record) => presentationByPath.get(record.recordPath).coordinate;
+    const recordTitle = (record) => presentationByPath.get(record.recordPath).title;
     const fileHref = (relativePath = "") => {
       const full = `${String(report.targetRoot).replace(/[\\/]+$/, "")}/${relativePath}`.replaceAll("\\", "/");
       const parts = full.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part).replace("%3A", ":"));
       return `${full.startsWith("/") ? "file://" : "file:///"}${parts.join("/")}`;
     };
-    const sourceHref = (record) => {
-      const indexPath = `${record.recordPath.replace(/\/$/, "")}/00-index.md`;
-      const snapshot = snapshotByPath.get(record.recordPath);
-      return fileHref(snapshot?.discoveredFiles?.includes(indexPath) ? indexPath : record.recordPath);
-    };
+    const sourceHref = (record) => fileHref(presentationByPath.get(record.recordPath).sourcePath);
     const claimText = (claim) => claim?.text || "No review text supplied.";
-    const firstSummary = (record) => record.inferences?.[0]?.text || record.facts?.[0]?.text || record.statusReason;
-
-    function phaseState(phase) {
-      const status = String(valueOf(phase.recordedStatus, "")).toLowerCase();
-      const tasks = Array.isArray(phase.tasks) ? phase.tasks : [];
-      if (/supersed|defer|pause/.test(status)) return "superseded";
-      if (/conflict/.test(status)) return "conflict";
-      if (/block/.test(status)) return "blocked";
-      if (/complete|closed|done/.test(status)) return "complete";
-      if (tasks.length && tasks.every((task) => valueOf(task.completed) === true)) return "complete";
-      if (tasks.some((task) => valueOf(task.completed) === false)) return "open";
-      return "unknown";
-    }
+    const firstSummary = (record) => presentationByPath.get(record.recordPath).summary;
 
     function factList(claims) {
       const list = node("ul", "claim-list");
@@ -632,8 +598,9 @@
       track.style.setProperty("--phase-count", Math.max(phases.length, 1));
       const phaseDescriptions = [];
       (phases.length ? phases : [null]).forEach((phase, phaseIndex) => {
-        const state = phase ? phaseState(phase) : "unknown";
-        const label = phase ? valueOf(phase.coordinate) || valueOf(phase.title) || `Phase ${phaseIndex + 1}` : "No interpreted phase";
+        const displayPhase = presentationByPath.get(record.recordPath).phases[phaseIndex];
+        const state = phase ? displayPhase.state : "unknown";
+        const label = phase ? displayPhase.label : "No interpreted phase";
         const segment = node("span", `phase ${state}`);
         segment.title = `${label}: ${phaseNames[state]}`;
         track.append(segment);
@@ -679,7 +646,7 @@
       detail.hidden = !open;
     }
 
-    const projectName = report.project.name || report.project.id || String(report.targetRoot).split(/[\\/]/).filter(Boolean).at(-1) || "Project";
+    const projectName = presentation.projectName;
     let normalizedReportJson = null;
     function getNormalizedReportJson() {
       if (normalizedReportJson === null) normalizedReportJson = `${JSON.stringify(report, null, 2)}\n`;

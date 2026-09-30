@@ -1,0 +1,14 @@
+{
+  "input": {
+    "text": "<script>&  "
+  },
+  "oldSerialized": "{\"text\":\"\\u003cscript\\u003e\\u0026\\u2028\\u2029\"}",
+  "newSerialized": "{\"text\":\"\\u003cscript\\u003e\\u0026\\u2028\\u2029\"}",
+  "oldParsed": {
+    "text": "<script>&  "
+  },
+  "newParsed": {
+    "text": "<script>&  "
+  },
+  "equal": true
+}

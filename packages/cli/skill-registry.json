@@ -212,6 +212,10 @@
           "installPath": "scripts/render-report.mjs"
         },
         {
+          "source": "scripts/report-contract.mjs",
+          "installPath": "scripts/report-contract.mjs"
+        },
+        {
           "source": "scripts/collect-project-lead-context.mjs",
           "installPath": "scripts/collect-project-lead-context.mjs"
         },

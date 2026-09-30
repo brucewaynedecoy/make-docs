@@ -86,7 +86,7 @@ If live UI is unavailable, the Skill completes a concise chat review, explains t
 
 One validated Backlog report model feeds the live MCP App, the static HTML renderer, the concise chat orientation, and the user-started JSON view. The live UI can add local display state. It cannot change the product meaning of the model.
 
-The implementation extends `BacklogReportV1` additively when possible. It creates `BacklogReportV2` only if a breaking session or action contract is required. A version change must include migration and parity fixtures.
+`BacklogReportV1` remains unchanged. The separate P1 `BacklogLiveEnvelopeV1` wraps the validated report with delivery and action identities. Its version is separate from report schema version. A breaking report change requires a new report version, migration rule, and parity fixtures.
 
 ### MCP operations
 

@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2042-06-15T12:00:00.000Z",
+  "targetRoot": "/synthetic/aurora-notes",
+  "project": {
+    "id": "project-aurora-notes",
+    "name": "Aurora Notes",
+    "manifestPath": ".make-docs/manifest.json"
+  },
+  "projectLead": null,
+  "snapshot": {
+    "schemaVersion": 1,
+    "generatedAt": "2042-06-15T12:00:00.000Z",
+    "targetRoot": "/synthetic/aurora-notes",
+    "project": {
+      "id": "project-aurora-notes",
+      "name": "Aurora Notes",
+      "manifestPath": ".make-docs/manifest.json"
+    },
+    "gitRevision": "1111111111111111111111111111111111111111",
+    "capabilities": {
+      "repositoryFiles": {
+        "state": "available",
+        "diagnosticCodes": []
+      },
+      "git": {
+        "state": "available",
+        "diagnosticCodes": []
+      },
+      "store": {
+        "state": "not-used",
+        "diagnosticCodes": []
+      },
+      "sourceLinks": {
+        "state": "available",
+        "diagnosticCodes": []
+      }
+    },
+    "recordCounts": {
+      "found": 1,
+      "live": 1,
+      "archived": 0
+    },
+    "records": [
+      {
+        "recordPath": "docs/work/2042-06-01-w1-r1-orbit-notes",
+        "scope": "live",
+        "sourceShape": {
+          "state": "supported",
+          "standard": "current-frontmatter",
+          "diagnosticCodes": []
+        },
+        "discoveredFiles": [
+          "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+          "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md"
+        ],
+        "coordinate": {
+          "value": "W1 R1",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "coordinate",
+              "commit": null
+            }
+          ]
+        },
+        "title": {
+          "value": "Orbit Notes",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "title",
+              "commit": null
+            }
+          ]
+        },
+        "recordedStatus": {
+          "value": "active",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "status",
+              "commit": null
+            }
+          ]
+        },
+        "createdAt": {
+          "value": "2042-06-01",
+          "precision": "date",
+          "source": "directory-name",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes",
+              "line": 1,
+              "field": null,
+              "commit": null
+            }
+          ],
+          "diagnosticCodes": []
+        },
+        "lastUpdatedAt": {
+          "value": "2042-06-14T09:30:00Z",
+          "precision": "second",
+          "source": "git-commit",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": null,
+              "commit": null
+            }
+          ],
+          "diagnosticCodes": []
+        },
+        "phaseCount": {
+          "value": 1,
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "phases",
+              "commit": null
+            }
+          ]
+        },
+        "taskCounts": {
+          "total": {
+            "value": 1,
+            "evidence": [
+              {
+                "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                "line": 1,
+                "field": "tasks",
+                "commit": null
+              }
+            ]
+          },
+          "complete": {
+            "value": 1,
+            "evidence": [
+              {
+                "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                "line": 1,
+                "field": "tasks",
+                "commit": null
+              }
+            ]
+          },
+          "incomplete": {
+            "value": 0,
+            "evidence": []
+          },
+          "unknown": {
+            "value": 0,
+            "evidence": []
+          }
+        },
+        "phases": [
+          {
+            "phasePath": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+            "phaseMapLinked": true,
+            "coordinate": {
+              "value": "W1 R1 P1",
+              "evidence": [
+                {
+                  "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                  "line": 1,
+                  "field": "coordinate",
+                  "commit": null
+                }
+              ]
+            },
+            "title": {
+              "value": "Capture stable inputs",
+              "evidence": [
+                {
+                  "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                  "line": 1,
+                  "field": "title",
+                  "commit": null
+                }
+              ]
+            },
+            "recordedStatus": {
+              "value": "complete",
+              "evidence": [
+                {
+                  "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                  "line": 1,
+                  "field": "status",
+                  "commit": null
+                }
+              ]
+            },
+            "tasks": [
+              {
+                "id": {
+                  "value": "T1",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                      "line": 1,
+                      "field": "tasks",
+                      "commit": null
+                    }
+                  ]
+                },
+                "phasePath": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                "text": {
+                  "value": "Record one synthetic input",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                      "line": 1,
+                      "field": "tasks",
+                      "commit": null
+                    }
+                  ]
+                },
+                "completed": {
+                  "value": true,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                      "line": 1,
+                      "field": "tasks",
+                      "commit": null
+                    }
+                  ]
+                },
+                "recordedStatus": {
+                  "value": "complete",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-06-01-w1-r1-orbit-notes/01-capture-stable-inputs.md",
+                      "line": 1,
+                      "field": "tasks",
+                      "commit": null
+                    }
+                  ]
+                }
+              }
+            ],
+            "dependencies": [],
+            "blockers": [],
+            "sourceLinks": []
+          }
+        ],
+        "dependencies": [],
+        "blockers": [],
+        "closeout": null,
+        "sourceLinks": [],
+        "gitEvidence": []
+      }
+    ],
+    "diagnostics": []
+  },
+  "tallies": {
+    "workRecordsFound": 1,
+    "workRecordsStillInScope": 1,
+    "historicalRecords": 0,
+    "archivedRecords": 0
+  },
+  "records": [
+    {
+      "recordPath": "docs/work/2042-06-01-w1-r1-orbit-notes",
+      "scope": "live",
+      "createdAt": {
+        "value": "2042-06-01",
+        "precision": "date",
+        "source": "directory-name",
+        "evidence": [
+          {
+            "path": "docs/work/2042-06-01-w1-r1-orbit-notes",
+            "line": 1,
+            "field": null,
+            "commit": null
+          }
+        ],
+        "diagnosticCodes": []
+      },
+      "lastUpdatedAt": {
+        "value": "2042-06-14T09:30:00Z",
+        "precision": "second",
+        "source": "git-commit",
+        "evidence": [
+          {
+            "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+            "line": 1,
+            "field": null,
+            "commit": null
+          }
+        ],
+        "diagnosticCodes": []
+      },
+      "waveStatus": "current",
+      "statusReason": "The synthetic record needs a final review.",
+      "statusEvidence": [
+        {
+          "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+          "line": 1,
+          "field": "status",
+          "commit": null
+        }
+      ],
+      "facts": [
+        {
+          "class": "fact",
+          "text": "One sourced task is complete.",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "status",
+              "commit": null
+            }
+          ]
+        }
+      ],
+      "inferences": [
+        {
+          "class": "inference",
+          "text": "Closeout still needs a review.",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "status",
+              "commit": null
+            }
+          ],
+          "confidence": "high",
+          "limits": [
+            "This fixture does not prove owner acceptance."
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "class": "recommendation",
+          "text": "Check the closeout record.",
+          "evidence": [
+            {
+              "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+              "line": 1,
+              "field": "status",
+              "commit": null
+            }
+          ],
+          "rationale": "A complete task does not prove an accepted closeout.",
+          "limits": [
+            "Use the current source before acting."
+          ]
+        }
+      ]
+    }
+  ],
+  "attentionFindings": [
+    {
+      "id": "closeout-check",
+      "recordPath": "docs/work/2042-06-01-w1-r1-orbit-notes",
+      "claim": {
+        "class": "inference",
+        "text": "Closeout still needs a review.",
+        "evidence": [
+          {
+            "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+            "line": 1,
+            "field": "status",
+            "commit": null
+          }
+        ],
+        "confidence": "high",
+        "limits": [
+          "This fixture does not prove owner acceptance."
+        ]
+      }
+    }
+  ],
+  "recommendationOrder": [
+    {
+      "rank": 1,
+      "recordPath": "docs/work/2042-06-01-w1-r1-orbit-notes",
+      "claim": {
+        "class": "recommendation",
+        "text": "Check the closeout record.",
+        "evidence": [
+          {
+            "path": "docs/work/2042-06-01-w1-r1-orbit-notes/00-index.md",
+            "line": 1,
+            "field": "status",
+            "commit": null
+          }
+        ],
+        "rationale": "A complete task does not prove an accepted closeout.",
+        "limits": [
+          "Use the current source before acting."
+        ]
+      }
+    }
+  ],
+  "diagnostics": []
+}

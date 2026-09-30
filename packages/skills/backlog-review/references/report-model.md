@@ -2,7 +2,17 @@
 
 Use report schema version `1`. Preserve the complete source snapshot in the report. Do not remove records to make the chat shorter.
 
-P1 keeps `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the validated report and its live identities. The envelope does not change report facts or authorize an action. Its definitions exist in `packages/cli/src/operations/work/backlog/live-contracts.ts`. Delivery integration and live UI behavior remain planned work for later phases.
+Keep `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the validated report and its live identities. The envelope does not change report facts or authorize an action. Its definitions exist in `packages/cli/src/operations/work/backlog/live-contracts.ts`. Use the shared report boundary for static output, concise chat data, and the live payload. Production delivery and live UI behavior remain planned work for later phases.
+
+## Shared model and payloads
+
+Validate the complete V1 report before building any presentation. Use the same normalized report for the static renderer, full client payload, Data view, and user-started JSON download. A shorter model-visible summary does not reduce the full report's records, tallies, findings, order, or limits.
+
+Keep the portable static validator generated from the shared contracts. Static and live boundaries must enforce the same report rules. Keep facts, inferences, recommendations, and cache fragments distinct. Filters, search, sort, theme, active tab, and disclosure state remain local display choices. They do not become report authority.
+
+Use concise `structuredContent` for model-visible orientation. Use the full live envelope as client payload in `_meta`. Client-only transport placement is not secure storage. The host and client can read that data. It must not be treated as secret. The live payload builder returns data. It does not write a saved report, call a host, or prove that a widget opened.
+
+Session and action versions remain separate from report schema version. A breaking report change requires a new report version, migration rule, and compatibility and meaning-parity fixtures. P3 requires no report migration.
 
 ## Report fields
 

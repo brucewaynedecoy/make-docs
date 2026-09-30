@@ -305,3 +305,11 @@ The Make Docs test suite also checks that the shipped Skill contains the require
 The HTML report's Data tab shows the normalized report model embedded in that report file. It is not a live view of the Global Store cache.
 
 The report model's `records` array has the same record-fragment shape. However, the report can contain records that the cache rejected or could not store. The report data and the cache are related, but they are not exact copies of each other.
+
+## Shared model and delivery limits
+
+The source uses one unchanged `BacklogReportV1` for static, chat, Data, and full live payload meaning. A separate `BacklogLiveEnvelopeV1` adds live identity. The portable static validator is generated from the shared report contracts. Local filters and other display state do not become authority or reduce exported data.
+
+The live payload builder supplies a concise model-visible summary and full client data. It writes no static report and does not open a host widget. Client-only metadata is readable by the host and client. It is not secure storage. Production live delivery, tools, widget behavior, and refresh remain planned work. The Skill still completes its chat review and creates a saved report only after an explicit request.
+
+Read [the report model](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/report-model.md) for the shared boundaries and [the HTML guide](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/html-report.md) for the saved-file path and replacement consent. Cache rules and identities are unchanged.

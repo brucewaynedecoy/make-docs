@@ -1,0 +1,11 @@
+{
+  "beforeBytes": 68886,
+  "afterBytes": 68798,
+  "cssEqual": true,
+  "styleSha256": "d3c00b34acd6291e6a8691058334ea6e65bc6e8d5c068cc0d6bd8686551b83db",
+  "markupEqualIgnoringScriptBlocksAndBlankLines": true,
+  "reportMeaningEqual": true,
+  "executableScriptCount": 1,
+  "inertScriptCount": 2,
+  "externalAssetUrls": false
+}
