@@ -2,6 +2,8 @@
 
 Use this path only when the user asks for a saved interactive report.
 
+The delivery contract selects `static` only for that explicit request. A failed live open and chat fallback do not authorize file creation. Selecting a route does not create a file. P1 defines the route; later phases connect live delivery to this existing renderer.
+
 ## Prepare the report
 
 Build and validate the complete version 1 report model described in [report-model.md](report-model.md). The HTML report uses that same model. Do not remove records, rewrite statuses, or calculate different tallies for the HTML view.

@@ -2,6 +2,8 @@
 
 The cache can reduce repeat review work. It is not project authority. It is Global Store data that Make Docs can delete or rebuild at any time.
 
+Live session, model, and snapshot identities are separate from cache identity. The existing exact-match cache rules remain unchanged. A Store failure affects optional reuse. It cannot make an available current snapshot unavailable or block a stateless review.
+
 ## Route the review
 
 Always get the current deterministic snapshot before any cache operation. Keep that snapshot as the fact source for the report.

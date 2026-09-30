@@ -976,6 +976,20 @@ Code anchors:
 
 **Closeout evidence**: The focused authority and config tests passed all 36 cases. The default consistency, link, and package safety tests passed all 53 cases. The built validator passed against this Make Docs checkout and the North Atlantic BuildOS project. The [North Atlantic report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) counted 6 numbered PRDs and 89 selected Markdown files with no findings. Its [run record](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-run.txt) records the read-only project check and its limits.
 
+### D-044 Local History Router Gives Retired Paths
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Use the current archive router and history contract for P1. Do not write history to the retired assets path. The finding is limited to the local nested router. It does not reopen the prior package proof. | Check the nested router's ownership and installed source before any repair. Repair needs its own setup or resource authority. |
+
+**Issue**: During W25 R0 P1 on 2026-09-30, the local [history router](../../.make-docs/archive/history/AGENTS.md) still named `docs/assets/archive/history/` and retired contract and template homes. Those old resource paths put the resource type before the system segment. The linked local router retains the exact old text. The current [archive router](../../.make-docs/archive/AGENTS.md), [history contract](../../.make-docs/system/contracts/history-record-contract.md), and [history template](../../.make-docs/system/templates/history-record.md) use `.make-docs/archive/history/` and `.make-docs/system/` resource paths.
+
+**Why it matters**: A future agent can put a new history record in a retired home or read obsolete contract paths.
+
+**Recommendation**: Follow the current explicit history contract for project records. Preserve the local nested router until its ownership and safe repair route are known. Do not edit installed system assets as part of P1.
+
+**To close**: Prove the local router's owner and current source. Use an authorized repair to remove the conflicting current instruction or mark preserved legacy text as inactive. Confirm that new history records use the current path. [D-032](#d-032-project-asset-consolidation-and-persona-discovery-remain-incomplete) retains the prior consolidation proof. This finding does not claim a new package or migration test failure.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

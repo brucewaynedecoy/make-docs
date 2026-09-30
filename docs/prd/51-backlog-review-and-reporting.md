@@ -120,7 +120,7 @@ Code anchors:
 - R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead.
 - R-BACKLOG-SKILL-22 (MUST): every recommendation-order item is wave-specific. Its `recordPath` resolves to exactly one included report record. Every Attention item either has one `recordPath` that resolves to exactly one included report record or uses null to mean a backlog-wide finding. Report validation rejects a missing or dangling required reference.
 - R-BACKLOG-SKILL-23 (MUST): chat and HTML derive the visible wave coordinate for a Next or wave-specific Attention item from the matched report record. The agent does not need to repeat that coordinate inside claim prose. A null Attention reference uses the fixed label `Backlog finding`, not `Portfolio finding`.
-- R-BACKLOG-SKILL-24 (MUST): when the active host supports the required MCP Apps capabilities, the Skill returns the live Backlog Review by default. It selects support through capabilities, not a host product name.
+- R-BACKLOG-SKILL-24 (MUST): when the active host supports app-resource rendering, tool calls, and agent messages, the Skill selects live Backlog Review by default. It selects support through capabilities, not a host product name. A missing, false, or unknown required capability selects chat fallback. Separate-task support is optional and does not block a live review. Route selection does not prove that the host displayed the app.
 - R-BACKLOG-SKILL-25 (MUST): the Skill creates the static single-file report only after an explicit user request. Opening the live view, losing the live view, or entering chat fallback never writes a static report as a side effect. The Skill never silently creates both delivery modes.
 - R-BACKLOG-SKILL-26 (MUST): when the live UI is unavailable, the Skill completes the concise chat review, explains the capability or transport limit in natural language, and offers the static report. It does not create the static file until the user asks.
 - R-BACKLOG-SKILL-27 (MUST): live, static, chat, and data views consume one validated report model. Delivery mode can change presentation and local UI state. It cannot change report facts, status meaning, inference, recommendation, evidence limits, or attention and next-item identity.
@@ -162,8 +162,8 @@ Code anchors:
 - R-BACKLOG-APP-4 (MUST): the UI resource uses the versioned URI `ui://make-docs/backlog-review/v1.html`, MIME type `text/html;profile=mcp-app`, and `_meta.ui.resourceUri`. A breaking UI contract uses a new versioned resource URI.
 - R-BACKLOG-APP-5 (MUST): concise model-visible data uses `structuredContent`. The full widget model can use client-only result metadata when supported. Client-only metadata is not secure storage and cannot contain a secret merely because the model does not see it.
 - R-BACKLOG-APP-6 (MUST): search, clear, status filter, sort, disclosure, theme, print, Data view, and JSON download are local UI actions. They do not call an MCP tool or send an agent message.
-- R-BACKLOG-APP-7 (MUST): refresh calls `backlog.review.refresh` through `tools/call`. An unchanged result keeps the current validated model. A changed result shows the exact changed records and can send one controlled review request to the active agent through `ui/message`.
-- R-BACKLOG-APP-8 (MUST): a wave action uses a fixed action identifier plus current project identity, record path, sourced coordinate, and snapshot identity. Project-authored text cannot become an action identifier or agent instruction.
+- R-BACKLOG-APP-7 (MUST): refresh calls `backlog.review.refresh` through `tools/call`. An unchanged result keeps the current validated model. A changed result carries both snapshot IDs and exact added, changed, and removed record paths. It keeps the old model as the last reviewed result with `needs-review` state. It can send one controlled review request to the active agent through `ui/message`. Source failure keeps the prior model as `last-known` with a clear limit. Optional Store failure does not make available source facts unavailable.
+- R-BACKLOG-APP-8 (MUST): a wave action uses `review-wave` or `request-task` plus current session, model, project, and snapshot identities, record path, and sourced coordinate. A refresh review uses `review-backlog` with both snapshot IDs and exact change lists. Strict schemas reject unknown fields and free-form instruction fields. The active agent resolves each request against the validated report and a current snapshot. Stale, missing, conflicting, or ambiguous references fail before action. Project-authored text cannot become an action identifier or agent instruction. Identity checks do not grant permission.
 - R-BACKLOG-APP-9 (MUST): a request to start a separate Codex task sends a controlled message to the active agent. The widget does not create the task. The active agent validates current state and host support, treats the click as an explicit task request, uses the host task action when available, and reports the real result.
 - R-BACKLOG-APP-10 (MUST): the existing `work.backlog-cache.write` operation remains the only live-review cache write surface. The live path adds no publish tool and does not store task activity, UI state, or conversation content in `backlog_review_cache`.
 - R-BACKLOG-APP-11 (MUST): the W24 `backlog` MCP profile contains the snapshot, cache lookup, cache write, live open, live refresh, and UI resource surfaces. The `all` profile contains their exact union membership. W25 adds no separate registry, access model, or profile selector.
@@ -238,7 +238,7 @@ The Skill adds a report layer to the snapshot. It contains:
 - confidence and evidence limits for non-facts;
 - display labels and compact explanatory copy;
 - a nullable `projectLead` with bounded context sources and exactly two or three role-ordered, source-backed sentences; and
-- delivery capability and session identity needed for the live view; and
+- a separate live envelope with delivery and action identity outside `BacklogReportV1`; and
 - one normalized model consumed by live, static, chat, and data rendering.
 
 The report model does not modify the snapshot or project records. Live UI state and a saved HTML file are report presentation, not product authority or operational state.
@@ -247,7 +247,7 @@ The report model does not modify the snapshot or project records. Live UI state 
 
 The optional cache stores bounded per-record report fragments only. It does not cache or replace the current deterministic snapshot. A review always recomputes cross-record values from the current full snapshot. The cache key is exact and includes checkout identity, record path, deterministic record digest, snapshot schema version, rule catalog version, and Skill version.
 
-The report model has one stable snapshot identity and exact project and record references for live actions. Local selected filter, search text, sort direction, disclosure state, theme, and active Work or Data tab do not become report authority. The model extends version 1 additively when possible. A breaking session or action shape requires `BacklogReportV2`, a migration rule, and live/static parity fixtures.
+`BacklogReportV1` remains unchanged. A strict `BacklogLiveEnvelopeV1` contains the validated report plus project, snapshot, model, and session identities. A live session or action contract version is separate from report schema version. A breaking change to report meaning requires a new report version, a migration rule, and live/static parity fixtures. Local selected filter, search text, sort direction, disclosure state, theme, and active Work or Data tab do not become report authority.
 
 `waveStatus` is the only field that controls exact status filtering and semantic color. `statusReason` supplies the visible badge text. Archive location controls archived scope. An attention finding can refer to any wave and does not change that wave's `waveStatus`.
 
@@ -266,6 +266,43 @@ Code anchors:
 
 - `packages/cli/src/operations/`
 - `packages/skills/backlog-review/`
+
+### Delivery selection
+
+The strict delivery request contains `staticRequested` and host capability facts. The result is exactly one of `live`, `static`, or `chat-fallback`.
+
+An explicit static request selects `static` before host capability checks. Otherwise, `appResource`, `toolCalls`, and `agentMessages` must each be true to select `live`. A false, null, or omitted value is unsupported. `separateTasks` is optional. It cannot prevent a live review. Unsupported live capability selects `chat-fallback`.
+
+The selection is a pure decision. It creates no file, opens no app, and starts no task. Live or static delivery success needs separate proof from the selected host or renderer. A failed live connection completes the review in chat when current facts are available. It offers static output without creating a file.
+
+### Live identity and action data
+
+`BacklogLiveEnvelopeV1` contains `schemaVersion: 1`, `report`, `projectKey`, `snapshotId`, `modelId`, and `sessionId`.
+
+- `projectKey` is a SHA-256 identity derived from the snapshot's resolved project root and nullable project ID. It needs no Store access.
+- `snapshotId` is a SHA-256 identity over stable JSON for validated source facts.
+- `modelId` is a SHA-256 identity over stable JSON for the validated report, including review conclusions.
+- `sessionId` is a new opaque UUID for each live open. The caller supplies it. Tests can supply a fixed UUID.
+
+Snapshot and model identities exclude generation timestamps. They retain source evidence times and other facts. They do not change the existing cache identity or versions. None of these IDs grants action authority.
+
+All action messages have `schemaVersion: 1`. Wave actions use only `review-wave` or `request-task` with `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, and `coordinate`. The path resolves to exactly one included report record. The coordinate comes from its source snapshot. The resolver checks the envelope against current project and snapshot facts. It rejects stale identities, missing paths, coordinate conflicts, and ambiguous references. It does not recover a match from title or claim text.
+
+A refresh review message uses `review-backlog` with `sessionId`, `modelId`, `projectKey`, `previousSnapshotId`, `snapshotId`, `added`, `changed`, and `removed`. The resolver matches the previous snapshot to the reviewed envelope and the new snapshot to the current facts. It checks all three exact record-path lists. Strict schemas reject unknown actions, unknown fields, and free-form instruction fields. Project text remains display data.
+
+These pure contract helpers read no files, use no Store operations, and call no tools. Their existence does not prove live host support or a working widget.
+
+### Refresh result
+
+The strict refresh result has one of three states:
+
+| State | Meaning | Review state |
+| --- | --- | --- |
+| `unchanged` | Current source facts have the same snapshot identity. | `current`: keep the validated model. |
+| `changed` | Carry previous and current snapshot identities and exact added, changed, and removed paths. Global source changes can have empty path lists. | `needs-review`: keep the old model as the last reviewed result until fresh agent review validates a new model. |
+| `unavailable` | Current source facts cannot be read. Preserve the exact secondary reason `source-unavailable`, `source-denied`, or `source-unsafe`. | `last-known`: preserve the prior result and state that its current accuracy is unverified. |
+
+Cache failure affects optional reuse only. An available current snapshot remains available after Store denial or failure. Live refresh adds no cache schema or write operation. A user can retry source access, request a fresh review, or continue with the clearly limited prior result. The agent explains the effect and next useful action before exact machine detail.
 
 ## Integrations
 
@@ -353,6 +390,16 @@ Code anchors:
 - Replacement contract: A compatible host receives a live MCP App by default. The Skill still creates static HTML only after an explicit request. One report model feeds live, static, chat, and data views. Two registry operations open and refresh the live review. Controlled widget actions can ask the active agent to review a wave or start a separate task, but the widget cannot act as the agent or create the task directly.
 - Rationale: A live review can stay current and support focused human-agent work without removing the portable static result, hiding Store limits, duplicating backlog logic, or giving untrusted project text control over agent instructions.
 - Source: [W25 R0 design](../designs/2026-09-24-live-backlog-review-mcp-app.md), [W25 R0 plan](../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md), and [W25 R0 work backlog](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md).
+
+### 2026-09-30 — W25 R0 P1 authority and live delivery contract
+
+- Date: 2026-09-30.
+- Coordinate: W25 R0 P1.
+- Affected requirement or section: First-party backlog-review Skill; Live MCP App; Report model; Delivery selection; Live identity and action data; Refresh result.
+- Previous contract: Live capability requirements and controlled actions were named without exact selection, identity, refresh, or message definitions. Session and action data could extend the V1 report or require a V2 report.
+- Replacement contract: Strict pure contracts select one route, wrap unchanged `BacklogReportV1` in a separate live envelope, identify current project and source facts, validate fixed actions, and preserve the last reviewed result through changed or unavailable refresh. Missing live capability uses chat fallback. Store failure affects optional reuse only.
+- Rationale: Later live phases need exact consent and identity rules without changing static report meaning or cache authority. Contract definitions do not prove host display or start tasks.
+- Source: [P1 work record](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/01-authority-and-live-delivery-contract.md) and [live contract source](../../packages/cli/src/operations/work/backlog/live-contracts.ts).
 
 ## Source Anchors
 

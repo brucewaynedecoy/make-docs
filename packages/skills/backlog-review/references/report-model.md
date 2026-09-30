@@ -2,6 +2,8 @@
 
 Use report schema version `1`. Preserve the complete source snapshot in the report. Do not remove records to make the chat shorter.
 
+P1 keeps `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the validated report and its live identities. The envelope does not change report facts or authorize an action. Its definitions exist in `packages/cli/src/operations/work/backlog/live-contracts.ts`. Delivery integration and live UI behavior remain planned work for later phases.
+
 ## Report fields
 
 The report contains:
@@ -106,3 +108,46 @@ Do not repeat an item's own wave coordinate in its claim only to identify the it
 Evidence stays in the normalized report data. The compact wave detail displays claim text only. It does not print evidence-link lists, confidence labels, rationale labels, or limit labels in the visual panel.
 
 Recommendation ranks are unique and contiguous from one. Each visible Next item shows its matched wave coordinate as compact metadata outside the recommendation prose.
+
+## Live identities
+
+The live envelope contains `schemaVersion: 1`, `report`, `projectKey`, `snapshotId`, `modelId`, and `sessionId`.
+
+| Identity | Meaning |
+| --- | --- |
+| `projectKey` | SHA-256 identity derived from the snapshot's resolved project root and nullable project ID. Store access is not required. |
+| `snapshotId` | SHA-256 identity over stable JSON for the validated snapshot's source facts. |
+| `modelId` | SHA-256 identity over stable JSON for the validated report, including its review conclusions. |
+| `sessionId` | A new opaque UUID for each future live open. The caller supplies it. Tests can supply a fixed UUID. |
+
+Exclude generation timestamps from snapshot and model identities. Retain source evidence times and other facts. A timestamp-only regeneration does not create a new identity. A source-fact change changes snapshot identity. A report-conclusion change changes model identity. These identities do not replace the existing cache identity or version rules.
+
+Before an action, compare the envelope's project and snapshot identities with a current validated snapshot. Compare the message's model and session identities with the envelope. A valid schema alone does not prove that the reference is current.
+
+## Fixed live actions
+
+Strict schemas reject unknown fields. They accept no free-form instruction field. All actions use `schemaVersion: 1`.
+
+| Action | Allowed fields after `schemaVersion` and `action` | Purpose |
+| --- | --- | --- |
+| `review-wave` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Ask the active agent to review one exact included wave. |
+| `request-task` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Ask the active agent to start a separate task for that wave. The host performs task creation. |
+| `review-backlog` | `sessionId`, `modelId`, `projectKey`, `previousSnapshotId`, `snapshotId`, `added`, `changed`, `removed` | Ask the active agent to review a changed snapshot. |
+
+For wave actions, match one report `recordPath` and its sourced snapshot coordinate. Reject a missing path, stale identity, coordinate conflict, or ambiguous source reference. Never use title or claim text to recover a failed match.
+
+For a refresh review request, match the previous snapshot to the reviewed envelope and the new snapshot to the current facts. Recompute the added, changed, and removed paths. Reject any difference from the request's exact lists. A global source-fact change can have empty record-change lists.
+
+## Refresh states
+
+The pure refresh contract compares the last reviewed envelope with the available current snapshot. It reads no files, uses no Store operation, and writes no cache.
+
+| State | Identity and record changes | Review state and next action |
+| --- | --- | --- |
+| `unchanged` | The snapshot ID is unchanged. No record change exists. | `current`: keep the current validated model. |
+| `changed` | Carry previous and current snapshot IDs plus exact `added`, `changed`, and `removed` path lists. | `needs-review`: retain the old model as the last reviewed result. Request a new agent review before treating its conclusions as current. |
+| `unavailable` | Current source facts could not be read. Use `source-unavailable`, `source-denied`, or `source-unsafe` as the exact secondary reason. | `last-known`: retain the prior result with a clear source-access limit. Retry source access before claiming a current review. |
+
+The refresh review request carries both snapshot IDs and all three exact change lists. The UI cannot write new conclusions itself. The agent reviews nonmatching records, rebuilds all portfolio conclusions, and validates the full report before opening a new model in a later phase.
+
+Keep source failure separate from optional cache failure. A Store failure must not turn an available current snapshot into `unavailable`. Search, filter, sort, disclosure, theme, print, Data view, and JSON download remain local display choices. They do not become report authority or cache content.
