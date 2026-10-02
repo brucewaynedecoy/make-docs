@@ -4,10 +4,10 @@ kind: "plan"
 status: "draft"
 coordinate: "W24 R0"
 follow_on:
-  route: "prd-generation"
-  next_prompt: "../../../.make-docs/system/prompts/plan-to-prd-change.prompt.md"
-  why: "The product contract must own profile exposure, while this plan owns implementation order."
-  coordinate_handoff: "W24 R0 applies to the plan and work package and to requirement-history provenance. PRD document identities stay unchanged. Plan and backlog creation do not authorize implementation, staging, commit, release, or host configuration changes."
+  route: "implementation-loop"
+  next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
+  why: "The current PRDs own profile requirements. The work backlog owns phase order and acceptance."
+  coordinate_handoff: "W24 R0 P1 implements profile metadata and checked tool assignments from current PRD 25 and PRD 39. P2 adds filtered tool discovery after P1 passes its phase gate. Phase execution requires separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "none"
@@ -55,16 +55,18 @@ The output is an authoritative PRD maintenance package. Keep current requirement
 
 ## Execution Mode And Phase Map
 
+PRD 25 and PRD 39 already contain the profile rules. Check their current authority before P1 code work starts. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source.
+
 | Phase | Plan | Result |
 | --- | --- | --- |
-| P1 | [Authority and contracts](01-prd-and-authority-reconciliation.md) | PRD ownership and profile invariants are explicit. |
-| P2 | [Tool inventory and discovery](02-profile-inventory-and-discovery.md) | Every MCP-ready tool has an explicit, checked assignment. |
+| P1 | [Profile metadata and contracts](01-prd-and-authority-reconciliation.md) | Every ready tool has explicit profile fields and a checked assignment. |
+| P2 | [Filtered tool discovery](02-profile-inventory-and-discovery.md) | The server and CLI select tools from P1's checked profile fields. |
 | P3 | [Resources and transports](03-resources-and-transports.md) | Native resources, stdio, and needed HTTP paths use the same profile policy. |
 | P4 | [Compatibility and evidence](04-compatibility-and-validation.md) | The old connection works; profile lists, access, context, and latency have evidence. |
 
 ## Dependencies And Write Scope
 
-P1 precedes implementation. P2 precedes P3. P4 consumes P2 and P3. The separate Backlog Review MCP App package uses the `backlog` profile and UI resource seam after W24 makes them available. That package owns UI behavior and agent review logic. W24 owns profile routing only.
+PRD authority checks precede P1 code work. P1 precedes P2. P2 precedes P3. P4 consumes P2 and P3. The separate Backlog Review MCP App package uses the `backlog` profile and UI resource seam after W24 makes them available. That package owns UI behavior and agent review logic. W24 owns profile routing only.
 
 Implementation files are expected in `packages/cli/src/mcp/`, the operation descriptors, CLI argument/help handling, and source-owned resource catalog metadata. Tests own matching `packages/cli/tests/` files. Avoid W23 R0 files and the separate app package. If a shared PRD or source file changes during execution, reread it and preserve the other task's edits.
 
@@ -80,8 +82,8 @@ Require profile assignment completeness, exact `all` union, stable tool names an
 
 ## Intended Follow-On
 
-- Route: `prd-generation`
-- Next step: maintain PRD 25 and PRD 39 from this plan, then use their current requirements for the W24 work backlog and phase execution.
-- Next Prompt: [plan-to-prd-change.prompt.md](../../../.make-docs/system/prompts/plan-to-prd-change.prompt.md)
-- Why: The product contract must own profile exposure, while this plan owns implementation order.
-- Coordinate Handoff: W24 R0 applies to the plan and work package and to requirement-history provenance. PRD document identities stay unchanged. Plan and backlog creation do not authorize implementation, staging, commit, release, or host configuration changes.
+- Route: `implementation-loop`
+- Next step: execute [P1: Profile metadata and contracts](../../work/2026-09-24-w24-r0-mcp-tool-profiles/01-profile-metadata-and-contracts.md) from current PRD 25 and PRD 39 after separate implementation authorization.
+- Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
+- Why: The current PRDs own profile requirements. The work backlog owns phase order and acceptance.
+- Coordinate Handoff: W24 R0 P1 implements profile metadata and checked tool assignments from current PRD 25 and PRD 39. P2 adds filtered tool discovery after P1 passes its phase gate. Phase execution requires separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
