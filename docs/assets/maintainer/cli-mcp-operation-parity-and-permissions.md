@@ -85,9 +85,25 @@ The server filters the shared descriptor list before it registers tools. A selec
 
 Direct adapter calls use `listMakeDocsMcpTools(targetRoot, { profile })` and `callMakeDocsMcpTool(name, args, { profile })`. Pass the same selected profile to both helpers. Their default is `all`. A hidden or unready name fails before argument parsing or handler execution.
 
-Registry-derived tools retain the canonical operation's profile fields. The six hand-defined tools declare the same fields on their descriptors. A tool in more than one profile keeps one name, schema, description, handler, and access rule. Profile selection does not change operation admission, caller access, write permission, approvals, or results. `defaultExposure` is advice for a host that supports deferred loading.
+Registry-derived tools retain the canonical operation's profile fields. The six hand-defined tools declare the same fields on their descriptors. A tool in more than one profile keeps one name, schema, description, handler, and access rule. Profile selection does not change operation admission, caller access, write permission, approvals, or results.
+
+A smaller catalog reduces model-visible context only when a host connects profiles as needed or defers tool definitions. `defaultExposure` is advice. It cannot force deferred loading in the host.
 
 For a task-focused host launch example, use [Choose MCP tools for a task](../user/cli-lifecycle-managing-installations.md#choose-mcp-tools-for-a-task). Generated host settings keep the existing command until their owning setup work changes them.
+
+## Native Resource Profiles
+
+Native `resources/list` and `resources/read` use the same selected profile as the server. Lists include only assigned resources. A native read outside that profile fails before resource bytes are resolved or returned. Allowed reads keep the same bytes, media type, and provenance as `all`.
+
+The shipped catalog at `packages/docs/template/.make-docs/system-resources.catalog.json` owns `mcpResources: [{ uri, profiles }]`. Each current system URI occurs once and has a nonempty array of the five intent profile values. `all` is their exact union. The native MCP metadata check rejects missing or extra URIs, duplicates, empty assignments, and unknown profiles. It checks the complete system-provider inventory. Do not derive assignments from file names or URI paths.
+
+Author catalog and schema changes upstream, validate their source inventory, then copy the exact validated bytes into the dogfood instance. The [System Resource Contract](../../../.make-docs/system/contracts/system-resource-contract.md#native-mcp-profiles) owns these metadata rules. A legacy or custom fixture catalog may omit the metadata for CLI use. Native MCP requires complete metadata and refuses that omission.
+
+Profiles control native exposure. They do not grant access, alter caller identity, or change write permissions. The CLI resource inventory and canonical list/read results stay unchanged. The existing `make_docs_resource_list` and `make_docs_resource_read` tools remain `core` tools with their prior behavior. Local resource projections remain optional.
+
+The future Backlog Review UI resource is reserved for `backlog` and `all`. The current system catalog does not contain its page. Its bytes, detailed UI contract, and two app tools remain owned by the separate Backlog Review package. Do not claim the app is available from this reservation.
+
+Stdio remains selected. Add HTTP routing only for a later confirmed supported-host need. A recorded host fixture proof is context for that decision; it does not accept a new filtered-resource candidate.
 
 ## MCP Capability Map
 
@@ -225,6 +241,9 @@ Before implementing an MCP tool or CLI operation:
 
 ## Future Coverage
 
-- Blocked by: [W24 R0 P3: Resources and transports](../../work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md).
-  Update when: P3 passes its resource and transport checks.
-  Guide change: Add native resource profile filtering and the supported HTTP path rules.
+- Blocked by: the separate Backlog Review app package.
+  Update when: its UI resource and app tools pass their acceptance checks.
+  Guide change: Add the available backlog page and its supported host path.
+- Blocked by: a confirmed supported-host need for HTTP.
+  Update when: HTTP is implemented and passes its own transport checks.
+  Guide change: Add only the proved launch and fixed-route behavior.

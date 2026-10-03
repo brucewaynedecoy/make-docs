@@ -15,6 +15,7 @@ import {
 } from "../src/mcp/tools";
 import { listNativeMcpResources, readNativeMcpResource } from "../src/mcp/resources";
 import { createMakeDocsMcpServer } from "../src/mcp/server";
+import * as resourceProvider from "../src/operations/resource/provider";
 import {
   createExecutionContext,
   OperationApprovalRequiredError,
@@ -147,6 +148,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
   it("keeps CLI, derived MCP tools, and native MCP resources byte- and provenance-equivalent", async () => {
     const provider = createProvider();
+    vi.spyOn(resourceProvider, "loadInstalledSystemResourceProvider").mockReturnValue({ ok: true, value: provider });
     const project = createProject();
     __setResourceOperationRuntimeForTests(() => ({ provider, project: projectContext(project) }));
 
@@ -501,6 +503,10 @@ function createProvider(): SystemResourceProviderInventory {
       pathBase: "template-root",
       identityTemplate: "make-docs://system/{type}/{path}",
       defaultMediaType: "text/markdown; charset=utf-8",
+      mcpResources: SYSTEM_RESOURCE_TYPES.map((type) => ({
+        uri: `make-docs://system/${type}/${type}.md`,
+        profiles: ["core"],
+      })),
       resourceTypes: SYSTEM_RESOURCE_TYPES.map((type) => ({
         type,
         sourceRoot: `.make-docs/system/${SYSTEM_RESOURCE_TYPE_DIRECTORIES[type]}`,

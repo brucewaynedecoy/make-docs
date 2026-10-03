@@ -10,7 +10,7 @@ source:
 
 # W24 R0 MCP Tool Profiles Evidence
 
-Current status: P1 and P2 are complete. P3 and P4 have not started. W24 remains in progress. Each phase section records its own checkpoint; the P1 entry below retains the state at P1 closeout.
+Current status: P1, P2, and P3 are complete. P4 has not started. W24 remains in progress. Each earlier phase section retains the state at its own closeout.
 
 ## W24 R0 P1: Profile Metadata And Contracts
 
@@ -180,3 +180,86 @@ All four P2 tasks are complete. The focused and full implementation checks, buil
 The user authorized P2 closeout and a local commit on 2026-10-03 if there are no remaining issues. This report accompanies that closeout. No push, release, publication, or host configuration change is claimed.
 
 P1 remains complete. The full W24 capability remains in progress. P3 is next and needs separate implementation authorization. These records are review evidence, not installation or Store state.
+
+## W24 R0 P3: Resources And Transports
+
+P3 is complete as of 2026-10-03. The baseline is `5e3cdd6142bd99cc585c3a3e18c5991c853e8044` on `w24-r0-mcp-tool-profiles`. The selected checks and agent review passed. The user authorized the P3 local commit on 2026-10-03. No commit hash is claimed before the commit exists.
+
+Authority: [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md), [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), [P3 work](03-resources-and-transports.md), and the [P3 plan](../../plans/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md). P1 and P2 evidence above remains unchanged.
+
+### P3 Candidate And Scope
+
+Stdio is selected. No supported-host need for HTTP is confirmed. P3 adds no HTTP adapter, listener, host setting, public endpoint, or app page. The W25 fixture proof remains bounded context at its named commit; it does not accept the new filtered-resource candidate.
+
+The one root test run checked the candidate before the help-only correction. Its [source/build identity](evidence/p3/source-identity.json) and first A6–A10 captures remain as that earlier proof. Agent review found that help named tools but omitted native resources. Only three help strings in `packages/cli/src/cli.ts` changed after the full run. The final focused help check, build, and stdio replay passed. Use the captures with `-final` in their names for the final candidate. The [final source/build identity](evidence/p3/source-identity-final.json) records 19 changed source, test, catalog, schema, contract, and guide files plus 20 built JavaScript files. All these hashes stayed fixed during the final replay.
+
+Shared P3 logs and source/build identity use `evidence/p3/`. New acceptance captures use `evidence/a6/` through `evidence/a10/`. No P1 or P2 capture is replaced.
+
+### P3 Acceptance Evidence
+
+| Case | Observable Claim | Current Evidence And Limit |
+| --- | --- | --- |
+| A6 | Explicit URI/profile metadata covers the complete system-provider inventory. Unknown, empty, duplicate, missing, and extra assignments fail. `all` is the exact union. | Passed. [Final metadata capture](evidence/a6/catalog-metadata-final.json) records 62 unique current URIs, explicit valid assignments, exact CLI inventory coverage, and the five-profile union. The [root test log](evidence/p3/full-tests.txt) includes the 33 resource metadata tests. |
+| A7 | Allowed native reads retain bytes, media type, and provenance across profiles. CLI inventory/results and the existing core resource tools stay unchanged. | Passed. [Final allowed-read and CLI/core parity](evidence/a7/allowed-read-and-cli-parity-final.json) records 227 native reads: 62 `all` baseline reads and 165 cross-profile comparisons. [Canonical CLI list](evidence/a7/cli-resource-list-final.json) retains all 62 entries. Core resource tool reads can still read a URI hidden from the core native list. |
+| A8 | Hidden native reads fail before resource resolution and return no bytes. The error names the profile and a list-based recovery path. | Passed. [Final denial capture](evidence/a8/native-denied-reads-final.json) records 19 hidden, unknown, or reserved UI reads with MCP code `-32602`, `resource-not-found`, the URI/profile, and recovery through `resources/list`. No read returned resource bytes. The [root log](evidence/p3/full-tests.txt) includes the 33 native boundary tests. |
+| A9 | Default and all six named stdio profiles have exact resource lists. Default equals `all`; P2 tool counts remain unchanged. The reserved app UI remains absent from live lists and reads. | Passed. [Final built stdio capture](evidence/a9/stdio-results-final.json) and [summary](evidence/p3/stdio-proof-results-final.json) prove exact lists and shared tool contracts. Native counts are core 7, setup 7, workflow 48, quality 33, backlog 8, all/default 62. Tool counts remain 8, 15, 14, 9, 3, all/default 43. The historical W25 proof does not prove this candidate. |
+| A10 | Real resource results, guide wording, errors, and help receive agent review. Source and dogfood contract bytes match. | Passed within local scope. [Agent review and guide hashes](evidence/a10/agent-review-final.json), [final help](evidence/a10/cli-help-final.txt), and [invalid profile](evidence/a10/cli-invalid-profile-final.json) agree with the final candidate. [Source/dogfood parity](evidence/a10/source-dogfood-parity.json) proves exact catalog, schema, and contract bytes. The [earlier contract check](evidence/a10/contract-parity.json) is historical; [final contract check](evidence/a10/contract-parity-final.json) names the corrected guard. |
+
+### P3 Validation Results
+
+| Check | Actual Result | Retained Evidence And Limit |
+| --- | --- | --- |
+| TypeScript | Passed, exit 0. | [Type check log](evidence/p3/typescript.txt). This preceded the three static help-string changes. |
+| Initial CLI build | Passed, exit 0. | [Build log](evidence/p3/build.txt). This build supplied the pre-help proof. |
+| Shipped defaults | Passed, 3 files and 53 tests. | [Defaults log](evidence/p3/defaults.txt), including consistency, template links, and package safety. Source resource bytes did not change after this check. |
+| One root test run | Passed, exit 0. 19 smoke tests and 1648 CLI tests passed; 5 existing CLI tests were skipped. 98 CLI files passed and 1 was skipped. CLI duration was 325.27 seconds. | [Complete root log](evidence/p3/full-tests.txt) and [check results](evidence/p3/validation-results.json). This run preceded the help-only correction. It is not a claim that the root suite ran twice. |
+| Final help/profile check and rebuild | Passed, 27 tests; build exit 0. | [Final help tests](evidence/p3/help-tests-final.txt), [final build](evidence/p3/build-final.txt), and [results](evidence/p3/help-validation-final.json). These cover the final help strings. |
+| Final built stdio replay | Passed, seven launches, 227 native reads, 165 cross-profile comparisons, and 19 denied reads. | [Final summary](evidence/p3/stdio-proof-results-final.json), A6–A10 captures, and [replay script](evidence/p3/stdio-proof.mjs). This is local build proof. No host setup or HTTP listener was used. |
+| Current PRD authority | Passed, 35 PRDs, 586 Markdown sources, and 1103 links; no diagnostics. | [Final authority result](evidence/p3/prd-authority-final.json). No PRD requirement changed. |
+
+### P3 Testing Decisions
+
+Maturity: local implementation candidate for the existing CLI. Executor: Codex Desktop unless a worker's retained result names another executor. Claims remain within source and local build scope.
+
+- Automated Implementation Testing: required and passed. Decision informed: whether metadata, native filtering, preserved resource contracts, and stdio behavior work together. Reason now: catalog and adapter rules changed. Scope: A6 through A9, provider validation, source tests, CLI/core parity, default replay, and unready UI absence. Gate effect: an unresolved failure keeps the affected P3 claim open. Effort budget: worker-owned focused checks, one coordinated type check, one initial CLI build and defaults check, one root test run, and one initial replay with seven stdio launches. Agent review found the help gap. Its three-string fix triggered only the affected 27 help tests, a final build, and a final seven-launch replay. Stop condition: stop broad checks on a failure and report the affected check before repeating it. Evidence retained: the validation table, case captures, shared logs, and source/build hashes. Rerun trigger: a relevant source, catalog, schema, resource byte, dependency, or build change. Current result: all selected checks passed within the recorded pre-help and final-candidate limits.
+- Performance Testing: `not-needed-now` for P3. Decision informed: no performance decision is part of this phase. Reason now: list counts and byte equality prove correctness, not latency or model context savings. Scope and executor: no measurement run. Gate effect: none for P3. Effort budget: zero benchmarks. Stop condition: do not start performance work here. Evidence retained: the [P4 boundary](04-compatibility-and-evidence.md). Rerun trigger: P4 authorization or a new performance claim. Base maintenance action: `none` for P3 measurement assets. Performance applicability: `not-needed` at P3. No P3 measurement profile or execution packet is created.
+- Guided Progress Review: completed. Decision informed: whether resource group meanings, denial recovery, guide instructions, and help agree. Reason now: native exposure changes what the host can show and open. Scope: actual lists, allowed reads, denied-read errors, both updated guides, and built help. Executor: Codex Desktop as agent reviewer. Gate effect: a material mismatch keeps the affected claim open; no human-response gate applies. Effort budget: one review cycle, plus a focused repeat for the help gap it found. Stop condition: retain a material gap and stop an unqualified completion claim. Evidence retained: A8 through A10 and the review below. Rerun trigger: assignment meanings, denial wording, help, launch grammar, or guide instructions change. Current result: final lists, errors, help, and guide instructions agree. No lived-human reaction is claimed.
+- Unassisted Goal Testing: `not-needed-now`. Decision informed: no unresolved unassisted setup question blocks this bounded adapter change. Reason now: source checks, wire comparisons, and agent review can answer the accepted resource questions. Scope and executor: no scenario, human executor, or unassisted attempt is selected. Gate effect: none. Effort budget: zero runs. Stop condition: do not create a scenario only to fill this record. Evidence retained: the acceptance results and review when available. Rerun trigger: a material host setup/discoverability finding or explicit current authority. No obligation or scenario ID is created.
+
+### P3 Human Experience Review
+
+Reviewer: Codex Desktop. Impact: direct. The review used actual final native lists, allowed reads, denied-read errors, both guide updates, and built help. The [retained review](evidence/a10/agent-review-final.json) records inputs and final guide hashes. This review is separate from the four testing decisions. No owner-response gate applies.
+
+| Promise | Observed Result | Conclusion, Limit, And Next Action |
+| --- | --- | --- |
+| A profile shows resources for its task. | Exact URI lists match the explicit catalog. Core and setup each expose 7 entries; 6 are shared. Workflow exposes planning and execution resources; quality exposes validation resources; backlog exposes work and review resources. | `satisfied` for the assigned local lists. URI names identify each resource type and name. P4 owns wider host integration and compatibility review. |
+| An allowed read preserves content and source data. | The 62 `all` reads form the baseline. All 165 cross-profile reads match its bytes, media type, and provenance. CLI/core tool comparisons also match. | `satisfied` for the local candidate. No claim is made about a person's lived ease or trust. Rerun if bytes or source resolution change. |
+| A denied read gives a clear next step without content. | All 19 denied reads identify the URI and profile and advise a URI from `resources/list`. No resource bytes are returned. | `satisfied` for the denial rule and recovery path. SDK error text includes protocol prefixes; the reason and recovery remain clear. Rerun if error conversion changes. |
+| Launch and help explain the selected scope. | The first help described tools only. The final help names native resources and states that lists/reads use the profile. The 27 focused tests and final built capture passed. | The earlier `material gap` is resolved. `satisfied` for the final local help/guide agreement. No installed-host setup was tested. |
+| The app page remains with its app owner. | The reserved UI URI is absent from all live lists and all reads fail. Both guides state that the app page is unavailable until its package lands. | `satisfied` for the P3 reservation boundary. W25 owns page registration, rendering, and its app acceptance. The future page outcome is not a current P3 completion claim. |
+| Context savings remain bounded by host behavior. | Both guides say the host must connect profiles as needed or defer definitions. `defaultExposure` is advice and cannot force deferred loading. | `satisfied` for the stated limit. No model context or performance saving was measured. P4 owns that evidence. |
+
+### P3 Documentation And Twin Coverage
+
+| Candidate | Verdict | Reason And Current State |
+| --- | --- | --- |
+| User guide, Persona `user` | Update-existing. | The CLI lifecycle guide owns task selection and launch guidance. It explains native resource filtering, denial, unchanged common resource tools, reserved app availability, stdio, and host context limits. Actual results agree. |
+| Maintainer guide, Persona `maintainer` | Update-existing. | The CLI/MCP parity guide owns adapter contracts. It explains explicit catalog metadata, strict checks at native list/read boundaries, CLI-only fixture compatibility, preserved bytes/provenance and access, host context limits, and the future app boundary. |
+| System-resource contract | Update-existing. | Native MCP metadata and validation rules were added upstream. Exact dogfood catalog, schema, and contract copies match. Defaults and runtime checks passed. No new reference or prompt was added. |
+| Resource reference, prompt, or new workflow | None. | The existing contract owns the reusable rule. There is no resource-specific reference to update, and no new agent workflow is needed. |
+| Deterministic/agentic twin review | Update-existing. | The resource contract carries authoring and manual-check rules that match deterministic metadata validation. Native transport filtering stays deterministic adapter work. No second algorithm, workflow, or permission system is added. |
+| Current PRD authority | None. | P3 implements the accepted profile and preserved-resource requirements. No new product rule or app availability claim is introduced. |
+| P3 work and central evidence | Update-existing. | Record complete P3 tasks, conditional HTTP not-needed dispositions, actual results, and their limits. Keep W24 in progress. |
+| Acceptance captures and shared proof logs | Create. | Retain only observed results. A6–A10 hold case captures. `evidence/p3/` holds full logs, check results, tested identity, and the reusable stdio script. Earlier pre-help captures remain with their stated scope. |
+| P3 closeout history | Create. | One [phase history record](../../../.make-docs/archive/history/2026-10-03-w24-r0-p3-mcp-tool-profiles.md) records the change and evidence limits. No earlier history record is rewritten. |
+| Work index and plan handoff | Update-existing. | P1–P3 are complete. P4 preflight and implementation need separate authority. W24 stays incomplete. |
+
+### P3 Closeout And Limits
+
+Implementation, selected validation, coverage, and agent review are complete. The root suite preceded the three help-string corrections. Focused help tests, the final build, the final stdio replay, and agent review cover those corrections. The final source/build hashes still match. This closeout changed only phase records and history. No runtime test was repeated for these document changes.
+
+The user authorized the P3 local commit on 2026-10-03. P3 is complete. HTTP tasks are disposed as not-needed because no supported-host need is confirmed. Stdio is the completed transport claim. This record claims no commit hash, push, release, fresh installed-host acceptance, or app completion. P4 preflight is next under separate authority. P4 implementation also needs separate authority. W24 remains incomplete.
+
+Closeout document checks are retained in the [scoped check record](evidence/p3/doc-checks-closeout.json) and [PRD authority result](evidence/p3/prd-authority-closeout.json). The earlier implementation captures remain unchanged.
+
+Optional experience handoff: inspect the final native URI lists in A9 and run `node packages/cli/dist/index.js mcp --help` for the tested launch guidance. No response is required.

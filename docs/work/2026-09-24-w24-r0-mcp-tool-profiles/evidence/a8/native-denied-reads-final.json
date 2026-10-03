@@ -1,0 +1,291 @@
+{
+  "capturedAt": "2026-10-03T21:46:59.172Z",
+  "attempts": [
+    {
+      "profile": "all",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile all.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "all",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile all.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "default",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile all.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "default",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile all.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "core",
+      "uri": "make-docs://system/contract/commit-message-convention.md",
+      "reason": "known URI outside selected profile",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/contract/commit-message-convention.md is not available in MCP profile core.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/contract/commit-message-convention.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "core",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile core.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "core",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile core.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "setup",
+      "uri": "make-docs://system/contract/commit-message-convention.md",
+      "reason": "known URI outside selected profile",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/contract/commit-message-convention.md is not available in MCP profile setup.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/contract/commit-message-convention.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "setup",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile setup.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "setup",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile setup.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "workflow",
+      "uri": "make-docs://system/contract/naive-uat-contract.md",
+      "reason": "known URI outside selected profile",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/contract/naive-uat-contract.md is not available in MCP profile workflow.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/contract/naive-uat-contract.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "workflow",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile workflow.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "workflow",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile workflow.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "quality",
+      "uri": "make-docs://system/contract/commit-message-convention.md",
+      "reason": "known URI outside selected profile",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/contract/commit-message-convention.md is not available in MCP profile quality.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/contract/commit-message-convention.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "quality",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile quality.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "quality",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile quality.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "backlog",
+      "uri": "make-docs://system/contract/commit-message-convention.md",
+      "reason": "known URI outside selected profile",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/contract/commit-message-convention.md is not available in MCP profile backlog.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/contract/commit-message-convention.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "backlog",
+      "uri": "make-docs://system/reference/w24-r0-p3-missing.md",
+      "reason": "unknown URI",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource make-docs://system/reference/w24-r0-p3-missing.md is not available in MCP profile backlog.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "make-docs://system/reference/w24-r0-p3-missing.md"
+        }
+      },
+      "noResourceBytes": true
+    },
+    {
+      "profile": "backlog",
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "reason": "reserved W25 UI is not live",
+      "code": -32602,
+      "message": "MCP error -32602: MCP error -32602: Resource ui://make-docs/backlog-review/v1.html is not available in MCP profile backlog.",
+      "data": {
+        "makeDocs": {
+          "code": "resource-not-found",
+          "recovery": "Choose a URI from resources/list for this profile.",
+          "uri": "ui://make-docs/backlog-review/v1.html"
+        }
+      },
+      "noResourceBytes": true
+    }
+  ],
+  "passed": true
+}

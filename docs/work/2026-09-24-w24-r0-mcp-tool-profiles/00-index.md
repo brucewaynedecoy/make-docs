@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The work is dependency ordered and each phase has observable acceptance."
-  coordinate_handoff: "W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering."
 source:
   type: "prd"
   path: "docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -40,7 +40,7 @@ The agent reviews the actual help, configuration example, lists, and errors unde
 
 ## Usage Notes
 
-P1 and P2 are complete. Their checks and limits are in the central evidence for [P1](evidence.md#w24-r0-p1-profile-metadata-and-contracts) and [P2](evidence.md#w24-r0-p2-filtered-tool-discovery). P3 is next. The full W24 capability remains incomplete.
+P1, P2, and P3 are complete. Their checks and limits are in the central evidence for [P1](evidence.md#w24-r0-p1-profile-metadata-and-contracts), [P2](evidence.md#w24-r0-p2-filtered-tool-discovery), and [P3](evidence.md#w24-r0-p3-resources-and-transports). P4 preflight is next under separate authority. The full W24 capability remains incomplete.
 
 Complete phases in order. Use phase-local `t` numbers. Check the branch, HEAD, and dirty state before implementation. A second task owns the Backlog Review MCP App package and its UI behavior. W24 owns only MCP profile routing and resource scoping. Do not edit W23 R0 files. If another task changes a shared PRD or source file, reread it before writing and preserve its edits.
 
@@ -49,7 +49,7 @@ P4 owns the bounded context and latency characterization. It does not set a hard
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: implement [P3: Resources and transports](03-resources-and-transports.md) from the current PRDs after separate implementation authorization.
+- Next step: check [P4: Compatibility and evidence](04-compatibility-and-evidence.md) preflight when authorized. Implement P4 only under separate implementation authority.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The work is dependency ordered and each phase has observable acceptance.
-- Coordinate Handoff: W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering.

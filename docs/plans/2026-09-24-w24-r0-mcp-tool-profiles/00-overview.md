@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The current PRDs own profile requirements. The work backlog owns phase order and acceptance."
-  coordinate_handoff: "W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering."
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "none"
@@ -55,7 +55,7 @@ The output is an authoritative PRD maintenance package. Keep current requirement
 
 ## Execution Mode And Phase Map
 
-PRD 25 and PRD 39 contain the profile rules. P1 and P2 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P3 is next and needs separate implementation authorization.
+PRD 25 and PRD 39 contain the profile rules. P1, P2, and P3 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P4 preflight is next under separate authority. The full W24 capability remains incomplete.
 
 | Phase | Plan | Result |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ Require profile assignment completeness, exact `all` union, stable tool names an
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: execute [P3: Resources and transports](../../work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md) from current PRD 25 and PRD 39 after separate implementation authorization.
+- Next step: check [P4: Compatibility and evidence](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md) preflight when authorized. Implement P4 only under separate implementation authority.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The current PRDs own profile requirements. The work backlog owns phase order and acceptance.
-- Coordinate Handoff: W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering.

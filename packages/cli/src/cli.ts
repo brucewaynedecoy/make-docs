@@ -3464,7 +3464,7 @@ Usage:
   make-docs mcp [--profile <name>] [--help]
 
 Options:
-  --profile <name>  Choose tools for one task. Default: all.
+  --profile <name>  Choose tools and native resources for one task. Default: all.
   --help, -h       Show help for this command.
 
 Profiles:
@@ -3473,10 +3473,11 @@ Profiles:
   workflow  Lifecycle, project context, and work evidence.
   quality   Requirements, performance evidence, and user test checks.
   backlog   Backlog snapshots and the review cache.
-  all       All ready tools.
+  all       All ready tools and native resources.
 
 Behavior:
   The default all profile keeps the existing single-server connection working.
+  Native resource lists and reads use the selected profile.
   The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic registry operations.
   MCP tools delegate to the same operation registry and core used by \`make-docs run\`; write operations require allowWrite=true, enforced uniformly by the operation core.
 

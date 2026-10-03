@@ -38,10 +38,10 @@ export function createMakeDocsMcpServer(options: McpProfileOptions = {}): McpSer
 
   server.server.registerCapabilities({ resources: {} });
   server.server.setRequestHandler(ListResourcesRequestSchema, async () =>
-    listNativeMcpResources(),
+    listNativeMcpResources(process.cwd(), { profile }),
   );
   server.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
-    readNativeMcpResource(request.params.uri),
+    readNativeMcpResource(request.params.uri, process.cwd(), { profile }),
   );
 
   return server;

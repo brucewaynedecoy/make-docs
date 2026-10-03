@@ -61,7 +61,7 @@ For the maintainer-facing explanation of why lifecycle state lives in the global
 
 ## Choose MCP tools for a task
 
-Use a profile when your tool host needs one kind of work. A profile selects which tools the server lists and accepts.
+Use a profile when your tool host needs one kind of work. A profile selects which tools and native resources the server lists and accepts. Native resources are entries that the host can list or open directly.
 
 | Task | Profile |
 | --- | --- |
@@ -89,7 +89,13 @@ For a host that uses `mcpServers` JSON, use this launch entry for backlog work:
 
 The host must be able to find the installed `make-docs` command. The existing entry with `"args": ["mcp"]` stays valid. It selects `all` over stdio. Profile selection does not change generated host settings.
 
-The profile does not grant Store, project, or host settings access. Write tools still need the existing write permission and approvals. This setting filters tools. Native MCP resources keep their current behavior.
+A smaller tool catalog reduces the context shown to the model only when the host connects profiles as needed or loads tool definitions later. The `defaultExposure` setting is advice. It cannot force the host to load definitions later.
+
+The host's native resource list follows the selected profile. A read for a resource outside that profile fails without returning its content. An allowed read returns the same content and source information as `all`. Use `all` when the host needs the full native resource list.
+
+Profile selection does not change CLI resource commands or the common resource tools in `core`. Those keep their existing inventory and read behavior. The `backlog` app page is reserved for `backlog` and `all`. It is not available until the Backlog Review app package lands.
+
+The profile does not grant Store, project, or host settings access. Write tools still need the existing write permission and approvals. Stdio remains the selected transport. No HTTP launch is added here.
 
 For the code and permission rules, use [CLI/MCP Operation Parity and Permissions](../maintainer/cli-mcp-operation-parity-and-permissions.md).
 

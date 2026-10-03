@@ -1,0 +1,6 @@
+{
+  "command": "node packages/cli/dist/index.js mcp --profile unrecognized",
+  "exitCode": 1,
+  "stdout": "",
+  "stderr": "{\"ok\":false,\"code\":\"operation-error\",\"message\":\"Unknown make-docs MCP profile: unrecognized. Allowed profiles: core, setup, workflow, quality, backlog, all.\"}\n"
+}

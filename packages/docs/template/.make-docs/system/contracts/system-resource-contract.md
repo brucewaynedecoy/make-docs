@@ -54,6 +54,16 @@ Here, a provider is an installed source of resource bytes. Provenance is evidenc
 
 The catalog and path supply the fields known during authoring. Origin, provider, package, version, digest, local path, provenance, and content fields are derived when the provider inventory is built or read. A catalog entry must not prefill a false provider version, local path, or digest.
 
+## Native MCP Profiles
+
+The shipped catalog requires `mcpResources`, an array of explicit `{ uri, profiles }` entries. Each current system-resource URI occurs once. Its `profiles` array is nonempty and contains only `core`, `setup`, `workflow`, `quality`, or `backlog`. Do not infer a profile from a URI, path, filename, or resource type. `all` is the exact union of those five intent profiles; it is not an assignment value.
+
+Before native MCP lists or reads resources, its strict metadata check must match the complete system-provider inventory. Reject missing metadata, missing or extra URIs, duplicate URIs, empty profile arrays, unknown profiles, and duplicate profiles. A legacy or custom fixture catalog without `mcpResources` may remain usable by CLI resource operations. It cannot supply native MCP resources without valid, complete profile metadata.
+
+The selected profile scopes native MCP resource lists and reads. Reject a native read outside that profile before resolving or returning resource bytes. An allowed read keeps the same bytes, media type, and provenance as `all`. Profile exposure does not grant permission or change caller identity, Store access, project access, or write checks.
+
+This metadata belongs to the native MCP adapter. It does not change the canonical CLI resource inventory or list/read results, resource byte digests, or the existing core resource tools. It does not require a local resource projection.
+
 ## Provider And Projection
 
 The installed provider is the default list and read source. A project does not need a local copy of a resource.
@@ -86,6 +96,12 @@ Validation must prove:
 - all four types occur exactly once;
 - each source root matches its type;
 - every current resource derives one unique URI;
+- every shipped `mcpResources` entry has a unique current URI and valid nonempty profiles;
+- native MCP metadata covers the exact system-provider URI inventory;
+- `all` is the exact union of the five intent profiles without duplicate URIs;
+- a hidden native resource read returns no resource bytes;
+- allowed native reads preserve bytes, media type, and provenance across profiles;
+- native filtering preserves canonical CLI resource results and the existing core resource tools;
 - every workflow URI resolves in the current inventory;
 - routers are excluded from the content inventory;
 - preserved legacy files are excluded from current resource identity;

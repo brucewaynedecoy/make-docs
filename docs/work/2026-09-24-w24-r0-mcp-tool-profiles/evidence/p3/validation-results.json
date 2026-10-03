@@ -1,0 +1,57 @@
+{
+  "coordinate": "W24 R0 P3",
+  "baseCommit": "5e3cdd6142bd99cc585c3a3e18c5991c853e8044",
+  "startedAt": "2026-10-03T21:39:12.738Z",
+  "checks": [
+    {
+      "name": "typescript",
+      "command": "./node_modules/.bin/tsc",
+      "args": [
+        "--noEmit",
+        "-p",
+        "packages/cli/tsconfig.json"
+      ],
+      "log": "evidence/p3/typescript.txt",
+      "startedAt": "2026-10-03T21:39:12.739Z",
+      "endedAt": "2026-10-03T21:39:15.350Z",
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "command": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "log": "evidence/p3/build.txt",
+      "startedAt": "2026-10-03T21:39:15.350Z",
+      "endedAt": "2026-10-03T21:39:15.858Z",
+      "exitCode": 0
+    },
+    {
+      "name": "defaults",
+      "command": "npm",
+      "args": [
+        "run",
+        "validate:defaults"
+      ],
+      "log": "evidence/p3/defaults.txt",
+      "startedAt": "2026-10-03T21:39:15.858Z",
+      "endedAt": "2026-10-03T21:39:16.659Z",
+      "exitCode": 0
+    },
+    {
+      "name": "full-tests",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "log": "evidence/p3/full-tests.txt",
+      "startedAt": "2026-10-03T21:39:16.659Z",
+      "endedAt": "2026-10-03T21:44:42.738Z",
+      "exitCode": 0
+    }
+  ],
+  "endedAt": "2026-10-03T21:44:42.738Z",
+  "passed": true
+}
