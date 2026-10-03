@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The work is dependency ordered and each phase has observable acceptance."
-  coordinate_handoff: "W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
 source:
   type: "prd"
   path: "docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -18,7 +18,7 @@ source:
 
 Implement the [MCP profile design](../../designs/2026-09-24-mcp-tool-profiles.md) under the current requirements in [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) and [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md). The [plan](../../plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md) owns order and scope.
 
-Status: planned. This package does not authorize code implementation, staging, a commit, a host configuration change, or release.
+P1 and P2 are complete. The user authorized P2 implementation, closeout, and a local commit on 2026-10-03. P3 implementation needs separate authorization. A host configuration change, push, or release also needs separate authorization.
 
 ## Human Experience Trace
 
@@ -40,7 +40,7 @@ The agent reviews the actual help, configuration example, lists, and errors unde
 
 ## Usage Notes
 
-P1 is complete. Its checks and limits are in the [central evidence](evidence.md#w24-r0-p1-profile-metadata-and-contracts). P2 has not started. The full W24 capability remains incomplete.
+P1 and P2 are complete. Their checks and limits are in the central evidence for [P1](evidence.md#w24-r0-p1-profile-metadata-and-contracts) and [P2](evidence.md#w24-r0-p2-filtered-tool-discovery). P3 is next. The full W24 capability remains incomplete.
 
 Complete phases in order. Use phase-local `t` numbers. Check the branch, HEAD, and dirty state before implementation. A second task owns the Backlog Review MCP App package and its UI behavior. W24 owns only MCP profile routing and resource scoping. Do not edit W23 R0 files. If another task changes a shared PRD or source file, reread it before writing and preserve its edits.
 
@@ -49,7 +49,7 @@ P4 owns the bounded context and latency characterization. It does not set a hard
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: execute [P2: Filtered tool discovery](02-filtered-tool-discovery.md) from the current PRDs after separate implementation authorization and record phase evidence.
+- Next step: implement [P3: Resources and transports](03-resources-and-transports.md) from the current PRDs after separate implementation authorization.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The work is dependency ordered and each phase has observable acceptance.
-- Coordinate Handoff: W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.

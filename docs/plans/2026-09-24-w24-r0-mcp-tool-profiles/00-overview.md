@@ -1,13 +1,13 @@
 ---
 title: "W24 R0 MCP Tool Profiles Plan"
 kind: "plan"
-status: "draft"
+status: "in-progress"
 coordinate: "W24 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The current PRDs own profile requirements. The work backlog owns phase order and acceptance."
-  coordinate_handoff: "W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "none"
@@ -55,7 +55,7 @@ The output is an authoritative PRD maintenance package. Keep current requirement
 
 ## Execution Mode And Phase Map
 
-PRD 25 and PRD 39 already contain the profile rules. Check their current authority before P1 code work starts. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source.
+PRD 25 and PRD 39 contain the profile rules. P1 and P2 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P3 is next and needs separate implementation authorization.
 
 | Phase | Plan | Result |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ Require profile assignment completeness, exact `all` union, stable tool names an
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: execute [P2: Filtered tool discovery](../../work/2026-09-24-w24-r0-mcp-tool-profiles/02-filtered-tool-discovery.md) from current PRD 25 and PRD 39 after separate implementation authorization.
+- Next step: execute [P3: Resources and transports](../../work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md) from current PRD 25 and PRD 39 after separate implementation authorization.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The current PRDs own profile requirements. The work backlog owns phase order and acceptance.
-- Coordinate Handoff: W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1 and P2 are complete. All 43 ready tools have checked profile metadata, and the server and CLI select tools by profile. W24 R0 P3 is next and needs separate implementation authorization for resources and transports. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.

@@ -18,6 +18,9 @@ import type { OperationAccess } from "../operations/access";
 import {
   assertMcpToolMetadata,
   cloneMcpToolMetadata,
+  parseMcpServerProfile,
+  type McpProfileOptions,
+  type McpServerProfile,
   type McpToolMetadata,
 } from "../operations/mcp-metadata";
 import { cloneSelections, defaultSelections } from "../profile";
@@ -236,21 +239,27 @@ for (const tool of MAKE_DOCS_MCP_TOOLS) {
 }
 
 /**
- * List the stable MCP surface. Access policy runs at invocation time so a
- * caller can receive the typed not-configured, unavailable, unsafe, or denied
- * result instead of an incorrect tool-not-found result.
+ * List the ready tools assigned to the selected profile. Access policy runs
+ * at invocation time so a caller can receive the typed not-configured,
+ * unavailable, unsafe, or denied result instead of an incorrect tool-not-found result.
  */
 export function listMakeDocsMcpTools(
   targetRoot = process.cwd(),
+  options: McpProfileOptions = {},
 ): MakeDocsMcpToolDescriptor[] {
+  const profile = parseMcpServerProfile(options.profile);
   void targetRoot;
-  return MAKE_DOCS_MCP_TOOLS.map((tool) => {
-    return {
+  return MAKE_DOCS_MCP_TOOLS.filter((tool) => isToolInProfile(tool, profile)).map(
+    (tool) => ({
       ...tool,
       ...(tool.access ? { access: { ...tool.access } } : {}),
       ...(tool.mcp ? { mcp: cloneMcpToolMetadata(tool.mcp) } : {}),
-    };
-  });
+    }),
+  );
+}
+
+function isToolInProfile(tool: MakeDocsMcpToolDescriptor, profile: McpServerProfile): boolean {
+  return tool.mcpReady !== false && (profile === "all" || tool.mcp!.profiles.includes(profile));
 }
 
 /**
@@ -316,7 +325,13 @@ export function verifyDerivedMcpToolParity(
 export async function callMakeDocsMcpTool(
   name: string,
   args: McpToolInput = {},
+  options: McpProfileOptions = {},
 ): Promise<Record<string, unknown>> {
+  const profile = parseMcpServerProfile(options.profile);
+  const tool = MAKE_DOCS_MCP_TOOLS.find((candidate) => candidate.name === name);
+  if (tool === undefined || !isToolInProfile(tool, profile)) {
+    throw new Error(`Unknown make-docs MCP tool: ${name}`);
+  }
   switch (name) {
     case "make_docs_operation_domains":
       return mcpPayload(name, listOperationDomains());
@@ -339,7 +354,9 @@ export async function callMakeDocsMcpTool(
     throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
   const targetRoot = resolveOperationTargetDir(args);
-  const effective = listMakeDocsMcpTools(targetRoot).find((tool) => tool.name === name);
+  const effective = listMakeDocsMcpTools(targetRoot, { profile }).find(
+    (candidate) => candidate.name === name,
+  );
   return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args), {
     operation: derived.operation,
     access: { ...derived.access! },

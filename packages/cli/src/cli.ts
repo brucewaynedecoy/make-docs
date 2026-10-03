@@ -47,6 +47,11 @@ import {
   type CliOperationLaunch,
 } from "./operations/context";
 import { invokeOperation } from "./operations/registry";
+import {
+  MCP_SERVER_PROFILES,
+  parseMcpServerProfile,
+  type McpServerProfile,
+} from "./operations/mcp-metadata";
 import { OperationError } from "./operations/types";
 import { runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
@@ -149,6 +154,7 @@ interface ParsedArgs {
   claudeCodeMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "permission-rules">;
   genericMcpClient?: string;
   genericMcpAction?: GenericMcpAction;
+  mcpProfile?: McpServerProfile;
   json: boolean;
   noSkills: boolean;
   skillScope?: InstallSelections["skillScope"];
@@ -368,7 +374,7 @@ export async function runCli(
 
   if (parsed.command === "mcp") {
     const { runMcpServer } = await import("./mcp/server");
-    await runMcpServer();
+    await runMcpServer({ profile: parsed.mcpProfile ?? "all" });
     return;
   }
 
@@ -2187,9 +2193,21 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   if (parsed.command === "mcp") {
-    for (const arg of args) {
+    while (args.length > 0) {
+      const arg = args.shift();
       if (arg === "--help" || arg === "-h") {
         parsed.help = true;
+        continue;
+      }
+      if (arg === "--profile") {
+        if (parsed.mcpProfile !== undefined) {
+          throw new Error("--profile can be supplied only once.");
+        }
+        const profile = args.shift();
+        if (profile === undefined || profile.startsWith("-")) {
+          throw new Error(`--profile requires a name. Allowed profiles: ${MCP_SERVER_PROFILES.join(", ")}.`);
+        }
+        parsed.mcpProfile = parseMcpServerProfile(profile);
         continue;
       }
       throw new Error(`Unknown argument: ${arg}`);
@@ -3443,14 +3461,28 @@ Examples:
 Run the TypeScript-owned make-docs MCP server over stdio.
 
 Usage:
-  make-docs mcp [--help]
+  make-docs mcp [--profile <name>] [--help]
+
+Options:
+  --profile <name>  Choose tools for one task. Default: all.
+  --help, -h       Show help for this command.
+
+Profiles:
+  core      Installed state, config, common resource tools, and operation domains.
+  setup     Install plans, repair, compatibility, and layout.
+  workflow  Lifecycle, project context, and work evidence.
+  quality   Requirements, performance evidence, and user test checks.
+  backlog   Backlog snapshots and the review cache.
+  all       All ready tools.
 
 Behavior:
+  The default all profile keeps the existing single-server connection working.
   The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic registry operations.
   MCP tools delegate to the same operation registry and core used by \`make-docs run\`; write operations require allowWrite=true, enforced uniformly by the operation core.
 
 Examples:
   make-docs mcp
+  make-docs mcp --profile backlog
 `);
       return;
     case "update":

@@ -1,5 +1,6 @@
 ---
 title: CLI/MCP Operation Parity and Permissions
+kind: guide
 path: cli/mcp
 persona: "maintainer"
 status: draft
@@ -14,6 +15,7 @@ applies-to:
   - mcp
 related:
   - "cli-development-local-build-and-install.md"
+  - "../user/cli-lifecycle-managing-installations.md"
   - "../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md"
   - "release-packaging-validation-and-release-reference.md"
   - "../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md"
@@ -74,6 +76,18 @@ Every MCP capability needs:
 | Parity fixture | A test fixture proving the MCP path and CLI/shared-core path agree. |
 
 Until those fields exist, the MCP capability remains a planning label, not a tool name or public API.
+
+## MCP Tool Profiles
+
+Use `createMakeDocsMcpServer({ profile })` to select `core`, `setup`, `workflow`, `quality`, `backlog`, or `all`. An omitted profile selects `all`. The CLI exposes the same choice through `make-docs mcp --profile <name>`. The existing `make-docs mcp` launch remains valid.
+
+The server filters the shared descriptor list before it registers tools. A selected profile lists only its assigned ready tools. A call to a tool outside that profile fails without running its handler. `all` is the union of the five intent profiles without duplicate tools.
+
+Direct adapter calls use `listMakeDocsMcpTools(targetRoot, { profile })` and `callMakeDocsMcpTool(name, args, { profile })`. Pass the same selected profile to both helpers. Their default is `all`. A hidden or unready name fails before argument parsing or handler execution.
+
+Registry-derived tools retain the canonical operation's profile fields. The six hand-defined tools declare the same fields on their descriptors. A tool in more than one profile keeps one name, schema, description, handler, and access rule. Profile selection does not change operation admission, caller access, write permission, approvals, or results. `defaultExposure` is advice for a host that supports deferred loading.
+
+For a task-focused host launch example, use [Choose MCP tools for a task](../user/cli-lifecycle-managing-installations.md#choose-mcp-tools-for-a-task). Generated host settings keep the existing command until their owning setup work changes them.
 
 ## MCP Capability Map
 
@@ -195,6 +209,7 @@ Before implementing an MCP tool or CLI operation:
 ## Related Resources
 
 - [Building and Installing the CLI Locally](cli-development-local-build-and-install.md)
+- [Managing Installations with the Make Docs CLI](../user/cli-lifecycle-managing-installations.md#choose-mcp-tools-for-a-task)
 - [Run Playbook Runner Architecture](../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md)
 - [Packaging, Validation, and Release Reference](release-packaging-validation-and-release-reference.md)
 - [Static Harness Adapters and Conformance Retirement](../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md)
@@ -207,3 +222,9 @@ Before implementing an MCP tool or CLI operation:
 - [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [39 CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md#human-experience-and-package-grammar)
 - [W18 R11 CLI Command Reorganization and Operation Registry Work](../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)
+
+## Future Coverage
+
+- Blocked by: [W24 R0 P3: Resources and transports](../../work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md).
+  Update when: P3 passes its resource and transport checks.
+  Guide change: Add native resource profile filtering and the supported HTTP path rules.

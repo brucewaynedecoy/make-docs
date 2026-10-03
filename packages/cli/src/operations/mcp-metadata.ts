@@ -3,6 +3,24 @@ export const MCP_PROFILES = ["core", "setup", "workflow", "quality", "backlog"] 
 
 export type McpProfile = (typeof MCP_PROFILES)[number];
 
+export const MCP_SERVER_PROFILES = [...MCP_PROFILES, "all"] as const;
+
+export type McpServerProfile = (typeof MCP_SERVER_PROFILES)[number];
+
+export interface McpProfileOptions {
+  profile?: McpServerProfile;
+}
+
+/** Check runtime input before creating a server or invoking a tool. */
+export function parseMcpServerProfile(value: unknown = "all"): McpServerProfile {
+  if (MCP_SERVER_PROFILES.some((profile) => profile === value)) {
+    return value as McpServerProfile;
+  }
+  throw new Error(
+    `Unknown make-docs MCP profile: ${String(value)}. Allowed profiles: ${MCP_SERVER_PROFILES.join(", ")}.`,
+  );
+}
+
 export interface McpToolMetadata {
   profiles: McpProfile[];
   /** Host advice. This field does not hide or authorize a tool. */
