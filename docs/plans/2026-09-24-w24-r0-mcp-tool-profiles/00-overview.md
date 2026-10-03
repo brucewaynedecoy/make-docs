@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The current PRDs own profile requirements. The work backlog owns phase order and acceptance."
-  coordinate_handoff: "W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering."
+  coordinate_handoff: "W24 R0 P1, P2, and P3 are complete. P4 preparation is complete. The fixed compatibility baseline, canonical PERF-003 profile, finite unrun packet, and four testing decisions are ready. P4 implementation is next under separate authority. W24 remains incomplete. W25 owns UI registration and rendering."
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "none"
@@ -39,7 +39,7 @@ The agent records a Human Experience Review from the built CLI help, profile lis
 
 ## Performance Evidence Plan
 
-Tool-description bytes or tokens and startup or discovery latency are `characterize-now` candidates from the [design](../../designs/2026-09-24-mcp-tool-profiles.md). The W24 work phase owns a bounded comparison of `all` and each narrow profile. Record host, transport, warm or cold state, catalog size, measurement method, and variation. Do not promote a measured result to a product target without separate authority.
+Tool-description context and startup/discovery latency are `characterize-now` candidates from the [design](../../designs/2026-09-24-mcp-tool-profiles.md). Both bind to one canonical [PERF-003 v1 profile](04-compatibility-and-validation.md#perf-003-profile-context-and-stdio-discovery) in the P4 plan. The [P4 work packet](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md#performance-execution-packet) binds the finite unrun execution without copying profile authority. Separate P4 implementation authority must activate the budget. Do not promote local measurements to a product target, model-token claim, installed-host acceptance, or wider support claim.
 
 ## Coordinate Decision
 
@@ -55,7 +55,7 @@ The output is an authoritative PRD maintenance package. Keep current requirement
 
 ## Execution Mode And Phase Map
 
-PRD 25 and PRD 39 contain the profile rules. P1, P2, and P3 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P4 preflight is next under separate authority. The full W24 capability remains incomplete.
+PRD 25 and PRD 39 contain the profile rules. P1, P2, and P3 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P4 preparation is complete. P4 implementation is next under separate authority. The full W24 capability remains incomplete.
 
 | Phase | Plan | Result |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ Require profile assignment completeness, exact `all` union, stable tool names an
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: check [P4: Compatibility and evidence](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md) preflight when authorized. Implement P4 only under separate implementation authority.
+- Next step: implement [P4: Compatibility and evidence](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md) when separately authorized. Bind the prepared packet before any measurement.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The current PRDs own profile requirements. The work backlog owns phase order and acceptance.
-- Coordinate Handoff: W24 R0 P1, P2, and P3 are complete. Tool selection and native resource scoping have retained local evidence. W24 remains incomplete. P4 preflight is next under separate authority; P4 implementation also needs separate authority. W25 owns UI registration and rendering.
+- Coordinate Handoff: W24 R0 P1, P2, and P3 are complete. P4 preparation is complete. The fixed compatibility baseline, canonical PERF-003 profile, finite unrun packet, and four testing decisions are ready. P4 implementation is next under separate authority. W24 remains incomplete. W25 owns UI registration and rendering.
