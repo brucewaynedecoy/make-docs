@@ -49,7 +49,7 @@ P4 owns the bounded context and latency characterization. It does not set a hard
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: execute P1 through P4 from the current PRDs and record phase evidence.
+- Next step: execute [P2: Filtered tool discovery](02-filtered-tool-discovery.md) from the current PRDs after separate implementation authorization and record phase evidence.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The work is dependency ordered and each phase has observable acceptance.
-- Coordinate Handoff: W24 R0 P1 implements profile metadata and checked tool assignments from current PRD 25 and PRD 39. P2 adds filtered tool discovery after P1 passes its phase gate. Phase execution requires separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
+- Coordinate Handoff: W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam.
