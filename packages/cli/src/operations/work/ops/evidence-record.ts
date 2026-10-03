@@ -36,6 +36,7 @@ export const workEvidenceRecordOperation: OperationDefinition<
   Record<string, JsonValue>
 > = {
   id: "work.evidence.record",
+  mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
   summary:
     "Record one work-execution evidence entry in the global store, keyed to the canonical work-item identity.",
   mutates: "write",

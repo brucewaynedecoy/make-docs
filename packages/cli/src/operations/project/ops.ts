@@ -79,6 +79,7 @@ const stateRecoverInput = z.object({
 
 export const projectOperations: OperationDefinition[] = [{
   id: "project.state.status",
+  mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
   summary: "Read installation state and the next safe action from the global Store.",
   mutates: "read",
   access: STORE_READ_PROJECT_READ_ACCESS,
@@ -91,6 +92,7 @@ export const projectOperations: OperationDefinition[] = [{
   },
 }, {
   id: "project.state.recover",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
   summary: "Resume or roll back one verified pending installation operation.",
   mutates: "write",
   access: STORE_WRITE_PROJECT_WRITE_ACCESS,
@@ -103,6 +105,7 @@ export const projectOperations: OperationDefinition[] = [{
   },
 }, {
   id: "project.surface.ensure",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
   summary: "Ensure one selected project support surface and its configured routers.",
   mutates: "write",
   access: STORE_WRITE_PROJECT_WRITE_ACCESS,
@@ -309,6 +312,7 @@ export const projectOperations: OperationDefinition[] = [{
   },
 }, {
   id: "project.path-hygiene.validate",
+  mcp: { profiles: ["setup", "quality"], defaultExposure: "deferred" },
   summary: "Check local documentation paths.",
   mutates: "read",
   access: PROJECT_READ_ACCESS,
@@ -328,6 +332,7 @@ export const projectOperations: OperationDefinition[] = [{
   },
 }, {
   id: "project.path-hygiene.repair",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
   summary: "Preview or apply repairs to current-project paths in documentation.",
   mutates: "write",
   access: PROJECT_WRITE_ACCESS,

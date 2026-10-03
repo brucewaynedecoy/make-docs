@@ -34,6 +34,7 @@ export const workBacklogCacheLookupOperation: OperationDefinition<
   ReturnType<typeof lookupBacklogReviewCache>
 > = {
   id: "work.backlog-cache.lookup",
+  mcp: { profiles: ["backlog"], defaultExposure: "deferred" },
   summary:
     "Read exact reusable per-record backlog review fragments from the optional Global Store cache.",
   mutates: "read",
@@ -50,6 +51,7 @@ export const workBacklogCacheWriteOperation: OperationDefinition<
   ReturnType<typeof writeBacklogReviewCache>
 > = {
   id: "work.backlog-cache.write",
+  mcp: { profiles: ["backlog"], defaultExposure: "deferred" },
   summary:
     "Save validated per-record backlog review fragments in the optional rebuildable Global Store cache.",
   mutates: "write",

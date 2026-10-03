@@ -1,13 +1,13 @@
 ---
 title: "W24 R0 MCP Tool Profiles Work Backlog"
 kind: "work"
-status: "draft"
+status: "in-progress"
 coordinate: "W24 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The work is dependency ordered and each phase has observable acceptance."
-  coordinate_handoff: "W24 R0 P1 implements profile metadata and checked tool assignments from current PRD 25 and PRD 39. P2 adds filtered tool discovery after P1 passes its phase gate. Phase execution requires separate authorization. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
+  coordinate_handoff: "W24 R0 P1 is complete with checked profile metadata and assignments for all 43 ready tools. W24 R0 P2 is next and requires separate authorization to add filtered tool discovery. The Backlog Review MCP App package consumes the backlog profile after W24 exposes the seam."
 source:
   type: "prd"
   path: "docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -39,6 +39,8 @@ The agent reviews the actual help, configuration example, lists, and errors unde
 4. [P4: Compatibility and evidence](04-compatibility-and-evidence.md) — prove parity, access, and measured effects.
 
 ## Usage Notes
+
+P1 is complete. Its checks and limits are in the [central evidence](evidence.md#w24-r0-p1-profile-metadata-and-contracts). P2 has not started. The full W24 capability remains incomplete.
 
 Complete phases in order. Use phase-local `t` numbers. Check the branch, HEAD, and dirty state before implementation. A second task owns the Backlog Review MCP App package and its UI behavior. W24 owns only MCP profile routing and resource scoping. Do not edit W23 R0 files. If another task changes a shared PRD or source file, reread it before writing and preserve its edits.
 

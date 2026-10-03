@@ -211,7 +211,7 @@ function validateResult(root: string, persona: Persona, input: z.infer<typeof sc
 }
 
 function operation<T extends { targetRoot?: string; persona?: string }>(id: string, inputSchema: z.ZodType<T>, handler: (root: string, persona: Persona, input: T) => unknown): OperationDefinition<T, unknown> {
-  return { id, summary: "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor.", mutates: "read", access: PROJECT_READ_ACCESS, status: "active", inputSchema,
+  return { id, mcp: { profiles: ["quality"], defaultExposure: "deferred" }, summary: "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor.", mutates: "read", access: PROJECT_READ_ACCESS, status: "active", inputSchema,
     handler(input, context) {
       const provider = loadInstalledSystemResourceProvider();
       if (!provider.ok || UAT_WORKFLOW_RESOURCES.some((uri) => !provider.value.resources.some((resource) => resource.identity.uri === uri))) fail("invalid-input", "Restore the governing Unassisted Goal Testing provider resources.");

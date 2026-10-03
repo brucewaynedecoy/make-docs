@@ -1,0 +1,61 @@
+{
+  "coordinate": "W24 R0 P1",
+  "date": "2026-10-03",
+  "executor": "Codex Desktop",
+  "baseline": "793868a9468ff0bd5471261503b24b303cb1b4f5",
+  "sourceIdentity": "source-identity.json",
+  "gate": "pass",
+  "checks": [
+    {
+      "command": "npm test -w packages/cli -- mcp-profiles.test.ts mcp.test.ts mcp-derivation.test.ts w19-r6-access-config.test.ts",
+      "exitCode": 0,
+      "passed": 44,
+      "filesPassed": 4,
+      "newProfileTests": 17,
+      "log": "focused-tests.txt"
+    },
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "smokeHarnessPassed": 19,
+      "cliPassed": 1527,
+      "cliSkipped": 5,
+      "cliFilesPassed": 94,
+      "cliFilesSkipped": 1,
+      "cliDurationSeconds": 329.08
+    },
+    {
+      "command": "./node_modules/.bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build -w packages/cli",
+      "exitCode": 0
+    },
+    {
+      "check": "All legacy descriptor fields equal the clean baseline after omitting mcp",
+      "result": "pass",
+      "tools": 43,
+      "baseline": "baseline-tool-contracts.json",
+      "schemaSerialization": "Zod JSON Schema; unrepresentable fields mapped to any"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "node --import tsx packages/cli/src/index.ts run prd authority validate --target-root . --json",
+      "exitCode": 0,
+      "prdFilesScanned": 35,
+      "markdownFilesScanned": 586,
+      "linksScanned": 1103,
+      "diagnostics": []
+    }
+  ],
+  "limits": [
+    "Local macOS arm64 source and build only",
+    "Five installed-upgrade tests skipped",
+    "No profile filtering or host setup result",
+    "No release, cross-platform, performance, or app qualification"
+  ]
+}

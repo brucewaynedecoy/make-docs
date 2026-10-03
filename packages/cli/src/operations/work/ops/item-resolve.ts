@@ -20,6 +20,7 @@ export const workItemResolveOperation: OperationDefinition<
   WorkItemIdentityResolution
 > = {
   id: "work.item.resolve",
+  mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
   summary:
     "Resolve a coordinate or path to the canonical work-item identity (repo root, wave slug, phase path).",
   mutates: "read",

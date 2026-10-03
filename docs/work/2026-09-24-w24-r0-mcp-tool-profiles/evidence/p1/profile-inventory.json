@@ -1,0 +1,556 @@
+{
+  "coordinate": "W24 R0 P1",
+  "baseline": "793868a9468ff0bd5471261503b24b303cb1b4f5",
+  "readyToolCount": 43,
+  "profileCounts": {
+    "core": 8,
+    "setup": 15,
+    "workflow": 14,
+    "quality": 9,
+    "backlog": 3
+  },
+  "legacyContractsUnchanged": true,
+  "tools": [
+    {
+      "name": "make_docs_operation_domains",
+      "operation": null,
+      "profiles": [
+        "core"
+      ],
+      "defaultExposure": "eager",
+      "access": null
+    },
+    {
+      "name": "make_docs_installed_state",
+      "operation": null,
+      "profiles": [
+        "core",
+        "setup"
+      ],
+      "defaultExposure": "eager",
+      "access": null
+    },
+    {
+      "name": "make_docs_manifest_read",
+      "operation": null,
+      "profiles": [
+        "core",
+        "setup"
+      ],
+      "defaultExposure": "eager",
+      "access": null
+    },
+    {
+      "name": "make_docs_config_read",
+      "operation": null,
+      "profiles": [
+        "core",
+        "setup"
+      ],
+      "defaultExposure": "eager",
+      "access": null
+    },
+    {
+      "name": "make_docs_compatibility_classify",
+      "operation": null,
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": null
+    },
+    {
+      "name": "make_docs_install_plan",
+      "operation": null,
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": null
+    },
+    {
+      "name": "make_docs_prd_authority_validate",
+      "operation": "prd.authority.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_performance_evidence_validate",
+      "operation": "performance.evidence.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_state_status",
+      "operation": "project.state.status",
+      "profiles": [
+        "core",
+        "setup"
+      ],
+      "defaultExposure": "eager",
+      "access": {
+        "store": "read",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_state_recover",
+      "operation": "project.state.recover",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "write",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_surface_ensure",
+      "operation": "project.surface.ensure",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "write",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_path_hygiene_validate",
+      "operation": "project.path-hygiene.validate",
+      "profiles": [
+        "setup",
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_path_hygiene_repair",
+      "operation": "project.path-hygiene.repair",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "write",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_persona_list",
+      "operation": "project.persona.list",
+      "profiles": [
+        "core",
+        "workflow"
+      ],
+      "defaultExposure": "eager",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_layout_preview",
+      "operation": "project.layout.preview",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_layout_prepare",
+      "operation": "project.layout.prepare",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_layout_apply",
+      "operation": "project.layout.apply",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "write",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_project_layout_verify",
+      "operation": "project.layout.verify",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_item_resolve",
+      "operation": "work.item.resolve",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_evidence_record",
+      "operation": "work.evidence.record",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_evidence_read",
+      "operation": "work.evidence.read",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "read",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_backlog_snapshot",
+      "operation": "work.backlog.snapshot",
+      "profiles": [
+        "backlog"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_backlog_cache_lookup",
+      "operation": "work.backlog-cache.lookup",
+      "profiles": [
+        "backlog"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "read",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_work_backlog_cache_write",
+      "operation": "work.backlog-cache.write",
+      "profiles": [
+        "backlog"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_resource_list",
+      "operation": "resource.list",
+      "profiles": [
+        "core"
+      ],
+      "defaultExposure": "eager",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_resource_read",
+      "operation": "resource.read",
+      "profiles": [
+        "core"
+      ],
+      "defaultExposure": "eager",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_resource_ensure",
+      "operation": "resource.ensure",
+      "profiles": [
+        "setup"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "write",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_start",
+      "operation": "lifecycle.start",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_show",
+      "operation": "lifecycle.show",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "read",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_list",
+      "operation": "lifecycle.list",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "read",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_checkpoint",
+      "operation": "lifecycle.checkpoint",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_pause",
+      "operation": "lifecycle.pause",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_resume",
+      "operation": "lifecycle.resume",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_attach_evidence",
+      "operation": "lifecycle.attach-evidence",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_complete",
+      "operation": "lifecycle.complete",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_fail",
+      "operation": "lifecycle.fail",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_lifecycle_abandon",
+      "operation": "lifecycle.abandon",
+      "profiles": [
+        "workflow"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "write",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_scenario_validate",
+      "operation": "uat.scenario.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_persona_resolve",
+      "operation": "uat.persona.resolve",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_target_validate",
+      "operation": "uat.target.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_evidence_reference_validate",
+      "operation": "uat.evidence-reference.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_finding_validate",
+      "operation": "uat.finding.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    },
+    {
+      "name": "make_docs_uat_result_validate",
+      "operation": "uat.result.validate",
+      "profiles": [
+        "quality"
+      ],
+      "defaultExposure": "deferred",
+      "access": {
+        "store": "none",
+        "project": "read",
+        "hostConfig": "none"
+      }
+    }
+  ]
+}
