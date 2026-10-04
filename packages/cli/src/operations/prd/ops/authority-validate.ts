@@ -17,6 +17,7 @@ export const prdAuthorityValidateOperation: OperationDefinition<
   PrdAuthorityValidationReport
 > = {
   id: "prd.authority.validate",
+  mcp: { profiles: ["quality"], defaultExposure: "deferred" },
   summary:
     "Validate that active PRDs describe product authority rather than editorial change operations.",
   mutates: "read",

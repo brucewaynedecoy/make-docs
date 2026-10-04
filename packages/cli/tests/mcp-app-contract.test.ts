@@ -10,6 +10,8 @@ import { createAppResourceCatalog, MCP_APP_MIME_TYPE } from "../src/mcp/app-reso
 import { listNativeMcpResources } from "../src/mcp/resources";
 import * as nativeResources from "../src/mcp/resources";
 import { createMakeDocsMcpServer } from "../src/mcp/server";
+import { listMakeDocsMcpTools } from "../src/mcp/tools";
+import { MCP_PROFILES } from "../src/operations/mcp-metadata";
 import { selectBacklogDelivery } from "../src/operations/work/backlog/live-contracts";
 import {
   createProofServer, HOSTILE_PROJECT_TEXT, PROOF_MESSAGE, PROOF_TOOL, PROOF_URI,
@@ -102,6 +104,71 @@ async function readyWidget() {
 }
 
 describe("P2 static MCP Apps resource boundary", () => {
+  it.each([undefined, "all"] as const)(
+    "preserves opted-in app wire reads with profile %s",
+    async profile => {
+      const protocol = await connect(createMakeDocsMcpServer({ profile, appResources: [resource] }));
+      try {
+        const native = await listNativeMcpResources(process.cwd(), { profile: "all" });
+        const listed = (await protocol.client.listResources()).resources;
+        expect(listed.filter(item => item.uri !== PROOF_URI)).toEqual(native.resources);
+        expect(listed.find(item => item.uri === PROOF_URI)).toMatchObject({ uri: PROOF_URI, mimeType: MCP_APP_MIME_TYPE });
+        expect((await protocol.client.readResource({ uri: PROOF_URI })).contents[0]).toMatchObject({ text: readProofHtml() });
+        expect(await protocol.client.readResource({ uri: native.resources[0].uri })).toEqual(
+          await nativeResources.readNativeMcpResource(native.resources[0].uri, process.cwd(), { profile: "all" }),
+        );
+        expect((await protocol.client.listTools()).tools.map(tool => tool.name)).toEqual(
+          listMakeDocsMcpTools(process.cwd(), { profile: "all" }).map(tool => tool.name),
+        );
+        expect((await protocol.client.callTool({ name: "make_docs_operation_domains", arguments: {} })).isError).not.toBe(true);
+        expect(protocol.client.getServerCapabilities()?.extensions).toEqual({
+          "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] },
+        });
+      } finally { await protocol.close(); }
+    },
+  );
+
+  it.each(MCP_PROFILES)("refuses proof app resources in the %s profile before startup", profile => {
+    const readText = vi.fn(() => {
+      throw new Error("Proof bytes must not be read");
+    });
+    const input = { ...resource, get text(): string { return readText(); } };
+    expect(() => createMakeDocsMcpServer({ profile, appResources: [input] }))
+      .toThrow("MCP app proof resources require the all profile.");
+    expect(readText).not.toHaveBeenCalled();
+  });
+
+  it("checks an invalid combined profile before it reads proof bytes", () => {
+    const readText = vi.fn(() => { throw new Error("Proof bytes must not be read"); });
+    const input = { ...resource, get text(): string { return readText(); } };
+    expect(() => createMakeDocsMcpServer({ profile: "unknown" as never, appResources: [input] }))
+      .toThrow("Unknown make-docs MCP profile: unknown.");
+    expect(readText).not.toHaveBeenCalled();
+  });
+
+  it.each(MCP_PROFILES)("keeps the ordinary %s profile filtered with no app resources", async profile => {
+    const protocol = await connect(createMakeDocsMcpServer({ profile, appResources: [] }));
+    try {
+      expect((await protocol.client.listTools()).tools.map(tool => tool.name)).toEqual(
+        listMakeDocsMcpTools(process.cwd(), { profile }).map(tool => tool.name),
+      );
+      const native = await listNativeMcpResources(process.cwd(), { profile });
+      expect((await protocol.client.listResources()).resources).toEqual(native.resources);
+      expect(await protocol.client.readResource({ uri: native.resources[0].uri })).toEqual(
+        await nativeResources.readNativeMcpResource(native.resources[0].uri, process.cwd(), { profile }),
+      );
+      const hiddenResource = (await listNativeMcpResources()).resources.find(
+        item => !native.resources.some(visible => visible.uri === item.uri),
+      )!;
+      await expect(protocol.client.readResource({ uri: hiddenResource.uri })).rejects.toThrow();
+      const visibleTools = listMakeDocsMcpTools(process.cwd(), { profile });
+      const hiddenTool = listMakeDocsMcpTools().find(tool => !visibleTools.some(visible => visible.name === tool.name))!;
+      expect((await protocol.client.callTool({ name: hiddenTool.name, arguments: {} })).isError).toBe(true);
+      await expect(protocol.client.readResource({ uri: PROOF_URI })).rejects.toThrow();
+      expect(protocol.client.getServerCapabilities()?.extensions).toBeUndefined();
+    } finally { await protocol.close(); }
+  });
+
   it("keeps native resource discovery unchanged and adds one versioned app resource", async () => {
     const native = await listNativeMcpResources();
     const protocol = await connect();

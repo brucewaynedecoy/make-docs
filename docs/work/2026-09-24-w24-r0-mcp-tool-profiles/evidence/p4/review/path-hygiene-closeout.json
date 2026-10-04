@@ -1,0 +1,33 @@
+{
+  "coordinate": "W24 R0 P4",
+  "capturedAt": "2026-10-04T02:17:25.654Z",
+  "scope": "content",
+  "readOnly": true,
+  "checkedPaths": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md"
+  ],
+  "result": {
+    "operation": "project.path-hygiene.validate",
+    "value": {
+      "schemaVersion": 1,
+      "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "inventorySource": "content",
+      "inventoryNotice": "Checked local content only. This is not installation evidence.",
+      "checkedFiles": 4,
+      "changedFiles": [],
+      "findings": [],
+      "ioErrors": [],
+      "valid": true,
+      "failingFindings": 0
+    },
+    "provenance": {
+      "operation": "project.path-hygiene.validate",
+      "domain": "project",
+      "source": "test"
+    }
+  },
+  "historyCheck": "Separate scoped local path/link/anchor/placeholder check in closeout-checks.json; archive path remains outside this operation input."
+}

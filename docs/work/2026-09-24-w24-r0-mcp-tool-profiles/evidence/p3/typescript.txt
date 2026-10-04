@@ -1,0 +1,7 @@
+Command: ./node_modules/.bin/tsc --noEmit -p packages/cli/tsconfig.json
+Cwd: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+Started: 2026-10-03T21:39:12.739Z
+
+
+Exit code: 0
+Ended: 2026-10-03T21:39:15.350Z

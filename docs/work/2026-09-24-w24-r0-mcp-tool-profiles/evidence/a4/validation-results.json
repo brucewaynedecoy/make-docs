@@ -1,0 +1,88 @@
+{
+  "coordinate": "W24 R0 P2",
+  "baselineCommit": "75db93e49e8aa77b570ab25ac8133921b54d9376",
+  "candidate": "uncommitted source files identified by source-identity.json",
+  "capturedAt": "2026-10-03T20:48:04.244Z",
+  "focused": {
+    "status": "passed",
+    "files": 6,
+    "tests": 92,
+    "newP2Tests": 55,
+    "capture": "../a1/focused-tests.txt"
+  },
+  "fullSuite": {
+    "status": "passed",
+    "smokeHarnessTests": 19,
+    "passed": 1582,
+    "skipped": 5,
+    "passedFiles": 96,
+    "skippedFiles": 1,
+    "duration": "396.70s (transform 1.31s, setup 675ms, collect 8.74s, tests 773.10s, environment 7ms, prepare 2.60s)",
+    "capture": "full-tests.txt",
+    "priorRun": "Interrupted with no final verdict; this completed run is authoritative."
+  },
+  "typescript": {
+    "status": "passed",
+    "command": "./node_modules/.bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "output": "No diagnostics."
+  },
+  "build": {
+    "status": "passed",
+    "command": "npm run build -w packages/cli",
+    "capture": "build.txt"
+  },
+  "builtStdio": {
+    "status": "passed",
+    "counts": {
+      "default": 43,
+      "core": 8,
+      "setup": 15,
+      "workflow": 14,
+      "quality": 9,
+      "backlog": 3,
+      "all": 43
+    },
+    "unionCount": 43,
+    "defaultMatchesAll": true,
+    "sharedContractsMatchAll": true,
+    "hiddenCallRejected": true,
+    "capture": "../a3/stdio-results.json"
+  },
+  "invalidProfile": {
+    "status": "passed",
+    "exitStatus": 1,
+    "stdoutEmpty": true,
+    "allowedChoicesShown": true,
+    "capture": "../a2/invalid-profile.json"
+  },
+  "help": {
+    "status": "passed",
+    "exitStatus": 0,
+    "namesAndDefaultShown": true,
+    "capture": "../a5/cli-help.txt"
+  },
+  "prdAuthority": {
+    "status": "passed",
+    "prds": 35,
+    "markdownSources": 586,
+    "links": 1103,
+    "diagnostics": 0,
+    "capture": "prd-authority.json"
+  },
+  "prdAuthorityCloseout": {
+    "status": "passed",
+    "prds": 35,
+    "markdownSources": 586,
+    "links": 1103,
+    "diagnostics": 0,
+    "capture": "prd-authority-closeout.json"
+  },
+  "scope": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.19.0",
+    "nativeResourceFiltering": "W24 R0 P3",
+    "httpTransport": "W24 R0 P3",
+    "performanceAndReleaseQualification": "W24 R0 P4"
+  }
+}

@@ -263,6 +263,7 @@ export const resourceListOperation: OperationDefinition<
   ResourceListOperationOutput
 > = {
   id: "resource.list",
+  mcp: { profiles: ["core"], defaultExposure: "eager" },
   summary: "List the stable system-resource URI inventory with resolution provenance.",
   mutates: "read",
   access: PROJECT_READ_ACCESS,
@@ -276,6 +277,7 @@ export const resourceReadOperation: OperationDefinition<
   ResourceReadOperationOutput
 > = {
   id: "resource.read",
+  mcp: { profiles: ["core"], defaultExposure: "eager" },
   summary: "Read one system resource with exact bytes, media type, and provenance.",
   mutates: "read",
   access: PROJECT_READ_ACCESS,
@@ -289,6 +291,7 @@ export const resourceEnsureOperation: OperationDefinition<
   ResourceEnsureOperationOutput
 > = {
   id: "resource.ensure",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
   summary: "Materialize one selected managed projection under explicit write permission.",
   mutates: "write",
   access: STORE_WRITE_PROJECT_WRITE_ACCESS,

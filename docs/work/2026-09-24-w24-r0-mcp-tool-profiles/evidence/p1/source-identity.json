@@ -1,0 +1,75 @@
+{
+  "baseline": "793868a9468ff0bd5471261503b24b303cb1b4f5",
+  "branch": "w24-r0-mcp-tool-profiles",
+  "node": "v24.19.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "package": "2.0.4",
+  "sourceState": "uncommitted P1 changes",
+  "files": [
+    {
+      "path": "packages/cli/src/mcp/tools.ts",
+      "sha256": "0fbff30b869dc911e931d4d2c3a6d462dcd126e5e6d19f748b46251d9f746302"
+    },
+    {
+      "path": "packages/cli/src/operations/lifecycle/registry-ops.ts",
+      "sha256": "1cda292bd7a1ee7cbf3a94d18fd2dba6fb9497a74fbf1a1ee7513bf8f079689f"
+    },
+    {
+      "path": "packages/cli/src/operations/mcp-metadata.ts",
+      "sha256": "fcdbccf6a745daad46fb538ad0dcbe14b3bc206c52585b6cd51de8f0eb94963d"
+    },
+    {
+      "path": "packages/cli/src/operations/performance-evidence/ops.ts",
+      "sha256": "85a65b93c6bfdd30a6836e9bc1e9e62aa1a046fd755ff6eb026fc242307fdfb8"
+    },
+    {
+      "path": "packages/cli/src/operations/prd/ops/authority-validate.ts",
+      "sha256": "639f4aaa76bf4ffae552fb1449b3561b3cd571c1eb30e621be323f6cd7f576ac"
+    },
+    {
+      "path": "packages/cli/src/operations/project/layout.ts",
+      "sha256": "67646eee7e9071a0272f659221d578686e2cf23612d92f6bfe5ef92c4d225bc7"
+    },
+    {
+      "path": "packages/cli/src/operations/project/ops.ts",
+      "sha256": "1e3765e10012c2676064037d9c5e0ac4b197a00b565d4aec0ca2c3dab8520125"
+    },
+    {
+      "path": "packages/cli/src/operations/registry.ts",
+      "sha256": "177cd6d74d1ed7d3ffcc3d8bbe979c3ecab87beb9a9f08b8892b693e359bdfb3"
+    },
+    {
+      "path": "packages/cli/src/operations/resource/ops.ts",
+      "sha256": "c3ec5676b91f97e3abb31d2a1ee7733ea14219eb416d676a5af2b55a817ca68e"
+    },
+    {
+      "path": "packages/cli/src/operations/uat/ops.ts",
+      "sha256": "bb624821595b584cf802563b1384daac5d3fb22ed93adc5cdae079cdf8318884"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/cache-operation.ts",
+      "sha256": "5d81399ff99c23479056a7f331e89b4aaacd7b4d918cd233d0d2dfa66473cb59"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/operation.ts",
+      "sha256": "879366d36983253b7593ac1675d7fbb94dbcdd07ee1c165c2ba680cfaba68ac2"
+    },
+    {
+      "path": "packages/cli/src/operations/work/ops/evidence-read.ts",
+      "sha256": "60ba46714af07ecf0da52e9f4b27bf7f39480b069dce85656333cb6d6a99a58f"
+    },
+    {
+      "path": "packages/cli/src/operations/work/ops/evidence-record.ts",
+      "sha256": "ad651d36c6021c97986adef7e7d07e395396dac129c880c960600d6fd690478e"
+    },
+    {
+      "path": "packages/cli/src/operations/work/ops/item-resolve.ts",
+      "sha256": "28314c898271ae63f6b93c7077f2b11029aa4ceb21372a388c744d55235a74f0"
+    },
+    {
+      "path": "packages/cli/tests/mcp-profiles.test.ts",
+      "sha256": "496c369a52d5dd014088a68b64275c390d9adb88abdecc8b8b885ce2f9e6094f"
+    }
+  ]
+}

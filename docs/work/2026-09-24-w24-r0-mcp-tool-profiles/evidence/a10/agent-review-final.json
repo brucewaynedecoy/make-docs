@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-10-03T21:48:20.163Z",
+  "coordinate": "W24 R0 P3",
+  "reviewer": "Codex Desktop",
+  "impact": "direct",
+  "reviewed": [
+    {
+      "file": "docs/assets/user/cli-lifecycle-managing-installations.md",
+      "sha256": "714c92a88435bb56000b491e5e2e9464b17dcaaac4b2032b37bb05ad8bc59b31"
+    },
+    {
+      "file": "docs/assets/maintainer/cli-mcp-operation-parity-and-permissions.md",
+      "sha256": "431beed4385accabc000b01d57ca60893aaa5fcbf31af695b21e133351fae35c"
+    }
+  ],
+  "inputs": [
+    "evidence/a9/stdio-results-final.json",
+    "evidence/a7/allowed-read-and-cli-parity-final.json",
+    "evidence/a8/native-denied-reads-final.json",
+    "evidence/a10/cli-help-final.txt",
+    "evidence/a10/cli-invalid-profile-final.json",
+    "evidence/a10/source-dogfood-parity.json"
+  ],
+  "observations": [
+    "Native profile lists expose exact assigned URIs. Core and setup each expose seven entries; six are shared. Workflow covers planning and execution resources. Quality covers validation and test resources. Backlog exposes work and review resources.",
+    "227 native reads include 62 all-profile baseline reads and 165 cross-profile comparisons. Each cross-profile result preserves bytes, media type, and source metadata.",
+    "19 denied reads return the requested URI, selected profile, resource-not-found code, and recovery through resources/list without resource bytes.",
+    "The first help capture named tools only. The final help fix names tools and native resources and states list/read scope. The final built capture resolves this gap.",
+    "Both guides explain native filtering and preserve CLI and core resource tool behavior. Both explain that host connection choice or deferred definitions controls model context savings. defaultExposure cannot force deferred loading.",
+    "The future Backlog Review UI is reserved and unavailable in current lists or reads. No installed host or app page was tested."
+  ],
+  "conclusion": "satisfied for local P3 profile behavior, copy parity, and help/guide agreement; no lived-human or installed-host acceptance claim",
+  "ownerResponseGate": false,
+  "nextAction": "Keep closeout open. P4 owns wider integration, compatibility, and performance. W25 owns UI registration and rendering."
+}

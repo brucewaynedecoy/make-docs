@@ -1,0 +1,19 @@
+
+> @brucewaynedecoy/make-docs@2.0.4 test
+> vitest run mcp-profiles.test.ts mcp.test.ts mcp-derivation.test.ts w19-r6-access-config.test.ts
+
+
+ RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+
+ ✓ tests/mcp-profiles.test.ts (17 tests) 107ms
+ ✓ tests/mcp.test.ts (6 tests) 34ms
+ ✓ tests/mcp-derivation.test.ts (6 tests) 9ms
+ ✓ tests/w19-r6-access-config.test.ts (15 tests) 2147ms
+   ✓ W19 R6 harness intent > rebuilds and verifies a Claude permission-rule identity from its compact reference  383ms
+   ✓ W19 R6 harness intent > uses only the active harness record when project intent contains multiple harnesses  304ms
+   ✓ W19 R6 harness receipts > stores machine and project receipts in existing Store records  461ms
+
+ Test Files  4 passed (4)
+      Tests  44 passed (44)
+   Start at  13:06:32
+   Duration  2.86s (transform 541ms, setup 49ms, collect 1.53s, tests 2.30s, environment 0ms, prepare 128ms)

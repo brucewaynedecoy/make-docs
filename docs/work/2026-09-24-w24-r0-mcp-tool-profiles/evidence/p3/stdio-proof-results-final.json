@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-10-03T21:47:02.583Z",
+  "passed": true,
+  "sourceAndBuildUnchanged": true,
+  "readComparisons": 165,
+  "deniedReads": 19,
+  "resourceCounts": {
+    "core": 7,
+    "setup": 7,
+    "workflow": 48,
+    "quality": 33,
+    "backlog": 8,
+    "all": 62,
+    "default": 62
+  },
+  "toolCounts": {
+    "core": 8,
+    "setup": 15,
+    "workflow": 14,
+    "quality": 9,
+    "backlog": 3,
+    "all": 43,
+    "default": 43
+  },
+  "nativeReads": 227,
+  "allBaselineReads": 62
+}

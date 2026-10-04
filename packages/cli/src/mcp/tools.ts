@@ -15,6 +15,14 @@ import {
   type OperationDefinition,
 } from "../operations/registry";
 import type { OperationAccess } from "../operations/access";
+import {
+  assertMcpToolMetadata,
+  cloneMcpToolMetadata,
+  parseMcpServerProfile,
+  type McpProfileOptions,
+  type McpServerProfile,
+  type McpToolMetadata,
+} from "../operations/mcp-metadata";
 import { cloneSelections, defaultSelections } from "../profile";
 import type {
   InstallPlan,
@@ -42,6 +50,8 @@ export interface MakeDocsMcpToolDescriptor {
   operation?: string;
   access?: OperationAccess;
   mcpReady?: boolean;
+  /** Copied from canonical operation metadata, or declared on a non-operation tool. */
+  mcp?: McpToolMetadata;
 }
 
 interface DerivedMcpToolDescriptor extends MakeDocsMcpToolDescriptor {
@@ -65,15 +75,20 @@ const systemAssetMaterializationModeSchema = z.enum([
  * planning surfaces that are not registry operations. Everything else on
  * the MCP tool list is DERIVED from the operation registry below (R-REG-2).
  */
-const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & { name: HandDefinedMcpToolName })[] = [
+const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
+  name: HandDefinedMcpToolName;
+  mcp: McpToolMetadata;
+})[] = [
   {
     name: "make_docs_operation_domains",
+    mcp: { profiles: ["core"], defaultExposure: "eager" },
     title: "List Make Docs Operation Domains",
     description: "List deterministic operation domains shared by CLI and MCP tools.",
     inputSchema: {},
   },
   {
     name: "make_docs_installed_state",
+    mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Inspect Make Docs Installed State",
     description:
       "Inspect manifest, config, compatibility, and package state for a make-docs project.",
@@ -81,24 +96,28 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & { name: HandDefinedMc
   },
   {
     name: "make_docs_manifest_read",
+    mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Manifest",
     description: "Read .make-docs/manifest.json without mutating the project.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
     name: "make_docs_config_read",
+    mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Config",
     description: "Read .make-docs/config.yaml with default overlay diagnostics.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
     name: "make_docs_compatibility_classify",
+    mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Classify Make Docs Compatibility State",
     description: "Run the same compatibility classifier used by the CLI.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
     name: "make_docs_install_plan",
+    mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Plan Make Docs Install Or Sync",
     description:
       "Create a dry-run install/sync plan using CLI planner semantics and without file writes.",
@@ -199,6 +218,7 @@ const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations()
       inputSchema: deriveToolInputSchema(definition),
       access: { ...accessFact.access },
       mcpReady: accessFact.mcpReady,
+      ...(definition.mcp ? { mcp: cloneMcpToolMetadata(definition.mcp) } : {}),
     };
   },
 );
@@ -212,19 +232,34 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   ...DERIVED_MCP_OPERATION_TOOLS,
 ];
 
+for (const tool of MAKE_DOCS_MCP_TOOLS) {
+  if (tool.mcpReady !== false || tool.mcp !== undefined) {
+    assertMcpToolMetadata(tool.name, tool.mcp);
+  }
+}
+
 /**
- * List the stable MCP surface. Access policy runs at invocation time so a
- * caller can receive the typed not-configured, unavailable, unsafe, or denied
- * result instead of an incorrect tool-not-found result.
+ * List the ready tools assigned to the selected profile. Access policy runs
+ * at invocation time so a caller can receive the typed not-configured,
+ * unavailable, unsafe, or denied result instead of an incorrect tool-not-found result.
  */
 export function listMakeDocsMcpTools(
   targetRoot = process.cwd(),
+  options: McpProfileOptions = {},
 ): MakeDocsMcpToolDescriptor[] {
+  const profile = parseMcpServerProfile(options.profile);
   void targetRoot;
-  return MAKE_DOCS_MCP_TOOLS.map((tool) => {
-    if (!tool.operation || !tool.access) return tool;
-    return { ...tool, access: { ...tool.access } };
-  });
+  return MAKE_DOCS_MCP_TOOLS.filter((tool) => isToolInProfile(tool, profile)).map(
+    (tool) => ({
+      ...tool,
+      ...(tool.access ? { access: { ...tool.access } } : {}),
+      ...(tool.mcp ? { mcp: cloneMcpToolMetadata(tool.mcp) } : {}),
+    }),
+  );
+}
+
+function isToolInProfile(tool: MakeDocsMcpToolDescriptor, profile: McpServerProfile): boolean {
+  return tool.mcpReady !== false && (profile === "all" || tool.mcp!.profiles.includes(profile));
 }
 
 /**
@@ -290,7 +325,13 @@ export function verifyDerivedMcpToolParity(
 export async function callMakeDocsMcpTool(
   name: string,
   args: McpToolInput = {},
+  options: McpProfileOptions = {},
 ): Promise<Record<string, unknown>> {
+  const profile = parseMcpServerProfile(options.profile);
+  const tool = MAKE_DOCS_MCP_TOOLS.find((candidate) => candidate.name === name);
+  if (tool === undefined || !isToolInProfile(tool, profile)) {
+    throw new Error(`Unknown make-docs MCP tool: ${name}`);
+  }
   switch (name) {
     case "make_docs_operation_domains":
       return mcpPayload(name, listOperationDomains());
@@ -313,7 +354,9 @@ export async function callMakeDocsMcpTool(
     throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
   const targetRoot = resolveOperationTargetDir(args);
-  const effective = listMakeDocsMcpTools(targetRoot).find((tool) => tool.name === name);
+  const effective = listMakeDocsMcpTools(targetRoot, { profile }).find(
+    (candidate) => candidate.name === name,
+  );
   return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args), {
     operation: derived.operation,
     access: { ...derived.access! },

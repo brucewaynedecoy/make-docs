@@ -1,5 +1,6 @@
 ---
 title: CLI/MCP Operation Parity and Permissions
+kind: guide
 path: cli/mcp
 persona: "maintainer"
 status: draft
@@ -14,6 +15,7 @@ applies-to:
   - mcp
 related:
   - "cli-development-local-build-and-install.md"
+  - "../user/cli-lifecycle-managing-installations.md"
   - "../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md"
   - "release-packaging-validation-and-release-reference.md"
   - "../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md"
@@ -74,6 +76,34 @@ Every MCP capability needs:
 | Parity fixture | A test fixture proving the MCP path and CLI/shared-core path agree. |
 
 Until those fields exist, the MCP capability remains a planning label, not a tool name or public API.
+
+## MCP Tool Profiles
+
+Use `createMakeDocsMcpServer({ profile })` to select `core`, `setup`, `workflow`, `quality`, `backlog`, or `all`. An omitted profile selects `all`. The CLI exposes the same choice through `make-docs mcp --profile <name>`. The existing `make-docs mcp` launch remains valid.
+
+The server filters the shared descriptor list before it registers tools. A selected profile lists only its assigned ready tools. A call to a tool outside that profile fails without running its handler. `all` is the union of the five intent profiles without duplicate tools.
+
+Direct adapter calls use `listMakeDocsMcpTools(targetRoot, { profile })` and `callMakeDocsMcpTool(name, args, { profile })`. Pass the same selected profile to both helpers. Their default is `all`. A hidden or unready name fails before argument parsing or handler execution.
+
+Registry-derived tools retain the canonical operation's profile fields. The six hand-defined tools declare the same fields on their descriptors. A tool in more than one profile keeps one name, schema, description, handler, and access rule. Profile selection does not change operation admission, caller access, write permission, approvals, or results.
+
+A smaller catalog reduces model-visible context only when a host connects profiles as needed or defers tool definitions. `defaultExposure` is advice. It cannot force deferred loading in the host.
+
+For a task-focused host launch example, use [Choose MCP tools for a task](../user/cli-lifecycle-managing-installations.md#choose-mcp-tools-for-a-task). Generated host settings keep the existing command until their owning setup work changes them.
+
+## Native Resource Profiles
+
+Native `resources/list` and `resources/read` use the same selected profile as the server. Lists include only assigned resources. A native read outside that profile fails before resource bytes are resolved or returned. Allowed reads keep the same bytes, media type, and provenance as `all`.
+
+The shipped catalog at `packages/docs/template/.make-docs/system-resources.catalog.json` owns `mcpResources: [{ uri, profiles }]`. Each current system URI occurs once and has a nonempty array of the five intent profile values. `all` is their exact union. The native MCP metadata check rejects missing or extra URIs, duplicates, empty assignments, and unknown profiles. It checks the complete system-provider inventory. Do not derive assignments from file names or URI paths.
+
+Author catalog and schema changes upstream, validate their source inventory, then copy the exact validated bytes into the dogfood instance. The [System Resource Contract](../../../.make-docs/system/contracts/system-resource-contract.md#native-mcp-profiles) owns these metadata rules. A legacy or custom fixture catalog may omit the metadata for CLI use. Native MCP requires complete metadata and refuses that omission.
+
+Profiles control native exposure. They do not grant access, alter caller identity, or change write permissions. The CLI resource inventory and canonical list/read results stay unchanged. The existing `make_docs_resource_list` and `make_docs_resource_read` tools remain `core` tools with their prior behavior. Local resource projections remain optional.
+
+The future Backlog Review UI resource is reserved for `backlog` and `all`. The current system catalog does not contain its page. Its bytes, detailed UI contract, and two app tools remain owned by the separate Backlog Review package. Do not claim the app is available from this reservation.
+
+Stdio remains selected. Add HTTP routing only for a later confirmed supported-host need. A recorded host fixture proof is context for that decision; it does not accept a new filtered-resource candidate.
 
 ## MCP Capability Map
 
@@ -211,6 +241,7 @@ Before implementing an MCP tool or CLI operation:
 ## Related Resources
 
 - [Building and Installing the CLI Locally](cli-development-local-build-and-install.md)
+- [Managing Installations with the Make Docs CLI](../user/cli-lifecycle-managing-installations.md#choose-mcp-tools-for-a-task)
 - [Run Playbook Runner Architecture](../../../.make-docs/archive/legacy-playbooks/library/developer/playbooks-development-runner-architecture.md)
 - [Packaging, Validation, and Release Reference](release-packaging-validation-and-release-reference.md)
 - [Static Harness Adapters and Conformance Retirement](../../designs/2026-09-14-static-harness-adapters-and-conformance-retirement.md)
@@ -223,3 +254,12 @@ Before implementing an MCP tool or CLI operation:
 - [39 Revise CLI Command Reorganization and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md)
 - [39 CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md#human-experience-and-package-grammar)
 - [W18 R11 CLI Command Reorganization and Operation Registry Work](../../work/2026-07-01-w18-r11-cli-command-reorganization-and-operation-registry/00-index.md)
+
+## Future Coverage
+
+- Blocked by: the separate Backlog Review app package.
+  Update when: its UI resource and app tools pass their acceptance checks.
+  Guide change: Add the available backlog page and its supported host path.
+- Blocked by: a confirmed supported-host need for HTTP.
+  Update when: HTTP is implemented and passes its own transport checks.
+  Guide change: Add only the proved launch and fixed-route behavior.

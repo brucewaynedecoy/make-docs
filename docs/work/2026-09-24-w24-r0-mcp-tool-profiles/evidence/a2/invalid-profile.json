@@ -1,0 +1,5 @@
+{
+  "status": 1,
+  "stdout": "",
+  "stderr": "{\"ok\":false,\"code\":\"operation-error\",\"message\":\"Unknown make-docs MCP profile: unknown. Allowed profiles: core, setup, workflow, quality, backlog, all.\"}\n"
+}

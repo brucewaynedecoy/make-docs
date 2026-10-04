@@ -1,0 +1,436 @@
+{
+  "capturedAt": "2026-10-03T21:46:59.171Z",
+  "catalog": "packages/docs/template/.make-docs/system-resources.catalog.json",
+  "assignments": [
+    {
+      "uri": "make-docs://system/contract/commit-message-convention.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/coverage-pass-contract.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/deferred-obligation-contract.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/design-contract.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/guide-contract.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/history-record-contract.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/human-experience-contract.md",
+      "profiles": [
+        "core",
+        "setup",
+        "workflow",
+        "quality",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/naive-uat-contract.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/output-contract.md",
+      "profiles": [
+        "core",
+        "setup",
+        "workflow",
+        "quality",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/performance-evidence-governance.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/system-resource-contract.md",
+      "profiles": [
+        "core",
+        "setup"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/coverage-pass-testing-uat.prompt.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/coverage-pass-user-guide.prompt.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/designs-to-plan-change.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/designs-to-plan.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md",
+      "profiles": [
+        "setup",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/naive-uat-facilitator.prompt.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/naive-uat-tester.prompt.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/performance-coverage.prompt.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/plan-to-prd-change.prompt.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/plan-to-prd-green-field.prompt.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/prd-change-to-work.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/prd-to-work-full-prd.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/prd-to-work-prd-feature.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/request-to-design.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/session-to-history-record.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/update-readme-green-field.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/work-to-commit-message.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/prompt/work-to-guides.prompt.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/design-workflow.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/execution-workflow.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/harness-capability-matrix.md",
+      "profiles": [
+        "core",
+        "setup"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/human-experience.md",
+      "profiles": [
+        "core",
+        "setup",
+        "workflow",
+        "quality",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/lifecycle.md",
+      "profiles": [
+        "core",
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/naive-uat-validation.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/naive-uat-workflow.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/path-and-link-hygiene.md",
+      "profiles": [
+        "core",
+        "setup",
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/performance-evidence.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/planning-workflow.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/prd-change-management.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/wave-model.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/design.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/guide-maintainer.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/guide-user.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/history-record.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/naive-uat-scenario.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/performance-evidence-profile.md",
+      "profiles": [
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/plan-overview.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/plan-prd-change.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/plan-prd-decompose.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/plan-prd.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-architecture.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-glossary.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-index.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-overview.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-reference.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-risk-register.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/prd-subsystem.md",
+      "profiles": [
+        "workflow",
+        "quality"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/work-index.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/template/work-phase.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    }
+  ],
+  "catalogSha256": "463f44c4ea92b5b081ec0082b9a9c56c2d56a1dd166d48a9f565bfcf8d288874",
+  "exactInventoryCount": 62,
+  "expectedCounts": {
+    "core": 7,
+    "setup": 7,
+    "workflow": 48,
+    "quality": 33,
+    "backlog": 8,
+    "all": 62,
+    "default": 62
+  },
+  "checks": {
+    "explicitUniqueUriAssignments": true,
+    "nonemptyKnownUniqueProfiles": true,
+    "exactCanonicalInventory": true,
+    "exactAllUnion": true
+  }
+}

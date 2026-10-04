@@ -22,6 +22,7 @@ export const workEvidenceReadOperation: OperationDefinition<
   Record<string, JsonValue>
 > = {
   id: "work.evidence.read",
+  mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
   summary:
     "Read recorded work-execution evidence from the global store for a phase identity or a whole wave.",
   mutates: "read",

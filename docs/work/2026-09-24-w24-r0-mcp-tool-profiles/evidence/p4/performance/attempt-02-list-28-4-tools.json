@@ -1,0 +1,246 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 2,
+  "round": 4,
+  "position": 3,
+  "profile": "core",
+  "launch": 28,
+  "kind": "tools",
+  "pair": 4,
+  "warmup": false,
+  "elapsedMs": 2.232958000000508,
+  "uniqueCount": 8,
+  "serializedArray": "[{\"description\":\"List deterministic operation domains shared by CLI and MCP tools.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{},\"type\":\"object\"},\"name\":\"make_docs_operation_domains\",\"title\":\"List Make Docs Operation Domains\"},{\"description\":\"Inspect manifest, config, compatibility, and package state for a make-docs project.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"targetDir\":{\"description\":\"Project root to inspect. Defaults to the current working directory.\",\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_installed_state\",\"title\":\"Inspect Make Docs Installed State\"},{\"description\":\"Read .make-docs/manifest.json without mutating the project.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"targetDir\":{\"description\":\"Project root to inspect. Defaults to the current working directory.\",\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_manifest_read\",\"title\":\"Read Make Docs Manifest\"},{\"description\":\"Read .make-docs/config.yaml with default overlay diagnostics.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"targetDir\":{\"description\":\"Project root to inspect. Defaults to the current working directory.\",\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_config_read\",\"title\":\"Read Make Docs Config\"},{\"description\":\"Read installation state and the next safe action from the global Store. Access: Store read; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_project_state_status\",\"title\":\"Make Docs Operation project.state.status\"},{\"description\":\"Read the effective project audiences without the Store. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_project_persona_list\",\"title\":\"Make Docs Operation project.persona.list\"},{\"description\":\"List the stable system-resource URI inventory with resolution provenance. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"origin\":{\"enum\":[\"effective\",\"local\",\"installed\"],\"type\":\"string\"},\"prefix\":{\"minLength\":1,\"type\":\"string\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"},\"type\":{\"enum\":[\"contract\",\"prompt\",\"reference\",\"template\"],\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_resource_list\",\"title\":\"Make Docs Operation resource.list\"},{\"description\":\"Read one system resource with exact bytes, media type, and provenance. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"origin\":{\"enum\":[\"effective\",\"local\",\"installed\"],\"type\":\"string\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"},\"uri\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"uri\"],\"type\":\"object\"},\"name\":\"make_docs_resource_read\",\"title\":\"Make Docs Operation resource.read\"}]",
+  "utf8Bytes": 4749,
+  "arraySha256": "c6bed1ab90b9948fcf098ba4fb04e8dc1e659fb3a02fab18f9653525a5501b90",
+  "rawFile": "attempt-02-list-28-4-tools.json",
+  "response": {
+    "tools": [
+      {
+        "name": "make_docs_operation_domains",
+        "title": "List Make Docs Operation Domains",
+        "description": "List deterministic operation domains shared by CLI and MCP tools.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_installed_state",
+        "title": "Inspect Make Docs Installed State",
+        "description": "Inspect manifest, config, compatibility, and package state for a make-docs project.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetDir": {
+              "description": "Project root to inspect. Defaults to the current working directory.",
+              "type": "string"
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_manifest_read",
+        "title": "Read Make Docs Manifest",
+        "description": "Read .make-docs/manifest.json without mutating the project.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetDir": {
+              "description": "Project root to inspect. Defaults to the current working directory.",
+              "type": "string"
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_config_read",
+        "title": "Read Make Docs Config",
+        "description": "Read .make-docs/config.yaml with default overlay diagnostics.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetDir": {
+              "description": "Project root to inspect. Defaults to the current working directory.",
+              "type": "string"
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_project_state_status",
+        "title": "Make Docs Operation project.state.status",
+        "description": "Read installation state and the next safe action from the global Store. Access: Store read; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_project_persona_list",
+        "title": "Make Docs Operation project.persona.list",
+        "description": "Read the effective project audiences without the Store. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_resource_list",
+        "title": "Make Docs Operation resource.list",
+        "description": "List the stable system-resource URI inventory with resolution provenance. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "contract",
+                "prompt",
+                "reference",
+                "template"
+              ]
+            },
+            "prefix": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "effective",
+                "local",
+                "installed"
+              ]
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_resource_read",
+        "title": "Make Docs Operation resource.read",
+        "description": "Read one system resource with exact bytes, media type, and provenance. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "uri": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "effective",
+                "local",
+                "installed"
+              ]
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      }
+    ]
+  }
+}

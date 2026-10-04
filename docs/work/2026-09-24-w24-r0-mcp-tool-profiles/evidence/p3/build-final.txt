@@ -1,0 +1,63 @@
+Command: npm run build
+Cwd: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+Started: 2026-10-03T21:46:43.029Z
+
+
+> make-docs-monorepo@0.0.0 build
+> npm run build -w packages/cli
+
+
+> @brucewaynedecoy/make-docs@2.0.4 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist/virtual_make-docs-first-party-skills-H3FC47C2.js     384.04 KB
+ESM dist/index.js                                             205.63 KB
+ESM dist/server-UGXA42SC.js                                   18.01 KB
+ESM dist/backup-CM7RL2Q7.js                                   506.00 B
+ESM dist/setup-system-XIA2TG4A.js                             26.80 KB
+ESM dist/chunk-ADVNSMA7.js                                    36.96 KB
+ESM dist/uninstall-VBGMQQLA.js                                7.67 KB
+ESM dist/self-36ULRIJ6.js                                     24.35 KB
+ESM dist/chunk-GERMRLJ2.js                                    41.30 KB
+ESM dist/skills-command-ZMNDDG4B.js                           23.61 KB
+ESM dist/chunk-65QWMODG.js                                    1.28 KB
+ESM dist/chunk-7R2PPKTB.js                                    6.44 KB
+ESM dist/chunk-LV3CBXZB.js                                    18.59 KB
+ESM dist/chunk-M7DMFIKU.js                                    90.45 KB
+ESM dist/chunk-D4HDZEJT.js                                    1.52 KB
+ESM dist/chunk-J5QDGRZ7.js                                    67.54 KB
+ESM dist/chunk-3EXHM5L2.js                                    42.12 KB
+ESM dist/chunk-Z3VZDU2Y.js                                    177.33 KB
+ESM dist/chunk-RYL4R46R.js                                    960.04 KB
+ESM dist/chunk-YVSASZMT.js                                    528.98 KB
+ESM dist/setup-system-XIA2TG4A.js.map                         47.86 KB
+ESM dist/index.js.map                                         362.40 KB
+ESM dist/server-UGXA42SC.js.map                               86.74 KB
+ESM dist/uninstall-VBGMQQLA.js.map                            14.12 KB
+ESM dist/virtual_make-docs-first-party-skills-H3FC47C2.js.map 388.46 KB
+ESM dist/skills-command-ZMNDDG4B.js.map                       44.87 KB
+ESM dist/chunk-GERMRLJ2.js.map                                72.47 KB
+ESM dist/self-36ULRIJ6.js.map                                 53.99 KB
+ESM dist/chunk-65QWMODG.js.map                                5.91 KB
+ESM dist/chunk-D4HDZEJT.js.map                                71.00 B
+ESM dist/chunk-ADVNSMA7.js.map                                67.44 KB
+ESM dist/chunk-7R2PPKTB.js.map                                11.83 KB
+ESM dist/chunk-LV3CBXZB.js.map                                37.51 KB
+ESM dist/backup-CM7RL2Q7.js.map                               71.00 B
+ESM dist/chunk-J5QDGRZ7.js.map                                152.65 KB
+ESM dist/chunk-Z3VZDU2Y.js.map                                326.53 KB
+ESM dist/chunk-3EXHM5L2.js.map                                138.94 KB
+ESM dist/chunk-M7DMFIKU.js.map                                170.08 KB
+ESM dist/chunk-YVSASZMT.js.map                                1.02 MB
+ESM dist/chunk-RYL4R46R.js.map                                1.66 MB
+ESM ⚡️ Build success in 101ms
+
+Exit code: 0
+Ended: 2026-10-03T21:46:43.482Z

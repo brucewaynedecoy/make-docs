@@ -1,0 +1,818 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 2,
+  "round": 1,
+  "position": 2,
+  "profile": "workflow",
+  "launch": 9,
+  "kind": "tools",
+  "pair": 2,
+  "warmup": false,
+  "elapsedMs": 1.4859169999999722,
+  "uniqueCount": 14,
+  "serializedArray": "[{\"description\":\"Read the effective project audiences without the Store. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_project_persona_list\",\"title\":\"Make Docs Operation project.persona.list\"},{\"description\":\"Resolve a coordinate or path to the canonical work-item identity (repo root, wave slug, phase path). Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"target\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"target\"],\"type\":\"object\"},\"name\":\"make_docs_work_item_resolve\",\"title\":\"Make Docs Operation work.item.resolve\"},{\"description\":\"Record one work-execution evidence entry in the global store, keyed to the canonical work-item identity. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"definitions\":{\"__schema0\":{\"anyOf\":[{\"type\":\"null\"},{\"type\":\"boolean\"},{\"type\":\"number\"},{\"type\":\"string\"},{\"items\":{\"$ref\":\"#/definitions/__schema0\"},\"type\":\"array\"},{\"additionalProperties\":{\"$ref\":\"#/definitions/__schema0\"},\"propertyNames\":{\"type\":\"string\"},\"type\":\"object\"}]}},\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"evidenceKind\":{\"minLength\":1,\"type\":\"string\"},\"payload\":{\"$ref\":\"#/definitions/__schema0\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"},\"target\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"target\",\"evidenceKind\",\"payload\"],\"type\":\"object\"},\"name\":\"make_docs_work_evidence_record\",\"title\":\"Make Docs Operation work.evidence.record\"},{\"description\":\"Read recorded work-execution evidence from the global store for a phase identity or a whole wave. Access: Store read; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"},\"target\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"target\"],\"type\":\"object\"},\"name\":\"make_docs_work_evidence_read\",\"title\":\"Make Docs Operation work.evidence.read\"},{\"description\":\"Start a general lifecycle run in the global Store. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"checkpoint\":{\"maxLength\":256,\"minLength\":1,\"type\":\"string\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"lifecycleStage\":{\"enum\":[\"design\",\"plan\",\"prd\",\"work\",\"implementation\",\"release\",\"archive\",\"retrospective\"],\"type\":\"string\"},\"metadata\":{\"additionalProperties\":{\"anyOf\":[{\"maxLength\":512,\"type\":\"string\"},{\"type\":\"number\"},{\"type\":\"boolean\"},{\"type\":\"null\"}]},\"propertyNames\":{\"maxLength\":64,\"minLength\":1,\"type\":\"string\"},\"type\":\"object\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"lifecycleStage\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_start\",\"title\":\"Make Docs Operation lifecycle.start\"},{\"description\":\"Show one current general lifecycle run and its evidence references. Access: Store read; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_show\",\"title\":\"Make Docs Operation lifecycle.show\"},{\"description\":\"List current general lifecycle runs for one manifest-minted project. Access: Store read; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_lifecycle_list\",\"title\":\"Make Docs Operation lifecycle.list\"},{\"description\":\"Record a lifecycle checkpoint with explicit optimistic concurrency. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"checkpoint\":{\"maxLength\":256,\"minLength\":1,\"type\":\"string\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"lifecycleStage\":{\"enum\":[\"design\",\"plan\",\"prd\",\"work\",\"implementation\",\"release\",\"archive\",\"retrospective\"],\"type\":\"string\"},\"metadata\":{\"additionalProperties\":{\"anyOf\":[{\"maxLength\":512,\"type\":\"string\"},{\"type\":\"number\"},{\"type\":\"boolean\"},{\"type\":\"null\"}]},\"propertyNames\":{\"maxLength\":64,\"minLength\":1,\"type\":\"string\"},\"type\":\"object\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\",\"checkpoint\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_checkpoint\",\"title\":\"Make Docs Operation lifecycle.checkpoint\"},{\"description\":\"Pause an active lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_pause\",\"title\":\"Make Docs Operation lifecycle.pause\"},{\"description\":\"Resume a paused lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_resume\",\"title\":\"Make Docs Operation lifecycle.resume\"},{\"description\":\"Attach one bounded evidence reference to a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"digest\":{\"pattern\":\"^sha256:[a-f0-9]{64}$\",\"type\":\"string\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"evidenceId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"evidenceKind\":{\"maxLength\":64,\"minLength\":1,\"pattern\":\"^[a-z][a-z0-9-]*$\",\"type\":\"string\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"externalReference\":{\"maxLength\":2048,\"minLength\":1,\"type\":\"string\"},\"projectPath\":{\"maxLength\":2048,\"minLength\":1,\"type\":\"string\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\",\"evidenceId\",\"evidenceKind\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_attach_evidence\",\"title\":\"Make Docs Operation lifecycle.attach-evidence\"},{\"description\":\"Complete a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_complete\",\"title\":\"Make Docs Operation lifecycle.complete\"},{\"description\":\"Fail a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_fail\",\"title\":\"Make Docs Operation lifecycle.fail\"},{\"description\":\"Abandon a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowWrite\":{\"description\":\"Set true to permit this mutating operation to write. Enforced uniformly by the operation core.\",\"type\":\"boolean\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"expectedVersion\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"repoRoot\":{\"minLength\":1,\"type\":\"string\"},\"runId\":{\"maxLength\":160,\"minLength\":1,\"pattern\":\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\",\"type\":\"string\"},\"storeRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"runId\",\"expectedVersion\"],\"type\":\"object\"},\"name\":\"make_docs_lifecycle_abandon\",\"title\":\"Make Docs Operation lifecycle.abandon\"}]",
+  "utf8Bytes": 16165,
+  "arraySha256": "d8824da70022f1519eca45d206e630566ff91a0e000042dda5cbc7c71d83857c",
+  "rawFile": "attempt-02-list-09-2-tools.json",
+  "response": {
+    "tools": [
+      {
+        "name": "make_docs_project_persona_list",
+        "title": "Make Docs Operation project.persona.list",
+        "description": "Read the effective project audiences without the Store. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_work_item_resolve",
+        "title": "Make Docs Operation work.item.resolve",
+        "description": "Resolve a coordinate or path to the canonical work-item identity (repo root, wave slug, phase path). Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "target"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_work_evidence_record",
+        "title": "Make Docs Operation work.evidence.record",
+        "description": "Record one work-execution evidence entry in the global store, keyed to the canonical work-item identity. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidenceKind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "payload": {
+              "$ref": "#/definitions/__schema0"
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "target",
+            "evidenceKind",
+            "payload"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "definitions": {
+            "__schema0": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/__schema0"
+                  }
+                },
+                {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "$ref": "#/definitions/__schema0"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_work_evidence_read",
+        "title": "Make Docs Operation work.evidence.read",
+        "description": "Read recorded work-execution evidence from the global store for a phase identity or a whole wave. Access: Store read; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "target"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_start",
+        "title": "Make Docs Operation lifecycle.start",
+        "description": "Start a general lifecycle run in the global Store. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "lifecycleStage": {
+              "type": "string",
+              "enum": [
+                "design",
+                "plan",
+                "prd",
+                "work",
+                "implementation",
+                "release",
+                "archive",
+                "retrospective"
+              ]
+            },
+            "checkpoint": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "metadata": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "lifecycleStage"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_show",
+        "title": "Make Docs Operation lifecycle.show",
+        "description": "Show one current general lifecycle run and its evidence references. Access: Store read; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_list",
+        "title": "Make Docs Operation lifecycle.list",
+        "description": "List current general lifecycle runs for one manifest-minted project. Access: Store read; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_checkpoint",
+        "title": "Make Docs Operation lifecycle.checkpoint",
+        "description": "Record a lifecycle checkpoint with explicit optimistic concurrency. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "checkpoint": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "lifecycleStage": {
+              "type": "string",
+              "enum": [
+                "design",
+                "plan",
+                "prd",
+                "work",
+                "implementation",
+                "release",
+                "archive",
+                "retrospective"
+              ]
+            },
+            "metadata": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion",
+            "checkpoint"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_pause",
+        "title": "Make Docs Operation lifecycle.pause",
+        "description": "Pause an active lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_resume",
+        "title": "Make Docs Operation lifecycle.resume",
+        "description": "Resume a paused lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_attach_evidence",
+        "title": "Make Docs Operation lifecycle.attach-evidence",
+        "description": "Attach one bounded evidence reference to a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "evidenceId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "evidenceKind": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z][a-z0-9-]*$"
+            },
+            "projectPath": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "externalReference": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion",
+            "evidenceId",
+            "evidenceKind"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_complete",
+        "title": "Make Docs Operation lifecycle.complete",
+        "description": "Complete a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_fail",
+        "title": "Make Docs Operation lifecycle.fail",
+        "description": "Fail a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_lifecycle_abandon",
+        "title": "Make Docs Operation lifecycle.abandon",
+        "description": "Abandon a lifecycle run. Access: Store write; project read; host configuration none. Mutating operation: requires allowWrite=true, enforced by the operation core.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repoRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "storeRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "expectedVersion": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "allowWrite": {
+              "description": "Set true to permit this mutating operation to write. Enforced uniformly by the operation core.",
+              "type": "boolean"
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "runId",
+            "expectedVersion"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      }
+    ]
+  }
+}

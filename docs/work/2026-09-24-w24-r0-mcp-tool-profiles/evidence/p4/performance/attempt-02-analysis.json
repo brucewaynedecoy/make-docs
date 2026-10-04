@@ -1,0 +1,1226 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 2,
+  "analyzedAt": "2026-10-03T23:06:57.924Z",
+  "profiles": {
+    "all": {
+      "counts": {
+        "tools": 43,
+        "resources": 62
+      },
+      "toolDefinitionUtf8Bytes": 126560,
+      "toolArraySha256": "4cd5eb73785b00c167730a4de1c3e5a357f447e72a4ae34e5ceb4aff3f3c6f8d",
+      "resourceArraySha256": "740fcc59127f781f926b117fe0ecb06b6ebe983efe938634f44557bd0be54a8a",
+      "startup": {
+        "count": 5,
+        "medianMs": 106.15662500000144,
+        "minimumMs": 104.08708399999978,
+        "maximumMs": 109.18325000000004,
+        "rawMs": [
+          104.39770899999985,
+          109.18325000000004,
+          107.636708,
+          104.08708399999978,
+          106.15662500000144
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 4.519249999999374,
+        "minimumMs": 3.494042000000263,
+        "maximumMs": 5.730499999999665,
+        "rawMs": [
+          5.536583000000064,
+          5.280916999999818,
+          4.577082999999902,
+          3.9327910000001793,
+          3.577208000000155,
+          5.175833999999668,
+          4.923291000000063,
+          4.4328749999995125,
+          3.7431249999999636,
+          3.628708000000188,
+          5.392667000000074,
+          5.185709000000315,
+          4.519249999999374,
+          3.757416999999805,
+          3.494042000000263,
+          5.222332999999708,
+          4.769874999999956,
+          4.395375000000058,
+          4.060583000000406,
+          3.557832999999846,
+          5.730499999999665,
+          4.991833000000042,
+          4.871499999999287,
+          4.268292000000656,
+          4.172040999999808
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 23.923166000000037,
+        "minimumMs": 21.02545800000007,
+        "maximumMs": 28.822541999999885,
+        "rawMs": [
+          25.6127919999999,
+          23.923166000000037,
+          21.02545800000007,
+          21.529374999999845,
+          26.486083000000008,
+          27.111375000000407,
+          23.335959000000003,
+          22.04870800000026,
+          22.520958000000064,
+          27.96862499999952,
+          27.230500000000575,
+          23.56183400000009,
+          21.545209000000796,
+          22.53862500000014,
+          27.786082999999962,
+          26.403542000000016,
+          24.22179099999994,
+          23.060292000000118,
+          22.886583999999857,
+          28.06183400000009,
+          27.64129200000025,
+          23.36699999999837,
+          22.25145800000064,
+          24.890124999999898,
+          28.822541999999885
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 1,
+          "startupMs": 104.39770899999985,
+          "toolsListMedianMs": 4.577082999999902,
+          "resourcesListMedianMs": 23.923166000000037
+        },
+        {
+          "round": 1,
+          "launch": 12,
+          "startupMs": 109.18325000000004,
+          "toolsListMedianMs": 4.4328749999995125,
+          "resourcesListMedianMs": 23.335959000000003
+        },
+        {
+          "round": 2,
+          "launch": 17,
+          "startupMs": 107.636708,
+          "toolsListMedianMs": 4.519249999999374,
+          "resourcesListMedianMs": 23.56183400000009
+        },
+        {
+          "round": 3,
+          "launch": 22,
+          "startupMs": 104.08708399999978,
+          "toolsListMedianMs": 4.395375000000058,
+          "resourcesListMedianMs": 24.22179099999994
+        },
+        {
+          "round": 4,
+          "launch": 27,
+          "startupMs": 106.15662500000144,
+          "toolsListMedianMs": 4.871499999999287,
+          "resourcesListMedianMs": 24.890124999999898
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": 0,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": 0,
+          "minimumMs": 0,
+          "maximumMs": 0,
+          "rawMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 0,
+          "minimumMs": 0,
+          "maximumMs": 0,
+          "rawMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 0,
+          "minimumMs": 0,
+          "maximumMs": 0,
+          "rawMs": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "core": {
+      "counts": {
+        "tools": 8,
+        "resources": 7
+      },
+      "toolDefinitionUtf8Bytes": 4749,
+      "toolArraySha256": "c6bed1ab90b9948fcf098ba4fb04e8dc1e659fb3a02fab18f9653525a5501b90",
+      "resourceArraySha256": "f6ca075639f337a1e3980afef8c1f2eb16fcaf9af28bd847224e85b878d6af3f",
+      "startup": {
+        "count": 5,
+        "medianMs": 105.74141699999996,
+        "minimumMs": 103.88487500000019,
+        "maximumMs": 109.3769170000005,
+        "rawMs": [
+          105.74141699999996,
+          103.88487500000019,
+          109.3769170000005,
+          105.60308400000031,
+          107.29358300000058
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 1.9091669999997976,
+        "minimumMs": 0.4887909999997646,
+        "maximumMs": 2.9957500000000437,
+        "rawMs": [
+          2.5753340000001117,
+          0.5614590000000135,
+          2.3312080000000606,
+          0.5100410000000011,
+          2.7356250000000273,
+          2.779374999999618,
+          0.5171660000000884,
+          1.9091669999997976,
+          0.5588339999999334,
+          2.5950419999999212,
+          2.9957500000000437,
+          0.5311660000006668,
+          2.53820800000085,
+          0.558708999999908,
+          2.658625000000029,
+          2.536167000000205,
+          0.5789580000000569,
+          2.327917000000525,
+          0.529207999999926,
+          2.809957999999824,
+          0.6673339999997552,
+          1.379624999999578,
+          0.5228339999994205,
+          2.232958000000508,
+          0.4887909999997646
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 26.248125000000073,
+        "minimumMs": 24.34854200000018,
+        "maximumMs": 33.593166999999994,
+        "rawMs": [
+          25.241915999999947,
+          30.313625000000002,
+          24.34854200000018,
+          25.471917000000076,
+          24.980084000000033,
+          25.272207999999864,
+          30.147707999999966,
+          25.222416000000067,
+          25.723167000000103,
+          24.90191700000014,
+          27.17466599999989,
+          33.593166999999994,
+          26.08629099999962,
+          27.52312499999971,
+          26.248125000000073,
+          27.189374999999927,
+          31.787374999999884,
+          25.498959000000468,
+          27.638041000000158,
+          26.38495800000055,
+          30.931000000000495,
+          25.20325000000048,
+          28.346917000000758,
+          25.99579099999937,
+          28.020834000000832
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 2,
+          "startupMs": 105.74141699999996,
+          "toolsListMedianMs": 2.3312080000000606,
+          "resourcesListMedianMs": 25.241915999999947
+        },
+        {
+          "round": 1,
+          "launch": 7,
+          "startupMs": 103.88487500000019,
+          "toolsListMedianMs": 1.9091669999997976,
+          "resourcesListMedianMs": 25.272207999999864
+        },
+        {
+          "round": 2,
+          "launch": 18,
+          "startupMs": 109.3769170000005,
+          "toolsListMedianMs": 2.53820800000085,
+          "resourcesListMedianMs": 27.17466599999989
+        },
+        {
+          "round": 3,
+          "launch": 23,
+          "startupMs": 105.60308400000031,
+          "toolsListMedianMs": 2.327917000000525,
+          "resourcesListMedianMs": 27.189374999999927
+        },
+        {
+          "round": 4,
+          "launch": 28,
+          "startupMs": 107.29358300000058,
+          "toolsListMedianMs": 0.6673339999997552,
+          "resourcesListMedianMs": 28.020834000000832
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": -121811,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": 1.343708000000106,
+          "minimumMs": -5.298374999999851,
+          "maximumMs": 1.7402090000005046,
+          "rawMs": [
+            1.343708000000106,
+            -5.298374999999851,
+            1.7402090000005046,
+            1.5160000000005311,
+            1.1369579999991402
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": -2.2458749999998417,
+          "minimumMs": -4.204165999999532,
+          "maximumMs": -1.9810419999985243,
+          "rawMs": [
+            -2.2458749999998417,
+            -2.523707999999715,
+            -1.9810419999985243,
+            -2.067457999999533,
+            -4.204165999999532
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 2.967583999999988,
+          "minimumMs": 1.318749999999909,
+          "maximumMs": 3.6128319999997984,
+          "rawMs": [
+            1.318749999999909,
+            1.9362489999998616,
+            3.6128319999997984,
+            2.967583999999988,
+            3.130709000000934
+          ]
+        }
+      }
+    },
+    "setup": {
+      "counts": {
+        "tools": 15,
+        "resources": 7
+      },
+      "toolDefinitionUtf8Bytes": 12798,
+      "toolArraySha256": "a053d2533cd13cf7dd5f57a2f9ef4501a8ddcb16ec8af354d7fece6a77d0c437",
+      "resourceArraySha256": "3e078271f21b4ff9845a7c2a495bb062a1eb88d78703da8dcccf1e252a7e0157",
+      "startup": {
+        "count": 5,
+        "medianMs": 107.79691699999967,
+        "minimumMs": 102.73229199999992,
+        "maximumMs": 109.40795900000012,
+        "rawMs": [
+          102.73229199999992,
+          109.40795900000012,
+          105.35983300000044,
+          108.07879200000025,
+          107.79691699999967
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 0.9702090000009775,
+        "minimumMs": 0.6864170000008016,
+        "maximumMs": 2.9372919999996157,
+        "rawMs": [
+          2.929416000000174,
+          0.9099160000000666,
+          0.808165999999801,
+          2.0647079999998823,
+          0.759958000000097,
+          1.0759579999999005,
+          0.8534999999997126,
+          1.811333999999988,
+          0.7045830000001843,
+          2.1251250000000255,
+          2.9372919999996157,
+          0.7752080000000205,
+          0.760124999999789,
+          2.5598330000002534,
+          0.7037500000005821,
+          0.9702090000009775,
+          1.9357920000002196,
+          0.8222499999992579,
+          2.546041999999943,
+          0.7963340000005701,
+          1.0467500000013388,
+          1.643207999999504,
+          0.7472079999988637,
+          2.4107500000009168,
+          0.6864170000008016
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 26.953125,
+        "minimumMs": 20.44512500000019,
+        "maximumMs": 30.74041699999998,
+        "rawMs": [
+          26.042624999999816,
+          27.25191700000005,
+          28.657416000000012,
+          22.743208000000322,
+          26.65216700000019,
+          28.510082999999668,
+          29.69037500000013,
+          21.630999999999858,
+          26.23075000000017,
+          20.44512500000019,
+          26.243000000000393,
+          27.98908300000039,
+          30.74041699999998,
+          22.922583999999915,
+          26.953125,
+          29.2086249999993,
+          26.189457999998922,
+          30.176666999999725,
+          25.5123339999991,
+          28.888875000000553,
+          29.246750000000247,
+          26.073499999998603,
+          28.81116699999984,
+          26.443624999999884,
+          28.598916000000827
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 3,
+          "startupMs": 102.73229199999992,
+          "toolsListMedianMs": 0.9099160000000666,
+          "resourcesListMedianMs": 26.65216700000019
+        },
+        {
+          "round": 1,
+          "launch": 8,
+          "startupMs": 109.40795900000012,
+          "toolsListMedianMs": 1.0759579999999005,
+          "resourcesListMedianMs": 26.23075000000017
+        },
+        {
+          "round": 2,
+          "launch": 13,
+          "startupMs": 105.35983300000044,
+          "toolsListMedianMs": 0.7752080000000205,
+          "resourcesListMedianMs": 26.953125
+        },
+        {
+          "round": 3,
+          "launch": 24,
+          "startupMs": 108.07879200000025,
+          "toolsListMedianMs": 0.9702090000009775,
+          "resourcesListMedianMs": 28.888875000000553
+        },
+        {
+          "round": 4,
+          "launch": 29,
+          "startupMs": 107.79691699999967,
+          "toolsListMedianMs": 1.0467500000013388,
+          "resourcesListMedianMs": 28.598916000000827
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": -113762,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": 0.22470900000007532,
+          "minimumMs": -2.2768749999995634,
+          "maximumMs": 3.9917080000004717,
+          "rawMs": [
+            -1.665416999999934,
+            0.22470900000007532,
+            -2.2768749999995634,
+            3.9917080000004717,
+            1.640291999998226
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": -3.6671669999998358,
+          "minimumMs": -3.824749999997948,
+          "maximumMs": -3.356916999999612,
+          "rawMs": [
+            -3.6671669999998358,
+            -3.356916999999612,
+            -3.7440419999993537,
+            -3.4251659999990807,
+            -3.824749999997948
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 3.39129099999991,
+          "minimumMs": 2.729001000000153,
+          "maximumMs": 4.667084000000614,
+          "rawMs": [
+            2.729001000000153,
+            2.8947910000001684,
+            3.39129099999991,
+            4.667084000000614,
+            3.7087910000009288
+          ]
+        }
+      }
+    },
+    "workflow": {
+      "counts": {
+        "tools": 14,
+        "resources": 48
+      },
+      "toolDefinitionUtf8Bytes": 16165,
+      "toolArraySha256": "d8824da70022f1519eca45d206e630566ff91a0e000042dda5cbc7c71d83857c",
+      "resourceArraySha256": "f8e39a3c23d3f894cccf70e889b0565c740ec2b50cae684f1a9fb2e7b43e280c",
+      "startup": {
+        "count": 5,
+        "medianMs": 107.05070800000021,
+        "minimumMs": 102.96754199999987,
+        "maximumMs": 113.55008299999918,
+        "rawMs": [
+          102.96754199999987,
+          107.05070800000021,
+          113.55008299999918,
+          113.36499999999978,
+          105.40279100000043
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 1.4859169999999722,
+        "minimumMs": 0.9937499999996362,
+        "maximumMs": 3.6497910000002776,
+        "rawMs": [
+          3.186916999999994,
+          1.3196250000000873,
+          1.309708000000228,
+          3.6497910000002776,
+          1.2641669999998157,
+          1.653458000000228,
+          1.4859169999999722,
+          2.372457999999824,
+          1.195958000000246,
+          1.592124999999669,
+          3.3452500000003056,
+          1.3134580000005371,
+          1.2587499999999636,
+          2.9042080000008355,
+          0.9937499999996362,
+          3.362250000000131,
+          1.47649999999976,
+          1.21612499999992,
+          2.9810829999996713,
+          1.0594999999993888,
+          1.5375409999996918,
+          1.2011249999995925,
+          2.0099169999994047,
+          1.1448330000002898,
+          1.7524580000008427
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 26.463333000000603,
+        "minimumMs": 21.682874999999967,
+        "maximumMs": 31.111333000000286,
+        "rawMs": [
+          25.608791999999994,
+          26.860540999999557,
+          30.798541999999998,
+          23.945083000000068,
+          27.82416699999976,
+          27.62266600000021,
+          31.111333000000286,
+          22.520125000000007,
+          24.60491600000023,
+          21.682874999999967,
+          26.39008300000023,
+          28.930083999999624,
+          30.808666999999332,
+          23.09074999999939,
+          26.463333000000603,
+          26.40912500000013,
+          29.372832999999446,
+          30.308750000000146,
+          23.188874999999825,
+          26.776958000000377,
+          27.741791999998895,
+          30.213834000000134,
+          22.38337500000125,
+          24.510917000001427,
+          21.947374999999738
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 4,
+          "startupMs": 102.96754199999987,
+          "toolsListMedianMs": 1.3196250000000873,
+          "resourcesListMedianMs": 26.860540999999557
+        },
+        {
+          "round": 1,
+          "launch": 9,
+          "startupMs": 107.05070800000021,
+          "toolsListMedianMs": 1.592124999999669,
+          "resourcesListMedianMs": 24.60491600000023
+        },
+        {
+          "round": 2,
+          "launch": 14,
+          "startupMs": 113.55008299999918,
+          "toolsListMedianMs": 1.3134580000005371,
+          "resourcesListMedianMs": 26.463333000000603
+        },
+        {
+          "round": 3,
+          "launch": 19,
+          "startupMs": 113.36499999999978,
+          "toolsListMedianMs": 1.47649999999976,
+          "resourcesListMedianMs": 26.776958000000377
+        },
+        {
+          "round": 4,
+          "launch": 30,
+          "startupMs": 105.40279100000043,
+          "toolsListMedianMs": 1.5375409999996918,
+          "resourcesListMedianMs": 24.510917000001427
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": -110395,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": -0.7538340000010066,
+          "minimumMs": -2.1325419999998303,
+          "maximumMs": 9.277916000000005,
+          "rawMs": [
+            -1.430166999999983,
+            -2.1325419999998303,
+            5.913374999999178,
+            9.277916000000005,
+            -0.7538340000010066
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": -3.205791999998837,
+          "minimumMs": -3.333958999999595,
+          "maximumMs": -2.8407499999998436,
+          "rawMs": [
+            -3.257457999999815,
+            -2.8407499999998436,
+            -3.205791999998837,
+            -2.9188750000002983,
+            -3.333958999999595
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 2.555167000000438,
+          "minimumMs": -0.37920799999847077,
+          "maximumMs": 2.93737499999952,
+          "rawMs": [
+            2.93737499999952,
+            1.2689570000002277,
+            2.9014990000005128,
+            2.555167000000438,
+            -0.37920799999847077
+          ]
+        }
+      }
+    },
+    "quality": {
+      "counts": {
+        "tools": 9,
+        "resources": 33
+      },
+      "toolDefinitionUtf8Bytes": 26311,
+      "toolArraySha256": "d1f4728874566ebe098208b863f16178888afd5c69cfb72b4741978c7c348e78",
+      "resourceArraySha256": "4e8827db60c8a422bd490fe46cdc74e06592b9ae15cdfb1dd0be320f4b215e4e",
+      "startup": {
+        "count": 5,
+        "medianMs": 107.40258300000005,
+        "minimumMs": 103.94424999999956,
+        "maximumMs": 111.90054200000031,
+        "rawMs": [
+          106.14812500000016,
+          107.40258300000005,
+          111.90054200000031,
+          103.94424999999956,
+          109.23008300000038
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 1.2993750000005093,
+        "minimumMs": 0.9655000000002474,
+        "maximumMs": 3.5925420000003214,
+        "rawMs": [
+          3.16924999999992,
+          1.2580410000000484,
+          1.1398329999997259,
+          3.1287499999998545,
+          0.9836249999998472,
+          3.5925420000003214,
+          1.2321249999995416,
+          1.2475829999993948,
+          2.924250000000029,
+          1.0910000000003492,
+          3.306792000000314,
+          1.1869999999998981,
+          1.2993750000005093,
+          3.0257080000001224,
+          1.075582999999824,
+          3.098124999999527,
+          1.2008330000007845,
+          1.339082999999846,
+          3.204959000000599,
+          0.9655000000002474,
+          1.3549579999998969,
+          1.21966699999939,
+          2.2805410000000848,
+          1.083875000000262,
+          2.750500000000102
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 27.087500000000546,
+        "minimumMs": 21.783165999999255,
+        "maximumMs": 30.79016700000011,
+        "rawMs": [
+          25.622499999999945,
+          26.895624999999654,
+          29.330167000000074,
+          21.96420900000021,
+          26.056125000000065,
+          27.135459000000083,
+          28.789332999999715,
+          29.718833000000814,
+          22.255958000000646,
+          26.003374999999323,
+          27.087500000000546,
+          28.490915999999743,
+          30.463541000000077,
+          23.068583999999646,
+          27.01537499999995,
+          27.190083000000413,
+          28.309417000000394,
+          30.79016700000011,
+          22.738416000000143,
+          26.318041999999878,
+          27.504833000000872,
+          30.231791999998677,
+          22.180207999999766,
+          27.246917000000394,
+          21.783165999999255
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 5,
+          "startupMs": 106.14812500000016,
+          "toolsListMedianMs": 1.2580410000000484,
+          "resourcesListMedianMs": 26.056125000000065
+        },
+        {
+          "round": 1,
+          "launch": 10,
+          "startupMs": 107.40258300000005,
+          "toolsListMedianMs": 1.2475829999993948,
+          "resourcesListMedianMs": 27.135459000000083
+        },
+        {
+          "round": 2,
+          "launch": 15,
+          "startupMs": 111.90054200000031,
+          "toolsListMedianMs": 1.2993750000005093,
+          "resourcesListMedianMs": 27.087500000000546
+        },
+        {
+          "round": 3,
+          "launch": 20,
+          "startupMs": 103.94424999999956,
+          "toolsListMedianMs": 1.339082999999846,
+          "resourcesListMedianMs": 27.190083000000413
+        },
+        {
+          "round": 4,
+          "launch": 25,
+          "startupMs": 109.23008300000038,
+          "toolsListMedianMs": 1.3549579999998969,
+          "resourcesListMedianMs": 27.246917000000394
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": -100249,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": 1.750416000000314,
+          "minimumMs": -1.780666999999994,
+          "maximumMs": 4.263834000000315,
+          "rawMs": [
+            1.750416000000314,
+            -1.780666999999994,
+            4.263834000000315,
+            -0.14283400000022084,
+            3.0734579999989364
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": -3.219874999998865,
+          "minimumMs": -3.51654199999939,
+          "maximumMs": -3.0562920000002123,
+          "rawMs": [
+            -3.319041999999854,
+            -3.1852920000001177,
+            -3.219874999998865,
+            -3.0562920000002123,
+            -3.51654199999939
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 2.968292000000474,
+          "minimumMs": 2.132959000000028,
+          "maximumMs": 3.79950000000008,
+          "rawMs": [
+            2.132959000000028,
+            3.79950000000008,
+            3.525666000000456,
+            2.968292000000474,
+            2.356792000000496
+          ]
+        }
+      }
+    },
+    "backlog": {
+      "counts": {
+        "tools": 3,
+        "resources": 8
+      },
+      "toolDefinitionUtf8Bytes": 70206,
+      "toolArraySha256": "0a99490dfc274912deed46e7ed2b3e244e7645509b2c77c153be5c189a8e4560",
+      "resourceArraySha256": "69753696f14d4f9dcbf207bd20612788511c5123d7f78d77f00c89b76acfa29b",
+      "startup": {
+        "count": 5,
+        "medianMs": 106.73124999999891,
+        "minimumMs": 103.42054199999984,
+        "maximumMs": 109.01879199999985,
+        "rawMs": [
+          103.42054199999984,
+          109.01879199999985,
+          106.29445899999973,
+          107.2710420000003,
+          106.73124999999891
+        ]
+      },
+      "toolsList": {
+        "count": 25,
+        "medianMs": 2.3274579999997513,
+        "minimumMs": 1.9008329999996931,
+        "maximumMs": 3.7063749999997526,
+        "rawMs": [
+          2.4549590000001444,
+          2.260834000000159,
+          3.4777500000000146,
+          2.055000000000291,
+          2.0262910000001284,
+          2.5418339999996533,
+          2.423333000000639,
+          3.7063749999997526,
+          3.5950419999999212,
+          2.2106250000006185,
+          2.3345829999998386,
+          2.322750000000269,
+          3.155749999999898,
+          2.0522500000006403,
+          1.9008329999996931,
+          2.5360829999999623,
+          2.3876250000002983,
+          3.5115420000001905,
+          2.2410839999993186,
+          1.9835000000002765,
+          2.3274579999997513,
+          2.3167499999999563,
+          3.3421660000003612,
+          2.0919579999990674,
+          2.0359169999992446
+        ]
+      },
+      "resourcesList": {
+        "count": 25,
+        "medianMs": 24.66279200000099,
+        "minimumMs": 21.350832999999966,
+        "maximumMs": 31.737875000000713,
+        "rawMs": [
+          27.071916999999758,
+          30.22504200000003,
+          21.624624999999924,
+          21.350832999999966,
+          24.511165999999776,
+          28.641375000000153,
+          31.737875000000713,
+          23.904333999999835,
+          23.079915999999685,
+          25.81970799999999,
+          27.02258299999994,
+          30.10149999999976,
+          21.732750000000124,
+          21.472749999999905,
+          24.579624999999396,
+          27.477208000000246,
+          30.592082999999548,
+          22.79308299999957,
+          22.08337500000016,
+          24.85504200000014,
+          28.141708999999537,
+          30.92199999999866,
+          22.120584000000235,
+          22.2935839999991,
+          24.66279200000099
+        ]
+      },
+      "rounds": [
+        {
+          "round": 0,
+          "launch": 6,
+          "startupMs": 103.42054199999984,
+          "toolsListMedianMs": 2.260834000000159,
+          "resourcesListMedianMs": 24.511165999999776
+        },
+        {
+          "round": 1,
+          "launch": 11,
+          "startupMs": 109.01879199999985,
+          "toolsListMedianMs": 2.5418339999996533,
+          "resourcesListMedianMs": 25.81970799999999
+        },
+        {
+          "round": 2,
+          "launch": 16,
+          "startupMs": 106.29445899999973,
+          "toolsListMedianMs": 2.322750000000269,
+          "resourcesListMedianMs": 24.579624999999396
+        },
+        {
+          "round": 3,
+          "launch": 21,
+          "startupMs": 107.2710420000003,
+          "toolsListMedianMs": 2.3876250000002983,
+          "resourcesListMedianMs": 24.85504200000014
+        },
+        {
+          "round": 4,
+          "launch": 26,
+          "startupMs": 106.73124999999891,
+          "toolsListMedianMs": 2.3167499999999563,
+          "resourcesListMedianMs": 24.66279200000099
+        }
+      ],
+      "narrowMinusAll": {
+        "toolDefinitionUtf8Bytes": -56354,
+        "startupRoundPaired": {
+          "count": 5,
+          "medianMs": -0.16445800000019517,
+          "minimumMs": -1.3422490000002654,
+          "maximumMs": 3.18395800000053,
+          "rawMs": [
+            -0.9771670000000086,
+            -0.16445800000019517,
+            -1.3422490000002654,
+            3.18395800000053,
+            0.574624999997468
+          ]
+        },
+        "toolsListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": -2.196499999999105,
+          "minimumMs": -2.5547499999993306,
+          "maximumMs": -1.8910409999998592,
+          "rawMs": [
+            -2.3162489999997433,
+            -1.8910409999998592,
+            -2.196499999999105,
+            -2.00774999999976,
+            -2.5547499999993306
+          ]
+        },
+        "resourcesListRoundMedianPaired": {
+          "count": 5,
+          "medianMs": 0.6332510000002003,
+          "minimumMs": -0.22733299999890733,
+          "maximumMs": 2.483748999999989,
+          "rawMs": [
+            0.5879999999997381,
+            2.483748999999989,
+            1.0177909999993062,
+            0.6332510000002003,
+            -0.22733299999890733
+          ]
+        }
+      }
+    }
+  },
+  "actualOrder": [
+    {
+      "round": 0,
+      "position": 0,
+      "launch": 1,
+      "profile": "all"
+    },
+    {
+      "round": 0,
+      "position": 1,
+      "launch": 2,
+      "profile": "core"
+    },
+    {
+      "round": 0,
+      "position": 2,
+      "launch": 3,
+      "profile": "setup"
+    },
+    {
+      "round": 0,
+      "position": 3,
+      "launch": 4,
+      "profile": "workflow"
+    },
+    {
+      "round": 0,
+      "position": 4,
+      "launch": 5,
+      "profile": "quality"
+    },
+    {
+      "round": 0,
+      "position": 5,
+      "launch": 6,
+      "profile": "backlog"
+    },
+    {
+      "round": 1,
+      "position": 0,
+      "launch": 7,
+      "profile": "core"
+    },
+    {
+      "round": 1,
+      "position": 1,
+      "launch": 8,
+      "profile": "setup"
+    },
+    {
+      "round": 1,
+      "position": 2,
+      "launch": 9,
+      "profile": "workflow"
+    },
+    {
+      "round": 1,
+      "position": 3,
+      "launch": 10,
+      "profile": "quality"
+    },
+    {
+      "round": 1,
+      "position": 4,
+      "launch": 11,
+      "profile": "backlog"
+    },
+    {
+      "round": 1,
+      "position": 5,
+      "launch": 12,
+      "profile": "all"
+    },
+    {
+      "round": 2,
+      "position": 0,
+      "launch": 13,
+      "profile": "setup"
+    },
+    {
+      "round": 2,
+      "position": 1,
+      "launch": 14,
+      "profile": "workflow"
+    },
+    {
+      "round": 2,
+      "position": 2,
+      "launch": 15,
+      "profile": "quality"
+    },
+    {
+      "round": 2,
+      "position": 3,
+      "launch": 16,
+      "profile": "backlog"
+    },
+    {
+      "round": 2,
+      "position": 4,
+      "launch": 17,
+      "profile": "all"
+    },
+    {
+      "round": 2,
+      "position": 5,
+      "launch": 18,
+      "profile": "core"
+    },
+    {
+      "round": 3,
+      "position": 0,
+      "launch": 19,
+      "profile": "workflow"
+    },
+    {
+      "round": 3,
+      "position": 1,
+      "launch": 20,
+      "profile": "quality"
+    },
+    {
+      "round": 3,
+      "position": 2,
+      "launch": 21,
+      "profile": "backlog"
+    },
+    {
+      "round": 3,
+      "position": 3,
+      "launch": 22,
+      "profile": "all"
+    },
+    {
+      "round": 3,
+      "position": 4,
+      "launch": 23,
+      "profile": "core"
+    },
+    {
+      "round": 3,
+      "position": 5,
+      "launch": 24,
+      "profile": "setup"
+    },
+    {
+      "round": 4,
+      "position": 0,
+      "launch": 25,
+      "profile": "quality"
+    },
+    {
+      "round": 4,
+      "position": 1,
+      "launch": 26,
+      "profile": "backlog"
+    },
+    {
+      "round": 4,
+      "position": 2,
+      "launch": 27,
+      "profile": "all"
+    },
+    {
+      "round": 4,
+      "position": 3,
+      "launch": 28,
+      "profile": "core"
+    },
+    {
+      "round": 4,
+      "position": 4,
+      "launch": 29,
+      "profile": "setup"
+    },
+    {
+      "round": 4,
+      "position": 5,
+      "launch": 30,
+      "profile": "workflow"
+    }
+  ],
+  "observationCounts": {
+    "freshProcesses": 30,
+    "warmups": 60,
+    "measuredToolsLists": 150,
+    "measuredResourcesLists": 150,
+    "totalListCalls": 360
+  },
+  "timerResolution": {
+    "timer": "Node performance.now monotonic milliseconds",
+    "observations": 10000,
+    "observedMinimumPositiveIncrementMs": 0.00004099999989648495,
+    "observedMaximumPositiveIncrementMs": 0.00966599999992468,
+    "note": "Observed timer increments are an instrument check, not a product latency or guaranteed timer accuracy."
+  },
+  "uncertainties": [
+    "Only five fresh-process samples and 25 warm-list samples per profile.",
+    "Operating-system and file caches were not reset.",
+    "Background activity and thermal state are uncontrolled within one local machine.",
+    "Warm elapsed time includes SDK serialization, transport, server work, and full response parsing.",
+    "Round pairing reduces order bias; it does not isolate a causal effect.",
+    "No confidence interval, population inference, percentile tail, or latency target is authorized."
+  ],
+  "exclusions": [],
+  "modelVisibleTokens": {
+    "state": "unavailable",
+    "reason": "No authorized host diagnostic with known model, tokenizer, loading mode, and observation boundary is available in this local SDK packet.",
+    "excludedClaim": "No model-visible token savings or model inference latency claim."
+  },
+  "supportedLimit": "One local development build, Node 24.19.0, darwin arm64, the recorded machine, read-only fixture, SDK, and stdio workload. Definition bytes are a context proxy."
+}

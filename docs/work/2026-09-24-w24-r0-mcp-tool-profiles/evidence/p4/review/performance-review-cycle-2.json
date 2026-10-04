@@ -1,0 +1,76 @@
+{
+  "coordinate": "W24 R0 P4",
+  "reviewer": "Codex Desktop contracts and documentation worker",
+  "reviewCycle": 2,
+  "disposition": "pass within local characterization scope",
+  "reviewedAt": "2026-10-03T23:10:35.842Z",
+  "inputs": {
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-raw.json": "2274cd95699adea92dcc1bf7e48c0394c4026389a4262a098bea89cb70dd2839",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-analysis.json": "6e73fe7beb159b2065bd492ce1dc6a05433fa3cc02056adcadad6135fab9f765",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-manifest.json": "ec38d954e3ce7f3334b66aed01af978d9800ab982d5fd72a06b66929e4f9569c",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-fingerprint-after.json": "8a7af99580b97f4e7a796b42e7ee0748c898c546c540f6913a0d7476efbe1116",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-ledger.json": "dbe24d885893bfd5ff9c07681fd3d8918ec04f414b846da0404b0cedd7113206"
+  },
+  "checks": {
+    "launches": 30,
+    "listCalls": 360,
+    "validSamples": true,
+    "exactPlannedOrder": true,
+    "independentCountByteHashAndMedianMinMaxArithmetic": true,
+    "fingerprintUnchanged": true,
+    "allChildrenExited": true,
+    "originalActivationBudgetWithinLimit": true,
+    "noRerun": true
+  },
+  "profiles": {
+    "all": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 126560,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    },
+    "core": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 4749,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    },
+    "setup": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 12798,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    },
+    "workflow": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 16165,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    },
+    "quality": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 26311,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    },
+    "backlog": {
+      "launches": 5,
+      "toolDefinitionUtf8Bytes": 70206,
+      "startupSamples": 5,
+      "toolsSamples": 25,
+      "resourcesSamples": 25
+    }
+  },
+  "firstAttemptClarification": "Use revise as the immutable first-attempt outcome. It stopped before any spawn because the build/provider-only clone had no source path. The one fingerprint-root correction was consumed. No measured samples were discarded or replaced.",
+  "limits": [
+    "Definition bytes are a context proxy, not actual model tokens.",
+    "Five fresh startup and25warm samples per profile on one machine/runtime.",
+    "No latency target, causal speed win, installed-host acceptance, HTTP, paid requests, Store writes, or wider support claim."
+  ],
+  "budgetReviewAccounting": "This is the second and final permitted review. Worker must append final ledger with consumed reviews2, remaining reviews0 and actual current elapsed time."
+}

@@ -1,0 +1,14 @@
+{
+  "coordinate": "W24 R0 P4",
+  "operation": "project.path-hygiene.validate",
+  "readOnly": true,
+  "scope": "content",
+  "exitCode": 1,
+  "outcome": "input-rejected",
+  "error": "Invalid content path: .make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md",
+  "reason": "The check accepts docs/ paths for its content scope. The input also named an archive history path.",
+  "disposition": "Retain this input limit. Apply the content check only to the four edited project docs. Keep the existing scoped local-link and placeholder check for the archive history file.",
+  "runtimeDefect": false,
+  "writesAllowed": false,
+  "liveStoreUsed": false
+}

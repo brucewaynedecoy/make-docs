@@ -1,0 +1,1891 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 2,
+  "round": 1,
+  "position": 3,
+  "profile": "quality",
+  "launch": 10,
+  "kind": "tools",
+  "pair": 4,
+  "warmup": false,
+  "elapsedMs": 2.924250000000029,
+  "uniqueCount": 9,
+  "serializedArray": "[{\"description\":\"Validate that active PRDs describe product authority rather than editorial change operations. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_prd_authority_validate\",\"title\":\"Make Docs Operation prd.authority.validate\"},{\"description\":\"Validate Performance Evidence structure and traceability without running a benchmark or changing repository state. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_performance_evidence_validate\",\"title\":\"Make Docs Operation performance.evidence.validate\"},{\"description\":\"Check local documentation paths. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"allowCommentToken\":{\"minLength\":1,\"type\":\"string\"},\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"includeSkills\":{\"type\":\"boolean\"},\"manifest\":{\"minLength\":1,\"type\":\"string\"},\"paths\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"scope\":{\"enum\":[\"content\",\"managed\"],\"type\":\"string\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_project_path_hygiene_validate\",\"title\":\"Make Docs Operation project.path-hygiene.validate\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"scenario\":{\"additionalProperties\":false,\"properties\":{\"build_identity\":{\"minLength\":1,\"type\":\"string\"},\"current_uncertainty\":{\"minLength\":1,\"type\":\"string\"},\"decision\":{\"additionalProperties\":false,\"properties\":{\"decision_informed\":{\"minLength\":1,\"type\":\"string\"},\"effort_budget\":{\"minLength\":1,\"type\":\"string\"},\"evidence_retained\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"executor\":{\"minLength\":1,\"type\":\"string\"},\"gate_effect\":{\"default\":\"advisory\",\"enum\":[\"advisory\",\"informational\",\"not-applicable\",\"blocking-current-work\",\"blocking-claim-only\"],\"type\":\"string\"},\"product_maturity\":{\"minLength\":1,\"type\":\"string\"},\"reason_now\":{\"minLength\":1,\"type\":\"string\"},\"rerun_trigger\":{\"minLength\":1,\"type\":\"string\"},\"scope\":{\"minLength\":1,\"type\":\"string\"},\"stop_condition\":{\"minLength\":1,\"type\":\"string\"},\"testing_type\":{\"const\":\"Unassisted Goal Testing\",\"type\":\"string\"}},\"required\":[\"testing_type\",\"decision_informed\",\"reason_now\",\"product_maturity\",\"scope\",\"executor\",\"effort_budget\",\"stop_condition\",\"evidence_retained\",\"rerun_trigger\"],\"type\":\"object\"},\"environment\":{\"minLength\":1,\"type\":\"string\"},\"evidence_requirements\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"finding_route\":{\"minLength\":1,\"type\":\"string\"},\"operator_success_outcomes\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"packet_review\":{\"additionalProperties\":false,\"properties\":{\"evidence\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"no_hidden_guidance\":{\"const\":true,\"type\":\"boolean\"},\"reviewer\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"reviewer\",\"evidence\",\"no_hidden_guidance\"],\"type\":\"object\"},\"prohibited_context\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"public_resources\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"scenario_id\":{\"pattern\":\"^NUAT-\\\\d{3,}$\",\"type\":\"string\"},\"scenario_version\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"selected_persona\":{\"minLength\":1,\"type\":\"string\"},\"setup\":{\"minLength\":1,\"type\":\"string\"},\"severity_rules\":{\"minLength\":1,\"type\":\"string\"},\"source_requirements\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"starting_state\":{\"minLength\":1,\"type\":\"string\"},\"supported_scope\":{\"minLength\":1,\"type\":\"string\"},\"target_user\":{\"minLength\":1,\"type\":\"string\"},\"teardown\":{\"minLength\":1,\"type\":\"string\"},\"tester_packet\":{\"additionalProperties\":false,\"properties\":{\"consent_notice\":{\"minLength\":1,\"type\":\"string\"},\"goal\":{\"minLength\":1,\"type\":\"string\"},\"public_resources\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"safety_limits\":{\"minLength\":1,\"type\":\"string\"},\"situation\":{\"minLength\":1,\"type\":\"string\"},\"starting_state\":{\"minLength\":1,\"type\":\"string\"},\"tester_teardown\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"situation\",\"goal\",\"starting_state\",\"public_resources\",\"safety_limits\",\"consent_notice\",\"tester_teardown\"],\"type\":\"object\"},\"tester_prompt\":{\"minLength\":1,\"type\":\"string\"},\"title\":{\"minLength\":1,\"type\":\"string\"},\"user_goal\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"scenario_id\",\"scenario_version\",\"selected_persona\",\"title\",\"user_goal\",\"source_requirements\",\"target_user\",\"current_uncertainty\",\"supported_scope\",\"build_identity\",\"environment\",\"starting_state\",\"public_resources\",\"prohibited_context\",\"tester_prompt\",\"operator_success_outcomes\",\"setup\",\"teardown\",\"evidence_requirements\",\"severity_rules\",\"finding_route\",\"decision\",\"tester_packet\",\"packet_review\"],\"type\":\"object\"},\"source\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"source\",\"scenario\"],\"type\":\"object\"},\"name\":\"make_docs_uat_scenario_validate\",\"title\":\"Make Docs Operation uat.scenario.validate\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"artifact\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"make_docs_uat_persona_resolve\",\"title\":\"Make Docs Operation uat.persona.resolve\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"target\":{\"additionalProperties\":false,\"properties\":{\"audience_consumption_evidence\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"build_identity\":{\"minLength\":1,\"type\":\"string\"},\"capture\":{\"minLength\":1,\"type\":\"string\"},\"consent\":{\"minLength\":1,\"type\":\"string\"},\"environment\":{\"minLength\":1,\"type\":\"string\"},\"normally_consumable_form\":{\"minLength\":1,\"type\":\"string\"},\"qualification\":{\"additionalProperties\":false,\"properties\":{\"assessed_by\":{\"minLength\":1,\"type\":\"string\"},\"assessment\":{\"minLength\":1,\"type\":\"string\"},\"executor\":{\"minLength\":1,\"type\":\"string\"},\"isolation_evidence\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"minItems\":1,\"type\":\"array\"},\"kind\":{\"enum\":[\"human\",\"agent\"],\"type\":\"string\"},\"no_coaching\":{\"const\":true,\"type\":\"boolean\"},\"no_implementation_conversation\":{\"const\":true,\"type\":\"boolean\"},\"no_private_knowledge\":{\"const\":true,\"type\":\"boolean\"},\"no_private_memory\":{\"const\":true,\"type\":\"boolean\"},\"no_repository_access\":{\"const\":true,\"type\":\"boolean\"},\"public_information_only\":{\"const\":true,\"type\":\"boolean\"},\"separate_context\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"executor\",\"kind\",\"separate_context\",\"no_private_knowledge\",\"no_repository_access\",\"no_private_memory\",\"no_implementation_conversation\",\"no_coaching\",\"public_information_only\",\"assessed_by\",\"assessment\",\"isolation_evidence\"],\"type\":\"object\"},\"readiness\":{\"minLength\":1,\"type\":\"string\"},\"supported_scope\":{\"minLength\":1,\"type\":\"string\"},\"target_user\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"build_identity\",\"environment\",\"supported_scope\",\"target_user\",\"normally_consumable_form\",\"audience_consumption_evidence\",\"qualification\",\"consent\",\"capture\",\"readiness\"],\"type\":\"object\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"target\"],\"type\":\"object\"},\"name\":\"make_docs_uat_target_validate\",\"title\":\"Make Docs Operation uat.target.validate\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"evidence\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"evidence\"],\"type\":\"object\"},\"name\":\"make_docs_uat_evidence_reference_validate\",\"title\":\"Make Docs Operation uat.evidence-reference.validate\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"finding\":{\"additionalProperties\":false,\"properties\":{\"disposition\":{\"minLength\":1,\"type\":\"string\"},\"disposition_authority\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"evidence\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"minItems\":1,\"type\":\"array\"},\"expected_human_outcome\":{\"minLength\":1,\"type\":\"string\"},\"finding_id\":{\"minLength\":1,\"type\":\"string\"},\"observed_behavior\":{\"minLength\":1,\"type\":\"string\"},\"owner\":{\"minLength\":1,\"type\":\"string\"},\"reproducibility\":{\"minLength\":1,\"type\":\"string\"},\"run_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario_version\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"severity\":{\"enum\":[\"critical\",\"major\",\"moderate\",\"minor\"],\"type\":\"string\"},\"source_requirement\":{\"minLength\":1,\"type\":\"string\"},\"supported_scope\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"finding_id\",\"run_id\",\"scenario_id\",\"scenario_version\",\"observed_behavior\",\"expected_human_outcome\",\"severity\",\"reproducibility\",\"supported_scope\",\"source_requirement\",\"owner\",\"disposition\",\"disposition_authority\",\"evidence\"],\"type\":\"object\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"record\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"record\",\"finding\"],\"type\":\"object\"},\"name\":\"make_docs_uat_finding_validate\",\"title\":\"Make Docs Operation uat.finding.validate\"},{\"description\":\"Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.\",\"execution\":{\"taskSupport\":\"forbidden\"},\"inputSchema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"properties\":{\"approvals\":{\"description\":\"Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"decision\":{\"additionalProperties\":false,\"properties\":{\"decision_informed\":{\"minLength\":1,\"type\":\"string\"},\"effort_budget\":{\"minLength\":1,\"type\":\"string\"},\"evidence_retained\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"executor\":{\"minLength\":1,\"type\":\"string\"},\"gate_effect\":{\"default\":\"advisory\",\"enum\":[\"advisory\",\"informational\",\"not-applicable\",\"blocking-current-work\",\"blocking-claim-only\"],\"type\":\"string\"},\"product_maturity\":{\"minLength\":1,\"type\":\"string\"},\"reason_now\":{\"minLength\":1,\"type\":\"string\"},\"rerun_trigger\":{\"minLength\":1,\"type\":\"string\"},\"scope\":{\"minLength\":1,\"type\":\"string\"},\"stop_condition\":{\"minLength\":1,\"type\":\"string\"},\"testing_type\":{\"const\":\"Unassisted Goal Testing\",\"type\":\"string\"}},\"required\":[\"testing_type\",\"decision_informed\",\"reason_now\",\"product_maturity\",\"scope\",\"executor\",\"effort_budget\",\"stop_condition\",\"evidence_retained\",\"rerun_trigger\"],\"type\":\"object\"},\"dryRun\":{\"description\":\"Set true to plan rather than write; rides the execution context, not the input.\",\"type\":\"boolean\"},\"future_obligation\":{\"additionalProperties\":false,\"properties\":{\"accepted_authority\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"exit_criteria\":{\"minLength\":1,\"type\":\"string\"},\"id\":{\"pattern\":\"^O-\\\\d{3,}$\",\"type\":\"string\"},\"owner\":{\"minLength\":1,\"type\":\"string\"},\"reason\":{\"minLength\":1,\"type\":\"string\"},\"target\":{\"minLength\":1,\"type\":\"string\"},\"trigger\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"id\",\"owner\",\"trigger\",\"target\",\"exit_criteria\",\"reason\",\"accepted_authority\"],\"type\":\"object\"},\"gate_authority\":{\"additionalProperties\":false,\"properties\":{\"gate_effect\":{\"enum\":[\"advisory\",\"informational\",\"not-applicable\",\"blocking-current-work\",\"blocking-claim-only\"],\"type\":\"string\"},\"outcome\":{\"minLength\":1,\"type\":\"string\"},\"path\":{\"minLength\":1,\"type\":\"string\"},\"result\":{\"enum\":[\"clear\",\"friction\",\"blocked\",\"invalid-run\",\"not-needed-now\"],\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\",\"result\",\"outcome\",\"gate_effect\"],\"type\":\"object\"},\"persona\":{\"minLength\":1,\"type\":\"string\"},\"record\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"result\":{\"enum\":[\"clear\",\"friction\",\"blocked\",\"invalid-run\",\"not-needed-now\"],\"type\":\"string\"},\"run\":{\"additionalProperties\":false,\"properties\":{\"cleanup_state\":{\"minLength\":1,\"type\":\"string\"},\"environment\":{\"minLength\":1,\"type\":\"string\"},\"evidence_refs\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"minItems\":1,\"type\":\"array\"},\"findings\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"disposition\":{\"minLength\":1,\"type\":\"string\"},\"disposition_authority\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"evidence\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"minItems\":1,\"type\":\"array\"},\"expected_human_outcome\":{\"minLength\":1,\"type\":\"string\"},\"finding_id\":{\"minLength\":1,\"type\":\"string\"},\"observed_behavior\":{\"minLength\":1,\"type\":\"string\"},\"owner\":{\"minLength\":1,\"type\":\"string\"},\"reproducibility\":{\"minLength\":1,\"type\":\"string\"},\"run_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario_version\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"severity\":{\"enum\":[\"critical\",\"major\",\"moderate\",\"minor\"],\"type\":\"string\"},\"source_requirement\":{\"minLength\":1,\"type\":\"string\"},\"supported_scope\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"finding_id\",\"run_id\",\"scenario_id\",\"scenario_version\",\"observed_behavior\",\"expected_human_outcome\",\"severity\",\"reproducibility\",\"supported_scope\",\"source_requirement\",\"owner\",\"disposition\",\"disposition_authority\",\"evidence\"],\"type\":\"object\"},\"type\":\"array\"},\"interventions\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"assessed_by\":{\"minLength\":1,\"type\":\"string\"},\"description\":{\"minLength\":1,\"type\":\"string\"},\"material_coaching\":{\"type\":\"boolean\"}},\"required\":[\"description\",\"material_coaching\",\"assessed_by\"],\"type\":\"object\"},\"type\":\"array\"},\"observations\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"persona_primitive\":{\"enum\":[\"user\",\"maintainer\"],\"type\":\"string\"},\"persona_resolution\":{\"enum\":[\"explicit\",\"default\"],\"type\":\"string\"},\"product_build\":{\"minLength\":1,\"type\":\"string\"},\"public_resources_used\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"qualification\":{\"additionalProperties\":false,\"properties\":{\"assessed_by\":{\"minLength\":1,\"type\":\"string\"},\"assessment\":{\"minLength\":1,\"type\":\"string\"},\"executor\":{\"minLength\":1,\"type\":\"string\"},\"isolation_evidence\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"minItems\":1,\"type\":\"array\"},\"kind\":{\"enum\":[\"human\",\"agent\"],\"type\":\"string\"},\"no_coaching\":{\"const\":true,\"type\":\"boolean\"},\"no_implementation_conversation\":{\"const\":true,\"type\":\"boolean\"},\"no_private_knowledge\":{\"const\":true,\"type\":\"boolean\"},\"no_private_memory\":{\"const\":true,\"type\":\"boolean\"},\"no_repository_access\":{\"const\":true,\"type\":\"boolean\"},\"public_information_only\":{\"const\":true,\"type\":\"boolean\"},\"separate_context\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"executor\",\"kind\",\"separate_context\",\"no_private_knowledge\",\"no_repository_access\",\"no_private_memory\",\"no_implementation_conversation\",\"no_coaching\",\"public_information_only\",\"assessed_by\",\"assessment\",\"isolation_evidence\"],\"type\":\"object\"},\"reproduction\":{\"minLength\":1,\"type\":\"string\"},\"review\":{\"minLength\":1,\"type\":\"string\"},\"run_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario\":{\"additionalProperties\":false,\"properties\":{\"build_identity\":{\"minLength\":1,\"type\":\"string\"},\"current_uncertainty\":{\"minLength\":1,\"type\":\"string\"},\"decision\":{\"additionalProperties\":false,\"properties\":{\"decision_informed\":{\"minLength\":1,\"type\":\"string\"},\"effort_budget\":{\"minLength\":1,\"type\":\"string\"},\"evidence_retained\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"executor\":{\"minLength\":1,\"type\":\"string\"},\"gate_effect\":{\"default\":\"advisory\",\"enum\":[\"advisory\",\"informational\",\"not-applicable\",\"blocking-current-work\",\"blocking-claim-only\"],\"type\":\"string\"},\"product_maturity\":{\"minLength\":1,\"type\":\"string\"},\"reason_now\":{\"minLength\":1,\"type\":\"string\"},\"rerun_trigger\":{\"minLength\":1,\"type\":\"string\"},\"scope\":{\"minLength\":1,\"type\":\"string\"},\"stop_condition\":{\"minLength\":1,\"type\":\"string\"},\"testing_type\":{\"const\":\"Unassisted Goal Testing\",\"type\":\"string\"}},\"required\":[\"testing_type\",\"decision_informed\",\"reason_now\",\"product_maturity\",\"scope\",\"executor\",\"effort_budget\",\"stop_condition\",\"evidence_retained\",\"rerun_trigger\"],\"type\":\"object\"},\"environment\":{\"minLength\":1,\"type\":\"string\"},\"evidence_requirements\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"finding_route\":{\"minLength\":1,\"type\":\"string\"},\"operator_success_outcomes\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"packet_review\":{\"additionalProperties\":false,\"properties\":{\"evidence\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\"],\"type\":\"object\"},\"no_hidden_guidance\":{\"const\":true,\"type\":\"boolean\"},\"reviewer\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"reviewer\",\"evidence\",\"no_hidden_guidance\"],\"type\":\"object\"},\"prohibited_context\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"public_resources\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"scenario_id\":{\"pattern\":\"^NUAT-\\\\d{3,}$\",\"type\":\"string\"},\"scenario_version\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"selected_persona\":{\"minLength\":1,\"type\":\"string\"},\"setup\":{\"minLength\":1,\"type\":\"string\"},\"severity_rules\":{\"minLength\":1,\"type\":\"string\"},\"source_requirements\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"minItems\":1,\"type\":\"array\"},\"starting_state\":{\"minLength\":1,\"type\":\"string\"},\"supported_scope\":{\"minLength\":1,\"type\":\"string\"},\"target_user\":{\"minLength\":1,\"type\":\"string\"},\"teardown\":{\"minLength\":1,\"type\":\"string\"},\"tester_packet\":{\"additionalProperties\":false,\"properties\":{\"consent_notice\":{\"minLength\":1,\"type\":\"string\"},\"goal\":{\"minLength\":1,\"type\":\"string\"},\"public_resources\":{\"items\":{\"minLength\":1,\"type\":\"string\"},\"type\":\"array\"},\"safety_limits\":{\"minLength\":1,\"type\":\"string\"},\"situation\":{\"minLength\":1,\"type\":\"string\"},\"starting_state\":{\"minLength\":1,\"type\":\"string\"},\"tester_teardown\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"situation\",\"goal\",\"starting_state\",\"public_resources\",\"safety_limits\",\"consent_notice\",\"tester_teardown\"],\"type\":\"object\"},\"tester_prompt\":{\"minLength\":1,\"type\":\"string\"},\"title\":{\"minLength\":1,\"type\":\"string\"},\"user_goal\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"scenario_id\",\"scenario_version\",\"selected_persona\",\"title\",\"user_goal\",\"source_requirements\",\"target_user\",\"current_uncertainty\",\"supported_scope\",\"build_identity\",\"environment\",\"starting_state\",\"public_resources\",\"prohibited_context\",\"tester_prompt\",\"operator_success_outcomes\",\"setup\",\"teardown\",\"evidence_requirements\",\"severity_rules\",\"finding_route\",\"decision\",\"tester_packet\",\"packet_review\"],\"type\":\"object\"},\"scenario_ref\":{\"additionalProperties\":false,\"properties\":{\"path\":{\"minLength\":1,\"type\":\"string\"},\"scenario_id\":{\"minLength\":1,\"type\":\"string\"},\"scenario_version\":{\"exclusiveMinimum\":0,\"maximum\":9007199254740991,\"type\":\"integer\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"path\",\"sha256\",\"scenario_id\",\"scenario_version\"],\"type\":\"object\"},\"selected_persona\":{\"minLength\":1,\"type\":\"string\"},\"support_scope\":{\"minLength\":1,\"type\":\"string\"},\"target_user\":{\"minLength\":1,\"type\":\"string\"},\"validity\":{\"additionalProperties\":false,\"properties\":{\"assessed_by\":{\"minLength\":1,\"type\":\"string\"},\"broken_setup\":{\"type\":\"boolean\"},\"lost_evidence\":{\"type\":\"boolean\"},\"private_knowledge\":{\"type\":\"boolean\"}},\"required\":[\"private_knowledge\",\"broken_setup\",\"lost_evidence\",\"assessed_by\"],\"type\":\"object\"},\"work_coordinate\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"run_id\",\"scenario_ref\",\"selected_persona\",\"persona_primitive\",\"persona_resolution\",\"work_coordinate\",\"product_build\",\"environment\",\"support_scope\",\"target_user\",\"qualification\",\"public_resources_used\",\"interventions\",\"observations\",\"reproduction\",\"evidence_refs\",\"findings\",\"cleanup_state\",\"review\",\"validity\"],\"type\":\"object\"},\"targetRoot\":{\"minLength\":1,\"type\":\"string\"}},\"required\":[\"record\",\"decision\",\"result\"],\"type\":\"object\"},\"name\":\"make_docs_uat_result_validate\",\"title\":\"Make Docs Operation uat.result.validate\"}]",
+  "utf8Bytes": 26311,
+  "arraySha256": "d1f4728874566ebe098208b863f16178888afd5c69cfb72b4741978c7c348e78",
+  "rawFile": "attempt-02-list-10-4-tools.json",
+  "response": {
+    "tools": [
+      {
+        "name": "make_docs_prd_authority_validate",
+        "title": "Make Docs Operation prd.authority.validate",
+        "description": "Validate that active PRDs describe product authority rather than editorial change operations. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_performance_evidence_validate",
+        "title": "Make Docs Operation performance.evidence.validate",
+        "description": "Validate Performance Evidence structure and traceability without running a benchmark or changing repository state. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_project_path_hygiene_validate",
+        "title": "Make Docs Operation project.path-hygiene.validate",
+        "description": "Check local documentation paths. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "string",
+              "enum": [
+                "content",
+                "managed"
+              ]
+            },
+            "paths": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "manifest": {
+              "type": "string",
+              "minLength": 1
+            },
+            "includeSkills": {
+              "type": "boolean"
+            },
+            "allowCommentToken": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_scenario_validate",
+        "title": "Make Docs Operation uat.scenario.validate",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "scenario": {
+              "type": "object",
+              "properties": {
+                "scenario_id": {
+                  "type": "string",
+                  "pattern": "^NUAT-\\d{3,}$"
+                },
+                "scenario_version": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "selected_persona": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "user_goal": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_requirements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "target_user": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "current_uncertainty": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "supported_scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "build_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "environment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "starting_state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "public_resources": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "prohibited_context": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "tester_prompt": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "operator_success_outcomes": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "setup": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "teardown": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence_requirements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "severity_rules": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_route": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "decision": {
+                  "type": "object",
+                  "properties": {
+                    "testing_type": {
+                      "type": "string",
+                      "const": "Unassisted Goal Testing"
+                    },
+                    "decision_informed": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "reason_now": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "product_maturity": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "scope": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "executor": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "gate_effect": {
+                      "default": "advisory",
+                      "type": "string",
+                      "enum": [
+                        "advisory",
+                        "informational",
+                        "not-applicable",
+                        "blocking-current-work",
+                        "blocking-claim-only"
+                      ]
+                    },
+                    "effort_budget": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stop_condition": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence_retained": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "rerun_trigger": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "testing_type",
+                    "decision_informed",
+                    "reason_now",
+                    "product_maturity",
+                    "scope",
+                    "executor",
+                    "effort_budget",
+                    "stop_condition",
+                    "evidence_retained",
+                    "rerun_trigger"
+                  ],
+                  "additionalProperties": false
+                },
+                "tester_packet": {
+                  "type": "object",
+                  "properties": {
+                    "situation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "goal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "starting_state": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "public_resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "safety_limits": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "consent_notice": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "tester_teardown": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "situation",
+                    "goal",
+                    "starting_state",
+                    "public_resources",
+                    "safety_limits",
+                    "consent_notice",
+                    "tester_teardown"
+                  ],
+                  "additionalProperties": false
+                },
+                "packet_review": {
+                  "type": "object",
+                  "properties": {
+                    "reviewer": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "no_hidden_guidance": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "reviewer",
+                    "evidence",
+                    "no_hidden_guidance"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "scenario_id",
+                "scenario_version",
+                "selected_persona",
+                "title",
+                "user_goal",
+                "source_requirements",
+                "target_user",
+                "current_uncertainty",
+                "supported_scope",
+                "build_identity",
+                "environment",
+                "starting_state",
+                "public_resources",
+                "prohibited_context",
+                "tester_prompt",
+                "operator_success_outcomes",
+                "setup",
+                "teardown",
+                "evidence_requirements",
+                "severity_rules",
+                "finding_route",
+                "decision",
+                "tester_packet",
+                "packet_review"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "source",
+            "scenario"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_persona_resolve",
+        "title": "Make Docs Operation uat.persona.resolve",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "artifact": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_target_validate",
+        "title": "Make Docs Operation uat.target.validate",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "build_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "environment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "supported_scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target_user": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "normally_consumable_form": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "audience_consumption_evidence": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                },
+                "qualification": {
+                  "type": "object",
+                  "properties": {
+                    "executor": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "human",
+                        "agent"
+                      ]
+                    },
+                    "separate_context": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "no_private_knowledge": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_repository_access": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_private_memory": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_implementation_conversation": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_coaching": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "public_information_only": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "assessed_by": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "assessment": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "isolation_evidence": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "sha256"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "executor",
+                    "kind",
+                    "separate_context",
+                    "no_private_knowledge",
+                    "no_repository_access",
+                    "no_private_memory",
+                    "no_implementation_conversation",
+                    "no_coaching",
+                    "public_information_only",
+                    "assessed_by",
+                    "assessment",
+                    "isolation_evidence"
+                  ],
+                  "additionalProperties": false
+                },
+                "consent": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "capture": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "readiness": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "build_identity",
+                "environment",
+                "supported_scope",
+                "target_user",
+                "normally_consumable_form",
+                "audience_consumption_evidence",
+                "qualification",
+                "consent",
+                "capture",
+                "readiness"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "target"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_evidence_reference_validate",
+        "title": "Make Docs Operation uat.evidence-reference.validate",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidence": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "evidence"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_finding_validate",
+        "title": "Make Docs Operation uat.finding.validate",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "finding": {
+              "type": "object",
+              "properties": {
+                "finding_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "run_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scenario_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scenario_version": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "observed_behavior": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "expected_human_outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "critical",
+                    "major",
+                    "moderate",
+                    "minor"
+                  ]
+                },
+                "reproducibility": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "supported_scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_requirement": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "owner": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "disposition": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "disposition_authority": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                },
+                "evidence": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "sha256": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "sha256"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "finding_id",
+                "run_id",
+                "scenario_id",
+                "scenario_version",
+                "observed_behavior",
+                "expected_human_outcome",
+                "severity",
+                "reproducibility",
+                "supported_scope",
+                "source_requirement",
+                "owner",
+                "disposition",
+                "disposition_authority",
+                "evidence"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "record",
+            "finding"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "make_docs_uat_result_validate",
+        "title": "Make Docs Operation uat.result.validate",
+        "description": "Validate Unassisted Goal Testing records against repository evidence. Human judgments remain with the recorded assessor. Access: Store none; project read; host configuration none.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetRoot": {
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "type": "string",
+              "minLength": 1
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "decision": {
+              "type": "object",
+              "properties": {
+                "testing_type": {
+                  "type": "string",
+                  "const": "Unassisted Goal Testing"
+                },
+                "decision_informed": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason_now": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "product_maturity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "executor": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "gate_effect": {
+                  "default": "advisory",
+                  "type": "string",
+                  "enum": [
+                    "advisory",
+                    "informational",
+                    "not-applicable",
+                    "blocking-current-work",
+                    "blocking-claim-only"
+                  ]
+                },
+                "effort_budget": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "stop_condition": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence_retained": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "rerun_trigger": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "testing_type",
+                "decision_informed",
+                "reason_now",
+                "product_maturity",
+                "scope",
+                "executor",
+                "effort_budget",
+                "stop_condition",
+                "evidence_retained",
+                "rerun_trigger"
+              ],
+              "additionalProperties": false
+            },
+            "result": {
+              "type": "string",
+              "enum": [
+                "clear",
+                "friction",
+                "blocked",
+                "invalid-run",
+                "not-needed-now"
+              ]
+            },
+            "run": {
+              "type": "object",
+              "properties": {
+                "scenario": {
+                  "type": "object",
+                  "properties": {
+                    "scenario_id": {
+                      "type": "string",
+                      "pattern": "^NUAT-\\d{3,}$"
+                    },
+                    "scenario_version": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "selected_persona": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "user_goal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "source_requirements": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "target_user": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "current_uncertainty": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "supported_scope": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "build_identity": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "environment": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "starting_state": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "public_resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "prohibited_context": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "tester_prompt": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "operator_success_outcomes": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "setup": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "teardown": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence_requirements": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "severity_rules": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "finding_route": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "decision": {
+                      "type": "object",
+                      "properties": {
+                        "testing_type": {
+                          "type": "string",
+                          "const": "Unassisted Goal Testing"
+                        },
+                        "decision_informed": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "reason_now": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "product_maturity": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "scope": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "executor": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "gate_effect": {
+                          "default": "advisory",
+                          "type": "string",
+                          "enum": [
+                            "advisory",
+                            "informational",
+                            "not-applicable",
+                            "blocking-current-work",
+                            "blocking-claim-only"
+                          ]
+                        },
+                        "effort_budget": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "stop_condition": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "evidence_retained": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "rerun_trigger": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "testing_type",
+                        "decision_informed",
+                        "reason_now",
+                        "product_maturity",
+                        "scope",
+                        "executor",
+                        "effort_budget",
+                        "stop_condition",
+                        "evidence_retained",
+                        "rerun_trigger"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "tester_packet": {
+                      "type": "object",
+                      "properties": {
+                        "situation": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "goal": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "starting_state": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "public_resources": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "safety_limits": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "consent_notice": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tester_teardown": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "situation",
+                        "goal",
+                        "starting_state",
+                        "public_resources",
+                        "safety_limits",
+                        "consent_notice",
+                        "tester_teardown"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "packet_review": {
+                      "type": "object",
+                      "properties": {
+                        "reviewer": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "evidence": {
+                          "type": "object",
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "sha256": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "sha256"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "no_hidden_guidance": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "reviewer",
+                        "evidence",
+                        "no_hidden_guidance"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "scenario_id",
+                    "scenario_version",
+                    "selected_persona",
+                    "title",
+                    "user_goal",
+                    "source_requirements",
+                    "target_user",
+                    "current_uncertainty",
+                    "supported_scope",
+                    "build_identity",
+                    "environment",
+                    "starting_state",
+                    "public_resources",
+                    "prohibited_context",
+                    "tester_prompt",
+                    "operator_success_outcomes",
+                    "setup",
+                    "teardown",
+                    "evidence_requirements",
+                    "severity_rules",
+                    "finding_route",
+                    "decision",
+                    "tester_packet",
+                    "packet_review"
+                  ],
+                  "additionalProperties": false
+                },
+                "run_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scenario_ref": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "scenario_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "scenario_version": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256",
+                    "scenario_id",
+                    "scenario_version"
+                  ],
+                  "additionalProperties": false
+                },
+                "selected_persona": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "persona_primitive": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "maintainer"
+                  ]
+                },
+                "persona_resolution": {
+                  "type": "string",
+                  "enum": [
+                    "explicit",
+                    "default"
+                  ]
+                },
+                "work_coordinate": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "product_build": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "environment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "support_scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target_user": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "qualification": {
+                  "type": "object",
+                  "properties": {
+                    "executor": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "human",
+                        "agent"
+                      ]
+                    },
+                    "separate_context": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "no_private_knowledge": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_repository_access": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_private_memory": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_implementation_conversation": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "no_coaching": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "public_information_only": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "assessed_by": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "assessment": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "isolation_evidence": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "sha256"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "executor",
+                    "kind",
+                    "separate_context",
+                    "no_private_knowledge",
+                    "no_repository_access",
+                    "no_private_memory",
+                    "no_implementation_conversation",
+                    "no_coaching",
+                    "public_information_only",
+                    "assessed_by",
+                    "assessment",
+                    "isolation_evidence"
+                  ],
+                  "additionalProperties": false
+                },
+                "public_resources_used": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "interventions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "material_coaching": {
+                        "type": "boolean"
+                      },
+                      "assessed_by": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "description",
+                      "material_coaching",
+                      "assessed_by"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "observations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "reproduction": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence_refs": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "sha256": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "sha256"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "findings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "finding_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "scenario_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "scenario_version": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "observed_behavior": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "expected_human_outcome": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "critical",
+                          "major",
+                          "moderate",
+                          "minor"
+                        ]
+                      },
+                      "reproducibility": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "supported_scope": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source_requirement": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "owner": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "disposition": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "disposition_authority": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "sha256"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "evidence": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "sha256": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "sha256"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "finding_id",
+                      "run_id",
+                      "scenario_id",
+                      "scenario_version",
+                      "observed_behavior",
+                      "expected_human_outcome",
+                      "severity",
+                      "reproducibility",
+                      "supported_scope",
+                      "source_requirement",
+                      "owner",
+                      "disposition",
+                      "disposition_authority",
+                      "evidence"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "cleanup_state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "review": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "validity": {
+                  "type": "object",
+                  "properties": {
+                    "private_knowledge": {
+                      "type": "boolean"
+                    },
+                    "broken_setup": {
+                      "type": "boolean"
+                    },
+                    "lost_evidence": {
+                      "type": "boolean"
+                    },
+                    "assessed_by": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "private_knowledge",
+                    "broken_setup",
+                    "lost_evidence",
+                    "assessed_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "run_id",
+                "scenario_ref",
+                "selected_persona",
+                "persona_primitive",
+                "persona_resolution",
+                "work_coordinate",
+                "product_build",
+                "environment",
+                "support_scope",
+                "target_user",
+                "qualification",
+                "public_resources_used",
+                "interventions",
+                "observations",
+                "reproduction",
+                "evidence_refs",
+                "findings",
+                "cleanup_state",
+                "review",
+                "validity"
+              ],
+              "additionalProperties": false
+            },
+            "gate_authority": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "clear",
+                    "friction",
+                    "blocked",
+                    "invalid-run",
+                    "not-needed-now"
+                  ]
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "gate_effect": {
+                  "type": "string",
+                  "enum": [
+                    "advisory",
+                    "informational",
+                    "not-applicable",
+                    "blocking-current-work",
+                    "blocking-claim-only"
+                  ]
+                }
+              },
+              "required": [
+                "path",
+                "sha256",
+                "result",
+                "outcome",
+                "gate_effect"
+              ],
+              "additionalProperties": false
+            },
+            "future_obligation": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^O-\\d{3,}$"
+                },
+                "owner": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "trigger": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "exit_criteria": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "accepted_authority": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "owner",
+                "trigger",
+                "target",
+                "exit_criteria",
+                "reason",
+                "accepted_authority"
+              ],
+              "additionalProperties": false
+            },
+            "dryRun": {
+              "description": "Set true to plan rather than write; rides the execution context, not the input.",
+              "type": "boolean"
+            },
+            "approvals": {
+              "description": "Named approval tokens granted to the operation (e.g. reviewed-overwrite); rides the execution context, not the input.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "record",
+            "decision",
+            "result"
+          ],
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      }
+    ]
+  }
+}

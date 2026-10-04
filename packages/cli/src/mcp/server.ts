@@ -5,17 +5,25 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { serializeOperationError } from "../operations/context";
+import { parseMcpServerProfile, type McpProfileOptions } from "../operations/mcp-metadata";
 import { readPackageMeta } from "../utils";
 import { createAppResourceCatalog, MCP_APP_MIME_TYPE, type AppResource } from "./app-resources";
 import { listNativeMcpResources, readNativeMcpResource } from "./resources";
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "./tools";
 
-export interface MakeDocsMcpServerOptions {
+export interface MakeDocsMcpServerOptions extends McpProfileOptions {
   /** Static UI assets. Tool handlers still use the existing SDK tool registry. */
   appResources?: readonly AppResource[];
 }
 
 export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}): McpServer {
+  const profile = parseMcpServerProfile(options.profile);
+  // W25 P4 must assign app profiles before proof assets can join a task profile.
+  if (options.appResources?.length && profile !== "all") {
+    throw new Error(
+      "MCP app proof resources require the all profile. Use all or omit appResources for a task profile.",
+    );
+  }
   const appResources = createAppResourceCatalog(options.appResources ?? []);
   const packageMeta = readPackageMeta();
   const server = new McpServer({
@@ -23,7 +31,7 @@ export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}):
     version: packageMeta.version,
   });
 
-  for (const tool of listMakeDocsMcpTools().filter((candidate) => candidate.mcpReady !== false)) {
+  for (const tool of listMakeDocsMcpTools(process.cwd(), { profile })) {
     server.registerTool(
       tool.name,
       {
@@ -33,7 +41,7 @@ export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}):
       },
       async (args) => {
         try {
-          return formatMcpToolResult(await callMakeDocsMcpTool(tool.name, args));
+          return formatMcpToolResult(await callMakeDocsMcpTool(tool.name, args, { profile }));
         } catch (error) {
           return formatMcpToolError(error);
         }
@@ -48,17 +56,17 @@ export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}):
     } : {}),
   });
   server.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-    resources: [...(await listNativeMcpResources()).resources, ...appResources.list()],
+    resources: [...(await listNativeMcpResources(process.cwd(), { profile })).resources, ...appResources.list()],
   }));
   server.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
-    appResources.read(request.params.uri) ?? readNativeMcpResource(request.params.uri),
+    appResources.read(request.params.uri) ?? readNativeMcpResource(request.params.uri, process.cwd(), { profile }),
   );
 
   return server;
 }
 
-export async function runMcpServer(): Promise<void> {
-  const server = createMakeDocsMcpServer();
+export async function runMcpServer(options: McpProfileOptions = {}): Promise<void> {
+  const server = createMakeDocsMcpServer(options);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

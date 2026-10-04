@@ -1,4 +1,5 @@
 import type { OperationExecutionContext } from "../context";
+import type { McpProfile } from "../mcp-metadata";
 
 export const SYSTEM_RESOURCE_TYPES = [
   "contract",
@@ -92,7 +93,16 @@ export interface SystemResourceProviderEntry {
 export interface SystemResourceProviderInventory {
   provider: SystemResourceProviderMetadata;
   resources: readonly SystemResourceProviderEntry[];
+  /** Internal native MCP exposure metadata. It is not part of CLI resource results. */
+  readonly mcpResources?: readonly SystemResourceMcpProfileAssignment[];
 }
+
+export interface SystemResourceMcpProfileAssignment {
+  readonly uri: string;
+  readonly profiles: readonly McpProfile[];
+}
+
+export type SystemResourceMcpProfiles = Readonly<Record<string, readonly McpProfile[]>>;
 
 export interface LoadSystemResourceProviderInput {
   root: string;

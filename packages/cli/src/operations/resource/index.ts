@@ -1,4 +1,5 @@
 export * from "./identity";
+export { getSystemResourceMcpProfiles } from "./mcp-profiles";
 export * from "./ops";
 export * from "./provider";
 export {
