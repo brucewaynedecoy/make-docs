@@ -263,3 +263,72 @@ The user authorized the P3 local commit on 2026-10-03. P3 is complete. HTTP task
 Closeout document checks are retained in the [scoped check record](evidence/p3/doc-checks-closeout.json) and [PRD authority result](evidence/p3/prd-authority-closeout.json). The earlier implementation captures remain unchanged.
 
 Optional experience handoff: inspect the final native URI lists in A9 and run `node packages/cli/dist/index.js mcp --help` for the tested launch guidance. No response is required.
+
+## W24 R0 P4: Compatibility And Evidence
+
+### P4 Candidate And Scope
+
+The owner authorized P4 implementation on 2026-10-03. The preparation base is `5162f1c7c918cf6c7c82cf443d178d35c3f2e836`. The runtime remains P3 `cced2bcbb71a4380e1dfbc10b7e2ef549dc271a2`. The historical source is `793868a9468ff0bd5471261503b24b303cb1b4f5`. The [runtime identity](evidence/p4/contracts/runtime-identity-attempt-1.json) verifies all 19 retained P3 source hashes, all 20 JavaScript build hashes, the matching lock, copied dependency files, SDK 1.29.0, Node 24.19.0, provider input, and isolated fixture. No active runtime was rebuilt or changed. The old source was exported with `git archive`, built once, and given the same P3 provider fixture bytes. No branch, worktree, host setting, package install, or live Store changed.
+
+### P4 Contract And Access Evidence
+
+| Work | Observed Result | Evidence And Limit |
+| --- | --- | --- |
+| t1 | 43 ready tools and 62 native resources have complete assignments. The five profiles form the exact all union. | [Stage 1 capture analysis](evidence/p4/contracts/stage-1-summary-attempt-1.json) and unchanged [P1 inventory](evidence/p1/profile-inventory.json), [P3 metadata](evidence/a6/catalog-metadata-final.json), and [P3 tests](evidence/p3/full-tests.txt). Negative assignment checks are reused on the verified unchanged source. |
+| t2 | 49 narrow tool descriptor comparisons and 103 narrow native read comparisons agree with all. The 9 focused tests cover shared registered handler identity, schemas, access, and real dispatch. | Eight retained wire captures contain 289 reads. [Exact raw comparison](evidence/p4/contracts/raw-comparison-qualification.json) uses no normalization. [Focused tests](evidence/p4/contracts/focused-attempt-2.txt) passed 9/9. CLI/core behavior reuses [P3 parity](evidence/a7/allowed-read-and-cli-parity-final.json). |
+| t3 | Store-free reads agree in relevant profiles and all. The real Store-free write handler keeps its write gate and succeeds in dry-run. Named resource approval remains separate. Valid setup/workflow admission returns store-not-configured; independent reads continue. The complete backlog cache-write SDK input reaches the same write gate and typed Store admission in backlog and all. | Valid direct-helper tests, unchanged P2/P3 proof, and the newly authorized [complete-input SDK pass](evidence/p4/contracts/wire-write-attempt-2-summary.json) form the access basis. Backlog cache lookup also receives the same typed Store denial. Complete allowed Store writes and production grants are outside this proof. |
+| t4 | Old no-profile and P3 no-profile tool lists, resource lists, read bytes, and provenance are exactly equal within the same provider/config fixture. Current no-profile equals explicit all. | [Old raw capture](evidence/p4/contracts/wire-old-attempt-1.json), [current default](evidence/p4/contracts/wire-default-attempt-1.json), [current all](evidence/p4/contracts/wire-all-attempt-1.json), and [raw equality qualification](evidence/p4/contracts/raw-comparison-qualification.json). Physical launch paths differ in manifests. Native metadata has no physical provider root. No fresh installation or host upgrade was tested. |
+
+The [first focused test attempt](evidence/p4/contracts/focused-attempt-1-summary.json) passed 6 and failed 3 fixture assertions. The one correction fixed the comparison clock, resource approval token, and backlog input/admission expectation. The corrected 9/9 pass is retained. No runtime defect was found.
+
+The supplementary wire script exited 1 after all eight list/read captures were saved. Its [exact failed input and error](evidence/p4/contracts/wire-script-attempt-1-failure.json) show that the SDK rejected an incomplete backlog cache-write input before the operation callback. This proves input rejection only. It is not an access verdict. The original eight-variant script was not rerun. The independent retained capture comparison passed. Keep these original verdicts separate. [Complete fixture hashes](evidence/p4/contracts/fixture-after-attempt-1.json) remain unchanged and no Store was created.
+
+The owner then expressly authorized one new affected input correction and run. The [complete-input SDK pass](evidence/p4/contracts/wire-write-attempt-2-summary.json) used one real isolated work record, a validated snapshot, and one validated report record. Two sequential servers made six calls in backlog and all. Omitted/false allowWrite reached the write gate. True returned store-not-configured for work.backlog-cache.write. No input rejection or product defect appeared. Both children exited. Fixture bytes and runtime build stayed exact. No Store was created. The [authority/full input](evidence/p4/contracts/wire-write-attempt-2-authority.json), [backlog capture](evidence/p4/contracts/wire-write-backlog-attempt-2.json), [all capture](evidence/p4/contracts/wire-write-all-attempt-2.json), and [storage-path qualification](evidence/p4/contracts/wire-write-attempt-2-qualification.json) are retained. Actual SDK requests used the physical temp root. Before saving evidence only, that root became $WRITE_FIXTURE; result equality was checked before that storage substitution. The historical native-resource comparison still uses zero normalization. This new authority consumes one affected correction, one probe pass, two launches, six calls, 396 ms, and zero spend/paid requests. It does not reset prior budgets or authorize a PERF rerun. No fully allowed Store write is claimed.
+
+### P4 Context And Discovery Characterization
+
+The packet binds the unchanged canonical [PERF-003 v1 profile](../../plans/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-validation.md#perf-003-profile-context-and-stdio-discovery), digest `596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb`. The [final result](evidence/p4/performance/attempt-02-result-final.json) is `pass` within local characterization scope. [Raw observations](evidence/p4/performance/attempt-02-raw.json), [analysis](evidence/p4/performance/attempt-02-analysis.json), [manifest](evidence/p4/performance/attempt-02-manifest.json), [unchanged fingerprint](evidence/p4/performance/attempt-02-fingerprint-after.json), [second review](evidence/p4/review/performance-review-cycle-2.json), and [final ledger](evidence/p4/performance/attempt-02-ledger-final.json) are retained.
+
+Each timing cell is the median with [minimum, maximum] in milliseconds. Startup has five fresh processes per profile. Each warm list has 25 measured calls per profile. All 30 launches and 360 total calls, including warmups, were valid and sequential. All children exited. No phase test, build, or heavy validator ran during timing.
+
+| Profile | Tools / Native Resources | Tool Definition UTF-8 Bytes | Startup ms | Warm Tools List ms | Warm Native List ms |
+| --- | --- | --- | --- | --- | --- |
+| all | 43 / 62 | 126,560 | 106.157 [104.087, 109.183] | 4.519 [3.494, 5.730] | 23.923 [21.025, 28.823] |
+| core | 8 / 7 | 4,749 | 105.741 [103.885, 109.377] | 1.909 [0.489, 2.996] | 26.248 [24.349, 33.593] |
+| setup | 15 / 7 | 12,798 | 107.797 [102.732, 109.408] | 0.970 [0.686, 2.937] | 26.953 [20.445, 30.740] |
+| workflow | 14 / 48 | 16,165 | 107.051 [102.968, 113.550] | 1.486 [0.994, 3.650] | 26.463 [21.683, 31.111] |
+| quality | 9 / 33 | 26,311 | 107.403 [103.944, 111.901] | 1.299 [0.966, 3.593] | 27.088 [21.783, 30.790] |
+| backlog | 3 / 8 | 70,206 | 106.731 [103.421, 109.019] | 2.327 [1.901, 3.706] | 24.663 [21.351, 31.738] |
+
+All narrow catalogs contain fewer serialized tool-definition bytes than all. Counts alone do not predict schema size: backlog has 3 tools and 70,206 bytes. Bytes are a context proxy. Actual model-visible tokens are unavailable. No token-saving, inference-speed, hard latency target, causal speed-win, installed-host, HTTP, or wider support claim follows. Startup and native-list distributions overlap. The one machine/runtime, ordinary OS/file caches, background work, and small sample size bound the result. Round-paired differences stay in the analysis.
+
+The [first performance problem](evidence/p4/performance/attempt-01-problem.json) records `revise`: the initial binding expected source files in a build/provider-only clone. It stopped with zero spawns and calls. The sole correction bound verified active P3 source and isolated build/provider/dependencies. No measured samples were lost or replaced. Earlier notices and the intermediate ledger used `blocked`; the final record corrects that report field without changing method or samples.
+
+The final ledger consumes one pass, one correction, two reviews, 30 launches, 360 calls, zero spend, and zero paid requests. It records 528.716 seconds from the original activation through final disposition. No pass, correction, or review remains. Spare compute does not authorize another run. Current-use proof expired at this P4 closeout and remains a historical baseline. A changed fingerprint or wider claim requires new authority and budget. Closeout grants no new run, correction, review, or qualification budget.
+
+### P4 Testing And Human Experience Review
+
+| Testing Type | Current Decision And Result |
+| --- | --- |
+| Automated Implementation Testing | Needed. Required independent contract/access/old-launch checks pass on the narrow basis above. One focused correction is spent. The first supplemental SDK input failure stays visible. A newly authorized affected pass with complete input made two launches and six gate/admission calls and passed. Its separate authority does not reset the earlier budget. Unchanged P1-P3 proof is reused. No root suite was repeated for unchanged runtime. |
+| Performance Testing | Needed. Frozen PERF-003 v1 characterization passed with final retained budget and two reviews. No measurement rerun. Actual model-token evidence remains unavailable. |
+| Guided Progress Review | Needed. One agent pass reviewed seven promises against real help, published configuration, lists, errors, results, and recovery. [Review with input hashes](evidence/p4/review/guided-and-human-review-attempt-1.json) is satisfied within local scope. |
+| Unassisted Goal Testing | Not-needed-now. No run, tester session, spend, human response gate, or new durable obligation. Published text, direct review, and local proof answer the current bounded questions. Reassess only after concrete feedback or explicit new authority. |
+
+Human Experience Review is separate required agent review, not a fifth testing type. Task names, the full connection, narrow example, permission/result meaning, errors/recovery, the reserved W25 UI, and bounded context claims are satisfied within recorded limits. No person's lived ease, unassisted success, host setup success, production write permission, or W25 UI availability is claimed. W25 owns page registration, rendering, and detailed app acceptance.
+
+### P4 Documentation And Authority Coverage
+
+| Surface | Verdict | Reason |
+| --- | --- | --- |
+| User guide, Persona user | Link-only. | Existing task/profile table, backlog configuration, unchanged old launch, native scope, recovery, and permission/context limits agree with observed results. No guide behavior changed. |
+| Maintainer guide, Persona maintainer | Link-only. | Existing parity, metadata, native resource, permission, and stdio rules cover this proof. MCP mutations stay within read-first/plan-first or temp fixture scope. |
+| System resources and deterministic/agentic twins | None. | P4 adds evidence and tests for accepted rules. It adds no business logic, default asset, agent workflow, profile authority, or second permission system. Upstream/dogfood P3 assets remain unchanged. |
+| PRD authority | None. | PRDs 25 and 39 remain the profile/operation authority. This evidence confirms their accepted rules and narrows unsupported claims. No new requirement or app availability claim is introduced. |
+| Work, handoffs, evidence, and history | Update-existing / create. | Mark completed tasks, retain exact results/failures/limits, and record owner-authorized P4 closeout. One [checkpoint history](../../../.make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md) records implementation and closeout. P1-P3 evidence remains byte-identical. |
+
+### P4 Validation And Readiness
+
+The [PRD check](evidence/p4/review/prd-authority-attempt-1.json) passed: 35 PRDs, 586 working Markdown files, 1,103 links, and zero diagnostics. The [performance structure check](evidence/p4/review/performance-structure-attempt-1.json) exits 1 globally. Its 17 errors are in unchanged W23 work/evidence. Its 55 warnings include advisory numeric evidence/effort text. PERF-003 is valid and W24 has no errors. The [scoped agent disposition](evidence/p4/review/performance-structure-disposition.json) keeps that global failure and local limit separate.
+
+All eight P4 tasks are complete. P4 and the local W24 phase package closed under the owner's 2026-10-03 authorization. The [closeout checks](evidence/p4/review/closeout-checks.json) bind retained proof, source/build identity, scoped links, anchors, paths, placeholders, PRD authority, and unchanged canonical plan/P1-P3 evidence. The PERF current-use proof expired at closeout and remains a historical baseline. No fully allowed Store write, installed-host acceptance, release, HTTP, model-token, or W25 UI result is claimed. No push, publication, host change, or W25 implementation occurred.

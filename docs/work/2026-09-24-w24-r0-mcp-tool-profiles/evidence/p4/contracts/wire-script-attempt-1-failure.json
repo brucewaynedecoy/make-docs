@@ -1,0 +1,25 @@
+{
+  "coordinate": "W24 R0 P4",
+  "exitCode": 1,
+  "phase": "Last supplementary backlog write probe",
+  "profile": "backlog",
+  "tool": "make_docs_work_backlog_cache_write",
+  "arguments": {
+    "targetRoot": "$TEMP/fixture",
+    "allowWrite": false
+  },
+  "expected": "requires write permission",
+  "actual": {
+    "isError": true,
+    "content": [
+      {
+        "type": "text",
+        "text": "MCP error -32602: Input validation error: Invalid arguments for tool make_docs_work_backlog_cache_write: [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"snapshot\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"array\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"records\"\n    ],\n    \"message\": \"Invalid input: expected array, received undefined\"\n  }\n]"
+      }
+    ]
+  },
+  "meaning": "Input rejected by SDK before operation callback. Not an operation access verdict.",
+  "allEightListReadCapturesRetained": true,
+  "correctionBudgetAlreadySpent": true,
+  "noRerun": true
+}

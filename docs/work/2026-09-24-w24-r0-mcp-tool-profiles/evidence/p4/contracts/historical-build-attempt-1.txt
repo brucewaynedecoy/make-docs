@@ -1,0 +1,52 @@
+
+> @brucewaynedecoy/make-docs@2.0.4 build
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w24-p4-contracts-1XO7Q9/old/packages/cli/tsup.config.ts
+CLI Target: node24
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js                                             204.36 KB
+ESM dist/virtual_make-docs-first-party-skills-H3FC47C2.js     384.04 KB
+ESM dist/backup-CM7RL2Q7.js                                   506.00 B
+ESM dist/setup-system-JI36YJ6D.js                             26.80 KB
+ESM dist/chunk-ADVNSMA7.js                                    36.96 KB
+ESM dist/uninstall-VBGMQQLA.js                                7.67 KB
+ESM dist/chunk-GERMRLJ2.js                                    41.30 KB
+ESM dist/chunk-LV3CBXZB.js                                    18.59 KB
+ESM dist/chunk-7R2PPKTB.js                                    6.44 KB
+ESM dist/chunk-65QWMODG.js                                    1.28 KB
+ESM dist/chunk-3EXHM5L2.js                                    42.12 KB
+ESM dist/chunk-J5QDGRZ7.js                                    67.54 KB
+ESM dist/skills-command-IGDVLNKY.js                           23.61 KB
+ESM dist/chunk-OR5ZVGLG.js                                    171.89 KB
+ESM dist/chunk-M7DMFIKU.js                                    90.45 KB
+ESM dist/chunk-D4HDZEJT.js                                    1.52 KB
+ESM dist/server-H754TA4Q.js                                   15.33 KB
+ESM dist/self-36ULRIJ6.js                                     24.35 KB
+ESM dist/chunk-52FTNVXS.js                                    957.95 KB
+ESM dist/chunk-YVSASZMT.js                                    528.98 KB
+ESM dist/backup-CM7RL2Q7.js.map                               71.00 B
+ESM dist/index.js.map                                         360.59 KB
+ESM dist/chunk-ADVNSMA7.js.map                                67.44 KB
+ESM dist/virtual_make-docs-first-party-skills-H3FC47C2.js.map 388.46 KB
+ESM dist/uninstall-VBGMQQLA.js.map                            14.12 KB
+ESM dist/chunk-7R2PPKTB.js.map                                11.83 KB
+ESM dist/chunk-3EXHM5L2.js.map                                138.94 KB
+ESM dist/setup-system-JI36YJ6D.js.map                         47.86 KB
+ESM dist/chunk-GERMRLJ2.js.map                                72.47 KB
+ESM dist/chunk-LV3CBXZB.js.map                                37.51 KB
+ESM dist/chunk-J5QDGRZ7.js.map                                152.65 KB
+ESM dist/chunk-D4HDZEJT.js.map                                71.00 B
+ESM dist/chunk-65QWMODG.js.map                                5.91 KB
+ESM dist/chunk-M7DMFIKU.js.map                                170.08 KB
+ESM dist/chunk-OR5ZVGLG.js.map                                315.33 KB
+ESM dist/server-H754TA4Q.js.map                               80.68 KB
+ESM dist/self-36ULRIJ6.js.map                                 53.99 KB
+ESM dist/skills-command-IGDVLNKY.js.map                       44.87 KB
+ESM dist/chunk-YVSASZMT.js.map                                1.02 MB
+ESM dist/chunk-52FTNVXS.js.map                                1.66 MB
+ESM ⚡️ Build success in 111ms

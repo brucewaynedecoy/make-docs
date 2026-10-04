@@ -1,0 +1,78 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "budgetEvent": "W24-R0-P4-PERF-003-B1",
+  "authorizingScope": "User-authorized W24 R0 P4 implementation",
+  "activatedAt": "2026-10-03T23:03:37.917Z",
+  "limits": {
+    "passes": 1,
+    "corrections": 1,
+    "reviews": 2,
+    "elapsedMs": 5400000,
+    "launches": 60,
+    "listCalls": 720,
+    "externalSpend": 0,
+    "paidModelRequests": 0
+  },
+  "consumed": {
+    "passes": 1,
+    "corrections": 1,
+    "reviews": 1,
+    "launches": 30,
+    "listCalls": 360,
+    "externalSpend": 0,
+    "paidModelRequests": 0,
+    "elapsedMs": 200006.82208299998
+  },
+  "remaining": {
+    "passes": 0,
+    "corrections": 0,
+    "reviews": 1,
+    "elapsedMs": 5199993.177917,
+    "launches": 30,
+    "listCalls": 360,
+    "externalSpend": 0,
+    "paidModelRequests": 0
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "scope": "Activation/fingerprint setup",
+      "affectedChecks": [
+        "runtime source-root qualification"
+      ],
+      "launches": 0,
+      "listCalls": 0,
+      "outcome": "blocked",
+      "evidence": "attempt-01-problem.json"
+    },
+    {
+      "attempt": 2,
+      "scope": "One complete same-build six-profile characterization pass after source-root correction",
+      "affectedChecks": [
+        "source-root fingerprint",
+        "tool-definition size",
+        "fresh-process startup",
+        "warm tools list",
+        "warm resources list"
+      ],
+      "correction": true
+    }
+  ],
+  "unchangedEvidenceReused": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p3/source-identity-final.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/stage-1-summary-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/runtime-identity-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/focused-attempt-2.txt",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/fixture-after-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/raw-comparison-qualification.json"
+  ],
+  "stopReason": "Exact declared sample count complete. No unchanged rerun or value-driven extra sample.",
+  "escalation": "None.",
+  "activeCorrectionAuthorization": "The sole correction is spent. No extension or additional rerun."
+}

@@ -1,0 +1,58 @@
+{
+  "coordinate": "W24 R0 P4",
+  "capturedAt": "2026-10-03T23:23:16.374Z",
+  "passed": true,
+  "method": "Affected-only review after output creation and one closeout-note correction.",
+  "prior": "doc-checks-attempt-1.json",
+  "priorOutcome": "failed: two result files were not yet written",
+  "priorFailureCount": 2,
+  "priorCheckDisposition": "Retain the first result. Both missing targets now exist. Reuse its unchanged link, anchor, placeholder, P1-P3 prefix, canonical plan, and scope checks.",
+  "priorCheckedLinks": 175,
+  "unchangedDocumentHashes": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md",
+    ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md"
+  ],
+  "changedDocument": "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md",
+  "changedScope": "One closeout-note paragraph; inverse replacement exactly matches the earlier hash.",
+  "affectedTargets": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/prd-authority-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/performance-structure-disposition.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/doc-checks-final.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/path-hygiene-attempt-2.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/doc-checks-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/review/path-hygiene-attempt-1.json"
+  ],
+  "outputExistenceCheck": "The final record is written exclusively, then its own linked path is checked before exit.",
+  "pathCheck": "path-hygiene-attempt-2.json",
+  "pathOutcome": {
+    "checkedFiles": 4,
+    "valid": true,
+    "findings": 0,
+    "ioErrors": 0
+  },
+  "historyScope": {
+    "path": ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md",
+    "checks": "Unchanged local-link, anchor, placeholder, safe relative file path and hash proof from the first doc check.",
+    "protectedArchiveOperationInputRejected": true
+  },
+  "performanceFinalLinks": {
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-result-final.json": "6fd4af4ddcc792f836da2c0d72b9a4bb70d4a1bf7640f26d66109380f2aeef4c",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/performance/attempt-02-ledger-final.json": "1a87a714ab8afb15740b4d9f1fdb7114d6f275f2241cdde70ed09c8c88ae74cf"
+  },
+  "hashes": {
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md": "3c7f662c21c61bc7be64f2ce0b3179409e0986230ccda0439cbdb8cbcee23dae",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md": "b200ee241273a6e3598dcb26b3ad08b7a93ed4c1903e86fcd35473c7a4f0ff39",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md": "b9d38a591b324e5235acc478361f66f3fa137e5f0aa38a11d47c954c0f93111a",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md": "8718c1bdd406cac1052899d204cc949d0165e890043f68edbc8abfb644b9adb6",
+    ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md": "fec7ec0398d3d39ad5a171b2e465f47dc9372e5415a74aa0f6865802a1a4a5a1"
+  },
+  "canonicalPlanUnchanged": true,
+  "canonicalPlanSha256": "ccf36e322e2535cb8b1762aab567ff1c466aa51d97e082926d6aeea1807b1bdb",
+  "perf003SourceDigest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+  "p1P2P3EvidenceUnchanged": true,
+  "diffCheck": "",
+  "noRuntimeRerun": true,
+  "noBroadValidationRerun": true
+}

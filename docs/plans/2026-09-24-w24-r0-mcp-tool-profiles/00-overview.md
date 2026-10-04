@@ -1,13 +1,13 @@
 ---
 title: "W24 R0 MCP Tool Profiles Plan"
 kind: "plan"
-status: "in-progress"
+status: "complete"
 coordinate: "W24 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The current PRDs own profile requirements. The work backlog owns phase order and acceptance."
-  coordinate_handoff: "W24 R0 P1, P2, and P3 are complete. P4 preparation is complete. The fixed compatibility baseline, canonical PERF-003 profile, finite unrun packet, and four testing decisions are ready. P4 implementation is next under separate authority. W24 remains incomplete. W25 owns UI registration and rendering."
+  coordinate_handoff: "W24 R0 P1-P4 and the local W24 phase package are complete. The owner authorized P4 closeout and commit on 2026-10-03. The P4 evidence retains local proof and its limits. PERF-003 current-use proof expired at closeout and remains a historical baseline. W25 owns UI registration and rendering under separate authority."
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "none"
@@ -39,7 +39,7 @@ The agent records a Human Experience Review from the built CLI help, profile lis
 
 ## Performance Evidence Plan
 
-Tool-description context and startup/discovery latency are `characterize-now` candidates from the [design](../../designs/2026-09-24-mcp-tool-profiles.md). Both bind to one canonical [PERF-003 v1 profile](04-compatibility-and-validation.md#perf-003-profile-context-and-stdio-discovery) in the P4 plan. The [P4 work packet](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md#performance-execution-packet) binds the finite unrun execution without copying profile authority. Separate P4 implementation authority must activate the budget. Do not promote local measurements to a product target, model-token claim, installed-host acceptance, or wider support claim.
+Tool-description context and startup/discovery latency are `characterize-now` candidates from the [design](../../designs/2026-09-24-mcp-tool-profiles.md). Both bind to one canonical [PERF-003 v1 profile](04-compatibility-and-validation.md#perf-003-profile-context-and-stdio-discovery) in the P4 plan. The [P4 work packet](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md#performance-execution-packet) binds the completed finite local execution without copying profile authority. The retained P4 result and ledger record the consumed budget and limits. Current-use proof expired at P4 closeout and remains a historical baseline. Closeout grants no new run, correction, review, or qualification budget. Do not promote local measurements to a product target, model-token claim, installed-host acceptance, or wider support claim.
 
 ## Coordinate Decision
 
@@ -55,7 +55,7 @@ The output is an authoritative PRD maintenance package. Keep current requirement
 
 ## Execution Mode And Phase Map
 
-PRD 25 and PRD 39 contain the profile rules. P1, P2, and P3 are complete as of 2026-10-03. Use the [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) as the phase execution source. P4 preparation is complete. P4 implementation is next under separate authority. The full W24 capability remains incomplete.
+PRD 25 and PRD 39 contain the profile rules. P1-P4 and the local W24 phase package are complete as of 2026-10-03. The owner authorized P4 closeout and commit. The [work backlog](../../work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md) records the completed phase order. The eight P4 tasks, local evidence, and limits are in the [central P4 record](../../work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md#w24-r0-p4-compatibility-and-evidence). W25 UI, installed-host acceptance, release, HTTP, model tokens, and fully allowed Store-write proof remain separate.
 
 | Phase | Plan | Result |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ Require profile assignment completeness, exact `all` union, stable tool names an
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: implement [P4: Compatibility and evidence](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md) when separately authorized. Bind the prepared packet before any measurement.
+- Next step: use the completed [P4: Compatibility and evidence](../../work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md) as the local W24 handoff. Start W25 work only under its own authority. Keep the historical proof and its exact limits.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The current PRDs own profile requirements. The work backlog owns phase order and acceptance.
-- Coordinate Handoff: W24 R0 P1, P2, and P3 are complete. P4 preparation is complete. The fixed compatibility baseline, canonical PERF-003 profile, finite unrun packet, and four testing decisions are ready. P4 implementation is next under separate authority. W24 remains incomplete. W25 owns UI registration and rendering.
+- Coordinate Handoff: W24 R0 P1-P4 and the local W24 phase package are complete. The owner authorized P4 closeout and commit on 2026-10-03. The P4 evidence retains local proof and its limits. PERF-003 current-use proof expired at closeout and remains a historical baseline. W25 owns UI registration and rendering under separate authority.

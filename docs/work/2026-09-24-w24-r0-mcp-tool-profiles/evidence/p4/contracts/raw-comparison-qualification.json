@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "historicalDefaultExact": true,
+  "currentDefaultAllExact": true,
+  "fields": [
+    "tools",
+    "resources",
+    "reads"
+  ],
+  "normalizationCount": 0,
+  "correction": "The initial analysis normalized possible root strings but none occurred in wire values. Physical runtime/provider roots differ in launch manifests only. Native metadata has no physical provider root. Exact raw wire equality is the final claim.",
+  "newServerLaunches": 0,
+  "newTests": 0
+}

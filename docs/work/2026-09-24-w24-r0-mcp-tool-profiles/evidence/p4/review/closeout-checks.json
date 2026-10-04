@@ -1,0 +1,84 @@
+{
+  "coordinate": "W24 R0 P4",
+  "capturedAt": "2026-10-04T02:18:47.560Z",
+  "passed": true,
+  "authority": "Owner request to complete the affected SDK probe, then close out and commit P4.",
+  "phaseStatus": "complete",
+  "w24Status": "local phase package complete",
+  "checkedPaths": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md",
+    ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md"
+  ],
+  "checkedLinks": 187,
+  "failures": [],
+  "allEightTasksComplete": true,
+  "documentHashes": {
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md": "38a3c9af15141952ca923b3780255baf636ebc0efd043f0719ff66af48b78eff",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md": "7682ffca86d342e33a5ffef52df3efa794f63aa6c2197c1d4e35df7ef7947927",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md": "cacbfaaf02ccce4537b8a1dd471c36385a3f58294dc976751c4fa7cacc1a15a2",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md": "abcdfbdac035fb4027488cf57a1a67dfedaaf8dfc6aaefc593ffa03d04bf1b32",
+    ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md": "4dd3d4bcd507294dd565d462071faafd397197bf07faeb4ad3bb416fa016187a"
+  },
+  "runtimeBinding": {
+    "sourceCommit": "cced2bcbb71a4380e1dfbc10b7e2ef549dc271a2",
+    "preparationBase": "5162f1c7c918cf6c7c82cf443d178d35c3f2e836",
+    "verifiedSourceFiles": 19,
+    "p3BuildFiles": 20,
+    "currentBuildAndMapFiles": 40,
+    "lockSha256": "562a373c459023633d04e4fec62bf5b3c4d6e9a4e3e4d55aba6fe5130fdff784",
+    "runtimeIdentitySha256": "290a5124750b9632cf271f81b0800e3b892cde3d01c9f01753228aee19582de8",
+    "sourceBuildLockExact": true
+  },
+  "reusedProof": {
+    "focusedTests": "contracts/focused-attempt-2.txt",
+    "focusedPasses": 9,
+    "originalEightVariants": "contracts/stage-1-summary-attempt-1.json",
+    "historicalRawComparison": "contracts/raw-comparison-qualification.json",
+    "historicalNormalizationCount": 0,
+    "performanceResult": "performance/attempt-02-result-final.json",
+    "performanceLedger": "performance/attempt-02-ledger-final.json",
+    "guidedHumanReview": "review/guided-and-human-review-attempt-1.json",
+    "prdAuthority": "review/prd-authority-attempt-1.json",
+    "prdReuseReason": "PRD files, owning requirements, operation source, and build are unchanged; scoped current authority links pass.",
+    "performanceStructure": "review/performance-structure-disposition.json",
+    "globalPerformanceErrors": 17,
+    "globalErrorsScope": "Existing unchanged W23 only; no W24 errors."
+  },
+  "newAffectedProbe": {
+    "summary": "contracts/wire-write-attempt-2-summary.json",
+    "qualification": "contracts/wire-write-attempt-2-qualification.json",
+    "passed": true,
+    "launches": 2,
+    "calls": 6,
+    "earlierBudgetsReset": false,
+    "noProductDefect": true
+  },
+  "pathCheck": "path-hygiene-closeout.json",
+  "historyCheck": "Separate local relative paths, links, anchors, placeholders, complete status, and exact commit body extraction.",
+  "canonicalPlanUnchanged": true,
+  "canonicalPlanSha256": "ccf36e322e2535cb8b1762aab567ff1c466aa51d97e082926d6aeea1807b1bdb",
+  "perf003SourceDigest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+  "p1P2P3EvidenceUnchanged": true,
+  "performanceExpiry": "Current-use proof expired at P4 closeout; historical baseline only. No new run/correction/review/qualification authority.",
+  "diffCheck": "",
+  "trackedChangeAllowlist": [
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md"
+  ],
+  "stagedFiles": [],
+  "commitSubject": "feat: [W24 R0 P4] MCP Tool Profiles - Compatibility And Evidence",
+  "commitBody": "Completed W24 R0 P4 and closed the local W24 phase package under the owner's approval. Added nine focused tests for shared contracts, Store-free results, write gates, and Store admission while preserving the P3 runtime and build. Retained eight SDK variants with 289 native reads and exact historical/default/all equality, one bounded PERF-003 v1 pass with 30 sequential launches and 360 list calls, and a newly authorized complete-input probe with two SDK launches and six write-gate/Store-admission calls. Updated the phase handoffs and retained the performance proof as a historical baseline after closeout; no fully allowed Store write, installed-host, release, model-token, HTTP, or W25 UI claim is made.",
+  "limits": [
+    "The first supplemental incomplete-input SDK script still exits 1 and proves input rejection only.",
+    "The newly authorized complete-input probe proves write gating and typed Store admission; no fully allowed Store write is claimed.",
+    "No installed-host, release, model-token, HTTP, W25 UI, publication, or push claim."
+  ],
+  "noMeasurementRerun": true,
+  "noRuntimeSuiteRerun": true,
+  "ownOutputCheck": "The final record is written exclusively, then its linked path is checked before exit."
+}

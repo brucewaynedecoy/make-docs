@@ -1,0 +1,55 @@
+{
+  "coordinate": "W24 R0 P4",
+  "scopedResult": "valid PERF-003; no W24 errors",
+  "globalExitCode": 1,
+  "globalErrorCount": 17,
+  "globalWarningCount": 55,
+  "globalErrorPaths": [
+    "docs/work/2026-09-18-w23-r0-backlog-review-and-reporting/05-incremental-review-cache-and-data-access.md",
+    "docs/work/2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md"
+  ],
+  "globalErrorDisposition": "Existing unchanged W23 findings remain outside current write scope. Do not claim global pass.",
+  "profile": {
+    "id": "PERF-003",
+    "version": "1",
+    "path": "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-validation.md",
+    "line": 62,
+    "targetClass": "characterization-baseline",
+    "canonicalOwner": "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-validation.md",
+    "fingerprintComparison": "not-comparable",
+    "fingerprintReason": "not-comparable` before execution because no timed run manifest or measured result exists. The activation record must classify the actual fingerprint and state its reason before comparison.",
+    "resultOutcome": null,
+    "status": "valid"
+  },
+  "scopedWarnings": [
+    {
+      "path": "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/02-filtered-tool-discovery.md",
+      "line": 65,
+      "code": "PERF-VAL-014",
+      "disposition": "warning is advisory; numeric evidence/effort statement, not a stricter executable product latency criterion",
+      "action": "Keep the one canonical PERF-003 link/packet and exact local claim. No W23 or P1-P3 evidence changes."
+    },
+    {
+      "path": "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md",
+      "line": 20,
+      "code": "PERF-VAL-014",
+      "disposition": "warning is advisory; numeric evidence/effort statement, not a stricter executable product latency criterion",
+      "action": "Keep the one canonical PERF-003 link/packet and exact local claim. No W23 or P1-P3 evidence changes."
+    },
+    {
+      "path": "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/04-compatibility-and-evidence.md",
+      "line": 41,
+      "code": "PERF-VAL-014",
+      "disposition": "warning is advisory; numeric evidence/effort statement, not a stricter executable product latency criterion",
+      "action": "Keep the one canonical PERF-003 link/packet and exact local claim. No W23 or P1-P3 evidence changes."
+    },
+    {
+      "path": "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md",
+      "line": 53,
+      "code": "PERF-VAL-014",
+      "disposition": "warning is advisory; numeric evidence/effort statement, not a stricter executable product latency criterion",
+      "action": "Keep the one canonical PERF-003 link/packet and exact local claim. No W23 or P1-P3 evidence changes."
+    }
+  ],
+  "method": "Agent review used current scoped authority and read-only structural result. No retry, benchmark, setup, or product target change."
+}
