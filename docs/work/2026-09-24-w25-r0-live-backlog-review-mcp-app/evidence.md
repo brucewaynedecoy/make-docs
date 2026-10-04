@@ -434,3 +434,25 @@ P3 is closed for shared source integration under the user's 2026-09-30 closeout 
 The source Skill keeps its current chat review and explicit-static path. Its references label the live route contract and payload as source definitions for later connection. Earlier P3 implementation authority did not include staging or commit. The new closeout authority includes staging the reviewed P3 file set and creating a local commit. Branch changes, installation, push, publication, release, and later-phase work remain outside that authority.
 
 The user prefers computer use or the built-in browser for future local-file reviews. This preference does not change the past browser restriction or create a new response or review gate. No browser workaround or new browser review was performed at closeout.
+
+## 2026-10-04: W24 Merge Handoff
+
+The user authorized the local W24 merge and this docs handoff. W25 R0 P1-P3 are closed. W24 R0 P1-P4 are closed. The earlier sections remain the history of those W25 phases. This dated section records the current branch state.
+
+The branch is `w25-r0-p1-live-delivery-contract`. Merge commit `26bdf1cea838b4e339abd967abe8f7e42e9bf97c` has parents `1ef2f1fe15b78b42f9277c20030af7711ce72dcb` (W25 P1-P3) and `b4c253c101bc353a1671cf70d10a282daf88a276` (local main and closed W24). Local main remains at `b4c253c1`. No push was made. The [W24 evidence](../2026-09-24-w24-r0-mcp-tool-profiles/evidence.md) and [P4 closeout history](../../../.make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md) retain the accepted profile scope and limits.
+
+The merged [server](../../../packages/cli/src/mcp/server.ts) preserves profile checks and filtering for tool lists, tool calls, native resource lists, and native resource reads. `runMcpServer` forwards the profile option to the factory. App proof resources remain opt-in. A nonempty proof resource list can start only with the default profile or explicit `all`. Each narrower profile is refused before proof bytes are read. An empty list keeps normal profile filtering and adds no UI capability. Write gates and access checks stay unchanged. The production backlog UI resource and live-review operations remain unregistered.
+
+The merge added 13 cases in the [MCP App contract tests](../../../packages/cli/tests/mcp-app-contract.test.ts). The retained focused run passed 201 tests across 10 files. The TypeScript check and CLI build passed. The source review passed with no open defect. It checked W24 profile paths, W25 proof resource opt-in, default no-app behavior, the all-only guard, option forwarding, access rules, reserved production UI scope, and the shared maintainer guide. This merge adds no domain rule that needs a new deterministic or agentic twin.
+
+The checks were run during the merge. This docs handoff reused them and did not repeat tests or the build. The logs are temporary files under `/tmp/make-docs-w25-w24-merge-tests.rwRfkB`. They are not durable project artifacts. Their recorded SHA-256 values are:
+
+| Log | SHA-256 | Result |
+| --- | --- | --- |
+| `focused-tests.txt` | `ae0a8fc245816184df0150bf2003fcfb21ffc7bc3ccfb834444bdd66668af749` | 201 tests passed in 10 files. |
+| `typecheck.txt` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | Passed with no output. |
+| `build.txt` | `ab75aace1c59ad50e0997c359a7e08f66d2392da95b7236fe6fa282a4b7877ca` | CLI build passed. |
+
+The merge commit keeps the source and test changes. The temporary logs support this local check record. They do not provide installed-host, release, HTTP, live Store-write, or broad host-support proof. The W24 PERF-003 results remain a historical local baseline. The merge and docs handoff do not qualify that baseline for current use or create a new performance budget.
+
+Next is [W25 R0 P4 preflight](04-backlog-profile-tools-and-ui-resource.md) against the integrated candidate at `26bdf1ce`. The P1-P3 and accepted W24 dependencies are met. P4 remains not started and needs separate implementation authority. Its first-step record work should bind this candidate, point the evidence handoff to the existing central report, and add the required Human Experience Review record. These are phase record updates. They require no new product decision or human response gate. This handoff does not implement P4 or register the production UI.

@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan."
-  coordinate_handoff: "Carry W25 R0 into phase history and commits, adding the active P coordinate."
+  coordinate_handoff: "W25 R0 P1-P3 are closed. W24 R0 P1-P4 are closed and merged into this branch at 26bdf1ce. Next is W25 R0 P4 preflight against the integrated candidate. P4 is not started and needs separate implementation authority."
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
@@ -52,7 +52,7 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 
 - Read phases in order.
 - Do not start any phase without separate owner authority.
-- P4 cannot start until W24 R0 supplies accepted MCP profile authority.
+- W24 R0 supplied accepted MCP profile authority. Its closed P1-P4 work is merged into this branch at `26bdf1ce`. Use this integrated candidate for W25 R0 P4 preflight.
 - P2 may run a bounded proof before W24 closes. It cannot create a parallel registry or profile system.
 - Keep the static report as an explicit option. Do not create it during live open or fallback.
 - Keep the snapshot Store-free. Keep cache writes best-effort and after full model validation.
@@ -61,12 +61,12 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 - Recheck branch, HEAD, dirty files, profile authority, package state, and concurrent work before each phase.
 - Never create or switch a branch or worktree without explicit user permission.
 - Create one central `evidence.md` only after evidence exists.
-- [Evidence report](evidence.md): P1 contracts, the bounded P2 host proof, and P3 shared-model checks and built-output review with exact limits.
+- [Evidence report](evidence.md): P1 contracts, the bounded P2 host proof, P3 shared-model checks, and the [2026-10-04 merge handoff](evidence.md#2026-10-04-w24-merge-handoff), with exact limits.
 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: complete the authorized P3 local closeout commit. P4 implementation needs separate owner authority and accepted W24 MCP profile authority.
+- Next step: run W25 R0 P4 preflight against the integrated candidate at `26bdf1ce`. W25 R0 P1-P3 and W24 R0 P1-P4 are closed. P4 is not started and needs separate implementation authority.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan.
-- Coordinate Handoff: Carry W25 R0 into phase history and commits, adding the active P coordinate.
+- Coordinate Handoff: W25 R0 P1-P3 are closed. W24 R0 P1-P4 are closed and merged into this branch at 26bdf1ce. Next is W25 R0 P4 preflight against the integrated candidate. P4 is not started and needs separate implementation authority.
