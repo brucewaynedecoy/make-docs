@@ -210,7 +210,7 @@ A failed cache write also does not invalidate the completed report. It only mean
 
 ## CLI and MCP operations
 
-The Make Docs CLI provides three related operations.
+The Make Docs CLI provides three snapshot and cache operations.
 
 Create the current deterministic snapshot:
 
@@ -254,6 +254,10 @@ Make Docs defines these shared CLI and MCP operations in product code outside th
 There is no single CLI command that performs the full agent review. The Skill coordinates snapshot, lookup, review, validation, cache write, and report rendering.
 
 There is also no dedicated cache `list`, `status`, or `clear` command. The read-only lookup operation is the supported way to inspect reuse for a current snapshot.
+
+The source registry also defines `backlog.review.open` and `backlog.review.refresh`. Their MCP names are `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`. They belong to the `backlog` profile and its exact `all` union. Open accepts `{report: BacklogReportV1}`. Refresh accepts `{envelope: BacklogLiveEnvelopeV1}`. Both reject unknown fields. Open validates the full report and returns useful text, a concise model summary, and full client data. It needs no Store access. Refresh reads the current snapshot before one optional exact cache lookup. That nested lookup retains the existing caller and Store gate. Refresh writes no review conclusion or cache entry.
+
+Both tools link `ui://make-docs/backlog-review/v1.html`. The source shell shows bounded result text and bridge state. It has no product tool, message, or task controls. Missing bridge support or oversized text gives a useful chat fallback. Product controls and the agent refresh flow remain later work. Tool success does not prove that a host displayed the app. Read [the delivery rules](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/review-method.md#select-one-delivery-route) before making a live claim.
 
 ## Validate the cache
 
@@ -310,6 +314,6 @@ The report model's `records` array has the same record-fragment shape. However, 
 
 The source uses one unchanged `BacklogReportV1` for static, chat, Data, and full live payload meaning. A separate `BacklogLiveEnvelopeV1` adds live identity. The portable static validator is generated from the shared report contracts. Local filters and other display state do not become authority or reduce exported data.
 
-The live payload builder supplies a concise model-visible summary and full client data. It writes no static report and does not open a host widget. Client-only metadata is readable by the host and client. It is not secure storage. Production live delivery, tools, widget behavior, and refresh remain planned work. The Skill still completes its chat review and creates a saved report only after an explicit request.
+The live payload builder supplies a concise model-visible summary and full client data. It writes no static report and does not open a host widget. Client-only metadata is readable by the host and client. It is not secure storage. P4 connects source tools and their UI resource to the shared registry. Product widget controls, live agent refresh flow, installed acceptance, and broader host support remain planned work. The Skill still completes its chat review and creates a saved report only after an explicit request.
 
 Read [the report model](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/report-model.md) for the shared boundaries and [the HTML guide](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/html-report.md) for the saved-file path and replacement consent. Cache rules and identities are unchanged.

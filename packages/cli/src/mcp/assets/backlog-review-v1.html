@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backlog Review</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px/1.5 system-ui, sans-serif; }
+    body { margin: 0; padding: 20px; }
+    h1 { font-size: 20px; }
+    p, pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Backlog Review</h1>
+  <p>This view shows the tool summary. Full live controls are planned for a later phase.</p>
+  <p id="status" role="status">Continue the review in chat. No task was created.</p>
+  <pre id="summary">The tool result contains the reviewed report and its limits.</pre>
+  <script>
+  (() => {
+    "use strict";
+    const status = document.getElementById("status");
+    const summary = document.getElementById("summary");
+    let ready = false;
+    let timer;
+    const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
+    const fallback = () => { ready = false; status.textContent = "The live view is unavailable. Continue the review in chat. No task was created."; };
+    window.addEventListener("message", event => {
+      if (event.source !== window.parent) return;
+      const data = event.data;
+      if (!object(data) || data.jsonrpc !== "2.0") return;
+      if (data.id === 1 && !data.method) {
+        clearTimeout(timer);
+        if (data.error || !object(data.result) || data.result.protocolVersion !== "2026-01-26") { fallback(); return; }
+        ready = true;
+        window.parent.postMessage({ jsonrpc: "2.0", method: "ui/notifications/initialized", params: {} }, "*");
+      } else if (data.method === "ui/notifications/tool-result" && ready) {
+        const result = data.params;
+        if (!object(result) || result.isError || !Array.isArray(result.content) || result.content.length !== 1 ||
+            !object(result.content[0]) || result.content[0].type !== "text" || typeof result.content[0].text !== "string" ||
+            result.content[0].text.length > 20000) { fallback(); return; }
+        summary.textContent = result.content[0].text;
+        status.textContent = "This is the tool summary. Continue the review in chat. Full live controls are planned. No task was created.";
+      } else if (data.method === "ui/notifications/tool-cancelled") fallback();
+    });
+    if (window.parent === window) { fallback(); return; }
+    timer = setTimeout(fallback, 5000);
+    window.parent.postMessage({ jsonrpc: "2.0", id: 1, method: "ui/initialize", params: {
+      protocolVersion: "2026-01-26", appInfo: { name: "Make Docs Backlog Review", version: "1.0.0" }, appCapabilities: {},
+    } }, "*");
+  })();
+  </script>
+</body>
+</html>

@@ -117,6 +117,7 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-14 (MUST): Store-free operations do not require a harness receipt, caller proof, or Store session. A receipt, path, environment value, package digest, or client label cannot widen access.
 - R-ACCESS-15 (MUST): a caller, executable, native-entry, approval, or policy mismatch stops only the affected operation and returns one typed result with one safe next action. Verification cannot repair state. Repair is a separate reviewed operation.
 - R-ACCESS-16 (MUST): CLI, machine-readable output, MCP, command-rule, permission-rule, and first-party extension routes use the same operation policy and typed result. Surface-specific adapters can narrow access but cannot change business meaning or bypass the platform, Store, identity, or recovery contracts.
+- R-ACCESS-17 (MUST): Store admission defaults to `required`. A read-only composite operation may declare `storeAdmission: optional` only with `mutates: read` and `access.store: read`. This defers outer Store admission so its Store-free source work can run first. Any nested Store operation still verifies the same current caller, connection method, approvals, and Store policy and opens its own Store session. Optional admission grants no Store permission. Optional cache denial or failure cannot erase successful current source facts or authorize a cache write.
 
 ### Asset and Config Boundaries
 
@@ -346,6 +347,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The planner preserves separate array-table elements and resolves assignments and nested normal tables against the current element. It permits repeated names across elements and keeps duplicates or table-kind conflicts inside one container blocked.
 - Rationale: Live W19 R2 setup used 21 valid `[[skills.config]]` elements and exposed a false conflict that blocked Codex MCP planning.
 - Source: [W19 R8 correction design note](../designs/2026-09-16-store-access-bootstrap-and-remediation.md#p1-correction--codex-toml-array-tables) and [P1 correction stage](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/01-store-access-bootstrap-and-remediation.md#stage-5---codex-toml-array-table-correction)
+
+### 2026-10-04 — W25 R0 P4
+
+- Date: 2026-10-04
+- Coordinate: W25 R0 P4
+- Affected requirement or section: `R-ACCESS-17` and `Current Caller and Generic MCP Admission`
+- Previous contract: Every Store-read operation required outer Store admission before its handler could perform independent source work.
+- Replacement contract: Required admission remains the default. A read-only Store-read composite can defer only outer admission. Its nested Store call retains the existing current-caller and Store gates. Available source facts remain available when optional cache access fails.
+- Rationale: Backlog refresh must read current project facts before one optional exact cache lookup. Cache reuse must not make a Store-free current review depend on Store setup or access.
+- Source: [P4 work](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/04-backlog-profile-tools-and-ui-resource.md) and [PRD 51 live MCP App requirements](51-backlog-review-and-reporting.md#live-mcp-app)
 
 ## Source Anchors
 

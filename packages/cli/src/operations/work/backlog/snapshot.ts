@@ -77,10 +77,15 @@ export class BacklogSnapshotError extends OperationError {
   readonly code = "BACKLOG-VAL-001";
   readonly ruleId = "BACKLOG-RULE-001";
 
-  constructor(message: string) {
+  constructor(message: string, readonly sourceReason: "source-unavailable" | "source-denied" | "source-unsafe" = "source-unavailable") {
     super(message);
     this.name = "BacklogSnapshotError";
   }
+}
+
+function sourceFailureReason(error: unknown): BacklogSnapshotError["sourceReason"] {
+  const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  return code === "EACCES" || code === "EPERM" ? "source-denied" : code === "ELOOP" ? "source-unsafe" : "source-unavailable";
 }
 
 function defaultGit(cwd: string, args: string[]): GitCommandResult {
@@ -166,6 +171,7 @@ function resolveSafeTargetRoot(input: string): string {
     if (stat.isSymbolicLink() || !stat.isDirectory()) {
       throw new BacklogSnapshotError(
         "The backlog target root must be one real, readable project directory. Symbolic-link roots are not accepted.",
+        "source-unsafe",
       );
     }
     accessSync(targetRoot, constants.R_OK);
@@ -174,6 +180,7 @@ function resolveSafeTargetRoot(input: string): string {
     if (error instanceof BacklogSnapshotError) throw error;
     throw new BacklogSnapshotError(
       `The backlog target root cannot be read safely: ${targetRoot}. Select a readable project directory.`,
+      sourceFailureReason(error),
     );
   }
   return targetRoot;
@@ -183,7 +190,7 @@ function assertInsideRoot(root: string, candidate: string, label: string): void 
   const relative = path.relative(root, candidate);
   if (relative === "" || relative === ".") return;
   if (relative.startsWith(`..${path.sep}`) || relative === ".." || path.isAbsolute(relative)) {
-    throw new BacklogSnapshotError(`${label} escapes the selected project root.`);
+    throw new BacklogSnapshotError(`${label} escapes the selected project root.`, "source-unsafe");
   }
 }
 
@@ -192,7 +199,7 @@ function assertNoSymlink(root: string, candidate: string, label: string): void {
   let current = candidate;
   while (current !== root) {
     if (lstatSync(current).isSymbolicLink()) {
-      throw new BacklogSnapshotError(`${label} passes through a symbolic link and cannot be inspected safely.`);
+      throw new BacklogSnapshotError(`${label} passes through a symbolic link and cannot be inspected safely.`, "source-unsafe");
     }
     current = path.dirname(current);
   }
@@ -856,6 +863,7 @@ export function buildBacklogSnapshot(
     if (error instanceof BacklogSnapshotError) throw error;
     throw new BacklogSnapshotError(
       "The backlog record roots cannot be read safely. Check access to docs/work and .make-docs/archive/work, then retry.",
+      sourceFailureReason(error),
     );
   }
   const run = seams.runGit ?? defaultGit;

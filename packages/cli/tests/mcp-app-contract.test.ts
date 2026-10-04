@@ -12,6 +12,7 @@ import * as nativeResources from "../src/mcp/resources";
 import { createMakeDocsMcpServer } from "../src/mcp/server";
 import { listMakeDocsMcpTools } from "../src/mcp/tools";
 import { MCP_PROFILES } from "../src/operations/mcp-metadata";
+import { BACKLOG_REVIEW_UI_RESOURCE } from "../src/mcp/resource-profiles";
 import { selectBacklogDelivery } from "../src/operations/work/backlog/live-contracts";
 import {
   createProofServer, HOSTILE_PROJECT_TEXT, PROOF_MESSAGE, PROOF_TOOL, PROOF_URI,
@@ -111,7 +112,7 @@ describe("P2 static MCP Apps resource boundary", () => {
       try {
         const native = await listNativeMcpResources(process.cwd(), { profile: "all" });
         const listed = (await protocol.client.listResources()).resources;
-        expect(listed.filter(item => item.uri !== PROOF_URI)).toEqual(native.resources);
+        expect(listed.filter(item => item.uri !== PROOF_URI && item.uri !== BACKLOG_REVIEW_UI_RESOURCE.uri)).toEqual(native.resources);
         expect(listed.find(item => item.uri === PROOF_URI)).toMatchObject({ uri: PROOF_URI, mimeType: MCP_APP_MIME_TYPE });
         expect((await protocol.client.readResource({ uri: PROOF_URI })).contents[0]).toMatchObject({ text: readProofHtml() });
         expect(await protocol.client.readResource({ uri: native.resources[0].uri })).toEqual(
@@ -146,14 +147,14 @@ describe("P2 static MCP Apps resource boundary", () => {
     expect(readText).not.toHaveBeenCalled();
   });
 
-  it.each(MCP_PROFILES)("keeps the ordinary %s profile filtered with no app resources", async profile => {
+  it.each(MCP_PROFILES)("keeps the ordinary %s profile filtered with no proof resources", async profile => {
     const protocol = await connect(createMakeDocsMcpServer({ profile, appResources: [] }));
     try {
       expect((await protocol.client.listTools()).tools.map(tool => tool.name)).toEqual(
         listMakeDocsMcpTools(process.cwd(), { profile }).map(tool => tool.name),
       );
       const native = await listNativeMcpResources(process.cwd(), { profile });
-      expect((await protocol.client.listResources()).resources).toEqual(native.resources);
+      expect((await protocol.client.listResources()).resources.filter(item => item.uri !== BACKLOG_REVIEW_UI_RESOURCE.uri)).toEqual(native.resources);
       expect(await protocol.client.readResource({ uri: native.resources[0].uri })).toEqual(
         await nativeResources.readNativeMcpResource(native.resources[0].uri, process.cwd(), { profile }),
       );
@@ -165,7 +166,8 @@ describe("P2 static MCP Apps resource boundary", () => {
       const hiddenTool = listMakeDocsMcpTools().find(tool => !visibleTools.some(visible => visible.name === tool.name))!;
       expect((await protocol.client.callTool({ name: hiddenTool.name, arguments: {} })).isError).toBe(true);
       await expect(protocol.client.readResource({ uri: PROOF_URI })).rejects.toThrow();
-      expect(protocol.client.getServerCapabilities()?.extensions).toBeUndefined();
+      expect(protocol.client.getServerCapabilities()?.extensions).toEqual(profile === "backlog"
+        ? { "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] } } : undefined);
     } finally { await protocol.close(); }
   });
 
@@ -174,7 +176,7 @@ describe("P2 static MCP Apps resource boundary", () => {
     const protocol = await connect();
     try {
       const listed = (await protocol.client.listResources()).resources;
-      expect(listed.filter(item => item.uri !== PROOF_URI)).toEqual(native.resources);
+      expect(listed.filter(item => item.uri !== PROOF_URI && item.uri !== BACKLOG_REVIEW_UI_RESOURCE.uri)).toEqual(native.resources);
       expect(listed.find(item => item.uri === PROOF_URI)).toMatchObject({ uri: PROOF_URI, mimeType: MCP_APP_MIME_TYPE });
       expect(protocol.client.getServerCapabilities()?.extensions).toEqual({
         "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] },
@@ -190,12 +192,12 @@ describe("P2 static MCP Apps resource boundary", () => {
     } finally { await protocol.close(); }
   });
 
-  it("leaves the default factory free of proof resources, tools, and UI claims", async () => {
+  it("leaves the default factory free of proof resources and tools while serving the review shell", async () => {
     const protocol = await connect(createMakeDocsMcpServer());
     try {
-      expect((await protocol.client.listResources()).resources.some(item => item.uri.startsWith("ui://"))).toBe(false);
+      expect((await protocol.client.listResources()).resources.filter(item => item.uri.startsWith("ui://")).map(item => item.uri)).toEqual([BACKLOG_REVIEW_UI_RESOURCE.uri]);
       expect((await protocol.client.listTools()).tools.some(tool => tool.name === PROOF_TOOL)).toBe(false);
-      expect(protocol.client.getServerCapabilities()?.extensions).toBeUndefined();
+      expect(protocol.client.getServerCapabilities()?.extensions).toEqual({ "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] } });
     } finally { await protocol.close(); }
   });
 

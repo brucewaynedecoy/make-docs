@@ -25,6 +25,8 @@ export interface McpToolMetadata {
   profiles: McpProfile[];
   /** Host advice. This field does not hide or authorize a tool. */
   defaultExposure: "eager" | "deferred";
+  /** Static UI resource reference. It does not grant tool or Store access. */
+  uiResourceUri?: string;
 }
 
 /** Fail catalog construction instead of silently omitting an unassigned tool. */
@@ -50,8 +52,13 @@ export function assertMcpToolMetadata(
   if (defaultExposure !== "eager" && defaultExposure !== "deferred") {
     throw new Error(`MCP tool ${owner} must declare eager or deferred default exposure.`);
   }
+  const uri = (metadata as Record<string, unknown>).uiResourceUri;
+  if (uri !== undefined && (typeof uri !== "string" || !/^ui:\/\/[a-z0-9][a-z0-9.-]*(?:\/[a-z0-9][a-z0-9-]*)*\/v[1-9][0-9]*\.html$/.test(uri))) {
+    throw new Error(`MCP tool ${owner} must reference a versioned UI resource URI.`);
+  }
 }
 
 export function cloneMcpToolMetadata(metadata: McpToolMetadata): McpToolMetadata {
-  return { profiles: [...metadata.profiles], defaultExposure: metadata.defaultExposure };
+  return { profiles: [...metadata.profiles], defaultExposure: metadata.defaultExposure,
+    ...(metadata.uiResourceUri ? { uiResourceUri: metadata.uiResourceUri } : {}) };
 }

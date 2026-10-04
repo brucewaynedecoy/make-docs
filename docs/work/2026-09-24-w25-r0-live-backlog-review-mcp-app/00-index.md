@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan."
-  coordinate_handoff: "W25 R0 P1-P3 are closed. W24 R0 P1-P4 are closed and merged into this branch at 26bdf1ce. Next is W25 R0 P4 preflight against the integrated candidate. P4 is not started and needs separate implementation authority."
+  coordinate_handoff: "W25 R0 P1-P4 and W24 R0 P1-P4 are closed. Accepted W24 authority is merged at 26bdf1ce. The user authorized W25 R0 P4 closeout and a local commit on 2026-10-04. P5 is next eligible and needs separate implementation authority."
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
@@ -24,6 +24,8 @@ The user authorized P1 implementation on 2026-09-30. The user then authorized P1
 The user separately authorized P2 implementation on 2026-09-30. It uses the current branch after P1 commit `2a8fc509`. The user then authorized P2 closeout and a local commit on that date. This includes staging the reviewed P2 file set. P3 and later phases, push, publication, installation, and release remain outside that authority.
 
 The user separately authorized P3 implementation on 2026-09-30. Its tested source checkpoint uses the current branch after P2 commit `0c112e57`. The user then authorized P3 closeout and a local commit on that date. This includes staging the reviewed P3 file set. These records belong to the P3 phase closeout commit. P3 keeps the unchanged V1 report and separate P1 live envelope. P4 and later phases, branch changes, push, publication, installation, and release remain outside that authority.
+
+The user separately authorized P4 implementation on 2026-10-04. Its tested source checkpoint uses the current branch at `bdd21481`. Accepted W24 authority is merged at `26bdf1ce`, from W24 completion `b4c253c1`. The user then authorized P4 closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. P4 is closed with A25-A32 evidence. These records belong to the P4 phase closeout commit. Its scope is shared tool/resource integration and useful no-UI results. P5 is next eligible and needs separate implementation authority. Later phases, branch changes, push, publication, installation, release, Store writes, and host changes remain outside this authority.
 
 ## Human Experience Trace
 
@@ -43,7 +45,7 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 | P1 | Closed: source contracts | [Authority and Live Delivery Contract](01-authority-and-live-delivery-contract.md) | Tested pure delivery, model, action, and fallback contracts. Live integration remains later work. |
 | P2 | Closed: bounded host proof | [Host and Transport Proof](02-host-and-transport-proof.md) | Claude Desktop `2.16120.0` passed the unshipped resource, tool, fixed message, capability, stdio, and fallback proof. Temporary host setup was restored. Production integration remains later work. |
 | P3 | Closed: shared source model | [Shared Model and Dual Renderer](03-shared-model-and-dual-renderer.md) | Unchanged V1 with the separate P1 envelope, shared static rendering, concise chat/live payloads, and exact meaning parity. User-authorized closeout and local commit. No production live widget is claimed. |
-| P4 | Not started | [Backlog Profile Tools and UI Resource](04-backlog-profile-tools-and-ui-resource.md) | Two derived tools and one versioned UI resource in the accepted profiles. |
+| P4 | Closed: source tools and resource | [Backlog Profile Tools and UI Resource](04-backlog-profile-tools-and-ui-resource.md) | Two shared read-only operations, derived tools, useful no-UI results, and one versioned UI resource in the accepted W24 profiles. A25-A32 pass. User-authorized closeout and local commit. Product widget behavior remains later work. |
 | P5 | Not started | [Live Widget and Local Interaction](05-live-widget-and-local-interaction.md) | Accepted report UX in a live widget with local display controls. |
 | P6 | Not started | [Refresh Cache and Agent Actions](06-refresh-cache-and-agent-actions.md) | Safe refresh, cache reuse, agent review, and explicit task-request flow. |
 | P7 | Not started | [Parity Performance and Acceptance](07-parity-performance-and-acceptance.md) | One accepted package candidate with installed, performance, accessibility, and Human Experience evidence. |
@@ -52,7 +54,7 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 
 - Read phases in order.
 - Do not start any phase without separate owner authority.
-- W24 R0 supplied accepted MCP profile authority. Its closed P1-P4 work is merged into this branch at `26bdf1ce`. Use this integrated candidate for W25 R0 P4 preflight.
+- W24 R0 supplied accepted MCP profile authority. Its closed P1-P4 work is merged into this branch at `26bdf1ce`. P4 implementation uses that existing registry and profile model.
 - P2 may run a bounded proof before W24 closes. It cannot create a parallel registry or profile system.
 - Keep the static report as an explicit option. Do not create it during live open or fallback.
 - Keep the snapshot Store-free. Keep cache writes best-effort and after full model validation.
@@ -61,12 +63,12 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 - Recheck branch, HEAD, dirty files, profile authority, package state, and concurrent work before each phase.
 - Never create or switch a branch or worktree without explicit user permission.
 - Create one central `evidence.md` only after evidence exists.
-- [Evidence report](evidence.md): P1 contracts, the bounded P2 host proof, P3 shared-model checks, and the [2026-10-04 merge handoff](evidence.md#2026-10-04-w24-merge-handoff), with exact limits.
+- [Evidence report](evidence.md): P1 contracts, the bounded P2 host proof, P3 shared-model checks, the [2026-10-04 merge handoff](evidence.md#2026-10-04-w24-merge-handoff), and [P4 implementation state](evidence.md#p4-implementation-state), with exact limits.
 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: run W25 R0 P4 preflight against the integrated candidate at `26bdf1ce`. W25 R0 P1-P3 and W24 R0 P1-P4 are closed. P4 is not started and needs separate implementation authority.
+- Next step: W25 R0 P5 is eligible after the authorized P4 local commit. Its implementation needs separate user authority. W25 R0 P1-P4 and W24 R0 P1-P4 are closed.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan.
-- Coordinate Handoff: W25 R0 P1-P3 are closed. W24 R0 P1-P4 are closed and merged into this branch at 26bdf1ce. Next is W25 R0 P4 preflight against the integrated candidate. P4 is not started and needs separate implementation authority.
+- Coordinate Handoff: W25 R0 P1-P4 and W24 R0 P1-P4 are closed. Accepted W24 authority is merged at `26bdf1ce`. The user authorized W25 R0 P4 closeout and a local commit on 2026-10-04. P5 is next eligible and needs separate implementation authority.

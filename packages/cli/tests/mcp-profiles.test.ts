@@ -35,7 +35,7 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "uat_evidence_reference_validate", "uat_finding_validate", "uat_persona_resolve",
     "uat_result_validate", "uat_scenario_validate", "uat_target_validate",
   ],
-  backlog: ["work_backlog_cache_lookup", "work_backlog_cache_write", "work_backlog_snapshot"],
+  backlog: ["backlog_review_open", "backlog_review_refresh", "work_backlog_cache_lookup", "work_backlog_cache_write", "work_backlog_snapshot"],
 };
 
 describe("W24 R0 P1 MCP metadata", () => {
@@ -44,11 +44,11 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 43 ready tools exactly as reviewed, with all equal to the intent union", () => {
+  test("assigns all 45 ready tools, including the W25 review pair, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(43);
-    expect(new Set(names).size).toBe(43);
+    expect(names).toHaveLength(45);
+    expect(new Set(names).size).toBe(45);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

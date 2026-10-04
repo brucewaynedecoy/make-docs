@@ -15,6 +15,8 @@ P1 is source-level contract evidence. P2 is now complete as a bounded source and
 
 The user separately authorized P3 implementation on 2026-09-30. Its tested source checkpoint uses the same branch after P2 commit `0c112e57`. The user then authorized P3 closeout and a local commit on that date. P3 is closed for shared source integration. These records belong to the P3 phase closeout commit. All 147 affected tests, 53 default checks, and the type check pass. Final mixed, small, limited, and large output comparisons preserve report meaning and accepted layout. Required agent review finds no material gap within the local browser limit. The owner's optional feedback was “Clear; no change” on an earlier generated sample. No production live widget or new browser review is claimed.
 
+The user separately authorized P4 implementation on 2026-10-04 after accepted W24 authority was merged at `26bdf1ce`. Its tested source checkpoint uses the current branch, based on `bdd21481`. The user then authorized P4 closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. P4 is closed for source tool/resource integration and useful no-UI output. These records belong to the phase closeout commit. Tasks t1-t6 and A25-A32 pass. The selected evidence covers 541 unique cases across bounded runs, type and build checks, asset drift checks, and independent output review. Required agent Human Experience Review found no material gap within that scope. Full product widget and host behavior remain P5-P7 work. P5 is next eligible and needs separate implementation authority.
+
 ## P1 Tested State
 
 - Date: 2026-09-30.
@@ -456,3 +458,199 @@ The checks were run during the merge. This docs handoff reused them and did not 
 The merge commit keeps the source and test changes. The temporary logs support this local check record. They do not provide installed-host, release, HTTP, live Store-write, or broad host-support proof. The W24 PERF-003 results remain a historical local baseline. The merge and docs handoff do not qualify that baseline for current use or create a new performance budget.
 
 Next is [W25 R0 P4 preflight](04-backlog-profile-tools-and-ui-resource.md) against the integrated candidate at `26bdf1ce`. The P1-P3 and accepted W24 dependencies are met. P4 remains not started and needs separate implementation authority. Its first-step record work should bind this candidate, point the evidence handoff to the existing central report, and add the required Human Experience Review record. These are phase record updates. They require no new product decision or human response gate. This handoff does not implement P4 or register the production UI.
+
+
+## P4 Implementation State
+
+The user authorized P4 implementation on 2026-10-04. The source-guide agent verified branch `w25-r0-p1-live-delivery-contract`, HEAD `bdd21481497cd78d53baa445dff8c8bbc21c7211`, and a clean working tree before its first edits. Accepted W24 authority was merged at `26bdf1ce`, from W24 completion `b4c253c1`. The dated merge handoff above remains historical evidence.
+
+The initial P4 work, plan, and index updates preserve t1-t6 and A25-A32. They bind the accepted W24 dependency and the user's implementation authority. P4's current claim is shared tool/resource integration, read-only access, exact profile membership, and useful output without UI. Product widget controls, host display, refresh review flow, installed acceptance, and broader host support remain later work.
+
+The records use the PRD 50 common decision fields. Automated Implementation Testing is required with a finite affected-first pass and gate effect `blocking-claim-only`. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`, each with a zero-run budget. Required Human Experience Review is separate agent work. It records observations, conclusions, limits, reviewer, and next actions from actual results. No owner response gate or new obligation is created.
+
+The initial PRD authority command `make-docs run prd authority validate --target-root .` passed: 35 PRDs, 586 Markdown source files, 1,103 links, and zero diagnostics. `git diff --check` passed after the first-step edits. These record-only checks did not establish P4 implementation acceptance. The implementation evidence below supplies the later proof.
+
+At the implementation checkpoint, the final source and tests were frozen and uncommitted. Tasks t1-t6 and A25-A32 had evidence below. That authority did not permit phase closeout, history creation, or a local commit. The user later authorized those steps on 2026-10-04. P4 is closed. These records belong to the P4 phase closeout commit. The tested checkpoint remains the earlier source state based on `bdd21481`.
+
+The earlier implementation authority did not permit staging or commit. The closeout instruction now authorizes staging the reviewed P4 file set and a local commit. It does not authorize a new host review, Store write, installation, push, publication, release, branch change, or P5 work.
+
+## P4 Implementation Evidence
+
+### Scope and result boundary
+
+P4 uses the unchanged V1 report and separate P1 live envelope. Open takes only `{report: BacklogReportV1}`. Refresh takes only `{envelope: BacklogLiveEnvelopeV1}`. Both inputs reject unknown fields. Their schemas live in `packages/cli/src/operations/work/backlog/review-contracts.ts`. Shared handlers live in `review-operation.ts`.
+
+Open creates a fresh opaque session and uses the P3 payload. Its useful narration and concise `structuredContent` orient the active agent. Complete client data stays in `_meta.backlog`. The MCP adapter validates the registered result schema and preserves that boundary. Client metadata is readable by the host and client. It is not secret storage.
+
+Refresh reads current source facts first. When the current snapshot is available, it invokes the existing exact cache lookup once with the same execution context. Optional outer Store admission is valid only for read-only Store-read operations. Required admission stays the default. The nested lookup retains its current-caller and Store gate and opens its own Store session. Optional admission grants no Store permission.
+
+The refresh client data preserves the prior envelope, current snapshot or null, exact P1 refresh result, and the existing cache result or typed limit. Model-visible data gives bounded prior orientation, source and review state, change counts, record counts, and cache counts or a clear limit. Refresh writes no cache entry or new agent conclusion.
+
+The tools use the paired versioned resource URI and strict result schema in the existing registry. The resource uses `text/html;profile=mcp-app`. Tool metadata links `_meta.ui.resourceUri`. This follows the [MCP Apps resource and tool pattern](https://modelcontextprotocol.io/extensions/apps/overview), checked by the coordinator on 2026-10-04. It adds no new access system or profile selector.
+
+The P4 shell accepts one text block of at most 20,000 characters. It uses safe text rendering and a bridge handshake. It has no product tool, message, or task controls. Its CSP domain lists are empty. Missing bridge support or oversized text gives chat fallback. Oversized text preserves the last displayed text with a limit. The shell does not establish a current rendered product review.
+
+### Independent no-UI output review
+
+The coordinator used Node `v24.19.0` and the project's `node_modules/.bin/tsx` to call open twice with `smallPresentationReport`. The output named Current, Attention, and Next. It kept inference and recommendation classes, high confidence, rationale, and source or owner limits. The two session IDs differed. Model identity stayed stable.
+
+The coordinator then called refresh on the fixture's known absent source root. Its text said: “Refresh unavailable (source-unavailable). The prior report is last known. Check source access, then refresh again.” It stated that cache was not attempted and no new conclusions were created. Prior-envelope equality was exact. The injected Store call count was zero.
+
+This review supports useful no-UI report delivery and an honest unavailable-source limit. Its source case is synthetic absence. It does not prove successful current-source reading, a rendered widget, a host interaction, or P5-P6 behavior. Focused operation tests supply the other source and cache cases.
+
+### Independent built stdio review
+
+The coordinator launched `node packages/cli/dist/index.js mcp --profile backlog` through the SDK's `StdioClientTransport` under Node `v24.19.0`. The probe exited zero.
+
+The built server exposed exactly five `backlog` tools: snapshot, cache lookup, cache write, live open, and live refresh. It exposed exactly one UI resource. The open definition linked `ui://make-docs/backlog-review/v1.html`. Resource read returned the MCP App MIME type, 2,741 HTML bytes, and four empty CSP domain lists.
+
+The open wire result retained Current, Attention, Next, rationale, and limits. Its concise `structuredContent` contained neither the full report nor `_meta`. Refresh on the absent synthetic source returned `source-unavailable` and `last-known`, with cache not attempted and no new conclusions. Prior-envelope equality was exact.
+
+This supports built stdio registration, resource delivery, and useful output without UI. It is not a rendered real-host view. The probe changed no configuration, Store, installed resource, task, or host state. The accepted P2 proof remains the separate bounded real-host evidence.
+
+### P4 acceptance
+
+| ID | Evidence and result | Limit |
+| --- | --- | --- |
+| A25 | Pass. Strict open input validates the complete V1 report. The P3 payload gives useful narration, concise model data, and complete client data. Direct and built stdio output preserve Current, Attention, Next, rationale, and limits. | No rendered host claim. |
+| A26 | Pass. Refresh runs the existing current snapshot first. On success, it invokes the exact existing cache lookup once with the same context. Tests cover unchanged, changed, source failures, and optional cache limits. Prior review data stays intact. No new conclusions or cache writes occur. | A new agent review flow remains P6. |
+| A27 | Pass. Open declares Store-none. Refresh declares read-only Store-read with optional outer admission. The nested lookup keeps the accepted current-caller and Store gate. A real caller-denial test preserves available source facts. | Optional admission grants no Store permission. |
+| A28 | Pass. Registry projections and MCP use the shared handlers. P1 identity/comparison, P3 presentation, and existing snapshot/cache logic remain their owners. CLI, core, and MCP checks find no duplicate backlog logic. | No new independent runtime route. |
+| A29 | Pass. Registry derivation exposes `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`. The built stdio probe sees both names and the linked resource metadata. | Tool exposure does not prove display. |
+| A30 | Pass. Resource read returns the versioned URI, MCP App MIME type, 2,741 HTML bytes, and four empty CSP domain lists. Tests cover safe text, missing bridge, oversized text, and generated-asset parity. | The shell has no product action controls. |
+| A31 | Pass. Profile and registry tests prove explicit assignment, the exact `all` union, unchanged access facts, and cloned UI metadata. Built `backlog` discovery sees five tools and one UI resource. | No permission, host, or installed support is inferred. |
+| A32 | Pass. Existing snapshot and cache operations retain their source, identity, lookup, and write logic. Refresh calls them through the shared operation context. No cache schema or storage rule changed. | The snapshot owner adds only typed source-cause preservation. |
+
+All six tasks have evidence through these eight cases. Required agent review follows below. P4 is closed under the user's 2026-10-04 closeout and local commit authority. These records belong to that phase closeout commit.
+
+### Automated implementation checks
+
+The code agent ran the changed behavior first and expanded to the shared registry, access, profile, resource, and source-loading boundaries after real failures. Final selected evidence covers 541 unique cases: 34 new focused cases, 454 affected cases, and 53 default checks. This is evidence across bounded runs and repairs. It is not one passing full-suite run.
+
+| Check | Final result |
+| --- | --- |
+| `npm test -w packages/cli -- tests/backlog-review-operations.test.ts` | 34 passed. Includes strict inputs/results, fresh sessions, exact cache invocation, source causes, optional cache limits, and real caller denial. |
+| Affected suite commands below | 454 unique cases passed across valid runs and the affected repair. |
+| `npm run validate:defaults -w packages/cli` | 53 passed: consistency 38, template links 12, package safety 3. |
+| `npx tsc --noEmit -p packages/cli/tsconfig.json` | Passed. |
+| `npm run build -w packages/cli` | Passed. |
+| `node packages/cli/scripts/build-mcp-app-assets.mjs --check` | Passed. Generated text matches canonical HTML bytes. |
+| `node packages/cli/scripts/build-backlog-presentation.mjs --check` | Passed. The accepted P3 portable runtime is unchanged. |
+| `git diff --check` | Passed for tracked changes. |
+| `git diff --no-index --check /dev/null <new-source-path>` | All seven new source files had no whitespace output. Exit one means a new-file difference in this mode. It was not a whitespace finding. |
+
+The first 26-suite affected command was:
+
+```text
+npm test -w packages/cli -- tests/backlog-contract.test.ts tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/backlog-snapshot.test.ts tests/mcp-app-contract.test.ts tests/mcp-profiles.test.ts tests/mcp-profile-discovery.test.ts tests/mcp-resource-profiles.test.ts tests/resource-mcp-profiles.test.ts tests/mcp-derivation.test.ts tests/mcp-profile-cli.test.ts tests/mcp.test.ts tests/registry-contract.test.ts tests/registry-work-ops.test.ts tests/p3-operation-surfaces.test.ts tests/run-cli.test.ts tests/run-cli-experience.test.ts tests/operation-domains.test.ts tests/operation-dependency-direction.test.ts tests/w19-r6-access-config.test.ts tests/w19-r6-harness-system-operations.test.ts tests/w19-r8-store-access-remediation.test.ts tests/store-lifecycle.test.ts tests/p6-global-store-lifecycle.test.ts
+```
+
+It returned 302 passed, five failed, and five collection failures. The run exposed a barrel/registry import cycle, raw HTML loading through the source stdio fixture, and catalog fixture changes. The code agent deferred the dispatcher import until refresh runs. It generated a TypeScript text asset from canonical HTML and added a byte-parity drift check. The resource needs no runtime file read.
+
+Independent review also found three gaps. The snapshot owner now preserves a narrow typed source cause instead of losing denied or unsafe reasons in a generic validation error. Cache-result parsing now stays inside the optional-cache catch. Derived UI metadata is cloned. Focused checks cover these repairs.
+
+The final 23-suite command was:
+
+```text
+npm test -w packages/cli -- tests/backlog-contract.test.ts tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts tests/mcp-profiles.test.ts tests/mcp-profile-discovery.test.ts tests/mcp-resource-profiles.test.ts tests/resource-mcp-profiles.test.ts tests/mcp-derivation.test.ts tests/mcp.test.ts tests/registry-contract.test.ts tests/registry-work-ops.test.ts tests/p3-operation-surfaces.test.ts tests/run-cli.test.ts tests/run-cli-experience.test.ts tests/operation-domains.test.ts tests/operation-dependency-direction.test.ts tests/w19-r6-access-config.test.ts tests/w19-r6-harness-system-operations.test.ts tests/w19-r8-store-access-remediation.test.ts tests/p6-global-store-lifecycle.test.ts
+```
+
+It returned 396 passed and two failed out of 398. The remaining failures were test fixtures. The domain fixture lacked the required UI URI/result-schema pair. The Skill test treated a valid URL fragment as part of the file path. The code agent corrected only those two test files. The final affected repair command passed all 18 cases:
+
+```text
+npm test -w packages/cli -- tests/operation-domains.test.ts tests/backlog-review-skill.test.ts
+```
+
+The other 380 passing cases in that final batch stayed valid at unchanged source bytes. Earlier passing `backlog-snapshot` 16, `mcp-profile-cli` 27, and `store-lifecycle` 13 cases supplied the remaining 56. Their owners and assertions had no later change. No broad reassurance rerun was needed after the final focused and affected repair passed.
+
+The seven new files checked for whitespace were the asset generator, canonical HTML, generated TypeScript asset, default app-resource registration, review contracts, review handlers, and focused test. Their exact paths are:
+
+```text
+packages/cli/scripts/build-mcp-app-assets.mjs
+packages/cli/src/mcp/assets/backlog-review-v1.html
+packages/cli/src/mcp/assets/backlog-review-v1.ts
+packages/cli/src/mcp/default-app-resources.ts
+packages/cli/src/operations/work/backlog/review-contracts.ts
+packages/cli/src/operations/work/backlog/review-operation.ts
+packages/cli/tests/backlog-review-operations.test.ts
+```
+
+### Tested source identities
+
+The tested checkpoint was the uncommitted P4 source on branch `w25-r0-p1-live-delivery-contract`, based on HEAD `bdd21481497cd78d53baa445dff8c8bbc21c7211`. Code and tests remain frozen after the final checks. The coordinator verified the built entry, HTML, generated text asset, and retained P3 identity. This is the explicit pre-commit checkpoint. It is not the identity of the later closeout commit.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `packages/cli/src/operations/work/backlog/review-contracts.ts` | 9,113 | `4b61c8a07b6333c1c64ed6b0eb805ce23c2bcc81dba2bef16e8e62e4e82c3b66` |
+| `packages/cli/src/operations/work/backlog/review-operation.ts` | 4,296 | `6dcb4cf9fc480c19881aecdcd11a0532abedb2d67189f83afa8d4dad50bc0c6c` |
+| `packages/cli/tests/backlog-review-operations.test.ts` | 24,707 | `30f5416d84808a3d980aae49fcb2a661eec29ac6471682a89547cbb8c9cf0322` |
+| `packages/cli/src/mcp/assets/backlog-review-v1.html` | 2,741 | `67fc86968c92e97316b78153e778856a16f0feb979988e4e6d75c678abf3b6df` |
+| `packages/cli/src/mcp/assets/backlog-review-v1.ts` | 2,950 | `8f0fcb7bb8095e39abdc158f65874368f730800da60f4eaa526877ecdf6e3b21` |
+| `packages/cli/scripts/build-mcp-app-assets.mjs` | 681 | `290e866bb306dff4597d0cfac96cc060d6238f4c604cd0432df73ab2056ad087` |
+| `packages/cli/dist/server-BG3TXQHU.js` | 24,487 | `04cb4b8d591faff02fe5ba18db270b86fb082924475d8285a203500e92841df9` |
+| `packages/cli/dist/index.js` | 211,248 | `9f15bb73486a225c96ea234ca2787b82397e5c1377e7d8662c466e8c40bdb6cc` |
+
+Built output is ignored and not staged. The accepted P3 portable `report-contract.mjs` remains `b8a45557bbbed21ef8085fd082b4e2757f1da3d31dc497b2e31a27f2d0937d8e`. No installed copy or package publication was changed.
+
+### Required agent Human Experience Review
+
+Reviewers: the coordinator for code, direct result, and built stdio observations; the source-guide agent for the guide, consent, error, authority, and phase-limit wording. This is required agent review. It is separate from the four testing types. No owner response or new obligation is required.
+
+| Promise | Observation | Conclusion | Limit and next useful action |
+| --- | --- | --- | --- |
+| A useful review remains available without a widget. | Direct and built open text retains Current, Attention, Next, rationale, claim classes, confidence, and limits. Concise model data excludes the full client report. | P4 supports an agent's current chat explanation without UI. | No lived-human ease or rendered host claim. P5 must prove product controls in the widget. |
+| Refresh keeps facts and conclusions distinct. | Focused source/cache cases preserve the prior model and exact P1 refresh states. Unavailable-source text says last known, no new conclusions, and a source retry step. | P4 gives an honest fact-refresh result. It does not invent a new review. | Actual output probe covers absent synthetic source. P6 must connect fresh agent review and controlled messages. |
+| Optional reuse does not block current facts or grant permission. | Current source work runs before one nested exact cache lookup. Tests preserve current facts on typed Store limits and invalid cache output. Real caller denial remains enforced. | Optional cache loss affects reuse only. Store authority is unchanged. | No production Store setup or write occurred. Repair Store access only when reuse is useful. |
+| Failure does not imply hidden file or task work. | Source guidance says chat fallback, direct saved-file requests, no created task, and no implicit host changes. The shell has no product tool/message/task controls. | Consent and fallback wording matches the implemented source scope. | No separate task or saved report was created. A direct user request remains necessary for either. |
+| Exposed tools and resource do not imply a displayed app. | Built stdio discovers the exact tools and resource. The shell shows bounded text and bridge state with safe fallback. Guides mark product controls and host proof as later work. | Source delivery is clear and bounded. | No new browser or real-host review occurred. Keep the accepted P2 proof separate. Use P5-P7 for full product and installed evidence. |
+
+The review found no material gap within P4's source tool/resource and useful no-UI promises. It does not establish independent use, discoverability, broad host support, or a completed live product. Performance Testing, Guided Progress Review, and Unassisted Goal Testing remain `not-needed-now` under the common decision record.
+
+### P4 coverage and remaining authority
+
+Upstream Skill and reference edits explain the two tools, complete client data, optional cache limits, the bounded shell, direct file/task control, and future product work. Chat and explicit static review remain usable without the CLI or Store. Installed Skill and system copies remain unchanged.
+
+PRD 25 now records optional outer Store admission with required admission as the default. PRD 39 records its strict descriptor bounds and paired UI URI/result schema. Their dated requirement histories link P4 and PRD 51. PRD 51 remains the product owner with no requirement change. No new PRD or parallel registry was added.
+
+P4 is closed. The user authorized closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. The [phase history](../../../.make-docs/archive/history/2026-10-04-w25-r0-p4-backlog-profile-tools-and-ui-resource.md) records that scope. These records belong to the closeout commit. Push, publication, installation, release, Store writes, host changes, branch changes, and P5 work remain outside current authority. P5 is next eligible and needs separate implementation authority.
+
+### P4 final document checks
+
+The final PRD authority command `make-docs run prd authority validate --target-root .` passed. It checked 35 PRDs, 586 source Markdown bodies, and 1,105 links with zero diagnostics.
+
+The selected path command passed for six normal project documents, with zero findings and zero writes:
+
+```text
+make-docs project path-hygiene validate --target-root . --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/04-backlog-profile-tools-and-ui-resource.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/04-backlog-profile-tools-and-ui-resource.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md --path docs/prd/39-cli-command-model-and-operation-registry.md --format text
+```
+
+The source-guide agent refreshed only the 11 changed Markdown paths with jdocmunch. It retrieved 34 relevant sections with `verify: true`. Each section had current source and content hashes. The scoped link result had zero broken links from those 11 files. This is a changed-file result, not a global link-clean claim.
+
+`git diff --check` passed after the implementation documentation edits. The coordinator also verified all seven new source files without whitespace findings. At that pre-commit checkpoint, branch and HEAD remained the tested base and the staging area was empty. No history, browser capture, installed update, commit, or P5 work was added during implementation. The closeout adds one required history under the new user authority. Its document checks follow below.
+
+### P4 closeout document checks
+
+The user authorized closeout and a local commit on 2026-10-04. The coordinator verified that frozen source, test, generated asset, built entry, and P3 portable hashes still match implementation evidence. Closeout reuses the 541 unique passing selected cases. No code test was rerun. Only the four working closeout records and one new history record changed in this pass.
+
+`make-docs run prd authority validate --target-root .` passed: 35 PRDs, 586 source Markdown bodies, 1,105 links, and zero diagnostics.
+
+The normal-path check passed for four files, with zero findings and zero writes:
+
+```text
+make-docs project path-hygiene validate --target-root . --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/04-backlog-profile-tools-and-ui-resource.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/04-backlog-profile-tools-and-ui-resource.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --format text
+```
+
+The canonical history check returned exit two:
+
+```text
+make-docs project path-hygiene validate --target-root . --path .make-docs/archive/history/2026-10-04-w25-r0-p4-backlog-profile-tools-and-ui-resource.md --format text
+Path check error: Invalid content path: .make-docs/archive/history/2026-10-04-w25-r0-p4-backlog-profile-tools-and-ui-resource.md
+```
+
+The public validator did not inspect that archive file. The valid routed history contract requires this canonical path. The record stays there. Manual contract and path review, current jdoc sections, scoped links, and the whitespace check support the history. No router or path-rule repair was made.
+
+The source-guide agent refreshed the five closeout paths and verified their current sections. All 12 Markdown files in the phase commit scope have zero scoped broken links. The history has the required headings, frontmatter, relative links, and a first Changes paragraph for the feature commit body.
+
+`git diff --check` passed. The new history check `git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-04-w25-r0-p4-backlog-profile-tools-and-ui-resource.md` had no whitespace output. Its exit one is the normal new-file difference in that mode.
+
+These records close P4 under the current local commit authority. They contain no future commit SHA. No source, guide, PRD, installed resource, Store, host setting, branch, or P5 change was made during closeout.

@@ -28,6 +28,8 @@ After combining hits and fresh record reviews, rebuild these values from the ful
 
 Never reuse a portfolio conclusion from cache.
 
+The source live refresh operation follows the same snapshot and lookup rules. Its optional outer Store admission lets current source facts run first. It calls the existing lookup once with the same execution context. That lookup still checks the current caller, approvals, and Store policy and opens its own Store session. Optional admission does not grant access. Cache refusal, failure, or invalid output limits reuse only. Refresh writes no cache entry or agent conclusion. The standalone lookup and write contracts stay unchanged.
+
 ## Save fresh fragments
 
 Validate the full report model first. If the lookup returned one or more `miss` or `rejected` records, attempt to cache each freshly reviewed fragment. Do not write exact-hit fragments again. When every record was an exact hit, the cache is already current and no write is needed.

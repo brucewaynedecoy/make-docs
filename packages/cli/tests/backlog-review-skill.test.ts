@@ -87,7 +87,7 @@ describe("backlog-review first-party Skill", () => {
     for (const match of body.matchAll(/\]\(([^)]+)\)/g)) {
       const link = match[1];
       expect(link.includes("://")).toBe(false);
-      const target = path.resolve(SKILL_ROOT, link);
+      const target = path.resolve(SKILL_ROOT, link.split("#")[0]!);
       expect(target.startsWith(`${SKILL_ROOT}${path.sep}`)).toBe(true);
       expect(existsSync(target)).toBe(true);
     }

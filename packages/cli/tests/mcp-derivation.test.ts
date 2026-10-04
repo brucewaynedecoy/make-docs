@@ -32,6 +32,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "work.backlog.snapshot": "make_docs_work_backlog_snapshot",
   "work.backlog-cache.lookup": "make_docs_work_backlog_cache_lookup",
   "work.backlog-cache.write": "make_docs_work_backlog_cache_write",
+  "backlog.review.open": "make_docs_backlog_review_open",
+  "backlog.review.refresh": "make_docs_backlog_review_refresh",
   "resource.list": "make_docs_resource_list",
   "resource.read": "make_docs_resource_read",
   "resource.ensure": "make_docs_resource_ensure",

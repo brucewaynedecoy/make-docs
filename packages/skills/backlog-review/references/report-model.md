@@ -14,6 +14,8 @@ Use concise `structuredContent` for model-visible orientation. Use the full live
 
 Session and action versions remain separate from report schema version. A breaking report change requires a new report version, migration rule, and compatibility and meaning-parity fixtures. P3 requires no report migration.
 
+P4 uses this payload boundary in the shared open operation. The MCP adapter validates the registered result schema and preserves `content`, `structuredContent`, and `_meta`. It does not copy the full client report into generic text narration. The linked resource is a source integration step. Product controls and host display still need their later phase proof.
+
 ## Report fields
 
 The report contains:
@@ -161,3 +163,5 @@ The pure refresh contract compares the last reviewed envelope with the available
 The refresh review request carries both snapshot IDs and all three exact change lists. The UI cannot write new conclusions itself. The agent reviews nonmatching records, rebuilds all portfolio conclusions, and validates the full report before opening a new model in a later phase.
 
 Keep source failure separate from optional cache failure. A Store failure must not turn an available current snapshot into `unavailable`. Search, filter, sort, disclosure, theme, print, Data view, and JSON download remain local display choices. They do not become report authority or cache content.
+
+P4's shared refresh operation connects the pure comparison to the existing snapshot operation and one exact cache lookup. The nested lookup keeps the accepted caller and Store checks. An invalid cache result also limits reuse only. The operation writes no new conclusion. A changed or unavailable result keeps the prior model with its exact review-state limit. The live agent review flow remains planned work.
