@@ -2,7 +2,7 @@
 
 Use this path only when the user asks for a saved interactive report.
 
-The delivery contract selects `static` only for that explicit request. A failed live open and chat fallback do not authorize file creation. Selecting a route does not create a file. The shared model and live payload boundaries preserve this renderer's report meaning. Later phases connect production live delivery.
+The delivery contract selects `static` only for that explicit request. A failed live open and chat fallback do not authorize file creation. Selecting a route does not create a file. The shared model and live payload boundaries preserve this renderer's report meaning. P5 reuses its accepted presentation for the full local widget. P6 agent flow and installed live acceptance remain later work. The saved report stays portable without the CLI, Store, network, or live bridge.
 
 ## Prepare the report
 

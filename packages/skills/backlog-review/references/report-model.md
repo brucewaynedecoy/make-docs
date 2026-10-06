@@ -14,7 +14,7 @@ Use concise `structuredContent` for model-visible orientation. Use the full live
 
 Session and action versions remain separate from report schema version. A breaking report change requires a new report version, migration rule, and compatibility and meaning-parity fixtures. P3 requires no report migration.
 
-P4 uses this payload boundary in the shared open operation. The MCP adapter validates the registered result schema and preserves `content`, `structuredContent`, and `_meta`. It does not copy the full client report into generic text narration. The linked resource is a source integration step. Product controls and host display still need their later phase proof.
+P4 uses this payload boundary in the shared open operation. The MCP adapter validates the registered result schema and preserves `content`, `structuredContent`, and `_meta`. It does not copy the full client report into generic text narration. P5 uses the same normalized model and accepted static presentation in the full local widget. Local controls and inbound state feedback do not change report conclusions. P6 calls, messages, and task actions remain planned. A synthetic browser view is not production host or installed proof.
 
 ## Report fields
 

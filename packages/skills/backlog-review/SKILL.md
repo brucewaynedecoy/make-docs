@@ -33,7 +33,7 @@ Lead the chat report with current focus, **Next**, and **Attention**. Show the l
 
 Create an HTML report only when the user asks for it. Read [the HTML report guide](references/html-report.md), confirm the exact output path, and render the same normalized report model with the bundled renderer. The result must be one offline `.html` file. Do not create a site or keep a hidden report copy. The report may expose its own embedded model through the Backlog Data tab and its user-started JSON download. Ask before replacing an existing file.
 
-The source also defines live open and refresh tools. Read [the delivery rules](references/review-method.md#select-one-delivery-route) for their scope. These tools do not complete the product widget or connect live delivery to this Skill flow. Continue the chat review when live display is unavailable. Keep saved reports and separate tasks under direct user control.
+The source also defines live open and refresh tools and a full local widget. Read [the delivery rules](references/review-method.md#select-one-delivery-route) for their scope. The widget uses the same report meaning and keeps display controls local. P6 refresh calls, agent messages, task actions, and the Skill's live flow remain planned. Continue the chat review when live display is unavailable. Keep saved reports and separate tasks under direct user control.
 
 When a tool returns an error, warning, or material limit, explain it in natural language. Name the subject, what happened, why it matters now, what remains known or unknown, the next useful action, and whether human action is required, optional, or not needed. Keep exact codes and raw details as secondary evidence. Never soften or hide the machine result.
 

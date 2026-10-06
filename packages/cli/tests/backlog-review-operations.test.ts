@@ -2,7 +2,6 @@ import { mkdtempSync, rmSync, symlinkSync, readFileSync, mkdirSync, writeFileSyn
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runInNewContext } from "node:vm";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -299,21 +298,11 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
     expect(listMakeDocsMcpTools(undefined, { profile: "all" }).find(tool => tool.name === first.name)?._meta?.ui.resourceUri).toBe(BACKLOG_REVIEW_UI_RESOURCE.uri);
   });
 
-  it("renders hostile tool text inertly and has no live action or network control", () => {
+  it("ships the P5 local widget without a tool or agent request transport", () => {
     const html = defaultAppResources("backlog")[0].text;
-    const elements = new Map(["status", "summary"].map(key => [key, { textContent: "", innerHTML: "unchanged" }]));
-    let receive: (event: unknown) => void = () => {}; const outgoing: unknown[] = [];
-    const parent = { postMessage: (value: unknown) => outgoing.push(value) };
-    const window = { parent, addEventListener: (_event: string, fn: typeof receive) => { receive = fn; } };
-    runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)![1], { window, document: { getElementById: (key: string) => elements.get(key) }, setTimeout: () => 1, clearTimeout: () => {} });
-    receive({ source: parent, data: { jsonrpc: "2.0", id: 1, result: { protocolVersion: "2026-01-26" } } });
-    const hostile = "<img src=x onerror=deleteEverything()>";
-    receive({ source: parent, data: { jsonrpc: "2.0", method: "ui/notifications/tool-result", params: { content: [{ type: "text", text: hostile }] } } });
-    expect(elements.get("summary")?.textContent).toBe(hostile); expect(elements.get("summary")?.innerHTML).toBe("unchanged");
-    expect(outgoing).toHaveLength(2);
-    expect(html).not.toMatch(/tools\/call|ui\/message|fetch\(|<button|https?:\/\//);
-    receive({ source: parent, data: { jsonrpc: "2.0", method: "ui/notifications/tool-result", params: { content: [{ type: "text", text: "x".repeat(20001) }] } } });
-    expect(elements.get("status")?.textContent).toContain("live view is unavailable");
-    expect(elements.get("summary")?.textContent).toBe(hostile);
+    expect(html).toContain("widgetReport");
+    expect(html).toContain("ui/notifications/tool-result");
+    expect(html).not.toMatch(/tools\/call|ui\/message|fetch\(/);
+    // Full validation, hostile text, fallback, and local controls are P5 checks.
   });
 });

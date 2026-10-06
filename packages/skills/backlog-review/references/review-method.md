@@ -14,7 +14,7 @@ An unavailable surface permits the next method. A material failure from an avail
 
 ## Select one delivery route
 
-This section defines the live delivery route. P4 connects source open and refresh tools and a versioned UI resource to the existing registry. The current source Skill still delivers its chat review and writes static HTML only after a request. P4 does not connect a complete product widget or live agent refresh flow to that Skill entry point.
+This section defines the live delivery route. P4 connects source open and refresh tools and a versioned UI resource to the existing registry. P5 adds the complete local report view. The current source Skill still delivers its chat review and writes static HTML only after a request. P6 connects live agent flow to that Skill entry point in later work.
 
 The live delivery contract defines three results: `live`, `static`, and `chat-fallback`. It selects one result for each request.
 
@@ -24,7 +24,7 @@ The live delivery contract defines three results: `live`, `static`, and `chat-fa
 
 Separate-task support is optional. Its absence does not prevent a live review. Do not select support from a host product name. Do not write a static file during live open or fallback. Never create both modes silently.
 
-Selection states the intended route. It does not prove that the host displayed the app. The pure contract helpers define this choice. A bounded host proof now exists. The source tools return useful non-UI results and link the P4 resource. Product widget actions and live agent refresh flow remain planned work. Do not claim a working production live review from a contract or tool result.
+Selection states the intended route. It does not prove that the host displayed the app. The pure contract helpers define this choice. A bounded host proof now exists. The source tools return useful non-UI results and link the resource. The local widget has bounded browser proof. Live agent actions and installed acceptance remain planned work. Do not claim a working production host from a contract, tool result, or synthetic browser view.
 
 The host proof must observe a real compatible host. A protocol fixture alone does not prove that the host displayed a resource, returned a tool result to the page, or delivered a fixed message to the active conversation. Record only the selected host and transport that the proof actually covers. P4 source integration adds no new real-host or installed acceptance claim.
 
@@ -36,7 +36,24 @@ When live delivery cannot run, complete the concise chat review from the current
 
 The open tool accepts a complete validated report. It returns useful narration and a concise `structuredContent` summary. Full client data stays in result `_meta`. That data is readable by the host and client. It is not secure storage. Open writes no file, cache entry, project record, or host setting.
 
-The P4 resource is a limited shell. It accepts one text block of at most 20,000 characters and uses safe text rendering. It has no product tool, message, or task controls. A missing bridge or oversized result sends the review to chat. Oversized text keeps the last displayed text; it does not prove that text is current. Complete the current review from the useful tool result in chat. Do not claim full widget behavior from this shell.
+The source widget validates the shared report, envelope identities, and display data before rendering the complete report. Project text stays inert. Search, clear search, filter, sort, disclosure, theme, print, Work/Data tabs, and JSON download remain local. They make no `tools/call` request and send no agent `ui/message`. Display-size notifications can tell the host about layout only. Format Data only after the user selects it or starts the download. Download the complete validated report, regardless of local filters.
+
+The live widget puts permanent plain `Status: <status>` in its footer. It removes notices above the masthead and replaces only the live footer's `Open the project` link. Keep the static report footer and masthead link unchanged. Keep instructions out of the footer.
+
+| Display state | Footer status |
+| --- | --- |
+| Valid displayed report | `Ready` |
+| Validated matching refresh input | `Checking source facts` |
+| Changed source facts, old conclusions retained | `Needs review` |
+| Source-refresh failure, prior report retained | `Last reviewed report — source unavailable` |
+| Invalid, cancelled, or failed update; or missing/failed bridge with a loaded report | `Last reviewed report — update failed` |
+| No valid report loaded | `Report unavailable` |
+
+Changed, unavailable, and malformed results keep a valid prior report visible with its exact limit. A bridge failure also keeps local controls usable. Continue in the active chat for current agent work. Source access must succeed before treating old conclusions as current. Before the first valid report, invalid data or unavailable browser crypto keeps the empty state: `No report is loaded. Ask for a backlog review in chat.` Do not claim that a prior report exists when none is loaded.
+
+These states do not refresh facts, send a review message, or create a task. `Checking source facts` follows validated inbound refresh input only. `Ready` means a valid report is displayed; it does not prove that the bridge or production host supports live agent work. Fixed review/task feedback is only a prepared display seam for P6.
+
+Keep source record paths visible. If the host cannot open a source link, use that path in the active chat. A source link failure does not erase the report or prove that the source is missing.
 
 The refresh tool reads a current snapshot and uses one exact cache lookup through the existing Store gate. Optional outer Store admission lets source work run first. It grants no Store permission. Store denial, failure, or invalid cache output limits reuse only. Keep successful current source facts. The tool preserves the prior reviewed model until a fresh agent review validates new conclusions. The product's refresh controls and controlled review message remain later work.
 

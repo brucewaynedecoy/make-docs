@@ -17,6 +17,8 @@ The user separately authorized P3 implementation on 2026-09-30. Its tested sourc
 
 The user separately authorized P4 implementation on 2026-10-04 after accepted W24 authority was merged at `26bdf1ce`. Its tested source checkpoint uses the current branch, based on `bdd21481`. The user then authorized P4 closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. P4 is closed for source tool/resource integration and useful no-UI output. These records belong to the phase closeout commit. Tasks t1-t6 and A25-A32 pass. The selected evidence covers 541 unique cases across bounded runs, type and build checks, asset drift checks, and independent output review. Required agent Human Experience Review found no material gap within that scope. Full product widget and host behavior remain P5-P7 work. P5 is next eligible and needs separate implementation authority.
 
+The user separately authorized P5 preflight fixes and implementation on 2026-10-04. Its tested pre-commit checkpoint is based on P4 commit `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2` on the same branch. On 2026-10-06, the owner approved the live footer remedy and five labels, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. t1-t6/A33-A40, the repaired 73-record changed result, required agent review, and 405 unique selected cases across finite runs support the closeout. These records belong to the P5 phase closeout commit. Root owns staging and the local commit. P6/P7, installation, Store/host changes, branch changes, push, publication, and release remain outside this authority.
+
 ## P1 Tested State
 
 - Date: 2026-09-30.
@@ -654,3 +656,265 @@ The source-guide agent refreshed the five closeout paths and verified their curr
 `git diff --check` passed. The new history check `git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-04-w25-r0-p4-backlog-profile-tools-and-ui-resource.md` had no whitespace output. Its exit one is the normal new-file difference in that mode.
 
 These records close P4 under the current local commit authority. They contain no future commit SHA. No source, guide, PRD, installed resource, Store, host setting, branch, or P5 change was made during closeout.
+
+## P5 Implementation Checkpoint
+
+The user authorized P5 preflight fixes and implementation on 2026-10-04. Work started on `w25-r0-p1-live-delivery-contract` at clean base `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`. P1-P4 are closed. This is the historical implementation-only checkpoint. Closeout, history, staging, and commit were outside that initial authority. The later 2026-10-06 closeout instruction below authorizes the reviewed local commit. Installation, push, host changes, Store writes, and P6 work remain outside it.
+
+P5 renders the full validated P3/P4 client report in the registered resource. The V1 report, P1 identity/action contracts, operation/profile/access rules, and accepted static template are unchanged. The accepted static template is 48,526 bytes, SHA-256 `118b2611be0e2b39f6c0d6c69f4282fde8e0144dfb7af39511db70fb3e7c54e2`. Its reused CSS is byte-equal, SHA-256 `d3c00b34acd6291e6a8691058334ea6e65bc6e8d5c068cc0d6bd8686551b83db`. Exact CSS/body parity checks and the retained [P3 output review](#p3-output-review) bind the accepted presentation.
+
+Local controls change only display state. They make no `tools/call` request and send no agent `ui/message`. Display-size notifications are allowed. Validated inbound data drives ready, refreshing, changed, and last-known feedback. Fixed review/task feedback is a pure display seam for P6. P5 starts no refresh call, review message, task, or saved file.
+
+The browser matrix, bounded size repair/retest, and agent review below supported the 2026-10-04 technical checkpoint. They do not claim a rendered production host or installed acceptance. The later [owner status UI finding](#p5-owner-status-ui-finding--2026-10-06) was resolved by the approved footer remedy and final source proof. The separate 2026-10-06 instruction now closes P5 and authorizes its local commit.
+
+### P5 Code Checks
+
+At the 2026-10-04 checkpoint, the code agent used Node `v24.19.0`. Focused widget checks passed 35 cases. Ten affected suites passed 304 cases. Source-guide defaults passed 53 cases: 38 consistency, 12 template links, and three package safety. These were separate runs: 392 unique selected cases. The focused suite checked strict payload and identity validation, exact accepted presentation reuse, local-state behavior, safe text, lazy full-report Data/download, inbound feedback, invalid input, missing browser support, size changes, and zero tool/message initiation. The later footer correction has final evidence below.
+
+```text
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-contract.test.ts tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts tests/mcp-profiles.test.ts tests/resource-mcp-profiles.test.ts tests/mcp-resource-profiles.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run build --workspace @brucewaynedecoy/make-docs
+"$HOME/.nvm/versions/node/v24.19.0/bin/node" packages/cli/scripts/build-mcp-app-assets.mjs --check
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-operations.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run validate:defaults --workspace @brucewaynedecoy/make-docs
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts
+git diff --check
+```
+
+Type checks, build, deterministic asset drift, and whitespace checks pass. The failed-result repair affected only the widget and generated assets. Its focused suite, type check, build, and drift check ran again. Browser review then found that Data-to-Work could retain a large host viewport. The size repair measures content without a viewport-height floor. The final 35-case widget suite, nearest 34-case review-operation suite, type check, build, and drift check pass after that repair. The earlier 304 cases remain valid for unchanged boundaries. The final-guide 14-case Skill pass is an affected repeat within those 304 cases. It is not added to the unique count. No broad reassurance run was made.
+
+Source review found that an initial invalid payload claimed a prior valid report remained visible when none existed. The repair distinguishes empty fallback from a retained prior report. Initial bad data, unavailable native crypto, and failed tool results now have bounded focused tests. Invalid incoming data leaves an existing valid report and its local selection intact. These are resolved source findings, with no added P6 workflow.
+
+| 2026-10-04 source or asset | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Widget HTML](../../../packages/cli/src/mcp/assets/backlog-review-v1.html) | 429,014 | `e0ad954b6ff12e1ebb40c991be0454f4a0e9f973e704172215d3ab64a9304e26` |
+| [Generated TS asset](../../../packages/cli/src/mcp/assets/backlog-review-v1.ts) | 459,478 | `d7439960f0f7d92b277f65f49d36a619854aedc25f274fb78d0ff27d992879c7` |
+| [Widget test](../../../packages/cli/tests/backlog-widget.test.ts) | 18,824 | `f55417b21abbe3c4e185b80f6b5b8d92cb851088ffb673ec5669e8987031dd35` |
+| [Asset generator](../../../packages/cli/scripts/build-mcp-app-assets.mjs) | 6,162 | `c884d2dedec75355d46e1c19d00f14e372db24043fd4511bcff4b5f44a888690` |
+| [Generated static renderer](../../../packages/cli/src/mcp/widget/static-renderer.js) | 50,382 | `e7114a01f8f27b94ec6e0ccb02d26a30d0b3b7acc1c6325cf657bfce990a9d6e` |
+| [Widget entry](../../../packages/cli/src/mcp/widget/entry.ts) | 6,832 | `2b7cc9763f7181ce557607fa7c069a6b6c38eb79e090488aa76d57c4b8008a03` |
+| Built `dist/server-EEMYSL6J.js` | 465,241 | `5b9182a36e51a011bada386235dea75bb6869178683ed4cc9f76f5d00dd7d883` |
+
+Build output is ignored. Its hash identifies the local proof artifact. It is not a retained release or installation claim. The browser size check binds these final bytes.
+
+### P5 Built Stdio and Coordinator Review
+
+The coordinator launched the built CLI through the SDK `Client` and `StdioClientTransport`, with `mcp --profile backlog`. The result exposed five backlog tools and one UI resource alongside eight native resources. The UI URI is `ui://make-docs/backlog-review/v1.html`. Before the size-only repair, resource read returned MIME `text/html;profile=mcp-app`, 428,980 bytes, and SHA-256 `357b3f66389a2c173c2027a30435fdebebf7bf6a0e9ba3dbc711f1d9b1f1173a`. Bytes matched the canonical asset. All four CSP domain lists were empty. Synthetic open returned all seven P3 report records in client metadata and a concise model summary without a snapshot leak. The first probe wrongly assumed that total resource count was one. UI filtering corrected that probe assumption. No source fix was needed.
+
+The final byte/MIME/hash recheck after the size repair used `process.execPath` with `dist/index.js mcp --profile backlog` from `packages/cli`, read the fixed UI URI, compared it with the canonical HTML, and closed the client. It passed with MIME `text/html;profile=mcp-app`, 429,014 bytes, and SHA-256 `e0ad954b6ff12e1ebb40c991be0454f4a0e9f973e704172215d3ab64a9304e26`. This supersedes the earlier resource bytes and hash only. It changed no external host setting, Store entry, or installation. Built stdio proves resource delivery, not visible production host display.
+
+In the synthetic browser harness, the coordinator observed readable dark and light narrow views. Attention preceded Next. Work and Data stayed under Backlog. A Next action selected W2 R3, showed one of seven records, and focused its disclosure. Enter opened Facts, Inference, and Recommended action. The audit stayed at zero tool calls and agent messages. Changed, unavailable, and malformed inbound results kept the selected expanded prior report visible and gave a next action in chat or source access. Theme changes kept the same zero-call/message audit. The coordinator also inspected the final wide, phase/detail, print, and clean narrow captures described below.
+
+### P5 Optional Guided Review
+
+On 2026-10-04, the coordinator offered one advisory goal at `http://127.0.0.1:43125/`: use Attention and Next to choose a wave, then open its details. The path had three steps. The owner answered “Clear; no change.” Record `feedback-recorded`, with no resulting change at that time. This supports only the choose-wave/details path. It did not approve the status notice's UI, content, or placement. It adds no final-byte, production-host, independent-use, or installed claim. No general response gate or deferred obligation was created. The later owner finding follows below.
+
+## P5 Browser and Acceptance Evidence
+
+The browser agent exercised the source widget in a local synthetic Chromium iframe. The retained [browser result](evidence/p5/browser-results.json) has 20 resumed checks, all passed, bound to the pre-size-repair HTML hash `357b3f66389a2c173c2027a30435fdebebf7bf6a0e9ba3dbc711f1d9b1f1173a`. An earlier local-control pass covered search, clear, keyboard filter/sort, keyboard Data, exact JSON, user-started print/download, and zero network/tool/message effects. It passed before a harness-only selector failure. Those controls were not repeated for reassurance.
+
+The final six captures replace the initial misnamed dark and outer-audit-overflow captures. The coordinator inspected the corrected wide dark, narrow light/dark, six-phase details, and print views. Wide light had also passed. These are synthetic view observations. The size-only repair changed no accepted CSS, body, words, or local control behavior, so this visual proof remains applicable.
+
+| View | Retained capture | Size |
+| --- | --- | --- |
+| Wide light | [Capture](evidence/p5/wide-light.png) | 1280 × 1763 |
+| Wide dark | [Capture](evidence/p5/wide-dark.png) | 1280 × 1763 |
+| Narrow light | [Capture](evidence/p5/narrow-light.png) | 390 × 3417 |
+| Narrow dark | [Capture](evidence/p5/narrow-dark.png) | 390 × 3417 |
+| Phase and detail | [Capture](evidence/p5/phase-details.png) | 1280 × 1394 |
+| Print | [Capture](evidence/p5/print.png) | 1280 × 1384 |
+
+All four screen views have no horizontal overflow. Headings, rules, tallies, spacing, and content remain readable. Attention precedes Next. Work and Data stay under Backlog. The six phase meanings match the fixed legend. Wave detail keeps Facts, Inference, and Recommended action distinct. Keyboard disclosure has a visible two-pixel outline. Reduced motion removes transitions and smooth scroll. Print shows Work, hides Data and display controls, and keeps Attention → Next → Backlog order. Host failure keeps the reviewed report. Hostile project text stays literal. The resumed audit recorded zero tool calls and agent messages. Saved JSON equals the complete normalized seven-record V1 report.
+
+The earlier P3 saved-file browser policy restriction remains historical. P5 did not rehost that saved file. It tested the live source resource through a synthetic harness. The browser tool delay and wrong harness selectors were tool or harness limits. They were not product defects. Source report identities and contract meaning stayed unchanged.
+
+The affected-only [size retest](evidence/p5/size-results.json) uses final HTML hash `e0ad954b6ff12e1ebb40c991be0454f4a0e9f973e704172215d3ab64a9304e26`. A one-record phase fixture grows to Data height 1422, then shrinks to Work height 1123. Report bottom, content edge, and reported frame height agree. The footer is inside the frame. Tool and agent-message counts stay zero. The coordinator inspected the [final Work capture](evidence/p5/after-size-repair.png): order, visible focus, and content remain intact, with no large blank tail. The viewport-floor bug is resolved. No unchanged browser matrix was repeated.
+
+The final browser command was `node docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p5/size-checks.mjs w25p5views <temporary-directory>`. The browser agent closed its sessions, stopped loopback port 43125, confirmed the port was unavailable, and removed its unique temporary directory. No browser run output remains in the checkout. The 12 retained files are three scripts, two JSON packets, and seven PNGs. The three scripts pass `node --check`. No production host, installed setup, Store, branch, staging, or commit state changed.
+
+### P5 Task and Acceptance Results
+
+| Item | Result and evidence |
+| --- | --- |
+| t1 / A33 | Shared-model rendering keeps Attention before Next and Work/Data under Backlog. Earlier body/CSS parity binds the baseline. The approved live-only footer is the deliberate later difference. Final affected browser order and report context agree. |
+| t2 / A34-A35 | Accepted colors, status reasons, six phase meanings, detail classes, type, rules, and spacing remain distinct. The coordinator passed wide/narrow/light/dark/print review. |
+| t3 / A36 | Pass within final source/browser scope. Owner-approved live footer placement/labels, retained reports, no-model chat recovery, failed/missing bridge, and valid large changed state have affected proof. Static footer and masthead link remain. P5 executes no P6 action. |
+| t4 / A37 | Local-control tests, the earlier browser control pass, and coordinator interaction produce zero `tools/call` and agent `ui/message` requests. Display-size notifications carry layout only. |
+| t5 / A38 | Data is lazy. User-started JSON contains the complete validated model, independent of local filters. Browser download equality and focused checks pass. |
+| t6 / A39 | Accepted control names and keyboard paths remain intact. Bounded browser keyboard use, visible focus, reduced motion, safe hostile text, and focused checks pass. |
+| A40 | Pass within source and finite browser scope. The owner-approved footer remedy and larger-input adapter repair have final actual-source proof. Required agent review finds no material visible/control defect in that scope. The unattributed inspection log stays an explicit limit. |
+
+### P5 Required Human Experience Review
+
+Reviewers on 2026-10-04: widget code agent, browser proof agent, and coordinator. The coordinator inspected the actual synthetic view and the corrected retained captures. The source-guide agent records those observations against the accepted promises. This is the earlier bounded agent review. The later owner finding does not erase those observations but reopens the status/notice UI and whole-surface completion claim.
+
+| Promise | Observation and conclusion | Limit and next useful action |
+| --- | --- | --- |
+| Familiar report meaning | Exact accepted presentation reuse and actual views preserve order, status/phase meaning, claims, and detail. No material presentation loss was found. | This proves the source view. Use P7 for installed acceptance. |
+| User control | Local controls change the view only. The audit has zero agent/tool requests. Source paths remain available for chat recovery. | P5 has no agent action workflow. Use the active chat; P6 will connect calls/messages/tasks under its own authority. |
+| Honest feedback | Ready, changed, unavailable, and invalid results explain the state and preserve a valid prior report. Empty fallback does not invent one. | Old conclusions remain limited after changed or unavailable facts. Retry source access or request review in chat. |
+| Deliberate Data and export | Startup does not format full JSON. Data and download expose the full report only after a user action. | Client metadata is readable, not secret storage. Do not put secrets there. |
+| Readable access | Names, keyboard use, visible focus, reduced motion, narrow/wide themes, and print pass the bounded review. | This is not broad assistive-technology or real-host proof. P7 can test the accepted installed candidate. |
+| Layout follows local content | The Data-to-Work height finding received a narrow repair and an exact-byte browser shrink retest. | Display-size messages prove synthetic host adaptation only. A production host still needs its own observed proof. |
+
+The 2026-10-04 required agent review is retained for its exact observed source behavior. The 2026-10-06 footer review below resolves the later scoped finding. The owner's earlier “Clear; no change” supports the choose-wave/details path only; footer placement/words received separate “Yes, approved” feedback. Current A40 passes within the finite source/browser proof and inspection limit. No new general response gate, unassisted-use claim, speed claim, or obligation follows.
+
+### P5 Testing and Coverage Limits
+
+The four common decisions remain in the [P5 work record](05-live-widget-and-local-interaction.md#current-testing-decisions). Automated checks are required with a finite affected-first budget. Actual failures and material changes received only affected reruns. The earlier Guided Progress Review is advisory and has bounded feedback above. The later owner approval covers only the named footer placement/words. Performance Testing and Unassisted Goal Testing are `not-needed-now`, with zero runs. Required agent Human Experience Review remains separate. Its earlier technical observations are reused, and the final footer review resolves the scoped finding within its evidence limits.
+
+Guide coverage is `update-existing`: five upstream Markdown guides state the full local widget, safe client data, local controls, source-path recovery, and feedback limits. Chat/static remain usable without CLI or Store. Saved-file and separate-task consent is unchanged. Installed Skill copies and accepted static source were not edited. PRD reconciliation is `link-only`; no accepted product rule changed. The user's 2026-10-06 closeout instruction authorizes history coverage `create`: one [P5 record](../../../.make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md) records this session. No prior P5 history existed.
+
+P5 is closed on 2026-10-06 within source and finite browser scope. The footer and larger-input adapter findings are resolved by affected proof. t1-t6 and A33-A40 have bounded evidence. The user authorized the reviewed local commit. P6 refresh calls, controlled review messages, task actions, and P7 acceptance remain pending separate authority. No production host, installed acceptance, Store write, host setting, publication, or release claim is made.
+
+## P5 Owner Status UI Finding — 2026-10-06
+
+The owner said “Overall I think it passes.” The owner found the rest of the report fine. At the initial review, the multiple statuses above the masthead were unaccepted. Their UI, content, and placement had not been reviewed with the owner. This opened a material finding in the status/notice block. The coordinator's source/PRD review found that its location is a P5 implementation choice, not a mandated product location.
+
+Current conclusion: resolved within the final source and finite browser proof below. t3 and A40 are complete within that scope. Existing tests, synthetic browser proof, source hashes, agent observations, and other completed tasks remain valid within their earlier scope. The earlier “Clear; no change” concerned only choosing a wave and opening details. Footer approval was separate and explicit.
+
+The owner's next direction was: “Status message should be in the footer. Remove the ‘Open the project’ link from the footer and show a permanent ‘Status: <status>’.” On 2026-10-06, the owner answered “Yes, approved” to the preview placement and exact five labels below. The approved change removes above-masthead notices and replaces only the live footer's `Open the project` link with permanent plain `Status: <status>`. The static report footer and masthead link stay unchanged. The rest of the owner's report feedback remains valid.
+
+The approved [footer preview](http://127.0.0.1:52444/?state=current) used the retained 2026-10-04 report with 73 records and simulated statuses. It was not a fresh 2026-10-06 review. Preview files stay outside the repository. Its source-before/source-after check preceded implementation and changed no actual P5 source. It establishes the approved placement and words, not actual-source completion.
+
+| Simulated state | Owner-approved status words |
+| --- | --- |
+| Normal | `Ready` |
+| Checking | `Checking source facts` |
+| Changed | `Needs review` |
+| Source failure | `Last reviewed report — source unavailable` |
+| Bad update | `Last reviewed report — update failed` |
+
+Scoped preview QA passes for light, dark, narrow, and paired views at the same viewport. One Next-to-W25 keyboard detail path works. A temporary DOM readiness guard repaired preview startup. Fresh console error logs are empty after that repair. An old observer log had no source URL or stack and establishes no actual P5 source finding.
+
+At the preview checkpoint, canonical HTML was unchanged at SHA-256 `e0ad954b6ff12e1ebb40c991be0454f4a0e9f973e704172215d3ab64a9304e26`. Widget entry was unchanged at SHA-256 `2b7cc9763f7181ce557607fa7c069a6b6c38eb79e090488aa76d57c4b8008a03`. These are historical preview-base hashes. Actual-source remediation needs its own final identities and affected proof.
+
+Rare-state scope stays bounded. Before any valid report is loaded, show `Status: Report unavailable` plus the existing empty copy `No report is loaded. Ask for a backlog review in chat.` Invalid data or unavailable browser crypto keeps that empty state. With a loaded model, invalid/cancelled/failed updates or missing/failed bridge keep the report and show the approved update-failed label; local controls stay usable. Source-refresh failure alone uses source unavailable. `Ready` means a valid report is displayed. Checking follows strict matching refresh input only. Longer recovery meaning stays in guidance and the empty state. The footer remains status text.
+
+The approved bounded source remediation and affected browser states pass. The user then separately authorized P5 closeout and a local commit on 2026-10-06. No general owner response gate is added. P6/P7 remain outside that authority.
+
+The initial 2026-10-06 finding update changed project records only. This approval pass updates those records and upstream guidance. The code agent owns the bounded source remediation. Installed resources, PRDs, Store/host state, branches, history, staging, commit, and P6 remain outside this pass. Reuse unaffected earlier P5 proof and count each test once.
+
+During actual-source review, a valid 73-record changed refresh was rejected. The browser crypto adapter allowed only 32 missing hashes. Smaller fixtures passed, but they did not prove this larger input. The code agent replaced that bound with strict batch-native SHA validation under unchanged authoritative hash/schema rules. A greater-than-32-record regression covers unchanged/changed refresh and rejected-to-valid recovery. The final 73-record changed browser result passes. This finding is resolved. Intermediate HTML hash `345e98fb764e671bdbfc6ced0645d015ad459ac1ccc272b28c6f5be3b08641b2` remains historical evidence, not the final source identity.
+
+The coordinator's smaller-fixture checking, unavailable, and invalid states retained the prior report and made zero tool calls or agent messages. Those observations remain valid within that input scope. The adapter-only repair changes no entry, label, CSS, or local control behavior. The final larger-input result resolves the source validation finding without a new product choice, performance claim, or Unassisted Goal Testing gate.
+
+### Final Actual-Source Footer Proof — 2026-10-06
+
+The [saved browser review](evidence/p5/footer-browser-review.md) passes. The coordinator inspected the actual canonical resource, not a preview overlay. The paired 742 × 1314 dark views match the approved top and footer placement. The report masthead link, title, lead, tallies, Attention, Next, phase/claim meaning, and local controls remain. Only the live footer link is replaced. Static template and static renderer remain unchanged.
+
+Final [resource proof](evidence/p5/footer-resource-proof-final.json) records exact built stdio/source parity: 427,214 bytes, SHA-256 `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`, MIME `text/html;profile=mcp-app`, the fixed UI URI, CSP, and UI metadata. The SDK stdio child closed before the local browser parent started. This is source/stdio/synthetic-browser evidence, not production-host or installed proof.
+
+The final [73-record changed view](evidence/p5/footer-source-large-changed-final.jpg) shows `Needs review`, retains all 73 records, nine in scope, and the reviewed W25 details. Its DOM proof matches the final source hash. All four counters are zero: tool calls, agent messages, prints, and downloads. The final [normal view](evidence/p5/footer-source-ready-final.jpg) shows `Ready`. Fresh error logs are empty before and after dark theme and footer actions.
+
+The smaller checking/source-failure/bad-update cases retain the report and exact approved labels. Checking follows validated matching refresh input. Settled missing and rejected bridges retain valid data and the update-failed footer, including after a later valid result. The separate no-model view shows `Report unavailable` and the existing chat next action. The 390 × 844 failed-bridge capture keeps its long status readable. Data-to-Work size changes retain the footer inside the frame. Keyboard disclosure opens Facts, Inference, and Recommended action. The saved review retains the exact observations and capture links. Earlier unchanged display, Data/download, and print proof is reused.
+
+Required agent conclusion: the approved footer placement/words and preserved report/control boundary are satisfied within the finite reviewed scope. t3 and A40 are resolved. The owner's explicit approval covers the footer choice; it is not a production-host, fresh-review, or lived-use claim.
+
+One changed-tab observer log has no source URL or stack. The canonical widget and parent contain no MutationObserver, and no material visible/control fault accompanied it. Attribution is unsupported. This record does not claim an empty changed-tab error log or invent a source repair. The fresh normal tab logs are empty. An attributable stack or visible fault would trigger a check of that exact case.
+
+### Footer Correction Code Checks
+
+Current unique selected cases total 405: revised widget48, prior affected304, and prior defaults53. The final affected run passes 159 cases in five suites: live-contract41, presentation30, review-operations34, Skill14, and MCP-app40. All 159 overlap the prior304. The revised48 replace the earlier35/47; repeated runs are not added. The final Skill14 ran after the two-guide freeze. Defaults53 are reused because template, registry/manifest/default list, dependency, and package allowlist inputs did not change.
+
+Final focused/affected commands pass under Node `v24.19.0`. Type checks, build, generated drift, and whitespace checks also pass:
+
+```text
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/mcp-app-contract.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run build --workspace @brucewaynedecoy/make-docs
+"$HOME/.nvm/versions/node/v24.19.0/bin/node" packages/cli/scripts/build-mcp-app-assets.mjs --check
+git diff --check
+```
+
+The actual-resource probe used Node24 with `--import ./node_modules/tsx/dist/loader.mjs <temporary-source-root>/actual-source-harness.mjs`. The local path spelling is sanitized. The retained final resource proof contains the result. No 8 MB report or temporary preview asset is copied into the checkout.
+
+| Final source or asset | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [HTML](../../../packages/cli/src/mcp/assets/backlog-review-v1.html) | 427,214 | `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a` |
+| [Generated TS](../../../packages/cli/src/mcp/assets/backlog-review-v1.ts) | 457,642 | `8ff548ca3c955813b75724b811aee4b6853ebba504411661cdbd4e7c07c72048` |
+| [Browser crypto](../../../packages/cli/src/mcp/widget/browser-crypto.ts) | 2,228 | `270f55112aec7b1945a48370e84b928ee79de85412252deedaaee6bd7d42b05b` |
+| [Entry](../../../packages/cli/src/mcp/widget/entry.ts) | 5,893 | `adb4c10fb7d15992ae958cbf80cb859b3526b5befd43ec99d9174ecfd78eb03d` |
+| [State](../../../packages/cli/src/mcp/widget/state.ts) | 4,129 | `8fde96688706afde848a4e7ce1c7ec2d888257528899a74968d35a92d9268b36` |
+| [Generator](../../../packages/cli/scripts/build-mcp-app-assets.mjs) | 5,511 | `b7351653f2d7d678c9cdb75b0b0c8d55cf9b6adaf8d402bb82e9d1bb24bd267b` |
+| [Widget tests](../../../packages/cli/tests/backlog-widget.test.ts) | 25,165 | `1e70e96be6799481c855a626c9ee566e8a64e73fdbdd777d63b2bf9454435dfb` |
+| Built `dist/server-3DTZJ3VE.js` | 463,444 | `06a631d05c159cf13101bb3327b0fb2f5db0a4c0c3349170534c0b05cf4cf0f0` |
+
+The static renderer remains `e7114a01f8f27b94ec6e0ccb02d26a30d0b3b7acc1c6325cf657bfce990a9d6e`. The static template remains `118b2611be0e2b39f6c0d6c69f4282fde8e0144dfb7af39511db70fb3e7c54e2`. Shared backlog contracts and upstream template source have no diff. The approved live-only footer is the deliberate presentation difference.
+
+At the final implementation checkpoint, branch `w25-r0-p1-live-delivery-contract`, HEAD `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`, and empty staging were unchanged. No history or commit was created during that implementation pass. The user's later closeout instruction authorizes both. The source hashes and test results remain the tested pre-commit evidence.
+
+### Footer Correction Document Checks
+
+Seven changed Markdown paths cover the four project records, two source guides, and saved browser review. Current jdoc source/content hashes and scoped links are checked. The content path command is:
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --path packages/skills/backlog-review/README.md --path packages/skills/backlog-review/references/review-method.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p5/footer-browser-review.md --format json
+```
+
+### P5 Final Document Checks
+
+The built read-only command passed:
+
+```text
+node packages/cli/dist/index.js run prd authority validate --target-root .
+```
+
+It checked 35 PRDs, 586 source Markdown bodies, and 1,105 links with zero diagnostics. No PRD change was needed.
+
+The changed-path content check passed for nine Markdown files with zero findings, zero I/O errors, and zero writes:
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path packages/skills/backlog-review/SKILL.md --path packages/skills/backlog-review/README.md --path packages/skills/backlog-review/references/review-method.md --path packages/skills/backlog-review/references/report-model.md --path packages/skills/backlog-review/references/html-report.md --format json
+```
+
+An earlier pass found eight private home-path spellings in the test-command block. The evidence now uses the equivalent `$HOME` spelling. Exact operation arguments, Node version, results, and source hashes are retained. The corrected pass is clean. A path-hygiene MCP call had stalled earlier; it was not repeated. The built CLI completed the bounded check. This was a tool limit, not a product defect.
+
+The source-guide agent refreshed only the nine changed Markdown paths with jdocmunch. Current task, acceptance, coverage, state, and source-guide sections have verified content and source hashes. Scoped links from those nine files have zero broken targets, including the retained evidence links. This is not a global link-clean claim.
+
+`git diff --check` passes for tracked edits. The coordinator's new-file check first found three whitespace-only lines in the untracked generated renderer. The generator repair removed ten spaces from those blank lines. Accepted static source and canonical HTML/TS bytes are unchanged. Generated drift, a direct trailing-space scan, and two affected tests pass:
+
+```text
+"$HOME/.nvm/versions/node/v24.19.0/bin/node" packages/cli/scripts/build-mcp-app-assets.mjs --check
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts -t 'accepted layout and generated bytes'
+```
+
+That narrow test run passed two cases and skipped 33. The two cases are already within the 35 widget cases. The 392 unique count stays unchanged. The earlier browser and built-resource proof stays valid because its HTML bytes did not change. The coordinator repeated `git diff --no-index --check /dev/null <path>` for all 12 untracked text files. All had no whitespace output. Exit one in that mode is the normal new-file difference. Tracked `git diff --check` also passes.
+
+At final review, branch `w25-r0-p1-live-delivery-contract`, HEAD `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`, and the empty staging area are unchanged. No P5 history, installation, Store operation, host configuration, staging, or commit was made in this implementation turn.
+
+## P5 Closeout — 2026-10-06
+
+The user explicitly asked to close W25 R0 P5 and then commit it. P5 is closed within the source and finite browser scope already proved. Tasks t1-t6 and A33-A40 remain complete. The owner-approved live footer and repaired large-input validator are preserved. Current final resource is 427,214 bytes, SHA-256 `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. The tested pre-commit checkpoint remains based on `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`. These records belong to the P5 phase closeout commit.
+
+Closeout reuses 405 unique selected cases across finite runs. The final48 and overlapping159, type/build/drift, exact stdio proof, and saved browser review already pass. Source bytes did not change during closeout. No code test or browser review is repeated. The required agent review and scoped owner approval remain valid. The unattributed changed-tab observer log remains a limit; fresh normal logs are empty.
+
+Coverage updates the existing records and central evidence, retains upstream guide coverage, links current PRD 51, and creates one [canonical history](../../../.make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md). Performance and Unassisted Goal Testing remain `not-needed-now`; no scenario or obligation is created. P6/P7 remain pending. P6 is next eligible and needs separate implementation authority.
+
+The current history contract and parent archive router govern the canonical path. The nested history router still names an old location. It was not changed. The earlier same-named `docs/history.md` and `docs/.references/commit-message-convention.md` remain absent after scoped refresh and retry. Valid local history and commit contracts supplied the closeout authority.
+
+Root owns staging the exact reviewed file set and executing the local commit. No future commit SHA is placed in its own records. This authoring pass changes only the four closeout records and this one history. It changes no source, guide, PRD, installed resource, Store, host setting, or branch. Push, installation, publication, release, and P6/P7 implementation remain outside authority.
+
+### P5 Closeout Document Checks
+
+`node packages/cli/dist/index.js run prd authority validate --target-root .` passes: 35 PRDs, 586 source Markdown bodies, 1,105 links, and zero diagnostics.
+
+The normal-path check passes for four closeout documents, with zero findings, I/O errors, or writes:
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/05-live-widget-and-local-interaction.md --format json
+```
+
+The public canonical-history check reports the known legacy limit:
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path .make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md --format text
+Path check error: Invalid content path: .make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md
+```
+
+That command exits two before inspecting the history. The current history contract and parent archive router require the canonical path. The new record stays there. Current jdoc structure/content, relative links, and whitespace checks support that record separately. No installed router or public path-rule repair is made.
+
+`git diff --check` passes. `git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md` has no whitespace output. Its exit one is the normal new-file difference. The scoped phase Markdown link result and current section hashes are checked before staging. The commit message uses the exact history Changes first paragraph. No source test is repeated.

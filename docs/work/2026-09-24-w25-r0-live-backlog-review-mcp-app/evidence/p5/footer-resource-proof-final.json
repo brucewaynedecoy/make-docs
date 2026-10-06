@@ -1,0 +1,36 @@
+{
+  "builtResource": {
+    "uri": "ui://make-docs/backlog-review/v1.html",
+    "mimeType": "text/html;profile=mcp-app",
+    "bytes": 427214,
+    "sha256": "134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a",
+    "exactSourceParity": true,
+    "tools": 5,
+    "resourceMeta": {
+      "ui": {
+        "csp": {
+          "connectDomains": [],
+          "resourceDomains": [],
+          "frameDomains": [],
+          "baseUriDomains": []
+        },
+        "prefersBorder": true
+      }
+    },
+    "toolMeta": {
+      "ui": {
+        "resourceUri": "ui://make-docs/backlog-review/v1.html"
+      }
+    }
+  },
+  "retainedExample": {
+    "generatedAt": "2026-10-04T18:22:29.553Z",
+    "records": 73,
+    "currentSnapshot": false
+  },
+  "url": "http://127.0.0.1:54586/",
+  "browser": "Root CUA in-app browser",
+  "resourceOverlay": false,
+  "previousResourceProof": "footer-resource-proof.json",
+  "reusedLayoutReason": "Only the native SHA batch adapter changed after the initial footer source captures. CSS and entry logic stayed fixed."
+}

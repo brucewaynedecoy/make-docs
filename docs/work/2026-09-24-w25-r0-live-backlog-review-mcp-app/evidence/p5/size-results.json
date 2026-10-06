@@ -1,0 +1,32 @@
+{
+  "before": {
+    "iframeHeight": 1589,
+    "bodyContentEdge": 1123,
+    "reportBottom": 1123,
+    "lastSize": 1589
+  },
+  "data": {
+    "iframeHeight": 1422,
+    "bodyContentEdge": 1422,
+    "reportBottom": 1422,
+    "lastSize": 1422
+  },
+  "after": {
+    "iframeHeight": 1123,
+    "bodyContentEdge": 1123,
+    "reportBottom": 1123,
+    "lastSize": 1123
+  },
+  "pass": true,
+  "toolCalls": 0,
+  "agentMessages": 0,
+  "limit": "Synthetic host honors size notification exactly. No production host test.",
+  "widgetSha256": "e0ad954b6ff12e1ebb40c991be0454f4a0e9f973e704172215d3ab64a9304e26",
+  "checkedAt": "2026-10-04T17:47:04.506Z",
+  "previousFinding": "A prior enlarged iframe can impose a viewport minimum on documentElement.scrollHeight. The first long captures included synthetic host framing. This retest uses exact size delivery and the taller Data state of a one-record phase fixture.",
+  "capture": "after-size-repair.png",
+  "reusedEvidence": {
+    "packet": "browser-results.json",
+    "scope": "Unchanged report DOM, CSS, controls, meaning, themes, print and safe-text checks. Only auto-height logic changed."
+  }
+}
