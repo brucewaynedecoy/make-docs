@@ -210,6 +210,10 @@
     .order-item .report-action { padding: 13px 0; }
     .order-number { padding: 3px; font-size: .7rem; background: var(--paper); color: var(--ink); }
     .ledger { min-width: 0; }
+    .review-tabs { display: flex; gap: 18px; margin-top: 28px; border-bottom: 1px solid var(--line); }
+    .review-tabs[hidden], .review-tab[hidden], [data-review-section][hidden], .attention[hidden] { display: none; }
+    .review-tab { min-height: 38px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); padding: 6px 2px; font-size: .82rem; cursor: pointer; }
+    .review-tab[aria-selected="true"] { border-bottom-color: var(--ink); color: var(--ink); font-weight: 700; }
     .icon-button { width: 34px; min-width: 34px; padding: 0; display: inline-grid; place-items: center; }
     .icon-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
     .data-dialog { position: fixed; inset: 24px 0 auto; width: min(960px, calc(100vw - 48px)); max-width: none; height: 66dvh; min-height: 66dvh; max-height: none; margin: 0 auto; border: 1px solid var(--line-strong); background: var(--panel); color: var(--ink); padding: 20px; }
@@ -250,11 +254,11 @@
     .result-note { margin: 0 0 12px; color: var(--muted); font-size: .8rem; }
     .wave-list { border-top: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 82%, transparent); }
     .wave { border-bottom: 1px solid var(--line); }
-    .wave-overview { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(240px, 1.35fr) minmax(250px, 1.8fr); column-gap: 22px; row-gap: 4px; align-items: start; padding: 22px 4px 14px; cursor: pointer; }
+    .wave-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 22px; row-gap: 4px; align-items: start; padding: 20px 28px; cursor: pointer; }
     .wave-overview:hover { background: color-mix(in srgb, var(--blue-soft) 20%, transparent); }
     .wave-overview:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
     .wave-title { display: contents; padding-bottom: 8px; }
-    .wave-title a { grid-column: 1 / -1; grid-row: 1; justify-self: start; color: var(--ink); font-size: 1.05rem; font-weight: 760; text-decoration: none; }
+    .wave-title a { display: flex; align-items: flex-end; align-self: stretch; grid-column: 1; grid-row: 1; justify-self: start; color: var(--ink); font-size: 1.05rem; font-weight: 760; text-decoration: none; }
     .wave-title a:hover { text-decoration: underline; }
     .wave-title p { grid-column: 1; grid-row: 2; margin: 0; color: var(--muted); font-size: .78rem; }
     .badge { display: inline-flex; width: fit-content; color: var(--muted); padding: 3px 8px; font-size: .7rem; font-weight: 650; }
@@ -266,15 +270,15 @@
     .badge.history { background: var(--wave-history-soft); color: var(--wave-history); }
     .wave-status { display: flex; grid-column: 2; grid-row: 2; margin-bottom: 9px; }
     .track-wrap { grid-column: 3; grid-row: 2; }
-    .track { display: grid; grid-template-columns: repeat(var(--phase-count), minmax(18px, 1fr)); gap: 2px; min-height: 10px; }
+    .track { display: grid; grid-template-columns: repeat(var(--phase-count), minmax(18px, 1fr)); gap: 2px; min-height: 22px; }
     .phase { min-height: 10px; border: 1px solid var(--line-strong); background: var(--phase-unknown); }
     .phase.complete { border-color: var(--phase-complete); background: var(--phase-complete); }
     .phase.open { border-color: var(--phase-open); background: var(--phase-open); }
     .phase.blocked { border-color: var(--phase-blocked); background: var(--phase-blocked); }
     .phase.conflict { border-color: var(--phase-conflict); background: var(--phase-conflict); }
     .phase.superseded { border-color: var(--phase-superseded); background: var(--phase-superseded); }
-    .track-stats { margin-top: 7px; color: var(--muted); font-size: .73rem; }
-    .detail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin: 0 4px 2px; border-left: 3px solid var(--blue); background: var(--detail); padding: 18px 20px; font-size: .82rem; }
+    .track-stats { display: flex; align-items: flex-end; align-self: stretch; grid-column: 3; grid-row: 1; min-height: 1.575rem; margin: 0; color: var(--muted); font-size: .73rem; }
+    .detail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin: 0 4px 2px; border-left: 3px solid var(--blue); background: var(--detail); padding: 18px 24px 18px 21px; font-size: .82rem; }
     .detail[hidden] { display: none; }
     .detail h3 { margin: 0 0 6px; font-size: .8rem; }
     .claim-list { margin: 0; padding-left: 18px; color: var(--detail-copy); }
@@ -303,7 +307,8 @@
       .workspace { grid-template-columns: 1fr; }
       .attention { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
       .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 0; }
-      .wave-overview { grid-template-columns: minmax(140px, .8fr) minmax(220px, 1.2fr) minmax(220px, 1.4fr); column-gap: 16px; }
+      .wave-overview { column-gap: 16px; }
+      .detail { column-gap: 16px; }
     }
     @media (max-width: 760px) {
       .shell { width: min(100% - 24px, 680px); padding-top: 16px; }
@@ -313,14 +318,17 @@
       .meta-actions { grid-column: 1 / -1; margin-top: 2px; }
       .attention { display: block; }
       .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 42px; }
+      .workspace { padding-top: 18px; }
+      #attentionBlock > .section-heading, #orderBlock > .section-heading, #backlogSection > .section-heading { display: none; }
       .ledger-tools { flex-direction: column; align-items: stretch; }
       .sort-controls { justify-content: flex-start; }
-      .wave-overview { grid-template-columns: 1fr; gap: 10px; padding: 20px 2px 12px; }
-      .wave-title { display: block; }
+      .wave-overview { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 20px 28px; }
       .wave-status { display: block; }
-      .wave-title p { margin: 4px 0 0; }
-      .wave-title a, .wave-title p, .wave-status, .track-wrap { grid-column: auto; grid-row: auto; }
-      .detail { grid-template-columns: 1fr; margin-inline: 2px; }
+      .wave-title p { grid-column: 1 / -1; grid-row: 2; }
+      .track-stats { grid-column: 2; grid-row: 1; justify-self: end; }
+      .wave-status { grid-column: 1 / -1; grid-row: 3; }
+      .track-wrap { grid-column: 1 / -1; grid-row: 4; }
+      .detail { grid-template-columns: 1fr; margin-inline: 2px; padding-inline: 23px 26px; }
       footer { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
@@ -337,7 +345,9 @@
       :root, :root[data-theme="light"], :root[data-theme="dark"] { color-scheme: light; --ink: #15213c; --muted: #5d6b82; --paper: #ffffff; --panel: #ffffff; --copy: #34415a; --detail: #eef3ff; --detail-copy: #42506a; --line: #d7deea; --line-strong: #aeb9ca; --blue: #3159d8; --blue-soft: #e9efff; --phase-complete: #70ad9a; --phase-open: #829de0; --phase-blocked: #d77d87; --phase-conflict: #d5a158; --phase-superseded: #a7afbc; --phase-unknown: #dfe4ec; --wave-current: #3159d8; --wave-current-soft: #e9efff; --wave-attention: #9a5a10; --wave-attention-soft: #fff0db; --wave-conflict: #a6333d; --wave-conflict-soft: #fdebee; --wave-deferred: #6750a4; --wave-deferred-soft: #f0ebff; --wave-complete: #246b58; --wave-complete-soft: #e4f4ee; --wave-history: #5f6b7e; --wave-history-soft: #edf0f5; --button-text: #ffffff; }
       :root, :root[data-theme="light"], :root[data-theme="dark"] { --accent: #3159d8; --accent-line: #7187b6; }
       .shell { width: 100%; padding: 0; }
-      .controls, .filters, .sort-controls, .meta-actions, #dataDialog { display: none !important; }
+      .controls, .filters, .sort-controls, .meta-actions, .review-tabs, #dataDialog { display: none !important; }
+      [data-review-section][data-available="true"], .attention[data-available="true"] { display: block !important; }
+      #attentionBlock > .section-heading, #orderBlock > .section-heading, #backlogSection > .section-heading { display: flex !important; }
       #workPanel { display: block !important; }
       .workspace { display: block; }
       .attention { position: static; margin-bottom: 28px; }
@@ -372,12 +382,17 @@
       <div class="metric"><strong id="historicalRecords"></strong><span>historical records</span></div>
       <div class="metric"><strong id="archivedRecords"></strong><span>archived records</span></div>
     </section>
+    <div class="review-tabs" id="reviewTabs" role="tablist" aria-label="Review sections" hidden>
+      <button class="review-tab" id="attentionSectionTab" type="button" role="tab" aria-controls="attentionBlock" data-review-tab="attention">Attention</button>
+      <button class="review-tab" id="nextSectionTab" type="button" role="tab" aria-controls="orderBlock" data-review-tab="next">Next</button>
+      <button class="review-tab" id="backlogSectionTab" type="button" role="tab" aria-controls="backlogSection" data-review-tab="backlog">Backlog</button>
+    </div>
     <div class="workspace">
       <aside class="attention" id="attentionRail" aria-label="Attention and recommended order">
-        <section class="attention-block" id="attentionBlock"><div class="section-heading"><h2>Attention</h2></div><ul class="attention-list" id="attentionList"></ul></section>
-        <section id="orderBlock"><div class="section-heading"><h2>Next</h2></div><ol class="order-list" id="orderList"></ol></section>
+        <section class="attention-block" id="attentionBlock" data-review-section="attention"><div class="section-heading"><h2>Attention</h2></div><ul class="attention-list" id="attentionList"></ul></section>
+        <section id="orderBlock" data-review-section="next"><div class="section-heading"><h2>Next</h2></div><ol class="order-list" id="orderList"></ol></section>
       </aside>
-      <section class="ledger" aria-labelledby="ledgerHeading">
+      <section class="ledger" id="backlogSection" data-review-section="backlog" aria-labelledby="ledgerHeading">
         <div class="section-heading"><h2 id="ledgerHeading">Backlog</h2></div>
         <div id="workPanel">
           <div class="controls"><div class="search-wrap"><label class="sr-only" for="search">Search waves</label><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"><button class="search-clear" id="clearSearch" type="button" aria-label="Clear search" title="Clear search" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div></div>
@@ -425,6 +440,7 @@
     ];
     const phaseNames = { complete: "complete", open: "open or planned", blocked: "blocked", conflict: "conflicting evidence", superseded: "superseded", unknown: "not started or unknown" };
     let activeFilter = "in-scope";
+    let focusedRecordPath = null;
 
     const node = (tag, className, text) => {
       const element = document.createElement(tag);
@@ -497,6 +513,7 @@
         button.setAttribute("aria-pressed", String(filter === activeFilter));
         button.hidden = !["all", "in-scope"].includes(filter) && !report.records.some((record) => matchesFilter(record, filter));
         button.addEventListener("click", () => {
+          focusedRecordPath = null;
           setActiveFilter(filter);
           renderWaves();
         });
@@ -613,8 +630,9 @@
       track.setAttribute("aria-label", phaseDescriptions.join(", "));
       const complete = valueOf(snapshot?.taskCounts?.complete, 0);
       const total = valueOf(snapshot?.taskCounts?.total, 0);
-      trackWrap.append(track, node("div", "track-stats", `${complete} of ${total} tasks complete`));
-      overview.append(title, statusWrap, trackWrap);
+      const stats = node("div", "track-stats", `${complete} of ${total} tasks complete`);
+      trackWrap.append(track);
+      overview.append(title, stats, statusWrap, trackWrap);
 
       const detail = node("div", "detail");
       detail.id = detailId;
@@ -632,6 +650,7 @@
       const list = document.querySelector("#waveList");
       const query = document.querySelector("#search").value.trim().toLowerCase();
       const visible = report.records.filter((record) => {
+        if (focusedRecordPath !== null && record.recordPath !== focusedRecordPath) return false;
         const snapshot = snapshotByPath.get(record.recordPath);
         const claims = [...(record.facts || []), ...(record.inferences || []), ...(record.recommendations || [])].map(claimText);
         const haystack = [recordName(record), recordTitle(record), record.waveStatus, record.statusReason, valueOf(snapshot?.recordedStatus), ...claims].join(" ").toLowerCase();
@@ -674,6 +693,59 @@
     document.querySelector("#recordsInScope").textContent = report.tallies.workRecordsStillInScope;
     document.querySelector("#historicalRecords").textContent = report.tallies.historicalRecords;
     document.querySelector("#archivedRecords").textContent = report.tallies.archivedRecords;
+    const reviewTabs = document.querySelector("#reviewTabs");
+    const narrowReview = window.matchMedia("(max-width: 760px)");
+    const reviewSections = [
+      { name: "attention", tab: document.querySelector("#attentionSectionTab"), panel: document.querySelector("#attentionBlock"), available: report.attentionFindings.length > 0 },
+      { name: "next", tab: document.querySelector("#nextSectionTab"), panel: document.querySelector("#orderBlock"), available: report.recommendationOrder.length > 0 },
+      { name: "backlog", tab: document.querySelector("#backlogSectionTab"), panel: document.querySelector("#backlogSection"), available: true },
+    ];
+    let activeReviewSection = reviewSections.find((section) => section.available).name;
+    let reviewPrinting = false;
+    function updateReviewSections() {
+      const mobile = narrowReview.matches && !reviewPrinting;
+      reviewTabs.hidden = !mobile;
+      reviewSections.forEach((section) => {
+        const selected = section.name === activeReviewSection;
+        section.tab.hidden = !section.available;
+        section.tab.setAttribute("aria-selected", String(selected));
+        section.tab.tabIndex = selected ? 0 : -1;
+        section.panel.dataset.available = String(section.available);
+        section.panel.hidden = !section.available || mobile && !selected;
+        if (mobile && section.available) {
+          section.panel.setAttribute("role", "tabpanel");
+          section.panel.setAttribute("aria-labelledby", section.tab.id);
+          section.panel.tabIndex = 0;
+        } else {
+          section.panel.removeAttribute("role");
+          section.panel.removeAttribute("aria-labelledby");
+          section.panel.removeAttribute("tabindex");
+          if (section.name === "backlog") section.panel.setAttribute("aria-labelledby", "ledgerHeading");
+        }
+      });
+      const rail = document.querySelector("#attentionRail");
+      rail.dataset.available = String(reviewSections.slice(0, 2).some((section) => section.available));
+      rail.hidden = reviewSections.slice(0, 2).every((section) => section.panel.hidden);
+    }
+    function selectReviewSection(name, moveFocus = false) {
+      const section = reviewSections.find((item) => item.name === name && item.available);
+      if (!section) return;
+      activeReviewSection = name; updateReviewSections();
+      if (moveFocus) section.tab.focus({ preventScroll: true });
+    }
+    reviewSections.forEach((section) => section.tab.addEventListener("click", () => selectReviewSection(section.name)));
+    reviewTabs.addEventListener("keydown", (event) => {
+      if (!narrowReview.matches || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      const available = reviewSections.filter((section) => section.available);
+      const index = available.findIndex((section) => section.tab === document.activeElement);
+      if (index < 0) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? available.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + available.length) % available.length;
+      selectReviewSection(available[next].name, true);
+    });
+    narrowReview.addEventListener?.("change", updateReviewSections);
+    window.addEventListener("beforeprint", () => { reviewPrinting = true; updateReviewSections(); });
+    window.addEventListener("afterprint", () => { reviewPrinting = false; updateReviewSections(); });
     const reportDataView = document.querySelector("#reportDataView");
     let reportDataLoaded = false;
     const dataDialog = document.querySelector("#dataDialog");
@@ -731,8 +803,11 @@
       clearSearch.hidden = searchInput.value.length === 0;
     }
     function focusBacklogRecord(record) {
+      if (!record || !reportByPath.has(record.recordPath)) return;
       closeDataDialog();
+      selectReviewSection("backlog");
       setActiveFilter("all");
+      focusedRecordPath = record.recordPath;
       searchInput.value = recordName(record);
       updateSearchClear();
       renderWaves();
@@ -741,6 +816,7 @@
           (wave) => wave.dataset.recordPath === record.recordPath,
         );
         const surface = target?.querySelector("[data-disclosure-surface]");
+        if (surface) setExpanded(surface, true);
         surface?.focus({ preventScroll: true });
         if (target && window.matchMedia("(max-width: 1080px)").matches) {
           target.scrollIntoView({
@@ -783,6 +859,7 @@
     renderAttention();
     renderFilters();
     renderWaves();
+    updateReviewSections();
 
     document.querySelector("#waveList").addEventListener("click", (event) => {
       const surface = event.target.closest("[data-disclosure-surface]");
@@ -795,9 +872,10 @@
       event.preventDefault();
       setExpanded(surface, surface.getAttribute("aria-expanded") !== "true");
     });
-    searchInput.addEventListener("input", () => { updateSearchClear(); renderWaves(); });
+    searchInput.addEventListener("input", () => { focusedRecordPath = null; updateSearchClear(); renderWaves(); });
     clearSearch.addEventListener("click", () => {
       searchInput.value = "";
+      focusedRecordPath = null;
       updateSearchClear();
       renderWaves();
       searchInput.focus();

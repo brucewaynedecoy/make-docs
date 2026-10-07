@@ -249,7 +249,7 @@ describe("backlog-review first-party Skill", () => {
       expect(html).not.toContain("Review of ${report.tallies.workRecordsFound}");
       expect(html).toContain("report.projectLead.sentences.map");
       expect(html).toContain('<h2 id="ledgerHeading">Backlog</h2>');
-      expect(html).not.toMatch(/role="tablist"|role="tab"|role="tabpanel"|data-backlog-tab/);
+      expect(html).not.toMatch(/id="workTab"|id="dataTab"|data-backlog-tab/);
       expect(html).toContain('id="openReportData" aria-label="Data" title="Data" aria-haspopup="dialog"');
       expect(html).toContain('<dialog class="data-dialog" id="dataDialog" aria-labelledby="dataDialogTitle">');
       expect(html).toContain('id="closeReportData" aria-label="Close data" title="Close data" autofocus');
@@ -294,7 +294,7 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain('dataBeforePrint = dataDialog.open;');
       expect(html).toContain('window.addEventListener("afterprint"');
       expect(html).toContain("#workPanel { display: block !important; }");
-      expect(html).toContain(".meta-actions, #dataDialog { display: none !important; }");
+      expect(html).toContain(".meta-actions, .review-tabs, #dataDialog { display: none !important; }");
       expect(html).toContain('.workspace { display: block; }');
       const dataControllerStart = html.indexOf("function syncDataDialogState");
       const dataControllerEnd = html.indexOf("const searchInput", dataControllerStart);

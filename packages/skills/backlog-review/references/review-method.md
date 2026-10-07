@@ -38,6 +38,8 @@ The open tool accepts a complete validated report. It returns useful narration a
 
 The source widget validates the shared report, envelope identities, and display data before rendering the complete report. Project text stays inert. Search, clear search, filter, sort, disclosure, theme, print, Data modal access, and JSON download remain local. They make no `tools/call` request and send no agent `ui/message`. The icon-only top Data button opens the existing content; Work/Data tabs are absent. Display-size notifications can tell the host about layout only. Format Data only after the user opens it or starts the download. Download the complete validated report, regardless of local filters.
 
+At up to 760 pixels, available Attention/Next/Backlog sections use tabs in that order, with the first available section selected. Wider views keep the current sections without tabs. A wave-linked item routes locally to Backlog, filters the exact sourced reference, and expands the wave. Section switches and resize preserve search, sort, status filter, and disclosure. These actions make no tool, agent, task, or Store request. Print omits section tabs and shows all available report sections.
+
 Close Data before selecting Refresh. Reopen Data when you want to inspect the returned source/cache facts. Refresh stays in the existing top controls.
 
 The live widget puts permanent plain `Status: <status>` in its footer. It removes notices above the masthead and replaces only the live footer's `Open the project` link. Keep the static report footer and masthead link unchanged. Keep instructions out of the footer.
@@ -109,7 +111,7 @@ Classify each live record with judgment over accepted authority, recorded status
 
 Historical classification is an inference. Cite the complete or closed facts and state the limit. Completed tasks alone do not prove accepted closeout, a commit, closed history, release, or archive.
 
-Write a short `statusReason` that explains the decisive evidence. Use two to eight words when possible. Do not write a sentence, repeat the wave name, or include evidence links. The reason is flexible text. It never changes filter membership or color.
+Write a brief `statusReason` phrase for the badge, not a description or explanation. Prefer two to six words; use up to eight when an essential qualifier keeps the meaning true. Follow the [badge reason rules](report-model.md#status-rules). Put facts and longer reasoning in the existing detail. Keep authority or acceptance limits explicit there, and retain a badge qualifier when its removal would mislead. The agent writes this reason; the renderer does not shorten or replace it. The reason remains flexible V1 text and never changes filter membership or color.
 
 ## Build claims
 

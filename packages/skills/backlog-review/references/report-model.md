@@ -105,9 +105,21 @@ Only these live status values are valid:
 - `complete`
 - `history`
 
-Status controls filtering and semantic color. Reason supplies the visible explanation. A finding does not change status.
+Status controls filtering and semantic color. `statusReason` supplies a brief status phrase for the badge. It is not a wave description or explanation. A finding does not change status.
 
-Keep `statusReason` compact. Use two to eight words when the evidence permits it. Do not write a sentence, repeat the wave name, or include evidence links in the reason.
+Prefer two to six words. Use up to eight when a needed phase, blocker, or completion qualifier keeps the meaning true. This is a writing target within the existing V1 contract, not a new schema limit. Do not write a sentence, repeat the wave name, or include evidence links in the reason. Put the supporting facts, explanation, evidence, and limits in the existing Facts, Inference, and Recommended action detail.
+
+Keep any qualifier needed to avoid a false state or authority claim. `Ready` means readiness, not permission to implement or accept work. Keep required authority and incomplete acceptance explicit in detail. If the short phrase would become misleading without a qualifier, keep that qualifier in the badge too.
+
+These owner examples shorten the badge, not the recorded facts:
+
+| Longer reason | Brief badge reason | Detail to preserve |
+| --- | --- | --- |
+| Ready queue awaits implementation authority | Ready to start | Implementation still requires authority. |
+| P7 package acceptance awaits authority | P7 ready for acceptance | P7 acceptance is not complete and still requires authority. |
+| Active metadata disagrees with completed work | Metadata/completed work mismatch | The conflicting metadata and completion evidence remain distinct. |
+
+The agent writes the concise reason from current evidence. The renderer displays the validated `statusReason` as provided. Do not add runtime phrase replacement or truncation to make a badge shorter. Preserve full report data and its existing detail.
 
 Attention severity is deterministic presentation data. A finding for a `conflict` wave uses `error`. A finding for an `attention` wave uses `warning`. Every other record or backlog finding uses `info`. The severity changes the icon and its color. It does not change wave status.
 

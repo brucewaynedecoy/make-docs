@@ -1119,3 +1119,11 @@ git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-06-w25-
 ```
 
 The five changed paths use scoped `index_local`, followed by `get_sections` with `verify: true` and scoped broken-link review. The legacy `docs/history.md` body remains absent after refresh/retry and tracked lookup. The valid local history contract/template supplies the required path, headings, and table shape.
+
+## Uniform overview padding supplement — 2026-10-07
+
+[Padding review](evidence/supplemental-padding/padding-review.md) records the owner-requested 12px padding on all four sides, the final source identity, and the bounded three-width proof. P6 and P7 status and history are unchanged.
+
+## Overview grid and short-label follow-up — 2026-10-07
+
+[Follow-up review](evidence/supplemental-layout/overview-followup-2026-10-07.md) records the latest owner-requested 20px/28px spacing, aligned columns, paired coordinate/count row, and three preview-only short labels. The prior padding proof stays historical. P6 and P7 status and history are unchanged.
