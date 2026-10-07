@@ -1,0 +1,245 @@
+{
+  "scope": "Supplementary Data modal; current source UI and synthetic host only",
+  "conclusion": "satisfied",
+  "source": {
+    "sha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+    "bytes": 444492,
+    "overlay": false
+  },
+  "static": {
+    "sha256": "6ba5cd3f44fa8c517eb243d3521802375794e79a0712c38445b607b768402845",
+    "bytes": 61762,
+    "records": 2,
+    "fullDataMatchesInput": true
+  },
+  "executor": {
+    "browser": "Root CUA in-app browser",
+    "peerReview": "Browser agent inspected saved captures and root exact observations",
+    "directBrowserCli": false
+  },
+  "ui": {
+    "toolbarOrder": [
+      "Mode",
+      "Print",
+      "Refresh",
+      "Data"
+    ],
+    "buttonsIconOnly": true,
+    "svgPerButton": 1,
+    "tabRoles": 0,
+    "tablistRoles": 0,
+    "tabpanelRoles": 0,
+    "dataRightOfRefresh": true
+  },
+  "data": {
+    "closedJsonCharacters": 0,
+    "openedSmallJsonCharacters": 19041,
+    "byteEqualToBaseline": true,
+    "copy": "View or save the complete normalized data that backs this report. Filters, search, sorting, and open items do not change this data.",
+    "initialSourceCheck": "No refresh check yet.",
+    "initialCache": "Cache results appear after the source check."
+  },
+  "height": {
+    "basis": "Honest standard HostContext available height; mock enforces its maximum. Static uses own viewport.",
+    "standardDimensions": {
+      "width": "actual app frame width",
+      "maxHeight": "actual parent visible viewport height"
+    },
+    "resizeNotification": "ui/notifications/host-context-changed",
+    "resizeParams": "plain HostContext",
+    "cases": [
+      {
+        "width": 1280,
+        "parentHeight": 720,
+        "boundHeight": 720,
+        "frameHeight": 720,
+        "dialogHeight": 476,
+        "floor": 476,
+        "top": 193.46875
+      },
+      {
+        "width": 742,
+        "parentHeight": 1314,
+        "boundHeight": 1314,
+        "frameHeight": 1314,
+        "dialogHeight": 868,
+        "floor": 868,
+        "top": 185.578
+      },
+      {
+        "width": 390,
+        "parentHeight": 844,
+        "boundHeight": 844,
+        "frameHeight": 844,
+        "dialogHeight": 558,
+        "floor": 558,
+        "top": 183.719,
+        "dialogWidth": 342
+      },
+      {
+        "width": 1280,
+        "parentHeight": 1314,
+        "boundHeight": 1314,
+        "frameHeight": 1051,
+        "dialogHeight": 868,
+        "floor": 868,
+        "top": 171
+      },
+      {
+        "width": 1280,
+        "parentHeight": 1900,
+        "boundHeight": 1900,
+        "closedFrameHeight": 1051,
+        "openFrameHeight": 1278,
+        "requestedOpenHeight": 1278,
+        "dialogHeight": 1254,
+        "floor": 1254,
+        "top": 12
+      }
+    ],
+    "allFloorsMet": true,
+    "headerAndCloseVisible": true,
+    "shortFrameReserveWorked": true,
+    "noNewRpc": true,
+    "noFullscreen": true,
+    "noAppParentDomAccess": true
+  },
+  "focus": {
+    "initial": "Close",
+    "tabSequence": [
+      "Close",
+      "Download JSON",
+      "JSON pre",
+      "Close"
+    ],
+    "shiftTab": "Close to JSON pre",
+    "allInside": true,
+    "escapeCloses": true,
+    "escapeFocus": "Data",
+    "returnOnDataReopens": true,
+    "closeFocus": "Data",
+    "resizePreservesCloseFocus": true
+  },
+  "replacement": {
+    "scenario": "rebuilt-modal",
+    "explicitRefreshCalls": 1,
+    "agentMessages": 1,
+    "validActions": 1,
+    "lastAction": "review-backlog",
+    "opens": 2,
+    "added": [
+      "docs/work/2042-06-03-w1-r3-added"
+    ],
+    "changed": [
+      "docs/work/2042-06-01-w1-r1-orbit-notes"
+    ],
+    "removed": [
+      "docs/work/2042-06-02-w1-r2-removable"
+    ],
+    "cache": {
+      "hits": 0,
+      "misses": 2,
+      "rejected": 0
+    },
+    "priorJsonCharacters": 19041,
+    "priorJsonByteEqual": true,
+    "modalRemainsOpen": true,
+    "dialogHeight": 868,
+    "focusAfterReplacement": "Close",
+    "bodyScrollBeforeAndAfter": 0,
+    "newJsonCharacters": 17877,
+    "newPaths": [
+      "docs/work/2042-06-01-w1-r1-orbit-notes",
+      "docs/work/2042-06-03-w1-r3-added"
+    ],
+    "newTitles": [
+      "Orbit Notes — changed source",
+      "Synthetic added record"
+    ],
+    "taskCreated": false,
+    "scope": "Optional technical asynchronous arrival compatibility; Refresh starts before Data opens; not a required user gate"
+  },
+  "downloadProof": "download-emission-proof.json",
+  "staticBrowser": {
+    "tabRoles": 0,
+    "tablistRoles": 0,
+    "tabpanelRoles": 0,
+    "closedJsonCharacters": 0,
+    "dataSvg": 1,
+    "dataTextEmpty": true,
+    "windowHeight": 720,
+    "dialogHeight": 476,
+    "floor": 476,
+    "focus": "Close",
+    "jsonCharacters": 19041,
+    "byteEqualToBaseline": true,
+    "copyEqual": true,
+    "escapeCloses": true,
+    "escapeFocus": "Data",
+    "liveSourceCacheExtras": false
+  },
+  "retained": {
+    "records": 73,
+    "date": "2026-10-04",
+    "freshSnapshot": false,
+    "closedJsonCharacters": 0,
+    "toolbarIconOnly": true,
+    "tabRoles": 0,
+    "parentHeight": 1314,
+    "boundHeight": 1314,
+    "frameHeight": 1314,
+    "dialogHeight": 868,
+    "top": 284.21875,
+    "width": 694,
+    "header": "Data",
+    "closeTop": 305.21875,
+    "focus": "Close",
+    "jsonTextLength": 6999540,
+    "jsonBodyRead": false,
+    "largeAxTreeRead": false,
+    "toolCalls": 0,
+    "agentMessages": 0,
+    "taskCreated": false,
+    "pointerClose": true,
+    "closeFocus": "Data"
+  },
+  "repairHistory": [
+    {
+      "source": "3e7d205e476e3b0b252d84fe8978cdd8e145fa90f14f7da3185bed5f2176d076",
+      "finding": "Fixed top placement hid header/Close under parent scroll; Tab also left the modal.",
+      "resolution": "Visible control focus loop plus button-position placement; final honest host bounds."
+    },
+    {
+      "source": "69768ef1e7f3dc940c3bfd891fe0c00fbe485e163f0c92aaa87afc300cbd9c0e",
+      "finding": "Focus loop passed, but scrollIntoView did not move the outer IAB view.",
+      "resolution": "Button-position placement was used before the honest bound update."
+    },
+    {
+      "source": "fb8ae2fe9e4d406f06be15a378afa407650349894216b8af556c08678a6cee91",
+      "finding": "Visible560-pixel modal passed the prior target; owner then requested at least66% of window height.",
+      "resolution": "Standard truthful height/maxHeight bound; final floor/short-frame reserve proof."
+    }
+  ],
+  "inspectionLimits": {
+    "observer": "observer-attribution-limit.json",
+    "retainedLogsEmpty": false,
+    "smallRouteWarningLogs": [],
+    "automation": "Early stale control actions, a short wait before3.7sec replacement, and a coordinate download miss after body scroll were setup limits. Fresh controls and semantic clicks passed.",
+    "osSavedFileObserved": false,
+    "noBroadAccessibilityOrPerformanceClaim": true,
+    "noProductionHostClaim": true,
+    "noRealMessagesOrTasks": true,
+    "noStoreWrites": true
+  },
+  "cleanup": {
+    "staticServer83557": "stopped",
+    "source61947": "retained",
+    "approvedPreview57749": "retained",
+    "viewportReset": true
+  },
+  "refreshAccess": {
+    "normalPath": "Close Data, then Refresh",
+    "behindOpenModalRequired": false,
+    "newGate": false
+  }
+}

@@ -35,23 +35,28 @@ The report:
 - uses ascending coordinate and record-path ties after the selected primary sort;
 - makes each collapsed summary the disclosure surface while leaving its wave link independent;
 - makes each wave-specific Next and Attention item one accessible action that uses the matched wave coordinate as compact metadata and the claim as its main heading;
-- selects `All`, activates Work, searches for the matched coordinate, and focuses the result when that action runs;
+- selects `All`, shows the Backlog work list, searches for the matched coordinate, and focuses the result when that action runs;
 - labels null Attention references `Backlog finding` in the same metadata position and keeps them non-interactive;
 - places Attention before Next and applies the inter-section gap to the second visible section, so either section can be absent without leaving an empty top gap;
 - shows an accessible `Clear search` control only while search contains a value and preserves the active filter when it clears search;
 - keeps expanded detail outside the disclosure surface;
 - preserves visible focus, keyboard use, reduced motion, responsive layouts, and print; and
 - renders project text as inert text;
-- labels the main record section `Backlog` and gives it keyboard-accessible `Work` and `Data` tabs;
-- keeps search, filter, sort, and expanded-item state unchanged when the user switches tabs;
-- includes the complete normalized embedded model in the `Data` tab; and
+- labels the main record section `Backlog` and provides an icon-only top Data button with an accessible name;
+- opens existing Data content in a modal and provides no Work/Data tabs;
+- keeps search, filter, sort, and expanded-item state unchanged when the user opens or closes Data;
+- includes the complete normalized embedded model in the Data modal; and
 - downloads that same full model as JSON only after the user starts the download.
 
 The data view and download never use the current filter, search, sort order, or expanded-item state. They always expose the complete validated report model that is embedded in the file.
 
-Do not format or place the full JSON text in the Data panel during page startup. Format it only when the user first selects the `Data` tab or starts the download. Reuse that formatted value for later view or download actions. Keep the download control inside the `Data` panel. Do not duplicate data controls in the footer.
+Do not format or place the full JSON text in the Data modal during page startup. Format it only when the user first opens Data or starts the download. Reuse that formatted value for later view or download actions. Keep the download control inside the Data modal. Do not duplicate data controls in the footer.
 
-Use the standard tab pattern. `Work` is selected by default. Left Arrow, Right Arrow, Home, and End move and select the tabs. Tab changes must not rebuild the Work panel.
+The normal Backlog work list is visible by default. The top Data button opens an accessible modal. Use the Close data control or Escape to close it. Focus returns to Data. Opening or closing Data must not rebuild the work list or change local filters and disclosure state. Keep focus inside the open modal.
+
+Make the Data modal at least 66 percent of the visible window height. In an embedded live view, the automatically grown report frame is not that height. Keep the header and Close control in the visible window, with scrollable Data content.
+
+MCP host context describes container height or its maximum height. It does not always describe the parent window. Honor an honest host height bound and the host's actual container limit. Without that bound, the live page can measure only its own frame and cannot prove the parent-window percentage. The host must supply and honor a suitable visible-height bound before that height claim is made. This limit needs no new UI notice, RPC, or full-screen mode.
 
 Printing always shows the normal Work report and never shows Data or JSON. It keeps Attention before Next.
 
@@ -65,7 +70,7 @@ Attention icons use the fixed report mapping: `conflict` is error/red, `attentio
 
 ## Verify the result
 
-Open the saved file with network access unavailable. Check one wide and one narrow view in light and dark modes. Use the keyboard to select both Backlog tabs, activate one Next item, activate one wave-specific Attention item, clear search, change a filter, change both sort controls, open a wave, follow its source link, reach Print, and start the JSON download. Confirm each wave-specific list action selects `All`, activates Work, searches for its visible coordinate, and focuses the matching result. Confirm `Backlog finding` is not an action. Confirm that clearing search preserves the selected filter. Confirm that the wave link does not open or close detail. Confirm that the Work state survives a move to Data and back. Confirm that print shows Work and omits Data while keeping list coordinates readable.
+Open the saved file with network access unavailable. Check one wide and one narrow view in light and dark modes. Use the keyboard to open and close Data, activate one Next item, activate one wave-specific Attention item, clear search, change a filter, change both sort controls, open a wave, follow its source link, reach Print, and start the JSON download. Confirm each wave-specific list action selects `All`, shows the Backlog work list, searches for its visible coordinate, and focuses the matching result. Confirm `Backlog finding` is not an action. Confirm that clearing search preserves the selected filter. Confirm that the wave link does not open or close detail. Confirm that the work-list state survives opening and closing Data. Confirm that print shows the report and omits Data while keeping list coordinates readable.
 
 Compare the displayed data and downloaded JSON with the embedded model. They must contain every report record even when the visible wave list is filtered.
 

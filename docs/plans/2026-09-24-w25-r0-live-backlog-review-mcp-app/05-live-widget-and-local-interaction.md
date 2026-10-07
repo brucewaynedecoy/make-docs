@@ -16,7 +16,9 @@ Build the live widget while preserving the accepted Backlog Review design and ke
 
 ## Outcome
 
-P5 delivers the live page with the accepted title, project summary, tallies, Attention, Next, Backlog Work and Data tabs, wave list, legend, and footer.
+P5 delivered the live page with the accepted title, project summary, tallies, Attention, Next, Backlog Work and Data tabs, wave list, legend, and footer at its source closeout checkpoint.
+
+The direct 2026-10-06 [supplemental Data request](../../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/data-modal/data-modal-review.md) replaces those tabs with an icon-only top Data button and modal. Existing Data content and local state stay intact. This is later source guidance, not a rewrite of P5 test evidence, task status, or closeout.
 
 The user authorized the preflight fixes and implementation on 2026-10-04. The tested pre-commit checkpoint uses the current branch based on `19c19f42`. On 2026-10-06, the owner approved the footer remedy, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. t1-t6/A33-A40, 405 unique selected cases across finite runs, required agent review, and final resource hash `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a` support that closeout. These records belong to the P5 phase closeout commit. Root owns staging and the local commit. P6/P7, host setup, installed acceptance, branch changes, push, publication, and release need their own authority.
 

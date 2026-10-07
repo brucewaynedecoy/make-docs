@@ -1,0 +1,42 @@
+{
+  "scope": "Supplementary layout artifacts only",
+  "resourceSha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21",
+  "trailingWhitespace": [],
+  "artifacts": [
+    {
+      "file": "layout-browser-result.json",
+      "bytes": 4587,
+      "sha256": "a69a164ec3be977b8fd6339df0ec0b5e3155b0d498b0638d67b3e0b1f7b9e588"
+    },
+    {
+      "file": "layout-resource-proof.json",
+      "bytes": 1019,
+      "sha256": "3e30f2a541f1bc053ed4ceb5b95c1738132b28cfa8bd461308658d349dbf9170"
+    },
+    {
+      "file": "static-report-proof.json",
+      "bytes": 557,
+      "sha256": "a7ebe7100848c639615ad7baad9ce3af55bf4a33929b2ea542c4564afbf1734f"
+    },
+    {
+      "file": "layout-final-technical-packet.json",
+      "bytes": 4150,
+      "sha256": "efcaf31f3c0b018263b5859debdb8bd7e17d870094b50cb5ca7da91c6ead0820"
+    },
+    {
+      "file": "live-wide-final.jpg",
+      "bytes": 94006,
+      "sha256": "b0eb2393e52429256801c8f8a4c25864d32f77094d8a385e5b544bfdf1bdc53a"
+    },
+    {
+      "file": "live-narrow-final.jpg",
+      "bytes": 72724,
+      "sha256": "1bd2f9bdbb5a9de06076138a1464608e98c96751d83c34fa4a9645e7362b20e2"
+    },
+    {
+      "file": "live-mobile-final.jpg",
+      "bytes": 35838,
+      "sha256": "e4f6f6040020a611d69b46619cf112b1eafe2b20b3c32c70af08ab824bfa987b"
+    }
+  ]
+}

@@ -298,11 +298,14 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
     expect(listMakeDocsMcpTools(undefined, { profile: "all" }).find(tool => tool.name === first.name)?._meta?.ui.resourceUri).toBe(BACKLOG_REVIEW_UI_RESOURCE.uri);
   });
 
-  it("ships the P5 local widget without a tool or agent request transport", () => {
+  it("ships the approved P6 request bridge without a network or write transport", () => {
     const html = defaultAppResources("backlog")[0].text;
     expect(html).toContain("widgetReport");
     expect(html).toContain("ui/notifications/tool-result");
-    expect(html).not.toMatch(/tools\/call|ui\/message|fetch\(/);
-    // Full validation, hostile text, fallback, and local controls are P5 checks.
+    expect(html.includes("make_docs_backlog_review_refresh")).toBe(true);
+    expect(html.includes("tools/call")).toBe(true);
+    expect(html.includes("ui/message")).toBe(true);
+    expect(/fetch\(|work\.backlog-cache\.write|make_docs_work_backlog_cache_write/.test(html)).toBe(false);
+    // Full validation and the bounded, fixed requests are widget/controller checks.
   });
 });

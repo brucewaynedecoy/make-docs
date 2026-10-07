@@ -1,0 +1,104 @@
+{
+  "phase": "W25 R0 P6",
+  "nodeVersion": "v24.19.0",
+  "uniqueCurrentCasesBeforeDefaults": 251,
+  "focused": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-widget.test.ts",
+    "suites": [
+      {
+        "file": "backlog-request-controller.test.ts",
+        "cases": 37
+      },
+      {
+        "file": "backlog-widget.test.ts",
+        "cases": 48
+      }
+    ],
+    "passed": 85
+  },
+  "affected": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts",
+    "suites": [
+      {
+        "file": "backlog-live-contract.test.ts",
+        "cases": 41
+      },
+      {
+        "file": "backlog-presentation.test.ts",
+        "cases": 30
+      },
+      {
+        "file": "backlog-review-operations.test.ts",
+        "cases": 34
+      },
+      {
+        "file": "backlog-review-skill.test.ts",
+        "cases": 14
+      },
+      {
+        "file": "backlog-cache.test.ts",
+        "cases": 7
+      },
+      {
+        "file": "mcp-app-contract.test.ts",
+        "cases": 40
+      }
+    ],
+    "firstRun": {
+      "passed": 165,
+      "failed": 1,
+      "reason": "The former P5 resource test forbade tool/message transport. P6 approval permits the fixed request bridge."
+    },
+    "repair": "Only the obsolete test boundary changed. It still forbids network and cache-write transport.",
+    "repairedSuite": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-operations.test.ts",
+      "passed": 34
+    }
+  },
+  "typecheck": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "passed": true
+  },
+  "build": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "passed": true,
+    "afterFinalGuideFreeze": true
+  },
+  "assetDrift": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "passed": true
+  },
+  "trackedWhitespace": {
+    "command": "git diff --check",
+    "passed": true
+  },
+  "finalGuideChecks": {
+    "skill": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts",
+      "passed": 14,
+      "countedOnceInAffected": true
+    },
+    "defaults": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run validate:defaults --workspace @brucewaynedecoy/make-docs",
+      "passed": 53,
+      "suites": [
+        {
+          "file": "consistency.test.ts",
+          "cases": 38
+        },
+        {
+          "file": "template-links.test.ts",
+          "cases": 12
+        },
+        {
+          "file": "package-safety.test.ts",
+          "cases": 3
+        }
+      ]
+    }
+  },
+  "browserProof": "pending root review",
+  "productionHostDisplay": false,
+  "uniqueCurrentCases": 304,
+  "finalResourceProof": "final-built-resource-proof.json"
+}

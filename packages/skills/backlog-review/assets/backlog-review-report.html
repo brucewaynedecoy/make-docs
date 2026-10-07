@@ -210,10 +210,14 @@
     .order-item .report-action { padding: 13px 0; }
     .order-number { padding: 3px; font-size: .7rem; background: var(--paper); color: var(--ink); }
     .ledger { min-width: 0; }
-    .backlog-tabs { display: flex; gap: 18px; margin: 0 0 18px; border-bottom: 1px solid var(--line); }
-    .backlog-tab { min-height: 38px; margin-bottom: -1px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); padding: 6px 2px; font-size: .82rem; cursor: pointer; }
-    .backlog-tab[aria-selected="true"] { border-bottom-color: var(--ink); color: var(--ink); font-weight: 700; }
-    .backlog-panel[hidden] { display: none; }
+    .icon-button { width: 34px; min-width: 34px; padding: 0; display: inline-grid; place-items: center; }
+    .icon-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .data-dialog { position: fixed; inset: 24px 0 auto; width: min(960px, calc(100vw - 48px)); max-width: none; height: 66dvh; min-height: 66dvh; max-height: none; margin: 0 auto; border: 1px solid var(--line-strong); background: var(--panel); color: var(--ink); padding: 20px; }
+    .data-dialog[open] { display: flex; flex-direction: column; gap: 16px; }
+    .data-dialog::backdrop { background: rgb(0 0 0 / .55); }
+    .data-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .data-dialog-header h2 { margin: 0; font-size: 1rem; }
+    .data-dialog-body { min-height: 0; overflow: auto; }
     .controls { margin-bottom: 28px; }
     .search-wrap { position: relative; }
     .search-wrap::before { position: absolute; left: 13px; top: 50%; width: 12px; height: 12px; border: 2px solid var(--muted); border-radius: 50%; content: ""; transform: translateY(-58%); pointer-events: none; }
@@ -246,15 +250,13 @@
     .result-note { margin: 0 0 12px; color: var(--muted); font-size: .8rem; }
     .wave-list { border-top: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 82%, transparent); }
     .wave { border-bottom: 1px solid var(--line); }
-    .wave-overview { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(240px, 1.35fr) minmax(250px, 1.8fr); gap: 22px; align-items: start; padding: 22px 4px 14px; cursor: pointer; }
+    .wave-overview { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(240px, 1.35fr) minmax(250px, 1.8fr); column-gap: 22px; row-gap: 4px; align-items: start; padding: 22px 4px 14px; cursor: pointer; }
     .wave-overview:hover { background: color-mix(in srgb, var(--blue-soft) 20%, transparent); }
     .wave-overview:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
-    .wave-title { padding-bottom: 8px; }
-    .wave-title a { color: var(--ink); font-size: 1.05rem; font-weight: 760; text-decoration: none; }
+    .wave-title { display: contents; padding-bottom: 8px; }
+    .wave-title a { grid-column: 1 / -1; grid-row: 1; justify-self: start; color: var(--ink); font-size: 1.05rem; font-weight: 760; text-decoration: none; }
     .wave-title a:hover { text-decoration: underline; }
-    .wave-title p { margin: 4px 0 0; color: var(--muted); font-size: .78rem; }
-    .wave-summary { padding-bottom: 8px; color: var(--copy); font-size: .88rem; }
-    .wave-summary p { margin: 4px 0 0; padding-bottom: 4px; color: var(--muted); }
+    .wave-title p { grid-column: 1; grid-row: 2; margin: 0; color: var(--muted); font-size: .78rem; }
     .badge { display: inline-flex; width: fit-content; color: var(--muted); padding: 3px 8px; font-size: .7rem; font-weight: 650; }
     .badge.current { background: var(--wave-current-soft); color: var(--wave-current); }
     .badge.attention { background: var(--wave-attention-soft); color: var(--wave-attention); }
@@ -262,7 +264,8 @@
     .badge.deferred { background: var(--wave-deferred-soft); color: var(--wave-deferred); }
     .badge.complete { background: var(--wave-complete-soft); color: var(--wave-complete); }
     .badge.history { background: var(--wave-history-soft); color: var(--wave-history); }
-    .wave-status { margin-bottom: 9px; }
+    .wave-status { display: flex; grid-column: 2; grid-row: 2; margin-bottom: 9px; }
+    .track-wrap { grid-column: 3; grid-row: 2; }
     .track { display: grid; grid-template-columns: repeat(var(--phase-count), minmax(18px, 1fr)); gap: 2px; min-height: 10px; }
     .phase { min-height: 10px; border: 1px solid var(--line-strong); background: var(--phase-unknown); }
     .phase.complete { border-color: var(--phase-complete); background: var(--phase-complete); }
@@ -300,7 +303,7 @@
       .workspace { grid-template-columns: 1fr; }
       .attention { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
       .attention > section:not([hidden]) + section:not([hidden]) { margin-top: 0; }
-      .wave-overview { grid-template-columns: minmax(140px, .8fr) minmax(220px, 1.2fr) minmax(220px, 1.4fr); gap: 16px; }
+      .wave-overview { grid-template-columns: minmax(140px, .8fr) minmax(220px, 1.2fr) minmax(220px, 1.4fr); column-gap: 16px; }
     }
     @media (max-width: 760px) {
       .shell { width: min(100% - 24px, 680px); padding-top: 16px; }
@@ -313,6 +316,10 @@
       .ledger-tools { flex-direction: column; align-items: stretch; }
       .sort-controls { justify-content: flex-start; }
       .wave-overview { grid-template-columns: 1fr; gap: 10px; padding: 20px 2px 12px; }
+      .wave-title { display: block; }
+      .wave-status { display: block; }
+      .wave-title p { margin: 4px 0 0; }
+      .wave-title a, .wave-title p, .wave-status, .track-wrap { grid-column: auto; grid-row: auto; }
       .detail { grid-template-columns: 1fr; margin-inline: 2px; }
       footer { grid-template-columns: 1fr; }
     }
@@ -330,7 +337,7 @@
       :root, :root[data-theme="light"], :root[data-theme="dark"] { color-scheme: light; --ink: #15213c; --muted: #5d6b82; --paper: #ffffff; --panel: #ffffff; --copy: #34415a; --detail: #eef3ff; --detail-copy: #42506a; --line: #d7deea; --line-strong: #aeb9ca; --blue: #3159d8; --blue-soft: #e9efff; --phase-complete: #70ad9a; --phase-open: #829de0; --phase-blocked: #d77d87; --phase-conflict: #d5a158; --phase-superseded: #a7afbc; --phase-unknown: #dfe4ec; --wave-current: #3159d8; --wave-current-soft: #e9efff; --wave-attention: #9a5a10; --wave-attention-soft: #fff0db; --wave-conflict: #a6333d; --wave-conflict-soft: #fdebee; --wave-deferred: #6750a4; --wave-deferred-soft: #f0ebff; --wave-complete: #246b58; --wave-complete-soft: #e4f4ee; --wave-history: #5f6b7e; --wave-history-soft: #edf0f5; --button-text: #ffffff; }
       :root, :root[data-theme="light"], :root[data-theme="dark"] { --accent: #3159d8; --accent-line: #7187b6; }
       .shell { width: 100%; padding: 0; }
-      .controls, .filters, .sort-controls, .meta-actions, .backlog-tabs, #dataPanel { display: none !important; }
+      .controls, .filters, .sort-controls, .meta-actions, #dataDialog { display: none !important; }
       #workPanel { display: block !important; }
       .workspace { display: block; }
       .attention { position: static; margin-bottom: 28px; }
@@ -355,6 +362,7 @@
             <svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="M4 6V2h8v4M4 11H2.5A1.5 1.5 0 0 1 1 9.5v-2A1.5 1.5 0 0 1 2.5 6h11A1.5 1.5 0 0 1 15 7.5v2a1.5 1.5 0 0 1-1.5 1.5H12M4 9h8v5H4z" stroke-width="1.4" stroke-linejoin="round"/></svg>
             <span>Print</span>
           </button>
+          <button class="meta-button icon-button" type="button" id="openReportData" aria-label="Data" title="Data" aria-haspopup="dialog" aria-controls="dataDialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></button>
         </div>
       </dl>
     </header>
@@ -371,11 +379,7 @@
       </aside>
       <section class="ledger" aria-labelledby="ledgerHeading">
         <div class="section-heading"><h2 id="ledgerHeading">Backlog</h2></div>
-        <div class="backlog-tabs" role="tablist" aria-label="Backlog views">
-          <button class="backlog-tab" id="workTab" type="button" role="tab" aria-selected="true" aria-controls="workPanel" tabindex="0" data-backlog-tab="work">Work</button>
-          <button class="backlog-tab" id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel" tabindex="-1" data-backlog-tab="data">Data</button>
-        </div>
-        <div class="backlog-panel" id="workPanel" role="tabpanel" aria-labelledby="workTab">
+        <div id="workPanel">
           <div class="controls"><div class="search-wrap"><label class="sr-only" for="search">Search waves</label><input id="search" type="search" placeholder="Search coordinates, titles, states, or notes" autocomplete="off"><button class="search-clear" id="clearSearch" type="button" aria-label="Clear search" title="Clear search" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div></div>
           <div class="ledger-tools">
             <div class="filters" id="filters" role="group" aria-label="Filter waves"></div>
@@ -391,13 +395,16 @@
           <div class="wave-list" id="waveList"></div>
           <div class="legends"><section class="legend-block" aria-labelledby="legendHeading"><h2 id="legendHeading">Phase state legend</h2><div class="legend"><span><i class="complete"></i>Complete</span><span><i class="open"></i>Open or planned</span><span><i class="blocked"></i>Blocked</span><span><i class="conflict"></i>Conflicting evidence</span><span><i class="superseded"></i>Superseded</span><span><i></i>Not started or unknown</span></div></section></div>
         </div>
-        <div class="backlog-panel" id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden>
-          <p class="data-copy">View or save the complete normalized data that backs this report. Filters, search, sorting, and open items do not change this data.</p>
-          <div class="data-actions"><button class="meta-button" type="button" id="downloadReportData">Download JSON</button></div>
-          <pre class="data-view" id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"></pre>
-        </div>
       </section>
     </div>
+    <dialog class="data-dialog" id="dataDialog" aria-labelledby="dataDialogTitle">
+      <header class="data-dialog-header"><h2 id="dataDialogTitle">Data</h2><button class="meta-button icon-button" type="button" id="closeReportData" aria-label="Close data" title="Close data" autofocus><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></header>
+      <div class="data-dialog-body" id="dataPanel">
+        <p class="data-copy">View or save the complete normalized data that backs this report. Filters, search, sorting, and open items do not change this data.</p>
+        <div class="data-actions"><button class="meta-button" type="button" id="downloadReportData">Download JSON</button></div>
+        <pre class="data-view" id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"></pre>
+      </div>
+    </dialog>
     <footer><p><a id="projectFooterLink">Open the project</a></p></footer>
   </main>
   <script id="backlog-report-data" type="application/json">__MAKE_DOCS_BACKLOG_REPORT_DATA__</script>
@@ -584,9 +591,6 @@
       link.target = "_blank";
       link.rel = "noopener";
       title.append(link, node("p", "", recordTitle(record)));
-      const summary = node("div", "wave-summary");
-      summary.append(node("p", "", firstSummary(record)));
-
       const trackWrap = node("div", "track-wrap");
       const statusWrap = node("div", "wave-status");
       const status = record.scope === "archived" ? "history" : record.waveStatus;
@@ -609,8 +613,8 @@
       track.setAttribute("aria-label", phaseDescriptions.join(", "));
       const complete = valueOf(snapshot?.taskCounts?.complete, 0);
       const total = valueOf(snapshot?.taskCounts?.total, 0);
-      trackWrap.append(statusWrap, track, node("div", "track-stats", `${complete} of ${total} tasks complete`));
-      overview.append(title, summary, trackWrap);
+      trackWrap.append(track, node("div", "track-stats", `${complete} of ${total} tasks complete`));
+      overview.append(title, statusWrap, trackWrap);
 
       const detail = node("div", "detail");
       detail.id = detailId;
@@ -672,21 +676,54 @@
     document.querySelector("#archivedRecords").textContent = report.tallies.archivedRecords;
     const reportDataView = document.querySelector("#reportDataView");
     let reportDataLoaded = false;
-    const backlogTabs = [...document.querySelectorAll("[data-backlog-tab]")];
-
-    function activateBacklogTab(tab, moveFocus = false) {
-      backlogTabs.forEach((candidate) => {
-        const selected = candidate === tab;
-        candidate.setAttribute("aria-selected", String(selected));
-        candidate.tabIndex = selected ? 0 : -1;
-        document.getElementById(candidate.getAttribute("aria-controls")).hidden = !selected;
-      });
-      if (tab.dataset.backlogTab === "data" && !reportDataLoaded) {
+    const dataDialog = document.querySelector("#dataDialog");
+    const dataButton = document.querySelector("#openReportData");
+    const closeDataButton = document.querySelector("#closeReportData");
+    function syncDataDialogState() {
+      const open = dataDialog.open;
+      dataButton.setAttribute("aria-expanded", String(open));
+    }
+    function layoutDataDialog() {
+      const viewportHeight = window.innerHeight;
+      const height = Math.ceil(.66 * viewportHeight);
+      const top = Math.min(Math.max(12, dataButton.getBoundingClientRect().top), Math.max(12, window.innerHeight - height - 12));
+      dataDialog.style.top = `${top}px`;
+      dataDialog.style.height = `${height}px`;
+      dataDialog.style.minHeight = `${height}px`;
+    }
+    function openDataDialog() {
+      layoutDataDialog();
+      if (!dataDialog.open) dataDialog.showModal();
+      if (!reportDataLoaded) {
         reportDataView.textContent = getNormalizedReportJson();
         reportDataLoaded = true;
       }
-      if (moveFocus) tab.focus();
+      syncDataDialogState();
+      dataDialog.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
     }
+    function closeDataDialog() {
+      if (dataDialog.open) dataDialog.close();
+      syncDataDialogState();
+    }
+    dataButton.addEventListener("click", openDataDialog);
+    closeDataButton.addEventListener("click", closeDataDialog);
+    dataDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeDataDialog(); });
+    dataDialog.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab" || !dataDialog.open) return;
+      const controls = [...dataDialog.querySelectorAll("button:not([disabled]), [tabindex='0']")].filter((control) => control.getClientRects().length > 0);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && (document.activeElement === first || !dataDialog.contains(document.activeElement))) {
+        event.preventDefault(); last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && (document.activeElement === last || !dataDialog.contains(document.activeElement))) {
+        event.preventDefault(); first.focus({ preventScroll: true });
+      }
+    });
+    dataDialog.addEventListener("close", () => {
+      syncDataDialogState();
+      if (dataButton.isConnected) dataButton.focus({ preventScroll: true });
+    });
+    window.addEventListener("resize", () => { if (dataDialog.open) { layoutDataDialog(); syncDataDialogState(); } });
 
     const searchInput = document.querySelector("#search");
     const clearSearch = document.querySelector("#clearSearch");
@@ -694,7 +731,7 @@
       clearSearch.hidden = searchInput.value.length === 0;
     }
     function focusBacklogRecord(record) {
-      activateBacklogTab(document.querySelector("#workTab"));
+      closeDataDialog();
       setActiveFilter("all");
       searchInput.value = recordName(record);
       updateSearchClear();
@@ -714,22 +751,19 @@
       });
     }
 
-    backlogTabs.forEach((tab) => tab.addEventListener("click", () => activateBacklogTab(tab)));
-    document.querySelector("[role=tablist]").addEventListener("keydown", (event) => {
-      const current = backlogTabs.indexOf(document.activeElement);
-      if (current < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-      event.preventDefault();
-      const next = event.key === "Home" ? 0 : event.key === "End" ? backlogTabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + backlogTabs.length) % backlogTabs.length;
-      activateBacklogTab(backlogTabs[next], true);
-    });
-    let tabBeforePrint = null;
+    let dataBeforePrint = false, dataFocusBeforePrint = null;
     window.addEventListener("beforeprint", () => {
-      tabBeforePrint = backlogTabs.find((tab) => tab.getAttribute("aria-selected") === "true");
-      activateBacklogTab(document.querySelector("#workTab"));
+      dataBeforePrint = dataDialog.open;
+      dataFocusBeforePrint = dataDialog.contains(document.activeElement) ? document.activeElement : null;
+      dataDialog.dataset.beforePrint = String(dataBeforePrint);
+      closeDataDialog();
     });
     window.addEventListener("afterprint", () => {
-      if (tabBeforePrint) activateBacklogTab(tabBeforePrint);
-      tabBeforePrint = null;
+      if (dataBeforePrint) {
+        openDataDialog();
+        if (dataFocusBeforePrint?.isConnected) dataFocusBeforePrint.focus({ preventScroll: true });
+      }
+      dataBeforePrint = false; dataFocusBeforePrint = null; delete dataDialog.dataset.beforePrint;
     });
     document.querySelector("#downloadReportData").addEventListener("click", () => {
       const blob = new Blob([getNormalizedReportJson()], { type: "application/json;charset=utf-8" });
@@ -739,7 +773,7 @@
       download.href = href;
       download.download = `${projectSlug}-backlog-review.json`;
       download.hidden = true;
-      document.body.append(download);
+      dataDialog.append(download);
       download.click();
       download.remove();
       setTimeout(() => URL.revokeObjectURL(href), 0);

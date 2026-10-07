@@ -3,7 +3,9 @@ export function captureLocalState(root: HTMLElement) {
     sort: root.querySelector<HTMLSelectElement>("#sortBy")?.value ?? "updated",
     direction: root.querySelector<HTMLElement>("#sortDirection")?.dataset.direction ?? "desc",
     filter: root.querySelector<HTMLElement>("#filters [aria-pressed=true]")?.dataset.filter ?? "in-scope",
-    data: root.querySelector("#dataTab")?.getAttribute("aria-selected") === "true",
+    data: root.querySelector<HTMLDialogElement>("#dataDialog")?.open === true || root.querySelector<HTMLElement>("#dataDialog")?.dataset.beforePrint === "true",
+    dataScroll: root.querySelector<HTMLElement>("#dataPanel")?.scrollTop ?? 0,
+    jsonScroll: { top: root.querySelector<HTMLElement>("#reportDataView")?.scrollTop ?? 0, left: root.querySelector<HTMLElement>("#reportDataView")?.scrollLeft ?? 0 },
     open: Array.from(root.querySelectorAll<HTMLElement>(".wave")).filter(wave => wave.querySelector("[aria-expanded=true]"))
       .map(wave => wave.dataset.recordPath),
     focusId: root.contains(root.ownerDocument.activeElement) ? root.ownerDocument.activeElement?.id : null,
@@ -27,8 +29,13 @@ export function restoreLocalState(root: HTMLElement, state: ReturnType<typeof ca
     const surface = wave.querySelector<HTMLElement>("[data-disclosure-surface]")!;
     surface.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   }
-  if (state.data) root.querySelector<HTMLElement>("#dataTab")!.click();
-  if (state.focusId) root.querySelector<HTMLElement>(`#${state.focusId}`)?.focus();
+  if (state.data) {
+    root.querySelector<HTMLElement>("#openReportData")!.click();
+    root.querySelector<HTMLElement>("#dataPanel")!.scrollTop = state.dataScroll;
+    const json = root.querySelector<HTMLElement>("#reportDataView")!;
+    json.scrollTop = state.jsonScroll.top; json.scrollLeft = state.jsonScroll.left;
+  }
+  if (state.focusId) root.querySelector<HTMLElement>(`#${state.focusId}`)?.focus({ preventScroll: true });
   else if (state.focusRecord) Array.from(root.querySelectorAll<HTMLElement>(".wave"))
-    .find(wave => wave.dataset.recordPath === state.focusRecord)?.querySelector<HTMLElement>("[data-disclosure-surface]")?.focus();
+    .find(wave => wave.dataset.recordPath === state.focusRecord)?.querySelector<HTMLElement>("[data-disclosure-surface]")?.focus({ preventScroll: true });
 }

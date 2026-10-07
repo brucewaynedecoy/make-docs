@@ -1,0 +1,29 @@
+{
+  "scope": "Narrow current-source/host literal attribution check only",
+  "browserObservation": {
+    "message": "MutationObserver.observe non-Node",
+    "timestamp": "2026-10-07T03:33:41.621Z",
+    "url": null,
+    "stack": null,
+    "attributedToProduct": false
+  },
+  "checked": [
+    {
+      "route": "/widget",
+      "sha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+      "mutationObserverLiteralCount": 0
+    },
+    {
+      "route": "/host.js",
+      "sha256": "61d54a3438bb9899e95fb45405da6dafed6fabdc82210ba8f4e70a706c38fa39",
+      "mutationObserverLiteralCount": 0
+    },
+    {
+      "route": "/",
+      "sha256": "3d3de14f0c7a2f3bd22e7d4c42f8d389dc0399170dc9937c0bb137b7911800d4",
+      "mutationObserverLiteralCount": 0
+    }
+  ],
+  "conclusion": "No MutationObserver literal appears in the served canonical widget, host script, or parent HTML. The log remains unassigned. Functional modal proof passed.",
+  "limit": "A literal check cannot identify the origin of an unattributed browser/tool log or prove that all browser history is clean."
+}

@@ -1,0 +1,21 @@
+{
+  "scope": "Final source Blob output only; no OS saved-file claim",
+  "sourceSha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+  "sourceBytes": 444492,
+  "fixtureRecords": 2,
+  "anchorClicks": 1,
+  "anchorInsideOpenDialog": true,
+  "bytes": 19041,
+  "textLength": 19041,
+  "byteEqualToDisplayedJson": true,
+  "modelEqualToDisplayedJson": true,
+  "records": 2,
+  "downloadName": "aurora-notes-backlog-review.json",
+  "sha256": "e722bc5af141404b21b20b6be8a6b770e629bc7fc2da871b56bec3fdb44a4ffe",
+  "toolCalls": 0,
+  "agentMessages": 0,
+  "taskCreated": false,
+  "instrumentation": "Hidden synthetic-host event observer reads generated local Blob; app bytes/UI/default action are unchanged",
+  "osFileEventObserved": false,
+  "limit": "CUA download-event wait timed out; this proves emitted full JSON, not a saved file."
+}

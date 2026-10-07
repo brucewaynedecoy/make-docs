@@ -57,6 +57,7 @@ describe("backlog-review first-party Skill", () => {
       "references/html-report.md",
       "scripts/render-report.mjs",
       "scripts/report-contract.mjs",
+      "scripts/agent-contract.mjs",
       "scripts/collect-project-lead-context.mjs",
       "assets/backlog-review-report.html",
     ]);
@@ -248,9 +249,10 @@ describe("backlog-review first-party Skill", () => {
       expect(html).not.toContain("Review of ${report.tallies.workRecordsFound}");
       expect(html).toContain("report.projectLead.sentences.map");
       expect(html).toContain('<h2 id="ledgerHeading">Backlog</h2>');
-      expect(html).toContain('class="backlog-tabs" role="tablist" aria-label="Backlog views"');
-      expect(html).toContain('id="workTab" type="button" role="tab" aria-selected="true" aria-controls="workPanel"');
-      expect(html).toContain('id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel"');
+      expect(html).not.toMatch(/role="tablist"|role="tab"|role="tabpanel"|data-backlog-tab/);
+      expect(html).toContain('id="openReportData" aria-label="Data" title="Data" aria-haspopup="dialog"');
+      expect(html).toContain('<dialog class="data-dialog" id="dataDialog" aria-labelledby="dataDialogTitle">');
+      expect(html).toContain('id="closeReportData" aria-label="Close data" title="Close data" autofocus');
       expect(html).toContain('<h2>Attention</h2>');
       expect(html).not.toContain('<h2>Needs attention</h2>');
       expect(html).toContain('id="attentionBlock"');
@@ -274,29 +276,31 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain("function focusBacklogRecord(record)");
       expect(html).toContain('setActiveFilter("all");');
       expect(html).toContain('searchInput.value = recordName(record);');
-      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('closeDataDialog();');
       expect(html).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
-      expect(html).toContain('id="workPanel" role="tabpanel" aria-labelledby="workTab"');
-      expect(html).toContain('id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden');
+      expect(html).toContain('<div id="workPanel">');
+      expect(html).toContain('class="data-dialog-body" id="dataPanel"');
       expect(html).toContain("Complete normalized report data");
       expect(html).toContain('id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"');
       expect(html).not.toContain('id="toggleReportData"');
       expect(html).toContain("let normalizedReportJson = null;");
       expect(html).toContain("function getNormalizedReportJson()");
-      expect(html).toContain('tab.dataset.backlogTab === "data" && !reportDataLoaded');
+      expect(html).toContain('if (!reportDataLoaded)');
       expect(html).toContain("reportDataView.textContent = getNormalizedReportJson();");
-      expect(html).toContain('["ArrowLeft", "ArrowRight", "Home", "End"]');
+      expect(html).toContain('dataDialog.showModal();');
+      expect(html).toContain('dataDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeDataDialog(); });');
+      expect(html).toContain('dataButton.focus({ preventScroll: true });');
       expect(html).toContain('window.addEventListener("beforeprint"');
-      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('dataBeforePrint = dataDialog.open;');
       expect(html).toContain('window.addEventListener("afterprint"');
       expect(html).toContain("#workPanel { display: block !important; }");
-      expect(html).toContain(".backlog-tabs, #dataPanel { display: none !important; }");
+      expect(html).toContain(".meta-actions, #dataDialog { display: none !important; }");
       expect(html).toContain('.workspace { display: block; }');
-      const tabControllerStart = html.indexOf("function activateBacklogTab");
-      const tabControllerEnd = html.indexOf("const searchInput", tabControllerStart);
-      expect(tabControllerStart).toBeGreaterThan(-1);
-      expect(tabControllerEnd).toBeGreaterThan(tabControllerStart);
-      expect(html.slice(tabControllerStart, tabControllerEnd)).not.toContain("renderWaves");
+      const dataControllerStart = html.indexOf("function syncDataDialogState");
+      const dataControllerEnd = html.indexOf("const searchInput", dataControllerStart);
+      expect(dataControllerStart).toBeGreaterThan(-1);
+      expect(dataControllerEnd).toBeGreaterThan(dataControllerStart);
+      expect(html.slice(dataControllerStart, dataControllerEnd)).not.toContain("renderWaves");
       expect(html).toContain("new Blob([getNormalizedReportJson()]");
       expect(html).not.toContain("reportDataView.textContent = normalizedReportJson;");
       expect(html).toContain('download.download = `${projectSlug}-backlog-review.json`;');

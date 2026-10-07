@@ -8,7 +8,7 @@ Keep `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the v
 
 Validate the complete V1 report before building any presentation. Use the same normalized report for the static renderer, full client payload, Data view, and user-started JSON download. A shorter model-visible summary does not reduce the full report's records, tallies, findings, order, or limits.
 
-Keep the portable static validator generated from the shared contracts. Static and live boundaries must enforce the same report rules. Keep facts, inferences, recommendations, and cache fragments distinct. Filters, search, sort, theme, active tab, and disclosure state remain local display choices. They do not become report authority.
+Keep the portable static validator generated from the shared contracts. Static and live boundaries must enforce the same report rules. Keep facts, inferences, recommendations, and cache fragments distinct. Filters, search, sort, theme, Data dialog state, and disclosure state remain local display choices. They do not become report authority.
 
 Use concise `structuredContent` for model-visible orientation. Use the full live envelope as client payload in `_meta`. Client-only transport placement is not secure storage. The host and client can read that data. It must not be treated as secret. The live payload builder returns data. It does not write a saved report, call a host, or prove that a widget opened.
 
@@ -130,11 +130,13 @@ The live envelope contains `schemaVersion: 1`, `report`, `projectKey`, `snapshot
 | `projectKey` | SHA-256 identity derived from the snapshot's resolved project root and nullable project ID. Store access is not required. |
 | `snapshotId` | SHA-256 identity over stable JSON for the validated snapshot's source facts. |
 | `modelId` | SHA-256 identity over stable JSON for the validated report, including its review conclusions. |
-| `sessionId` | A new opaque UUID for each future live open. The caller supplies it. Tests can supply a fixed UUID. |
+| `sessionId` | A new opaque UUID for each distinct live open. A trusted caller can supply a fresh UUID with the report; report-only open keeps server generation. Tests can supply a fixed UUID. |
 
 Exclude generation timestamps from snapshot and model identities. Retain source evidence times and other facts. A timestamp-only regeneration does not create a new identity. A source-fact change changes snapshot identity. A report-conclusion change changes model identity. These identities do not replace the existing cache identity or version rules.
 
 Before an action, compare the envelope's project and snapshot identities with a current validated snapshot. Compare the message's model and session identities with the envelope. A valid schema alone does not prove that the reference is current.
+
+The active agent retains expected context from its own prepared open and confirmed actual successful result. `candidateEnvelope` is provisional. Only `confirmBacklogAgentOpen` may return `authoritativeEnvelope` for action resolution. Do not use a received action's session ID, message data, or project sentence to establish expected context. Missing trusted context rejects the live action; normal current-file review remains available. The optional UUID input changes no V1 report/envelope output or cache rule.
 
 ## Fixed live actions
 
@@ -160,8 +162,8 @@ The pure refresh contract compares the last reviewed envelope with the available
 | `changed` | Carry previous and current snapshot IDs plus exact `added`, `changed`, and `removed` path lists. | `needs-review`: retain the old model as the last reviewed result. Request a new agent review before treating its conclusions as current. |
 | `unavailable` | Current source facts could not be read. Use `source-unavailable`, `source-denied`, or `source-unsafe` as the exact secondary reason. | `last-known`: retain the prior result with a clear source-access limit. Retry source access before claiming a current review. |
 
-The refresh review request carries both snapshot IDs and all three exact change lists. The UI cannot write new conclusions itself. The agent reviews nonmatching records, rebuilds all portfolio conclusions, and validates the full report before opening a new model in a later phase.
+The refresh review request carries both snapshot IDs and all three exact change lists. The UI cannot write new conclusions itself. Resolve the request against the old retained session/model and exact snapshot/change fields. The agent reviews nonmatching records, rebuilds all portfolio conclusions, and rereads current facts. Validate the incoming whole report against the latest checked project/snapshot before a fresh open. The new session and report-derived model identity can differ from the old request IDs. Do not infer an extra request token or automatic unsolicited-result rejection from these checks.
 
 Keep source failure separate from optional cache failure. A Store failure must not turn an available current snapshot into `unavailable`. Search, filter, sort, disclosure, theme, print, Data view, and JSON download remain local display choices. They do not become report authority or cache content.
 
-P4's shared refresh operation connects the pure comparison to the existing snapshot operation and one exact cache lookup. The nested lookup keeps the accepted caller and Store checks. An invalid cache result also limits reuse only. The operation writes no new conclusion. A changed or unavailable result keeps the prior model with its exact review-state limit. The live agent review flow remains planned work.
+P4's shared refresh operation connects the pure comparison to the existing snapshot operation and one exact cache lookup. The nested lookup keeps the accepted caller and Store checks. An invalid cache result limits reuse only. The operation writes no new conclusion. P6's source agent helpers validate controlled requests and rebuild/open inputs. Their presence is not activated live UI or host proof. A changed or unavailable result keeps the prior model with its exact review-state limit.

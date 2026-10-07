@@ -81,6 +81,11 @@ describe("P3 shared report meaning", () => {
     expect(report.records.map(record => record.waveStatus)).toEqual(["attention", "current", "conflict", "deferred", "complete", "history", null]);
     expect(report.records.map(record => record.statusReason)).toEqual(["Synthetic attention reason", "Synthetic current reason", "Synthetic conflict reason", "Synthetic deferred reason", "Synthetic complete reason", "Synthetic history reason", "Archived by synthetic repository location"]);
     expect(result.report.records[0].facts[0].class).toBe("fact");
+    const rendered = staticWave(result.report, result.display, 0);
+    const collapsed = descendants(rendered.children[0]);
+    expect(collapsed.filter(element => element.className.startsWith("badge ")).map(element => element.textContent)).toEqual([result.report.records[0].statusReason]);
+    expect(collapsed.map(element => element.textContent).join(" ")).not.toContain(result.display.records[0].summary);
+    expect(descendants(rendered.children[1]).map(element => element.textContent).join(" ")).toContain(result.report.records[0].inferences[0].text);
   });
 
   it("trims sourced title whitespace before removing the coordinate and work suffix", () => {
@@ -257,7 +262,7 @@ describe("P3 trust, compatibility, and portable rendering", () => {
     expect(template.indexOf('id="attentionBlock"')).toBeLessThan(template.indexOf('id="orderBlock"'));
     expect(template).toContain('let normalizedReportJson = null;');
     expect(template).toContain('JSON.stringify(report, null, 2)');
-    expect(template).toContain('tab.dataset.backlogTab === "data" && !reportDataLoaded');
+    expect(template).toContain('if (!reportDataLoaded)');
     expect(template).toContain('document.querySelector("#downloadReportData").addEventListener("click"');
     expect(template).not.toContain('JSON.stringify(visible');
     expect(template).toContain("connect-src 'none'");

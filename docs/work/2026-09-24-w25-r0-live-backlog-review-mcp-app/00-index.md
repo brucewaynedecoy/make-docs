@@ -7,7 +7,7 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan."
-  coordinate_handoff: "W25 R0 P1-P5 and W24 R0 P1-P4 are closed. The user authorized P5 closeout and a local commit on 2026-10-06. P5 source/finite browser evidence supports t1-t6/A33-A40. P6 is next eligible and needs separate implementation authority; P7 remains pending."
+  coordinate_handoff: "W25 R0 P1-P6 and W24 R0 P1-P4 are closed. P6 closes under the user's 2026-10-06 local commit authority. P7 is next eligible and needs separate implementation authority for installed, real-host, and PERF-002 acceptance."
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
@@ -29,6 +29,8 @@ The user separately authorized P4 implementation on 2026-10-04. Its tested sourc
 
 The user separately authorized P5 preflight fixes and implementation on 2026-10-04. Its tested pre-commit checkpoint uses the current branch based on P4 commit `19c19f42`. On 2026-10-06, the owner approved live-only footer placement and exact five labels, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. t1-t6/A33-A40, final 73-record changed proof, and 405 unique selected cases across finite runs support the closeout. These records belong to the P5 phase closeout commit. Root owns staging the reviewed file set and the local commit. P6/P7, installation, Store writes, host changes, branch changes, push, publication, and release remain outside this authority.
 
+The user separately authorized P6 implementation and then closeout/local commit on client date 2026-10-06. Its pre-commit base is `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. Tyler approved the feedback-removed preview and directly requested the later wave-layout and Data-modal supplements. P6 is closed within source and bounded mock-host/static scope. t1-t6/A41-A50 and required agent reviews have evidence. The original e4/304-case checkpoint and final 3bde/137-case affected set stay distinct. The Data modal meets the tested 66 percent visible-height floors with honest bounds. These records belong to the P6 closeout commit. Root owns staging and the authorized local commit. P7, push, release, installation, Store/host changes, and branch changes remain outside this authority.
+
 ## Human Experience Trace
 
 | Promise | Source | Owner | Phase | Evidence | Gate |
@@ -49,7 +51,7 @@ The user separately authorized P5 preflight fixes and implementation on 2026-10-
 | P3 | Closed: shared source model | [Shared Model and Dual Renderer](03-shared-model-and-dual-renderer.md) | Unchanged V1 with the separate P1 envelope, shared static rendering, concise chat/live payloads, and exact meaning parity. User-authorized closeout and local commit. No production live widget is claimed. |
 | P4 | Closed: source tools and resource | [Backlog Profile Tools and UI Resource](04-backlog-profile-tools-and-ui-resource.md) | Two shared read-only operations, derived tools, useful no-UI results, and one versioned UI resource in the accepted W24 profiles. A25-A32 pass. User-authorized closeout and local commit. Product widget behavior remains later work. |
 | P5 | Closed: source widget and local controls | [Live Widget and Local Interaction](05-live-widget-and-local-interaction.md) | Owner-approved live footer, larger-input repair, and affected actual-source proof pass. t1-t6/A33-A40 have bounded evidence. User-authorized closeout and local commit. P6 action execution remains later work. |
-| P6 | Not started | [Refresh Cache and Agent Actions](06-refresh-cache-and-agent-actions.md) | Safe refresh, cache reuse, agent review, and explicit task-request flow. |
+| P6 | Closed: bounded source refresh and actions | [Refresh Cache and Agent Actions](06-refresh-cache-and-agent-actions.md) | t1-t6/A41-A50, exact active-agent context, optional cache, controlled requests, and user-requested layout/modal have bounded proof. User-authorized closeout/local commit. Real-host, installed, and PERF-002 acceptance remain P7. |
 | P7 | Not started | [Parity Performance and Acceptance](07-parity-performance-and-acceptance.md) | One accepted package candidate with installed, performance, accessibility, and Human Experience evidence. |
 
 ## Usage Notes
@@ -70,7 +72,7 @@ The user separately authorized P5 preflight fixes and implementation on 2026-10-
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: W25 R0 P6 is next eligible and needs separate implementation authority. W25 R0 P1-P5 and W24 R0 P1-P4 are closed. P5's local commit is authorized. P7 remains pending.
+- Next step: finish the authorized P6 local commit. P7 is next eligible and needs separate implementation authority. Its scope includes installed, real-host, and PERF-002 acceptance.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan.
-- Coordinate Handoff: W25 R0 P1-P5 and W24 R0 P1-P4 are closed. The [2026-10-06 footer finding](evidence.md#p5-owner-status-ui-finding--2026-10-06) is resolved within final source/browser proof. The user authorized P5 closeout and a local commit. P6 is next eligible and needs separate implementation authority; P7 remains pending.
+- Coordinate Handoff: W25 R0 P1-P6 and W24 R0 P1-P4 are closed. P6 has [closeout/local commit authority](evidence.md#p6-closeout--2026-10-06) dated 2026-10-06. Original preview and direct supplemental requests retain their exact scope. P7 implementation and push/release/install/host/Store changes need their own authority.

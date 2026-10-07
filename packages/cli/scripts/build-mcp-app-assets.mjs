@@ -19,9 +19,24 @@ for (const line of ['"use strict";', 'const report = JSON.parse(document.querySe
 }
 // Removed data declarations and the closing tag leave blank-line indentation.
 renderer = renderer.replace(/^[\t ]+$/gm, "");
+// Narrow live hooks; the accepted static source itself is unchanged.
+for (const [before, after] of [
+  ['visible.forEach((record, index) => list.append(renderWave(record, index)));', 'visible.forEach((record, index) => list.append(renderWave(record, index)));\n      hooks.wavesRendered?.();'],
+  ['themeButton.textContent = dark ? "Light mode" : "Dark mode";', 'if (hooks.themeChanged) hooks.themeChanged(themeButton, dark);\n      else themeButton.textContent = dark ? "Light mode" : "Dark mode";'],
+  ['dataButton.setAttribute("aria-expanded", String(open));', 'dataButton.setAttribute("aria-expanded", String(open));\n      hooks.dataChanged?.(open);'],
+  ['const viewportHeight = window.innerHeight;', 'const viewportHeight = hooks.dataViewportHeight?.() ?? window.innerHeight;'],
+  ['dataButton.addEventListener("click", openDataDialog);', 'listen(dataButton, "click", openDataDialog);'],
+  ['closeDataButton.addEventListener("click", closeDataDialog);', 'listen(closeDataButton, "click", closeDataDialog);'],
+  ['dataDialog.addEventListener("cancel",', 'listen(dataDialog, "cancel",'],
+  ['dataDialog.addEventListener("keydown",', 'listen(dataDialog, "keydown",'],
+  ['dataDialog.addEventListener("close",', 'listen(dataDialog, "close",'],
+]) {
+  if (renderer.split(before).length !== 2) throw new Error("Accepted renderer hook boundary changed.");
+  renderer = renderer.replace(before, after);
+}
 const rendererModule = `// Generated from the accepted static report. Run scripts/build-mcp-app-assets.mjs.\n`
   + `export const reportMarkup = ${JSON.stringify(markup)};\nexport const reportStyles = ${JSON.stringify(styles)};\n`
-  + `export function mountStaticReport(report, presentation, root) {\n`
+  + `export function mountStaticReport(report, presentation, root, hooks = {}) {\n`
   + `  const nativeDocument = root.ownerDocument, nativeWindow = nativeDocument.defaultView;\n`
   + `  let disposed = false; const cleanups = []; const frames = new Set();\n`
   + `  const listen = (target, type, listener, options) => { target.addEventListener(type, listener, options); cleanups.push(() => target.removeEventListener(type, listener, options)); };\n`
@@ -40,7 +55,7 @@ const rendererModule = `// Generated from the accepted static report. Run script
   + `    const value = Reflect.get(target, key, target); return typeof value === 'function' ? value.bind(target) : value;\n`
   + `  } });\n`
   + `  const requestAnimationFrame = callback => { const id = nativeWindow.requestAnimationFrame(time => { frames.delete(id); if (!disposed) callback(time); }); frames.add(id); return id; };\n`
-  + renderer + `\n  return () => { disposed = true; cleanups.forEach(cleanup => cleanup()); frames.forEach(id => nativeWindow.cancelAnimationFrame(id)); };\n}\n`;
+  + renderer + `\n  return () => { disposed = true; cleanups.forEach(cleanup => cleanup()); if (dataDialog.open) dataDialog.close(); frames.forEach(id => nativeWindow.cancelAnimationFrame(id)); };\n}\n`;
 const rendererPath = path("../src/mcp/widget/static-renderer.js");
 const bundled = await build({
   entryPoints: [fileURLToPath(path("../src/mcp/widget/entry.ts"))], bundle: true, write: false,
@@ -53,7 +68,8 @@ const bundled = await build({
   } }],
 });
 const code = bundled.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
-const html = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Backlog review</title>\n<style>${styles}</style>\n<style>[hidden] { display: none !important; }</style>\n</head>\n<body>\n<div id="widgetEmpty" class="shell"><h1>Backlog review</h1><p>No report is loaded. Ask for a backlog review in chat.</p><footer><p id="widgetStatus" role="status" aria-live="polite">Status: Report unavailable</p></footer></div>\n<div id="widgetReport" hidden></div>\n<script>${code}</script>\n</body>\n</html>\n`;
+const liveStyles = await readFile(path("../src/mcp/widget/live-view.css"), "utf8");
+const html = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Backlog review</title>\n<style>${styles}</style>\n<style>[hidden] { display: none !important; }\n${liveStyles}</style>\n</head>\n<body>\n<div id="widgetEmpty" class="shell"><h1>Backlog review</h1><p>No report is loaded. Ask for a backlog review in chat.</p><footer><p id="widgetStatus" role="status" aria-live="polite">Status: Report unavailable</p></footer></div>\n<div id="widgetReport" hidden></div>\n<script>${code}</script>\n</body>\n</html>\n`;
 const moduleText = "// Generated from backlog-review-v1.html by scripts/build-mcp-app-assets.mjs.\n" + `export default ${JSON.stringify(html)};\n`;
 for (const [output, content] of [[rendererPath, rendererModule], [path("../src/mcp/assets/backlog-review-v1.html"), html],
   [path("../src/mcp/assets/backlog-review-v1.ts"), moduleText]]) {

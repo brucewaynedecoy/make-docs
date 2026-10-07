@@ -1,0 +1,171 @@
+{
+  "scope": "Owner-requested Data modal and 66% minimum outside W25 R0 P6",
+  "files": [
+    {
+      "path": "packages/skills/backlog-review/assets/backlog-review-report.html",
+      "bytes": 50768,
+      "sha256": "effac13d9808e51e58b9eb5f9ef2c6b200d45199467feb1f487a7e1ad0c3bd70"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/entry.ts",
+      "bytes": 7709,
+      "sha256": "ea499aaf2da5ffff0349a21905cf3dfb96f9f4055d1b51a10cce7829b0bda05e"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/container-size.ts",
+      "bytes": 1237,
+      "sha256": "477f477296410d82685193598a970e2de3a13bd49adf7cb7fae6987bf3910128"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/local-state.ts",
+      "bytes": 3026,
+      "sha256": "1517e0876e29a6b9625a9ebad772dd36de08599892297647fdf284dc3a95fdd2"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/live-view.ts",
+      "bytes": 8558,
+      "sha256": "3830abaf782d4760149661a77fb896ffe1ebbebc1d2c858f249948ce1cb926cc"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/static-renderer.js",
+      "bytes": 52815,
+      "sha256": "e0de5d2e194bbef2b24a29d8b9ce8d25aa7c680c19909e28694d15c6618bd5c8"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/static-renderer.d.ts",
+      "bytes": 584,
+      "sha256": "9e8478b2f5443b4804affb48d3a3950dbc6f6bed13fb7831d04cd98a97d8dcb0"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 444492,
+      "sha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 475458,
+      "sha256": "62bf8e0d3daa8473015487f72d239d44f216461865d9722934d40612e38de2f6"
+    },
+    {
+      "path": "packages/cli/scripts/build-mcp-app-assets.mjs",
+      "bytes": 7068,
+      "sha256": "034b3b71a420c1bd452fbe3d3703e62799dafd9e0f83cebd1f29e917ab73262e"
+    },
+    {
+      "path": "packages/cli/tests/backlog-widget.test.ts",
+      "bytes": 36826,
+      "sha256": "3253557608afad03a8a195b1870138700d35896c52a6f0d95c467e7e8f4ca67e"
+    },
+    {
+      "path": "packages/cli/tests/backlog-presentation.test.ts",
+      "bytes": 20005,
+      "sha256": "0f00e98e147070dd0126670cd5458fe515a37435dc97c1676cde881fd51171c5"
+    },
+    {
+      "path": "packages/cli/tests/backlog-review-skill.test.ts",
+      "bytes": 24650,
+      "sha256": "7beb39de3c1927f4c1a39b868dded94d798317f40129a8846210c0b7ee9fa6cc"
+    }
+  ],
+  "unchangedContractsFromHEAD": [
+    "packages/cli/src/operations/work/backlog/schemas.ts",
+    "packages/cli/src/operations/work/backlog/live-contracts.ts",
+    "packages/cli/src/operations/work/backlog/presentation.ts",
+    "packages/cli/src/mcp/widget/browser-crypto.ts",
+    "packages/skills/backlog-review/scripts/report-contract.mjs"
+  ],
+  "unchangedP6Logic": [
+    "packages/cli/src/mcp/widget/request-controller.ts",
+    "packages/cli/src/mcp/widget/host-capabilities.ts",
+    "packages/cli/src/operations/work/backlog/agent-contracts.ts",
+    "packages/cli/src/operations/work/backlog/review-contracts.ts",
+    "packages/cli/src/operations/work/backlog/review-operation.ts"
+  ],
+  "height": {
+    "rule": "ceil(0.66 * available height)",
+    "hostSource": "Valid initialize.hostContext.containerDimensions.height or maxHeight; ordinary ui/notifications/host-context-changed updates.",
+    "staticSource": "Actual standalone window.innerHeight.",
+    "missingHostBound": "Only the own-frame viewport is measurable. Parent-window size is not proved. Supply an honest fixed/maximum available app height and apply that bound in the host.",
+    "shortFrame": "The existing size notification reserves open-modal extent within the host bound. The minimum is not reduced.",
+    "extraRpc": false,
+    "displayModeChange": false,
+    "parentDomAccess": false,
+    "spec": "https://raw.githubusercontent.com/modelcontextprotocol/ext-apps/main/src/spec.types.ts"
+  },
+  "checks": {
+    "focused": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts tests/backlog-presentation.test.ts tests/backlog-request-controller.test.ts tests/backlog-review-skill.test.ts",
+      "passed": 137,
+      "suites": {
+        "widget": 56,
+        "presentation": 30,
+        "controller": 37,
+        "skill": 14
+      },
+      "newCasesFromPreModal": 8,
+      "localStateCasesIncluded": true
+    },
+    "typecheck": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "passed": true
+    },
+    "build": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "passed": true
+    },
+    "drift": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "passed": true
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "passed": true,
+      "untrackedTextScanned": true
+    }
+  },
+  "resource": {
+    "exactSourceBytes": true,
+    "uri": "ui://make-docs/backlog-review/v1.html",
+    "mimeType": "text/html;profile=mcp-app",
+    "csp": {
+      "connectDomains": [],
+      "resourceDomains": [],
+      "frameDomains": [],
+      "baseUriDomains": []
+    },
+    "bytes": 444492,
+    "sha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+    "productionHostDisplay": false
+  },
+  "staticProof": "static-small-proof.json",
+  "staticArtifact": "static-small-report.html",
+  "browserReview": "Root reports final 720/844/1314/1900 height/focus/JSON/local-request passes. Static/rebuild/retained proof still pending.",
+  "interimTechnicalPacket": "data-modal-technical-packet.json",
+  "builtInvocation": {
+    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "args": [
+      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "mcp",
+      "--profile",
+      "backlog"
+    ],
+    "cwd": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+  },
+  "builtFiles": [
+    {
+      "path": "packages/cli/dist/index.js",
+      "bytes": 211248,
+      "sha256": "6669de079ee5937ca07fa772ffa471588ac3376f526f250b493a0ba1bd036c6c"
+    },
+    {
+      "path": "packages/cli/dist/server-URY6UDDK.js",
+      "bytes": 480725,
+      "sha256": "934a445b98bfc433d30cde95b4b0174a429ab70dcb851fc7e2c4acb62cf5d30d"
+    },
+    {
+      "path": "packages/cli/dist/virtual_make-docs-first-party-skills-VXLXOTMF.js",
+      "bytes": 1717420,
+      "sha256": "b90520ca2d18f2dd1a70bd8f528713de13b76bb175c875d01a96b27a5b068089"
+    }
+  ]
+}

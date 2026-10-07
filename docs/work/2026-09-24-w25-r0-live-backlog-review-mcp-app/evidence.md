@@ -19,6 +19,8 @@ The user separately authorized P4 implementation on 2026-10-04 after accepted W2
 
 The user separately authorized P5 preflight fixes and implementation on 2026-10-04. Its tested pre-commit checkpoint is based on P4 commit `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2` on the same branch. On 2026-10-06, the owner approved the live footer remedy and five labels, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. t1-t6/A33-A40, the repaired 73-record changed result, required agent review, and 405 unique selected cases across finite runs support the closeout. These records belong to the P5 phase closeout commit. Root owns staging and the local commit. P6/P7, installation, Store/host changes, branch changes, push, publication, and release remain outside this authority.
 
+The user separately authorized P6 implementation and then closeout/local commit on client date 2026-10-06. Its pre-commit base is `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. P6 is closed within source and bounded mock-host/static scope. t1-t6/A41-A50, the original e4/304-case checkpoint, and final 3bde/137-case affected proof remain distinct. Preview approval and later direct layout/Data-modal requests supply consultation. Required agent reviews are satisfied within recorded limits. The [closeout record](#p6-closeout--2026-10-06) and phase history belong to the authorized local commit. P7, push, release, installation, Store/host changes, and branch changes remain outside this authority.
+
 ## P1 Tested State
 
 - Date: 2026-09-30.
@@ -918,3 +920,202 @@ Path check error: Invalid content path: .make-docs/archive/history/2026-10-06-w2
 That command exits two before inspecting the history. The current history contract and parent archive router require the canonical path. The new record stays there. Current jdoc structure/content, relative links, and whitespace checks support that record separately. No installed router or public path-rule repair is made.
 
 `git diff --check` passes. `git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md` has no whitespace output. Its exit one is the normal new-file difference. The scoped phase Markdown link result and current section hashes are checked before staging. The commit message uses the exact history Changes first paragraph. No source test is repeated.
+
+## P6 Start and Design Gate — 2026-10-06
+
+The source-guide agent verified branch `w25-r0-p1-live-delivery-contract`, HEAD `04edf4f61ee5af21c319dbc4698cc578fb5362c7`, and a clean working tree before its first P6 edits. P1-P5 are closed. This start record binds implementation authority and the direct user design gate. At that point, t1-t6 and A41-A50 needed actual proof. The later [implementation result](#p6-implementation-and-acceptance-evidence--2026-10-06) is separate acceptance evidence.
+
+The user explicitly requires preview approval for any new or updated P6 live UI element, wording, or behavior. Reviewer: Tyler. Surface: a concrete preview of exact controls, icons, accessible names, text, placement, outcomes, and recovery/disabled states. Acceptance question: approve this exact preview for live activation? Gate effect: blocking for that activation and the affected whole-surface A50 claim. It is separate from advisory Guided Progress Review and required agent Human Experience Review. The approval below covers only the exact feedback-removed version; actual-source proof is still required.
+
+The owner approved proposed control/behavior direction for preview: icon-only Review and New Task inside expanded wave details; Refresh beside top Mode and Print; all three top controls icon-only. The proposed controller disables wave/task requests while checking, needs-review, or last-known. That disabled behavior must appear in the concrete preview. Preserve P5 footer labels/layout and the rest of the accepted report. The live resource baseline remains `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a` until approved integration.
+
+Earlier owner feedback on 2026-10-06 rejected the per-wave inline request feedback `Request failed. Ask in this chat.` as unapproved UI/UX in the temporary preview. All per-wave request feedback was removed. The owner then said “Alright. The preview is now approved.” This accepts the exact [v1.2-feedback-removed preview](http://127.0.0.1:57749/), including the original icon-only direction and removal of inline request text. Matching live integration was then authorized. No replacement location/copy is approved or added. The prior question about replacement footer wording was not answered; the accepted current preview has none. P5 footer labels/layout remain the boundary. The earlier 207-case non-UI checkpoint remains historical. Actual-source proof and A50 were still pending at preview approval; the later result below resolves them within its stated limits. No closure, history, staging, or commit follows from preview approval.
+
+Isolated logic and source Skill workflow work may proceed. Current decisions follow [PRD 50](../../prd/50-proportionate-testing-and-human-centered-validation.md) and the [P6 work record](06-refresh-cache-and-agent-actions.md#current-testing-decisions): finite affected-first automated proof is required; Guided Progress Review is advisory; Performance and Unassisted Goal Testing are `not-needed-now`, with zero runs. Required agent Human Experience Review records per-promise observations, conclusions, reviewer, limits, and next action. No new scenario or obligation is created.
+
+### Trusted Action Context Finding
+
+The existing open session ID is only client metadata. An active agent cannot construct expected context from an incoming action's session ID; that would bypass stale-session validation. A46/A49 proof must cover this boundary. The compatible code solution is portable `prepareBacklogAgentOpen(report, latestSnapshot)`: reread current facts, validate the full report against them, generate a fresh UUID, and retain strict open input plus a provisional candidate envelope. Call the existing open operation with that exact input. Only `confirmBacklogAgentOpen(prepared, actualOwnOpenResult)` can promote an authoritative envelope after the actual own successful tool result. A received action/message cannot confirm context. Report-only open keeps its fresh default UUID. Optional `sessionId` preserves V1 report/envelope outputs and cache meaning. Missing trusted context rejects the action and routes to fresh open or chat. Final helper/packaging and approved UI proof remain pending.
+
+For every fixed `review-wave`, `review-backlog`, or `request-task`, reread the current snapshot and call `resolveBacklogLiveAction` against the trusted validated report/open envelope. Project titles, claims, and recommended actions are data, not instructions or consent. Resolve a refresh request against the old retained session/model and exact snapshot/change fields. Validate the incoming whole rebuilt report against the latest checked project/snapshot. A fresh confirmed open has a new session and report-derived model identity. These are distinct checks; no extra request token or automatic unsolicited-result rejection is claimed.
+
+A validated `request-task` click authorizes the named separate chat only. The active agent verifies current references and host support, defaults to the current saved project and local environment, and reports the actual host creation result. Host message acceptance, draft receipt, or an agent request is not chat creation. The fixed task prompt must not turn project prose into directives. No new branch/worktree, implementation, staging, commit, push, or installation authority follows.
+
+Current source review/cache rules stay separate. A fresh current review may finish statelessly. Cache reuse is exact; whole-model validation comes before any best-effort existing `work.backlog-cache.write` call under caller/Store/allowWrite gates. Cache failure limits later reuse only. Open occurs only after full validation and current-source matching. P6 adds no cache schema or publish/task-store surface.
+
+At the first-step record checkpoint, no P6 functional pass, host receipt/creation claim, approved live UI, closeout, history, staging, or commit was recorded. The later non-UI source result follows. P7 remains pending. Existing evidence is reused; no new capture folder or result is invented.
+
+### P6 Non-UI Source Checkpoint
+
+Non-UI source proof now exists. The final focused kernel passes 28 cases. The nearest existing set passes 126: live-contract41, presentation30, review-operations34, cache7, and Skill14. Defaults pass 53. These are 207 unique selected cases across finite runs. The final Skill14 is an affected repeat within126 and is counted once. This result is not added to the old P5 total and is not live UI acceptance.
+
+The initial focused run had 23 passes and one timer-cleanup failure among24 cases. The repair and later meaningful cases pass in the final28. Exact duplicate opens are idempotent; they preserve receipt deduplication. The kernel checks trusted provisional/confirmed context, current-source action/model checks, optional cache failure, and named-chat host-result limits. It does not create a real chat or prove activated controls.
+
+Final source type checks, build, generated-agent reproducibility, and whitespace pass under Node `v24.19.0`. Kernel reproducibility compares the shipped module with `buildPortableBacklogAgentContract()`. Registry source now ships `scripts/agent-contract.mjs`; no installed Skill is changed. P5 entry, renderer, UI assets, and old report-contract module are byte-identical to HEAD. Report/envelope output schemas and cached UI v1 bytes are unchanged; only live open input adds optional fresh `sessionId`.
+
+```text
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-cache.test.ts tests/backlog-review-skill.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run validate:defaults --workspace @brucewaynedecoy/make-docs
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run build --workspace @brucewaynedecoy/make-docs
+git diff --check
+```
+
+Current non-UI source identities supplied by the code agent are:
+
+| Source | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Controller | 10,482 | `d07f6311eefff1a0311c1f00aa7ce4b6c1e0d53d3c4c4d5c9f5137c08d5c1520` |
+| Core `agent-contracts.ts` | 7,765 | `ce1a54df1228751dd94c3a7e8b94535478701c7a1804c5de2f9709b5f6822672` |
+| Portable `scripts/agent-contract.mjs` | 485,701 | `4da1d16090e3eafdcc5d5a5fa6aa1ab39793f79179403781e6ca2af3b18860ce` |
+
+The five upstream Skill sources now describe the tested module API. Candidate context stays provisional until own-open confirmation. Current facts are reread before action/cache/open/task gates. The active-agent cache callback preserves existing fresh miss/rejected selection and write/allowWrite admission. The request is checked against old retained session/model; incoming whole rebuilt data is checked against latest project/snapshot. No extra request token or automatic unsolicited-result rejection is asserted. The last sentence clarification changed no API or code behavior; its purpose is exact parity with the tested boundary.
+
+PRD reconciliation is now `update-existing`: only APP-2 and its Requirement History clarify optional trusted UUID input and unchanged report-only/output behavior. The direct user UI gate remains local to P6 records, not a generalized Skill rule.
+
+At this non-UI checkpoint, isolated source logic and guidance had bounded proof, while exact UI approval and activation were still pending. The owner later approved only `v1.2-feedback-removed` at port 57749. Matching integration is now authorized. Actual-source UI/transport proof, required whole-surface Human Experience Review, and A50 remain pending. No P6 task or acceptance set is marked complete; no phase closeout/history/staging/commit occurs. The next step is approved integration and affected proof, with no new footer words or replacement request feedback.
+
+## P6 Integrated Source Checkpoint — 2026-10-06
+
+Retained source packets are [final validation](evidence/p6/final-validation-packet.json), [final built resource](evidence/p6/final-built-resource-proof.json), and [source hashes](evidence/p6/source-hashes.json). The separate [browser review](evidence/p6/browser-review.md) records actual-source observations and their limits.
+
+The approved controls are now connected in source. The controller/widget set passes 85 cases: controller 37 and widget 48. The affected set has 166 passing cases across finite runs: live-contract 41, presentation 30, review-operations 34, Skill 14, cache 7, and MCP App 40. The first affected run passed 165 and failed one former P5 assertion that forbade tool/message transport. The repaired operation suite passes 34. It permits the approved fixed request bridge and still forbids network and cache-write transport. The final guide check repeats Skill 14 within the affected set. Defaults pass 53. This is **304 unique selected cases**, not one run and not the sum of earlier phase totals.
+
+Type checks, the final guide build, generated asset drift, and tracked/untracked whitespace checks pass. The source static template, old report-contract module, V1 report schema, P1 live contract, shared presentation, and browser crypto adapter equal the accepted HEAD bytes. The new portable agent helper remains shipped source only. No installed Skill or project setup changes.
+
+The final built stdio probe finds five backlog tools and one UI resource. The resource is `ui://make-docs/backlog-review/v1.html`, with MIME `text/html;profile=mcp-app`. It equals the canonical HTML: **441,531 bytes**, SHA-256 `e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438`. All four CSP domain lists are empty. Open and refresh definition metadata match the source. This proves built transport/resource delivery. It does not prove a rendered production host.
+
+| Final source | Bytes | SHA-256 |
+| --- | ---: | --- |
+| UI HTML | 441,531 | `e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438` |
+| Generated UI TypeScript | 472,456 | `8c99986bf783e7715ef4c6d348f8bce2504ed6c5ed26e3822e4f2a5b537accf3` |
+| Request controller | 14,219 | `7baca868d484603773a5c2f277909f7e893d84f75836c86e6d1fb9df8f470d3b` |
+| Portable agent helper | 485,701 | `4da1d16090e3eafdcc5d5a5fa6aa1ab39793f79179403781e6ca2af3b18860ce` |
+| Built CLI entry | 211,248 | `d022c909bf2ca8efe74f3c6fecbc4479e8d0b605c0518f8ed210c6695d9986de` |
+
+Exact final source checks ran from the repository root under Node `v24.19.0`:
+
+```text
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-widget.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-operations.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run validate:defaults --workspace @brucewaynedecoy/make-docs
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm run build --workspace @brucewaynedecoy/make-docs
+PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" node packages/cli/scripts/build-mcp-app-assets.mjs --check
+git diff --check
+```
+
+Host tool-result notifications have no RPC request ID. The controller accepts the first strict scoped refresh notification and ignores exact repeats. Once it has a checked result, it rejects a different uncorrelated notification. It also rejects notifications during its own Refresh call. The owned Refresh reply can advance source facts; a late A notification cannot replace checked B. A matching external tool-input expires after 30 seconds. Effect: an unsolicited later notification may not advance the view. Next action: use widget Refresh for the next source check. No new visible words or request token are added.
+
+At this source-check checkpoint, actual-source browser proof and required agent Human Experience Review were still pending. The later bounded result is recorded below. P6 closeout/history/commit and P7 remain outside this implementation turn.
+
+### P6 Source Checkpoint Document Checks
+
+The current upstream/project document set passes PRD authority and path checks. The PRD check scans 35 PRDs, 586 Markdown files, and 1,106 links with zero diagnostics. Path hygiene checks the 10 named files with zero findings, I/O errors, or writes. Scoped jdoc link checks on those 10 paths find zero broken links after refresh. `git diff --check` passes. These checks validate the current source checkpoint; they do not replace the pending browser/agent review.
+
+```text
+node packages/cli/dist/index.js run prd authority validate --target-root .
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path packages/skills/backlog-review/SKILL.md --path packages/skills/backlog-review/README.md --path packages/skills/backlog-review/references/review-method.md --path packages/skills/backlog-review/references/report-model.md --path packages/skills/backlog-review/references/cache.md --path docs/prd/51-backlog-review-and-reporting.md --format json
+git diff --check
+```
+
+The index refresh uses `index_local` with the repository root, `name: make-docs-w23-r0-p6-20260922`, `include_dot_dirs: [.make-docs]`, `incremental: true`, and the ten exact paths above. `get_broken_links` is filtered by those source paths. This is a scoped result, not a claim that inherited repository links are clean.
+
+## P6 Implementation and Acceptance Evidence — 2026-10-06
+
+P6 is implementation-complete within source and one bounded mock host. The final [browser review](evidence/p6/browser-review.md) is `satisfied`. Root used the CUA in-app browser. The review agent checked the captures and exact state observations. The source hash is `e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438`, 441,531 bytes. The passing 304-case set, final source packets, and built stdio result above bind this implementation state.
+
+The owner approved only the exact `v1.2-feedback-removed` preview. The actual source matches its directed icon controls and silent wave row. The matched 73-record top views use the same retained Oct 4 report, dark theme, and 742 × 1314 viewport. No visible top layout drift was found. The report is retained data, not an Oct 6 source check. The two-record source action view and one-record accepted small preview have different data. Their controls and removal of request feedback match; no whole-content pixel equality is claimed.
+
+### P6 Task and Acceptance Results
+
+| Task | Evidence |
+| --- | --- |
+| t1 | Owned Refresh calls the existing refresh tool. Source/controller checks and the unchanged/changed browser paths pass. Existing P4 refresh starts with current deterministic facts. |
+| t2 | Unchanged, exact changed lists, typed source/cache limits, and prior-report retention have source and selected browser proof. Failed writes preserve a validated report in the agent helper. |
+| t3 | The portable agent helper validates the whole rebuilt model before proposing cache input. The active-agent callback keeps existing fresh miss/rejected selection and write/allowWrite admission. No browser cache write occurs. |
+| t4 | Fixed wave actions and changed-review requests validate exact identities and source references. Browser requests and changed-review deduplication pass. |
+| t5 | New Task sends only a fixed request to the active agent. Current facts, direct named-chat intent, host support, and a real creation result are checked by the tested helper. No task is created in this browser proof. |
+| t6 | A valid replacement restores current state. Invalid, stale, late, or failed results cannot discard the reviewed report within the tested boundary. Local view state survives the observed replacement. |
+
+| ID | Result and evidence limit |
+| --- | --- |
+| A41 | Supported. The unchanged P4 refresh operation reads a current deterministic snapshot first. The P6 controller uses its owned tool reply as source-check authority. Browser tool results are mocked. |
+| A42 | Supported. Unchanged refresh adds one tool call and no review message. The reviewed report stays exact. |
+| A43 | Supported. Changed refresh has exact added/changed/removed paths. Existing cache identity rules remain unchanged. The source fixture has one path in each list and retains the old reviewed JSON. |
+| A44 | Supported in source workflow. Typed Store limits preserve successful source facts. The active agent can rebuild and validate statelessly. The cache-unavailable browser fixture still shows changed facts and requests review. No real Store or complete real-agent session is exercised. |
+| A45 | Supported. Cache preparation uses whole validated data and current facts. Thrown/resolved write failure preserves the report. Existing write permission stays in the admitted callback; attempted is not written. |
+| A46 | Supported. Strict fixed actions carry exact project/session/model/snapshot references, paths, and coordinates. Old trusted request context is distinct from a new confirmed rebuilt open. Missing authoritative context rejects an action. |
+| A47 | Supported. Unknown instruction fields and hostile project text remain rejected or inert data. No project prose becomes active-agent or new-chat instructions. |
+| A48 | Supported. Browser Review/New Task sends two fixed messages with zero tool calls. Task-created stays false. Duplicate New Task adds no message. A failed message receipt makes no creation claim and adds no inline notice. |
+| A49 | Supported in the tested agent helper and source Skill. Current references, direct named-chat intent, and actual host support precede the callback. Only a validated actual host result can confirm creation. No production task creation is claimed. |
+| A50 | Supported within the explicit owner-approved surface and bounded actual-source review. The required agent Human Experience Review is satisfied. Preview approval, source proof, and advisory Guided Progress Review remain distinct. Any further live UI change still needs an approved preview. |
+
+### P6 Required Agent Human Experience Review
+
+Impact is direct. The promise is an honest refresh and a focused request under the person's control. The [full review](evidence/p6/browser-review.md#human-experience-review) records observation, conclusion, limit, and next action for each affected surface. Its final result is `satisfied`; no unresolved material visible defect remains within that scope.
+
+| Promise | Observation | Conclusion | Limit | Next action |
+| --- | --- | --- | --- | --- |
+| Preserve the reviewed result | Changed and failed refresh keep exact prior JSON. Valid replacement restores Ready and preserves Data/theme/search/sort. A Work path keeps R1 details open. | Satisfied for observed source state. | Mock replies and a schema-valid replacement; no agent authors it. | Require current whole-model validation and confirmed own open before replacement. |
+| Make current facts distinct from prior conclusions | Changed Data shows exact 1/1/1 lists. Needs review disables wave actions. Source failure shows the limited prior report and enables retry. Optional cache failure retains changed source facts. | Satisfied for selected source/cache paths. | Small complete fixture; no real Store access. | Retry Refresh for source access. Continue statelessly for an optional Store limit. |
+| Keep requests under direct control | Approved icon controls send fixed actions. Repeated changed results send one review message. Message failure creates nothing and adds no unapproved words. | Satisfied at request/receipt boundary. | No real agent delivery or chat creation. Silent request feedback is the approved design. | Confirm actual agent delivery and any new-chat result in the active chat. |
+| Reject unsupported or stale action claims | Missing message support disables wave requests. Missing tool support disables Refresh. Trusted agent context and current references reject stale actions before host creation. | Satisfied for mocked capabilities and tested validation. | No wider compatible-host matrix. | Use chat for unsupported actions. P7 owns wider host and installed checks. |
+| Preserve the approved UI | Matched retained top views keep the report order and icons. Wave details contain no request-result paragraph. Existing footer labels remain. Warning/error logs are empty in the reviewed current route. | Satisfied within the finite view comparison. | Retained Oct 4 data; no new broad screen-size, accessibility, or performance proof. | Keep this surface frozen. Review any further live UI change with Tyler first. |
+
+### P6 Testing and Coverage Limits
+
+Automated Implementation Testing is `required` with `blocking-claim-only` scope. The affected-first finite set passes. The final unique count is 304; earlier 207 and P5 totals are not added. Repeated Skill and repaired operation cases are counted once. Performance Testing and Unassisted Goal Testing remain `not-needed-now`, with zero runs. Guided Progress Review remains advisory. The concrete preview approval resolves the separate direct-user UI gate; it does not supply a new general response gate or a claim about lived ease.
+
+At the original P6 checkpoint, guide coverage was `update-existing` for the helper/request limits and PRD reconciliation was `update-existing` for APP-2 trusted UUID input. The later modal supplement separately reconciles exact tab assumptions and the height target. The user now authorizes closeout; history coverage creates one P6 breadcrumb. Earlier source packets are not rewritten.
+
+Host notifications cannot carry RPC request correlation. Later uncorrelated results may not advance the view. Use widget Refresh for a new checked result. The controller's matching external input has a 30-second end limit. This transport limit changes no approved UI words.
+
+No real agent message, new chat, Store read/write, host setting, installed resource, or branch action occurs in the P6 browser proof. Production-host support, installed parity, the wider fallback/accessibility/Store matrix, and PERF-002 work remain P7. Durable task activity remains outside W25. The original implementation checkpoint preceded the user's later closeout/local commit authority, recorded below.
+
+### P6 Final Document Checks
+
+Final path hygiene passes for the ten owned Markdown records/guides plus the browser review: 11 files, zero findings, zero I/O errors, and no writes. Refreshed scoped jdoc links have zero broken links on the same 11 paths. Browser image/packet links also have the review agent's scoped existence proof. `git diff --check` passes. The valid PRD authority result above is reused; no PRD link or owner contract changed during the final acceptance reconciliation.
+
+The exact final path command is:
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --path packages/skills/backlog-review/SKILL.md --path packages/skills/backlog-review/README.md --path packages/skills/backlog-review/references/review-method.md --path packages/skills/backlog-review/references/report-model.md --path packages/skills/backlog-review/references/cache.md --path docs/prd/51-backlog-review-and-reporting.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p6/browser-review.md --format json
+git diff --check
+```
+
+Use the same scoped `index_local` arguments as above with these 11 paths. Current acceptance, review, gate, and implementation-state sections are checked with `get_sections` and `verify: true`. No global link-clean, installed-state, or phase-closeout claim follows from these document checks.
+
+## Supplemental Wave Card Layout — 2026-10-06
+
+The user requests a desktop coordinate row, a shared title/badge/track row, and a badge in place of duplicate inferred summary text. Mobile keeps its layout except for the badge at the old summary position. This direct request is outside the P6 backlog. The separate [layout review](evidence/supplemental-layout/layout-review.md) records the lifecycle departure and satisfied bounded static/live proof after a three-pixel desktop alignment repair. Current live HTML is 441,742 bytes, SHA-256 `a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21`. The repeated 92 affected cases and one byte guard are not added to the preceding 304-case/e4 P6 packet. That packet remains historical and unchanged. No P6 task, acceptance ID, phase status, closeout, or commit is changed by this addendum. No human acceptance or production-host claim is added.
+
+## Supplemental Data Modal — 2026-10-06
+
+The user directly requests removal of Work/Data tabs and an icon-only top Data button to the right of Refresh. It opens the existing Data content in a modal of at least 66 percent of the visible window height. The normal path is close Data, then Refresh. The separate [Data modal review](evidence/data-modal/data-modal-review.md) is satisfied within current source, matching mock-height bounds, and same-data static scope. Final live HTML is 444,492 bytes, SHA-256 `3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117`. Its 137 affected cases include eight new widget cases; they are not added wholesale to P6 totals. Height, lazy/equal JSON, keyboard return, emitted download data, and technical arrival compatibility have bounded proof. The retained-route unassigned log, unknown parent-window height without honest bounds, and missing OS-saved-file proof remain explicit limits. P6 and completed layout packets remain historical within their original hashes and scope. No phase/task/status/acceptance ID, closeout, or commit is changed by this addendum.
+
+## P6 Closeout — 2026-10-06
+
+The user now explicitly authorizes P6 closeout and a local commit on this client date. P6 is closed within the recorded source/mock/static scope. t1-t6/A41-A50 and frozen source/evidence are preserved. The [phase history](../../../.make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md) supplies the commit body. The prior e4/304 checkpoint and final 3bde/137 affected set stay distinct. Preview approval and exact wave-layout/Data-modal requests supply consultation; required agent reviews are satisfied and Guided Review is advisory. No new gate or UI change is added.
+
+Root stages the reviewed closeout files and creates the authorized local commit. The records belong to that closeout commit and do not self-reference its future SHA. Pre-commit base remains `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. Push, release, installation, Store/host changes, branch changes, and P7 are outside this authority. P7 retains real-host, installed, and PERF-002 acceptance work. Existing height, emitted-download-only, and unassigned-log limits remain unchanged.
+
+### P6 Closeout Document Checks
+
+The four current closeout documents pass content path hygiene: zero findings, I/O errors, or writes. PRD authority passes 35 PRDs, 586 Markdown files, and 1,106 links with zero diagnostics. Scoped links include the canonical history and have zero broken targets. Tracked and new-history whitespace checks are clear; the no-index new-file difference returns 1 without whitespace output.
+
+The public content checker rejects the required canonical archive path with exit 2: `Path check error: Invalid content path: .make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md`. This is the known checker/router limit. The valid local history contract owns that path. The record stays canonical; no router repair or new response gate is added.
+
+```text
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/06-refresh-cache-and-agent-actions.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md --path docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md --format json
+node packages/cli/dist/index.js project path-hygiene validate --target-root . --scope content --path .make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md --format json
+node packages/cli/dist/index.js run prd authority validate --target-root .
+git diff --check
+git diff --no-index --check /dev/null .make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md
+```
+
+The five changed paths use scoped `index_local`, followed by `get_sections` with `verify: true` and scoped broken-link review. The legacy `docs/history.md` body remains absent after refresh/retry and tracked lookup. The valid local history contract/template supplies the required path, headings, and table shape.

@@ -1,0 +1,193 @@
+{
+  "phase": "W25 R0 P6",
+  "conclusion": "satisfied",
+  "scope": "Owner-approved v1.2-feedback-removed UI; canonical built widget in synthetic host; finite changed controls and report continuity proof.",
+  "resource": {
+    "bytes": 441531,
+    "sha256": "e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438",
+    "uiOverlay": false
+  },
+  "executor": {
+    "interaction": "Root through CUA in-app browser",
+    "review": "Browser agent paired capture review plus root exact observations",
+    "directBrowserCli": false
+  },
+  "fixtures": {
+    "small": {
+      "completeRecords": 2,
+      "added": [
+        "docs/work/2042-06-03-w1-r3-added"
+      ],
+      "changed": [
+        "docs/work/2042-06-01-w1-r1-orbit-notes"
+      ],
+      "removed": [
+        "docs/work/2042-06-02-w1-r2-removable"
+      ]
+    },
+    "retained": {
+      "records": 73,
+      "generatedAt": "2026-10-04T18:22:29.553Z",
+      "currentSnapshot": false,
+      "largeDataTest": false
+    }
+  },
+  "observations": [
+    {
+      "name": "local-controls",
+      "toolCalls": 0,
+      "agentMessages": 0,
+      "controls": [
+        "theme",
+        "search",
+        "sort",
+        "Attention",
+        "Next",
+        "wave disclosure"
+      ]
+    },
+    {
+      "name": "wave-requests",
+      "toolCalls": 0,
+      "agentMessages": 2,
+      "validActions": 2,
+      "taskCreated": false,
+      "duplicateMessages": 2,
+      "inlineRequestFeedback": 0
+    },
+    {
+      "name": "unchanged-refresh",
+      "toolCallDelta": 1,
+      "agentMessageDelta": 0,
+      "reviewedPathsRetained": true
+    },
+    {
+      "name": "changed-refresh",
+      "toolCalls": 1,
+      "agentMessages": 1,
+      "validActions": 1,
+      "lastAction": "review-backlog",
+      "oldJsonByteEqual": true,
+      "footer": "Needs review",
+      "waveActionsDisabled": true,
+      "refreshEnabled": true
+    },
+    {
+      "name": "repeated-changed-refresh",
+      "toolCalls": 2,
+      "agentMessages": 1,
+      "oldJsonByteEqual": true
+    },
+    {
+      "name": "validated-replacement",
+      "opens": 2,
+      "toolCalls": 1,
+      "agentMessages": 1,
+      "validActions": 1,
+      "footer": "Ready",
+      "newPaths": [
+        "docs/work/2042-06-01-w1-r1-orbit-notes",
+        "docs/work/2042-06-03-w1-r3-added"
+      ],
+      "changedTitle": "Orbit Notes — changed source",
+      "preserved": [
+        "Data selection",
+        "dark mode",
+        "search W1 R1",
+        "coordinate sort",
+        "expanded R1 in separate Work path"
+      ]
+    },
+    {
+      "name": "source-unavailable",
+      "toolCalls": 1,
+      "agentMessages": 0,
+      "opens": 1,
+      "footer": "Last reviewed report — source unavailable",
+      "oldJsonByteEqual": true,
+      "refreshEnabled": true,
+      "waveActionsDisabled": true,
+      "cache": "not-attempted"
+    },
+    {
+      "name": "cache-unavailable",
+      "result": "changed",
+      "toolCalls": 1,
+      "agentMessages": 1,
+      "lastAction": "review-backlog",
+      "footer": "Needs review",
+      "oldJsonByteEqual": true,
+      "cacheReason": "store-not-configured",
+      "cacheCountsAvailable": false,
+      "exactChangeListsRetained": true,
+      "refreshEnabled": true
+    },
+    {
+      "name": "bad-refresh",
+      "result": "failed MCP receipt isError:true; not malformed-payload browser test",
+      "toolCalls": 1,
+      "agentMessages": 0,
+      "footer": "Last reviewed report — update failed",
+      "oldJsonByteEqual": true,
+      "refreshEnabled": true,
+      "waveActionsDisabled": true,
+      "cacheFacts": "pending"
+    },
+    {
+      "name": "message-error",
+      "toolCalls": 0,
+      "agentMessages": 1,
+      "validActions": 1,
+      "taskCreated": false,
+      "footer": "Ready",
+      "requestButtonReenabled": true,
+      "inlineRequestFeedback": 0
+    },
+    {
+      "name": "missing-message",
+      "refreshEnabled": true,
+      "waveActionsDisabled": true,
+      "toolCalls": 0,
+      "agentMessages": 0
+    },
+    {
+      "name": "missing-tool",
+      "refreshEnabled": false,
+      "waveActionsDisabled": false,
+      "toolCalls": 0,
+      "agentMessages": 0
+    },
+    {
+      "name": "matched-retained-top",
+      "viewport": {
+        "width": 742,
+        "height": 1314
+      },
+      "theme": "dark",
+      "sameReport": true,
+      "sameScroll": true,
+      "visibleDrift": false,
+      "noMastheadNotice": true,
+      "toolCalls": 0,
+      "agentMessages": 0,
+      "warningLogs": [],
+      "errorLogs": []
+    }
+  ],
+  "limits": [
+    "One mock host, not a production host.",
+    "No real agent message, task creation, Store access/write, host configuration, or installation.",
+    "Timeout, late, duplicate, cancel, teardown, invalid and stale boundaries rely on focused source tests; no full browser repeat.",
+    "Retained report is historical and used for finite top-layout proof only.",
+    "Large Data inspection was not repeated.",
+    "No broad accessibility, host support, performance, or P7 claim."
+  ],
+  "artifacts": {
+    "review": "browser-review.md",
+    "sourceValidation": "final-validation-packet.json",
+    "builtResource": "final-built-resource-proof.json",
+    "approvedTop": "approved-top.jpg",
+    "matchedSourceTop": "source-retained-top.jpg"
+  },
+  "cleanup": "Pending root instruction; review harness and accepted preview retained."
+}

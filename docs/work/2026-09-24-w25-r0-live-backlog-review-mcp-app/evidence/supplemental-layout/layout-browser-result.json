@@ -1,0 +1,155 @@
+{
+  "scope": "Supplementary backlog row layout, outside P6 acceptance re-proof",
+  "conclusion": "satisfied",
+  "authority": "Direct owner request for desktop coordinate row; shared title/badge/track row; badge replaces duplicate summary; no inner row separator; existing mobile grouping kept.",
+  "source": {
+    "sha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21",
+    "bytes": 441742,
+    "overlay": false
+  },
+  "static": {
+    "sha256": "3bcf4ba5d6f4d340f297b682eb4b99e5c64709475c31b0239ca608038217a43d",
+    "bytes": 4119474,
+    "fullDataMatchesInput": true
+  },
+  "fixture": {
+    "records": 73,
+    "inScopeRecords": 9,
+    "date": "2026-10-04",
+    "freshSnapshot": false
+  },
+  "executor": {
+    "browser": "Root CUA in-app browser",
+    "peerReview": "Browser agent inspected saved captures and root exact DOM observations",
+    "directBrowserCli": false
+  },
+  "repair": {
+    "interimResourceSha256": "add233b643022905aacda3c38957e48eae62114c0083c3c9faa380885bee64fa",
+    "finding": "Actual desktop badge child was 3 pixels below title and track, despite aligned containers.",
+    "change": "Desktop status layout removed inline baseline offset. Mobile status stays block.",
+    "finalActualBadgeOffsetPx": 0,
+    "finalRowsChecked": 9
+  },
+  "desktop": {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "theme": "light",
+    "recordsChecked": 9,
+    "coordinateAbove": true,
+    "actualTitleBadgeTrackTopsEqual": true,
+    "exampleTops": {
+      "W25": 763.75,
+      "W24": 867.375,
+      "W18R16": 968.09375,
+      "W22": 1068.8125
+    },
+    "badgesPerOverview": 1,
+    "duplicateWaveSummaryCount": 0,
+    "innerPiecesBottomBorderWidth": 0,
+    "recordBoundaryRulesPreserved": true,
+    "examples": [
+      "W25 R0",
+      "W24 R0",
+      "W18 R16",
+      "W22 R0",
+      "W23 R0",
+      "W19 R2",
+      "W19 R7"
+    ]
+  },
+  "narrow": {
+    "viewport": {
+      "width": 742,
+      "height": 1314
+    },
+    "theme": "light",
+    "columnsWidth": 676,
+    "titleDisplay": "block",
+    "statusDisplay": "block",
+    "grouping": "coordinate and title; badge; track",
+    "titleBottom": 2136.953125,
+    "badgeContainerTop": 2146.953125,
+    "gapPx": 10,
+    "trackTop": 2191.75
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "theme": "light",
+    "columnsWidth": 362,
+    "recordsChecked": 9,
+    "overviewOverflow": false,
+    "badgesPerOverview": 1,
+    "duplicateWaveSummaryCount": 0,
+    "statusDisplay": "block",
+    "grouping": "coordinate and title; badge; track"
+  },
+  "staticBrowser": {
+    "desktopWidth": 1280,
+    "recordsChecked": 9,
+    "actualTitleBadgeTrackTopsEqual": true,
+    "narrowWidth": 742,
+    "columnsWidth": 676,
+    "titleDisplay": "block",
+    "statusDisplay": "block",
+    "sameRetainedReport": true,
+    "expandedInferencePreserved": true,
+    "screenshotClaim": false
+  },
+  "preserved": {
+    "facts": true,
+    "inference": "The current focus is the P5 widget review.",
+    "recommendedAction": true,
+    "waveActionLabels": [
+      "Review this wave",
+      "Start a new Codex task"
+    ],
+    "waveButtonsIconOnly": true,
+    "svgPerWaveButton": 1,
+    "inlineRequestStatusCount": 0,
+    "toolCalls": 0,
+    "agentMessages": 0,
+    "taskCreated": false,
+    "warningLogs": [],
+    "errorLogs": [],
+    "temporaryViewportReset": true
+  },
+  "captures": {
+    "wide": {
+      "file": "live-wide-final.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720
+    },
+    "narrow": {
+      "file": "live-narrow-final.jpg",
+      "format": "JPEG",
+      "width": 742,
+      "height": 1314
+    },
+    "mobile": {
+      "file": "live-mobile-final.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 844,
+      "state": "overview rows collapsed; disclosure has separate DOM proof"
+    }
+  },
+  "limits": [
+    "Same retained historical report, not fresh repository facts.",
+    "One synthetic host; no real tool/message/task/Store operations.",
+    "Layout-only proof; original P6 controller evidence retains its original source hash.",
+    "No full accessibility, browser/host, installed, or performance re-proof.",
+    "Static geometry/data has DOM/technical proof; no static screenshot claim."
+  ],
+  "nextAction": "Use the supplementary review and final source identity. Keep later phase claims inside their existing evidence scope.",
+  "cleanup": {
+    "staticServer": "Owned session37513 stopped; source61947 and approved preview57749 retained",
+    "source61947": "retained",
+    "approvedPreview57749": "retained"
+  }
+}

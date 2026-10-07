@@ -16,7 +16,7 @@ export const backlogReviewOpenOperation: OperationDefinition<z.infer<typeof back
   id: "backlog.review.open", summary: "Open a validated backlog report with a new live session and a useful chat summary.",
   mutates: "read", access: PROJECT_READ_ACCESS, status: "active", mcp: metadata,
   inputSchema: backlogReviewOpenInputSchema, mcpResultSchema: BacklogLivePayloadV1Schema,
-  handler: input => createBacklogLivePayload(input.report, randomUUID()),
+  handler: input => createBacklogLivePayload(input.report, input.sessionId ?? randomUUID()),
 };
 
 function sourceReason(error: unknown): BacklogRefreshFailureReason {

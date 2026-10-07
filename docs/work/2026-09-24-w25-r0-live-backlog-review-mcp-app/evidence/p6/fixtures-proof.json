@@ -1,0 +1,20 @@
+{
+  "smallRecords": 2,
+  "retainedRecords": 73,
+  "retainedGeneratedAt": "2026-10-04T18:22:29.553Z",
+  "schemaValidated": true,
+  "exactSmallChanges": {
+    "added": [
+      "docs/work/2042-06-03-w1-r3-added"
+    ],
+    "changed": [
+      "docs/work/2042-06-01-w1-r1-orbit-notes"
+    ],
+    "removed": [
+      "docs/work/2042-06-02-w1-r2-removable"
+    ]
+  },
+  "changedPreservesReviewedEnvelope": true,
+  "replacementValidated": true,
+  "noRealStoreOrTask": true
+}

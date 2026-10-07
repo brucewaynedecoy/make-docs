@@ -3,7 +3,7 @@ import { BacklogLiveEnvelopeV1Schema, BacklogRefreshResultV1Schema, createBacklo
 import { BacklogLivePayloadV1Schema, BacklogModelSummaryV1Schema, createBacklogLivePayload } from "./presentation.js";
 import { BacklogRecordCountsSchema, BacklogReportRecordV1Schema, BacklogReportV1Schema, BacklogSnapshotV1Schema } from "./schemas.js";
 
-export const backlogReviewOpenInputSchema = z.strictObject({ report: BacklogReportV1Schema });
+export const backlogReviewOpenInputSchema = z.strictObject({ report: BacklogReportV1Schema, sessionId: z.string().uuid().optional() });
 export const backlogReviewRefreshInputSchema = z.strictObject({ envelope: BacklogLiveEnvelopeV1Schema });
 
 const count = z.number().int().nonnegative();

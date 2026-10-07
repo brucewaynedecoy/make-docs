@@ -1,0 +1,106 @@
+{
+  "scope": "Owner-requested wave layout outside W25 R0 P6",
+  "files": [
+    {
+      "path": "packages/skills/backlog-review/assets/backlog-review-report.html",
+      "bytes": 48678,
+      "sha256": "b417461a3b6a680e509752b56a79d9bedbeaa51206f273cef5a19ba0dae65450"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/static-renderer.js",
+      "bytes": 50716,
+      "sha256": "fa1da1fa24ecade6c43c0e745af04a293cc05b384d552c75a5da77fef61a8996"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 441742,
+      "sha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 472662,
+      "sha256": "ab31c7c962321e249dda0e0aed2bfff73c15ed6f50b61252700bacc32ab0a579"
+    },
+    {
+      "path": "packages/cli/tests/backlog-presentation.test.ts",
+      "bytes": 20037,
+      "sha256": "b819818e8cb0819d7405ec1024ba1c3a1a8c06f630dd1d1824d04c1ced58a240"
+    },
+    {
+      "path": "packages/cli/tests/backlog-request-controller.test.ts",
+      "bytes": 23079,
+      "sha256": "6d2c3bf57ee7d848fa3f9f34887d37ee8206c29dbe1fa4ae1a9b831da6ecbb85"
+    }
+  ],
+  "checks": {
+    "focused": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-presentation.test.ts tests/backlog-widget.test.ts tests/backlog-review-skill.test.ts",
+      "passed": 92,
+      "suites": {
+        "presentation": 30,
+        "widget": 48,
+        "skill": 14
+      }
+    },
+    "changedGuard": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts -t 'keeps the existing report contract bytes untouched'",
+      "passed": 1,
+      "skipped": 36
+    },
+    "typecheck": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "passed": true
+    },
+    "build": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "passed": true
+    },
+    "drift": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "passed": true
+    },
+    "whitespace": "pass"
+  },
+  "resource": {
+    "exactSourceBytes": true,
+    "mimeType": "text/html;profile=mcp-app",
+    "csp": {
+      "connectDomains": [],
+      "resourceDomains": [],
+      "frameDomains": [],
+      "baseUriDomains": []
+    },
+    "bytes": 441742,
+    "sha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21",
+    "productionHost": false
+  },
+  "rowSelectors": {
+    "coordinate": ".wave-title a",
+    "title": ".wave-title p",
+    "badge": ".wave-status .badge",
+    "track": ".track-wrap .track",
+    "taskCount": ".track-stats"
+  },
+  "staticArtifact": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-report.html",
+  "browserGeometryReview": "pending final root check",
+  "p6PriorPacket": "Retained as historical. This layout run does not add repeated cases to P6 totals.",
+  "builtFiles": [
+    {
+      "path": "packages/cli/dist/index.js",
+      "bytes": 211248,
+      "sha256": "056414559563119e26e4eb3e6ab331aa796c4c903c4f3d6f3c76f8fc2a92983c"
+    },
+    {
+      "path": "packages/cli/dist/server-BBUK5JZG.js",
+      "bytes": 477975,
+      "sha256": "de63dc3b6e8f01b1883a99107af8a2c2091cada8fab8d4f48d708b141f523665"
+    },
+    {
+      "path": "packages/cli/dist/virtual_make-docs-first-party-skills-IVHSENTA.js",
+      "bytes": 1713064,
+      "sha256": "3a01d6515456fee944e20b4e3b7c3a589bf73efef2413a2e89e8413ca83c0eab"
+    }
+  ],
+  "desktopAlignmentRepair": "The browser measured a 3px offset in the badge. Desktop uses flex. Mobile stays block. The 92 focused cases pass again.",
+  "staticProof": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-proof.json"
+}
