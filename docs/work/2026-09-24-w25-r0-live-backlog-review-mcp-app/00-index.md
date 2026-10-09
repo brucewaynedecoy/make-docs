@@ -7,13 +7,19 @@ follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
   why: "The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan."
-  coordinate_handoff: "W25 R0 P1-P6 and W24 R0 P1-P4 are closed. P6 closes under the user's 2026-10-06 local commit authority. P7 is next eligible and needs separate implementation authority for installed, real-host, and PERF-002 acceptance."
+  coordinate_handoff: "P1-P6 are historical closed work. P7 retains A51-A60 history and open checks. P8-P13 own the remaining repair, acceptance, cleanup, and closeout. W26 R0 supplies the shared access path. Commit and release need separate authority."
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
 ---
 
 # W25 R0 Live Backlog Review MCP App Work Backlog
+
+## Current State
+
+The owner rejected the current live app for release on 2026-10-08. The repair-1 version 2.0.4 has bounded Codex proof for the 73-record display, Data, Explain, Work, and Refresh. The normal connection refused Store cache access, the visible report treated unsupported task counts as zero, and final-installed accessibility remains open. This evidence does not pass ordinary setup, cache reuse, or release readiness. P7 and W25 remain active. P8–P13 hold the remaining W25 work; [W26 R0](../2026-10-09-w26-r0-shared-access-and-data-foundation/00-index.md) owns the shared access foundation.
+
+The owner authorized the [P7 recovery plan](../../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/07-parity-performance-and-acceptance.md) on 2026-10-08. The separate local P7 recovery summary holds exact package and host receipts. P8 must review them before reusing those claims. Earlier phase permissions and results remain historical.
 
 ## Purpose
 
@@ -52,18 +58,26 @@ The user separately authorized P6 implementation and then closeout/local commit 
 | P4 | Closed: source tools and resource | [Backlog Profile Tools and UI Resource](04-backlog-profile-tools-and-ui-resource.md) | Two shared read-only operations, derived tools, useful no-UI results, and one versioned UI resource in the accepted W24 profiles. A25-A32 pass. User-authorized closeout and local commit. Product widget behavior remains later work. |
 | P5 | Closed: source widget and local controls | [Live Widget and Local Interaction](05-live-widget-and-local-interaction.md) | Owner-approved live footer, larger-input repair, and affected actual-source proof pass. t1-t6/A33-A40 have bounded evidence. User-authorized closeout and local commit. P6 action execution remains later work. |
 | P6 | Closed: bounded source refresh and actions | [Refresh Cache and Agent Actions](06-refresh-cache-and-agent-actions.md) | t1-t6/A41-A50, exact active-agent context, optional cache, controlled requests, and user-requested layout/modal have bounded proof. User-authorized closeout/local commit. Real-host, installed, and PERF-002 acceptance remain P7. |
-| P7 | Not started | [Parity Performance and Acceptance](07-parity-performance-and-acceptance.md) | One accepted package candidate with installed, performance, accessibility, and Human Experience evidence. |
+| P7 | Active: recovery and installed proof | [Parity Performance and Acceptance](07-parity-performance-and-acceptance.md) | One exact installed version displays the report, refreshes, and sends Explain/Work to the connected agent. Native display, Data, Explain, and Work are proved. A56 is waived. Native refresh and changed-state are proved. Final-installed accessibility evidence stays open. |
+| P8 | Planned: evidence and scope | [Evidence and Scope Correction](08-evidence-and-scope-correction.md) | Inventory dirty work, connection, candidate, and dependencies; correct each A51–A60 claim and the release hold. |
+| P9 | Blocked on P8 and W26 gates | [Source and App Remediation](09-source-and-app-remediation.md) | Complete original W25 removal/repair, approved cache integration, report delivery, same-chat actions, and approved unknown-count display. |
+| P10 | Blocked on P9 | [Candidate and Connection](10-candidate-and-connection.md) | Present one exact candidate, connection diff, and rollback packet for separate approval. |
+| P11 | Blocked on P10 and W26 P3 | [Installed Acceptance](11-installed-acceptance.md) | Prove the actual host, cache lifecycle, actions, parity, accessibility, and Human Experience results; link A51–A60 to P7. |
+| P12 | Blocked on P11 disposition | [Recovery Cleanup](12-recovery-cleanup.md) | Review and remove only approved exact recovery paths after active dependency checks. |
+| P13 | Blocked on P11/P12 disposition | [Closeout and Commit Disposition](13-closeout-and-commit-disposition.md) | Reconcile one summary, unresolved obligations, release hold, and a separately reviewed commit allowlist. |
 
 ## Usage Notes
 
-- Read phases in order.
+- Read P1–P6 as closed history. P7 retains acceptance history; read P8–P13 in dependency order for remaining work.
+- The Bear F1–F3 and W1–W6 labels are mapping labels only. Make Docs phase and task coordinates use W26 R0 P1–P3 and W25 R0 P8–P13.
+- Do not treat prior private-candidate or native-open proof as normal Store setup, cache reuse, final accessibility, or release acceptance.
 - Do not start any phase without separate owner authority.
 - W24 R0 supplied accepted MCP profile authority. Its closed P1-P4 work is merged into this branch at `26bdf1ce`. P4 implementation uses that existing registry and profile model.
 - P2 may run a bounded proof before W24 closes. It cannot create a parallel registry or profile system.
 - Keep the static report as an explicit option. Do not create it during live open or fallback.
 - Keep the snapshot Store-free. Keep cache writes best-effort and after full model validation.
 - Keep project text inert. UI messages use fixed actions and exact record references.
-- Keep task creation in the active agent and host. The widget only sends an explicit request.
+- Explain and Work send fixed requests to the connected agent chat. Neither requests another task. Task-creation support cannot disable Work.
 - Recheck branch, HEAD, dirty files, profile authority, package state, and concurrent work before each phase.
 - Never create or switch a branch or worktree without explicit user permission.
 - Create one central `evidence.md` only after evidence exists.
@@ -72,7 +86,7 @@ The user separately authorized P6 implementation and then closeout/local commit 
 ## Intended Follow-On
 
 - Route: `implementation-loop`
-- Next step: finish the authorized P6 local commit. P7 is next eligible and needs separate implementation authority. Its scope includes installed, real-host, and PERF-002 acceptance.
+- Next step: complete P8 inventory and W26 R0 P1 access design under their reviewed scopes. Then use P9–P13 to repair, qualify, clean up, and seek closeout. Preserve the working launch path until an approved replacement passes.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md)
 - Why: The backlog is the implementation queue derived from PRD 51 and the W25 R0 plan.
-- Coordinate Handoff: W25 R0 P1-P6 and W24 R0 P1-P4 are closed. P6 has [closeout/local commit authority](evidence.md#p6-closeout--2026-10-06) dated 2026-10-06. Original preview and direct supplemental requests retain their exact scope. P7 implementation and push/release/install/host/Store changes need their own authority.
+- Coordinate Handoff: P1–P6 remain historical. P7 retains A51–A60 and the W25-only A56 waiver. P8–P13 own remaining W25 work; W26 R0 P1–P3 own the shared access dependency. Branch/worktree changes, staging, commit, push, publication, and release need separate authority.
