@@ -9,6 +9,8 @@ coordinate: "W25 R0"
 
 ## Recovery Closeout Summary
 
+Paths under `.codex/` in this record are local recovery receipts. They remain in the W25 checkout because the active project connection still uses that tree. They are not part of the Git proof set. Use the committed bounded receipts below for shared review. Do not treat an unavailable local link as published evidence or as live app acceptance.
+
 ### 2026-10-09 Authority and Evidence Correction
 
 The owner rejected the current live app for release. Preserve the earlier repair-1 proof below as selected candidate and host evidence, not as normal setup, reusable Store cache, final accessibility, or release acceptance. The observed cache lookup returned `store-denied`. Which enabled connection produced that result is unknown. The cause of its effective Store and project access was not established. W26 R0 P1 must trace the connection and the refusal. The visible report showed `0 of 0 tasks complete` for unsupported older records whose task counts were unknown. P7 A58 remains open. Keep the release hold.
