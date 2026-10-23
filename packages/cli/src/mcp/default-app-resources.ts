@@ -7,7 +7,7 @@ import type { AppResource } from "./app-resources";
 export function defaultAppResources(profile: McpServerProfile): AppResource[] {
   return isMcpResourceInProfile(BACKLOG_REVIEW_UI_RESOURCE.profiles, profile) ? [{
     uri: BACKLOG_REVIEW_UI_RESOURCE.uri, name: "Backlog Review",
-    description: "Read the tool summary. Continue the review in chat. Full live controls are planned.",
+    description: "View the current backlog report with local search, filters, theme, Data, print, and download. Refresh and agent requests depend on host support. Continue in chat if live delivery is unavailable.",
     text: backlogReviewHtml,
   }] : [];
 }

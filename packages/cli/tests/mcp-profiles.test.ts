@@ -44,7 +44,7 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 45 ready tools, including the W25 review pair, with all equal to the intent union", () => {
+  test("assigns all 45 ready tools, including the W25 review operations, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
     expect(names).toHaveLength(45);

@@ -2,7 +2,7 @@
 
 Use report schema version `1`. Preserve the complete source snapshot in the report. Do not remove records to make the chat shorter.
 
-Keep `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the validated report and its live identities. The envelope does not change report facts or authorize an action. Its definitions exist in `packages/cli/src/operations/work/backlog/live-contracts.ts`. Use the shared report boundary for static output, concise chat data, and the live payload. Production delivery and live UI behavior remain planned work for later phases.
+Keep `BacklogReportV1` unchanged. A separate `BacklogLiveEnvelopeV1` wraps the validated report and its live identities. The envelope does not change report facts or authorize an action. Its definitions exist in `packages/cli/src/operations/work/backlog/live-contracts.ts`. Use the shared report boundary for static output, concise chat data, and the live payload. Confirm actual display and agent-message results in the installed host.
 
 ## Shared model and payloads
 
@@ -12,9 +12,9 @@ Keep the portable static validator generated from the shared contracts. Static a
 
 Use concise `structuredContent` for model-visible orientation. Use the full live envelope as client payload in `_meta`. Client-only transport placement is not secure storage. The host and client can read that data. It must not be treated as secret. The live payload builder returns data. It does not write a saved report, call a host, or prove that a widget opened.
 
-Session and action versions remain separate from report schema version. A breaking report change requires a new report version, migration rule, and compatibility and meaning-parity fixtures. P3 requires no report migration.
+Session and action versions remain separate from report schema version. A breaking report change requires a new report version, migration rule, and compatibility and meaning-parity fixtures.
 
-P4 uses this payload boundary in the shared open operation. The MCP adapter validates the registered result schema and preserves `content`, `structuredContent`, and `_meta`. It does not copy the full client report into generic text narration. P5 uses the same normalized model and accepted static presentation in the full local widget. Local controls and inbound state feedback do not change report conclusions. P6 calls, messages, and task actions remain planned. A synthetic browser view is not production host or installed proof.
+The shared open operation uses this payload boundary. The MCP adapter validates the registered result schema and preserves `content`, `structuredContent`, and `_meta`. It does not copy the full client report into generic text narration. The live widget uses the same normalized model and static presentation. Local controls and inbound state feedback do not change report conclusions. Open, refresh, and controlled agent messages need installed host proof for their claimed results. A synthetic browser view cannot supply that proof.
 
 ## Report fields
 
@@ -116,7 +116,7 @@ These owner examples shorten the badge, not the recorded facts:
 | Longer reason | Brief badge reason | Detail to preserve |
 | --- | --- | --- |
 | Ready queue awaits implementation authority | Ready to start | Implementation still requires authority. |
-| P7 package acceptance awaits authority | P7 ready for acceptance | P7 acceptance is not complete and still requires authority. |
+| Package acceptance awaits authority | Ready for acceptance | Acceptance is not complete and still requires authority. |
 | Active metadata disagrees with completed work | Metadata/completed work mismatch | The conflicting metadata and completion evidence remain distinct. |
 
 The agent writes the concise reason from current evidence. The renderer displays the validated `statusReason` as provided. Do not add runtime phrase replacement or truncation to make a badge shorter. Preserve full report data and its existing detail.
@@ -146,9 +146,9 @@ The live envelope contains `schemaVersion: 1`, `report`, `projectKey`, `snapshot
 
 Exclude generation timestamps from snapshot and model identities. Retain source evidence times and other facts. A timestamp-only regeneration does not create a new identity. A source-fact change changes snapshot identity. A report-conclusion change changes model identity. These identities do not replace the existing cache identity or version rules.
 
-Before an action, compare the envelope's project and snapshot identities with a current validated snapshot. Compare the message's model and session identities with the envelope. A valid schema alone does not prove that the reference is current.
+Match the message's identities to the independently retained successful-open envelope. Validate current project/path/coordinate references. Explain provides background on captured facts, findings, inferences, and actions. Work resolves the selected wave's inferred status and/or implements its captured recommended actions in the connected agent's current chat. Current source identity must match before work starts. A valid schema alone proves neither captured provenance nor current action safety.
 
-The active agent retains expected context from its own prepared open and confirmed actual successful result. `candidateEnvelope` is provisional. Only `confirmBacklogAgentOpen` may return `authoritativeEnvelope` for action resolution. Do not use a received action's session ID, message data, or project sentence to establish expected context. Missing trusted context rejects the live action; normal current-file review remains available. The optional UUID input changes no V1 report/envelope output or cache rule.
+Retain the complete validated report and independently confirmed envelope from the agent's own successful open. Never derive expected context from an incoming action. The optional Node helpers prepare a provisional envelope and confirm it against the actual own-open result. Missing trusted context requires fresh open or useful current-file review in chat. These checks do not change V1 output or cache identity.
 
 ## Fixed live actions
 
@@ -156,13 +156,15 @@ Strict schemas reject unknown fields. They accept no free-form instruction field
 
 | Action | Allowed fields after `schemaVersion` and `action` | Purpose |
 | --- | --- | --- |
-| `review-wave` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Ask the active agent to review one exact included wave. |
-| `request-task` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Ask the active agent to start a separate task for that wave. The host performs task creation. |
+| `review-wave` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Explain captured facts, findings, inferences, and action items for the selected wave in the connected agent's current chat. |
+| `request-task` | `sessionId`, `modelId`, `projectKey`, `snapshotId`, `recordPath`, `coordinate` | Work on the selected wave's inferred status and/or captured recommended actions in the connected agent's current chat. |
 | `review-backlog` | `sessionId`, `modelId`, `projectKey`, `previousSnapshotId`, `snapshotId`, `added`, `changed`, `removed` | Ask the active agent to review a changed snapshot. |
 
 For wave actions, match one report `recordPath` and its sourced snapshot coordinate. Reject a missing path, stale identity, coordinate conflict, or ambiguous source reference. Never use title or claim text to recover a failed match.
 
 For a refresh review request, match the previous snapshot to the reviewed envelope and the new snapshot to the current facts. Recompute the added, changed, and removed paths. Reject any difference from the request's exact lists. A global source-fact change can have empty record-change lists.
+
+`review-wave` and `request-task` are legacy transport names. They do not define the visible button purpose. Neither action creates a task or another chat. The message carries identities only. Resolve those identities against the captured report before using its content. Preserve selected-wave recommendation text verbatim and in order. Caller text cannot replace captured instructions. Raw project prose remains data. Prevent duplicate work when delivery is uncertain.
 
 ## Refresh states
 
@@ -178,4 +180,4 @@ The refresh review request carries both snapshot IDs and all three exact change 
 
 Keep source failure separate from optional cache failure. A Store failure must not turn an available current snapshot into `unavailable`. Search, filter, sort, disclosure, theme, print, Data view, and JSON download remain local display choices. They do not become report authority or cache content.
 
-P4's shared refresh operation connects the pure comparison to the existing snapshot operation and one exact cache lookup. The nested lookup keeps the accepted caller and Store checks. An invalid cache result limits reuse only. The operation writes no new conclusion. P6's source agent helpers validate controlled requests and rebuild/open inputs. Their presence is not activated live UI or host proof. A changed or unavailable result keeps the prior model with its exact review-state limit.
+The shared refresh operation connects the pure comparison to the existing snapshot operation and one exact cache lookup. The nested lookup keeps the accepted caller and Store checks. An invalid cache result limits reuse only. The operation writes no new conclusion. Optional agent helpers validate controlled requests and rebuild/open inputs. Their presence does not prove host behavior. A changed or unavailable result keeps the prior model with its exact review-state limit.

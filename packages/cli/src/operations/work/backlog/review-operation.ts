@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import { PROJECT_READ_ACCESS, STORE_READ_PROJECT_READ_ACCESS } from "../../access.js";
 import type { OperationDefinition } from "../../registry.js";
-import { createBacklogRefreshResult, type BacklogRefreshFailureReason } from "./live-contracts.js";
+import { createBacklogRefreshResult } from "./live-contracts.js";
 import { createBacklogLivePayload, BacklogLivePayloadV1Schema, type BacklogLivePayloadV1 } from "./presentation.js";
 import { BacklogSnapshotV1Schema } from "./schemas.js";
-import { BacklogSnapshotError } from "./snapshot.js";
+import { backlogSourceFailureReason } from "./source-failure.js";
 import { backlogReviewOpenInputSchema, backlogReviewRefreshInputSchema, BacklogReviewRefreshPayloadV1Schema,
   createBacklogReviewRefreshPayload, BacklogReviewCacheResultSchema, type BacklogReviewCacheResult, type BacklogReviewRefreshPayloadV1 } from "./review-contracts.js";
 
@@ -18,14 +18,6 @@ export const backlogReviewOpenOperation: OperationDefinition<z.infer<typeof back
   inputSchema: backlogReviewOpenInputSchema, mcpResultSchema: BacklogLivePayloadV1Schema,
   handler: input => createBacklogLivePayload(input.report, input.sessionId ?? randomUUID()),
 };
-
-function sourceReason(error: unknown): BacklogRefreshFailureReason {
-  if (error instanceof BacklogSnapshotError) return error.sourceReason;
-  const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
-  if (code === "EACCES" || code === "EPERM") return "source-denied";
-  if (code === "ELOOP") return "source-unsafe";
-  return "source-unavailable";
-}
 
 export const backlogReviewRefreshOperation: OperationDefinition<z.infer<typeof backlogReviewRefreshInputSchema>, BacklogReviewRefreshPayloadV1> = {
   id: "backlog.review.refresh", summary: "Read current backlog facts and one optional exact cache lookup. Keep the prior reviewed report.",
@@ -40,7 +32,7 @@ export const backlogReviewRefreshOperation: OperationDefinition<z.infer<typeof b
       const current = await invokeOperation("work.backlog.snapshot", { targetRoot }, context);
       snapshot = BacklogSnapshotV1Schema.parse(current.value);
     } catch (error) {
-      const refresh = createBacklogRefreshResult(envelope, { state: "unavailable", reason: sourceReason(error) });
+      const refresh = createBacklogRefreshResult(envelope, { state: "unavailable", reason: backlogSourceFailureReason(error) });
       return createBacklogReviewRefreshPayload(envelope, null, refresh, { state: "not-attempted", reason: "source-unavailable" });
     }
     // A project identity change is rejected. Cache availability cannot excuse a wrong project.

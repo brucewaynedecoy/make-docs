@@ -14,6 +14,7 @@ import { createAppResourceCatalog, MCP_APP_MIME_TYPE, type AppResource } from ".
 import { listNativeMcpResources, readNativeMcpResource } from "./resources";
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "./tools";
 import { defaultAppResources } from "./default-app-resources";
+import { encodeBacklogToolResult } from "./backlog-transport";
 
 export interface MakeDocsMcpServerOptions extends McpProfileOptions {
   /** Static UI assets. Tool handlers still use the existing SDK tool registry. */
@@ -36,7 +37,10 @@ export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}):
   });
 
   for (const tool of listMakeDocsMcpTools(process.cwd(), { profile })) {
-    const inputSchema = tool._meta?.ui ? z.strictObject(tool.inputSchema) : tool.inputSchema;
+    const definition = tool.operation ? getOperation(tool.operation) : null;
+    // Preserve the canonical schema's strict/loose policy, including the context-only argument projection.
+    const inputSchema = definition?.inputSchema instanceof z.ZodObject
+      ? definition.inputSchema.safeExtend(tool.inputSchema) : tool.inputSchema;
     server.registerTool<z.ZodType, typeof inputSchema>(
       tool.name,
       {
@@ -82,7 +86,7 @@ function formatMcpToolResult(value: unknown) {
     const invocation = value as Record<string, unknown>;
     if (typeof invocation.operation === "string") {
       const schema = getOperation(invocation.operation).mcpResultSchema;
-      if (schema) return schema.parse(invocation.result) as CallToolResult;
+      if (schema) return encodeBacklogToolResult(schema.parse(invocation.result) as CallToolResult);
     }
   }
   const structuredContent =

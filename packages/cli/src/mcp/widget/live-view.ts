@@ -36,7 +36,7 @@ export function createBacklogLiveView(root: HTMLElement, getState: () => Control
       if (!detail || !reference) continue;
       if (!detail.querySelector(".live-wave-actions")) {
         const row = node("div", "", "live-wave-actions"), controls = node("div", "", "live-action-buttons");
-        for (const [kind, label, shape] of [["review-wave", "Review this wave", "review"], ["request-task", "Start a new Codex task", "task"]] as const) {
+        for (const [kind, label, shape] of [["review-wave", "Explain this wave", "review"], ["request-task", "Work on this wave", "task"]] as const) {
           const button = doc.createElement("button"); button.type = "button"; button.className = "meta-button live-icon-button"; named(button, label);
           button.innerHTML = icon(shape); // Fixed approved vectors only. No project text enters markup.
           button.addEventListener("click", async () => {

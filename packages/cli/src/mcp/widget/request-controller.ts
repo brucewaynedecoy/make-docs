@@ -2,9 +2,10 @@ import { BacklogHostCapabilitiesSchema, BacklogLiveActionSchema, resolveBacklogL
   type BacklogHostCapabilities, type BacklogLiveAction } from "../../operations/work/backlog/live-contracts.js";
 import { createBacklogActionMessage, type BacklogActionMessageSchema } from "../../operations/work/backlog/agent-contracts.js";
 import { BacklogReviewRefreshPayloadV1Schema, backlogReviewRefreshInputSchema, type BacklogReviewRefreshPayloadV1 } from "../../operations/work/backlog/review-contracts.js";
-import { validateWidgetResult, type WidgetResult } from "./state.js";
+import { decodeWidgetToolResult, validateWidgetResult, type WidgetResult } from "./state.js";
 import { createBacklogLivePayload } from "../../operations/work/backlog/presentation.js";
 import { withBrowserHashes } from "./browser-crypto.js";
+import { widgetErrorFacts, type WidgetDiagnosticEvent } from "./diagnostics.js";
 import type { z } from "zod";
 
 type ClientModel = WidgetResult["client"];
@@ -12,7 +13,7 @@ type RefreshData = BacklogReviewRefreshPayloadV1["_meta"]["backlog"];
 export type BacklogControllerRequest = { jsonrpc: "2.0"; id: string } & (
   { method: "tools/call"; params: { name: "make_docs_backlog_review_refresh"; arguments: { envelope: ClientModel["envelope"] } } }
   | { method: "ui/message"; params: z.infer<typeof BacklogActionMessageSchema> });
-export type RequestOutcome = { state: "received"; action: BacklogLiveAction; taskCreation: "unconfirmed" }
+export type RequestOutcome = { state: "received"; action: BacklogLiveAction }
   | { state: "duplicate" } | { state: "rejected"; reason: string };
 export interface ControllerState {
   model: ClientModel | null;
@@ -29,6 +30,7 @@ export interface BacklogControllerOptions {
   timeoutMs?: number;
   timers?: { set(callback: () => void, ms: number): unknown; clear(token: unknown): void };
   onChange?(state: ControllerState): void;
+  onDiagnostic?(event: WidgetDiagnosticEvent): void;
 }
 
 const object = (input: unknown): input is Record<string, unknown> => input !== null && typeof input === "object" && !Array.isArray(input);
@@ -45,10 +47,15 @@ export function createBacklogRequestController(options: BacklogControllerOptions
   let latestSnapshotId: string | null = null;
   let externalInputTimer: unknown = null, inputEpoch = 0;
   const getState = () => structuredClone(state);
-  const changed = () => options.onChange?.(getState());
+  const diagnostic = (event: WidgetDiagnosticEvent) => { try { options.onDiagnostic?.(event); } catch { /* A trace cannot change report behavior. */ } };
+  const changed = () => {
+    try { options.onChange?.(getState()); }
+    catch (error) { diagnostic({ event: "render-failed", facts: widgetErrorFacts(error) }); throw error; }
+  };
   const reject = (reason: string) => ({ state: "rejected" as const, reason });
   function clearExternalInput() { inputEpoch += 1; if (externalInputTimer !== null) timers.clear(externalInputTimer); externalInputTimer = null; }
-  async function parseRefresh(raw: unknown) {
+  async function parseRefresh(input: unknown) {
+    const raw = await decodeWidgetToolResult(input);
     if (!object(raw) || raw.isError === true || !object(raw._meta)) throw new Error("invalid-refresh");
     return withBrowserHashes(() => BacklogReviewRefreshPayloadV1Schema.parse({ content: raw.content,
       structuredContent: raw.structuredContent, _meta: { backlog: (raw._meta as Record<string, unknown>).backlog } }));
@@ -84,7 +91,9 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     if (state.closed) return reject("closed");
     const arrival = ++modelArrival;
     try {
+      diagnostic({ event: "model-validation-start" });
       const model = await validateWidgetResult(input);
+      diagnostic({ event: "model-validation-passed" });
       if (state.closed || arrival !== modelArrival) return reject("superseded-model");
       if (model.kind !== "open") return reject("not-an-open-result");
       if (state.model && JSON.stringify(model.client.envelope) === JSON.stringify(state.model.envelope)) {
@@ -97,7 +106,8 @@ export function createBacklogRequestController(options: BacklogControllerOptions
       latestSnapshotId = model.client.envelope.snapshotId;
       sourceEpoch += 1; modelEpoch += 1; sent.clear(); changed();
       return { state: "accepted" as const, model: structuredClone(model.client) };
-    } catch {
+    } catch (error) {
+      diagnostic({ event: "model-accept-failed", facts: widgetErrorFacts(error) });
       if (!state.closed && arrival === modelArrival) { state.limit = "invalid-model"; changed(); }
       return reject(state.closed ? "closed" : arrival !== modelArrival ? "superseded-model" : "invalid-model");
     }
@@ -122,7 +132,7 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     try {
       await rpc({ method: "ui/message", params: createBacklogActionMessage(action) });
       if (state.closed || epoch !== modelEpoch || factsEpoch !== sourceEpoch) return reject("stale-reply");
-      const outcome: RequestOutcome = { state: "received", action, taskCreation: "unconfirmed" };
+      const outcome: RequestOutcome = { state: "received", action };
       state.request = outcome; changed(); return outcome;
     } catch (error) {
       const outcome = reject(error instanceof Error ? error.message : "request-unconfirmed");

@@ -1,4 +1,5 @@
-import { webcrypto } from "node:crypto";
+import { createHash, webcrypto } from "node:crypto";
+import { gzipSync } from "node:zlib";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { runInNewContext } from "node:vm";
@@ -35,7 +36,7 @@ beforeAll(async () => {
 });
 function state(crypto: unknown = webcrypto): typeof State {
   const module = { exports: {} };
-  runInNewContext(stateCode, { module, exports: module.exports, crypto, TextEncoder }, { contextCodeGeneration: { strings: false, wasm: false } });
+  runInNewContext(stateCode, { module, exports: module.exports, crypto, TextEncoder, TextDecoder, Blob, DecompressionStream, atob }, { contextCodeGeneration: { strings: false, wasm: false } });
   return module.exports as typeof State;
 }
 function refresh(envelope = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID)._meta.backlog.envelope,
@@ -46,7 +47,7 @@ function refresh(envelope = createBacklogLivePayload(smallPresentationReport, PR
       nextAction: "Current source facts are available. Continue the review. Restore cache access before a later cache lookup." }
     : { state: "not-attempted", reason: "source-unavailable" });
 }
-function harness(crypto: unknown = webcrypto, topLevel = false) {
+function harness(crypto: unknown = webcrypto, topLevel = false, decompression: unknown = DecompressionStream) {
   const footer = { child: null as unknown, replaceChildren(child: unknown) { this.child = child; } };
   const elements = new Map(["widgetStatus", "widgetReport", "widgetEmpty"].map(id => [id,
     { textContent: "", dataset: {} as Record<string, string>, hidden: id === "widgetReport", mounts: 0, disposals: 0,
@@ -55,14 +56,14 @@ function harness(crypto: unknown = webcrypto, topLevel = false) {
   const listeners = new Map<string, (event: unknown) => void>();
   const timers = new Map<number, () => void>();
   const bounds = { bottom: 900 };
-  const viewport = { scrollHeight: 900, clientWidth: 1200 };
+  const viewport = { scrollHeight: 900, clientWidth: 1200, dataset: {} as Record<string, string> };
   let onResize: () => void = () => {};
   const parent = { postMessage: (message: Record<string, unknown>) => outgoing.push(message) };
   const window = { parent: parent as unknown, scrollY: 0, innerHeight: 900, addEventListener: (name: string, fn: (event: unknown) => void) => listeners.set(name, fn),
     dispatchEvent: (event: Event) => { listeners.get(event.type)?.(event); return true; },
     removeEventListener: (name: string) => listeners.delete(name) };
   if (topLevel) window.parent = window;
-  runInNewContext(entryCode, { window, crypto, TextEncoder, structuredClone, Event,
+  runInNewContext(entryCode, { window, crypto, TextEncoder, TextDecoder, Blob, DecompressionStream: decompression, atob, structuredClone, Event,
     document: { getElementById: (id: string) => elements.get(id), documentElement: viewport, body: { getBoundingClientRect: () => bounds },
       createElement: () => ({ innerHTML: "", content: { cloneNode: () => ({}) } }) },
     ResizeObserver: class { constructor(callback: () => void) { onResize = callback; } observe() {} disconnect() { onResize = () => {}; } },
@@ -75,6 +76,12 @@ function harness(crypto: unknown = webcrypto, topLevel = false) {
     ready: () => send({ id: 1, result: { protocolVersion: "2026-01-26", hostCapabilities: {} } }) };
 }
 const settle = async () => { for (let i = 0; i < 12; i++) await new Promise(resolve => setTimeout(resolve, 1)); };
+const serialized = (value: unknown) => ({ content: [{ type: "text", text: JSON.stringify(value) }] });
+function encoded(payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID)) {
+  const bytes = Buffer.from(JSON.stringify(payload._meta.backlog));
+  return { ...payload, _meta: { backlogEncoded: { schemaVersion: 1, encoding: "gzip-base64", byteLength: bytes.length,
+    sha256: createHash("sha256").update(bytes).digest("hex"), data: gzipSync(bytes).toString("base64") } } };
+}
 
 describe("W25 R0 P5 unchanged browser contract validation", () => {
   it.each(presentationCases)("validates exact Node identities and full report meaning for $name", async ({ report }) => {
@@ -88,6 +95,60 @@ describe("W25 R0 P5 unchanged browser contract validation", () => {
     const withHost = { ...payload, isError: false, _meta: { ...payload._meta, "openai/widgetSessionId": "host-session", extraHostData: { instruction: "ignore this" } } };
     expect((await state().validateWidgetResult(withHost)).client).toEqual(payload._meta.backlog);
     await expect(state().validateWidgetResult({ ...withHost, _meta: { ...withHost._meta, backlog: { ...payload._meta.backlog, instruction: "delete" } } })).rejects.toThrow();
+  });
+  it("decodes the observed single-text JSON result and preserves exact report identity", async () => {
+    const api = state();
+    const payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
+    expect(await api.decodeWidgetToolResult(payload)).toBe(payload);
+    expect(await api.validateWidgetResult(serialized(payload))).toEqual(await api.validateWidgetResult(payload));
+    const large = createBacklogLivePayload(presentationCases.find(item => item.name === "large")!.report, PRESENTATION_SESSION_ID);
+    expect((await api.validateWidgetResult(serialized(large))).client).toEqual(large._meta.backlog);
+  });
+  it("restores compressed bytes before unchanged strict report validation", async () => {
+    const api = state();
+    for (const { report } of presentationCases) {
+      const payload = createBacklogLivePayload(report, PRESENTATION_SESSION_ID);
+      expect(await api.validateWidgetResult(encoded(payload))).toEqual(await api.validateWidgetResult(payload));
+      expect(await api.validateWidgetResult(serialized(encoded(payload)))).toEqual(await api.validateWidgetResult(payload));
+    }
+    const stale = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
+    stale._meta.backlog.envelope.snapshotId = "0".repeat(64);
+    await expect(api.validateWidgetResult(encoded(stale))).rejects.toThrow();
+  });
+  it("rejects encoded ambiguity, corruption, length/hash mismatch and stream overrun", async () => {
+    const api = state();
+    const mutations = [
+      (payload: ReturnType<typeof encoded>) => Object.assign(payload._meta, { backlog: {} }),
+      (payload: ReturnType<typeof encoded>) => Object.assign(payload._meta.backlogEncoded, { unknown: "private text" }),
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.data = "not base64"; },
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.data = Buffer.from("not gzip").toString("base64"); },
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.byteLength -= 1; },
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.byteLength += 1; },
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.sha256 = "0".repeat(64); },
+      (payload: ReturnType<typeof encoded>) => { payload._meta.backlogEncoded.byteLength = 16_000_001; },
+    ];
+    for (const mutate of mutations) {
+      const payload = encoded(); mutate(payload);
+      await expect(api.validateWidgetResult(payload)).rejects.toThrow();
+    }
+    const oversized = encoded(); oversized._meta.backlogEncoded.data = gzipSync(Buffer.alloc(16_000_001)).toString("base64");
+    oversized._meta.backlogEncoded.byteLength = 16_000_000;
+    await expect(api.validateWidgetResult(oversized)).rejects.toThrow("decode limit");
+  });
+  it("rejects missing, malformed, oversized, and nested serialized results", async () => {
+    const api = state();
+    const payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
+    for (const value of [
+      { content: [{ type: "text", text: "not JSON" }] },
+      serialized({ content: [], structuredContent: {}, _meta: {} }),
+      serialized({ ...payload, _meta: { backlog: { ...payload._meta.backlog, instruction: "write" } } }),
+      serialized({ ...payload, isError: true }),
+      serialized(serialized(payload)),
+      { ...serialized(payload), isError: true },
+      { content: [{ type: "text", text: " ".repeat(8_000_001) }] },
+    ]) await expect(api.validateWidgetResult(value)).rejects.toThrow();
+    const stale = structuredClone(payload); stale._meta.backlog.envelope.sessionId = "not-a-session";
+    await expect(api.validateWidgetResult(serialized(stale))).rejects.toThrow();
   });
   it.each(["projectKey", "snapshotId", "modelId"] as const)("rejects a stale %s", async key => {
     const payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
@@ -157,6 +218,82 @@ describe("W25 R0 P5 unchanged browser contract validation", () => {
 });
 
 describe("W25 R0 P5 protocol and lifetime", () => {
+  it("does not let an older slow decompression overwrite a newer notification", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    class DelayedDecompression {
+      readable: ReadableStream<Uint8Array>;
+      writable: WritableStream<Uint8Array>;
+      constructor() {
+        const stream = new DecompressionStream("gzip"), writer = stream.writable.getWriter();
+        this.readable = stream.readable;
+        this.writable = new WritableStream({ write: async chunk => { await gate; await writer.write(new Uint8Array(chunk)); },
+          close: () => writer.close(), abort: reason => writer.abort(reason) });
+      }
+    }
+    const h = harness(webcrypto, false, DelayedDecompression); h.ready(); h.result(encoded());
+    h.result(createBacklogLivePayload(smallPresentationReport, "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"));
+    await settle(); expect(h.root.mounts).toBe(1);
+    release();
+    for (let i = 0; i < 10; i++) {
+      await settle();
+      if (JSON.parse(h.viewport.dataset.backlogTrace).some((entry: { facts?: { reason?: string } }) => entry.facts?.reason === "superseded-model")) break;
+    }
+    expect(h.root.mounts).toBe(1);
+    expect(JSON.parse(h.viewport.dataset.backlogTrace)).toContainEqual(expect.objectContaining({ event: "tool-result-outcome",
+      facts: { state: "rejected", reason: "superseded-model" } }));
+  });
+  it("renders compressed serialized transport only after exact decoded identity validation", async () => {
+    const h = harness(); h.ready(); h.result(serialized(encoded()));
+    for (let i = 0; i < 10 && !h.root.report; i++) await settle();
+    expect(h.root.report).toEqual(smallPresentationReport);
+    expect(h.elements.get("widgetStatus")?.textContent).toBe("Status: Ready");
+    const trace = JSON.parse(h.viewport.dataset.backlogTrace);
+    expect(trace.find((entry: { event: string }) => entry.event === "tool-result-decompressed").facts)
+      .toMatchObject({ encoding: "gzip-base64", decodedBytes: encoded()._meta.backlogEncoded.byteLength,
+        transportLengthVerified: true, transportHashVerified: true });
+    expect(trace.find((entry: { event: string }) => entry.event === "tool-result-decoded").facts)
+      .toMatchObject({ hasReport: true, records: smallPresentationReport.records.length });
+  });
+  it("renders the observed serialized transport and reports body-free decoded shape", async () => {
+    const h = harness(); h.ready();
+    const payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
+    h.result(serialized(payload)); await settle();
+    expect(h.root.report).toEqual(smallPresentationReport);
+    expect(h.elements.get("widgetStatus")?.textContent).toBe("Status: Ready");
+    const trace = JSON.parse(h.viewport.dataset.backlogTrace);
+    expect(trace.find((entry: { event: string }) => entry.event === "tool-result-decoded").facts)
+      .toMatchObject({ hasMeta: true, hasBacklog: true, hasReport: true, records: smallPresentationReport.records.length });
+    expect(h.viewport.dataset.backlogTrace).not.toContain(smallPresentationReport.project.name);
+  });
+  it("records malformed serialized transport without exposing its text", async () => {
+    const h = harness(); h.ready(); h.result({ content: [{ type: "text", text: "Private report text" }] }); await settle();
+    const trace = JSON.parse(h.viewport.dataset.backlogTrace);
+    expect(trace.find((entry: { event: string }) => entry.event === "tool-result-decode-failed").facts)
+      .toEqual({ reason: "serialized-result-invalid" });
+    expect(h.root.hidden).toBe(true);
+    expect(h.viewport.dataset.backlogTrace).not.toContain("Private report text");
+  });
+  it("exposes body-free delivery stages in an existing DOM attribute", async () => {
+    const h = harness(); h.ready();
+    h.result(createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID)); await settle();
+    const trace = JSON.parse(h.viewport.dataset.backlogTrace);
+    expect(trace.map((entry: { event: string }) => entry.event)).toEqual([
+      "script-start", "initialize-sent", "initialize-result", "tool-result-received",
+      "model-validation-start", "model-validation-passed", "render-start", "render-passed", "tool-result-outcome",
+    ]);
+    expect(trace.find((entry: { event: string }) => entry.event === "tool-result-received").facts)
+      .toMatchObject({ hasMeta: true, hasBacklog: true, hasReport: true, records: smallPresentationReport.records.length });
+    expect(h.viewport.dataset.backlogTrace).not.toContain(smallPresentationReport.project.name);
+  });
+  it("records a missing client payload separately from a silent host", async () => {
+    const h = harness(); h.ready(); h.result({ content: [] }); await settle();
+    const trace = JSON.parse(h.viewport.dataset.backlogTrace);
+    expect(trace.find((entry: { event: string }) => entry.event === "model-accept-failed").facts)
+      .toEqual({ reason: "no-client-report" });
+    expect(h.root.hidden).toBe(true);
+    expect(h.elements.get("widgetStatus")?.textContent).toBe("Status: Report unavailable");
+  });
   it("starts only the standard handshake and reports size after a valid reply", () => {
     const h = harness(); expect(h.outgoing.map(message => message.method)).toEqual(["ui/initialize"]);
     h.ready(); expect(h.outgoing.map(message => message.method)).toEqual(["ui/initialize", "ui/notifications/initialized", "ui/notifications/size-changed"]);
@@ -417,8 +554,9 @@ describe("Data modal and local context", () => {
   it.each([
     { own: 998, host: null, floor: 659, top: 193 },
     { own: 1051, host: 720, floor: 476, top: 193 },
-    { own: 1051, host: 1314, floor: 868, top: 171 },
+    { own: 1051, host: 1314, floor: 694, top: 193 },
     { own: 1764, host: 844, floor: 558, top: 193 },
+    { own: 1148, host: 10000, floor: 758, top: 193 },
   ])("loads exact Data locally and keeps focus with own=$own and host=$host", async ({ own, host, floor, top }) => {
     const accepted = readFileSync(url("../../skills/backlog-review/assets/backlog-review-report.html"), "utf8");
     const json = accepted.slice(accepted.indexOf("    let normalizedReportJson"), accepted.indexOf("    document.title"));
@@ -446,7 +584,8 @@ describe("Data modal and local context", () => {
     elements.get("openReportData")!.getBoundingClientRect = () => ({ top: 193 });
     dialog.append = () => { anchorParent = "dataDialog"; };
     runInNewContext(json + modal + download, { report: smallPresentationReport, projectName: "Aurora Notes", Blob,
-      hooks: { dataViewportHeight: () => host ?? own }, listen: (element: any, type: string, fn: unknown) => element.addEventListener(type, fn),
+      hooks: { dataViewportHeight: () => backlogContainerHeight(host === null ? null : readBacklogContainerBounds({ containerDimensions: { maxHeight: host } }), own) },
+      listen: (element: any, type: string, fn: unknown) => element.addEventListener(type, fn),
       URL: { createObjectURL(blob: Blob) { downloadBlob = blob; return "blob:local-report"; }, revokeObjectURL() {} }, setTimeout: (callback: () => void) => callback(),
       JSON: { stringify(value: unknown, replacer: null, spaces: number) { formats++; return JSON.stringify(value, replacer, spaces); } },
       document: { querySelector: (selector: string) => elements.get(selector.slice(1)), get activeElement() { return elements.get(focused); },
@@ -477,8 +616,11 @@ describe("Data modal and local context", () => {
   it("uses only valid standard container bounds and keeps own-frame fallback explicit", () => {
     const bounds = readBacklogContainerBounds({ containerDimensions: { maxHeight: 720, width: 1280 } });
     expect(backlogContainerHeight(bounds, 3927)).toBe(720); expect(constrainBacklogHeight(3927, bounds)).toBe(720);
+    expect(backlogContainerHeight(readBacklogContainerBounds({ containerDimensions: { maxHeight: 10000 } }), 1148)).toBe(1148);
+    expect(backlogContainerHeight(readBacklogContainerBounds({ containerDimensions: { maxHeight: 1314 } }), 1051)).toBe(1051);
     expect(constrainBacklogHeight(1051, readBacklogContainerBounds({ containerDimensions: { maxHeight: 1314 } }))).toBe(1051);
     expect(constrainBacklogHeight(2000, readBacklogContainerBounds({ containerDimensions: { height: 844 } }))).toBe(844);
+    expect(backlogContainerHeight(readBacklogContainerBounds({ containerDimensions: { height: 844 } }), 998)).toBe(844);
     for (const input of [null, {}, { containerDimensions: [] }, { containerDimensions: { height: "720" } }, { containerDimensions: { maxHeight: Infinity } }, { containerDimensions: { maxHeight: -1 } }]) {
       expect(readBacklogContainerBounds(input)).toBe(null);
     }

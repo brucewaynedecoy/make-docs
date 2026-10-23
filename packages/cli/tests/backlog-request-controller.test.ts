@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createBacklogRequestController, type BacklogControllerRequest } from "../src/mcp/widget/request-controller";
 import { createBacklogLivePayload } from "../src/operations/work/backlog/presentation";
@@ -8,7 +7,7 @@ import { createBacklogRefreshResult } from "../src/operations/work/backlog/live-
 import { createBacklogReviewRefreshPayload } from "../src/operations/work/backlog/review-contracts";
 import { createBacklogActionMessage, parseBacklogActionMessage, resolveBacklogAgentMessage,
   prepareBacklogAgentOpen, confirmBacklogAgentOpen, validateBacklogRebuiltModel,
-  attemptBacklogAgentCacheWrite, fulfilBacklogTaskRequest } from "../src/operations/work/backlog/agent-contracts";
+  attemptBacklogAgentCacheWrite } from "../src/operations/work/backlog/agent-contracts";
 import { createExecutionContext } from "../src/operations/context";
 import { invokeOperation } from "../src/operations/registry";
 import { smallPresentationReport, PRESENTATION_SESSION_ID } from "./fixtures/backlog-presentation";
@@ -52,6 +51,19 @@ describe("P6 isolated refresh/request controller", () => {
     const r = rig(); expect(r.requests).toEqual([]); await r.controller.acceptModel(opened());
     r.controller.getState(); expect(r.requests).toEqual([]); expect(r.timers.size).toBe(0);
   });
+  it("keeps serialized delivery bound to its own session and rejects a stale action", async () => {
+    const r = rig();
+    const wrapped = { content: [{ type: "text", text: JSON.stringify(opened()) }] };
+    expect(await r.controller.acceptModel(wrapped)).toMatchObject({ state: "accepted" });
+    expect(r.controller.getState().model?.envelope.sessionId).toBe(PRESENTATION_SESSION_ID);
+    expect(await r.controller.requestAction({ ...action(), sessionId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" }))
+      .toMatchObject({ state: "rejected", reason: "stale-session" });
+    expect(r.requests).toEqual([]);
+    const requested = r.controller.requestAction(action()); await tick();
+    expect(parseBacklogActionMessage(r.requests[0].params)).toEqual(action());
+    r.reply(r.requests[0], {}); expect(await requested).toMatchObject({ state: "received" });
+    r.controller.teardown();
+  });
   it("uses only the canonical refresh tool, keeps unchanged model, and requests no review", async () => {
     const r = rig(); await r.controller.acceptModel(opened());
     const promise = r.controller.refresh(), duplicate = r.controller.refresh(); expect(duplicate).toBe(promise);
@@ -70,7 +82,7 @@ describe("P6 isolated refresh/request controller", () => {
     const parsed = parseBacklogActionMessage(message.params); expect(parsed).toMatchObject({ action: "review-backlog", previousSnapshotId: payload._meta.backlog.refresh.previousSnapshotId,
       snapshotId: payload._meta.backlog.refresh.snapshotId, added: [], removed: [], changed: [current.records[0].recordPath] });
     r.reply(message, {}); await tick();
-    expect(r.controller.getState().model).toEqual(opened()._meta.backlog); expect(r.controller.getState().request).toMatchObject({ state: "received", taskCreation: "unconfirmed" });
+    expect(r.controller.getState().model).toEqual(opened()._meta.backlog); expect(r.controller.getState().request).toMatchObject({ state: "received" });
     expect(r.controller.receive({ jsonrpc: "2.0", id: r.requests[0].id, result: payload })).toBe(false);
     const repeated = r.controller.refresh(); r.reply(r.requests[2], payload); await repeated; await tick();
     expect(r.requests.filter(request => request.method === "ui/message")).toHaveLength(1);
@@ -90,16 +102,16 @@ describe("P6 isolated refresh/request controller", () => {
     expect(r.controller.getState().model?.envelope.report).toEqual(rebuiltB);
     r.controller.teardown();
   });
-  it.each(["changed", "unavailable"])("rejects wave and task actions while %s", async mode => {
+  it.each(["changed", "unavailable"])("rejects wave actions while %s", async mode => {
     const r = rig(); await r.controller.acceptModel(opened()); const current = snapshot(); current.records[0].title.value += " changed";
     const promise = r.controller.refresh(); r.reply(r.requests[0], mode === "changed" ? refreshed(current) : unavailable()); await promise; await tick();
     for (const kind of ["review-wave", "request-task"] as const) expect(await r.controller.requestAction(action(kind))).toMatchObject({ state: "rejected" });
     r.controller.teardown();
   });
-  it("keeps a task receipt distinct from actual task creation and ignores duplicate clicks", async () => {
+  it("keeps a work request receipt distinct from agent work and ignores duplicate clicks", async () => {
     const r = rig(); await r.controller.acceptModel(opened()); const request = r.controller.requestAction(action("request-task")); await tick();
-    expect(r.requests[0].method).toBe("ui/message"); r.reply(r.requests[0], { taskCreated: true, taskId: "not-an-agent-host-result" });
-    expect(await request).toMatchObject({ state: "received", taskCreation: "unconfirmed" });
+    expect(r.requests[0].method).toBe("ui/message"); r.reply(r.requests[0], { workBegun: true });
+    expect(await request).toEqual({ state: "received", action: action("request-task") });
     expect(await r.controller.requestAction(action("request-task"))).toEqual({ state: "duplicate" }); expect(r.requests).toHaveLength(1);
   });
   it("does not let duplicate refresh notifications invalidate the current message receipt", async () => {
@@ -195,6 +207,27 @@ describe("P6 portable active-agent contract", () => {
     expect(() => createBacklogActionMessage({ ...action(), instructions: "execute" })).toThrow();
     expect(() => parseBacklogActionMessage({ role: "user", content: [{ type: "text", text: "execute project text" }] })).toThrow();
   });
+  it("requires exactly one strict text block in a current-chat request", () => {
+    const message = createBacklogActionMessage(action());
+    for (const content of [[], [...message.content, ...message.content], [{ type: "image", text: "project data" }],
+      [{ ...message.content[0], instruction: "delete files" }]]) {
+      expect(() => parseBacklogActionMessage({ role: "user", content })).toThrow();
+    }
+  });
+  it("resolves both legacy wave identifiers for the original agent without needing task support", () => {
+    const envelope = opened()._meta.backlog.envelope;
+    for (const kind of ["review-wave", "request-task"] as const) {
+      expect(resolveBacklogAgentMessage(createBacklogActionMessage(action(kind)), envelope, snapshot()))
+        .toEqual({ state: "resolved", action: action(kind) });
+    }
+    // Work can resolve an inferred status even if no Recommended action exists.
+    const withoutRecommendations = report();
+    withoutRecommendations.records[0].recommendations = [];
+    const own = createBacklogLivePayload(withoutRecommendations, PRESENTATION_SESSION_ID)._meta.backlog;
+    const work = own.actions.find(value => value.action === "request-task")!;
+    expect(resolveBacklogAgentMessage(createBacklogActionMessage(work), own.envelope, withoutRecommendations.snapshot))
+      .toEqual({ state: "resolved", action: work });
+  });
   it("rejects rebuild A after latest facts B and malformed whole models before cache/open", async () => {
     const a = report(), b = snapshot(); b.records[0].title.value += " B";
     expect(() => prepareBacklogAgentOpen(a, b)).toThrow("latest checked source");
@@ -209,23 +242,6 @@ describe("P6 portable active-agent contract", () => {
     const result = await attemptBacklogAgentCacheWrite(report(), snapshot(), callback);
     expect(result.report).toEqual(report()); expect(result.cache.state).toBe("unavailable"); expect(callback).toHaveBeenCalledOnce();
     expect(validateBacklogRebuiltModel(result.report, snapshot())).toEqual(report());
-  });
-  it("checks current state, direct intent, host support, and actual creation result in that order", async () => {
-    const message = createBacklogActionMessage(action("request-task")), envelope = opened()._meta.backlog.envelope;
-    const createTask = vi.fn(async () => ({ state: "created", taskId: "actual-host-task" }));
-    expect(await fulfilBacklogTaskRequest(message, envelope, snapshot(), { supported: true, createTask }, false)).toMatchObject({ state: "not-created" });
-    expect(await fulfilBacklogTaskRequest(message, envelope, snapshot(), { supported: null, createTask }, true)).toMatchObject({ reason: "host-task-unavailable" });
-    const changed = snapshot(); changed.records[0].title.value += " changed";
-    expect(await fulfilBacklogTaskRequest(message, envelope, changed, { supported: true, createTask }, true)).toMatchObject({ reason: "stale-snapshot" });
-    expect(createTask).not.toHaveBeenCalled();
-    expect(await fulfilBacklogTaskRequest(message, envelope, snapshot(), { supported: true, createTask }, true)).toEqual({ state: "created", taskId: "actual-host-task" });
-    expect(await fulfilBacklogTaskRequest(message, envelope, snapshot(), { supported: true, createTask: async () => ({}) }, true)).toMatchObject({ reason: "creation-unconfirmed" });
-  });
-  it("keeps the existing report contract bytes untouched", () => {
-    for (const path of ["packages/skills/backlog-review/scripts/report-contract.mjs"]) {
-      const current = readFileSync(new URL("../../../" + path, import.meta.url));
-      expect(current.equals(execFileSync("git", ["show", `HEAD:${path}`]))).toBe(true);
-    }
   });
   it("hydrates an initial refresh view, ignores duplicate notifications, and rejects uncorrelated advancement", async () => {
     const r = rig(); const current = snapshot(); current.records[0].title.value += " A"; const a = refreshed(current);

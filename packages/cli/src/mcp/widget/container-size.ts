@@ -9,7 +9,8 @@ export function readBacklogContainerBounds(context: unknown): BacklogContainerBo
   return positive(dimensions.maxHeight) ? { height: null, maxHeight: dimensions.maxHeight } : null;
 }
 export function backlogContainerHeight(bounds: BacklogContainerBounds | null, ownHeight: number): number {
-  return bounds?.height ?? bounds?.maxHeight ?? ownHeight;
+  // A maximum is only a ceiling. It does not describe the visible outer window.
+  return bounds?.height ?? Math.min(ownHeight, bounds?.maxHeight ?? ownHeight);
 }
 export function constrainBacklogHeight(requested: number, bounds: BacklogContainerBounds | null): number {
   return bounds?.height ?? Math.min(requested, bounds?.maxHeight ?? requested);

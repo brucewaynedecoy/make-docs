@@ -1,12 +1,20 @@
 import { reportMarkup, mountStaticReport } from "./static-renderer.js";
-import { renderWidgetStatus } from "./state.js";
+import { decodeWidgetToolResult, renderWidgetStatus } from "./state.js";
 import { captureLocalState, restoreLocalState } from "./local-state.js";
 import { createBacklogRequestController, type ControllerState } from "./request-controller.js";
 import { createBacklogLiveView } from "./live-view.js";
 import { backlogCapabilitiesFromInitialize } from "./host-capabilities.js";
 import type { BacklogHostCapabilities } from "../../operations/work/backlog/live-contracts.js";
 import { readBacklogContainerBounds, backlogContainerHeight, constrainBacklogHeight, type BacklogContainerBounds } from "./container-size.js";
+import { createWidgetDiagnostics, widgetErrorFacts, widgetResultFacts, widgetProtocolVersion, type WidgetDiagnosticEvent } from "./diagnostics.js";
 
+const diagnostics = createWidgetDiagnostics();
+function trace(event: WidgetDiagnosticEvent) {
+  diagnostics.record(event);
+  document.documentElement.dataset.backlogTrace = JSON.stringify(diagnostics.snapshot());
+}
+trace({ event: "script-start", facts: { framed: window.parent !== window, webCrypto: !!globalThis.crypto?.subtle,
+  decompression: typeof DecompressionStream === "function" } });
 const status = document.getElementById("widgetStatus")!;
 const root = document.getElementById("widgetReport")!;
 const empty = document.getElementById("widgetEmpty")!;
@@ -19,11 +27,13 @@ let dispose: (() => void) | null = null;
 let view: ReturnType<typeof createBacklogLiveView> | null = null;
 let closed = false;
 let invalid = false;
+let resultArrival = 0;
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
 function send(method: string, params: unknown, id?: number) {
   window.parent.postMessage({ jsonrpc: "2.0", ...(id === undefined ? {} : { id }), method, params }, "*");
 }
-const controller = createBacklogRequestController({ send: request => window.parent.postMessage(request, "*"), onChange: render });
+const controller = createBacklogRequestController({ send: request => window.parent.postMessage(request, "*"), onChange: render,
+  onDiagnostic: trace });
 function render(state: ControllerState) {
   if (closed) return;
   if (state.checking || state.limit === null && state.refresh !== viewState.refresh) invalid = false;
@@ -33,6 +43,7 @@ function render(state: ControllerState) {
     const envelope = model.envelope;
     const key = JSON.stringify([envelope.sessionId, envelope.modelId, envelope.snapshotId, envelope.report.generatedAt, envelope.report.snapshot.generatedAt]);
     if (key !== renderedKey) {
+      trace({ event: "render-start", facts: { records: envelope.report.records.length } });
       const local = renderedKey ? captureLocalState(root) : null;
       view?.dispose(); dispose?.();
       const template = document.createElement("template"); template.innerHTML = reportMarkup; // Trusted fixed report markup only.
@@ -43,6 +54,7 @@ function render(state: ControllerState) {
       root.querySelector("footer")!.replaceChildren(status); view.installToolbar();
       renderedKey = key; root.hidden = false; empty.hidden = true;
       if (local) restoreLocalState(root, local);
+      trace({ event: "render-passed", facts: { records: envelope.report.records.length } });
     }
     view?.update();
   }
@@ -56,15 +68,27 @@ function renderStatus() {
   renderWidgetStatus(status, { hasReport: viewState.model !== null, invalid: failed, bridge, checking: viewState.checking, refresh: result?.state ?? null });
 }
 async function receiveResult(input: unknown) {
+  const arrival = ++resultArrival;
+  trace({ event: "tool-result-received", facts: widgetResultFacts(input) });
+  try {
+    const decoded = await decodeWidgetToolResult(input, facts => trace({ event: "tool-result-decompressed", facts }));
+    if (decoded !== input) trace({ event: "tool-result-decoded", facts: widgetResultFacts(decoded) });
+    input = decoded;
+  } catch (error) { trace({ event: "tool-result-decode-failed", facts: widgetErrorFacts(error) }); }
+  if (closed || arrival !== resultArrival) {
+    trace({ event: "tool-result-outcome", facts: { state: "rejected", reason: closed ? "closed" : "superseded-model" } });
+    return;
+  }
   let result;
   if (object(input) && object(input._meta) && object(input._meta.backlog) && "refresh" in input._meta.backlog) result = await controller.acceptRefreshNotification(input);
   else result = await controller.acceptModel(input);
   if (closed) return;
+  trace({ event: "tool-result-outcome", facts: { state: result.state, ...(result.state === "rejected" ? { reason: result.reason } : {}) } });
   if (result.state === "accepted" || result.state === "duplicate") invalid = false;
   else if (result.state === "rejected" && !["owned-refresh-pending", "uncorrelated-refresh", "stale-refresh", "superseded-model"].includes(result.reason)) invalid = true;
   renderStatus();
 }
-const timer = bridge === "connecting" ? setTimeout(() => { bridge = "unavailable"; capabilities = {}; controller.setCapabilities(capabilities); view?.update(); renderStatus(); }, 5000) : null;
+const timer = bridge === "connecting" ? setTimeout(() => { trace({ event: "initialize-timeout" }); bridge = "unavailable"; capabilities = {}; controller.setCapabilities(capabilities); view?.update(); renderStatus(); }, 5000) : null;
 let lastSize = "";
 function resize() {
   if (bridge !== "ready" || closed) return;
@@ -90,6 +114,9 @@ function receive(event: MessageEvent) {
     void controller.noteRefreshInput(message.params.arguments).then(result => { if (result.state === "accepted") { invalid = false; renderStatus(); } }); return;
   }
   if (message.id === 1 && !("method" in message)) {
+    trace({ event: "initialize-result", facts: { error: !!message.error,
+      protocolVersion: widgetProtocolVersion(object(message.result) ? message.result.protocolVersion : undefined),
+      supportedVersion: object(message.result) && message.result.protocolVersion === "2026-01-26" } });
     if (timer !== null) clearTimeout(timer);
     if (!message.error && object(message.result) && message.result.protocolVersion === "2026-01-26") {
       bridge = "ready";
@@ -109,4 +136,7 @@ function receive(event: MessageEvent) {
   }
 }
 window.addEventListener("message", receive); window.addEventListener("resize", resize); renderStatus();
-if (bridge === "connecting") send("ui/initialize", { protocolVersion: "2026-01-26", appInfo: { name: "Make Docs Backlog Review", version: "1.0.0" }, appCapabilities: {} }, 1);
+if (bridge === "connecting") {
+  trace({ event: "initialize-sent" });
+  send("ui/initialize", { protocolVersion: "2026-01-26", appInfo: { name: "Make Docs Backlog Review", version: "1.0.0" }, appCapabilities: {} }, 1);
+}

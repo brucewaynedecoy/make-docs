@@ -7,9 +7,10 @@ import { BacklogLivePayloadV1Schema, createBacklogLivePayload } from "./presenta
 export { resolveBacklogLiveAction } from "./live-contracts.js";
 export const BACKLOG_ACTION_MESSAGE_PREFIX = "Make Docs backlog action v1\n";
 export const BacklogActionMessageSchema = z.strictObject({ role: z.literal("user"),
-  content: z.tuple([z.strictObject({ type: z.literal("text"), text: z.string() })]) });
+  content: z.array(z.strictObject({ type: z.literal("text"), text: z.string() })).length(1) });
 
-/** Only fixed action fields enter this message. Titles, claims, and instructions do not. */
+/** V1 wire names remain stable: review-wave asks for explanation; request-task asks for work in the connected chat.
+ * Only fixed action fields enter this message. Project titles, claims, and instructions do not. */
 export function createBacklogActionMessage(actionInput: unknown) {
   const action = BacklogLiveActionSchema.parse(actionInput);
   return BacklogActionMessageSchema.parse({ role: "user", content: [{ type: "text",
@@ -91,19 +92,4 @@ export async function attemptBacklogAgentCacheWrite(reportInput: unknown, latest
     return { report, cache: { state: failure ? "unavailable" as const : "attempted" as const, result } };
   }
   catch (error) { return { report, cache: { state: "unavailable" as const, reason: error instanceof Error ? error.message : "cache-write-failed" } }; }
-}
-
-const hostCreatedResult = z.strictObject({ state: z.literal("created"), taskId: z.string().min(1) });
-/** The adapter must return an actual host creation result. A ui/message receipt cannot satisfy it. */
-export async function fulfilBacklogTaskRequest(messageInput: unknown, authoritativeEnvelope: unknown, currentSnapshot: unknown,
-  host: { supported: boolean | null | undefined; createTask: (action: Extract<BacklogLiveAction, { action: "review-wave" | "request-task" }>) => Promise<unknown> },
-  directTaskIntent: boolean) {
-  const resolved = resolveBacklogAgentMessage(messageInput, authoritativeEnvelope, currentSnapshot);
-  if (resolved.state !== "resolved") return { state: "not-created" as const, reason: resolved.reason };
-  if (resolved.action.action !== "request-task" || !directTaskIntent) return { state: "not-created" as const, reason: "task-intent-required" };
-  if (host.supported !== true) return { state: "not-created" as const, reason: "host-task-unavailable" };
-  try {
-    const result = hostCreatedResult.safeParse(await host.createTask(resolved.action));
-    return result.success ? result.data : { state: "not-created" as const, reason: "creation-unconfirmed" };
-  } catch { return { state: "not-created" as const, reason: "host-task-failed" }; }
 }
