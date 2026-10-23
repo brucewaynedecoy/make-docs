@@ -154,7 +154,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-MIG-1 (MUST): no compatibility aliases exist; noncurrent command spellings fail with guidance naming the accepted command.
 - R-MIG-2 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration by its fingerprints and, when found, present a warning that itemizes the changes that could break on upgrade, followed by a choice between backing up and installing the latest version, which is recommended, and cancelling.
-- R-MIG-3 (MUST): MCP tool names are derived from the registry identifiers, so the MCP renames follow the same registry as the CLI.
+- R-MIG-3 (MUST): Every admitted registry operation has one explicit, unique MCP tool name in the checked name map. The registry remains the authority for operation identity, behavior, and CLI routing. The name map changes MCP presentation only. Old MCP tool names are not aliases. A missing, extra, or duplicate map entry fails validation.
 - R-MIG-4 (MUST): setup classifies and bootstraps the external Store before project mutation. Schema changes and their journal commit in one transaction. All project-operation receipts and recovery progress remain in the Store. A required Store failure stops the affected operation and returns a typed result with safe next steps. There is no local receipt projection or retry path. Recovery never replaces the whole Store after commit.
 - R-MIG-5 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each returns a reachable status and one safe next action. Input failure before mutation creates no blocking operation. Repeat setup preserves independent completed subplans and resumes only incomplete work.
 - R-MIG-6 (MUST): Store access results use `store-not-configured`, `store-unavailable`, `store-unsafe`, or `store-denied`. A required Store failure stops only the affected operation. It does not state that Store-free operations or the wider agent task are unavailable.
@@ -522,6 +522,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The shared core checks a current connection key and grants before Store entry. Adapters only carry context. Cache operation IDs stay stable.
 - Rationale: One admission path keeps profile exposure separate from authority.
 - Source: [W26 access design](../plans/2026-10-09-w26-r0-shared-access-and-data-foundation/01-access-trace-and-design.md).
+
+### 2026-10-23 — W26 R1 MCP tool names
+
+- Affected requirement or section: R-MIG-3.
+- Previous contract: MCP tool names came from a mechanical conversion of registry IDs.
+- Replacement contract: Each admitted operation has one explicit, unique MCP name in a checked map. Registry IDs and CLI names stay stable. Old MCP names have no aliases.
+- Rationale: The owner asked for short, clear MCP names while keeping one operation registry.
+- Source: [W26 R1 name contract](../plans/2026-10-23-w26-r1-mcp-tool-names/01-name-contract.md).
 
 ## Source Anchors
 

@@ -75,7 +75,7 @@ The current MCP surface must:
 - list, read, and ensure peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as the canonical CLI resource operations;
 - use native MCP resource discovery/read where supported without creating a second registry, resolver, or content representation;
 - produce dry-run install/sync plans from the CLI planner before mutation;
-- derive exactly one MCP tool from every admitted registry operation, with the tool name, description, input shape, mutation classification, and pending status taken from the registry definition;
+- expose exactly one MCP tool for every admitted registry operation, with its unique name from the checked MCP name map and its description, input shape, mutation classification, and pending status from the registry definition;
 - route every derived tool through the shared operation core so input validation, pending-lineage refusal, dry-run behavior, named approvals, and write gating cannot diverge by surface;
 - require `allowWrite=true` for every mutating tool while allowing `dryRun=true` to exercise the same operation without writes; and
 - prove registry-to-MCP parity in both directions so no admitted operation lacks a tool and no tool invents an unregistered operation.
@@ -356,6 +356,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Store-backed MCP calls check an active connection key and current machine and project grants. Setup and status keep installation checks.
 - Rationale: The prior proof chain blocked an installed connection after an unrelated package or host change. Current grants and a revocable key provide a smaller call-time boundary.
 - Source: [W26 access design](../plans/2026-10-09-w26-r0-shared-access-and-data-foundation/01-access-trace-and-design.md).
+
+### 2026-10-23 — W26 R1 MCP tool names
+
+- Affected requirement or section: Current MCP Surface.
+- Previous contract: The registry definition supplied each derived tool name.
+- Replacement contract: A checked map supplies one unique MCP name for each admitted operation. The registry still supplies the operation behavior and other tool fields.
+- Rationale: The owner asked for shorter tool names without changing operation IDs.
+- Source: [W26 R1 name contract](../plans/2026-10-23-w26-r1-mcp-tool-names/01-name-contract.md).
 
 ## Source Anchors
 
