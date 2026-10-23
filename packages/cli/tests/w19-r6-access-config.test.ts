@@ -561,9 +561,9 @@ describe("W19 R6 harness intent", () => {
     const tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "resource.list")?.mcpReady).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+    await expect(callMakeDocsMcpTool("project_status", { targetRoot }))
       .rejects.toThrow("MCP connection key is absent");
-    await expect(callMakeDocsMcpTool("make_docs_resource_list", { targetRoot }))
+    await expect(callMakeDocsMcpTool("resource_list", { targetRoot }))
       .resolves.toMatchObject({ operation: "resource.list", mcpReady: true });
   });
 
@@ -586,13 +586,13 @@ describe("W19 R6 harness intent", () => {
     const tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+    await expect(callMakeDocsMcpTool("project_status", { targetRoot }))
       .resolves.toMatchObject({
         operation: "project.state.status",
         access: { store: "read", project: "read", hostConfig: "none" },
         mcpReady: true,
       });
-    await expect(callMakeDocsMcpTool("make_docs_project_surface_ensure", {
+    await expect(callMakeDocsMcpTool("surface_ensure", {
       targetRoot,
       surface: "assets",
       allowWrite: true,
@@ -718,7 +718,7 @@ describe("W19 R6 harness intent", () => {
     let tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+    await expect(callMakeDocsMcpTool("project_status", { targetRoot }))
       .resolves.toMatchObject({ operation: "project.state.status", mcpReady: true });
 
     process.env[HARNESS_CALLER_IDENTITY_ENV] = encodeHarnessCallerIdentity({
@@ -735,7 +735,7 @@ describe("W19 R6 harness intent", () => {
     tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+    await expect(callMakeDocsMcpTool("project_status", { targetRoot }))
       .resolves.toMatchObject({ operation: "project.state.status" });
 
     writeProjectHarnessIntent(targetRoot, [
@@ -753,7 +753,7 @@ describe("W19 R6 harness intent", () => {
     tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+    await expect(callMakeDocsMcpTool("project_status", { targetRoot }))
       .rejects.toThrow("do not admit this MCP connection");
   });
 });

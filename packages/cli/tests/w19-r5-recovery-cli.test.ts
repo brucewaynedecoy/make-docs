@@ -61,15 +61,15 @@ describe('fresh public CLI Skill adoption recovery',()=>{
     let diagnostics='';transport.stderr?.on('data',chunk=>{diagnostics+=String(chunk);});
     try {
       try {await client.connect(transport);} catch(error) {throw new Error(`${String(error)}\n${diagnostics}`);}
-      const status=await client.callTool({name:'make_docs_project_state_status',arguments:{targetRoot:root}});
+      const status=await client.callTool({name:'project_status',arguments:{targetRoot:root}});
       expect(status.isError).not.toBe(true);
       expect(JSON.stringify(status)).toContain('recovery-required');
-      const checked=await client.callTool({name:'make_docs_project_state_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume',dryRun:true,allowWrite:true}});
+      const checked=await client.callTool({name:'project_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume',dryRun:true,allowWrite:true}});
       expect(checked.isError,JSON.stringify(checked)).not.toBe(true);
       expect(JSON.stringify(checked)).toContain(prepared.operationId);
       expect(fs.readdirSync(root)).toEqual(['.make-docs','notes.txt']);
       expect(readInstallationManifest(root)).toBeNull();
-      const denied=await client.callTool({name:'make_docs_project_state_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume'}});
+      const denied=await client.callTool({name:'project_recover',arguments:{targetRoot:root,operationId:prepared.operationId,mode:'resume'}});
       expect(denied.isError).toBe(true);
       expect(readInstallationStatus(root).status).toBe('recovery-required');
     } finally {await client.close();}

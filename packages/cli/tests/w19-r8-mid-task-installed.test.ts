@@ -76,13 +76,13 @@ describe("W19 R8 installed mid-task access", () => {
     await client.connect(transport);
     try {
       const independentBefore = await client.callTool({
-        name: "make_docs_resource_list",
+        name: "resource_list",
         arguments: { targetRoot: project },
       });
       expect(independentBefore.isError, JSON.stringify(independentBefore)).not.toBe(true);
 
       const blocked = await client.callTool({
-        name: "make_docs_project_state_status",
+        name: "project_status",
         arguments: { targetRoot: project },
       });
       expect(blocked.isError).toBe(true);
@@ -96,13 +96,13 @@ describe("W19 R8 installed mid-task access", () => {
       ]);
 
       const retried = await client.callTool({
-        name: "make_docs_project_state_status",
+        name: "project_status",
         arguments: { targetRoot: project },
       });
       expect(retried.isError, JSON.stringify(retried)).not.toBe(true);
 
       const independentAfter = await client.callTool({
-        name: "make_docs_resource_list",
+        name: "resource_list",
         arguments: { targetRoot: project },
       });
       expect(independentAfter.isError).not.toBe(true);

@@ -77,11 +77,11 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
   test("default and explicit all preserve the same wire catalog and tool result", async () => {
     const defaultResult = await withClient({}, async (client) => ({
       tools: (await client.listTools()).tools,
-      result: await client.callTool({ name: "make_docs_operation_domains", arguments: {} }),
+      result: await client.callTool({ name: "domains", arguments: {} }),
     }));
     const allResult = await withClient({ profile: "all" }, async (client) => ({
       tools: (await client.listTools()).tools,
-      result: await client.callTool({ name: "make_docs_operation_domains", arguments: {} }),
+      result: await client.callTool({ name: "domains", arguments: {} }),
     }));
     expect(defaultResult).toEqual(allResult);
     expect(listMakeDocsMcpTools()).toEqual(listMakeDocsMcpTools(undefined, { profile: "all" }));
@@ -126,11 +126,11 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
     };
     const { allowWrite, ...input } = args;
     expect(getOperation("resource.ensure").inputSchema.safeParse(input).success).toBe(true);
-    await expect(callMakeDocsMcpTool("make_docs_resource_ensure", args, { profile: "core" }))
+    await expect(callMakeDocsMcpTool("resource_ensure", args, { profile: "core" }))
       .rejects.toThrow("Unknown make-docs MCP tool");
     const targetDir = vi.fn(() => root);
     const handDefinedArgs = Object.defineProperty({}, "targetDir", { get: targetDir });
-    await expect(callMakeDocsMcpTool("make_docs_config_read", handDefinedArgs, { profile: "backlog" }))
+    await expect(callMakeDocsMcpTool("config", handDefinedArgs, { profile: "backlog" }))
       .rejects.toThrow("Unknown make-docs MCP tool");
     expect(targetDir).not.toHaveBeenCalled();
     expect(createContext).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
       expect(() => createMakeDocsMcpServer(options)).toThrow(message);
       await expect(runMcpServer(options)).rejects.toThrow(message);
       expect(() => listMakeDocsMcpTools(undefined, options)).toThrow(message);
-      await expect(callMakeDocsMcpTool("make_docs_operation_domains", {}, options)).rejects.toThrow(message);
+      await expect(callMakeDocsMcpTool("domains", {}, options)).rejects.toThrow(message);
       expect(createContext).not.toHaveBeenCalled();
     },
   );
@@ -167,7 +167,7 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
     );
     const createContext = vi.spyOn(context, "createExecutionContext");
     for (const profile of ["all", "core"] as const) {
-      await expect(callMakeDocsMcpTool("make_docs_resource_read", args, { profile }))
+      await expect(callMakeDocsMcpTool("resource_read", args, { profile }))
         .rejects.toThrow("Malformed target root.");
     }
     expect(targetRoot).toHaveBeenCalledTimes(2);
@@ -175,11 +175,11 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
   });
 
   test("selected workflow tools retain the operation core write gate", async () => {
-    await expect(callMakeDocsMcpTool("make_docs_work_evidence_record", {}, { profile: "workflow" }))
+    await expect(callMakeDocsMcpTool("evidence_record", {}, { profile: "workflow" }))
       .rejects.toBeInstanceOf(context.OperationWriteDeniedError);
     await withClient({ profile: "workflow" }, async (client) => {
       const result = await client.callTool({
-        name: "make_docs_lifecycle_start",
+        name: "lifecycle_start",
         arguments: { repoRoot: process.cwd(), lifecycleStage: "implementation" },
       });
       expect(result.isError).toBe(true);
@@ -196,11 +196,11 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
     vi.stubEnv("MAKE_DOCS_HOME", store);
     vi.stubEnv(HARNESS_CALLER_IDENTITY_ENV, "");
     await withClient({ profile: "backlog" }, async (client) => {
-      expect((await client.listTools()).tools.map((tool) => tool.name)).toContain("make_docs_work_backlog_cache_lookup");
+      expect((await client.listTools()).tools.map((tool) => tool.name)).toContain("backlog_cache_read");
     });
     const captureError = async (profile: McpServerProfile) => {
       try {
-        await callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot: root }, { profile });
+        await callMakeDocsMcpTool("project_status", { targetRoot: root }, { profile });
         throw new Error("Expected Store admission to refuse an unconfigured caller.");
       } catch (error) {
         return context.serializeOperationError(error);

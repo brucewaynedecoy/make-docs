@@ -556,7 +556,7 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
     });
     expect(hasOperation("lifecycle.checkpoint")).toBe(true);
     expect(
-      MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === "make_docs_lifecycle_checkpoint"),
+      MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === "lifecycle_checkpoint"),
     ).toBe(true);
     await expect(runRunCommand(["lifecycle", "checkpoint"])).rejects.toThrow(
       /requires --run-id/,

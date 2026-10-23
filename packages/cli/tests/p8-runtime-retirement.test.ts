@@ -61,13 +61,14 @@ describe("P8 runtime retirement", () => {
     try {
       const names = (await client.listTools()).tools.map((tool) => tool.name);
       for (const id of retired) {
-        const name = deriveMcpToolName(id);
+        expect(() => deriveMcpToolName(id)).toThrow("Missing MCP tool name for operation");
+        const name = `make_docs_${id.replace(/[.-]/g, "_")}`;
         expect(names).not.toContain(name);
         const result = await client.callTool({ name, arguments: {} });
         expect(result.isError, name).toBe(true);
       }
-      expect(names).toContain("make_docs_lifecycle_start");
-      expect(names).toContain("make_docs_uat_persona_resolve");
+      expect(names).toContain("lifecycle_start");
+      expect(names).toContain("uat_persona_resolve");
     } finally {
       await client.close();
       await server.close();

@@ -426,7 +426,7 @@ describe("performance.evidence.validate", () => {
       { targetRoot: root },
       createExecutionContext({ surface: "test", writesAllowed: false }),
     );
-    const mcp = await callMakeDocsMcpTool("make_docs_performance_evidence_validate", {
+    const mcp = await callMakeDocsMcpTool("performance_validate", {
       targetRoot: root,
     });
 

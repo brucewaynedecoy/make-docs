@@ -1008,16 +1008,16 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(listOperations().filter((operation) => lifecycleIds.includes(operation.id)))
       .toEqual(expect.arrayContaining(lifecycleIds.map((id) => expect.objectContaining({ id, status: "active" }))));
     expect(lifecycleIds.map(deriveMcpToolName)).toEqual([
-      "make_docs_lifecycle_start",
-      "make_docs_lifecycle_show",
-      "make_docs_lifecycle_list",
-      "make_docs_lifecycle_checkpoint",
-      "make_docs_lifecycle_pause",
-      "make_docs_lifecycle_resume",
-      "make_docs_lifecycle_attach_evidence",
-      "make_docs_lifecycle_complete",
-      "make_docs_lifecycle_fail",
-      "make_docs_lifecycle_abandon",
+      "lifecycle_start",
+      "lifecycle_show",
+      "lifecycle_list",
+      "lifecycle_checkpoint",
+      "lifecycle_pause",
+      "lifecycle_resume",
+      "lifecycle_attach_evidence",
+      "lifecycle_complete",
+      "lifecycle_fail",
+      "lifecycle_abandon",
     ]);
     expect(listRunCliAdapters()).toEqual(expect.arrayContaining(lifecycleIds));
 
@@ -1031,7 +1031,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     ]);
     const cliStart = JSON.parse(String(stdout.mock.calls[0]![0])) as Record<string, unknown>;
     const mcpShow = await callWithMcpIdentity(mcpCallerIdentity, () =>
-      callMakeDocsMcpTool("make_docs_lifecycle_show", {
+      callMakeDocsMcpTool("lifecycle_show", {
         repoRoot,
         storeRoot: root,
         runId: "surface-run",
@@ -1048,7 +1048,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "--expected-version", "1",
       ]),
       callWithMcpIdentity(mcpCallerIdentity, () =>
-        callMakeDocsMcpTool("make_docs_lifecycle_fail", {
+        callMakeDocsMcpTool("lifecycle_fail", {
           repoRoot,
           storeRoot: root,
           runId: "surface-run",
@@ -1082,7 +1082,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     ])));
     const mcpError = serializeOperationError(await captureError(() =>
       callWithMcpIdentity(mcpCallerIdentity, () =>
-        callMakeDocsMcpTool("make_docs_lifecycle_pause", {
+        callMakeDocsMcpTool("lifecycle_pause", {
           repoRoot,
           storeRoot: root,
           runId: "parity-run",
