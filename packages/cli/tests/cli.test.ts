@@ -3224,7 +3224,8 @@ personas:
         machine: { configured: ["codex", "claude-code"] },
       });
       expect(readFileSync(codexPath, "utf8")).toContain('model = "user-model"');
-      expect(readFileSync(codexPath, "utf8")).toContain(desiredEntry);
+      expect(readFileSync(codexPath, "utf8")).toContain("# make-docs:begin harness-access codex mcp");
+      expect(readFileSync(codexPath, "utf8")).not.toContain(desiredEntry);
       expect(readFileSync(codexPath, "utf8")).not.toContain("Prior Make Docs package");
       expect(JSON.parse(readFileSync(path.join(isolatedSetupHome, ".claude.json"), "utf8")))
         .toMatchObject({ theme: "user-theme", mcpServers: { "make-docs": expect.any(Object) } });

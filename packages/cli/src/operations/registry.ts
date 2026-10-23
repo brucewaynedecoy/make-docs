@@ -515,6 +515,8 @@ export async function invokeOperation(
       route: context.route,
       callerIdentityRaw: context.callerIdentityRaw,
       callerReference: context.callerReference,
+      mcpConnectionId: context.mcpConnectionId,
+      mcpConnectionKey: context.mcpConnectionKey,
       commandRuleAuthority: authority,
     });
   }

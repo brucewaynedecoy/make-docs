@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { afterEach, describe, expect, it } from "vitest";
-import { HARNESS_CALLER_IDENTITY_ENV } from "../src/harness-access";
+import { MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection";
 
 const roots: string[] = [];
 const candidateEntry = process.env.MAKE_DOCS_R8_TEST_CLI ??
@@ -61,14 +61,15 @@ describe("W19 R8 installed mid-task access", () => {
     const generic = machine.genericMcp as {
       configuration: { mcpServers: { "make-docs": { env: Record<string, string> } } };
     };
-    const callerIdentity = generic.configuration.mcpServers["make-docs"].env[HARNESS_CALLER_IDENTITY_ENV];
-    expect(callerIdentity).toBeTruthy();
+    const connectionEnv = generic.configuration.mcpServers["make-docs"].env;
+    expect(connectionEnv[MCP_CONNECTION_ID_ENV]).toBeTruthy();
+    expect(connectionEnv[MCP_CONNECTION_KEY_ENV]).toBeTruthy();
 
     const transport = new StdioClientTransport({
       command: process.execPath,
       args: [candidateEntry, "mcp"],
       cwd: project,
-      env: { ...baseEnv, [HARNESS_CALLER_IDENTITY_ENV]: callerIdentity },
+      env: { ...baseEnv, ...connectionEnv },
       stderr: "pipe",
     });
     const client = new Client({ name: "make-docs-r8-mid-task", version: "1.0.0" }, { capabilities: {} });

@@ -44,10 +44,10 @@ import * as installationState from "../src/store/installation-state";
 import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
 import {
   CODEX_HARNESS_ADAPTER,
-  HARNESS_CALLER_IDENTITY_ENV,
-  encodeHarnessCallerIdentity,
   verifyMakeDocsExecutable,
 } from "../src/harness-access";
+import { readNativeMcpConnection } from "../src/harness-access/native";
+import { MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection";
 import { runSystemSetupCommand } from "../src/setup-system";
 import { cleanupTempDir, createTempDir, writeMinimalManifest } from "./helpers";
 
@@ -61,16 +61,20 @@ afterEach(() => {
 });
 
 async function callWithMcpIdentity<T>(
-  callerIdentity: string,
+  connection: { id: string; key: string },
   call: () => Promise<T>,
 ): Promise<T> {
-  const previous = process.env[HARNESS_CALLER_IDENTITY_ENV];
-  process.env[HARNESS_CALLER_IDENTITY_ENV] = callerIdentity;
+  const previousId = process.env[MCP_CONNECTION_ID_ENV];
+  const previousKey = process.env[MCP_CONNECTION_KEY_ENV];
+  process.env[MCP_CONNECTION_ID_ENV] = connection.id;
+  process.env[MCP_CONNECTION_KEY_ENV] = connection.key;
   try {
     return await call();
   } finally {
-    if (previous === undefined) delete process.env[HARNESS_CALLER_IDENTITY_ENV];
-    else process.env[HARNESS_CALLER_IDENTITY_ENV] = previous;
+    if (previousId === undefined) delete process.env[MCP_CONNECTION_ID_ENV];
+    else process.env[MCP_CONNECTION_ID_ENV] = previousId;
+    if (previousKey === undefined) delete process.env[MCP_CONNECTION_KEY_ENV];
+    else process.env[MCP_CONNECTION_KEY_ENV] = previousKey;
   }
 }
 
@@ -966,7 +970,6 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     const machineRoot = createTempDir("make-docs-p6-mcp-home-");
     roots.push(machineRoot);
     vi.stubEnv("MAKE_DOCS_HOME", root);
-    vi.stubEnv(HARNESS_CALLER_IDENTITY_ENV, "");
     const executable = verifyMakeDocsExecutable({
       executablePath: path.resolve(
         path.dirname(fileURLToPath(import.meta.url)),
@@ -986,17 +989,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(setup.status).toBe("configured");
     const configPath = path.join(repoRoot, ".make-docs/config.yaml");
     writeFileSync(configPath, `${readFileSync(configPath, "utf8")}harnessIntegrations:\n  - harness: codex\n    mode: narrow\n    method: mcp\n`);
-    const mcpCallerIdentity = encodeHarnessCallerIdentity({
-      schemaVersion: 1,
-      kind: "make-docs-harness-caller",
-      adapterId: CODEX_HARNESS_ADAPTER.id,
-      adapterVersion: CODEX_HARNESS_ADAPTER.version,
-      harnessId: "codex",
-      connectionMethod: "mcp",
-      scope: "machine",
-      root: realpathSync(machineRoot),
-      executable,
-    });
+    const mcpCallerIdentity = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)!;
     const lifecycleIds = listOperations()
       .filter((operation) => operation.id.startsWith("lifecycle."))
       .map((operation) => operation.id);

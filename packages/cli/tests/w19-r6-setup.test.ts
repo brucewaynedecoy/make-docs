@@ -10,9 +10,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyPreparedSystemSetup, prepareSystemSetupCommand, renderSystemPlans, runSystemSetupCommand, SYSTEM_COMMAND_RULE_AUTHORITY } from "../src/setup-system";
 import { CODEX_HARNESS_ADAPTER, fingerprintEntry, listBoundedHarnessCommandRules, sha256, verifyMakeDocsExecutable } from "../src/harness-access/index";
+import { readNativeMcpConnection } from "../src/harness-access/native";
+import { matchMcpConnection } from "../src/mcp-connection";
 import { loadGlobalConfig, writeGlobalConfig } from "../src/store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "../src/store/harness-integration-receipts";
-import { readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
+import { prepareHarnessSystemOperation, readPendingHarnessSystemOperation } from "../src/store/harness-system-operations";
 import { withInstallationDatabase } from "../src/store/installation-state";
 import { STORE_MIGRATIONS } from "../src/store";
 import { cleanupTempDir, createTempDir } from "./helpers";
@@ -35,6 +37,87 @@ function seedLegacyStore(storeRoot: string, version: 3): void {
 }
 
 describe("W19 R6 unified setup", () => {
+  test("reviewed MCP rotation replaces the key and disables the old key", async () => {
+    const machineRoot = createTempDir("make-docs-system-rotate-");
+    const storeContainer = createTempDir("make-docs-system-rotate-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    try {
+      const executable = verifyMakeDocsExecutable({
+        executablePath: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/index.js"),
+      });
+      const options = {
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" as const },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+      };
+      expect((await runSystemSetupCommand(options)).status).toBe("configured");
+      const before = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)!;
+      const review = await prepareSystemSetupCommand({ ...options, dryRun: true, rotateMcp: true });
+      expect(review.review).toContain("key replacement");
+      expect(readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)).toEqual(before);
+      expect((await runSystemSetupCommand({ ...options, rotateMcp: true })).status).toBe("configured");
+      const after = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)!;
+      expect(after.id).not.toBe(before.id);
+      expect(after.key).not.toBe(before.key);
+      const record = loadGlobalConfig(storeRoot).config.settings.harnesses.codex?.mcpConnection;
+      expect(record).toMatchObject({ id: after.id, active: true, owner: "codex" });
+      expect(record?.keySha256).not.toBe(before.key);
+      expect((await runSystemSetupCommand({ ...options, methods: { codex: "none" } })).status).toBe("skipped-none");
+      const disabled = loadGlobalConfig(storeRoot).config.settings.harnesses;
+      expect(disabled.codex?.mcpConnection?.active).toBe(false);
+      expect(matchMcpConnection(disabled, after.id, after.key)).toBeNull();
+    } finally {
+      cleanupTempDir(machineRoot);
+      cleanupTempDir(storeContainer);
+    }
+  });
+  test("a lost MCP key before native write requires a new reviewed plan", async () => {
+    const machineRoot = createTempDir("make-docs-system-before-write-");
+    const storeContainer = createTempDir("make-docs-system-before-write-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    try {
+      const executable = verifyMakeDocsExecutable({
+        executablePath: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/index.js"),
+      });
+      const plan = CODEX_HARNESS_ADAPTER.plan({ method: "mcp", scope: "machine", root: machineRoot, executable });
+      const pending = prepareHarnessSystemOperation({
+        targetRoot: machineRoot,
+        storeRoot,
+        adapterId: CODEX_HARNESS_ADAPTER.id,
+        harnessId: "codex",
+        plan,
+        appliedVersion: executable.packageVersion,
+        verifiedAt: new Date().toISOString(),
+      });
+      const keyLine = String(plan.changes[0].afterEntryValue).split("\n")
+        .find(line => line.startsWith("MAKE_DOCS_MCP_CONNECTION_KEY = "))!;
+      const rawKey = JSON.parse(keyLine.split(" = ")[1]!) as string;
+      expect(JSON.stringify(pending)).not.toContain(rawKey);
+      const options = {
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" as const },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+      };
+      const recovery = await runSystemSetupCommand(options);
+      expect(recovery).toMatchObject({ status: "recovery", recoveryAction: expect.stringContaining("review a new MCP key") });
+      expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).toBeNull();
+      expect(existsSync(path.join(machineRoot, ".codex/config.toml"))).toBe(false);
+      expect((await runSystemSetupCommand(options)).status).toBe("configured");
+    } finally {
+      cleanupTempDir(machineRoot);
+      cleanupTempDir(storeContainer);
+    }
+  });
   test("fresh setup selects the complete project shape without a capability step", async () => {
     const capabilityStep = vi.fn<WizardRenderer["editCapabilities"]>();
     const renderer: WizardRenderer = {
@@ -316,11 +399,20 @@ describe("W19 R6 unified setup", () => {
 
       expect(recovered).toMatchObject({ status: "configured", configured: ["codex"] });
       expect(readPendingHarnessSystemOperation(machineRoot, storeRoot)).toBeNull();
-      expect(loadGlobalConfig(storeRoot).config.settings.harnesses.codex).toEqual({
+      expect(loadGlobalConfig(storeRoot).config.settings.harnesses.codex).toMatchObject({
         selected: true,
         maximumMethod: "mcp",
         accessCeiling: { store: "write", project: "write", hostConfig: "none" },
+        mcpConnection: { active: true, method: "mcp", owner: "codex" },
       });
+      const hostBytes = readFileSync(path.join(machineRoot, ".codex/config.toml"), "utf8");
+      const keyLine = hostBytes.split("\n").find(line => line.startsWith("MAKE_DOCS_MCP_CONNECTION_KEY = "))!;
+      const rawKey = JSON.parse(keyLine.split(" = ")[1]!) as string;
+      const savedMetadata = withInstallationDatabase(machineRoot, db => db.prepare(
+        "SELECT metadata_json FROM tool_operations WHERE operation LIKE 'setup.system.%'",
+      ).all() as Array<{ metadata_json: string }>, { storeRoot, readOnly: true });
+      expect(savedMetadata.length).toBeGreaterThan(0);
+      expect(JSON.stringify(savedMetadata)).not.toContain(rawKey);
     } finally {
       cleanupTempDir(machineRoot);
       cleanupTempDir(storeContainer);

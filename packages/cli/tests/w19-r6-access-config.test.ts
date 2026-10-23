@@ -32,6 +32,8 @@ import {
   verifyMakeDocsExecutable,
 } from "../src/harness-access";
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "../src/mcp/tools";
+import { hashMcpConnectionKey, MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection";
+import { readNativeMcpConnection } from "../src/harness-access/native";
 import { createExecutionContext } from "../src/operations/context";
 import { assertOperationAccess } from "../src/operations/access";
 import {
@@ -70,6 +72,8 @@ import { recoverDeadStoreLeases } from "../src/store/lease-recovery";
 const tempDirs: string[] = [];
 const originalStoreRoot = process.env.MAKE_DOCS_HOME;
 const originalCallerIdentity = process.env[HARNESS_CALLER_IDENTITY_ENV];
+const originalConnectionId = process.env[MCP_CONNECTION_ID_ENV];
+const originalConnectionKey = process.env[MCP_CONNECTION_KEY_ENV];
 const COMMAND_RULE_AUTHORITY = {
   list: listHarnessCommandRules,
   validate: validateRegistryHarnessCommandRules,
@@ -99,6 +103,10 @@ afterEach(() => {
   else process.env.MAKE_DOCS_HOME = originalStoreRoot;
   if (originalCallerIdentity === undefined) delete process.env[HARNESS_CALLER_IDENTITY_ENV];
   else process.env[HARNESS_CALLER_IDENTITY_ENV] = originalCallerIdentity;
+  if (originalConnectionId === undefined) delete process.env[MCP_CONNECTION_ID_ENV];
+  else process.env[MCP_CONNECTION_ID_ENV] = originalConnectionId;
+  if (originalConnectionKey === undefined) delete process.env[MCP_CONNECTION_KEY_ENV];
+  else process.env[MCP_CONNECTION_KEY_ENV] = originalConnectionKey;
 });
 
 describe("W19 R6 operation access", () => {
@@ -321,21 +329,32 @@ describe("W19 R6 harness intent", () => {
       verifiedAt: "2026-09-12T20:00:00.000Z",
     });
     recordHarnessIntegrationReceipt(targetRoot, storeRoot, applied.receipt);
-    expect(readCurrentHarnessIntegrationReceipt(
+    const storedReceipt = readCurrentHarnessIntegrationReceipt(
       targetRoot,
       storeRoot,
       "machine",
       "codex",
       "mcp",
-    )).toEqual(applied.receipt);
+    );
+    const connection = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, nativeRoot)!;
+    expect(JSON.stringify(storedReceipt)).not.toContain(connection.key);
     const global = defaultGlobalConfig();
     global.settings.harnesses.codex = {
       selected: true,
       maximumMethod: "mcp",
       accessCeiling: { store: "write", project: "write", hostConfig: "none" },
+      mcpConnection: {
+        id: connection.id,
+        keySha256: hashMcpConnectionKey(connection.key),
+        active: true,
+        method: "mcp",
+        owner: "codex",
+      },
     };
     writeGlobalConfig(storeRoot, global);
     process.env.MAKE_DOCS_HOME = storeRoot;
+    process.env[MCP_CONNECTION_ID_ENV] = connection.id;
+    process.env[MCP_CONNECTION_KEY_ENV] = connection.key;
     process.env[HARNESS_CALLER_IDENTITY_ENV] = encodeHarnessCallerIdentity({
       schemaVersion: 1,
       kind: "make-docs-harness-caller",
@@ -543,7 +562,7 @@ describe("W19 R6 harness intent", () => {
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "resource.list")?.mcpReady).toBe(true);
     await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
-      .rejects.toThrow("does not allow operation 'project.state.status'");
+      .rejects.toThrow("MCP connection key is absent");
     await expect(callMakeDocsMcpTool("make_docs_resource_list", { targetRoot }))
       .resolves.toMatchObject({ operation: "resource.list", mcpReady: true });
   });
@@ -557,6 +576,7 @@ describe("W19 R6 harness intent", () => {
       "harnessIntegrations:",
       "  - harness: codex",
       "    mode: narrow",
+      "    method: mcp",
       "    accessCeiling:",
       "      store: read",
       "      project: read",
@@ -671,7 +691,7 @@ describe("W19 R6 harness intent", () => {
       callerReference,
       runtimeExecutablePath: configured.executable.path,
       commandRuleAuthority: COMMAND_RULE_AUTHORITY,
-    })).toThrow("MCP route needs an exact MCP caller identity");
+    })).toThrow("MCP connection key is absent");
 
     writeFileSync(configured.settingsPath, JSON.stringify({ permissions: { allow: [] } }, null, 2));
     expect(policy).toThrow("native entry is absent");
@@ -716,7 +736,7 @@ describe("W19 R6 harness intent", () => {
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
     await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
-      .rejects.toThrow("do not admit this harness method");
+      .resolves.toMatchObject({ operation: "project.state.status" });
 
     writeProjectHarnessIntent(targetRoot, [
       "harnessIntegrations:",
@@ -733,6 +753,8 @@ describe("W19 R6 harness intent", () => {
     tools = listMakeDocsMcpTools(targetRoot);
     expect(tools.find((tool) => tool.operation === "project.state.status")?.mcpReady).toBe(true);
     expect(tools.find((tool) => tool.operation === "project.surface.ensure")?.mcpReady).toBe(true);
+    await expect(callMakeDocsMcpTool("make_docs_project_state_status", { targetRoot }))
+      .rejects.toThrow("do not admit this MCP connection");
   });
 });
 

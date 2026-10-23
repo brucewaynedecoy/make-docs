@@ -247,6 +247,8 @@ export interface HarnessPlanInput {
   commandRules?: readonly HarnessCommandRule[];
   commandRuleAuthority?: HarnessCommandRuleAuthority;
   receipt?: HarnessAccessReceipt;
+  /** New or verified existing MCP connection for the reviewed native entry. */
+  mcpConnection?: { id: string; key: string };
 }
 
 export interface HarnessRemoveInput {

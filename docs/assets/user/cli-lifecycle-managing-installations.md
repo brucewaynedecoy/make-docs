@@ -95,7 +95,11 @@ The host's native resource list follows the selected profile. A read for a resou
 
 Profile selection does not change CLI resource commands or the common resource tools in `core`. Those keep their existing inventory and read behavior. The `backlog` app page is reserved for `backlog` and `all`. It is not available until the Backlog Review app package lands.
 
-The profile does not grant Store, project, or host settings access. Write tools still need the existing write permission and approvals. Stdio remains the selected transport. No HTTP launch is added here.
+The profile does not grant Store, project, or host settings access. Stdio remains the selected transport. No HTTP launch is added here.
+
+To set up Store access for a first-party MCP connection, run `make-docs setup system` and review the proposed host entry. Then run `make-docs setup` for each project that should admit that connection. The host entry holds a connection key. The Store keeps only its hash. Each Store-backed MCP call checks that key and the current machine and project limits. A copied client label or an old caller-identity value does not grant access.
+
+Run `make-docs setup system --rotate-mcp` when you need to replace a selected first-party MCP key. Review the replacement before it changes the host entry. The old key stops working after the new entry verifies. Selecting `none` for that harness disables its Store key. For another MCP client, use `--generic-mcp-client <label>` to get a configuration object, then copy it into that client's settings. Use `--generic-mcp-action rotate` to replace that client's key.
 
 For the code and permission rules, use [CLI/MCP Operation Parity and Permissions](../maintainer/cli-mcp-operation-parity-and-permissions.md).
 

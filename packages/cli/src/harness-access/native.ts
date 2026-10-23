@@ -13,6 +13,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { createMcpConnection, isRedactedMcpNativeValue, MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../mcp-connection";
 import { assertManagedPathHasNoSymlinks } from "../utils";
 import { platform, type FileMutationGuard } from "../platform";
 import {
@@ -20,7 +21,6 @@ import {
   HARNESS_CALLER_IDENTITY_ENV,
   HARNESS_CALLER_REFERENCE_ARG,
   canonicalJson,
-  encodeHarnessCallerIdentity,
   encodeHarnessCallerIdentityArgument,
   encodeHarnessCallerReference,
   fingerprintEntry,
@@ -171,6 +171,12 @@ function planHarnessAccess(adapter: HarnessAdapter, input: HarnessPlanInput): Ha
   const method = requireMethod(adapter, input.method, input.scope);
   validateExecutableIdentity(input.executable);
   assertSafeRoot(input.root);
+  const nativePath = method.nativeFile(input.scope);
+  const beforeContent = readNativeContent(input.root, nativePath);
+  const mcpConnection = method.id === "mcp"
+    ? input.mcpConnection ?? parseNativeMcpConnection(method.nativeFormat, beforeContent)
+      ?? createMcpConnection(adapter.harnessId)
+    : undefined;
   const desired = desiredEntry(
     adapter,
     method,
@@ -179,9 +185,9 @@ function planHarnessAccess(adapter: HarnessAdapter, input: HarnessPlanInput): Ha
     input.executable,
     input.commandRules,
     input.commandRuleAuthority,
+    mcpConnection,
   );
   assertNativePath(input.root, desired.path);
-  const beforeContent = readNativeContent(input.root, desired.path);
   const receiptEntry = receiptEntryFor(adapter, input, desired.path, desired.entryId);
 
   let change: HarnessNativeChange;
@@ -366,6 +372,7 @@ function verifyHarnessAccess(
     input.executable,
     input.commandRules,
     input.commandRuleAuthority,
+    method.id === "mcp" ? parseNativeMcpConnection(method.nativeFormat, readNativeContent(input.root, method.nativeFile(input.scope))) ?? undefined : undefined,
   );
   const receiptEntry = receiptEntryFor(adapter, input, desired.path, desired.entryId);
   const content = readNativeContent(input.root, desired.path);
@@ -454,7 +461,7 @@ function planHarnessAccessRemoval(
       );
       state = "drifted";
     } else {
-      const afterContent = removeEntry(method.nativeFormat, beforeContent, receiptEntry.value);
+      const afterContent = removeEntry(method.nativeFormat, beforeContent, inspected.value);
       change = {
         path: receiptEntry.path,
         entryId: receiptEntry.entryId,
@@ -583,12 +590,12 @@ function desiredEntry(
   executable: VerifiedExecutableIdentity,
   commandRules: readonly HarnessCommandRule[] | undefined,
   commandRuleAuthority: HarnessCommandRuleAuthority | undefined,
+  mcpConnection?: { id: string; key: string },
 ): DesiredEntry {
   const nativePath = method.nativeFile(scope);
-  const callerIdentity = makeHarnessCallerIdentity(adapter, method.id, root, executable);
-  const encodedCallerIdentity = encodeHarnessCallerIdentity(callerIdentity);
   switch (method.nativeFormat) {
     case "codex-mcp-toml": {
+      if (!mcpConnection) throw new Error("MCP setup needs a connection key.");
       const command = tomlString(executable.path);
       const value = [
         CODEX_MCP_BEGIN,
@@ -596,22 +603,28 @@ function desiredEntry(
         `command = ${command}`,
         `args = [${tomlString("mcp")}]`,
         "[mcp_servers.make_docs.env]",
-        `${HARNESS_CALLER_IDENTITY_ENV} = ${tomlString(encodedCallerIdentity)}`,
+        `${MCP_CONNECTION_ID_ENV} = ${tomlString(mcpConnection.id)}`,
+        `${MCP_CONNECTION_KEY_ENV} = ${tomlString(mcpConnection.key)}`,
         CODEX_MCP_END,
       ].join("\n");
       return { path: nativePath, entryId: "mcp_servers.make_docs", value };
     }
     case "claude-mcp-json":
+      if (!mcpConnection) throw new Error("MCP setup needs a connection key.");
       return {
         path: nativePath,
         entryId: "mcpServers.make-docs",
         value: {
           command: executable.path,
           args: ["mcp"],
-          env: { [HARNESS_CALLER_IDENTITY_ENV]: encodedCallerIdentity },
+          env: {
+            [MCP_CONNECTION_ID_ENV]: mcpConnection.id,
+            [MCP_CONNECTION_KEY_ENV]: mcpConnection.key,
+          },
         },
       };
     case "codex-command-rules": {
+      const callerIdentity = makeHarnessCallerIdentity(adapter, method.id, root, executable);
       if (/\s/.test(executable.path)) {
         throw new Error("Codex command rules need an executable path with no whitespace.");
       }
@@ -634,6 +647,7 @@ function desiredEntry(
       return { path: nativePath, entryId: "make-docs.command-rules", value: lines.join("\n") };
     }
     case "claude-permission-json": {
+      const callerIdentity = makeHarnessCallerIdentity(adapter, method.id, root, executable);
       if (/\s/.test(executable.path)) {
         throw new Error("Claude Code permission rules need an executable path with no whitespace.");
       }
@@ -649,6 +663,75 @@ function desiredEntry(
       return { path: nativePath, entryId: "permissions.allow.make-docs", value: values };
     }
   }
+}
+
+/** Read only a Make Docs-owned MCP entry. The key never enters setup output. */
+export function readNativeMcpConnection(
+  adapter: HarnessAdapter,
+  root: string,
+): { id: string; key: string } | null {
+  const method = adapter.methods.find(candidate => candidate.id === "mcp");
+  if (!method) return null;
+  assertSafeRoot(root);
+  const nativePath = method.nativeFile("machine");
+  assertNativePath(root, nativePath);
+  return parseNativeMcpConnection(method.nativeFormat, readNativeContent(root, nativePath));
+}
+
+/** Inspect a pending MCP write without using the redacted plan as write input. */
+export function classifyPendingNativeMcpChange(
+  adapter: HarnessAdapter,
+  plan: HarnessAccessPlan,
+): "before" | "after" | "unknown" {
+  if (plan.connectionMethod !== "mcp" || plan.changes.length !== 1) return "unknown";
+  const method = requireMethod(adapter, "mcp", plan.scope);
+  const change = plan.changes[0]!;
+  assertSafeRoot(plan.root);
+  assertNativePath(plan.root, change.path);
+  const content = readNativeContent(plan.root, change.path);
+  if (fingerprintFile(content) === change.beforeFileFingerprint) return "before";
+  if (fingerprintFile(content) !== change.afterFileFingerprint) return "unknown";
+  try {
+    const inspected = inspectEntry(method.nativeFormat, content, change.afterEntryValue!);
+    return inspected.exists && inspected.value !== null &&
+      fingerprintEntry(inspected.value) === change.afterEntryFingerprint &&
+      parseNativeMcpConnection(method.nativeFormat, content) !== null
+      ? "after" : "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+function parseNativeMcpConnection(
+  format: HarnessNativeFormat,
+  content: string | null,
+): { id: string; key: string } | null {
+  if (!content) return null;
+  let env: Record<string, unknown> | null = null;
+  if (format === "codex-mcp-toml") {
+    const start = content.indexOf(CODEX_MCP_BEGIN);
+    const end = content.indexOf(CODEX_MCP_END, start + CODEX_MCP_BEGIN.length);
+    if (start < 0 || end < 0) return null;
+    const block = content.slice(start, end);
+    const values: Record<string, unknown> = {};
+    for (const line of block.split("\n")) {
+      const match = line.match(/^([A-Z_]+)\s*=\s*("(?:[^"\\]|\\.)*")\s*$/);
+      if (!match) continue;
+      try { values[match[1]!] = JSON.parse(match[2]!); } catch { return null; }
+    }
+    env = values;
+  } else if (format === "claude-mcp-json") {
+    try {
+      const parsed = JSON.parse(content) as Record<string, unknown>;
+      const servers = parsed.mcpServers as Record<string, unknown> | undefined;
+      const server = servers?.["make-docs"] as Record<string, unknown> | undefined;
+      const value = server?.env;
+      if (value && typeof value === "object" && !Array.isArray(value)) env = value as Record<string, unknown>;
+    } catch { return null; }
+  }
+  const id = env?.[MCP_CONNECTION_ID_ENV];
+  const key = env?.[MCP_CONNECTION_KEY_ENV];
+  return typeof id === "string" && typeof key === "string" ? { id, key } : null;
 }
 
 function codexRuleLaunchPrefix(
@@ -1552,7 +1635,8 @@ function validateReceiptIdentity(
     receipt.entries.some(
       entry =>
         entry.ownership !== "make-docs" ||
-        fingerprintEntry(entry.value) !== entry.entryFingerprint ||
+        (fingerprintEntry(entry.value) !== entry.entryFingerprint &&
+          !(receipt.connectionMethod === "mcp" && isRedactedMcpNativeValue(entry.value))) ||
         !/^[0-9a-f]{64}$/.test(entry.fileFingerprint),
     )
   ) {

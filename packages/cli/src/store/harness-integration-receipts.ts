@@ -1,5 +1,6 @@
 import path from "node:path";
 import { platform } from "../platform";
+import { isRedactedMcpNativeValue, redactMcpNativeValue } from "../mcp-connection";
 import {
   fingerprintEntry,
   getFirstPartyHarnessAdapter,
@@ -30,14 +31,15 @@ export function recordHarnessIntegrationReceipt(
   receipt: HarnessAccessReceipt,
 ): void {
   assertHarnessIntegrationReceipt(receipt);
+  const durableReceipt = redactHarnessIntegrationReceipt(receipt);
   const currentId = currentReceiptRecordId(
     receipt.scope,
     receipt.harnessId,
     receipt.connectionMethod,
   );
   if (receipt.scope === "project") {
-    recordMigrationState(targetRoot, "receipt", receipt.operationId, receipt, storeRoot);
-    recordMigrationState(targetRoot, "receipt", currentId, receipt, storeRoot);
+    recordMigrationState(targetRoot, "receipt", receipt.operationId, durableReceipt, storeRoot);
+    recordMigrationState(targetRoot, "receipt", currentId, durableReceipt, storeRoot);
     return;
   }
   const recordId = machineReceiptRecordId(receipt.operationId);
@@ -45,9 +47,24 @@ export function recordHarnessIntegrationReceipt(
     const write = db.prepare(
       "INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'completed',?,?,?,?,?) ON CONFLICT(operation_id) DO UPDATE SET status='completed',metadata_json=excluded.metadata_json,finished_at=excluded.finished_at",
     );
-    write.run(recordId, "setup.system.receipt", process.pid, platform.hostname, JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
-    write.run(currentId, "setup.system.receipt-current", process.pid, platform.hostname, JSON.stringify(receipt), receipt.verifiedAt, receipt.verifiedAt);
+    write.run(recordId, "setup.system.receipt", process.pid, platform.hostname, JSON.stringify(durableReceipt), receipt.verifiedAt, receipt.verifiedAt);
+    write.run(currentId, "setup.system.receipt-current", process.pid, platform.hostname, JSON.stringify(durableReceipt), receipt.verifiedAt, receipt.verifiedAt);
   }, { storeRoot });
+}
+
+export function redactHarnessIntegrationReceipt<T extends {
+  connectionMethod: HarnessConnectionMethod;
+  entries: readonly HarnessReceiptEntry[];
+}>(receipt: T): T {
+  if (receipt.connectionMethod !== "mcp") return receipt;
+  return {
+    ...receipt,
+    entries: receipt.entries.map(entry => ({
+      ...entry,
+      beforeValue: redactMcpNativeValue(entry.beforeValue),
+      value: redactMcpNativeValue(entry.value),
+    })),
+  } as T;
 }
 
 /** Retain a later drift or recovery observation without changing current ownership. */
@@ -59,6 +76,7 @@ export function recordHarnessIntegrationReceiptObservation(
   if (!isStoredHarnessIntegrationReceipt(receipt)) {
     throw new Error("Harness receipt observation is malformed or lacks exact ownership evidence.");
   }
+  receipt = redactHarnessIntegrationReceipt(receipt);
   const observationId = `harness-receipt-observation:${sha256(JSON.stringify({
     operationId: receipt.operationId,
     verifiedAt: receipt.verifiedAt,
@@ -209,7 +227,7 @@ export function isStoredHarnessIntegrationReceipt(
     isTimestamp(value.verifiedAt) &&
     Array.isArray(value.entries) &&
     value.entries.length > 0 &&
-    value.entries.every(isReceiptEntry) &&
+    value.entries.every(entry => isReceiptEntry(entry, value.connectionMethod)) &&
     (value.result === "verified" || value.result === "failed" || value.result === "partial") &&
     (value.verificationResult === "passed" || value.verificationResult === "failed" || value.verificationResult === "blocked") &&
     (value.driftState === "current" || value.driftState === "missing" || value.driftState === "drifted" || value.driftState === "unsupported" || value.driftState === "blocked") &&
@@ -236,15 +254,18 @@ function isExecutable(value: unknown): boolean {
   );
 }
 
-function isReceiptEntry(value: unknown): value is HarnessReceiptEntry {
+function isReceiptEntry(value: unknown, method: unknown): value is HarnessReceiptEntry {
+  const matches = (entry: NativeEntryValue, fingerprint: unknown): boolean =>
+    fingerprint === fingerprintEntry(entry) ||
+    (method === "mcp" && isRedactedMcpNativeValue(entry) && isSha256(fingerprint));
   return isRecord(value) && isSafeNativePath(value.path) && isSafeId(value.entryId) &&
     value.ownership === "make-docs" && isNullableSha256(value.beforeEntryFingerprint) &&
     isNullableSha256(value.beforeFileFingerprint) && isNativeValueOrNull(value.beforeValue) &&
     isSha256(value.entryFingerprint) && isSha256(value.fileFingerprint) && isNativeValue(value.value) &&
-    value.entryFingerprint === fingerprintEntry(value.value) &&
+    matches(value.value, value.entryFingerprint) &&
     (value.beforeValue === null
       ? value.beforeEntryFingerprint === null
-      : value.beforeEntryFingerprint === fingerprintEntry(value.beforeValue));
+      : matches(value.beforeValue, value.beforeEntryFingerprint));
 }
 
 function isSafeNativePath(value: unknown): value is string {

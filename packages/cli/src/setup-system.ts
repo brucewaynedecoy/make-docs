@@ -1,13 +1,15 @@
 import { confirm, isCancel, select } from "@clack/prompts";
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { createMcpConnection, hashMcpConnectionKey } from "./mcp-connection";
+import { classifyPendingNativeMcpChange, readNativeMcpConnection } from "./harness-access/native";
 import { ExecutableVerificationError, FIRST_PARTY_HARNESS_ADAPTERS, listBoundedHarnessCommandRules, requireFirstPartyHarnessAdapter, resolveHarnessMethodSupport, verifyMakeDocsExecutable, type HarnessAccessReceipt, type HarnessCommandRule, type HarnessCommandRuleAuthority, type HarnessMethodDefinition, type HarnessMethodSelection, type VerifiedExecutableIdentity } from "./harness-access/index.js";
 import { resolveEffectiveHarnessIntegration, type ProjectHarnessIntegrationRecord } from "./config";
 import { listHarnessCommandRules, listOperationAccessFacts, validateRegistryHarnessCommandRules } from "./operations/registry";
 import { getStoreDatabasePath, resolveStoreRoot } from "./store/paths";
 import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig } from "./store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "./store/harness-integration-receipts";
-import { completeHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
+import { completeHarnessSystemOperation, failHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
 import { readInstallationStatus } from "./store/installation-state";
 import type { SetupHarnessState } from "./setup-state";
 import type { Harness } from "./types";
@@ -23,7 +25,7 @@ export interface SystemSetupResult { schemaVersion: 2; status: SystemSetupStatus
 export type SystemHarnessState = "current" | "drifted" | "blocked" | "unsupported" | "incomplete" | "pending";
 export interface SystemHarnessOperationEffect { operation: string; store: "none" | "read" | "write"; project: "none" | "read" | "write"; hostConfig: "none" | "read" | "write"; }
 export interface SystemHarnessPlan { harness: Harness; method: string; status: SystemHarnessState; operations: string[]; operationEffects: SystemHarnessOperationEffect[]; allowedStoreOperations: HarnessMethodDefinition["allowedStoreOperations"]; ownedEntries: string[]; machineFiles: string[]; changed: boolean; detail: string; apply(): Promise<void>; verify(): Promise<boolean>; pendingOperation?(): boolean; }
-export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: Record<Harness, boolean>; methods?: Partial<Record<Harness, HarnessMethodSelection>>; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
+export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: Record<Harness, boolean>; methods?: Partial<Record<Harness, HarnessMethodSelection>>; rotateMcp?: boolean; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
 
 interface SystemIntentChange {
   harness: Harness;
@@ -100,6 +102,10 @@ export async function prepareSystemSetupCommand(options: RunSystemSetupOptions):
     ? { executable: options.executable }
     : tryVerifyCurrentExecutable();
   const selections = await selectMethods(options, machineRoot, storeRoot, executableAttempt);
+  if (options.rotateMcp && !(Object.keys(selections) as Harness[]).some(harness =>
+    options.harnesses[harness] && selections[harness] === "mcp")) {
+    throw new Error("MCP key rotation needs a selected MCP method.");
+  }
   validateProjectHarnessIntegrations(options.projectHarnessIntegrations, selections, options.harnesses);
   const plans = buildAdapterPlans(options, selections, machineRoot, targetRoot, storeRoot, executableAttempt);
   const intent = buildIntentProjection(storeRoot, selections, options.harnesses, options.persistIntent !== false);
@@ -157,7 +163,7 @@ export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): P
   for (const plan of runnable) {
     if (!plan.changed) {
       if (options.persistIntent !== false) {
-        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness);
+        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness, plan.method, prepared.machineRoot);
       }
       configured.push(plan.harness);
       continue;
@@ -177,7 +183,7 @@ export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): P
         continue;
       }
       if (options.persistIntent !== false) {
-        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness);
+        persistReviewedHarnessIntent(storeRoot, prepared.intent.config, plan.harness, plan.method, prepared.machineRoot);
       }
       configured.push(plan.harness);
     } catch (error) {
@@ -221,11 +227,27 @@ function persistReviewedHarnessIntent(
   storeRoot: string,
   projected: GlobalConfig,
   harness: Harness,
+  method?: string,
+  machineRoot?: string,
 ): void {
   const intent = projected.settings.harnesses[harness];
   if (!intent) return;
   const current = loadGlobalConfig(storeRoot).config;
-  current.settings.harnesses[harness] = { ...intent, accessCeiling: { ...intent.accessCeiling } };
+  const next = { ...intent, accessCeiling: { ...intent.accessCeiling } };
+  if (method === "mcp" && machineRoot) {
+    const connection = readNativeMcpConnection(requireFirstPartyHarnessAdapter(harness), machineRoot);
+    if (!connection) throw new Error("The verified MCP host entry has no connection key.");
+    next.mcpConnection = {
+      id: connection.id,
+      keySha256: hashMcpConnectionKey(connection.key),
+      active: true,
+      method: "mcp",
+      owner: harness,
+    };
+  } else if (next.mcpConnection) {
+    next.mcpConnection = { ...next.mcpConnection, active: false };
+  }
+  current.settings.harnesses[harness] = next;
   writeGlobalConfig(storeRoot, current);
 }
 
@@ -335,10 +357,22 @@ function buildAdapterPlans(options: RunSystemSetupOptions, selections: Record<Ha
     }
     const executable = executableAttempt.executable;
     const commandRules = definition.requiresCommandRules ? rules : undefined;
-    const adapterPlan = adapter.plan({ method, scope: "machine", root, executable, ...(commandRules ? { commandRules, commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY } : {}), ...(currentReceipt ? { receipt: currentReceipt } : {}) });
+    const planInput = { method, scope: "machine" as const, root, executable,
+      ...(commandRules ? { commandRules, commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY } : {}),
+      ...(currentReceipt ? { receipt: currentReceipt } : {}),
+    };
+    let adapterPlan = adapter.plan(planInput);
+    const existingMcpConnection = method === "mcp" ? readNativeMcpConnection(adapter, root) : null;
+    if (method === "mcp" && existingMcpConnection &&
+        (options.rotateMcp || adapterPlan.changes.some(change => change.action !== "none"))) {
+      adapterPlan = adapter.plan({
+        ...planInput,
+        mcpConnection: createMcpConnection(adapter.harnessId),
+      });
+    }
     let receipt: HarnessAccessReceipt | undefined;
     let pending: PendingHarnessSystemOperation | undefined;
-    plans.push({ harness: adapter.harnessId, method, status: adapterPlan.state === "current" ? "current" : adapterPlan.state === "missing" ? "incomplete" : adapterPlan.state, ...reviewFacts, machineFiles: adapterPlan.changes.map(change => change.path), changed: adapterPlan.changes.some(change => change.action !== "none"), detail: adapterPlan.nextAction,
+    plans.push({ harness: adapter.harnessId, method, status: options.rotateMcp && existingMcpConnection && adapterPlan.state === "drifted" ? "pending" : adapterPlan.state === "current" ? "current" : adapterPlan.state === "missing" ? "incomplete" : adapterPlan.state, ...reviewFacts, machineFiles: adapterPlan.changes.map(change => change.path), changed: adapterPlan.changes.some(change => change.action !== "none"), detail: options.rotateMcp && existingMcpConnection && adapterPlan.state !== "blocked" ? "Review this key replacement. The old key stops working after the new native entry verifies." : adapterPlan.nextAction,
       async apply() { pending = prepareHarnessSystemOperation({ targetRoot, storeRoot, adapterId: adapter.id, harnessId: adapter.harnessId, plan: adapterPlan, appliedVersion: options.appliedVersion ?? executable.packageVersion, verifiedAt: new Date().toISOString() }); receipt = adapter.apply({ plan: adapterPlan, approved: true, operationId: pending.operationId, appliedVersion: pending.appliedVersion, verifiedAt: pending.verifiedAt }).receipt; await options.afterNativeApplyForTests?.(); },
       async verify() { const exactReceipt = receipt ?? currentReceipt; const verification = adapter.verify({ method, scope: "machine", root, executable, ...(commandRules ? { commandRules, commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY } : {}), ...(exactReceipt ? { receipt: exactReceipt } : {}) }); if (verification.state !== "current" || !exactReceipt) return false; if (receipt) recordHarnessIntegrationReceipt(targetRoot, storeRoot, receipt); if (pending) completeHarnessSystemOperation(targetRoot, storeRoot, pending, exactReceipt); return true; },
       pendingOperation() { return pending !== undefined; },
@@ -379,28 +413,48 @@ async function resumePendingSystemSetup(
     const commandRules = definition.requiresCommandRules
       ? listBoundedHarnessCommandRules(SYSTEM_COMMAND_RULE_AUTHORITY)
       : undefined;
-    const applied = adapter.apply({
-      plan: pending.plan,
-      approved: true,
-      operationId: pending.operationId,
-      appliedVersion: pending.appliedVersion,
-      verifiedAt: pending.verifiedAt,
-    });
+    if (pending.connectionMethod === "mcp") {
+      const hostState = classifyPendingNativeMcpChange(adapter, pending.plan);
+      if (hostState === "before") {
+        failHarnessSystemOperation(targetRoot, storeRoot, pending, {
+          reason: "The reviewed key was lost before the host file changed.",
+          changeOutcome: "none",
+        });
+        const nextAction = "Run `make-docs setup system` again to review a new MCP key.";
+        return makeResult("recovery", selections, [], [{
+          harness: pending.harnessId,
+          reason: "The prior MCP setup stopped before the host file changed.",
+          nextAction,
+        }], nextAction);
+      }
+      if (hostState !== "after") {
+        throw new Error("The pending MCP host entry differs from the reviewed change. Preserve it for manual recovery.");
+      }
+    }
+    const appliedReceipt = pending.connectionMethod === "mcp"
+      ? receiptFromPendingMcpPlan(pending)
+      : adapter.apply({
+          plan: pending.plan,
+          approved: true,
+          operationId: pending.operationId,
+          appliedVersion: pending.appliedVersion,
+          verifiedAt: pending.verifiedAt,
+        }).receipt;
     const verification = adapter.verify({
       method: pending.connectionMethod,
       scope: "machine",
       root: machineRoot,
       executable,
       ...(commandRules ? { commandRules, commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY } : {}),
-      receipt: applied.receipt,
+      receipt: appliedReceipt,
     });
     if (verification.state !== "current") {
       throw new Error(`Pending machine setup did not verify: ${verification.reason ?? verification.state}`);
     }
-    recordHarnessIntegrationReceipt(targetRoot, storeRoot, applied.receipt);
-    completeHarnessSystemOperation(targetRoot, storeRoot, pending, applied.receipt);
+    recordHarnessIntegrationReceipt(targetRoot, storeRoot, appliedReceipt);
+    completeHarnessSystemOperation(targetRoot, storeRoot, pending, appliedReceipt);
     if (options.persistIntent !== false) {
-      persistRecoveredHarnessIntent(storeRoot, pending);
+      persistRecoveredHarnessIntent(storeRoot, pending, machineRoot);
     }
     return makeResult("configured", selections, [pending.harnessId], [], null);
   } catch (error) {
@@ -411,14 +465,64 @@ async function resumePendingSystemSetup(
 function persistRecoveredHarnessIntent(
   storeRoot: string,
   pending: PendingHarnessSystemOperation,
+  machineRoot: string,
 ): void {
   const current = loadGlobalConfig(storeRoot).config;
+  const previous = current.settings.harnesses[pending.harnessId];
+  const connection = pending.connectionMethod === "mcp"
+    ? readNativeMcpConnection(requireFirstPartyHarnessAdapter(pending.harnessId), machineRoot)
+    : null;
+  if (pending.connectionMethod === "mcp" && !connection) {
+    throw new Error("The recovered MCP host entry has no connection key.");
+  }
   current.settings.harnesses[pending.harnessId] = {
+    ...(previous ?? {}),
     selected: true,
     maximumMethod: pending.connectionMethod,
-    accessCeiling: deriveHarnessAccessCeiling(pending.connectionMethod),
+    accessCeiling: previous?.accessCeiling ?? deriveHarnessAccessCeiling(pending.connectionMethod),
+    ...(connection ? { mcpConnection: {
+      id: connection.id,
+      keySha256: hashMcpConnectionKey(connection.key),
+      active: true,
+      method: "mcp" as const,
+      owner: pending.harnessId,
+    } } : previous?.mcpConnection ? { mcpConnection: { ...previous.mcpConnection, active: false } } : {}),
   };
   writeGlobalConfig(storeRoot, current);
+}
+
+function receiptFromPendingMcpPlan(pending: PendingHarnessSystemOperation): HarnessAccessReceipt {
+  return {
+    schemaVersion: 2,
+    operationId: pending.operationId,
+    adapterId: pending.adapterId,
+    adapterVersion: pending.plan.adapterVersion,
+    harnessId: pending.harnessId,
+    connectionMethod: "mcp",
+    scope: "machine",
+    appliedVersion: pending.appliedVersion,
+    verifiedAt: pending.verifiedAt,
+    entries: pending.plan.changes.map(change => {
+      if (!change.afterEntryFingerprint || !change.afterFileFingerprint || change.afterEntryValue === null) {
+        throw new Error("The pending MCP change has no verified target.");
+      }
+      return {
+        path: change.path,
+        entryId: change.entryId,
+        ownership: "make-docs" as const,
+        beforeEntryFingerprint: change.beforeEntryFingerprint,
+        beforeFileFingerprint: change.beforeFileFingerprint,
+        beforeValue: change.beforeEntryValue,
+        entryFingerprint: change.afterEntryFingerprint,
+        fileFingerprint: change.afterFileFingerprint,
+        value: change.afterEntryValue,
+      };
+    }),
+    result: "verified",
+    verificationResult: "passed",
+    driftState: "current",
+    recoveryStatus: "complete",
+  };
 }
 
 function buildIntentProjection(
@@ -434,14 +538,10 @@ function buildIntentProjection(
     if (!included[harness]) continue;
     const method = selections[harness];
     const previous = loaded.config.settings.harnesses[harness];
-    const sameMethod = previous?.selected === (method !== "none") &&
-      previous.maximumMethod === (method === "none" ? null : method);
     const intent = {
       selected: method !== "none",
       maximumMethod: method === "none" ? null : method,
-      accessCeiling: sameMethod && previous
-        ? previous.accessCeiling
-        : deriveHarnessAccessCeiling(method),
+      accessCeiling: previous ? previous.accessCeiling : deriveHarnessAccessCeiling(method),
     };
     resolveEffectiveHarnessIntegration(undefined, intent, harness);
     const next = { ...(previous ?? {}), ...intent };

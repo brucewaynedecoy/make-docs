@@ -13,7 +13,7 @@ import {loadEffectiveSkillRegistry} from '../src/skill-registry';
 import {applySkillRegistrySelectionMetadata} from '../src/skill-catalog';
 import {PACKAGE_ROOT} from '../src/utils';
 import {prepareDetachedInstallationOperation,readInstallationManifest,readInstallationStatus,recoverInstallationOperation} from '../src/store/installation-state';
-import {HARNESS_CALLER_IDENTITY_ENV} from '../src/harness-access';
+import {MCP_CONNECTION_ID_ENV,MCP_CONNECTION_KEY_ENV} from '../src/mcp-connection';
 
 const faults=vi.hoisted(()=>({link:false}));
 vi.mock('node:fs',async original=>{const actual=await original<typeof import('node:fs')>();return {...actual,symlinkSync:(...args:Parameters<typeof actual.symlinkSync>)=>{if(faults.link)throw new Error('interrupted before native exposure');return actual.symlinkSync(...args);}};});
@@ -34,26 +34,30 @@ function cli(args:string[]) {
   expect(child.status,child.stderr||child.stdout).toBe(0);
   return JSON.parse(child.stdout);
 }
-function configurePublicMcpHarness():string {
+function configurePublicMcpHarness():Record<string,string> {
   const setupRoot=path.join(temp,'harness-project');fs.mkdirSync(setupRoot);
   const publicEntry=candidateEntry??path.join(PACKAGE_ROOT,'dist/index.js');
-  const env=Object.fromEntries(Object.entries({...process.env,HOME:home,MAKE_DOCS_HOME:store,[HARNESS_CALLER_IDENTITY_ENV]:undefined}).filter((entry):entry is [string,string]=>entry[1]!==undefined));
+  const env=Object.fromEntries(Object.entries({...process.env,HOME:home,MAKE_DOCS_HOME:store,[MCP_CONNECTION_ID_ENV]:undefined,[MCP_CONNECTION_KEY_ENV]:undefined}).filter((entry):entry is [string,string]=>entry[1]!==undefined));
   const child=spawnSync(process.execPath,[publicEntry,'setup','system','--yes','--codex-method','mcp','--claude-code-method','none','--target',setupRoot,'--json'],{cwd:setupRoot,env,encoding:'utf8',timeout:20000});
   expect(child.error,child.stderr).toBeUndefined();
   expect(child.status,child.stderr||child.stdout).toBe(0);
-  const line=fs.readFileSync(path.join(home,'.codex/config.toml'),'utf8').split('\n').find(candidate=>candidate.startsWith(`${HARNESS_CALLER_IDENTITY_ENV} = `));
-  expect(line).toBeDefined();
-  return JSON.parse(line!.slice(line!.indexOf('=')+1).trim()) as string;
+  const lines=fs.readFileSync(path.join(home,'.codex/config.toml'),'utf8').split('\n');
+  const connection=Object.fromEntries([MCP_CONNECTION_ID_ENV,MCP_CONNECTION_KEY_ENV].map(name=>{
+    const line=lines.find(candidate=>candidate.startsWith(`${name} = `));
+    expect(line).toBeDefined();
+    return [name,JSON.parse(line!.slice(line!.indexOf('=')+1).trim()) as string];
+  }));
+  return connection;
 }
 describe('fresh public CLI Skill adoption recovery',()=>{
   it('loads pending adoption recovery through a fresh MCP stdio process',async()=>{
-    const callerIdentity=configurePublicMcpHarness();
+    const connection=configurePublicMcpHarness();
     const selections=defaultSelections();selections.skills=true;selections.selectedSkills=['preflight'];selections.harnesses={codex:true,'claude-code':false};
     const effectiveRegistry=loadEffectiveSkillRegistry({packageRoot:PACKAGE_ROOT});
     const review=await buildSkillAdoptionReview({targetDir:root,selections:applySkillRegistrySelectionMetadata(selections,effectiveRegistry),adoptExisting:['preflight'],effectiveRegistry});
     const prepared=prepareDetachedInstallationOperation(root,'setup.skills.adopt',()=>review.plan);
     const client=new Client({name:'make-docs-recovery-test',version:'1.0.0'},{capabilities:{}});
-    const transport=new StdioClientTransport({command:process.execPath,args:[...(candidateEntry?[]:['--import',require.resolve('tsx')]),candidateEntry??sourceEntry,'mcp'],cwd:root,env:Object.fromEntries(Object.entries({...process.env,HOME:home,MAKE_DOCS_HOME:store,[HARNESS_CALLER_IDENTITY_ENV]:callerIdentity}).filter((entry):entry is [string,string]=>entry[1]!==undefined)),stderr:'pipe'});
+    const transport=new StdioClientTransport({command:process.execPath,args:[...(candidateEntry?[]:['--import',require.resolve('tsx')]),candidateEntry??sourceEntry,'mcp'],cwd:root,env:Object.fromEntries(Object.entries({...process.env,HOME:home,MAKE_DOCS_HOME:store,...connection}).filter((entry):entry is [string,string]=>entry[1]!==undefined)),stderr:'pipe'});
     let diagnostics='';transport.stderr?.on('data',chunk=>{diagnostics+=String(chunk);});
     try {
       try {await client.connect(transport);} catch(error) {throw new Error(`${String(error)}\n${diagnostics}`);}

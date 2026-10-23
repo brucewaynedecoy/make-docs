@@ -103,8 +103,8 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
 - R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
 - R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. For TOML, preservation includes valid repeated arrays of tables, repeated key names in separate array elements, and repeated nested normal-table paths under separate elements. Duplicate keys inside one element, duplicate normal-table headers, and normal-table versus array-table conflicts remain blocked. Project setup cannot use its project approval as host-write authority.
-- R-ACCESS-6 (MUST): every Store-backed harness invocation supplies exact caller and `connectionMethod` identity to the shared operation policy. The policy verifies that identity against the admitted adapter, executable identity, live native configuration, Store receipt, machine intent, and project intent. An executable path, environment variable, or rule match alone grants no access.
-- R-ACCESS-7 (MUST): MCP can carry the managed caller identity in its exact native server environment. A command-rule or permission-rule route must carry equivalent method identity through a harness-proved native launch fact. If the harness cannot supply and prove that fact, the method remains unavailable. The runtime does not weaken identity checks to make a setup option appear usable.
+- R-ACCESS-6 (MUST): one shared policy admits each Store-backed operation. MCP supplies a connection ID and setup-generated key. The policy validates the key against active machine config, then checks current machine and project grants, target scope, declared operation access, write intent, and approvals. A key selects a connection; it grants no access. Direct CLI uses its explicit local operator route. Native rules use a host-proved launch fact.
+- R-ACCESS-7 (MUST): supported first-party setup installs the MCP connection key in the owned native entry without a human or agent carrying it between calls. Generic setup prints a client-owned configuration object with the same key form. A label, path, receipt, package hash, or environment value without a current key match grants no access.
 - R-ACCESS-8 (MUST): no project Store or harness intent is a valid `store-not-configured` state. It is distinct from configured-but-unavailable, unsafe, and denied state. An operation with `access.store: none` never checks those states and remains available without Store or harness setup.
 - R-ACCESS-9 (MUST): a Store-backed operation returns one typed `store-not-configured`, `store-unavailable`, `store-unsafe`, or `store-denied` result with the affected operation and one safe next action when one exists. The runner stops only that operation. It does not declare the wider agent task blocked and does not create a local fallback, queued write, or false success.
 - R-ACCESS-10 (MUST): a generic MCP client uses a reviewed bounded identity that cannot be granted by a caller-controlled label, executable path, environment value, or rule match alone. Machine intent and project intent remain separate and the effective ceiling remains the most restrictive valid result. Make Docs prints a standard configuration object but does not edit unknown client files.
@@ -112,11 +112,13 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 
 ### Current Caller and Generic MCP Admission
 
-- R-ACCESS-12 (MUST): a harness receipt is historical evidence, not a current access token. Each Store-backed call verifies the current adapter, connection method, executable when applicable, owned native entry, operation, machine approval, and project approval. Package name, version, and digest are provenance and cannot grant current access.
+- R-ACCESS-12 (MUST): every Store-backed MCP call checks the active connection key and current machine and project grants and target. It does not require per-call executable, native-entry, receipt, or package verification. Managed replacement issues a new key and disables the old key. Explicit remove or disable rejects the old key on the next Store call. Installation drift alone is reported by setup or status and does not change a current grant.
 - R-ACCESS-13 (MUST): a generic MCP client can call only operations that the current accepted operation registry admits for that profile. An operation is not admitted only because the MCP server exposes it. The admitted set may expand, contract, or consolidate through approved product work; this rule is not a feature freeze.
 - R-ACCESS-14 (MUST): Store-free operations do not require a harness receipt, caller proof, or Store session. A receipt, path, environment value, package digest, or client label cannot widen access.
-- R-ACCESS-15 (MUST): a caller, executable, native-entry, approval, or policy mismatch stops only the affected operation and returns one typed result with one safe next action. Verification cannot repair state. Repair is a separate reviewed operation.
+- R-ACCESS-15 (MUST): a failed key, grant, target, Store, or policy check stops only the affected operation and returns its failed check and one safe next action. Verification never repairs state. Repair is a separate reviewed operation.
 - R-ACCESS-16 (MUST): CLI, machine-readable output, MCP, command-rule, permission-rule, and first-party extension routes use the same operation policy and typed result. Surface-specific adapters can narrow access but cannot change business meaning or bypass the platform, Store, identity, or recovery contracts.
+- R-ACCESS-18 (MUST): MCP profile membership and tool listing do not grant access. Cache lookup needs Store read and project read. Cache write needs Store write, project read, and explicit surface write intent. Optional cache refusal preserves successful source facts.
+- R-ACCESS-19 (MUST): setup migration preserves current grants and unrelated entries. Grant changes and key disablement take effect on the next Store call. Deleting a native or client-owned configuration file alone does not disable an active key; setup provides explicit remove and disable actions.
 
 ### Asset and Config Boundaries
 
@@ -346,6 +348,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: The planner preserves separate array-table elements and resolves assignments and nested normal tables against the current element. It permits repeated names across elements and keeps duplicates or table-kind conflicts inside one container blocked.
 - Rationale: Live W19 R2 setup used 21 valid `[[skills.config]]` elements and exposed a false conflict that blocked Codex MCP planning.
 - Source: [W19 R8 correction design note](../designs/2026-09-16-store-access-bootstrap-and-remediation.md#p1-correction--codex-toml-array-tables) and [P1 correction stage](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/01-store-access-bootstrap-and-remediation.md#stage-5---codex-toml-array-table-correction)
+
+### 2026-10-23 — W26 R0 P2
+
+- Affected requirement or section: R-ACCESS-6, R-ACCESS-7, R-ACCESS-12, and R-ACCESS-15.
+- Previous contract: Store-backed MCP calls checked a caller identity, adapter version, executable hash, native entry, and Store receipt on each call.
+- Replacement contract: Store-backed MCP calls check an active connection key and current machine and project grants. Setup and status keep installation checks.
+- Rationale: The prior proof chain blocked an installed connection after an unrelated package or host change. Current grants and a revocable key provide a smaller call-time boundary.
+- Source: [W26 access design](../plans/2026-10-09-w26-r0-shared-access-and-data-foundation/01-access-trace-and-design.md).
 
 ## Source Anchors
 

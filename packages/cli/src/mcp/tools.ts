@@ -381,6 +381,8 @@ async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promi
       surface: "mcp",
       route: "mcp",
       callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
+      mcpConnectionId: process.env.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: process.env.MAKE_DOCS_MCP_CONNECTION_KEY,
       writesAllowed: allowWrite === true,
       dryRun: dryRun === true,
       approvals: Array.isArray(approvals) ? approvals.map(String) : [],
