@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-10-03T21:31:42.312Z",
+  "coordinate": "W24 R0 P3",
+  "baseCommit": "5e3cdd6142bd99cc585c3a3e18c5991c853e8044",
+  "source": "packages/docs/template/.make-docs/system/contracts/system-resource-contract.md",
+  "dogfood": ".make-docs/system/contracts/system-resource-contract.md",
+  "sourceSha256": "ae7f5ea87eb9624ae05bc1b6f76d7b7fb9c9af605d466c27d7af553263ae9dd7",
+  "dogfoodSha256": "ae7f5ea87eb9624ae05bc1b6f76d7b7fb9c9af605d466c27d7af553263ae9dd7",
+  "exactBytesEqual": true,
+  "scope": "System-resource contract source and dogfood copy only; not catalog, package, or runtime acceptance."
+}

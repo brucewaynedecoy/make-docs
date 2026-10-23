@@ -1,0 +1,16 @@
+{
+  "coordinate": "W24 R0 P4",
+  "authority": "W24-R0-P4-SDK-WRITE-CORRECTION-2",
+  "summary": "wire-write-attempt-2-summary.json",
+  "requestInput": "The operation schema parsed the complete snapshot and nonempty report record input. Each actual SDK request used the physical temp fixture path.",
+  "storageSubstitution": "The script replaced its physical probe temp root with $WRITE_FIXTURE only in save(), before it wrote retained evidence. It also stored the earlier runtime export path as $P4_RUNTIME and the repository path as $REPO.",
+  "comparison": "The script compared actual returned objects across backlog and all before storage substitution. All three results were exactly equal.",
+  "historicalComparison": "The earlier old/default/all native-resource comparison is separate. Its accepted raw comparison normalizationCount remains 0.",
+  "writeGate": "A complete request with omitted or false allowWrite reached the write permission gate in both profiles.",
+  "storeAdmission": "A complete request with true allowWrite reached typed store-not-configured for work.backlog-cache.write in both profiles.",
+  "limit": "The Store admission gate denied execution. No fully allowed Store write or Store handler result is claimed.",
+  "runtimeDefectFound": false,
+  "priorProofChanged": false,
+  "priorBudgetsReset": false,
+  "performanceRerun": false
+}

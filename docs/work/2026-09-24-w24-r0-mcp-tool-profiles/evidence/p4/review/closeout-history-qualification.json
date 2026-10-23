@@ -1,0 +1,20 @@
+{
+  "coordinate": "W24 R0 P4",
+  "capturedAt": "2026-10-04T02:19:21.366Z",
+  "passed": true,
+  "priorChecks": "closeout-checks.json",
+  "qualification": "Only the first Changes paragraph was shortened to the parent-reviewed plain text. Detailed proof and limits remain in later paragraphs.",
+  "changedPath": ".make-docs/archive/history/2026-10-03-w24-r0-p4-mcp-tool-profiles.md",
+  "oldHash": "4dd3d4bcd507294dd565d462071faafd397197bf07faeb4ad3bb416fa016187a",
+  "currentHash": "588dbb97eb972e38fbbc3df53a42199bc74cc7d6e8e4813e1c50e3903389940e",
+  "otherDocumentHashesUnchanged": true,
+  "unchangedLinkCount": 187,
+  "linksChanged": 0,
+  "reusedPathAndRuntimeProof": true,
+  "phaseStatus": "complete",
+  "w24Status": "local phase package complete",
+  "diffCheck": "",
+  "commitSubject": "feat: [W24 R0 P4] MCP Tool Profiles - Compatibility And Evidence",
+  "commitBody": "Closed W24 R0 P4 and the local W24 work package. Added nine tests for shared contracts and access gates. Retained historical profile comparisons and the local PERF-003 results. Corrected the write probe input and passed six calls across backlog and all. Updated phase handoffs and kept the P3 runtime and build unchanged.",
+  "committed": false
+}

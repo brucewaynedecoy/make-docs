@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "Stable sorted object keys and preserved array order.",
+    "Odd/even median, raw values, minimum, maximum, and retained slow sample.",
+    "Clock read directly before child spawn and original spawn restored.",
+    "Five exact rotating rounds and 30 planned launches.",
+    "Wrong list count rejected.",
+    "Synthetic round-paired startup and round-median warm differences.",
+    "Synthetic analysis has 360 total list calls."
+  ],
+  "serverLaunches": 0,
+  "listCalls": 0,
+  "note": "Pure script checks have no performance observation or product outcome."
+}

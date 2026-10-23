@@ -1,0 +1,63 @@
+{
+  "coordinate": "W24 R0 P4",
+  "startedAt": "2026-10-04T02:13:13.966Z",
+  "completedAt": "2026-10-04T02:13:14.362Z",
+  "authority": {
+    "id": "W24-R0-P4-SDK-WRITE-CORRECTION-2",
+    "source": "Owner request: fix and run the incomplete supplementary SDK wire write probe, inspect product code if a complete valid request gives an unexpected result, then close out and commit W24 R0 P4.",
+    "grantedAtDate": "2026-10-03",
+    "scope": "One affected input correction and one complete SDK write-gate/Store-admission pass for backlog and all.",
+    "limits": {
+      "serverLaunches": 2,
+      "writeToolCalls": 6,
+      "elapsedMinutes": 15,
+      "externalSpend": 0,
+      "paidModelRequests": 0
+    },
+    "earlierBudgetsReset": false,
+    "perfMeasurementsAuthorized": false
+  },
+  "outcome": "pass",
+  "passed": true,
+  "serverLaunches": 2,
+  "toolCalls": 6,
+  "profileParity": true,
+  "modes": [
+    "omitted",
+    "false",
+    "true"
+  ],
+  "completeSchemaValidInput": true,
+  "reportRecords": 1,
+  "noInputRejection": true,
+  "noStoreCreated": true,
+  "fixtureUnchanged": true,
+  "runtimeBuildUnchanged": true,
+  "cleanup": [
+    {
+      "profile": "backlog",
+      "closed": true,
+      "pidAfterClose": null
+    },
+    {
+      "profile": "all",
+      "closed": true,
+      "pidAfterClose": null
+    }
+  ],
+  "failures": [],
+  "consumed": {
+    "affectedCorrections": 1,
+    "probePasses": 1,
+    "launches": 2,
+    "toolCalls": 6,
+    "elapsedMs": 396,
+    "externalSpend": 0,
+    "paidModelRequests": 0
+  },
+  "limits": [
+    "Store admission denied as store-not-configured; no complete allowed Store write or Store handler result is claimed.",
+    "Earlier immutable failure and independent eight-variant proof remain unchanged.",
+    "No PERF measurement, host change, runtime build, package install, or live Store action."
+  ]
+}

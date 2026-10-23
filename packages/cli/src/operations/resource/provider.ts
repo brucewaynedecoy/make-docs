@@ -10,6 +10,7 @@ import {
 import path from "node:path";
 import { TEMPLATE_ROOT, readPackageMeta } from "../../utils";
 import { canonicalSystemResourcePath, createSystemResourceIdentity, isSystemResourceType } from "./identity";
+import { validateSystemResourceMcpAssignments } from "./mcp-profiles";
 import {
   SYSTEM_RESOURCE_TYPES,
   SYSTEM_RESOURCE_TYPE_DIRECTORIES,
@@ -35,6 +36,7 @@ interface ResourceCatalog {
   identityTemplate?: unknown;
   defaultMediaType?: unknown;
   resourceTypes?: unknown;
+  mcpResources?: unknown;
 }
 
 interface ValidatedCatalog {
@@ -139,6 +141,11 @@ export function loadSystemResourceProvider(
   }
 
   resources.sort((left, right) => compareCodeUnits(left.identity.uri, right.identity.uri));
+  // Legacy custom catalogs remain usable by the CLI. Native MCP requires this metadata.
+  const mcpResources = Object.hasOwn(catalog, "mcpResources")
+    ? validateSystemResourceMcpAssignments(catalog.mcpResources, resources.map((entry) => entry.identity.uri))
+    : undefined;
+  if (mcpResources && !mcpResources.ok) return mcpResources;
   const inventoryDigest = sha256(
     Buffer.from(resources.map((entry) => `${entry.identity.uri}\0${entry.digest}`).join("\n")),
   );
@@ -164,6 +171,7 @@ export function loadSystemResourceProvider(
   const inventory = Object.freeze({
     provider: providerMetadata,
     resources: Object.freeze([...resources]),
+    ...(mcpResources?.ok ? { mcpResources: mcpResources.value } : {}),
   });
 
   return {

@@ -16,6 +16,7 @@ export const workBacklogSnapshotOperation: OperationDefinition<
   ReturnType<typeof buildBacklogSnapshot>
 > = {
   id: "work.backlog.snapshot",
+  mcp: { profiles: ["backlog"], defaultExposure: "deferred" },
   summary:
     "Read every live and archived work record into the version 1 deterministic backlog snapshot.",
   mutates: "read",

@@ -182,6 +182,7 @@ export function buildLifecycleOperations(
   return [
     {
       id: "lifecycle.start",
+      mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
       summary: "Start a general lifecycle run in the global Store.",
       mutates: "write",
       access: STORE_WRITE_PROJECT_READ_ACCESS,
@@ -210,6 +211,7 @@ export function buildLifecycleOperations(
     },
     {
       id: "lifecycle.show",
+      mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
       summary: "Show one current general lifecycle run and its evidence references.",
       mutates: "read",
       access: STORE_READ_PROJECT_READ_ACCESS,
@@ -231,6 +233,7 @@ export function buildLifecycleOperations(
     },
     {
       id: "lifecycle.list",
+      mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
       summary: "List current general lifecycle runs for one manifest-minted project.",
       mutates: "read",
       access: STORE_READ_PROJECT_READ_ACCESS,
@@ -248,6 +251,7 @@ export function buildLifecycleOperations(
     },
     {
       id: "lifecycle.checkpoint",
+      mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
       summary: "Record a lifecycle checkpoint with explicit optimistic concurrency.",
       mutates: "write",
       access: STORE_WRITE_PROJECT_READ_ACCESS,
@@ -281,6 +285,7 @@ export function buildLifecycleOperations(
     statusTransitionDefinition("lifecycle.resume", "Resume a paused lifecycle run.", "active", ["paused"]),
     {
       id: "lifecycle.attach-evidence",
+      mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
       summary: "Attach one bounded evidence reference to a lifecycle run.",
       mutates: "write",
       access: STORE_WRITE_PROJECT_READ_ACCESS,
@@ -340,6 +345,7 @@ function statusTransitionDefinition(
 ): OperationDefinition {
   return {
     id: operation,
+    mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
     summary,
     mutates: "write",
     access: STORE_WRITE_PROJECT_READ_ACCESS,
@@ -370,6 +376,7 @@ function terminalTransitionDefinition(
   if (pausedPolicy.terminalOperationsWhilePaused.has(operation)) allowed.push("paused");
   return {
     id: operation,
+    mcp: { profiles: ["workflow"], defaultExposure: "deferred" },
     summary,
     mutates: "write",
     access: STORE_WRITE_PROJECT_READ_ACCESS,

@@ -16,6 +16,7 @@ applies-to:
 related:
   - "getting-started-installing-make-docs.md"
   - "skills-installing-and-managing-skills.md"
+  - "../maintainer/cli-mcp-operation-parity-and-permissions.md"
   - "../maintainer/maintainer-docs-assets-and-runtime-state-boundaries.md"
   - "../maintainer/release-packaging-validation-and-release-reference.md"
   - "../../prd/05-installation-profile-and-manifest-lifecycle.md"
@@ -57,6 +58,46 @@ The current runnable product is the npm-delivered TypeScript installer-maintaine
 Historical `init`, `--reconfigure`, and `--skills` surfaces are not current commands or flags, and the pre-reorganization top-level `reconfigure`, `skills`, `backup`, and `uninstall` command spellings no longer exist and have no aliases. Use `make-docs setup` for install or sync, `make-docs setup reconfigure` to change selections, and `make-docs setup skills` for skills-only work. Note that top-level `update` and `uninstall` now mean tool self-management, not project maintenance.
 
 For the maintainer-facing explanation of why lifecycle state lives in the global Make Docs Store while project documents stay local, use [Docs Assets and Runtime State Boundaries](../maintainer/maintainer-docs-assets-and-runtime-state-boundaries.md).
+
+## Choose MCP tools for a task
+
+Use a profile when your tool host needs one kind of work. A profile selects which tools and native resources the server lists and accepts. Native resources are entries that the host can list or open directly.
+
+| Task | Profile |
+| --- | --- |
+| Inspect installed state, config, and common resources | `core` |
+| Plan setup, sync, repair, compatibility, and layout work | `setup` |
+| Work with lifecycle, project context, and evidence | `workflow` |
+| Validate PRDs, performance evidence, and UAT | `quality` |
+| Read backlog snapshots and use the backlog review cache | `backlog` |
+| Connect to the full tool catalog | `all` |
+
+Select a profile with `make-docs mcp --profile <name>`. Run `make-docs mcp --help` to see the allowed names. An unknown name stops the server before startup and shows those names.
+
+For a host that uses `mcpServers` JSON, use this launch entry for backlog work:
+
+```json
+{
+  "mcpServers": {
+    "make-docs-backlog": {
+      "command": "make-docs",
+      "args": ["mcp", "--profile", "backlog"]
+    }
+  }
+}
+```
+
+The host must be able to find the installed `make-docs` command. The existing entry with `"args": ["mcp"]` stays valid. It selects `all` over stdio. Profile selection does not change generated host settings.
+
+A smaller tool catalog reduces the context shown to the model only when the host connects profiles as needed or loads tool definitions later. The `defaultExposure` setting is advice. It cannot force the host to load definitions later.
+
+The host's native resource list follows the selected profile. A read for a resource outside that profile fails without returning its content. An allowed read returns the same content and source information as `all`. Use `all` when the host needs the full native resource list.
+
+Profile selection does not change CLI resource commands or the common resource tools in `core`. Those keep their existing inventory and read behavior. The `backlog` app page is reserved for `backlog` and `all`. It is not available until the Backlog Review app package lands.
+
+The profile does not grant Store, project, or host settings access. Write tools still need the existing write permission and approvals. Stdio remains the selected transport. No HTTP launch is added here.
+
+For the code and permission rules, use [CLI/MCP Operation Parity and Permissions](../maintainer/cli-mcp-operation-parity-and-permissions.md).
 
 ## Apply or sync an installation
 
@@ -157,6 +198,7 @@ Use command help whenever you need the current flag set rather than historical e
 
 ```bash
 make-docs --help
+make-docs mcp --help
 make-docs setup --help
 make-docs setup reconfigure --help
 make-docs setup backup --help

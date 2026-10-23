@@ -1,0 +1,34 @@
+{
+  "coordinate": "W24 R0 P3",
+  "scope": "Final help-only wording fix after the one passed root suite. No second broad root run.",
+  "checks": [
+    {
+      "name": "final-help-tests",
+      "command": "npm",
+      "args": [
+        "test",
+        "-w",
+        "packages/cli",
+        "--",
+        "tests/mcp-profile-cli.test.ts"
+      ],
+      "log": "evidence/p3/help-tests-final.txt",
+      "startedAt": "2026-10-03T21:46:42.047Z",
+      "endedAt": "2026-10-03T21:46:43.029Z",
+      "exitCode": 0
+    },
+    {
+      "name": "final-build",
+      "command": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "log": "evidence/p3/build-final.txt",
+      "startedAt": "2026-10-03T21:46:43.029Z",
+      "endedAt": "2026-10-03T21:46:43.482Z",
+      "exitCode": 0
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,21 @@
+{
+  "capturedAt": "2026-10-03T21:56:16.581Z",
+  "scope": [
+    "docs/assets/user/cli-lifecycle-managing-installations.md",
+    "docs/assets/maintainer/cli-mcp-operation-parity-and-permissions.md",
+    "docs/plans/2026-09-24-w24-r0-mcp-tool-profiles/00-overview.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/00-index.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/03-resources-and-transports.md",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence.md",
+    "packages/docs/template/.make-docs/system/contracts/system-resource-contract.md",
+    ".make-docs/system/contracts/system-resource-contract.md"
+  ],
+  "allPathsPresent": true,
+  "addedPlaceholderCount": 0,
+  "p1AndP2EvidenceUnchanged": true,
+  "sourceAndBuildMatchFinalProof": true,
+  "diffCheckPassed": true,
+  "indexEmpty": true,
+  "scopedBrokenLinks": 0,
+  "linkTool": "jdocmunch get_broken_links after index refresh"
+}

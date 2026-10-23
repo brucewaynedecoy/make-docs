@@ -1,0 +1,97 @@
+{
+  "coordinate": "W24 R0 P4",
+  "reviewer": "Codex Desktop implementation/review agent",
+  "capturedAt": "2026-10-03T23:03:36.994Z",
+  "impact": "direct",
+  "scope": "Agent Guided Progress Review of real unchanged P3 help/guides/errors plus current P4 SDK lists and old-launch comparison. No live host change.",
+  "evidence": {
+    "docs/assets/user/cli-lifecycle-managing-installations.md": "714c92a88435bb56000b491e5e2e9464b17dcaaac4b2032b37bb05ad8bc59b31",
+    "docs/assets/maintainer/cli-mcp-operation-parity-and-permissions.md": "431beed4385accabc000b01d57ca60893aaa5fcbf31af695b21e133351fae35c",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a10/cli-help-final.txt": "0c01a9d16f2a02b4d12118667ad7f1eba6b4d5eb24825ffc648d185f693ed5b5",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a10/cli-invalid-profile-final.json": "b0e23303e478529e7d2d444983a3ebacd72de3472e54e19a708d8a2f62eeebda",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a8/native-denied-reads-final.json": "db4c0aab2ab013d5ea15aa1def70a48cba526101fee967b8f82c50436164d1a0",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a6/catalog-metadata-final.json": "0d09cd1d6e9b282c3a8ac885ee408bbda3de1e64040b8120efca593b8b74645c",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a7/allowed-read-and-cli-parity-final.json": "ef073bfadc98aaf9e8be99008fdc99c7ea2f13f62eafcd879ce6c22fd2994ad4",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/a9/stdio-results-final.json": "113eabee926a1bc0f60a6616e879f48b972abfb42c174dbc828769e362b4d806",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p3/source-identity-final.json": "e26895054fb960ad048e1d279be069d2bb1cb83afb58fade799b6175e9ca5670",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/focused-attempt-2.txt": "192fd7021cf6d0db722bb71b4e3bc7136de38dfbd4799076c1d447688b6f3739",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/raw-comparison-qualification.json": "5666d6c46ba750bb438abe9cb61cd855506935948facc001674c877928599a5f"
+  },
+  "questions": [
+    {
+      "promise": "Choose tools for one kind of work.",
+      "observation": "The user guide maps five task names and full all to exact profile strings. Real help lists all six choices and native-resource scope. P4 raw counts agree: tools8/15/14/9/3/43; native7/7/48/33/8/62.",
+      "conclusion": "satisfied",
+      "limit": "Reviewed assigned lists and published text. No claim about unassisted human choice or platform rendering.",
+      "nextAction": "Reopen only if profile contents, help, guidance, or concrete feedback changes."
+    },
+    {
+      "promise": "Keep the existing full connection.",
+      "observation": "Published args:[mcp] stays valid. Old archived source and P3 no-profile SDK lists/read values are exactly equal within one same-byte/config fixture; P3 default equals explicit all. Physical launch paths differ; no wire normalization was needed.",
+      "conclusion": "satisfied",
+      "limit": "Source-to-source fixture proof. No fresh package installation or host upgrade was performed.",
+      "nextAction": "Require separate installation/host proof before making that wider support claim."
+    },
+    {
+      "promise": "Provide one usable narrow launch example.",
+      "observation": "Published mcpServers JSON uses command:make-docs and args:[mcp,--profile,backlog]. The current built SDK backlog launch accepts that argument shape and exposes3tools/8resources. The guide states the host must find the installed command.",
+      "conclusion": "satisfied",
+      "limit": "The installed make-docs command and host JSON loading were not exercised. The SDK uses the recorded Node/dist command.",
+      "nextAction": "Keep command availability and host configuration as explicit limits."
+    },
+    {
+      "promise": "Keep permissions and result meaning.",
+      "observation": "Profiles select exposure only. Valid Store-free reads agree in relevant profiles/all. The real Store-free write handler remains gated by allowWrite; dry-run succeeds without writes. Resource projection approval is distinct from write permission. Valid setup/workflow Store attempts return store-not-configured and independent reads continue.",
+      "conclusion": "satisfied",
+      "limit": "No production write permission or allowed Store mutation is claimed. The incomplete supplemental SDK cache-write input was rejected before callback, which is input rejection only.",
+      "nextAction": "Retry only the affected Store operation after setup under separate scope if an actual Store mutation claim is needed."
+    },
+    {
+      "promise": "Make errors and recovery clear.",
+      "observation": "Invalid profile names all allowed values and stops startup. Hidden native reads name URI/profile and advise resources/list, with no bytes. Hidden tools remain unknown/not found. Help and the guide provide the selection path.",
+      "conclusion": "satisfied",
+      "limit": "SDK adds repeated protocol prefixes to native error text. The reason and structured recovery remain readable; no new human response gate exists.",
+      "nextAction": "Rereview if public error conversion or real user feedback changes the claim."
+    },
+    {
+      "promise": "Keep Backlog Review UI with W25.",
+      "observation": "The reserved UI is absent from all current lists. Retained P3 all/default/intent reads reject it. Both guides state that its app package must land first.",
+      "conclusion": "satisfied",
+      "limit": "No W25 app registration, rendering, tool contract, or availability is accepted here.",
+      "nextAction": "W25 consumes the checked backlog/all seam under its own work authority."
+    },
+    {
+      "promise": "Bound context and speed claims.",
+      "observation": "Guides require selective profile connection or host deferral for model context savings. defaultExposure is advice. PERF-003 measures local definition bytes and discovery times, excluding host/model inference.",
+      "conclusion": "satisfied",
+      "limit": "Actual model-visible tokens and lived-human ease remain unavailable. No hard target or support expansion is set.",
+      "nextAction": "Use exact PERF-003 result limits. Reassess a wider claim only with its own evidence."
+    }
+  ],
+  "guidedProgressReview": {
+    "decision": "needed",
+    "result": "satisfied within stated local scope",
+    "cycles": 1,
+    "limitMinutes": 30,
+    "externalSpend": 0
+  },
+  "humanExperienceReview": {
+    "result": "satisfied within stated evidence limits",
+    "separateFromFourTestingTypes": true,
+    "livedHumanReactionClaim": false,
+    "ownerResponseGate": false
+  },
+  "unassistedGoalTesting": {
+    "decision": "not-needed-now",
+    "runs": 0,
+    "reason": "Real text, direct review, exact contract proof and bounded measurements answer current local questions. No material current unassisted uncertainty or explicit human gate.",
+    "noDurableObligationCreated": true
+  },
+  "scopeChanges": {
+    "runtime": false,
+    "permissionSystem": false,
+    "guides": false,
+    "systemAssets": false,
+    "prdAuthority": false
+  }
+}

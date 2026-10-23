@@ -1,5 +1,5 @@
 ---
-title: "W24 R0 P1 PRD And Authority Reconciliation"
+title: "W24 R0 P1 Profile Metadata And Contracts"
 kind: "plan"
 status: "draft"
 coordinate: "W24 R0 P1"
@@ -7,11 +7,17 @@ source:
   type: "design"
   path: "docs/designs/2026-09-24-mcp-tool-profiles.md"
 ---
-# Phase 1: PRD And Authority Reconciliation
+# Phase 1: Profile Metadata And Contracts
 
 ## Purpose
 
-Place current profile requirements in the PRDs that already own MCP exposure and operation metadata.
+Implement explicit profile fields and checks for every ready MCP tool. Use current PRD 25 and PRD 39 as authority.
+
+## Entry Checks And Phase Scope
+
+PRD 25 and PRD 39 already contain the profile rules. Check their current authority and run PRD validation before code work starts. The owner decisions below remain the authority context.
+
+The [P1 work record](../../work/2026-09-24-w24-r0-mcp-tool-profiles/01-profile-metadata-and-contracts.md) owns the code tasks. P1 adds typed profile fields to operation definitions and hand-defined tool descriptors. It derives and checks those fields, rejects missing, empty, or unknown assignments, and assigns every current ready tool. Use the [descriptor contract and starting tool map](02-profile-inventory-and-discovery.md) for this work. P2 consumes P1's checked fields to add filtered tool discovery.
 
 ## Authority Decisions
 
@@ -42,4 +48,8 @@ The direct effect is profile selection and predictable compatibility. P4 tests t
 - PRD 25 and PRD 39 state current normative requirements inline.
 - Each candidate has the decision and owner shown above.
 - PRD validation passes before work consumes the edited authority.
+- Every ready tool has explicit nonempty profile fields from the canonical operation definition or hand-defined descriptor.
+- Missing, empty, or unknown profile assignments are rejected.
+- Each current tool appears once in `all`. That profile equals the union of the five intent profiles.
+- Profile fields preserve tool contracts, access facts, write rules, and `mcpReady` admission.
 - No W23 R0 or app package file is changed by this phase.

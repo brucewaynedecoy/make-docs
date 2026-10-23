@@ -1,5 +1,5 @@
 ---
-title: "W24 R0 P2 Profile Inventory And Discovery"
+title: "W24 R0 P2 Filtered Tool Discovery"
 kind: "plan"
 status: "draft"
 coordinate: "W24 R0 P2"
@@ -7,13 +7,15 @@ source:
   type: "design"
   path: "docs/designs/2026-09-24-mcp-tool-profiles.md"
 ---
-# Phase 2: Profile Inventory And Discovery
+# Phase 2: Filtered Tool Discovery
 
 ## Purpose
 
-Assign every current MCP-ready tool by user intent and make profile selection a checked server contract.
+Use P1's checked profile fields to filter tool discovery and invocation. Add CLI profile selection.
 
 ## Descriptor Contract
+
+P1 owns the profile fields and tool assignments described below. The [P1 work record](../../work/2026-09-24-w24-r0-mcp-tool-profiles/01-profile-metadata-and-contracts.md) owns those code tasks. P2 uses their checked result through the [P2 work record](../../work/2026-09-24-w24-r0-mcp-tool-profiles/02-filtered-tool-discovery.md).
 
 Add `mcp: { profiles: McpProfile[], defaultExposure: "eager" | "deferred" }` to each ready tool descriptor. Put this metadata on the six hand-defined descriptors and on each canonical operation definition for derived tools. Derive the MCP descriptor from that operation definition. For registry-derived tools, keep one operation ID, tool name, schema, description, handler, access fact, and write policy across all profiles. For hand-defined tools, keep one tool name, schema, description, access fact, handler, and write policy across all profiles. `defaultExposure` is advice for hosts that can defer tools. It does not change MCP visibility on its own.
 

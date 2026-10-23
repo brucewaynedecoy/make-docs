@@ -5,18 +5,20 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { serializeOperationError } from "../operations/context";
+import { parseMcpServerProfile, type McpProfileOptions } from "../operations/mcp-metadata";
 import { readPackageMeta } from "../utils";
 import { listNativeMcpResources, readNativeMcpResource } from "./resources";
 import { callMakeDocsMcpTool, listMakeDocsMcpTools } from "./tools";
 
-export function createMakeDocsMcpServer(): McpServer {
+export function createMakeDocsMcpServer(options: McpProfileOptions = {}): McpServer {
+  const profile = parseMcpServerProfile(options.profile);
   const packageMeta = readPackageMeta();
   const server = new McpServer({
     name: packageMeta.name,
     version: packageMeta.version,
   });
 
-  for (const tool of listMakeDocsMcpTools().filter((candidate) => candidate.mcpReady !== false)) {
+  for (const tool of listMakeDocsMcpTools(process.cwd(), { profile })) {
     server.registerTool(
       tool.name,
       {
@@ -26,7 +28,7 @@ export function createMakeDocsMcpServer(): McpServer {
       },
       async (args) => {
         try {
-          return formatMcpToolResult(await callMakeDocsMcpTool(tool.name, args));
+          return formatMcpToolResult(await callMakeDocsMcpTool(tool.name, args, { profile }));
         } catch (error) {
           return formatMcpToolError(error);
         }
@@ -36,17 +38,17 @@ export function createMakeDocsMcpServer(): McpServer {
 
   server.server.registerCapabilities({ resources: {} });
   server.server.setRequestHandler(ListResourcesRequestSchema, async () =>
-    listNativeMcpResources(),
+    listNativeMcpResources(process.cwd(), { profile }),
   );
   server.server.setRequestHandler(ReadResourceRequestSchema, async (request) =>
-    readNativeMcpResource(request.params.uri),
+    readNativeMcpResource(request.params.uri, process.cwd(), { profile }),
   );
 
   return server;
 }
 
-export async function runMcpServer(): Promise<void> {
-  const server = createMakeDocsMcpServer();
+export async function runMcpServer(options: McpProfileOptions = {}): Promise<void> {
+  const server = createMakeDocsMcpServer(options);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

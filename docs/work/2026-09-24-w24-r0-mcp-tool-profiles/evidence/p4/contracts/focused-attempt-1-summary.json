@@ -1,0 +1,12 @@
+{
+  "coordinate": "W24 R0 P4",
+  "command": "npm test -w packages/cli -- tests/w24-p4-compatibility.test.ts --reporter=json",
+  "passed": 6,
+  "failed": 3,
+  "failures": [
+    "Backlog snapshot timestamps were not fixed across repeated calls.",
+    "resource.ensure requires resource-projection-write before Store admission.",
+    "backlog-cache.write requires a complete report input before Store admission."
+  ],
+  "disposition": "harness fixture assertions corrected; no runtime defect"
+}

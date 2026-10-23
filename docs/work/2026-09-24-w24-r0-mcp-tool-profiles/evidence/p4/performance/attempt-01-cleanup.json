@@ -1,0 +1,16 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 1,
+  "capturedAt": "2026-10-03T23:03:39.220Z",
+  "allServerProcessesExited": true,
+  "fixtureRetainedReadOnly": true,
+  "temporaryRuntimeState": "<performance-temp>",
+  "reason": "Read-only fixture and isolated empty home retained for evidence review; no server/listener remains.",
+  "failure": "ENOENT: no such file or directory, scandir '<p3-runtime>/packages/cli/src'"
+}

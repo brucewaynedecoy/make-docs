@@ -15,6 +15,7 @@ export const performanceEvidenceValidateOperation: OperationDefinition<
   PerformanceEvidenceValidationReport
 > = {
   id: "performance.evidence.validate",
+  mcp: { profiles: ["quality"], defaultExposure: "deferred" },
   summary: "Validate Performance Evidence structure and traceability without running a benchmark or changing repository state.",
   mutates: "read",
   access: PROJECT_READ_ACCESS,

@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-10-03T21:44:34.672Z",
+  "coordinate": "W24 R0 P3",
+  "pairs": [
+    {
+      "source": "packages/docs/template/.make-docs/system-resources.catalog.json",
+      "dogfood": ".make-docs/system-resources.catalog.json",
+      "sha256": "463f44c4ea92b5b081ec0082b9a9c56c2d56a1dd166d48a9f565bfcf8d288874",
+      "exactBytesEqual": true
+    },
+    {
+      "source": "packages/docs/template/.make-docs/system-resources.schema.json",
+      "dogfood": ".make-docs/system-resources.schema.json",
+      "sha256": "b98895d9de48d603b01bd41aed8ce8f2290d4cb7aa2ad0e7c8d7400d2d04a82b",
+      "exactBytesEqual": true
+    },
+    {
+      "source": "packages/docs/template/.make-docs/system/contracts/system-resource-contract.md",
+      "dogfood": ".make-docs/system/contracts/system-resource-contract.md",
+      "sha256": "5c0f866470d55c2d89ac399333f484fe4a763c1951854d0d3aef337a66c0ad30",
+      "exactBytesEqual": true
+    }
+  ]
+}

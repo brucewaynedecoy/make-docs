@@ -1,0 +1,1215 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "attempt": 2,
+  "round": 4,
+  "position": 0,
+  "profile": "quality",
+  "launch": 25,
+  "kind": "resources",
+  "pair": 2,
+  "warmup": false,
+  "elapsedMs": 30.231791999998677,
+  "uniqueCount": 33,
+  "serializedArray": "[{\"_meta\":{\"makeDocs\":{\"byteLength\":15909,\"digest\":\"af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d\",\"identity\":{\"path\":\"coverage-pass-contract.md\",\"type\":\"contract\",\"uri\":\"make-docs://system/contract/coverage-pass-contract.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d\",\"digestSource\":\"reused\",\"expectedDigest\":\"af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/contract/coverage-pass-contract.md\",\"size\":15909,\"uri\":\"make-docs://system/contract/coverage-pass-contract.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":12266,\"digest\":\"4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a\",\"identity\":{\"path\":\"human-experience-contract.md\",\"type\":\"contract\",\"uri\":\"make-docs://system/contract/human-experience-contract.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a\",\"digestSource\":\"reused\",\"expectedDigest\":\"4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/contract/human-experience-contract.md\",\"size\":12266,\"uri\":\"make-docs://system/contract/human-experience-contract.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":11996,\"digest\":\"94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3\",\"identity\":{\"path\":\"naive-uat-contract.md\",\"type\":\"contract\",\"uri\":\"make-docs://system/contract/naive-uat-contract.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3\",\"digestSource\":\"reused\",\"expectedDigest\":\"94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/contract/naive-uat-contract.md\",\"size\":11996,\"uri\":\"make-docs://system/contract/naive-uat-contract.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":21813,\"digest\":\"0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6\",\"identity\":{\"path\":\"output-contract.md\",\"type\":\"contract\",\"uri\":\"make-docs://system/contract/output-contract.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6\",\"digestSource\":\"reused\",\"expectedDigest\":\"0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/contract/output-contract.md\",\"size\":21813,\"uri\":\"make-docs://system/contract/output-contract.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":22208,\"digest\":\"bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c\",\"identity\":{\"path\":\"performance-evidence-governance.md\",\"type\":\"contract\",\"uri\":\"make-docs://system/contract/performance-evidence-governance.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c\",\"digestSource\":\"reused\",\"expectedDigest\":\"bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/contract/performance-evidence-governance.md\",\"size\":22208,\"uri\":\"make-docs://system/contract/performance-evidence-governance.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2497,\"digest\":\"299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b\",\"identity\":{\"path\":\"coverage-pass-maintainer-guide.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b\",\"digestSource\":\"reused\",\"expectedDigest\":\"299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md\",\"size\":2497,\"uri\":\"make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2516,\"digest\":\"f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd\",\"identity\":{\"path\":\"coverage-pass-prd-reconciliation.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd\",\"digestSource\":\"reused\",\"expectedDigest\":\"f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md\",\"size\":2516,\"uri\":\"make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":3435,\"digest\":\"bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd\",\"identity\":{\"path\":\"coverage-pass-testing-uat.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/coverage-pass-testing-uat.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd\",\"digestSource\":\"reused\",\"expectedDigest\":\"bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/coverage-pass-testing-uat.prompt.md\",\"size\":3435,\"uri\":\"make-docs://system/prompt/coverage-pass-testing-uat.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2452,\"digest\":\"e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c\",\"identity\":{\"path\":\"coverage-pass-user-guide.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/coverage-pass-user-guide.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c\",\"digestSource\":\"reused\",\"expectedDigest\":\"e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/coverage-pass-user-guide.prompt.md\",\"size\":2452,\"uri\":\"make-docs://system/prompt/coverage-pass-user-guide.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1653,\"digest\":\"2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513\",\"identity\":{\"path\":\"docs-path-hygiene-cleanup.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513\",\"digestSource\":\"reused\",\"expectedDigest\":\"2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md\",\"size\":1653,\"uri\":\"make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2378,\"digest\":\"eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596\",\"identity\":{\"path\":\"naive-uat-facilitator.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/naive-uat-facilitator.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596\",\"digestSource\":\"reused\",\"expectedDigest\":\"eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/naive-uat-facilitator.prompt.md\",\"size\":2378,\"uri\":\"make-docs://system/prompt/naive-uat-facilitator.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1089,\"digest\":\"adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6\",\"identity\":{\"path\":\"naive-uat-tester.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/naive-uat-tester.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6\",\"digestSource\":\"reused\",\"expectedDigest\":\"adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/naive-uat-tester.prompt.md\",\"size\":1089,\"uri\":\"make-docs://system/prompt/naive-uat-tester.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":3297,\"digest\":\"b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196\",\"identity\":{\"path\":\"performance-coverage.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/performance-coverage.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196\",\"digestSource\":\"reused\",\"expectedDigest\":\"b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/performance-coverage.prompt.md\",\"size\":3297,\"uri\":\"make-docs://system/prompt/performance-coverage.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2141,\"digest\":\"23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1\",\"identity\":{\"path\":\"plan-to-prd-change.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/plan-to-prd-change.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1\",\"digestSource\":\"reused\",\"expectedDigest\":\"23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/plan-to-prd-change.prompt.md\",\"size\":2141,\"uri\":\"make-docs://system/prompt/plan-to-prd-change.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1800,\"digest\":\"c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96\",\"identity\":{\"path\":\"plan-to-prd-green-field.prompt.md\",\"type\":\"prompt\",\"uri\":\"make-docs://system/prompt/plan-to-prd-green-field.prompt.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96\",\"digestSource\":\"reused\",\"expectedDigest\":\"c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/prompt/plan-to-prd-green-field.prompt.md\",\"size\":1800,\"uri\":\"make-docs://system/prompt/plan-to-prd-green-field.prompt.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":10789,\"digest\":\"26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc\",\"identity\":{\"path\":\"human-experience.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/human-experience.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc\",\"digestSource\":\"reused\",\"expectedDigest\":\"26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/human-experience.md\",\"size\":10789,\"uri\":\"make-docs://system/reference/human-experience.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":8885,\"digest\":\"452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca\",\"identity\":{\"path\":\"naive-uat-validation.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/naive-uat-validation.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca\",\"digestSource\":\"reused\",\"expectedDigest\":\"452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/naive-uat-validation.md\",\"size\":8885,\"uri\":\"make-docs://system/reference/naive-uat-validation.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":4831,\"digest\":\"458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8\",\"identity\":{\"path\":\"naive-uat-workflow.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/naive-uat-workflow.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8\",\"digestSource\":\"reused\",\"expectedDigest\":\"458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/naive-uat-workflow.md\",\"size\":4831,\"uri\":\"make-docs://system/reference/naive-uat-workflow.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":11080,\"digest\":\"a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5\",\"identity\":{\"path\":\"path-and-link-hygiene.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/path-and-link-hygiene.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5\",\"digestSource\":\"reused\",\"expectedDigest\":\"a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/path-and-link-hygiene.md\",\"size\":11080,\"uri\":\"make-docs://system/reference/path-and-link-hygiene.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":7705,\"digest\":\"78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab\",\"identity\":{\"path\":\"performance-evidence.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/performance-evidence.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab\",\"digestSource\":\"reused\",\"expectedDigest\":\"78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/performance-evidence.md\",\"size\":7705,\"uri\":\"make-docs://system/reference/performance-evidence.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":16444,\"digest\":\"c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb\",\"identity\":{\"path\":\"prd-change-management.md\",\"type\":\"reference\",\"uri\":\"make-docs://system/reference/prd-change-management.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb\",\"digestSource\":\"reused\",\"expectedDigest\":\"c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/reference/prd-change-management.md\",\"size\":16444,\"uri\":\"make-docs://system/reference/prd-change-management.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":4096,\"digest\":\"669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577\",\"identity\":{\"path\":\"naive-uat-scenario.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/naive-uat-scenario.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577\",\"digestSource\":\"reused\",\"expectedDigest\":\"669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/naive-uat-scenario.md\",\"size\":4096,\"uri\":\"make-docs://system/template/naive-uat-scenario.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":10383,\"digest\":\"e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec\",\"identity\":{\"path\":\"performance-evidence-profile.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/performance-evidence-profile.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec\",\"digestSource\":\"reused\",\"expectedDigest\":\"e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/performance-evidence-profile.md\",\"size\":10383,\"uri\":\"make-docs://system/template/performance-evidence-profile.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":7899,\"digest\":\"bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894\",\"identity\":{\"path\":\"plan-prd-change.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/plan-prd-change.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894\",\"digestSource\":\"reused\",\"expectedDigest\":\"bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/plan-prd-change.md\",\"size\":7899,\"uri\":\"make-docs://system/template/plan-prd-change.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":3022,\"digest\":\"cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c\",\"identity\":{\"path\":\"plan-prd-decompose.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/plan-prd-decompose.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c\",\"digestSource\":\"reused\",\"expectedDigest\":\"cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/plan-prd-decompose.md\",\"size\":3022,\"uri\":\"make-docs://system/template/plan-prd-decompose.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":7724,\"digest\":\"083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08\",\"identity\":{\"path\":\"plan-prd.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/plan-prd.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08\",\"digestSource\":\"reused\",\"expectedDigest\":\"083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/plan-prd.md\",\"size\":7724,\"uri\":\"make-docs://system/template/plan-prd.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1417,\"digest\":\"4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b\",\"identity\":{\"path\":\"prd-architecture.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-architecture.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b\",\"digestSource\":\"reused\",\"expectedDigest\":\"4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-architecture.md\",\"size\":1417,\"uri\":\"make-docs://system/template/prd-architecture.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":857,\"digest\":\"570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0\",\"identity\":{\"path\":\"prd-glossary.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-glossary.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0\",\"digestSource\":\"reused\",\"expectedDigest\":\"570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-glossary.md\",\"size\":857,\"uri\":\"make-docs://system/template/prd-glossary.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2772,\"digest\":\"db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb\",\"identity\":{\"path\":\"prd-index.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-index.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb\",\"digestSource\":\"reused\",\"expectedDigest\":\"db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-index.md\",\"size\":2772,\"uri\":\"make-docs://system/template/prd-index.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1251,\"digest\":\"10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48\",\"identity\":{\"path\":\"prd-overview.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-overview.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48\",\"digestSource\":\"reused\",\"expectedDigest\":\"10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-overview.md\",\"size\":1251,\"uri\":\"make-docs://system/template/prd-overview.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":871,\"digest\":\"41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56\",\"identity\":{\"path\":\"prd-reference.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-reference.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56\",\"digestSource\":\"reused\",\"expectedDigest\":\"41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-reference.md\",\"size\":871,\"uri\":\"make-docs://system/template/prd-reference.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":2731,\"digest\":\"9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628\",\"identity\":{\"path\":\"prd-risk-register.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-risk-register.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628\",\"digestSource\":\"reused\",\"expectedDigest\":\"9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-risk-register.md\",\"size\":2731,\"uri\":\"make-docs://system/template/prd-risk-register.md\"},{\"_meta\":{\"makeDocs\":{\"byteLength\":1767,\"digest\":\"93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930\",\"identity\":{\"path\":\"prd-subsystem.md\",\"type\":\"template\",\"uri\":\"make-docs://system/template/prd-subsystem.md\"},\"mediaType\":\"text/markdown; charset=utf-8\",\"origin\":\"installed-machine\",\"provenance\":{\"actualDigest\":\"93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930\",\"digestSource\":\"reused\",\"expectedDigest\":\"93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930\",\"localPath\":null,\"projectOwnership\":null,\"provider\":{\"immutableRef\":\"package:@brucewaynedecoy/make-docs@2.0.4\",\"packageName\":\"@brucewaynedecoy/make-docs\",\"source\":\"development\",\"version\":\"2.0.4\"},\"source\":\"provider\"},\"source\":\"provider\",\"state\":\"provider-only\"}},\"description\":\"Make Docs system resource.\",\"mimeType\":\"text/markdown; charset=utf-8\",\"name\":\"make-docs://system/template/prd-subsystem.md\",\"size\":1767,\"uri\":\"make-docs://system/template/prd-subsystem.md\"}]",
+  "utf8Bytes": 33093,
+  "arraySha256": "4e8827db60c8a422bd490fe46cdc74e06592b9ae15cdfb1dd0be320f4b215e4e",
+  "rawFile": "attempt-02-list-25-2-resources.json",
+  "response": {
+    "resources": [
+      {
+        "name": "make-docs://system/contract/coverage-pass-contract.md",
+        "uri": "make-docs://system/contract/coverage-pass-contract.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 15909,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "contract",
+              "path": "coverage-pass-contract.md",
+              "uri": "make-docs://system/contract/coverage-pass-contract.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d",
+            "byteLength": 15909,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d",
+              "actualDigest": "af2e5c00138796de7dea6ddb5250452e5e01b9ce2a27e2f10542068073802d8d",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/contract/human-experience-contract.md",
+        "uri": "make-docs://system/contract/human-experience-contract.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 12266,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "contract",
+              "path": "human-experience-contract.md",
+              "uri": "make-docs://system/contract/human-experience-contract.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a",
+            "byteLength": 12266,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a",
+              "actualDigest": "4763dd8e3b9315c0352327d44df014384c7c0dd07a8626b8c49b88ca9c669a9a",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/contract/naive-uat-contract.md",
+        "uri": "make-docs://system/contract/naive-uat-contract.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 11996,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "contract",
+              "path": "naive-uat-contract.md",
+              "uri": "make-docs://system/contract/naive-uat-contract.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3",
+            "byteLength": 11996,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3",
+              "actualDigest": "94dc29bbe1a322669d0aceace00effb8b8ec6783009695506ad19ed7795b58b3",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/contract/output-contract.md",
+        "uri": "make-docs://system/contract/output-contract.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 21813,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "contract",
+              "path": "output-contract.md",
+              "uri": "make-docs://system/contract/output-contract.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6",
+            "byteLength": 21813,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6",
+              "actualDigest": "0d522103042f664f35eb426c1e4c9058d59d9cd2e405c8e68939bd3674106fa6",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/contract/performance-evidence-governance.md",
+        "uri": "make-docs://system/contract/performance-evidence-governance.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 22208,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "contract",
+              "path": "performance-evidence-governance.md",
+              "uri": "make-docs://system/contract/performance-evidence-governance.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c",
+            "byteLength": 22208,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c",
+              "actualDigest": "bbf11716947bc033aaa7957f51553cf9277bf0e70004a069d4d7ff0e4fb3318c",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md",
+        "uri": "make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2497,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "coverage-pass-maintainer-guide.prompt.md",
+              "uri": "make-docs://system/prompt/coverage-pass-maintainer-guide.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b",
+            "byteLength": 2497,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b",
+              "actualDigest": "299a29e9ed7ed18605812906544bfaab4c6cc2f3af13f7d465377ea99b78aa8b",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md",
+        "uri": "make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2516,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "coverage-pass-prd-reconciliation.prompt.md",
+              "uri": "make-docs://system/prompt/coverage-pass-prd-reconciliation.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd",
+            "byteLength": 2516,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd",
+              "actualDigest": "f5bb88a736f34da05c6d8baaede34a1e358fa1b9391047a18ba8339674fcbefd",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/coverage-pass-testing-uat.prompt.md",
+        "uri": "make-docs://system/prompt/coverage-pass-testing-uat.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 3435,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "coverage-pass-testing-uat.prompt.md",
+              "uri": "make-docs://system/prompt/coverage-pass-testing-uat.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd",
+            "byteLength": 3435,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd",
+              "actualDigest": "bcb1592809252c6c454777f630369f46c74ac38134065c61143261dd3461c6dd",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/coverage-pass-user-guide.prompt.md",
+        "uri": "make-docs://system/prompt/coverage-pass-user-guide.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2452,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "coverage-pass-user-guide.prompt.md",
+              "uri": "make-docs://system/prompt/coverage-pass-user-guide.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c",
+            "byteLength": 2452,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c",
+              "actualDigest": "e94caacb90110266abd86d9a0c08d704be2e4881fc79fb588d7992c279d3f99c",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md",
+        "uri": "make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1653,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "docs-path-hygiene-cleanup.prompt.md",
+              "uri": "make-docs://system/prompt/docs-path-hygiene-cleanup.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513",
+            "byteLength": 1653,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513",
+              "actualDigest": "2809fdfca747574a6e7d289b466366b28a309d7085a7d5c090a16efb1594f513",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/naive-uat-facilitator.prompt.md",
+        "uri": "make-docs://system/prompt/naive-uat-facilitator.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2378,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "naive-uat-facilitator.prompt.md",
+              "uri": "make-docs://system/prompt/naive-uat-facilitator.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596",
+            "byteLength": 2378,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596",
+              "actualDigest": "eea8a018a38c021cb576a2fb29dc8ea581bb5aa02e89f64a316f9ac37b1a3596",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/naive-uat-tester.prompt.md",
+        "uri": "make-docs://system/prompt/naive-uat-tester.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1089,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "naive-uat-tester.prompt.md",
+              "uri": "make-docs://system/prompt/naive-uat-tester.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6",
+            "byteLength": 1089,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6",
+              "actualDigest": "adeff323ede9c727a6991f53d5b0f3f8f3b6a3bc888749a86a828e1e36e511a6",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/performance-coverage.prompt.md",
+        "uri": "make-docs://system/prompt/performance-coverage.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 3297,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "performance-coverage.prompt.md",
+              "uri": "make-docs://system/prompt/performance-coverage.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196",
+            "byteLength": 3297,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196",
+              "actualDigest": "b4700c6f04615b75eb4deee804a88ead377da276013913c3f2543ebede259196",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/plan-to-prd-change.prompt.md",
+        "uri": "make-docs://system/prompt/plan-to-prd-change.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2141,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "plan-to-prd-change.prompt.md",
+              "uri": "make-docs://system/prompt/plan-to-prd-change.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1",
+            "byteLength": 2141,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1",
+              "actualDigest": "23d94fb07ed97538bff8892333c67876691988cb39091cf2fec6832db037a3e1",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/prompt/plan-to-prd-green-field.prompt.md",
+        "uri": "make-docs://system/prompt/plan-to-prd-green-field.prompt.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1800,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "prompt",
+              "path": "plan-to-prd-green-field.prompt.md",
+              "uri": "make-docs://system/prompt/plan-to-prd-green-field.prompt.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96",
+            "byteLength": 1800,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96",
+              "actualDigest": "c3a30b4493590acf413325694487c381963c2f5f1dc7788a6ee9bdbfd1f78e96",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/human-experience.md",
+        "uri": "make-docs://system/reference/human-experience.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 10789,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "human-experience.md",
+              "uri": "make-docs://system/reference/human-experience.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc",
+            "byteLength": 10789,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc",
+              "actualDigest": "26e332053aa11bc81c6a7e14e4fd8d8de4168a45db1a2ab5d5ac16b2aece7ebc",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/naive-uat-validation.md",
+        "uri": "make-docs://system/reference/naive-uat-validation.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 8885,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "naive-uat-validation.md",
+              "uri": "make-docs://system/reference/naive-uat-validation.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+            "byteLength": 8885,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+              "actualDigest": "452407fdfc7c9541f51bd4ad0fc5071b2319cc96743b237f98b746b61c994cca",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/naive-uat-workflow.md",
+        "uri": "make-docs://system/reference/naive-uat-workflow.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 4831,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "naive-uat-workflow.md",
+              "uri": "make-docs://system/reference/naive-uat-workflow.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
+            "byteLength": 4831,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
+              "actualDigest": "458aece3ff063a95918db5e51f50b500c7ecf517a1f0e074d339104a95c47ac8",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/path-and-link-hygiene.md",
+        "uri": "make-docs://system/reference/path-and-link-hygiene.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 11080,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "path-and-link-hygiene.md",
+              "uri": "make-docs://system/reference/path-and-link-hygiene.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5",
+            "byteLength": 11080,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5",
+              "actualDigest": "a9f2e9dac21324302b357dfb9be112ee05da1ed48b96b6970670f36ca38f40f5",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/performance-evidence.md",
+        "uri": "make-docs://system/reference/performance-evidence.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 7705,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "performance-evidence.md",
+              "uri": "make-docs://system/reference/performance-evidence.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab",
+            "byteLength": 7705,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab",
+              "actualDigest": "78098335723282d0207a9d4175ad31744b0948c7a832e079ff34b5db05e192ab",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/reference/prd-change-management.md",
+        "uri": "make-docs://system/reference/prd-change-management.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 16444,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "reference",
+              "path": "prd-change-management.md",
+              "uri": "make-docs://system/reference/prd-change-management.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb",
+            "byteLength": 16444,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb",
+              "actualDigest": "c28a6603ef9c072d50795b1b3743483448692a05e70a0aff5d5c400337dcbebb",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/naive-uat-scenario.md",
+        "uri": "make-docs://system/template/naive-uat-scenario.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 4096,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "naive-uat-scenario.md",
+              "uri": "make-docs://system/template/naive-uat-scenario.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577",
+            "byteLength": 4096,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577",
+              "actualDigest": "669532481ed8fd561fed009644e9b20d2ac0b78c550f06f020db14e409adc577",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/performance-evidence-profile.md",
+        "uri": "make-docs://system/template/performance-evidence-profile.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 10383,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "performance-evidence-profile.md",
+              "uri": "make-docs://system/template/performance-evidence-profile.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec",
+            "byteLength": 10383,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec",
+              "actualDigest": "e67bdf7cb4cee44d170b032bb79fb04ca290f64c7cf053dff5f9516964538cec",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/plan-prd-change.md",
+        "uri": "make-docs://system/template/plan-prd-change.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 7899,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "plan-prd-change.md",
+              "uri": "make-docs://system/template/plan-prd-change.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894",
+            "byteLength": 7899,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894",
+              "actualDigest": "bb99d82f2ea6f6328bd8b250b0b220f6b5b11f0e877bdc0c62874846d858f894",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/plan-prd-decompose.md",
+        "uri": "make-docs://system/template/plan-prd-decompose.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 3022,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "plan-prd-decompose.md",
+              "uri": "make-docs://system/template/plan-prd-decompose.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c",
+            "byteLength": 3022,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c",
+              "actualDigest": "cee7240f98df5c502a45e7bd2a8d18304c44dd54babab514171c8eb28227158c",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/plan-prd.md",
+        "uri": "make-docs://system/template/plan-prd.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 7724,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "plan-prd.md",
+              "uri": "make-docs://system/template/plan-prd.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08",
+            "byteLength": 7724,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08",
+              "actualDigest": "083c7143941942c3232c3f29af10bac3f184853fff435ac8014119e355ff7f08",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-architecture.md",
+        "uri": "make-docs://system/template/prd-architecture.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1417,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-architecture.md",
+              "uri": "make-docs://system/template/prd-architecture.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b",
+            "byteLength": 1417,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b",
+              "actualDigest": "4dc5638ebef814c7846b75c7a2fcaac57eabb00eed766908d71f6f461d735f9b",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-glossary.md",
+        "uri": "make-docs://system/template/prd-glossary.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 857,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-glossary.md",
+              "uri": "make-docs://system/template/prd-glossary.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0",
+            "byteLength": 857,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0",
+              "actualDigest": "570db73785bda106f7c204898bd3df5079f2a40445e0890bc7459b66ce6273c0",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-index.md",
+        "uri": "make-docs://system/template/prd-index.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2772,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-index.md",
+              "uri": "make-docs://system/template/prd-index.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb",
+            "byteLength": 2772,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb",
+              "actualDigest": "db8b9fc117dd0272dd2dbab541e0d5bcf22558da982ebcc27e4e10c59998feeb",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-overview.md",
+        "uri": "make-docs://system/template/prd-overview.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1251,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-overview.md",
+              "uri": "make-docs://system/template/prd-overview.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48",
+            "byteLength": 1251,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48",
+              "actualDigest": "10486aa5dde0a344251a3fafd4101a4c206530410f6c49f62cf5e81b0c31cf48",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-reference.md",
+        "uri": "make-docs://system/template/prd-reference.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 871,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-reference.md",
+              "uri": "make-docs://system/template/prd-reference.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56",
+            "byteLength": 871,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56",
+              "actualDigest": "41af687472e76d26b7a13c8d8642b8ac02176867bb7a1a961013d7ee5fabfe56",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-risk-register.md",
+        "uri": "make-docs://system/template/prd-risk-register.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 2731,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-risk-register.md",
+              "uri": "make-docs://system/template/prd-risk-register.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628",
+            "byteLength": 2731,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628",
+              "actualDigest": "9987df368071d8bf27daf6599a567fc4a63aa6d2dc88796faf7d80c93cf83628",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      },
+      {
+        "name": "make-docs://system/template/prd-subsystem.md",
+        "uri": "make-docs://system/template/prd-subsystem.md",
+        "description": "Make Docs system resource.",
+        "mimeType": "text/markdown; charset=utf-8",
+        "size": 1767,
+        "_meta": {
+          "makeDocs": {
+            "identity": {
+              "type": "template",
+              "path": "prd-subsystem.md",
+              "uri": "make-docs://system/template/prd-subsystem.md"
+            },
+            "state": "provider-only",
+            "source": "provider",
+            "mediaType": "text/markdown; charset=utf-8",
+            "digest": "93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930",
+            "byteLength": 1767,
+            "provenance": {
+              "source": "provider",
+              "provider": {
+                "packageName": "@brucewaynedecoy/make-docs",
+                "version": "2.0.4",
+                "immutableRef": "package:@brucewaynedecoy/make-docs@2.0.4",
+                "source": "development"
+              },
+              "projectOwnership": null,
+              "localPath": null,
+              "expectedDigest": "93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930",
+              "actualDigest": "93114cae1095eee2dc9f61a91c2a9ab0cfd5792397e0091de6a41b44106ac930",
+              "digestSource": "reused"
+            },
+            "origin": "installed-machine"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1230 @@
+{
+  "profile": "backlog",
+  "inputSchemaValid": true,
+  "calls": [
+    {
+      "mode": "omitted",
+      "arguments": {
+        "targetRoot": "$WRITE_FIXTURE/fixture",
+        "snapshot": {
+          "schemaVersion": 1,
+          "generatedAt": "2026-10-04T02:13:13.978Z",
+          "targetRoot": "$WRITE_FIXTURE/fixture",
+          "project": {
+            "id": "w24-p4-complete-write-probe",
+            "name": "fixture",
+            "manifestPath": ".make-docs/config.yaml"
+          },
+          "gitRevision": null,
+          "capabilities": {
+            "repositoryFiles": {
+              "state": "available",
+              "diagnosticCodes": []
+            },
+            "git": {
+              "state": "not-a-repository",
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "store": {
+              "state": "not-used",
+              "diagnosticCodes": []
+            },
+            "sourceLinks": {
+              "state": "available",
+              "diagnosticCodes": []
+            }
+          },
+          "recordCounts": {
+            "found": 1,
+            "live": 1,
+            "archived": 0
+          },
+          "records": [
+            {
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "scope": "live",
+              "sourceShape": {
+                "state": "supported",
+                "standard": "current-frontmatter",
+                "diagnosticCodes": []
+              },
+              "discoveredFiles": [
+                "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "docs/work/2026-10-03-w1-r0-probe/01-build.md"
+              ],
+              "coordinate": {
+                "value": "W1 R0",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 5,
+                    "field": "coordinate",
+                    "commit": null
+                  }
+                ]
+              },
+              "title": {
+                "value": "Probe",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 2,
+                    "field": "title",
+                    "commit": null
+                  }
+                ]
+              },
+              "recordedStatus": {
+                "value": "active",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 4,
+                    "field": "status",
+                    "commit": null
+                  }
+                ]
+              },
+              "createdAt": {
+                "value": "2026-10-03",
+                "precision": "date",
+                "source": "directory-name",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe",
+                    "line": null,
+                    "field": "directory name",
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "lastUpdatedAt": {
+                "value": "2026-10-04T02:13:13.968Z",
+                "precision": "millisecond",
+                "source": "filesystem-mtime",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                    "line": null,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": [
+                  "BACKLOG-VAL-010"
+                ]
+              },
+              "phaseCount": {
+                "value": 1,
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": null,
+                    "field": "Phase Map",
+                    "commit": null
+                  }
+                ]
+              },
+              "taskCounts": {
+                "total": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "complete": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "incomplete": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "unknown": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "phases": [
+                {
+                  "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "phaseMapLinked": true,
+                  "coordinate": {
+                    "value": "W1 R0 P1",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 5,
+                        "field": "coordinate",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "title": {
+                    "value": "Phase 1: Build",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 2,
+                        "field": "title",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "recordedStatus": {
+                    "value": "active",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 4,
+                        "field": "status",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "tasks": [
+                    {
+                      "id": {
+                        "value": "T1",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "text": {
+                        "value": "Check the isolated probe.",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "completed": {
+                        "value": false,
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "recordedStatus": {
+                        "value": "open",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "dependencies": [],
+                  "blockers": [],
+                  "sourceLinks": []
+                }
+              ],
+              "dependencies": [],
+              "blockers": [],
+              "closeout": {
+                "tasksComplete": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "closeoutAccepted": {
+                  "value": null,
+                  "evidence": []
+                },
+                "committed": {
+                  "value": null,
+                  "evidence": []
+                },
+                "closedHistory": {
+                  "value": null,
+                  "evidence": []
+                },
+                "released": {
+                  "value": null,
+                  "evidence": []
+                },
+                "archived": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe",
+                      "line": null,
+                      "field": "archive namespace",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "sourceLinks": [],
+              "gitEvidence": [
+                {
+                  "kind": "history-unavailable",
+                  "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                  "commit": null,
+                  "committedAt": null,
+                  "modifiedAt": null,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                      "line": null,
+                      "field": null,
+                      "commit": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "diagnostics": [
+            {
+              "code": "BACKLOG-VAL-010",
+              "ruleId": "BACKLOG-RULE-010",
+              "severity": "info",
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+              "line": null,
+              "message": "Repository facts remain usable, but last-updated time uses less precise file metadata.",
+              "reason": "Git is unavailable, denied, not a repository, or has no usable scoped history.",
+              "remediation": "Use the fallback now or restore Git access when commit evidence is important."
+            }
+          ]
+        },
+        "records": [
+          {
+            "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+            "scope": "live",
+            "createdAt": {
+              "value": "2026-10-03",
+              "precision": "date",
+              "source": "directory-name",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe",
+                  "line": null,
+                  "field": "directory name",
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": []
+            },
+            "lastUpdatedAt": {
+              "value": "2026-10-04T02:13:13.968Z",
+              "precision": "millisecond",
+              "source": "filesystem-mtime",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "line": null,
+                  "field": null,
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "waveStatus": "current",
+            "statusReason": "Current isolated probe work.",
+            "statusEvidence": [
+              {
+                "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "line": 5,
+                "field": "status",
+                "commit": null
+              }
+            ],
+            "facts": [],
+            "inferences": [],
+            "recommendations": []
+          }
+        ]
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"code\": \"operation-error\",\n  \"message\": \"Operation `work.backlog-cache.write` mutates state and requires write permission from the calling surface (CLI write flags or MCP allowWrite=true).\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "code": "operation-error",
+          "message": "Operation `work.backlog-cache.write` mutates state and requires write permission from the calling surface (CLI write flags or MCP allowWrite=true)."
+        },
+        "isError": true
+      }
+    },
+    {
+      "mode": "false",
+      "arguments": {
+        "targetRoot": "$WRITE_FIXTURE/fixture",
+        "snapshot": {
+          "schemaVersion": 1,
+          "generatedAt": "2026-10-04T02:13:13.978Z",
+          "targetRoot": "$WRITE_FIXTURE/fixture",
+          "project": {
+            "id": "w24-p4-complete-write-probe",
+            "name": "fixture",
+            "manifestPath": ".make-docs/config.yaml"
+          },
+          "gitRevision": null,
+          "capabilities": {
+            "repositoryFiles": {
+              "state": "available",
+              "diagnosticCodes": []
+            },
+            "git": {
+              "state": "not-a-repository",
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "store": {
+              "state": "not-used",
+              "diagnosticCodes": []
+            },
+            "sourceLinks": {
+              "state": "available",
+              "diagnosticCodes": []
+            }
+          },
+          "recordCounts": {
+            "found": 1,
+            "live": 1,
+            "archived": 0
+          },
+          "records": [
+            {
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "scope": "live",
+              "sourceShape": {
+                "state": "supported",
+                "standard": "current-frontmatter",
+                "diagnosticCodes": []
+              },
+              "discoveredFiles": [
+                "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "docs/work/2026-10-03-w1-r0-probe/01-build.md"
+              ],
+              "coordinate": {
+                "value": "W1 R0",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 5,
+                    "field": "coordinate",
+                    "commit": null
+                  }
+                ]
+              },
+              "title": {
+                "value": "Probe",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 2,
+                    "field": "title",
+                    "commit": null
+                  }
+                ]
+              },
+              "recordedStatus": {
+                "value": "active",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 4,
+                    "field": "status",
+                    "commit": null
+                  }
+                ]
+              },
+              "createdAt": {
+                "value": "2026-10-03",
+                "precision": "date",
+                "source": "directory-name",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe",
+                    "line": null,
+                    "field": "directory name",
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "lastUpdatedAt": {
+                "value": "2026-10-04T02:13:13.968Z",
+                "precision": "millisecond",
+                "source": "filesystem-mtime",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                    "line": null,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": [
+                  "BACKLOG-VAL-010"
+                ]
+              },
+              "phaseCount": {
+                "value": 1,
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": null,
+                    "field": "Phase Map",
+                    "commit": null
+                  }
+                ]
+              },
+              "taskCounts": {
+                "total": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "complete": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "incomplete": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "unknown": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "phases": [
+                {
+                  "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "phaseMapLinked": true,
+                  "coordinate": {
+                    "value": "W1 R0 P1",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 5,
+                        "field": "coordinate",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "title": {
+                    "value": "Phase 1: Build",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 2,
+                        "field": "title",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "recordedStatus": {
+                    "value": "active",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 4,
+                        "field": "status",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "tasks": [
+                    {
+                      "id": {
+                        "value": "T1",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "text": {
+                        "value": "Check the isolated probe.",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "completed": {
+                        "value": false,
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "recordedStatus": {
+                        "value": "open",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "dependencies": [],
+                  "blockers": [],
+                  "sourceLinks": []
+                }
+              ],
+              "dependencies": [],
+              "blockers": [],
+              "closeout": {
+                "tasksComplete": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "closeoutAccepted": {
+                  "value": null,
+                  "evidence": []
+                },
+                "committed": {
+                  "value": null,
+                  "evidence": []
+                },
+                "closedHistory": {
+                  "value": null,
+                  "evidence": []
+                },
+                "released": {
+                  "value": null,
+                  "evidence": []
+                },
+                "archived": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe",
+                      "line": null,
+                      "field": "archive namespace",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "sourceLinks": [],
+              "gitEvidence": [
+                {
+                  "kind": "history-unavailable",
+                  "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                  "commit": null,
+                  "committedAt": null,
+                  "modifiedAt": null,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                      "line": null,
+                      "field": null,
+                      "commit": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "diagnostics": [
+            {
+              "code": "BACKLOG-VAL-010",
+              "ruleId": "BACKLOG-RULE-010",
+              "severity": "info",
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+              "line": null,
+              "message": "Repository facts remain usable, but last-updated time uses less precise file metadata.",
+              "reason": "Git is unavailable, denied, not a repository, or has no usable scoped history.",
+              "remediation": "Use the fallback now or restore Git access when commit evidence is important."
+            }
+          ]
+        },
+        "records": [
+          {
+            "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+            "scope": "live",
+            "createdAt": {
+              "value": "2026-10-03",
+              "precision": "date",
+              "source": "directory-name",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe",
+                  "line": null,
+                  "field": "directory name",
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": []
+            },
+            "lastUpdatedAt": {
+              "value": "2026-10-04T02:13:13.968Z",
+              "precision": "millisecond",
+              "source": "filesystem-mtime",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "line": null,
+                  "field": null,
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "waveStatus": "current",
+            "statusReason": "Current isolated probe work.",
+            "statusEvidence": [
+              {
+                "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "line": 5,
+                "field": "status",
+                "commit": null
+              }
+            ],
+            "facts": [],
+            "inferences": [],
+            "recommendations": []
+          }
+        ],
+        "allowWrite": false
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"code\": \"operation-error\",\n  \"message\": \"Operation `work.backlog-cache.write` mutates state and requires write permission from the calling surface (CLI write flags or MCP allowWrite=true).\"\n}"
+          }
+        ],
+        "structuredContent": {
+          "code": "operation-error",
+          "message": "Operation `work.backlog-cache.write` mutates state and requires write permission from the calling surface (CLI write flags or MCP allowWrite=true)."
+        },
+        "isError": true
+      }
+    },
+    {
+      "mode": "true",
+      "arguments": {
+        "targetRoot": "$WRITE_FIXTURE/fixture",
+        "snapshot": {
+          "schemaVersion": 1,
+          "generatedAt": "2026-10-04T02:13:13.978Z",
+          "targetRoot": "$WRITE_FIXTURE/fixture",
+          "project": {
+            "id": "w24-p4-complete-write-probe",
+            "name": "fixture",
+            "manifestPath": ".make-docs/config.yaml"
+          },
+          "gitRevision": null,
+          "capabilities": {
+            "repositoryFiles": {
+              "state": "available",
+              "diagnosticCodes": []
+            },
+            "git": {
+              "state": "not-a-repository",
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "store": {
+              "state": "not-used",
+              "diagnosticCodes": []
+            },
+            "sourceLinks": {
+              "state": "available",
+              "diagnosticCodes": []
+            }
+          },
+          "recordCounts": {
+            "found": 1,
+            "live": 1,
+            "archived": 0
+          },
+          "records": [
+            {
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "scope": "live",
+              "sourceShape": {
+                "state": "supported",
+                "standard": "current-frontmatter",
+                "diagnosticCodes": []
+              },
+              "discoveredFiles": [
+                "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "docs/work/2026-10-03-w1-r0-probe/01-build.md"
+              ],
+              "coordinate": {
+                "value": "W1 R0",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 5,
+                    "field": "coordinate",
+                    "commit": null
+                  }
+                ]
+              },
+              "title": {
+                "value": "Probe",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 2,
+                    "field": "title",
+                    "commit": null
+                  }
+                ]
+              },
+              "recordedStatus": {
+                "value": "active",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": 4,
+                    "field": "status",
+                    "commit": null
+                  }
+                ]
+              },
+              "createdAt": {
+                "value": "2026-10-03",
+                "precision": "date",
+                "source": "directory-name",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe",
+                    "line": null,
+                    "field": "directory name",
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "lastUpdatedAt": {
+                "value": "2026-10-04T02:13:13.968Z",
+                "precision": "millisecond",
+                "source": "filesystem-mtime",
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                    "line": null,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": [
+                  "BACKLOG-VAL-010"
+                ]
+              },
+              "phaseCount": {
+                "value": 1,
+                "evidence": [
+                  {
+                    "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                    "line": null,
+                    "field": "Phase Map",
+                    "commit": null
+                  }
+                ]
+              },
+              "taskCounts": {
+                "total": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "complete": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "incomplete": {
+                  "value": 1,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "unknown": {
+                  "value": 0,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "phases": [
+                {
+                  "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "phaseMapLinked": true,
+                  "coordinate": {
+                    "value": "W1 R0 P1",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 5,
+                        "field": "coordinate",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "title": {
+                    "value": "Phase 1: Build",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 2,
+                        "field": "title",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "recordedStatus": {
+                    "value": "active",
+                    "evidence": [
+                      {
+                        "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                        "line": 4,
+                        "field": "status",
+                        "commit": null
+                      }
+                    ]
+                  },
+                  "tasks": [
+                    {
+                      "id": {
+                        "value": "T1",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "phasePath": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "text": {
+                        "value": "Check the isolated probe.",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "completed": {
+                        "value": false,
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      },
+                      "recordedStatus": {
+                        "value": "open",
+                        "evidence": [
+                          {
+                            "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                            "line": 8,
+                            "field": "task",
+                            "commit": null
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "dependencies": [],
+                  "blockers": [],
+                  "sourceLinks": []
+                }
+              ],
+              "dependencies": [],
+              "blockers": [],
+              "closeout": {
+                "tasksComplete": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                      "line": 8,
+                      "field": "task",
+                      "commit": null
+                    }
+                  ]
+                },
+                "closeoutAccepted": {
+                  "value": null,
+                  "evidence": []
+                },
+                "committed": {
+                  "value": null,
+                  "evidence": []
+                },
+                "closedHistory": {
+                  "value": null,
+                  "evidence": []
+                },
+                "released": {
+                  "value": null,
+                  "evidence": []
+                },
+                "archived": {
+                  "value": false,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe",
+                      "line": null,
+                      "field": "archive namespace",
+                      "commit": null
+                    }
+                  ]
+                }
+              },
+              "sourceLinks": [],
+              "gitEvidence": [
+                {
+                  "kind": "history-unavailable",
+                  "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                  "commit": null,
+                  "committedAt": null,
+                  "modifiedAt": null,
+                  "evidence": [
+                    {
+                      "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                      "line": null,
+                      "field": null,
+                      "commit": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "diagnostics": [
+            {
+              "code": "BACKLOG-VAL-010",
+              "ruleId": "BACKLOG-RULE-010",
+              "severity": "info",
+              "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+              "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+              "line": null,
+              "message": "Repository facts remain usable, but last-updated time uses less precise file metadata.",
+              "reason": "Git is unavailable, denied, not a repository, or has no usable scoped history.",
+              "remediation": "Use the fallback now or restore Git access when commit evidence is important."
+            }
+          ]
+        },
+        "records": [
+          {
+            "recordPath": "docs/work/2026-10-03-w1-r0-probe",
+            "scope": "live",
+            "createdAt": {
+              "value": "2026-10-03",
+              "precision": "date",
+              "source": "directory-name",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe",
+                  "line": null,
+                  "field": "directory name",
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": []
+            },
+            "lastUpdatedAt": {
+              "value": "2026-10-04T02:13:13.968Z",
+              "precision": "millisecond",
+              "source": "filesystem-mtime",
+              "evidence": [
+                {
+                  "path": "docs/work/2026-10-03-w1-r0-probe/01-build.md",
+                  "line": null,
+                  "field": null,
+                  "commit": null
+                }
+              ],
+              "diagnosticCodes": [
+                "BACKLOG-VAL-010"
+              ]
+            },
+            "waveStatus": "current",
+            "statusReason": "Current isolated probe work.",
+            "statusEvidence": [
+              {
+                "path": "docs/work/2026-10-03-w1-r0-probe/00-index.md",
+                "line": 5,
+                "field": "status",
+                "commit": null
+              }
+            ],
+            "facts": [],
+            "inferences": [],
+            "recommendations": []
+          }
+        ],
+        "allowWrite": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"code\": \"store-not-configured\",\n  \"message\": \"This project has no Store access configuration for an agent harness. Only operation 'work.backlog-cache.write' stopped. Independent Store-free work can continue. Next: Run `make-docs setup --generic-mcp-client <label> --target \\\"$WRITE_FIXTURE/fixture\\\"` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.\",\n  \"operation\": \"work.backlog-cache.write\",\n  \"reason\": \"This project has no Store access configuration for an agent harness.\",\n  \"nextAction\": \"Run `make-docs setup --generic-mcp-client <label> --target \\\"$WRITE_FIXTURE/fixture\\\"` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.\",\n  \"scope\": \"operation\",\n  \"taskCanContinue\": true,\n  \"details\": {\n    \"projectRoot\": \"$WRITE_FIXTURE/fixture\"\n  }\n}"
+          }
+        ],
+        "structuredContent": {
+          "code": "store-not-configured",
+          "message": "This project has no Store access configuration for an agent harness. Only operation 'work.backlog-cache.write' stopped. Independent Store-free work can continue. Next: Run `make-docs setup --generic-mcp-client <label> --target \"$WRITE_FIXTURE/fixture\"` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.",
+          "operation": "work.backlog-cache.write",
+          "reason": "This project has no Store access configuration for an agent harness.",
+          "nextAction": "Run `make-docs setup --generic-mcp-client <label> --target \"$WRITE_FIXTURE/fixture\"` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.",
+          "scope": "operation",
+          "taskCanContinue": true,
+          "details": {
+            "projectRoot": "$WRITE_FIXTURE/fixture"
+          }
+        },
+        "isError": true
+      }
+    }
+  ],
+  "stderr": "",
+  "cleanup": {
+    "closed": true,
+    "pidAfterClose": null
+  }
+}

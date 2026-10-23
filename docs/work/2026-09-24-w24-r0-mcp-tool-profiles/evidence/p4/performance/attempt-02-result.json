@@ -1,0 +1,85 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "id": "W24-R0-P4-PERF-003-RESULT-2",
+  "attempt": 2,
+  "outcome": "pass",
+  "severity": "minor",
+  "reproducibility": "reproduced",
+  "reviewer": "/root/p4_performance",
+  "reviewerDisposition": "Packet binding, exact inventories, sample order, full count, unchanged fingerprint, analysis, budget, raw retention, and child cleanup pass. This is a characterization pass; no latency/token target exists.",
+  "fingerprint": "e6adcd1c038a4d8c0f8580acc9bf3c76bdc9cfde18f7f7929e487227a967f2d8",
+  "raw": "attempt-02-raw.json",
+  "analysis": "attempt-02-analysis.json",
+  "manifest": "attempt-02-manifest.json",
+  "ledger": "attempt-02-ledger.json",
+  "constraints": {
+    "correctnessStage1": true,
+    "everyListValidated": true,
+    "sourceBuildFixtureDependenciesInstrumentUnchanged": true,
+    "allChildrenExited": true,
+    "callsSequential": true,
+    "noParallelPhaseTestsOrBuilds": true,
+    "noStoreNetworkInferenceUserData": true,
+    "validSlowSamplesRetained": true,
+    "rawEvidenceImmutable": true
+  },
+  "findings": [
+    {
+      "id": "W24-R0-P4-PERF-003-F1",
+      "severity": "minor",
+      "reproducibility": "not-attempted",
+      "observed": "Initial activation expected source files inside a build/provider-only clone.",
+      "expected": "Bind actual code and runtime roots before timing.",
+      "targetClass": "characterization-baseline",
+      "sourceRequirement": "PERF-003 Evidence Fingerprint and Non-Sacrificable Constraints",
+      "owner": "/root/p4_performance",
+      "disposition": "Corrected in attempt2 before the first measured spawn. No samples lost/replaced.",
+      "evidence": [
+        "attempt-01-problem.json",
+        "perf-003-harness.mjs",
+        "attempt-02-manifest.json"
+      ],
+      "remediation": "Bind source to verified active P3 source and build/provider/dependencies to the isolated clone.",
+      "laterResult": "attempt-02-result.json",
+      "expiry": "W24 R0 P4 closeout; retain as history."
+    }
+  ],
+  "waivers": [],
+  "unavailableEvidence": {
+    "state": "unavailable",
+    "reason": "No authorized host diagnostic with known model, tokenizer, loading mode, and observation boundary is available in this local SDK packet.",
+    "excludedClaim": "No model-visible token savings or model inference latency claim."
+  },
+  "supportedLimit": "One local development build, Node 24.19.0, darwin arm64, the recorded machine, read-only fixture, SDK, and stdio workload. Definition bytes are a context proxy.",
+  "expiry": {
+    "boundary": "W24 R0 P4 closeout; then historical baseline only.",
+    "materialTriggers": [
+      "profile meaning",
+      "runtime/source/build",
+      "dependencies",
+      "fixture/configuration",
+      "machine/OS/power mode",
+      "host/model/loading boundary",
+      "instrument",
+      "analysis"
+    ],
+    "nextReview": "A current decision needs changed or expired evidence.",
+    "requalificationAuthority": "Separate owner or later phase authority and a new finite budget.",
+    "laterResult": null
+  },
+  "uncertainty": [
+    "Only five fresh-process samples and 25 warm-list samples per profile.",
+    "Operating-system and file caches were not reset.",
+    "Background activity and thermal state are uncontrolled within one local machine.",
+    "Warm elapsed time includes SDK serialization, transport, server work, and full response parsing.",
+    "Round pairing reduces order bias; it does not isolate a causal effect.",
+    "No confidence interval, population inference, percentile tail, or latency target is authorized."
+  ],
+  "exclusions": []
+}

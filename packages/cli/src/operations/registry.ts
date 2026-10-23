@@ -32,6 +32,7 @@ import {
   resolveProjectHarnessAccessProjection,
 } from "./harness-policy";
 import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
+import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -74,6 +75,8 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   /** Exact Store, project, and host-config access needed by this operation. */
   access: OperationAccess;
   status: OperationStatus;
+  /** Required for MCP-ready operations; independent of admission and access. */
+  mcp?: McpToolMetadata;
   /** Lineage owning the not-yet-landed semantics when status is `pending`. */
   pendingLineage?: string;
   /** Named approvals the caller must grant before the handler runs. */
@@ -262,6 +265,19 @@ export function operationCliCommand(id: string): string {
   return operationCliProjection(id).command;
 }
 
+/** MCP admission depends on executable status and host access, never profiles. */
+export function isOperationMcpReady(
+  operation: Pick<OperationDefinition, "status" | "access">,
+): boolean {
+  return operation.status === "active" && operation.access.hostConfig === "none";
+}
+
+export function assertOperationMcpMetadata(definition: OperationDefinition): void {
+  if (isOperationMcpReady(definition) || definition.mcp !== undefined) {
+    assertMcpToolMetadata(definition.id, definition.mcp);
+  }
+}
+
 function assembleRegistry(): Map<string, OperationDefinition> {
   const registry = new Map<string, OperationDefinition>();
   const definitions: OperationDefinition[] = [
@@ -285,6 +301,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
       throw new Error(`Duplicate operation identifier in registry: \`${definition.id}\`.`);
     }
     assertOperationAccess(definition.id, definition.access, definition.mutates);
+    assertOperationMcpMetadata(definition);
     if (definition.status === "pending" && !definition.pendingLineage) {
       throw new Error(`Pending operation \`${definition.id}\` must name its owning lineage.`);
     }
@@ -321,8 +338,7 @@ export function listOperationAccessFacts(): OperationAccessFact[] {
     status: operation.status,
     cli: operation.cli,
     access: cloneOperationAccess(operation.access),
-    mcpReady:
-      operation.status === "active" && operation.access.hostConfig === "none",
+    mcpReady: isOperationMcpReady(operation),
     commandRuleCandidate:
       operation.status === "active" &&
       operation.access.hostConfig === "none" &&

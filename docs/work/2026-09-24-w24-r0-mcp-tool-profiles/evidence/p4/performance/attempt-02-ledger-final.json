@@ -1,0 +1,96 @@
+{
+  "binding": {
+    "id": "PERF-003",
+    "version": 1,
+    "digest": "596198aff5593560606677258b4754cd81aef440477d1d3a058f5828aecbe6eb",
+    "packet": "W24-R0-P4-PERF-003-PACKET-1",
+    "budget": "W24-R0-P4-PERF-003-B1"
+  },
+  "budgetEvent": "W24-R0-P4-PERF-003-B1",
+  "authorizingScope": "User-authorized W24 R0 P4 implementation",
+  "activatedAt": "2026-10-03T23:03:37.917Z",
+  "limits": {
+    "passes": 1,
+    "corrections": 1,
+    "reviews": 2,
+    "elapsedMs": 5400000,
+    "launches": 60,
+    "listCalls": 720,
+    "externalSpend": 0,
+    "paidModelRequests": 0
+  },
+  "consumed": {
+    "passes": 1,
+    "corrections": 1,
+    "reviews": 2,
+    "launches": 30,
+    "listCalls": 360,
+    "externalSpend": 0,
+    "paidModelRequests": 0,
+    "elapsedMs": 528716
+  },
+  "remaining": {
+    "passes": 0,
+    "corrections": 0,
+    "reviews": 0,
+    "elapsedMs": 4871284,
+    "launches": 30,
+    "listCalls": 360,
+    "externalSpend": 0,
+    "paidModelRequests": 0
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "scope": "Activation/fingerprint setup",
+      "affectedChecks": [
+        "runtime source-root qualification"
+      ],
+      "launches": 0,
+      "listCalls": 0,
+      "outcome": "revise",
+      "evidence": "attempt-01-problem.json"
+    },
+    {
+      "attempt": 2,
+      "scope": "One complete same-build six-profile characterization pass after source-root correction",
+      "affectedChecks": [
+        "source-root fingerprint",
+        "tool-definition size",
+        "fresh-process startup",
+        "warm tools list",
+        "warm resources list"
+      ],
+      "correction": true
+    }
+  ],
+  "unchangedEvidenceReused": [
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p3/source-identity-final.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/stage-1-summary-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/runtime-identity-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/focused-attempt-2.txt",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/fixture-after-attempt-1.json",
+    "docs/work/2026-09-24-w24-r0-mcp-tool-profiles/evidence/p4/contracts/raw-comparison-qualification.json"
+  ],
+  "stopReason": "Declared measured sample count and both allowed review cycles complete. The pass and sole correction are spent. No unchanged rerun, additional review cycle, or budget extension.",
+  "escalation": "None.",
+  "activeCorrectionAuthorization": "The sole correction is spent. No extension or additional rerun.",
+  "finalizedAt": "2026-10-03T23:12:26.633Z",
+  "supersedesForCurrentBudget": "attempt-02-ledger.json",
+  "reviewCycles": [
+    {
+      "cycle": 1,
+      "reviewer": "/root/p4_performance",
+      "disposition": "pass",
+      "evidence": "attempt-02-result.json"
+    },
+    {
+      "cycle": 2,
+      "reviewer": "/root/p4_contracts",
+      "disposition": "pass",
+      "evidence": "../review/performance-review-cycle-2.json",
+      "sha256": "34ecf4d6950b8d9df51cf818fd751fd814d559594aec49658797d188e4983bbe"
+    }
+  ],
+  "reportQualification": "The original first-attempt problem emits revise. The earlier ledger called it blocked. This final ledger records the exact retained revise outcome. No method or sample changed."
+}
