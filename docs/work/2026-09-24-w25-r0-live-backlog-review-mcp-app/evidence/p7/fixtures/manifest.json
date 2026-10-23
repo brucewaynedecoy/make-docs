@@ -1,0 +1,33 @@
+{
+  "profile": "PERF-002",
+  "profileVersion": 2,
+  "fixtureApproval": "2026-10-08 user delegated the PERF fixture decision; agent approved the exact saved 73-record snapshot.",
+  "records": 73,
+  "liveRecords": 49,
+  "archivedRecords": 24,
+  "payloadRetention": "The three backlog-73-*.json payload files are not retained in Git or in this checkout. Their paths and SHA-256 digests below are historical facts, not available replay inputs.",
+  "report": {
+    "path": "backlog-73-report.json",
+    "sha256": "dda4d0101c65e8df1f5f7c4f63dc5c174b112c8482c4d25394089b3431119498"
+  },
+  "snapshot": {
+    "path": "backlog-73-snapshot.json",
+    "encoding": "UTF-8 JSON.stringify(snapshot), no added newline",
+    "sha256": "45c4635cc469e46dcb5952f29d058a593bf171c6bd894994128a97470f58ef37"
+  },
+  "controlledChange": {
+    "path": "backlog-73-changed-snapshot.json",
+    "sha256": "fb6b7042dc85f5a592b5750af67306b6ceb21159f87dae080086c40931de35b1",
+    "recordPath": "docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app",
+    "field": "title.value",
+    "before": "W25 R0 Live Backlog Review MCP App Work Backlog",
+    "after": "W25 R0 Live Backlog Review MCP App Work Backlog [PERF-002 controlled change]"
+  },
+  "limitations": [
+    "This manifest is a historical fingerprint only. It cannot support replay or timing claims by itself.",
+    "Normalized saved facts; exact original source files and environment are not frozen.",
+    "A replayed fixture is not proof of live source collection or current-source unchanged refresh.",
+    "No equivalence with the lost 70-record fixture or its digest.",
+    "No observation has started."
+  ]
+}
