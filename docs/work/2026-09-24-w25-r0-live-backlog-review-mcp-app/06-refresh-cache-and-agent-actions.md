@@ -10,6 +10,8 @@ source:
 
 # Phase 6: Refresh Cache and Agent Actions
 
+> Historical closed phase. The results below keep their original scope. Current Explain and Work behavior is defined in [PRD 51](../../prd/51-backlog-review-and-reporting.md#live-mcp-app) and proved under the active [P7 work record](../../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/07-parity-performance-and-acceptance.md). Neither current wave action creates another task.
+
 ## Purpose
 
 Connect the live view to current facts and controlled active-agent requests.

@@ -1,0 +1,235 @@
+{
+  "kind": "P7 source-only captured-request and MCP-prompt correction",
+  "authority": "Explicit owner45-minute/$0 source-check renewal; no host/button/task or package qualification",
+  "sourceHead": "fe9d312cafd54dff39d2e4c30cb3a480abc97b0c",
+  "window": {
+    "start": "2026-10-07T21:55:38Z",
+    "deadline": "2026-10-07T22:40:38Z",
+    "stopped": "2026-10-07T22:05:20Z",
+    "elapsedSeconds": 582,
+    "unusedSeconds": 2118
+  },
+  "newSuite": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts",
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0
+  },
+  "affected": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-review-operations.test.ts tests/backlog-live-contract.test.ts tests/mcp.test.ts tests/mcp-derivation.test.ts tests/mcp-profiles.test.ts tests/mcp-profile-discovery.test.ts tests/mcp-profile-cli.test.ts tests/registry-contract.test.ts tests/operations.test.ts tests/p3-operation-surfaces.test.ts tests/operation-dependency-direction.test.ts tests/backlog-review-skill.test.ts",
+    "initial": {
+      "passed": 237,
+      "failed": 2,
+      "skipped": 0
+    },
+    "uniqueFinalPassed": 239
+  },
+  "inventoryRepair": {
+    "finding": "Independent inventory expectations omitted the one new admitted resolver.",
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/mcp.test.ts tests/mcp-derivation.test.ts",
+    "passed": 12
+  },
+  "widgetDrift": {
+    "finding": "New unused prompt schema changed shared-module client output.",
+    "repair": "Make server/helper-only argument schema lazy; regenerate derived asset instead of rewriting source for byte sameness.",
+    "affectedRetry": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts",
+      "passed": 57
+    },
+    "fixedStyleAndMarkupEqual": true,
+    "sameByteCount": true,
+    "oldApprovedSha256": "9aa1fbe83e560c34c710af1969d6a1fe70af0fc93254ee92ae6c8752e4db7725",
+    "promptInstructionTextInClient": false
+  },
+  "uniqueCurrentSelection": {
+    "passed": 259,
+    "failed": 0,
+    "skipped": 0,
+    "retriesCountedOnce": true
+  },
+  "checks": {
+    "type": {
+      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "state": "passed"
+    },
+    "build": {
+      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "state": "passed"
+    },
+    "generation": {
+      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+      "state": "completed derived-source creation"
+    },
+    "helperGeneration": {
+      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
+      "state": "completed source creation"
+    },
+    "drift": {
+      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "state": "passed after regeneration"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "state": "passed"
+    },
+    "untrackedWhitespace": {
+      "state": "no trailing whitespace in four new source/test files"
+    }
+  },
+  "protocol": {
+    "operation": "backlog.review.request-resolve",
+    "mcpTool": "make_docs_backlog_review_request_resolve",
+    "profiles": [
+      "backlog",
+      "all"
+    ],
+    "prompt": "make_docs_backlog_wave_task",
+    "arguments": [
+      "own_session_id",
+      "request_json",
+      "recommended_actions_json"
+    ],
+    "sourceSdk": "1.29.0",
+    "nativeListAndGet": "Observed in synthetic SDK in-memory tests only",
+    "bridge": "Same canonical prompt callback; no native RPC claim from tool use",
+    "context": "Actual accepted open, separately expected own session,16entries/32MiB,process-local; identity is not permission"
+  },
+  "files": [
+    {
+      "path": "packages/cli/src/operations/work/backlog/open-context.ts",
+      "bytes": 2345,
+      "sha256": "20f22a83b193d4972c9a217c15ca6b8028dc4fc912f262248518fa478260e010"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/request-operation.ts",
+      "bytes": 5678,
+      "sha256": "f76cdebc655891e560b3ed35c5c51236a3575de2b1fa72bc0ed03def058f39f6"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/source-failure.ts",
+      "bytes": 621,
+      "sha256": "c61996bec75df13b275dc5b3020e6602d23f5848d96191dcbc46b1c2f25ccd40"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/agent-contracts.ts",
+      "bytes": 12896,
+      "sha256": "27012b448f00a1365934e3af6095b530039c5aa44853c26aeec677788b732a63"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/review-operation.ts",
+      "bytes": 4152,
+      "sha256": "86722172da32fd825923317e9374f938f5f9eb88b5278f96953a06ba9d1299ec"
+    },
+    {
+      "path": "packages/cli/src/operations/context.ts",
+      "bytes": 11944,
+      "sha256": "93ebc1aeb3c7acb541ba733f0013959fa84bf8328a6aa6fddc49b888e4ce747c"
+    },
+    {
+      "path": "packages/cli/src/operations/registry.ts",
+      "bytes": 24927,
+      "sha256": "5a22efeedffad6800b913512d713c02b4d3a3b8eccef36582c01d58a75d9994a"
+    },
+    {
+      "path": "packages/cli/src/run/cli.ts",
+      "bytes": 21810,
+      "sha256": "f4f5cdc1279d20c8f6c3d5812f0f587c5fa3f5201cc4a994fceebbc9073dab0a"
+    },
+    {
+      "path": "packages/cli/src/mcp/server.ts",
+      "bytes": 7042,
+      "sha256": "9305ca16874a124a76cc79c2d6a71a0e1664855a78aca7e168fa835fc33b8d20"
+    },
+    {
+      "path": "packages/cli/src/mcp/tools.ts",
+      "bytes": 18940,
+      "sha256": "0a33ddff108e437a4ec48fa49415623266dc640dc7e03ebced2fde93f03c0281"
+    },
+    {
+      "path": "packages/cli/tests/backlog-request-resolve.test.ts",
+      "bytes": 15942,
+      "sha256": "e7781e6a7da7a2d8b21275b402e2d243fe7673112066a0cf17dcfc675c0a3ab6"
+    },
+    {
+      "path": "packages/cli/tests/backlog-request-controller.test.ts",
+      "bytes": 23501,
+      "sha256": "962a92c4ef3b92c5d8a3bdc06af4d96fa9fc1b7ba3119839455e6156bfbfc782"
+    },
+    {
+      "path": "packages/cli/tests/mcp.test.ts",
+      "bytes": 5730,
+      "sha256": "b104f45967804f67619eb3ffb58c6f007267cb5c0839646f30acb8413e63a996"
+    },
+    {
+      "path": "packages/cli/tests/mcp-derivation.test.ts",
+      "bytes": 10408,
+      "sha256": "d99f9cdecf8fc26357140885bcf48ca9a38db5191732521d227ce91097fdd594"
+    },
+    {
+      "path": "packages/cli/tests/mcp-profiles.test.ts",
+      "bytes": 7383,
+      "sha256": "28e7a95e6e79602a956537135199658434209d56d7faf4f6166a376607d31f29"
+    },
+    {
+      "path": "packages/cli/tests/mcp-profile-discovery.test.ts",
+      "bytes": 10009,
+      "sha256": "13806fcbc0274de53cda838a6503002aa754c0f0436cbd93ea533d2f0eccc8a0"
+    },
+    {
+      "path": "packages/cli/tests/registry-contract.test.ts",
+      "bytes": 8227,
+      "sha256": "12952fc303838a060f8f16b1bff349b03db31a3f77bbf0da4c9490059f27584b"
+    },
+    {
+      "path": "packages/skills/backlog-review/scripts/agent-contract.mjs",
+      "bytes": 489804,
+      "sha256": "271a86bc1565155091b14279208dbab253b8e9339002c0c5d3595d7a57a4842c"
+    },
+    {
+      "path": "packages/skills/backlog-review/SKILL.md",
+      "bytes": 8908,
+      "sha256": "77bb43948ec75f724b30f23e111093f1df6495036671e8b0f13a612e30f1a728"
+    },
+    {
+      "path": "packages/skills/backlog-review/references/review-method.md",
+      "bytes": 21984,
+      "sha256": "eef4006802c8b5b5dc5d44eb19870ccbb2c9a4245fdeef43d218489a3efebd3b"
+    },
+    {
+      "path": "packages/skills/backlog-review/references/report-model.md",
+      "bytes": 16746,
+      "sha256": "9898fee9aad1014be216e7ac6387e2f21a419fd7e136cd0fa7982800aaabc050"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 448373,
+      "sha256": "daf5746532014546b8307e8bc4a9b03a866cbc2ff8bae3eb22d01dae99a7d335"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 479482,
+      "sha256": "f00ad7cf628930b988517c7c4436806ac28c159eeb064fce0efe63a63ae5a4c4"
+    },
+    {
+      "path": "packages/cli/dist/index.js",
+      "bytes": 211445,
+      "sha256": "48096776f9507bd096bae7b4e4d872f13d0ed9b9fa998f98c49c92b108646cb7"
+    },
+    {
+      "path": "packages/cli/dist/server-62T5XJPX.js",
+      "bytes": 488552,
+      "sha256": "00ffd6ed579554ddb9c20aa6a630f22519bce361a95a64b78fbc3481657c7501"
+    }
+  ],
+  "perfObservations": 0,
+  "historicalCandidate": {
+    "sha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
+    "state": "unchanged old package/install, not corrected candidate"
+  },
+  "limits": [
+    "No real-host prompt access, original-agent/button delivery, new task, actual work, repaired installed candidate, or PERF acceptance is proved by this source set.",
+    "Callbacks use synthetic actual-outcome tags; source results do not attest an original host chat or grant permission.",
+    "Outer-window/long allocated-frame sizing limit remains.",
+    "No full-suite, repack, install, staging, commit, Goose, or PERF run occurred."
+  ]
+}

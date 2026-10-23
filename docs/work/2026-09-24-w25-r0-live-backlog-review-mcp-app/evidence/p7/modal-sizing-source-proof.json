@@ -1,0 +1,79 @@
+{
+  "kind": "owner-approved modal basis source correction",
+  "sourceHead": "fe9d312cafd54dff39d2e4c30cb3a480abc97b0c",
+  "change": "Use fixed host height when provided. Otherwise use allocated iframe height, capped by maxHeight. Preserve the66% rule.",
+  "canonicalMatchesApprovedPreview": true,
+  "sizingTests": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts -t 'reports smaller content after Data|loads exact Data locally|uses only valid standard container bounds|applies trusted host bounds'",
+    "passed": 8,
+    "skipped": 55,
+    "scope": "Only sizing, existing Data-local behavior, and standard container-bound tests. No wave-review or New Task checks ran."
+  },
+  "generation": {
+    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+    "state": "passed"
+  },
+  "drift": {
+    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "state": "passed"
+  },
+  "type": {
+    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "state": "passed"
+  },
+  "build": {
+    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "state": "passed"
+  },
+  "whitespace": {
+    "command": "git diff --check",
+    "state": "passed"
+  },
+  "sourceAndBuild": [
+    {
+      "path": "packages/cli/src/mcp/widget/container-size.ts",
+      "bytes": 1339,
+      "sha256": "4c3d5e42c583a32802b2545885e0d529393632cf33aeebdf893eabc1d0dab252"
+    },
+    {
+      "path": "packages/cli/tests/backlog-widget.test.ts",
+      "bytes": 45238,
+      "sha256": "3f13cdd74b8e9665aacb01222b784149a152f90159b65b0919fd3604bb15f18e"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 448373,
+      "sha256": "9aa1fbe83e560c34c710af1969d6a1fe70af0fc93254ee92ae6c8752e4db7725"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 479482,
+      "sha256": "4b71199775798903a33a8100001b2283b09613e3cd0216bcc528e8fb2b5952fa"
+    },
+    {
+      "path": "packages/cli/dist/index.js",
+      "bytes": 211248,
+      "sha256": "32cd5c00c6d54c64b174b7e19aeee6f04927b4a44408f927d24fde9cce63061d"
+    },
+    {
+      "path": "packages/cli/dist/server-OIQBPPEL.js",
+      "bytes": 484611,
+      "sha256": "a7308985a6c704da51bbce5da50f8ae864879c671f1ac43bbf36233d1de39fcf"
+    }
+  ],
+  "unchanged": [
+    "packages/skills/backlog-review/assets/backlog-review-report.html",
+    "packages/cli/src/mcp/widget/static-renderer.js",
+    "packages/cli/src/mcp/widget/entry.ts"
+  ],
+  "historicalCandidate": {
+    "sha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
+    "state": "unchanged old tarball; not the repaired candidate"
+  },
+  "perfObservations": 0,
+  "limits": [
+    "The standard protocol does not provide the outer chat-window height.",
+    "A long already-allocated report frame can still make its66% dialog taller than the visible outer window.",
+    "No universal outer-window fit, actual repaired install, wave action, task creation, or PERF result is claimed."
+  ]
+}

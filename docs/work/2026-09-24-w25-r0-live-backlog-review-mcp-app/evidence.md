@@ -7,6 +7,185 @@ coordinate: "W25 R0"
 
 # W25 R0 Live Backlog Review Evidence
 
+## Recovery Closeout Summary
+
+### 2026-10-09 Authority and Evidence Correction
+
+The owner rejected the current live app for release. Preserve the earlier repair-1 proof below as selected candidate and host evidence, not as normal setup, reusable Store cache, final accessibility, or release acceptance. The observed cache lookup returned `store-denied`. Which enabled connection produced that result is unknown. The cause of its effective Store and project access was not established. W26 R0 P1 must trace the connection and the refusal. The visible report showed `0 of 0 tasks complete` for unsupported older records whose task counts were unknown. P7 A58 remains open. Keep the release hold.
+
+The [P8 inventory and A51–A60 claim ledger](08-evidence-and-scope-correction.md#2026-10-09-checkout-and-file-inventory) is the current claim-status record. It binds the earlier proof to the old repair-1 candidate, names the three enabled connection entries, and counts W26 P1–P3 with W25 P9–P13 before a new limit. A54 failed on the visible unknown-count display. A55 remains open for supported Store access and cache reuse. A60 remains only a bounded historical agent review. All four P8 tasks are checked. P8 is active and ready for review; its gate decision is pending. No new source, connection, candidate, cleanup, staging, or commit action followed from P8.
+
+The earlier read-only preflight found branch `w25-r0-p1-live-delivery-contract` at `fe9d312cafd54dff39d2e4c30cb3a480abc97b0c`. Nothing was staged. W25 documents, app source, tests, shipped Skill files, and recovery material were dirty or untracked. Codex's enabled `make-docs` MCP entry pointed to `/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/make-docs` with argument `mcp` and no environment values in that entry; the resolved global package reported version `2.0.4`. The older project candidate receipt below names a separate launch and hash. This preflight did not prove that both entries use the same bytes or that either has the approved Store grant. P8 now records the file ownership and dependency inventory. It does not identify which enabled connection produced `store-denied`; W26 R0 P1 owns that trace.
+
+For this earlier documentation update, pre-existing dirty source, test, Skill, `.codex/`, and P7 evidence files remained with the prior W25 recovery. The P8 ledger now assigns their review owners and names shared file boundaries for W26 P1. This update changed only W25 authority documents and new W25/W26 documentation. It did not edit or discard those prior implementation files. The previously dirty W25 design, plan, PRD, work index, P7 record, and summary received additive corrections; their earlier observations remain in place. The project connection and old candidate remain dependencies for P10 review and P12 cleanup.
+
+The P8 ledger uses these claim classes: source tests, mock or synthetic checks, private candidate tests, supported installed-path tests, and observed host display or chat outcomes. Keep each claim bound to its exact source, package, configuration, checkout, and host. Native message acceptance proves a receipt only. A successful private candidate cannot prove ordinary setup. A Store-free review cannot prove cache reuse. The earlier 73-record report is functional delivery evidence, not a performance pass. A56 remains waived for W25 R0 only.
+
+[W25 P8](08-evidence-and-scope-correction.md) records the inventory and waits at its review gate. [W25 P9–P13](00-index.md#phase-map) own the remaining app repair, candidate, actual-host acceptance, cleanup, and closeout. [W26 R0 P1–P3](../2026-10-09-w26-r0-shared-access-and-data-foundation/00-index.md) own the shared access design and proof; P1 must trace the unknown connection behind `store-denied`. P7 stays open as the A51–A60 ledger. No new connection, policy, UI, cleanup, staging, commit, publication, or release authority follows from this documentation correction.
+
+### Owner Release Assessment and Follow-On Concept - 2026-10-08
+
+The owner reviewed the live backlog experience in a separate Codex chat on the
+client date 2026-10-08. The report displayed. The owner stated that multiple
+issues make the current MCP app unfit for release. This is the current owner
+release assessment. The bounded proof below remains evidence of specific working
+paths. It does not override this assessment or establish release readiness.
+
+Observed facts from that chat:
+
+- `make_docs_work_backlog_snapshot` returned 73 records. The live-open tool
+  accepted the reviewed model. The actual app DOM showed the report and its
+  portfolio totals.
+- `work.backlog-cache.lookup` returned `store-denied`. It required `store:read`
+  and `project:read`, but reported effective access of `store:none` and
+  `project:none`. The review continued from current Store-free source facts.
+  The reason for those effective access settings was not established. This
+  observation does not prove a missing or damaged cache.
+- The app displayed `0 of 0 tasks complete` for older records whose snapshot
+  shape was `unsupported`. The review text correctly said their task counts
+  were unknown. The visible zero counts do not establish an absence of work.
+- Explain reached the same chat for W22 R0. That chat checked the selected
+  record against a fresh snapshot and the retained report. It did not establish
+  full session, model, project, and snapshot identity validation. This reply
+  does not extend the earlier strict action-validation proof below.
+
+The owner has not supplied a complete issue list in this chat. Keep other
+reported issues open for capture. Do not assume that the cache refusal is the
+only release concern. Final-installed accessibility evidence also remains open
+under the existing P7 record.
+
+Proposed stopping point: preserve the bounded working candidate, record the
+release rejection and each unresolved finding, and agree the disposition of
+remaining acceptance work before closing W25. A closeout must not claim that
+the live app is ready for release. This note does not close P7 or W25, waive a
+requirement, stage or commit files, or authorize publication.
+
+The owner also proposed a separate concept: Make Docs could host a local web
+app in a new package. Page tools could load a review for an allowed project,
+refresh facts, and share page state with an agent. Human controls could request
+refresh, wave feedback, or follow-up work. Repairing the existing MCP app remains
+the other option. Neither path has been selected or authorized for implementation.
+
+Concept sources: [WebMCP demo and early library](https://webmcp.dev/),
+[Chrome WebMCP documentation](https://developer.chrome.com/docs/ai/webmcp), and
+[browser WebMCP proposal](https://github.com/webmachinelearning/webmcp).
+The early library's [repository](https://github.com/jasonjmcghee/WebMCP) states
+that it does not comply with the browser proposal. A future plan must select
+and prove the actual browser-to-agent connection. Tool registration alone does
+not prove that a page button can send a request to the user's current coding
+chat. Server access to projects and the Store must retain explicit checks.
+
+### Retained Recovery Proof
+
+P7 remains open. The final installed repair-1 package now displays the complete 73-record report in Codex. The “No report is loaded” blocker is fixed on that exact package and host. Data preserves the full report. Explain and Work each reached this same connected chat, passed strict validation against independently retained open context and fresh current facts, and produced their scoped agent outcomes. Native unchanged and changed Refresh passed. Final-installed accessibility evidence stays open.
+
+The approved names are “Explain this wave” and “Work on this wave.” Explain supplies background on captured facts, findings, inferences, and action items. Work resolves captured inferred status and/or implements the captured recommendation within its authorized scope. Neither creates another task. The legacy V1 wire identifiers remain compatible. Task creation is an unproved host limit outside these actions.
+
+| Promised behavior | Latest observed result | Remaining gap and evidence |
+| --- | --- | --- |
+| Complete real report displays | Codex accepted, decoded, validated, and rendered all 73 records. The All filter shows 73 of 73. Transport length and SHA-256 checks passed. | [Native display](../../../.codex/w25-recovery/host/final-native-display-proof.json), [All/Data proof](../../../.codex/w25-recovery/host/final-native-data-proof.json). This proves the selected Codex host only. |
+| Exact Data detail | Actual native Data parsed 73 report and 73 source records. Its whole formatted text matched two independently computed FNV32 fingerprints. | These are full-text fingerprints, not cryptographic Data hashes. Transport SHA-256 was checked separately. No native Data timeout reproduced in this run. |
+| Connected-chat Explain and Work | Actual fixed messages reached the original chat. Explain supplied captured background. Work reviewed the remaining P7 evidence and listed unproved claims. Both passed fresh-source and own-open-context checks. | [Explain outcome](../../../.codex/w25-recovery/host/final-explain-outcome.json), [Work outcome](../../../.codex/w25-recovery/host/final-work-outcome.json). The Work recommendation was read-only; it created no task or project change. |
+| Native controls and refresh | Unchanged Refresh returned Ready. After work-record changes, Refresh moved from Checking source facts to Needs review. All kept 73 of 73, prior W25 details and expanded state. Stale actions were disabled by the existing guard. | [Changed Refresh proof](../../../.codex/w25-recovery/host/final-native-changed-refresh-proof.json). No exact changed native reply body was inspected. Installed changed-response parity passed separately. |
+| Source, package, installed parity | Final 300 affected source tests and 91 installed checks pass. Types, generated assets, build, pack, installation, profiles, resources, Skill bytes, explicit static, chat fallback, read-only state, and full compact open/refresh parity pass. | [Final qualification](../../../.codex/w25-recovery/qualification/repair-1/qualification.json), [91 checks](../../../.codex/w25-recovery/qualification/repair-1/technical/installed-proof.json), [reused Store faults](../../../.codex/w25-recovery/qualification/attempt-2/technical/installed-store-proof.json). |
+| PERF-002 / A56 | Version 3 outcome is `waived` for W25 R0 only under the owner's delegated choice. Zero performance observations ran. | [Canonical waiver](07-parity-performance-and-acceptance.md#perf-002-live-backlog-review-open-and-refresh), [decision receipt](../../../.codex/w25-recovery/host/a56-waiver-and-host-extension.json). No measured pass, speed/scale claim, or later owed work. |
+| Experience and acceptance | Required agent review supports bounded core clarity, control, traceability, safety, and recovery. Wide light/dark evidence is available. | [Review](../../../.codex/w25-recovery/host/final-human-experience-review.json). Final-installed narrow, print, keyboard, focus, and reduced motion remain unproved. No lived human reaction is claimed. |
+| Launch path | Exact package stays installed. Project connection points to its runtime. The owner reloaded it and native display passed. | [Binding](../../../.codex/w25-recovery/host/repair-1-binding.json). No new build is needed for these project-only records. |
+
+Candidate: `@brucewaynedecoy/make-docs` version `2.0.4`, repair-1 [tarball](../../../.codex/w25-recovery/candidate/repair-1/brucewaynedecoy-make-docs-2.0.4.tgz), SHA-256 `922beaf930f7374ccab83dc126d5a38c7dc8412c2cb1157fe05f77aa9dcd4a2f`. [Runtime](../../../.codex/w25-recovery/installed/repair-1/node_modules/@brucewaynedecoy/make-docs/dist/index.js) SHA-256 is `26a848500b3e62cb638c2c41b812c9d79cc16981345b2b09ae9d1c4d005d9863`. Widget SHA-256 is `e9f5867cab1604de2cf429960070e7b253eb13ff8fcf9c420beb2bebf265dc97`. Source-input SHA-256 is `5718cfddf873f40ecf3ddeb41022ae8ac2e39963d12c6bc43cf8a56fbb9af39d`. Node.js is v24.19.0. Launch arguments are `mcp --profile backlog` with this repository as working directory. The exact project connection and backup are in the binding receipt. Other configuration and approval bytes are preserved.
+
+All shipped cleanup landed before this build: request-resolve, task prompt, prompts/get override, resolver-only storage and task helpers were removed; strict fixed connected-chat actions remain. Shipped process/version names and the P7 example were removed. The stale app resource description was replaced. Proof scripts and meter moved to the W25 evidence tools folder. The test that compared against git show HEAD was removed. Only the two approved UI names changed. The compact delivery repair changes transport encoding and restores exact validated data; it adds no visible control or text.
+
+Proof limits: The earlier full source batch had 1,911 passes, two stale discovery-count failures, and five expected skips. The corrected file and all final affected files passed. Unaffected evidence is reused. Two repair-1 proof runs failed before the final same-package proof passed: one assertion compared property order; the second huge snapshot stdio result closed the connection with an invalid JSON parse error. Canonical prepared bytes and original values remain exact. Complete current facts were captured by the exact installed CLI. These failures are retained and do not establish a transport size cause. Earlier source/mock layout evidence has different build hashes and remains bounded history. It does not certify the final-installed accessibility matrix.
+
+PERF disposition: The earlier delegated decision approved the exact 73-record fixture. The agent revised it at 00:30:55 UTC on 2026-10-09 because no qualified controlled actual-host replay seam was available. A56 alone is waived through W25 R0 closeout. Applicability remains `characterize-now`; outcome is `waived`. Version 2 is preserved as an unrun plan. No performance clock started, observation ran, or result passed. No other constraint is waived. Future performance claims need new authority, a qualified seam, and a new finite budget.
+
+| Work / criterion | Current disposition |
+| --- | --- |
+| t1–t3 / A51–A55 | Complete bounded source/package/installed proof, with selected native display and connected-chat outcomes. |
+| t4 / A56 | Terminal waiver recorded; no measurement pass. |
+| A57 | No speed or scale claim created. |
+| t5 / A58 | Open: final-installed narrow, print, keyboard, focus, and reduced-motion checks. |
+| t6 | Complete within actual Codex refresh/changed-state/Explain/Work and installed fallback proof. No unsupported-native-host or multiple-host fallback claim. |
+| A59 | Advisory three-step invitation offered: Search, Data, close Data. Optional feedback pending. No response gate or obligation. |
+| A60 | Bounded satisfied for reviewed core native/installed path. Accessibility scope limits remain explicit. |
+| P7 / W25 | Active; no final acceptance, staging, commit, push, publication, or release. |
+
+Budget and authority: Earlier source, qualification, and host windows retain their original receipts. A helper was prepared at 20:00:54 UTC after the earlier 18:07 UTC source deadline; it was not invoked in that window. This caveat remains in [window history](../../../.codex/w25-recovery/host/window.json). The owner explicitly allowed more working time. The final announced native-check and single-summary window is 00:40–01:10 UTC on 2026-10-09, with zero repair builds remaining. The waived performance run creates no extra time. Alert the owner before an expected overrun.
+
+The stable app is ready for a normal-use trial. The owner was offered Search, Data, and close Data once. Feedback on clear state, waiting, recovery, and control is advisory. Silence creates no acceptance gate or owed work. Remaining work is the final-installed accessibility matrix, within separately named limits.
+
+## Historical Evidence
+
+The following records preserve prior results and permissions. They are not current action authority, current package qualification, or a renewed execution budget. Use PRD 51, the current P7 plan/work record, and the summary above for current requirements and state.
+
+
+## P7 Start and Testing Decisions — 2026-10-07
+
+The record agent verifies `w25-r0-p1-live-delivery-contract`, clean HEAD `fe9d312cafd54dff39d2e4c30cb3a480abc97b0c`, and no changes before P7 edits. The user authorizes P7 and its four prework items. P7 is in progress; t1-t6/A51-A60 remain unchecked/unproved until one exact candidate has suitable evidence. Preserve approved UI and prior source/mock limits.
+
+The [P7 work decisions](07-parity-performance-and-acceptance.md#current-testing-decisions) contain all eleven PRD 50 fields. Automated/candidate acceptance has one focused/assembled batch, one package/isolated-installed proof set, and one affected retry per material finding within 90 minutes/$0. The clock starts with the first acceptance batch and excludes external approval waits. Required agent Human Experience Review reuses suitable evidence and one finite UI matrix, with one affected correction/review cycle. Guided review is one advisory invitation of at most five normal-use steps; decline or no response creates no gate or obligation. Unassisted Goal Testing is `not-needed-now`, with zero runs.
+
+PERF-002 stays at 3 observations, 1 correction, 1 review, 2 hours/$0. No observation or performance pass is recorded yet. Its clock begins only after instrument, accepted 70-record fixture, and selected host preconditions validate and the first measured observation starts. The prepared profile fingerprint is `not-comparable` until exact candidate/environment binding. No speed threshold, percentile, installed-host, release, or scale claim is added.
+
+The stale pre-run phrase “W25 implementation has not started” is replaced with the actual prepared P7 state. PERF-002 version 1 remains unchanged in outcome, workload, method, and budget. Its source digest is now `sha256:f65819be4862adec7f4ad9f0e562c82c30d4e6a98678c785ee0514695185f074`. Method: SHA-256 over exact UTF-8 bytes from the PERF-002 H2 through the byte before Source PRD Docs H2, excluding the complete Source Digest table row and its LF. The hashed profile has 12,108 bytes. Candidate/fingerprint binding may change that digest again before measurement; no stale digest may be reused.
+
+The first preliminary package was prepared before source review found two stale P6 sentences. The owner authorizes a narrow wording correction: source request/controller flow is implemented and bounded; installed/real-host proof remains pending, with no new per-wave/footer feedback or creation claim. That preliminary package is superseded before any measured observation. One affected preparation correction must bind the final guide bytes and revised tarball digest. No parity or performance pass is assigned to the superseded package.
+
+### P7 Frozen-Fixture Precondition
+
+The original [PERF-001 fingerprint](../2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md#evidence-fingerprint) records revision `61c3c46917d3825f08024b80b7c1d8ded9ff7630` and a frozen 70-record snapshot plus accepted report fragments. Workload digest is `ef24bba68f50a0f60c4bcb77278d8cf79168ce045cee6d353de09b47eb445244`. It retains no workload digest method or input binding. The raw result checksum belongs to a result file, not the workload inputs. The [three-observation record](../2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md#three-authorized-observations) changed the W23 record digest in memory; it did not edit a source file. P5 verification records removal of temporary renderer inputs.
+
+The code agent reports the original retained inputs absent and 46 live plus 24 archived records at that old revision. Restored source facts alone cannot claim the original accepted fragments or workload digest. The owner has not approved a substitute 70-record fixture. The owner needs the proposed data, purpose, use, and expected outcomes explained before choosing. Until that choice and exact new binding exist, PERF-002 stays pending/blocked at its fixture precondition. No observation starts, no old digest is reassigned, and the three-observation/two-hour budget is not consumed by a fabricated run. Independent package and Store-free work can continue.
+
+The independent [preparation Human Experience Review](evidence/p7/preparation-human-experience-review.md) is satisfied for current control language only. It separates advisory owner review, required frozen-input authority, candidate correction, and pending technical proof. It claims no installed-host experience or P7 acceptance pass.
+
+## P7 Candidate Preparation Checkpoint — 2026-10-07
+
+The code agent reports a corrected version 2.0.4 package with SHA-256 `442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a`. It includes the frozen source guide correction and replaces the preliminary package. The offline isolated install, one-wave disposable project, current Skill, and isolated Store are prepared. These preparation facts do not prove real-host delivery or PERF-002.
+
+The initial full source command, `PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test`, reports 19 harness tests passed and CLI results of 1,900 passed, one failure, and five expected skips. The failed embedded-Skill byte check used guide bytes that changed during the run. The affected retry, `PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH" npm test --workspace @brucewaynedecoy/make-docs -- tests/embedded-skills.test.ts`, passes all 31 cases against frozen guide bytes. These portable command forms retain the observed executable version and arguments; the technical packet records the exact local prefixes. The current unique source coverage is 1,901 CLI plus 19 harness cases across these runs. Do not add the repeated 31 cases or describe 1,901 CLI cases as one clean full run.
+
+The [final technical packet](evidence/p7/technical-preparation.json) retains exact commands, hashes, the source race and retry, package smoke, and preparation repairs. The [candidate receipt](evidence/p7/qualifying-candidate.json) binds the corrected tarball. The [installed receipt](evidence/p7/installed-proof.json) passes 66 named checks. The [isolated Store receipt](evidence/p7/installed-store-proof.json) passes 28 named checks. Corrupt SQLite reports `cache-unavailable`; a newer schema reports `store-unsafe`. Both retain current source facts. These named proof sets are separate from the 1,920 unique source cases. Four preparatory meter tests pass, but the meter is not wired to an approved real-host observation. PERF-002 has zero observations. These results do not qualify an active-agent action flow that this setup has not demonstrated.
+
+## P7 Installed-Host Findings — 2026-10-07
+
+The coordinator observes the corrected candidate open and render in the selected Claude host. Read-only Refresh reports unchanged source facts. Data shows Store access denied and unavailable cache counts, while current source facts remain available. Escape closes Data and returns focus to Data. An Attention link selects Backlog, All, the linked coordinate search, and expanded details. Light and dark themes are observed. No static file, task, cache write, or source change is reported in this host path.
+
+The [explicit Claude diagnosis](evidence/p7/claude-helper-diagnostic.md) corrects the earlier broad helper claim. Cloud and local execution tools are exposed. The cloud path failed before Node ran; local project access was blocked because no test folder was connected. The installed reader did not supply the helper file. The active agent saw its own open as a text summary without identity fields and could not inspect `structuredContent` or `_meta`. That does not prove the server omitted those fields. The original open was not prepared with a trusted caller session, and the tool namespace changed after reconnect. These are observed file/result-access and workflow limits. A possible implementation or transport gap remains to investigate. They do not establish that Claude is incompatible: P1 still requires only app rendering, tool calls, and agent messages. No folder grant, API change, new open, button workflow, or action qualification follows from the diagnosis.
+
+The user also observes excessive height after Data use. In a temporary test host, a maximum height of 10,000 is treated as visible height: an app height of 984 produces a 6,600-high dialog and a 6,624 height request; closing Data restores 984. The correction uses allocated app height. Its separate view stays at 1,148 through open, close, and reopen, with a 758-high dialog. Standard `maxHeight` is a ceiling. This proves stable allocated-app sizing, not 66% of an unknown outer host window. The parent views differ, so this is not a performance comparison. The owner approves the behavior change. The [sizing source proof](evidence/p7/modal-sizing-source-proof.json) now records eight affected cases passed, 55 unrelated widget cases skipped, and type/build/drift/whitespace passes. The [built resource proof](evidence/p7/modal-sizing-built-resource-proof.json) records exact source/stdio byte parity at 448,373 bytes, SHA-256 `9aa1fbe83e560c34c710af1969d6a1fe70af0fc93254ee92ae6c8752e4db7725`. It matches the approved preview. This is repaired-source proof, not a repaired installed candidate or actual-host qualification. A long allocated frame can still exceed the unknown outer window. Keep A58 and A60 pending. This product decision remains separate from advisory A59.
+
+The source guidance diagnosis is separate from the height finding. PRD 51 requires concise live orientation and complete chat fallback. The Skill's unconditional chat-report instructions do not state a short live-success branch and can cause duplicate prose below a rendered report. This diagnosis adds no guide or UI change. No installed-host or phase-wide pass is claimed from the observations above.
+
+### Owner Action-Behavior Direction — 2026-10-07
+
+The owner states that exact Review/New Task behaviors and expected test outcomes were never aligned. Treat earlier P6 source/mock action checks as technical proof only. Do not claim owner acceptance of agent review results, task destination, starting prompt, creation confirmation, or fallback outcomes from the approved icon preview. Preserve the earlier technical evidence and unchanged button UI.
+
+The owner now defines the outcomes. Review asks the original report-generating agent for more detail about the selected wave's captured Attention/Inference feedback in the original chat. It is not a new general wave review. New Task passes the selected captured Next/Recommended action text verbatim as a value to a reusable MCP prompt. The original agent resolves that prompt and uses it to create the new task/chat. If creation is unavailable, the agent starts work in the original chat using the same resolved prompt. Do not forward standalone action text. This replaces the prior review-only task and manual-only fallback assumptions.
+
+The [owner-defined behavior record](evidence/p7/button-behavior-proposal.md) separates intentional captured-action promotion from raw project text. PRD 51 current rules/history and the three shipped guides are now written and frozen with the final MCP interface. The specific product question is answered. New source checks follow the explicit renewed budget below; actual host/button/task, Goose, and PERF work remain outside that renewal. Advisory A59 creates no response gate.
+
+### Request Source Correction and Renewed Validation
+
+Canonical `backlog.review.request-resolve` uses strict prepare/resolve modes. The original agent retains provisional `ownSessionId` from prepare and passes existing open `sessionId`; only actual accepted open binds validated context. Resolve takes that separately retained `expectedOwnSessionId` and the fixed message, not a caller envelope or an ID copied from the action. Review returns captured facts/Attention/inferences, provenance and current-source annotation. Task requires matching current source and resolves `make_docs_backlog_wave_task` with required strings `own_session_id`, `request_json`, and `recommended_actions_json`. Native prompts and the labelled model bridge use the same registered callback; the bridge does not prove a native RPC ran. V1/cache and approved visible UI remain preserved boundaries.
+
+The owner approves the [45-minute source-only check plan](evidence/p7/request-validation-plan.md) on 2026-10-07. Its [final receipt](evidence/p7/request-correction-source-proof.json) records 259 unique selected passes, zero failures/skips: 20 new plus 239 affected. Initial affected results were 237 passed/two inventory failures. The narrow catalog correction retried 12 cases. The unused prompt-validator drift correction retried 57 request/helper cases. Both findings and repairs are retained; retries are not added to the total. Final type/build/generated drift and whitespace pass. This is technical qualification only, not owner button acceptance or actual agent/task/work proof.
+
+The clock ran 21:55:38–22:05:20 UTC, 9 minutes 42 seconds, against the 22:40:38 deadline. Stop with 35 minutes 18 seconds unused. No extra check consumes that time. Current derived HTML is 448,373 bytes, SHA-256 `daf5746532014546b8307e8bc4a9b03a866cbc2ff8bae3eb22d01dae99a7d335`; script-stripped markup/styles equal the approved `9aa1` source and no new prompt instructions enter the client script. Helper SHA-256 is `271a86bc1565155091b14279208dbab253b8e9339002c0c5d3595d7a57a4842c`. No full suite, repack/install, real host buttons/tasks, Goose, folder grant, cache/static write, or PERF occurred. Earlier 1,920-case and `442c` candidate proof stay historical.
+
+### Resolver Transport Repair and Native Readiness — 2026-10-07
+
+The user's instruction to keep pursuing test readiness authorizes the narrow transport defect repair and focused checks. The [receipt](evidence/p7/resolver-transport-proof.json) records a separate 20-minute/$0 window: 22:53:02–22:55:20 UTC, 2 minutes 18 seconds. One batch passes 65 cases, zero failures/skips/retries: resolver 22, controller 37, MCP 6. The one-text tuple is represented as an array of strict text objects with length exactly one; runtime values and semantics are unchanged. Type/build/helper and widget drift/whitespace pass. Built stdio has six tools and one prompt, object-form array items, and exact source/resource MIME parity.
+
+Current source HTML is 448,381 bytes, SHA-256 `3c1d4ee565e5056c8afa6c7e1662c401d88392aa3cafdc639deaddd9625707ed`. Markup/styles equal the approved `9aa1` source; the change is script-only. Keep 65 separate from the historical 259 selected cases and old `442c` package. The expired 45-minute window stays closed.
+
+The [host readiness note](evidence/p7/resolver-host-readiness.md) records native discovery still at five tools and the user-owned review chat's retained validated real 73-record report. The app is not open; buttons are untested. Tuple rejection as the cause remains an inference until reload. Documented app-server control is unavailable and own-window CUA control is blocked. The coordinator requested one manual owner restart; the review chat will prepare/open after reload. Current state is awaiting that restart, not ready or complete.
+
+### P7 Current Finite Stop
+
+P7 stays open and awaits the requested owner restart for native prepare/open. Corrected real-host flow, task creation, work-here fallback, installed qualification, and frozen-fixture/PERF checks remain incomplete. Owner-defined actions and same-prompt fallback remain intact. Historical `442c` package/1,920-source proof and the completed 259-case source batch are not current installed qualification. Current `3c1d4e` source has only bounded source/stdio proof. The [installed-host review](evidence/p7/actual-host-human-experience-review.md) retains old findings; [Claude cleanup](evidence/p7/claude-helper-diagnostic.md#connection-cleanup) is verified complete. No all-host reload, API bypass, global config write, install, real task click, Goose, PERF, phase history, staging, commit, or release occurs from this record. No task or acceptance ID is removed or declared complete.
+
 ## Current Findings
 
 P1 is closed for source contracts. The user authorized closeout and a local commit on 2026-09-30. At the pre-commit checkpoint, its 41 new contract tests and 76 existing backlog tests passed. Type checks and all 53 repository default checks passed. Final code review found no material gap. The agent wording review supports consent and fallback within P1 scope. The owner's optional wording feedback was “Clear; no change”.
