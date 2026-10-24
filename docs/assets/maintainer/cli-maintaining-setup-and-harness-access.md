@@ -59,6 +59,8 @@ Production setup reads this source-owned declaration. Tests can exercise the sam
 
 Each unavailable method returns one typed reason and one useful next action. A direct installed-product failure blocks the support claim. It does not add dynamic eligibility data to setup.
 
+The W27 Copilot adapter owns only `mcpServers.make-docs` in the CLI user file `~/.copilot/mcp-config.json`. It uses a local server, the verified Make Docs executable, `mcp` arguments, and the current connection identity and key. Keep unrelated servers and unknown fields. App-added entries remain user-owned. The CLI and app get separate status. Do not turn a CLI config check into an app support claim.
+
 ## Verified Caller and Command Rules
 
 Native access must bind to the exact active Make Docs package binary. `verifyMakeDocsExecutable()` rejects relative paths, symbolic links, non-files, non-executable files, shell programs, package runners, fingerprint changes, and a binary outside the active package.
@@ -130,6 +132,8 @@ Unknown, user-owned, malformed, changed, remote, or symbolic-link state must blo
 8. Confirm that setup shows only the declared methods.
 
 Repeat this work for every harness and method. Evidence for Codex MCP does not prove Codex rules. Evidence for Codex does not prove Claude Code.
+
+For Copilot, check `COPILOT_HOME` and project `.mcp.json` and `.github/mcp.json` before planning the user entry. A same-name project entry can shadow the user entry. Test the built package with a disposable CLI home. A direct app session must prove which MCP source the app uses. A local MCP SDK test proves the Make Docs server contract. It does not prove a Copilot agent call.
 
 ## Required Validation Gates
 

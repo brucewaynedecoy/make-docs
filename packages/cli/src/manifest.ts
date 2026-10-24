@@ -61,6 +61,7 @@ import { classifyAgenticSkillFileRole } from "./agentic-skill-roles";
 import {
   CAPABILITIES,
   HARNESSES,
+  HARNESS_TO_INSTRUCTION,
   INSTRUCTION_KINDS,
   SYSTEM_ASSET_MATERIALIZATION_CLASSES,
   SYSTEM_ASSET_MATERIALIZATION_MODES,
@@ -581,6 +582,7 @@ function validateHarnesses(value: unknown): InstallSelections["harnesses"] {
   const harnesses = {} as InstallSelections["harnesses"];
 
   for (const harness of HARNESSES) {
+    if (harness === "github-copilot" && value[harness] === undefined) continue;
     harnesses[harness] = validateBoolean(
       value[harness],
       `selections.harnesses.${harness}`,
@@ -1123,8 +1125,7 @@ function validateRouterOwnershipManifestState(
         `manifest.routerOwnership.routers.${relativePath}.instructionKind must be valid`,
       );
     }
-    const expectedInstruction =
-      harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+    const expectedInstruction = HARNESS_TO_INSTRUCTION[harness];
     if (instructionKind !== expectedInstruction) {
       throw new Error(
         `manifest.routerOwnership.routers.${relativePath}.instructionKind must match its harness`,
@@ -1200,14 +1201,14 @@ function validateRouterOwnershipManifestState(
     .map((router) => router.relativePath)
     .sort();
   const legacyBootstrapPaths = expectedHarnesses.flatMap((harness) => {
-    const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+    const instructionKind = HARNESS_TO_INSTRUCTION[harness];
     return getLegacyIncompleteRouterPaths(instructionKind);
   }).sort();
   const isExactLegacyIncompleteInput =
     JSON.stringify(bootstrapPaths) === JSON.stringify(legacyBootstrapPaths);
   if (!isExactLegacyIncompleteInput) {
     for (const harness of expectedHarnesses) {
-      const instructionKind = harness === "codex" ? "AGENTS.md" : "CLAUDE.md";
+      const instructionKind = HARNESS_TO_INSTRUCTION[harness];
       for (const relativePath of getConfiguredRouterPaths(profile, instructionKind)) {
         if (!routers[relativePath]) {
           throw new Error(
@@ -1958,7 +1959,7 @@ function validateSkillSelectionProvenance(
       entry.supportedHarnesses,
       `selections.skillSelectionProvenance.${index}.supportedHarnesses`,
     ).map((harness) => {
-      if (harness !== "claude-code" && harness !== "codex") {
+      if (harness !== "claude-code" && harness !== "codex" && harness !== "github-copilot") {
         throw new Error(
           `selections.skillSelectionProvenance.${index}.supportedHarnesses contains unsupported harness ${harness}`,
         );
@@ -2089,7 +2090,7 @@ function validatePluginSelectionProvenance(
       entry.supportedHarnesses,
       `selections.pluginSelectionProvenance.${index}.supportedHarnesses`,
     ).map((harness) => {
-      if (harness !== "claude-code" && harness !== "codex") {
+      if (harness !== "claude-code" && harness !== "codex" && harness !== "github-copilot") {
         throw new Error(
           `selections.pluginSelectionProvenance.${index}.supportedHarnesses contains unsupported harness ${harness}`,
         );

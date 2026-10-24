@@ -624,6 +624,22 @@ function desiredEntry(
       ].join("\n");
       return { path: nativePath, entryId: "mcp_servers.make_docs", value };
     }
+    case "copilot-mcp-json":
+      if (!mcpConnection) throw new Error("MCP setup needs a connection key.");
+      return {
+        path: nativePath,
+        entryId: "mcpServers.make-docs",
+        value: {
+          type: "local",
+          command: executable.path,
+          args: ["mcp"],
+          env: {
+            [MCP_CONNECTION_ID_ENV]: mcpConnection.id,
+            [MCP_CONNECTION_KEY_ENV]: mcpConnection.key,
+          },
+          tools: ["*"],
+        },
+      };
     case "claude-mcp-json":
       if (!mcpConnection) throw new Error("MCP setup needs a connection key.");
       return {
@@ -693,6 +709,42 @@ export function readNativeMcpConnection(
   return parseNativeMcpConnection(method.nativeFormat, readNativeContent(root, nativePath));
 }
 
+/** Render a reviewed, client-owned MCP entry without changing the native file. */
+export function renderManualMcpEntry(
+  adapter: HarnessAdapter,
+  root: string,
+  executable: VerifiedExecutableIdentity,
+  connection: { id: string; key: string },
+): { path: string; entryId: string; text: string } {
+  const method = requireMethod(adapter, "mcp", "machine");
+  const desired = desiredEntry(adapter, method, "machine", root, executable, undefined, undefined, connection);
+  const value = method.nativeFormat === "codex-mcp-toml"
+    ? String(desired.value)
+    : JSON.stringify({ mcpServers: { "make-docs": desired.value } }, null, 2);
+  return { path: path.resolve(root, desired.path), entryId: desired.entryId, text: value };
+}
+
+/** Check a manually added entry without claiming ownership of that entry. */
+export function verifyManualMcpEntry(
+  adapter: HarnessAdapter,
+  root: string,
+  executable: VerifiedExecutableIdentity,
+  connection: { id: string; key: string },
+): boolean {
+  const method = requireMethod(adapter, "mcp", "machine");
+  assertSafeRoot(root);
+  const desired = desiredEntry(adapter, method, "machine", root, executable, undefined, undefined, connection);
+  assertNativePath(root, desired.path);
+  try {
+    const content = readNativeContent(root, desired.path);
+    const actual = inspectEntry(method.nativeFormat, content, desired.value);
+    return actual.exists && actual.value !== null &&
+      fingerprintEntry(actual.value) === fingerprintEntry(desired.value);
+  } catch {
+    return false;
+  }
+}
+
 /** Inspect a pending MCP write without using the redacted plan as write input. */
 export function classifyPendingNativeMcpChange(
   adapter: HarnessAdapter,
@@ -735,7 +787,7 @@ function parseNativeMcpConnection(
       try { values[match[1]!] = JSON.parse(match[2]!); } catch { return null; }
     }
     env = values;
-  } else if (format === "claude-mcp-json") {
+  } else if (format === "claude-mcp-json" || format === "copilot-mcp-json") {
     try {
       const parsed = JSON.parse(content) as Record<string, unknown>;
       const servers = parsed.mcpServers as Record<string, unknown> | undefined;
@@ -980,7 +1032,8 @@ function inspectEntry(
     }
     case "codex-command-rules":
       return { exists: content.length > 0, value: content.length > 0 ? content : null };
-    case "claude-mcp-json": {
+    case "claude-mcp-json":
+    case "copilot-mcp-json": {
       const root = parseJsonObject(content);
       const servers = root.mcpServers;
       if (servers === undefined) return { exists: false, value: null };
@@ -1026,7 +1079,8 @@ function applyEntry(
     case "codex-command-rules":
       if (typeof value !== "string") throw new Error("The Codex command-rule entry is malformed.");
       return value;
-    case "claude-mcp-json": {
+    case "claude-mcp-json":
+    case "copilot-mcp-json": {
       const root = content === null ? {} : parseJsonObject(content);
       const servers = root.mcpServers === undefined ? {} : root.mcpServers;
       if (!isRecord(servers)) throw new Error("The native mcpServers value is not an object.");
@@ -1070,7 +1124,8 @@ function removeEntry(
     }
     case "codex-command-rules":
       return null;
-    case "claude-mcp-json": {
+    case "claude-mcp-json":
+    case "copilot-mcp-json": {
       const root = parseJsonObject(content);
       if (!isRecord(root.mcpServers)) throw new Error("The native mcpServers value is not an object.");
       const servers = { ...root.mcpServers };

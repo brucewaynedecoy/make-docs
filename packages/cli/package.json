@@ -1,6 +1,6 @@
 {
   "name": "@brucewaynedecoy/make-docs",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Plan and maintain project docs with a CLI, MCP server, templates, and optional agent Skills.",
   "license": "MIT",
   "repository": {

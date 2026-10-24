@@ -112,6 +112,10 @@ const HARNESS_METADATA: Record<Harness, { label: string; hint: string }> = {
     label: "Codex",
     hint: "AGENTS.md + .agents/",
   },
+  "github-copilot": {
+    label: "GitHub Copilot CLI",
+    hint: "AGENTS.md + .agents/",
+  },
 };
 
 export async function runSkillsUiWithRenderer(

@@ -70,7 +70,7 @@ export function resolveUnifiedSetupState(options: {
 }
 
 export function describeHarnessSupport(state: SetupHarnessState): string {
-  const label = state.harness === "claude-code" ? "Claude Code" : "Codex";
+  const label = state.harness === "claude-code" ? "Claude Code" : state.harness === "github-copilot" ? "GitHub Copilot CLI" : "Codex";
   const status = state.state.replace("-", " ");
   return `${label}: ${status}${state.detail ? ` (${state.detail})` : ""}${state.nextAction ? ` Next: ${state.nextAction}` : ""}`;
 }

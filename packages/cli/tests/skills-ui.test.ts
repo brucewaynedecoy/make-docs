@@ -151,6 +151,11 @@ describe("skills-only UI", () => {
         label: "Codex",
         hint: "AGENTS.md + .agents/",
       },
+      {
+        value: "github-copilot",
+        label: "GitHub Copilot CLI",
+        hint: "AGENTS.md + .agents/",
+      },
     ]);
     expect(renderer.seenSkillStates[0]?.skills.map((skill) => skill.name)).toEqual([
       "archive-docs",

@@ -117,10 +117,11 @@ function makeClaudeCallerIdentity(
 }
 
 describe("W19 R6 static first-party harness adapters", () => {
-  it("contains Codex and Claude Code while Pi stays explicitly unsupported", () => {
+  it("contains Codex, Claude Code, and Copilot while Pi stays explicitly unsupported", () => {
     expect(FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => adapter.harnessId)).toEqual([
       "codex",
       "claude-code",
+      "github-copilot",
     ]);
     expect(getFirstPartyHarnessAdapter("pi")).toBeUndefined();
     expect(PI_HARNESS_SUPPORT).toMatchObject({

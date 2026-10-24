@@ -37,6 +37,7 @@ export type SkillsCommandOptions = {
   remove: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
+  noGithubCopilot?: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
@@ -116,7 +117,13 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     packageMeta,
     skillRegistry: effectiveSkillRegistry.registry,
   });
-  const hasPlannedChanges = plan.actions.some((action) => action.type !== "noop");
+  const priorSkillHarnesses = existingManifest?.selections.skillHarnesses ?? existingManifest?.selections.harnesses;
+  const selectedSkillHarnesses = selections.skillHarnesses ?? selections.harnesses;
+  const hasSelectionChanges = priorSkillHarnesses !== undefined &&
+    Object.keys(selectedSkillHarnesses).some(harness =>
+      Boolean(priorSkillHarnesses[harness as keyof typeof priorSkillHarnesses]) !==
+      Boolean(selectedSkillHarnesses[harness as keyof typeof selectedSkillHarnesses]));
+  const hasPlannedChanges = hasSelectionChanges || plan.actions.some((action) => action.type !== "noop");
 
   printSkillsPlan({
     dryRun: options.dryRun,
@@ -279,6 +286,9 @@ function resolveSkillsSelections(
   }
   if (options.noClaudeCode) {
     selections.harnesses["claude-code"] = false;
+  }
+  if (options.noGithubCopilot) {
+    selections.harnesses["github-copilot"] = false;
   }
   if (options.skillScope) {
     selections.skillScope = options.skillScope;

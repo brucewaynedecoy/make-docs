@@ -116,6 +116,10 @@ const HARNESS_METADATA: Record<
     label: "Codex",
     hint: "AGENTS.md + .agents/",
   },
+  "github-copilot": {
+    label: "GitHub Copilot CLI",
+    hint: "AGENTS.md + .agents/",
+  },
 };
 
 const MANAGED_FILE_CONFLICT_GROUP_ORDER: readonly string[] = [
@@ -880,7 +884,7 @@ function createClackWizardRenderer(): WizardRenderer {
       intro(title);
     },
     showProjectState(state) {
-      note(`Project state: ${state}.`, "Project state");
+      note(`${state}.`, "Project state");
     },
     async editCapabilities(state) {
       return promptForCapabilities(state.selections, state.config);

@@ -55,10 +55,12 @@ const SHARED_AGENTICS_PLUGIN_DIR = ".make-docs/agentics/plugins";
 const HARNESS_SKILL_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/skills",
   codex: ".agents/skills",
+  "github-copilot": ".agents/skills",
 };
 const HARNESS_PLUGIN_DIRS: Record<Harness, string> = {
   "claude-code": ".claude/plugins",
   codex: ".agents/plugins",
+  "github-copilot": ".agents/plugins",
 };
 
 export async function createAuditReport(options: {

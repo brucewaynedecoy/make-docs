@@ -5,7 +5,7 @@ import {
   verifyMakeDocsExecutable,
   type VerifiedExecutableIdentity,
 } from "./harness-access";
-import { createMcpConnection, MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "./mcp-connection";
+import { createMcpConnection, MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV, redactMcpNativeValue } from "./mcp-connection";
 import type { ProjectHarnessIntegrationRecord } from "./config";
 import {
   loadGlobalConfig,
@@ -191,7 +191,10 @@ export function renderGenericMcpSetupResult(plan: GenericMcpSetupPlan): string {
     plan.review,
   ];
   if (plan.configuration) {
-    lines.push("Client-owned configuration object:", JSON.stringify(plan.configuration, null, 2));
+    const configuration = plan.state === "planned"
+      ? redactMcpNativeValue(plan.configuration)
+      : plan.configuration;
+    lines.push("Client-owned configuration object:", JSON.stringify(configuration, null, 2));
   }
   if (plan.nextAction) lines.push(`Next: ${plan.nextAction}`);
   return `${lines.join("\n")}\n`;
