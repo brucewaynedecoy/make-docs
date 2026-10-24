@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "coordinate": "W26 R0 P3",
+  "capturedAt": "2026-10-24T00:35:58Z",
+  "branch": "w26-r0-simplified-store-access",
+  "sourceBaseCommit": "0398949e0a752e687eedd3f7318eaccdfefc9757",
+  "candidateDistSha256": "37e1a87009652dab324bf14d0fd8a25b7509499c7ef8071c7e95299e89da4b2e",
+  "scope": "Candidate source and isolated temporary Stores, projects, and MCP host. No saved MCP entry or installed package changed.",
+  "grantMatrix": {
+    "allowedRead": "pass: project_status through current generic MCP key and project grant; CLI and MCP status results match",
+    "readOnlyGrant": "pass: project_status allowed; surface_ensure refused as store-denied",
+    "missingProjectGrant": "pass: refused as store-not-configured",
+    "outOfScopeProjectGrant": "pass: refused as store-not-configured",
+    "outOfScopeTarget": "pass: refused as store-not-configured",
+    "revokedConnection": "pass: refused as store-denied",
+    "wrongConnectionKey": "pass: refused as store-denied",
+    "absentStoreBeforeKeyProof": "pass: refused as store-denied under the accepted key-first policy",
+    "validKeyUnavailableDatabase": "pass: refused as store-unavailable; no database created",
+    "unsafeDatabase": "pass: surface_ensure refused as store-unsafe for a newer schema",
+    "deniedWriteDurableBytes": "pass: project files, Store config, and Store database bytes stayed unchanged",
+    "sqliteSidecars": "An unsafe database open made transient WAL and SHM files. The WAL was empty. The temporary root was removed.",
+    "storeFreeAfterDenial": "pass: backlog_snapshot returned source facts with Store state not-used"
+  },
+  "sourceVersion": {
+    "clean": "pass: CLI and MCP record facts, Git revision, and diagnostics matched",
+    "dirty": "pass: source facts changed, Git HEAD stayed fixed, and CLI and MCP matched",
+    "movedCheckout": "pass: target root changed; relative record facts and Git revision matched"
+  },
+  "migrationAndRollback": {
+    "normalSetup": "pass: schema-3 full setup to current schema in isolated CLI test",
+    "compatibilityBridge": "pass: supported schema migration and interrupted conversion rollback",
+    "installationRollback": "pass: affected files restored; unrelated Store rows and later user edits preserved"
+  },
+  "agentInstructionReview": {
+    "rootAndTemplateRouters": "pass: both tell the agent to stop only a failed Store operation and continue independent Store-free work",
+    "backlogReviewSkill": "pass after repair: shipped source and checkout copy use backlog_snapshot, backlog_cache_read, and backlog_cache_write",
+    "cacheRefusal": "pass: Skill keeps current source facts and completes the report when optional cache access fails",
+    "w25Boundary": "W25 must prove visible Refresh after it takes in the approved W26 change"
+  },
+  "tests": {
+    "grantAndSourceTest": "packages/cli/tests/w26-p3-cross-interface.test.ts: 2 passed",
+    "accessSetupAndCache": "5 files, 69 passed",
+    "compatibilityRollbackAndOperationSurfaces": "3 files, 51 passed",
+    "schema3FullSetup": "1 passed, 136 skipped by name filter",
+    "skillMcpAndConsistency": "5 files, 67 passed",
+    "typescript": "pass: tsc --noEmit -p packages/cli/tsconfig.json",
+    "fullRepositorySuite": "pass: 19 smoke tests; 100 CLI test files passed, 1 skipped; 1662 CLI tests passed, 5 skipped"
+  },
+  "limits": [
+    "The saved make_docs entry still runs the installed package; this receipt does not prove that installed host.",
+    "The W25 widget and visible Refresh flow are outside W26 P3."
+  ]
+}

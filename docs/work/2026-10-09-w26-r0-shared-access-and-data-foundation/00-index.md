@@ -1,13 +1,13 @@
 ---
 title: "W26 R0 Shared Access and Data Foundation Work Backlog"
 kind: "work"
-status: "draft"
+status: "active"
 coordinate: "W26 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P1 must produce a bounded access-design packet before policy implementation."
-  coordinate_handoff: "Use W26 R0 P1-P3 for tasks and history. W25 R0 consumes passed P3 evidence."
+  why: "P3 local proof is complete. Review the W26 PR packet before any push or PR action."
+  coordinate_handoff: "Use W26 R0 P1-P3 for tasks and history. W25 R0 consumes only passed P3 evidence after integration."
 source:
   type: "prd"
   path: "docs/prd/25-typescript-runtime-cli-mcp-operation-boundaries.md"
@@ -28,8 +28,8 @@ The [design](../../designs/2026-10-09-shared-access-and-data-foundation.md#human
 | Phase | Status | Work | Exit |
 | --- | --- | --- | --- |
 | P1 | Design accepted; no live policy change | [Access trace and design](01-access-trace-and-design.md) | Owner accepted the design on 2026-10-09. |
-| P2 | Awaiting installed-rule check, work approval, and limit | [Shared core and setup](02-shared-core-and-setup.md) | Approved source and setup changes pass focused checks. |
-| P3 | Blocked on P2 | [Cross-interface proof](03-cross-interface-proof.md) | Normal CLI/MCP, denial, grant-change, and sandbox proofs pass. |
+| P2 | Local source and setup committed; saved connection unchanged | [Shared core and setup](02-shared-core-and-setup.md) | Approved source and setup changes pass focused checks. |
+| P3 | Local proof complete; PR pending | [Cross-interface proof](03-cross-interface-proof.md) | Normal CLI/MCP, denial, grant-change, source-version, migration, rollback, and sandbox proofs pass. |
 
 ## Usage Notes
 
@@ -46,5 +46,5 @@ The [design](../../designs/2026-10-09-shared-access-and-data-foundation.md#human
 
 - Route: `implementation-loop`.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: The owner needs the P1 design packet before any shared access change.
-- Coordinate Handoff: Start W26 R0 P1 under its approved read-only scope.
+- Why: The local W26 proof is ready for PR review. The saved MCP connection remains on the installed package.
+- Coordinate Handoff: Review the [W26 PR packet](pr-review-packet.md) before any push or PR action. W25 later proves its visible Refresh flow.
