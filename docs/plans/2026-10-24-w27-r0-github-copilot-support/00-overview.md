@@ -73,6 +73,7 @@ PRD 28 admits Codex and Claude Code static adapters and a generic MCP profile. I
 - PRD 28: add `github-copilot` MCP adapter, one-entry ownership, CLI/app status, proof and fallback rules.
 - PRD 38: update only if P1 finds a missing durable field or access rule. Stop before schema edits and return for product authority if safe records do not fit.
 - PRD 25: update only if P1 finds a new caller or MCP admission boundary. Do not weaken existing W26 checks.
+- PRD 39: P4 updates the setup order and result contract for a safe partial finish and one pending manual MCP connection.
 
 Write a dated W27 R0 requirement-history entry for each changed PRD. Update the [user guide](../../assets/user/cli-setting-up-projects-and-harness-access.md) only after native behavior is proved.
 
@@ -81,6 +82,7 @@ Write a dated W27 R0 requirement-history entry for each changed PRD. Update the 
 1. [P1 Contract and native probe](01-contract-and-native-probe.md): inspect installed CLI and app behavior; reconcile PRD 28; freeze exact owned entry and fallback.
 2. [P2 Setup and lifecycle](02-setup-and-lifecycle.md): implement the static adapter, reviewed setup, status, repair, rotation, and removal.
 3. [P3 Installed-client proof](03-installed-client-proof.md): prove CLI and app use, denial, sandbox behavior, packaging, and rollback.
+4. [P4 Setup completion and 2.0.5 readiness](04-setup-completion-and-205-readiness.md): finish selected-harness setup results, manual MCP recovery, guided setup text, and the package version.
 
 ## Output Contract
 
