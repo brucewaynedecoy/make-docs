@@ -154,6 +154,7 @@ interface ParsedArgs {
   claudeCodeMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "permission-rules">;
   genericMcpClient?: string;
   genericMcpAction?: GenericMcpAction;
+  rotateMcp?: boolean;
   mcpProfile?: McpServerProfile;
   json: boolean;
   noSkills: boolean;
@@ -400,6 +401,7 @@ export async function runCli(
     const result = await runSystemSetupCommand({
       dryRun: parsed.dryRun,
       yes: parsed.yes,
+      rotateMcp: parsed.rotateMcp,
       promptForMethods: !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY),
       targetRoot: path.resolve(parsed.targetDir ?? process.cwd()),
       methods: {
@@ -2298,6 +2300,9 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.genericMcpAction = value;
         break;
       }
+      case "--rotate-mcp":
+        parsed.rotateMcp = true;
+        break;
       case "--no-skills":
         parsed.noSkills = true;
         break;
@@ -2607,6 +2612,9 @@ function writeCanonicalSetupResult(input: {
 }
 
 function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.rotateMcp && (parsed.command !== "setup" || parsed.setupSubcommand !== "system")) {
+    throw new Error("`--rotate-mcp` is valid only with `make-docs setup system`.");
+  }
   if (parsed.codexMethod !== undefined && parsed.noCodex) {
     throw new Error("`--codex-method` cannot be combined with `--no-codex`.");
   }
@@ -3229,6 +3237,7 @@ Options:
   --generic-mcp-action <configure|rotate|repair|remove>
   --no-codex                     Skip Codex support.
   --no-claude-code               Skip Claude Code support.
+  --rotate-mcp                   Replace keys for selected first-party MCP methods.
   --help, -h                     Show help for this command.
 
 Examples:

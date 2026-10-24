@@ -8,7 +8,7 @@ import {
   genericMcpProjectIntent,
   prepareGenericMcpSetup,
 } from "../src/generic-mcp-setup";
-import { parseHarnessCallerIdentityValue, verifyMakeDocsExecutable } from "../src/harness-access";
+import { verifyMakeDocsExecutable } from "../src/harness-access";
 import { createExecutionContext, serializeOperationError } from "../src/operations/context";
 import { resolveHarnessOperationPolicy } from "../src/operations/harness-policy";
 import { invokeOperation } from "../src/operations/registry";
@@ -92,7 +92,7 @@ describe("W19 R8 scoped Store access", () => {
       executable: executable(),
     });
     const configuration = plan.configuration as {
-      mcpServers: { "make-docs": { env: { MAKE_DOCS_HARNESS_CALLER_IDENTITY: string } } };
+      mcpServers: { "make-docs": { env: { MAKE_DOCS_MCP_CONNECTION_ID: string; MAKE_DOCS_MCP_CONNECTION_KEY: string } } };
     };
     const result = await invokeOperation(
       "resource.list",
@@ -102,8 +102,8 @@ describe("W19 R8 scoped Store access", () => {
         route: "mcp",
         cwd: root,
         storeRoot: store,
-        callerIdentityRaw:
-          configuration.mcpServers["make-docs"].env.MAKE_DOCS_HARNESS_CALLER_IDENTITY,
+        mcpConnectionId: configuration.mcpServers["make-docs"].env.MAKE_DOCS_MCP_CONNECTION_ID,
+        mcpConnectionKey: configuration.mcpServers["make-docs"].env.MAKE_DOCS_MCP_CONNECTION_KEY,
       }),
     );
     expect(result.operation).toBe("resource.list");
@@ -263,17 +263,13 @@ describe("W19 R8 generic MCP profile", () => {
     });
     expect(first).toMatchObject({ changed: true, harnessId: "generic-mcp-other-client" });
     const config = first.configuration as {
-      mcpServers: { "make-docs": { env: { MAKE_DOCS_HARNESS_CALLER_IDENTITY: string } } };
+      mcpServers: { "make-docs": { env: { MAKE_DOCS_MCP_CONNECTION_ID: string; MAKE_DOCS_MCP_CONNECTION_KEY: string } } };
     };
-    const identityRaw = config.mcpServers["make-docs"].env.MAKE_DOCS_HARNESS_CALLER_IDENTITY;
-    const identity = parseHarnessCallerIdentityValue(identityRaw);
-    expect(identity.kind).toBe("make-docs-generic-mcp-caller");
+    const firstConnection = config.mcpServers["make-docs"].env;
     applyGenericMcpSetup(first);
     const globalBytes = readFileSync(getGlobalConfigPath(store), "utf8");
-    expect(globalBytes).toContain("proofSha256");
-    if (identity.kind === "make-docs-generic-mcp-caller") {
-      expect(globalBytes).not.toContain(identity.proof);
-    }
+    expect(globalBytes).toContain("keySha256");
+    expect(globalBytes).not.toContain(firstConnection.MAKE_DOCS_MCP_CONNECTION_KEY);
 
     const repeat = prepareGenericMcpSetup({
       clientLabel: "other-client",
@@ -305,13 +301,14 @@ describe("W19 R8 generic MCP profile", () => {
       "",
     ].join("\n"));
     const rotatedConfig = rotated.configuration as typeof config;
-    const rotatedIdentity = rotatedConfig.mcpServers["make-docs"].env.MAKE_DOCS_HARNESS_CALLER_IDENTITY;
+    const rotatedConnection = rotatedConfig.mcpServers["make-docs"].env;
     expect(resolveHarnessOperationPolicy({
       operation: "project.state.status",
       route: "mcp",
       targetRoot: root,
       storeRoot: store,
-      callerIdentityRaw: rotatedIdentity,
+      mcpConnectionId: rotatedConnection.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: rotatedConnection.MAKE_DOCS_MCP_CONNECTION_KEY,
     })).toMatchObject({
       configured: true,
       verified: true,
@@ -323,8 +320,9 @@ describe("W19 R8 generic MCP profile", () => {
       route: "mcp",
       targetRoot: root,
       storeRoot: store,
-      callerIdentityRaw: identityRaw,
-    })).toThrow(/proof is absent, stale, or does not match/);
+      mcpConnectionId: firstConnection.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: firstConnection.MAKE_DOCS_MCP_CONNECTION_KEY,
+    })).toThrow(/connection key is absent, disabled, or invalid/);
 
     const changedRoot = prepareGenericMcpSetup({
       clientLabel: "changed-root",
@@ -334,7 +332,7 @@ describe("W19 R8 generic MCP profile", () => {
     });
     const changedRootConfig = changedRoot.configuration as typeof config;
     applyGenericMcpSetup(changedRoot);
-    const changedRootIdentity = changedRootConfig.mcpServers["make-docs"].env.MAKE_DOCS_HARNESS_CALLER_IDENTITY;
+    const changedRootConnection = changedRootConfig.mcpServers["make-docs"].env;
     projectConfig(root, [
       "harnessIntegrations:",
       "  - harness: generic-mcp-changed-root",
@@ -347,7 +345,8 @@ describe("W19 R8 generic MCP profile", () => {
       route: "mcp",
       targetRoot: root,
       storeRoot: store,
-      callerIdentityRaw: changedRootIdentity,
+      mcpConnectionId: changedRootConnection.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: changedRootConnection.MAKE_DOCS_MCP_CONNECTION_KEY,
     })).toMatchObject({ verified: true });
 
     const loaded = JSON.parse(readFileSync(getGlobalConfigPath(store), "utf8")) as {
@@ -355,13 +354,14 @@ describe("W19 R8 generic MCP profile", () => {
     };
     loaded.settings.harnesses["generic-mcp-changed-root"].configurationDigest = "0".repeat(64);
     writeFileSync(getGlobalConfigPath(store), `${JSON.stringify(loaded, null, 2)}\n`);
-    expect(() => resolveHarnessOperationPolicy({
+    expect(resolveHarnessOperationPolicy({
       operation: "project.state.status",
       route: "mcp",
       targetRoot: root,
       storeRoot: store,
-      callerIdentityRaw: changedRootIdentity,
-    })).toThrow(/configuration does not match/);
+      mcpConnectionId: changedRootConnection.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: changedRootConnection.MAKE_DOCS_MCP_CONNECTION_KEY,
+    })).toMatchObject({ verified: true });
 
     const removal = prepareGenericMcpSetup({
       clientLabel: "other-client",
@@ -370,7 +370,7 @@ describe("W19 R8 generic MCP profile", () => {
     });
     expect(removal.changed).toBe(true);
     applyGenericMcpSetup(removal);
-    expect(readFileSync(getGlobalConfigPath(store), "utf8")).not.toContain("generic-mcp-other-client");
+    expect(readFileSync(getGlobalConfigPath(store), "utf8")).toContain('"active": false');
   });
 
   it("rejects unsafe labels and never names a client-owned file", () => {

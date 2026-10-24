@@ -1,13 +1,11 @@
-import { randomBytes } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import {
-  encodeHarnessCallerIdentity,
   sha256,
   verifyMakeDocsExecutable,
-  type GenericMcpCallerIdentity,
   type VerifiedExecutableIdentity,
 } from "./harness-access";
+import { createMcpConnection, MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "./mcp-connection";
 import type { ProjectHarnessIntegrationRecord } from "./config";
 import {
   loadGlobalConfig,
@@ -15,6 +13,7 @@ import {
   type GlobalHarnessIntent,
 } from "./store/global-config";
 import { resolveStoreRoot } from "./store/paths";
+import type { OperationAccess } from "./operations/access";
 
 export type GenericMcpAction = "configure" | "rotate" | "repair" | "remove";
 
@@ -33,7 +32,7 @@ export interface GenericMcpSetupPlan {
   action: GenericMcpAction;
   changed: boolean;
   state: "planned" | "current" | "missing";
-  accessCeiling: { store: "write"; project: "write"; hostConfig: "none" };
+  accessCeiling: OperationAccess;
   review: string;
   nextAction: string | null;
   /** Present only for a new, rotated, or repaired profile review. */
@@ -58,18 +57,21 @@ export function prepareGenericMcpSetup(options: GenericMcpSetupOptions): Generic
   const storeRoot = options.storeRoot ?? resolveStoreRoot();
   const existing = loadGlobalConfig(storeRoot).config.settings.harnesses[harnessId];
   const active = isCurrentGenericIntent(existing, clientLabel);
-  const accessCeiling = { store: "write", project: "write", hostConfig: "none" } as const;
+  const accessCeiling: OperationAccess = existing?.accessCeiling
+    ? { ...existing.accessCeiling }
+    : { store: "write", project: "write", hostConfig: "none" };
 
   if (action === "remove") {
+    const enabled = Boolean(existing?.selected || existing?.mcpConnection?.active);
     return {
       schemaVersion: 1,
       clientLabel,
       harnessId,
       action,
-      changed: Boolean(existing),
-      state: existing ? "planned" : "missing",
+      changed: enabled,
+      state: enabled ? "planned" : "missing",
       accessCeiling,
-      review: existing
+      review: enabled
         ? `Remove the Make Docs-owned generic MCP profile '${clientLabel}'. No client-owned file changes.`
         : `Generic MCP profile '${clientLabel}' is already absent. No client-owned file changes.`,
       nextAction: null,
@@ -101,42 +103,30 @@ export function prepareGenericMcpSetup(options: GenericMcpSetupOptions): Generic
   const executable = options.executable ?? verifyMakeDocsExecutable({
     executablePath: path.resolve(process.argv[1] ?? ""),
   });
-  const proof = randomBytes(32).toString("base64url");
   const machineRoot = path.resolve(options.machineRoot ?? os.homedir());
-  const identity: GenericMcpCallerIdentity = {
-    schemaVersion: 1,
-    kind: "make-docs-generic-mcp-caller",
-    adapterId: "generic-mcp",
-    adapterVersion: 1,
-    harnessId,
-    connectionMethod: "mcp",
-    scope: "machine",
-    root: machineRoot,
-    executable,
-    proof,
-  };
+  const connection = createMcpConnection(harnessId);
   const configuration = {
     mcpServers: {
       "make-docs": {
         command: executable.path,
         args: ["mcp"],
-        env: { MAKE_DOCS_HARNESS_CALLER_IDENTITY: encodeHarnessCallerIdentity(identity) },
+        env: {
+          [MCP_CONNECTION_ID_ENV]: connection.id,
+          [MCP_CONNECTION_KEY_ENV]: connection.key,
+        },
       },
     },
   };
   const configurationDigest = sha256(JSON.stringify(configuration));
-  const priorRevision = typeof existing?.identityRevision === "number"
-    ? existing.identityRevision
-    : 0;
   const intent: GlobalHarnessIntent = {
+    ...existing,
     selected: true,
     maximumMethod: "mcp",
     accessCeiling: { ...accessCeiling },
     profileKind: "generic-mcp",
     clientLabel,
     machineRoot,
-    proofSha256: sha256(proof),
-    identityRevision: priorRevision + 1,
+    mcpConnection: connection.record,
     configurationDigest,
     lifecycleState: "active",
   };
@@ -161,7 +151,18 @@ export function applyGenericMcpSetup(plan: GenericMcpSetupPlan): GenericMcpSetup
   if (!plan.changed) return { ...plan, state: plan.state === "missing" ? "missing" : "current" };
   const loaded = loadGlobalConfig(plan.storeRoot);
   if (plan.action === "remove") {
-    delete loaded.config.settings.harnesses[plan.harnessId];
+    const prior = loaded.config.settings.harnesses[plan.harnessId];
+    if (prior) {
+      loaded.config.settings.harnesses[plan.harnessId] = {
+        ...prior,
+        selected: false,
+        maximumMethod: null,
+        mcpConnection: prior.mcpConnection
+          ? { ...prior.mcpConnection, active: false }
+          : undefined,
+        lifecycleState: "disabled",
+      };
+    }
   } else if (plan.intent) {
     loaded.config.settings.harnesses[plan.harnessId] = {
       ...plan.intent,
@@ -203,9 +204,9 @@ function isCurrentGenericIntent(value: GlobalHarnessIntent | undefined, clientLa
     value.profileKind === "generic-mcp" &&
     value.clientLabel === clientLabel &&
     value.lifecycleState === "active" &&
-    typeof value.proofSha256 === "string" &&
-    /^[a-f0-9]{64}$/.test(value.proofSha256) &&
-    typeof value.configurationDigest === "string" &&
-    /^[a-f0-9]{64}$/.test(value.configurationDigest),
+    value.mcpConnection?.active === true &&
+    value.mcpConnection.owner === `generic-mcp-${clientLabel}` &&
+    typeof value.mcpConnection.keySha256 === "string" &&
+    /^[a-f0-9]{64}$/.test(value.mcpConnection.keySha256),
   );
 }

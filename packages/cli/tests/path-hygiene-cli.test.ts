@@ -59,7 +59,7 @@ it("returns real CLI failure codes and readable text, and applies only when sele
 
 it("shares MCP scan results and requires MCP write permission for repair", async () => {
   put("docs/note.md", root + "/README.md\n");
-  const result = await callMakeDocsMcpTool("make_docs_project_path_hygiene_validate", { targetRoot: root });
+  const result = await callMakeDocsMcpTool("paths_validate", { targetRoot: root });
   expect(result.result).toEqual(validateProjectPathHygiene({ projectRoot: root }));
-  await expect(callMakeDocsMcpTool("make_docs_project_path_hygiene_repair", { targetRoot: root, apply: true })).rejects.toThrow();
+  await expect(callMakeDocsMcpTool("paths_repair", { targetRoot: root, apply: true })).rejects.toThrow();
 });

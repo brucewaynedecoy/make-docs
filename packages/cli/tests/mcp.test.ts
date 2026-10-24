@@ -21,50 +21,50 @@ describe("make-docs MCP runtime", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
-      "make_docs_operation_domains",
-      "make_docs_installed_state",
-      "make_docs_manifest_read",
-      "make_docs_config_read",
-      "make_docs_compatibility_classify",
-      "make_docs_install_plan",
+      "domains",
+      "install_status",
+      "manifest",
+      "config",
+      "compatibility",
+      "install_plan",
       // Derived from the operation registry (R-REG-2, R-MIG-3).
-      "make_docs_prd_authority_validate",
-      "make_docs_performance_evidence_validate",
-      "make_docs_project_state_status",
-      "make_docs_project_state_recover",
-      "make_docs_project_surface_ensure",
-      "make_docs_project_path_hygiene_validate",
-      "make_docs_project_path_hygiene_repair",
-      "make_docs_project_persona_list",
-      "make_docs_project_layout_preview",
-      "make_docs_project_layout_prepare",
-      "make_docs_project_layout_apply",
-      "make_docs_project_layout_verify",
-      "make_docs_work_item_resolve",
-      "make_docs_work_evidence_record",
-      "make_docs_work_evidence_read",
-      "make_docs_work_backlog_snapshot",
-      "make_docs_work_backlog_cache_lookup",
-      "make_docs_work_backlog_cache_write",
-      "make_docs_resource_list",
-      "make_docs_resource_read",
-      "make_docs_resource_ensure",
-      "make_docs_lifecycle_start",
-      "make_docs_lifecycle_show",
-      "make_docs_lifecycle_list",
-      "make_docs_lifecycle_checkpoint",
-      "make_docs_lifecycle_pause",
-      "make_docs_lifecycle_resume",
-      "make_docs_lifecycle_attach_evidence",
-      "make_docs_lifecycle_complete",
-      "make_docs_lifecycle_fail",
-      "make_docs_lifecycle_abandon",
-      "make_docs_uat_scenario_validate",
-      "make_docs_uat_persona_resolve",
-      "make_docs_uat_target_validate",
-      "make_docs_uat_evidence_reference_validate",
-      "make_docs_uat_finding_validate",
-      "make_docs_uat_result_validate",
+      "prd_validate",
+      "performance_validate",
+      "project_status",
+      "project_recover",
+      "surface_ensure",
+      "paths_validate",
+      "paths_repair",
+      "personas",
+      "layout_preview",
+      "layout_prepare",
+      "layout_apply",
+      "layout_verify",
+      "work_item_resolve",
+      "evidence_record",
+      "evidence_read",
+      "backlog_snapshot",
+      "backlog_cache_read",
+      "backlog_cache_write",
+      "resource_list",
+      "resource_read",
+      "resource_ensure",
+      "lifecycle_start",
+      "lifecycle_show",
+      "lifecycle_list",
+      "lifecycle_checkpoint",
+      "lifecycle_pause",
+      "lifecycle_resume",
+      "lifecycle_attach_evidence",
+      "lifecycle_complete",
+      "lifecycle_fail",
+      "lifecycle_abandon",
+      "uat_scenario_validate",
+      "uat_persona_resolve",
+      "uat_target_validate",
+      "uat_evidence_validate",
+      "uat_finding_validate",
+      "uat_result_validate",
     ]);
   });
 
@@ -123,7 +123,7 @@ describe("make-docs MCP runtime", () => {
     const root = createTempDir("make-docs-mcp-plan-");
     tempRoots.push(root);
 
-    const payload = await callMakeDocsMcpTool("make_docs_install_plan", {
+    const payload = await callMakeDocsMcpTool("install_plan", {
       targetDir: root,
     });
     const result = payload.result as {
@@ -139,7 +139,7 @@ describe("make-docs MCP runtime", () => {
 
   test("requires explicit approval before starting a lifecycle run through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_lifecycle_start", {
+      callMakeDocsMcpTool("lifecycle_start", {
         repoRoot: ".",
         lifecycleStage: "implementation",
       }),
@@ -148,7 +148,7 @@ describe("make-docs MCP runtime", () => {
 
   test("requires explicit approval before changing a lifecycle checkpoint through MCP", async () => {
     await expect(
-      callMakeDocsMcpTool("make_docs_lifecycle_checkpoint", {
+      callMakeDocsMcpTool("lifecycle_checkpoint", {
         repoRoot: ".",
         runId: "test-run",
         expectedVersion: 1,

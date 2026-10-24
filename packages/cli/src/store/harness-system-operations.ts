@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { platform } from "../platform";
+import { isRedactedMcpNativeValue, redactMcpNativeValue } from "../mcp-connection";
 import type {
   HarnessAccessPlan,
   HarnessAccessReceipt,
@@ -12,7 +13,7 @@ import type {
 } from "../harness-access";
 import { fingerprintEntry } from "../harness-access";
 import { classifyStoreCheckpoint9State, type StoreDatabase } from "./database";
-import { readCurrentHarnessIntegrationReceipt } from "./harness-integration-receipts";
+import { isHarnessIntegrationReceipt, readCurrentHarnessIntegrationReceipt, redactHarnessIntegrationReceipt } from "./harness-integration-receipts";
 import { getStoreDatabasePath } from "./paths";
 import {
   canonicalInstallationPath,
@@ -52,7 +53,7 @@ export interface HarnessSystemOperationFailure {
   changeOutcome: "none" | "unknown";
 }
 
-/** Save and read back an exact reviewed machine plan before any native write. */
+/** Save a redacted copy of the reviewed machine plan before any native write. */
 export function prepareHarnessSystemOperation(
   input: PrepareHarnessSystemOperationInput,
 ): PendingHarnessSystemOperation {
@@ -68,6 +69,7 @@ export function prepareHarnessSystemOperation(
       )
     : null;
   assertReviewedPlan(input.plan, input.adapterId, input.harnessId, ownershipReceipt);
+  const durablePlan = redactHarnessPlan(input.plan);
   if (!input.appliedVersion.trim()) throw new Error("Machine setup needs an applied version.");
   if (!Number.isFinite(Date.parse(input.verifiedAt))) {
     throw new Error("Machine setup needs a valid verification time.");
@@ -80,11 +82,11 @@ export function prepareHarnessSystemOperation(
     harnessId: input.harnessId,
     connectionMethod: input.plan.connectionMethod,
     targetRoot,
-    plan: input.plan,
-    planFingerprint: fingerprintJson(input.plan),
+    plan: durablePlan,
+    planFingerprint: fingerprintJson(durablePlan),
     appliedVersion: input.appliedVersion,
     verifiedAt: input.verifiedAt,
-    ownershipReceipt,
+    ownershipReceipt: ownershipReceipt ? redactHarnessIntegrationReceipt(ownershipReceipt) : null,
   };
   const savedJson = JSON.stringify(pending);
   withInstallationDatabase(targetRoot, (db) => {
@@ -160,7 +162,8 @@ export function completeHarnessSystemOperation(
   const targetRoot = canonicalInstallationPath(targetRootInput);
   const storeRoot = validateInstallationStoreRoot(targetRoot, storeRootInput);
   const exact = validatePending(pending, pending.operationId, targetRoot);
-  assertReceiptMatchesPlan(receipt, exact);
+  const durableReceipt = redactHarnessIntegrationReceipt(receipt);
+  assertReceiptMatchesPlan(durableReceipt, exact);
   const pendingJson = JSON.stringify(exact);
   withInstallationDatabase(targetRoot, (db) => {
     db.exec("BEGIN IMMEDIATE");
@@ -169,7 +172,7 @@ export function completeHarnessSystemOperation(
       const storedReceipt = db.prepare(
         "SELECT metadata_json FROM tool_operations WHERE operation_id=? AND operation='setup.system.receipt' AND status='completed'",
       ).get(`harness-receipt:${exact.operationId}`) as { metadata_json: string } | undefined;
-      if (!storedReceipt || storedReceipt.metadata_json !== JSON.stringify(receipt)) {
+      if (!storedReceipt || storedReceipt.metadata_json !== JSON.stringify(durableReceipt)) {
         throw new Error(
           `Machine setup ${exact.operationId} has no exact verified Store receipt. Keep it pending for recovery.`,
         );
@@ -177,7 +180,7 @@ export function completeHarnessSystemOperation(
       const result = db.prepare(
         "UPDATE tool_operations SET status='completed',metadata_json=?,finished_at=? WHERE operation_id=? AND operation=? AND status='pending' AND metadata_json=?",
       ).run(
-        JSON.stringify({ ...exact, receiptOperationId: receipt.operationId }),
+        JSON.stringify({ ...exact, receiptOperationId: durableReceipt.operationId }),
         receipt.verifiedAt,
         exact.operationId,
         OPERATION,
@@ -302,7 +305,7 @@ function assertReviewedPlan(
   ) {
     throw new Error("Machine setup needs one exact reviewed machine harness plan.");
   }
-  for (const change of plan.changes) assertReviewedChange(plan.root, change);
+  for (const change of plan.changes) assertReviewedChange(plan.root, change, plan.connectionMethod);
   if (plan.state === "drifted") {
     assertReceiptOwnedDrift(plan, ownershipReceipt);
   } else if (ownershipReceipt !== null) {
@@ -341,8 +344,9 @@ function assertReceiptOwnedDrift(
       entry.path !== change.path ||
       entry.entryId !== change.entryId ||
       entry.entryFingerprint !== change.beforeEntryFingerprint ||
-      JSON.stringify(entry.value) !== JSON.stringify(change.beforeEntryValue) ||
-      fingerprintEntry(entry.value) !== entry.entryFingerprint
+      JSON.stringify(redactMcpNativeValue(entry.value)) !==
+        JSON.stringify(redactMcpNativeValue(change.beforeEntryValue)) ||
+      !entryMatches(entry.value, entry.entryFingerprint, plan.connectionMethod)
     ) {
       throw new Error(
         `Drift repair target ${change.path} is not the exact receipt-owned native entry.`,
@@ -360,14 +364,19 @@ function assertDurableOwnershipReceipt(
   const row = db.prepare(
     "SELECT metadata_json FROM tool_operations WHERE operation_id=? AND operation='setup.system.receipt' AND status='completed'",
   ).get(`harness-receipt:${receipt.operationId}`) as { metadata_json: string } | undefined;
-  if (!row || row.metadata_json !== JSON.stringify(receipt)) {
+  let savedReceipt: unknown = null;
+  if (row) {
+    try { savedReceipt = JSON.parse(row.metadata_json); } catch { savedReceipt = null; }
+  }
+  if (!isHarnessIntegrationReceipt(savedReceipt) ||
+      JSON.stringify(redactHarnessIntegrationReceipt(savedReceipt)) !== JSON.stringify(receipt)) {
     throw new Error(
       `Pending machine setup ${pending.operationId} lost its exact ownership receipt. Preserve it for manual recovery.`,
     );
   }
 }
 
-function assertReviewedChange(root: string, change: HarnessNativeChange): void {
+function assertReviewedChange(root: string, change: HarnessNativeChange, method: HarnessConnectionMethod): void {
   const resolved = path.resolve(root, change.path);
   if (
     !change.path ||
@@ -378,9 +387,9 @@ function assertReviewedChange(root: string, change: HarnessNativeChange): void {
     change.blockedReason ||
     !isFingerprint(change.beforeFileFingerprint, true) ||
     !isFingerprint(change.afterFileFingerprint, false) ||
-    !entryMatches(change.beforeEntryValue, change.beforeEntryFingerprint) ||
+    !entryMatches(change.beforeEntryValue, change.beforeEntryFingerprint, method) ||
     change.afterEntryValue === null ||
-    !entryMatches(change.afterEntryValue, change.afterEntryFingerprint)
+    !entryMatches(change.afterEntryValue, change.afterEntryFingerprint, method)
   ) {
     throw new Error(`Machine setup has an unsafe or incomplete reviewed change: ${change.path}.`);
   }
@@ -422,7 +431,7 @@ function assertReceiptMatchesPlan(
       entry.entryFingerprint !== change.afterEntryFingerprint ||
       entry.fileFingerprint !== change.afterFileFingerprint ||
       JSON.stringify(entry.value) !== JSON.stringify(change.afterEntryValue) ||
-      fingerprintEntry(entry.value) !== entry.entryFingerprint
+      !entryMatches(entry.value, entry.entryFingerprint, pending.connectionMethod)
     ) {
       throw new Error(`Machine setup receipt changed reviewed target ${change.path}.`);
     }
@@ -460,8 +469,23 @@ function assertNoOtherStoreWork(
 function entryMatches(
   value: NativeEntryValue | null,
   fingerprint: string | null,
+  method: HarnessConnectionMethod,
 ): boolean {
-  return value === null ? fingerprint === null : fingerprint === fingerprintEntry(value);
+  return value === null ? fingerprint === null :
+    fingerprint === fingerprintEntry(value) ||
+    (method === "mcp" && isRedactedMcpNativeValue(value) && isFingerprint(fingerprint, false));
+}
+
+function redactHarnessPlan(plan: HarnessAccessPlan): HarnessAccessPlan {
+  if (plan.connectionMethod !== "mcp") return plan;
+  return {
+    ...plan,
+    changes: plan.changes.map(change => ({
+      ...change,
+      beforeEntryValue: redactMcpNativeValue(change.beforeEntryValue),
+      afterEntryValue: redactMcpNativeValue(change.afterEntryValue),
+    })),
+  };
 }
 
 function isFingerprint(value: string | null, allowNull: boolean): boolean {

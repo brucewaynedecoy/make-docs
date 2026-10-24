@@ -242,9 +242,9 @@ make-docs run work backlog-cache write \
 The MCP equivalents are:
 
 ```text
-make_docs_work_backlog_snapshot
-make_docs_work_backlog_cache_lookup
-make_docs_work_backlog_cache_write
+backlog_snapshot
+backlog_cache_read
+backlog_cache_write
 ```
 
 Lookup needs Store-read and project-read access. Write needs Store-write and project-read access.

@@ -33,7 +33,7 @@ export {
 /**
  * Domain listing derived from the operation registry (R-REG-2, R-RUN-2):
  * groups `listOperations()` identifiers by their domain segment so surfaces
- * such as `make_docs_operation_domains` advertise exactly the registry —
+ * such as `domains` advertise exactly the registry —
  * pruned legacy operations never appear here.
  */
 export function listOperationDomains(): OperationDomainDescriptor[] {

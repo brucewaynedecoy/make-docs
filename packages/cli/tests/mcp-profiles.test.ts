@@ -15,27 +15,27 @@ import { listMakeDocsMcpTools } from "../src/mcp/tools";
 // Reviewed W24 inventory. Names are independent of runtime assignment logic.
 const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
   core: [
-    "config_read", "installed_state", "manifest_read", "operation_domains",
-    "project_persona_list", "project_state_status", "resource_list", "resource_read",
+    "config", "install_status", "manifest", "domains",
+    "personas", "project_status", "resource_list", "resource_read",
   ],
   setup: [
-    "compatibility_classify", "config_read", "install_plan", "installed_state", "manifest_read",
-    "project_layout_apply", "project_layout_prepare", "project_layout_preview", "project_layout_verify",
-    "project_path_hygiene_repair", "project_path_hygiene_validate", "project_state_recover",
-    "project_state_status", "project_surface_ensure", "resource_ensure",
+    "compatibility", "config", "install_plan", "install_status", "manifest",
+    "layout_apply", "layout_prepare", "layout_preview", "layout_verify",
+    "paths_repair", "paths_validate", "project_recover",
+    "project_status", "surface_ensure", "resource_ensure",
   ],
   workflow: [
     "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
     "lifecycle_fail", "lifecycle_list", "lifecycle_pause", "lifecycle_resume", "lifecycle_show",
-    "lifecycle_start", "project_persona_list", "work_evidence_read", "work_evidence_record",
+    "lifecycle_start", "personas", "evidence_read", "evidence_record",
     "work_item_resolve",
   ],
   quality: [
-    "performance_evidence_validate", "prd_authority_validate", "project_path_hygiene_validate",
-    "uat_evidence_reference_validate", "uat_finding_validate", "uat_persona_resolve",
+    "performance_validate", "prd_validate", "paths_validate",
+    "uat_evidence_validate", "uat_finding_validate", "uat_persona_resolve",
     "uat_result_validate", "uat_scenario_validate", "uat_target_validate",
   ],
-  backlog: ["work_backlog_cache_lookup", "work_backlog_cache_write", "work_backlog_snapshot"],
+  backlog: ["backlog_cache_read", "backlog_cache_write", "backlog_snapshot"],
 };
 
 describe("W24 R0 P1 MCP metadata", () => {
@@ -56,7 +56,7 @@ describe("W24 R0 P1 MCP metadata", () => {
     for (const profile of MCP_PROFILES) {
       const members = ready.filter((tool) => tool.mcp!.profiles.includes(profile));
       expect(members.map((tool) => tool.name).sort()).toEqual(
-        EXPECTED_PROFILES[profile].map((name) => `make_docs_${name}`).sort(),
+        EXPECTED_PROFILES[profile].sort(),
       );
       for (const tool of members) union.add(tool.name);
     }
@@ -86,9 +86,9 @@ describe("W24 R0 P1 MCP metadata", () => {
   test("shared assignments retain one descriptor and one input contract", () => {
     const tools = listMakeDocsMcpTools();
     for (const name of [
-      "make_docs_config_read", "make_docs_installed_state", "make_docs_manifest_read",
-      "make_docs_project_state_status", "make_docs_project_persona_list",
-      "make_docs_project_path_hygiene_validate",
+      "config", "install_status", "manifest",
+      "project_status", "personas",
+      "paths_validate",
     ]) {
       const matches = tools.filter((tool) => tool.name === name);
       expect(matches).toHaveLength(1);

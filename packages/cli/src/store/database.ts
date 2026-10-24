@@ -815,7 +815,9 @@ function cleanupAccessDirectory(directory: string): void {
   try {
     rmdirSync(directory);
   } catch (error) {
-    if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(systemCode(error) ?? "")) {
+    const code = systemCode(error);
+    if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(code ?? "") &&
+        !(platform.kind === "win32" && code === "EBUSY")) {
       throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
     }
   }

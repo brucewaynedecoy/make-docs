@@ -11,7 +11,7 @@ Review the full Make Docs work portfolio. Give the maintainer a short report tha
 
 Read [the review method](references/review-method.md), [the report model](references/report-model.md), and [the cache workflow](references/cache.md). Start every review with one fact source in this order:
 
-1. Call the compatible MCP tool `make_docs_work_backlog_snapshot`.
+1. Call the compatible MCP tool `backlog_snapshot`.
 2. If that tool is not available, run `make-docs run work backlog snapshot --target-root <project-root> --json`.
 3. If neither deterministic surface is available, use [the portable fallback](references/fallback.md).
 

@@ -6,7 +6,7 @@ The snapshot supplies recorded facts. The report adds review conclusions. A revi
 
 Use the project root selected by the request or the current project context. Report one source method:
 
-- `MCP snapshot` when `make_docs_work_backlog_snapshot` returned the facts;
+- `MCP snapshot` when `backlog_snapshot` returned the facts;
 - `CLI snapshot` when the JSON CLI command returned the facts; or
 - `agentic fallback` when the file method supplied the facts.
 
