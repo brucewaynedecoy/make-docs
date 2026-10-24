@@ -364,6 +364,21 @@ function verifyHarnessAccess(
   const method = requireMethod(adapter, input.method, input.scope);
   validateExecutableIdentity(input.executable);
   assertSafeRoot(input.root);
+  const nativeContent = method.id === "mcp"
+    ? readNativeContent(input.root, method.nativeFile(input.scope))
+    : null;
+  const mcpConnection = method.id === "mcp"
+    ? parseNativeMcpConnection(method.nativeFormat, nativeContent)
+    : null;
+  if (method.id === "mcp" && !mcpConnection) {
+    try {
+      const inspected = inspectEntry(method.nativeFormat, nativeContent, "");
+      return verification(adapter, method.id, input.scope, inspected.exists ? "blocked" : "missing", [],
+        inspected.exists ? "The native MCP entry has no valid connection key." : "The native entry is absent.");
+    } catch (error) {
+      return verification(adapter, method.id, input.scope, "blocked", [], toMessage(error));
+    }
+  }
   const desired = desiredEntry(
     adapter,
     method,
@@ -372,10 +387,10 @@ function verifyHarnessAccess(
     input.executable,
     input.commandRules,
     input.commandRuleAuthority,
-    method.id === "mcp" ? parseNativeMcpConnection(method.nativeFormat, readNativeContent(input.root, method.nativeFile(input.scope))) ?? undefined : undefined,
+    mcpConnection ?? undefined,
   );
   const receiptEntry = receiptEntryFor(adapter, input, desired.path, desired.entryId);
-  const content = readNativeContent(input.root, desired.path);
+  const content = method.id === "mcp" ? nativeContent : readNativeContent(input.root, desired.path);
   try {
     const inspected = inspectEntry(method.nativeFormat, content, desired.value);
     if (!inspected.exists || inspected.value === null) {

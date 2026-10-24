@@ -37,6 +37,22 @@ function seedLegacyStore(storeRoot: string, version: 3): void {
 }
 
 describe("W19 R6 unified setup", () => {
+  test("MCP verification reports missing and blocked entries without a key", () => {
+    const machineRoot = createTempDir("make-docs-system-verify-key-");
+    try {
+      const executable = verifyMakeDocsExecutable({
+        executablePath: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/index.js"),
+      });
+      const input = { method: "mcp" as const, scope: "machine" as const, root: machineRoot, executable };
+      expect(CODEX_HARNESS_ADAPTER.verify(input).state).toBe("missing");
+      mkdirSync(path.join(machineRoot, ".codex"));
+      writeFileSync(path.join(machineRoot, ".codex/config.toml"), "[mcp_servers.make_docs]\ncommand = \"make-docs\"\n");
+      expect(CODEX_HARNESS_ADAPTER.verify(input).state).toBe("blocked");
+    } finally {
+      cleanupTempDir(machineRoot);
+    }
+  });
+
   test("reviewed MCP rotation replaces the key and disables the old key", async () => {
     const machineRoot = createTempDir("make-docs-system-rotate-");
     const storeContainer = createTempDir("make-docs-system-rotate-store-");
@@ -59,6 +75,7 @@ describe("W19 R6 unified setup", () => {
       const before = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)!;
       const review = await prepareSystemSetupCommand({ ...options, dryRun: true, rotateMcp: true });
       expect(review.review).toContain("key replacement");
+      expect(review.review).toContain("Restart the running MCP client");
       expect(readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)).toEqual(before);
       expect((await runSystemSetupCommand({ ...options, rotateMcp: true })).status).toBe("configured");
       const after = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, machineRoot)!;
@@ -76,6 +93,59 @@ describe("W19 R6 unified setup", () => {
       cleanupTempDir(storeContainer);
     }
   });
+
+  test.each([
+    { prior: "disabled", recover: false },
+    { prior: "disabled", recover: true },
+    { prior: "enabled-zero", recover: false },
+    { prior: "enabled-zero", recover: true },
+  ] as const)("$prior intent keeps the correct access ceiling after setup (recover=$recover)", async ({ prior, recover }) => {
+    const machineRoot = createTempDir("make-docs-system-ceiling-");
+    const storeContainer = createTempDir("make-docs-system-ceiling-store-");
+    const storeRoot = path.join(storeContainer, "store");
+    try {
+      const executable = verifyMakeDocsExecutable({
+        executablePath: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/index.js"),
+      });
+      const options = {
+        dryRun: false,
+        yes: true,
+        harnesses: { codex: true, "claude-code": false },
+        methods: { codex: "mcp" as const },
+        executable,
+        machineRoot,
+        targetRoot: machineRoot,
+        storeRoot,
+      };
+      expect((await runSystemSetupCommand({ ...options, methods: { codex: "none" as const } })).status).toBe("skipped-none");
+      if (prior === "enabled-zero") {
+        const config = loadGlobalConfig(storeRoot).config;
+        config.settings.harnesses.codex = {
+          ...config.settings.harnesses.codex!,
+          selected: true,
+          maximumMethod: "mcp",
+        };
+        writeGlobalConfig(storeRoot, config);
+      }
+      if (recover) {
+        const interrupted = await runSystemSetupCommand({
+          ...options,
+          afterNativeApplyForTests() { throw new Error("injected interruption after native apply"); },
+        });
+        expect(interrupted.status).toBe("recovery");
+      }
+      expect((await runSystemSetupCommand(options)).status).toBe("configured");
+      expect(loadGlobalConfig(storeRoot).config.settings.harnesses.codex?.accessCeiling).toEqual(
+        prior === "disabled"
+          ? { store: "write", project: "write", hostConfig: "none" }
+          : { store: "none", project: "none", hostConfig: "none" },
+      );
+    } finally {
+      cleanupTempDir(machineRoot);
+      cleanupTempDir(storeContainer);
+    }
+  });
+
   test("a lost MCP key before native write requires a new reviewed plan", async () => {
     const machineRoot = createTempDir("make-docs-system-before-write-");
     const storeContainer = createTempDir("make-docs-system-before-write-store-");

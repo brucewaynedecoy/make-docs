@@ -7,7 +7,7 @@ import { ExecutableVerificationError, FIRST_PARTY_HARNESS_ADAPTERS, listBoundedH
 import { resolveEffectiveHarnessIntegration, type ProjectHarnessIntegrationRecord } from "./config";
 import { listHarnessCommandRules, listOperationAccessFacts, validateRegistryHarnessCommandRules } from "./operations/registry";
 import { getStoreDatabasePath, resolveStoreRoot } from "./store/paths";
-import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig } from "./store/global-config";
+import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig, type GlobalHarnessIntent } from "./store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "./store/harness-integration-receipts";
 import { completeHarnessSystemOperation, failHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
 import { readInstallationStatus } from "./store/installation-state";
@@ -372,7 +372,7 @@ function buildAdapterPlans(options: RunSystemSetupOptions, selections: Record<Ha
     }
     let receipt: HarnessAccessReceipt | undefined;
     let pending: PendingHarnessSystemOperation | undefined;
-    plans.push({ harness: adapter.harnessId, method, status: options.rotateMcp && existingMcpConnection && adapterPlan.state === "drifted" ? "pending" : adapterPlan.state === "current" ? "current" : adapterPlan.state === "missing" ? "incomplete" : adapterPlan.state, ...reviewFacts, machineFiles: adapterPlan.changes.map(change => change.path), changed: adapterPlan.changes.some(change => change.action !== "none"), detail: options.rotateMcp && existingMcpConnection && adapterPlan.state !== "blocked" ? "Review this key replacement. The old key stops working after the new native entry verifies." : adapterPlan.nextAction,
+    plans.push({ harness: adapter.harnessId, method, status: options.rotateMcp && existingMcpConnection && adapterPlan.state === "drifted" ? "pending" : adapterPlan.state === "current" ? "current" : adapterPlan.state === "missing" ? "incomplete" : adapterPlan.state, ...reviewFacts, machineFiles: adapterPlan.changes.map(change => change.path), changed: adapterPlan.changes.some(change => change.action !== "none"), detail: existingMcpConnection && adapterPlan.changes.some(change => change.action !== "none") && adapterPlan.state !== "blocked" ? "Review this key replacement. The old key stops working after the new native entry verifies. Restart the running MCP client to use the new key." : adapterPlan.nextAction,
       async apply() { pending = prepareHarnessSystemOperation({ targetRoot, storeRoot, adapterId: adapter.id, harnessId: adapter.harnessId, plan: adapterPlan, appliedVersion: options.appliedVersion ?? executable.packageVersion, verifiedAt: new Date().toISOString() }); receipt = adapter.apply({ plan: adapterPlan, approved: true, operationId: pending.operationId, appliedVersion: pending.appliedVersion, verifiedAt: pending.verifiedAt }).receipt; await options.afterNativeApplyForTests?.(); },
       async verify() { const exactReceipt = receipt ?? currentReceipt; const verification = adapter.verify({ method, scope: "machine", root, executable, ...(commandRules ? { commandRules, commandRuleAuthority: SYSTEM_COMMAND_RULE_AUTHORITY } : {}), ...(exactReceipt ? { receipt: exactReceipt } : {}) }); if (verification.state !== "current" || !exactReceipt) return false; if (receipt) recordHarnessIntegrationReceipt(targetRoot, storeRoot, receipt); if (pending) completeHarnessSystemOperation(targetRoot, storeRoot, pending, exactReceipt); return true; },
       pendingOperation() { return pending !== undefined; },
@@ -479,7 +479,7 @@ function persistRecoveredHarnessIntent(
     ...(previous ?? {}),
     selected: true,
     maximumMethod: pending.connectionMethod,
-    accessCeiling: previous?.accessCeiling ?? deriveHarnessAccessCeiling(pending.connectionMethod),
+    accessCeiling: selectedHarnessAccessCeiling(previous, pending.connectionMethod),
     ...(connection ? { mcpConnection: {
       id: connection.id,
       keySha256: hashMcpConnectionKey(connection.key),
@@ -541,7 +541,7 @@ function buildIntentProjection(
     const intent = {
       selected: method !== "none",
       maximumMethod: method === "none" ? null : method,
-      accessCeiling: previous ? previous.accessCeiling : deriveHarnessAccessCeiling(method),
+      accessCeiling: selectedHarnessAccessCeiling(previous, method),
     };
     resolveEffectiveHarnessIntegration(undefined, intent, harness);
     const next = { ...(previous ?? {}), ...intent };
@@ -615,6 +615,18 @@ export function deriveHarnessAccessCeiling(method: HarnessMethodSelection): { st
     hostConfig: "none",
   };
 }
+
+function selectedHarnessAccessCeiling(
+  previous: GlobalHarnessIntent | undefined,
+  method: HarnessMethodSelection,
+): GlobalHarnessIntent["accessCeiling"] {
+  if (previous && !(previous.maximumMethod === null &&
+      previous.accessCeiling.store === "none" && previous.accessCeiling.project === "none")) {
+    return previous.accessCeiling;
+  }
+  return deriveHarnessAccessCeiling(method);
+}
+
 function verifyCurrentExecutable(): VerifiedExecutableIdentity {
   const executablePath = path.resolve(process.argv[1] ?? "");
   return verifyMakeDocsExecutable({ executablePath });
