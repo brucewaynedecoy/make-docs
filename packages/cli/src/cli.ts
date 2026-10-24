@@ -188,7 +188,7 @@ type SkillsCommandOptions = {
   remove: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
-  noGithubCopilot: boolean;
+  noGithubCopilot?: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
@@ -485,7 +485,7 @@ export async function runCli(
       remove: parsed.remove,
       noCodex: parsed.noCodex,
       noClaudeCode: parsed.noClaudeCode,
-      noGithubCopilot: parsed.noGithubCopilot,
+      ...(parsed.noGithubCopilot ? { noGithubCopilot: true } : {}),
       skillScope: parsed.skillScope,
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],

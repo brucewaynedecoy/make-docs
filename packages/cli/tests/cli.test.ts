@@ -1903,7 +1903,6 @@ personas:
         remove: false,
         noCodex: false,
         noClaudeCode: false,
-        noGithubCopilot: false,
         skillScope: undefined,
         selectedSkills: ["decompose-codebase"],
       });
