@@ -17,7 +17,7 @@ source:
 
 ## Purpose
 
-Provide a reviewable queue for [the W27 design](../../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [plan](../../plans/2026-10-24-w27-r0-github-copilot-support/00-overview.md). P1 must update [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) before P2 source edits. This draft is not implementation approval.
+Provide a reviewable queue for [the W27 design](../../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [plan](../../plans/2026-10-24-w27-r0-github-copilot-support/00-overview.md). P1 updated [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) before P2 source edits. The owner approved one managed CLI MCP entry. App-added entries stay user-owned. The implementation and its proof remain in progress.
 
 ## Human Experience Trace
 
@@ -43,7 +43,7 @@ Automated Implementation Testing is required. Performance Testing is `not-needed
 
 ## Intended Follow-On
 
-- Route: `implementation-loop` after owner review and P1 PRD reconciliation.
-- Next step: Start [P1](01-contract-and-native-probe.md) with the installed-client probe.
-- Why: Native behavior and current PRD authority must set the method before code changes.
+- Route: continue P3 proof after P1 PRD reconciliation and P2 source work.
+- Next step: Obtain the missing direct Copilot CLI and app evidence before a support claim.
+- Why: The local server contract and native CLI entry do not prove an agent call in either client.
 - Coordinate Handoff: Use W27 R0 for all phase evidence. Keep commit, push, PR, and installed connection changes as separate actions.

@@ -108,11 +108,14 @@ export function buildSelectedResourceProjection(options: {
 
 export function createThinRouterAssets(profile: InstallProfile): ResolvedAsset[] {
   const assets: ResolvedAsset[] = [];
+  const added = new Set<string>();
   for (const [harness, instructionKind] of Object.entries(HARNESS_TO_INSTRUCTION)) {
     if (!profile.selections.harnesses[harness as keyof typeof HARNESS_TO_INSTRUCTION]) {
       continue;
     }
     for (const relativePath of getConfiguredRouterPaths(profile, instructionKind)) {
+      if (added.has(relativePath)) continue;
+      added.add(relativePath);
       assets.push({
         relativePath,
         assetClass: "scoped-static",
@@ -230,6 +233,7 @@ export function createProjectSurfaceRouterAssets(
     artifacts: "docs/assets",
     assets: "docs/assets",
   }[surface];
+  const added = new Set<string>();
   return Object.entries(HARNESS_TO_INSTRUCTION)
     .filter(([harness]) => profile.selections.harnesses[harness as Harness])
     .map(([harness, instructionKind]) => {
@@ -240,6 +244,11 @@ export function createProjectSurfaceRouterAssets(
         sourceId: `router:${harness}:${relativePath}`,
         content: readThinRouterContent(relativePath, profile),
       };
+    })
+    .filter(asset => {
+      if (added.has(asset.relativePath)) return false;
+      added.add(asset.relativePath);
+      return true;
     })
     .sort((left, right) => compareCodeUnits(left.relativePath, right.relativePath));
 }

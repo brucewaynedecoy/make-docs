@@ -387,10 +387,16 @@ describe("selection wizard", () => {
         label: "Codex",
         hint: "AGENTS.md + .agents/",
       },
+      {
+        value: "github-copilot",
+        label: "GitHub Copilot CLI",
+        hint: "AGENTS.md + .agents/",
+      },
     ]);
     expect(result?.harnesses).toEqual({
       "claude-code": true,
       codex: false,
+      "github-copilot": false,
     });
   });
 
@@ -525,12 +531,14 @@ describe("selection wizard", () => {
     expect(result?.harnesses).toEqual({
       "claude-code": false,
       codex: false,
+      "github-copilot": false,
     });
     expect(afterHarnessSelection).toHaveBeenCalledWith(
       expect.objectContaining({
         harnesses: {
           "claude-code": false,
           codex: false,
+          "github-copilot": false,
         },
       }),
     );

@@ -39,10 +39,10 @@ The setup preview shows the exact native entry, Store scope, and action. Status 
 
 ### Tasks
 
-- [ ] t1: Add the PRD-approved `github-copilot` adapter with one MCP method and exact path detection.
-- [ ] t2: Add the reviewed setup preview and exact entry apply path, with secret redaction.
-- [ ] t3: Bind current calls to the active connection key and machine, project, target, profile, and operation grants.
-- [ ] t4: Keep the generic MCP path available when native ownership or policy blocks the static method.
+- [x] t1: Add the PRD-approved `github-copilot` adapter with one MCP method and exact path detection.
+- [x] t2: Add the reviewed setup preview and exact entry apply path, with secret redaction.
+- [x] t3: Bind current calls to the active connection key and machine, project, target, profile, and operation grants.
+- [x] t4: Keep the generic MCP path available when native ownership or policy blocks the static method.
 
 ### Acceptance criteria
 
@@ -58,10 +58,10 @@ The setup preview shows the exact native entry, Store scope, and action. Status 
 
 ### Tasks
 
-- [ ] t5: Add repeat, drift, repair, rotation, removal, and separate CLI and app status.
-- [ ] t6: Add conflict and custom-home blockers with one recovery action each.
-- [ ] t7: Update the user and maintainer setup guides after the behavior is proved.
-- [ ] t8: Run focused tests and inspect the packaged executable.
+- [x] t5: Add repeat, drift, repair, rotation, removal, and separate CLI and app status.
+- [x] t6: Add conflict and custom-home blockers with one recovery action each.
+- [x] t7: Update the user and maintainer setup guides after the local behavior was proved.
+- [x] t8: Run focused tests and inspect the packaged executable.
 
 ### Acceptance criteria
 
@@ -73,3 +73,11 @@ The setup preview shows the exact native entry, Store scope, and action. Status 
 ### Dependencies
 
 - Stage 1.
+
+## P2 Evidence and Limit
+
+The built package wrote one `mcpServers.make-docs` entry in a disposable Copilot CLI user file. `copilot mcp list --json` and `copilot mcp get make-docs --json` found it as a user source. The reported environment names were `MAKE_DOCS_MCP_CONNECTION_ID` and `MAKE_DOCS_MCP_CONNECTION_KEY`. No saved Copilot entry was changed.
+
+The eight W27 tests cover an unchanged repeat, a user-owned name, a changed receipt entry, reviewed repair of a prior owned entry, a project entry that can shadow the user entry, a custom CLI home, entry removal, reviewed key change, rejection of the old key, and recovery after an interrupted native apply. Removal restores the prior non-Make Docs JSON state. The built server passed local MCP tool discovery, a Store-free resource call, an allowed project status call, and a denied wrong-target call. These checks prove the native entry and server contract. They do not prove a Copilot agent call.
+
+The package build, type check, package dry run, focused tests, PRD authority and link scan, and `git diff --check` passed on 2026-10-24.

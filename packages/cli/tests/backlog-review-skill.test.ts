@@ -41,7 +41,7 @@ describe("backlog-review first-party Skill", () => {
       source: "embedded:backlog-review",
       entryPoint: "SKILL.md",
       purposes: ["backlog-review"],
-      supportedHarnesses: ["claude-code", "codex"],
+      supportedHarnesses: ["claude-code", "codex", "github-copilot"],
     });
     expect(entry?.assets.map((asset) => asset.source)).toEqual([
       "README.md",

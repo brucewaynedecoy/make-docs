@@ -549,7 +549,7 @@ describe("W19 R6 unified setup", () => {
         machineRoot,
         targetRoot: machineRoot,
         storeRoot,
-        selections: { codex: "none", "claude-code": "none" },
+        selections: { codex: "none", "claude-code": "none", "github-copilot": "none" },
         plans: [{
           harness: "codex",
           method: "none",

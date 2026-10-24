@@ -90,9 +90,26 @@ export const CLAUDE_CODE_HARNESS_ADAPTER = createHarnessAdapter({
   ]),
 });
 
+/** The app may consume this CLI entry. Its own installed entries remain user-owned. */
+export const GITHUB_COPILOT_HARNESS_ADAPTER = createHarnessAdapter({
+  id: "make-docs.github-copilot",
+  version: 1,
+  harnessId: "github-copilot",
+  displayName: "GitHub Copilot CLI",
+  executableNames: Object.freeze(["copilot"]),
+  projectRouterFiles: Object.freeze(["AGENTS.md"]),
+  skillRoots: Object.freeze([".agents/skills"]),
+  methods: Object.freeze([
+    method("mcp", "copilot-mcp-json", () => ".copilot/mcp-config.json", {
+      ownedEntry: "mcpServers.make-docs",
+    }),
+  ]),
+});
+
 export const FIRST_PARTY_HARNESS_ADAPTERS: readonly HarnessAdapter[] = Object.freeze([
   CODEX_HARNESS_ADAPTER,
   CLAUDE_CODE_HARNESS_ADAPTER,
+  GITHUB_COPILOT_HARNESS_ADAPTER,
 ]);
 
 export const PI_HARNESS_SUPPORT = Object.freeze({

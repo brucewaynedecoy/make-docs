@@ -3,7 +3,7 @@ import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { platform } from "../platform";
-export type HarnessId = "codex" | "claude-code";
+export type HarnessId = "codex" | "claude-code" | "github-copilot";
 export type HarnessScope = "machine" | "project";
 export type HarnessConnectionMethod = "mcp" | "command-rules" | "permission-rules";
 export type HarnessMethodSelection = "none" | HarnessConnectionMethod;
@@ -18,6 +18,7 @@ export type HarnessNativeFormat =
   | "codex-mcp-toml"
   | "codex-command-rules"
   | "claude-mcp-json"
+  | "copilot-mcp-json"
   | "claude-permission-json";
 
 export interface VerifiedExecutableIdentity {
@@ -781,7 +782,7 @@ function assertHarnessCallerIdentityShape(value: unknown): asserts value is Pars
     (value.adapterVersion as number) < 1 ||
     (generic
       ? typeof value.harnessId !== "string" || !/^generic-mcp-[a-z][a-z0-9-]*$/.test(value.harnessId)
-      : value.harnessId !== "codex" && value.harnessId !== "claude-code") ||
+      : value.harnessId !== "codex" && value.harnessId !== "claude-code" && value.harnessId !== "github-copilot") ||
     !["mcp", "command-rules", "permission-rules"].includes(value.connectionMethod as string) ||
     value.scope !== "machine" ||
     typeof value.root !== "string" ||

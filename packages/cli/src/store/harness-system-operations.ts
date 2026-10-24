@@ -252,7 +252,7 @@ function validatePending(
     pending.kind !== OPERATION ||
     pending.operationId !== rowOperationId ||
     typeof pending.adapterId !== "string" ||
-    (pending.harnessId !== "codex" && pending.harnessId !== "claude-code") ||
+    (pending.harnessId !== "codex" && pending.harnessId !== "claude-code" && pending.harnessId !== "github-copilot") ||
     typeof pending.targetRoot !== "string" ||
     canonicalInstallationPath(pending.targetRoot) !== expectedTargetRoot ||
     !pending.plan ||

@@ -116,6 +116,10 @@ const HARNESS_METADATA: Record<
     label: "Codex",
     hint: "AGENTS.md + .agents/",
   },
+  "github-copilot": {
+    label: "GitHub Copilot CLI",
+    hint: "AGENTS.md + .agents/",
+  },
 };
 
 const MANAGED_FILE_CONFLICT_GROUP_ORDER: readonly string[] = [

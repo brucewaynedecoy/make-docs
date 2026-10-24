@@ -13,7 +13,7 @@ Set product authority and verify current Copilot behavior before source edits.
 
 ## Scope
 
-Inspect the installed `copilot` CLI and GitHub Copilot app separately. Record version, active configuration home, user and project MCP precedence, folder trust, tool list, skill list, and app inheritance. Inspect with read-only commands first. Use disposable configuration for trial writes. Do not alter a real saved connection during the probe.
+Inspect the installed `copilot` CLI and GitHub Copilot app separately. Record version, active configuration home, user and project MCP precedence, folder trust, tool list, skill list, app inheritance, and the app's Customize > MCP install path. Inspect with read-only commands first. Use disposable configuration for trial writes. Do not alter a real saved connection during the probe.
 
 ## Decisions To Freeze
 
@@ -21,6 +21,7 @@ Inspect the installed `copilot` CLI and GitHub Copilot app separately. Record ve
 - The exact user entry path and JSON fields that Make Docs may own.
 - The caller identity and key transport that both clients can present without writing a secret into Git.
 - The behavior when `COPILOT_HOME`, a project entry, a duplicate name, or organization policy changes the active source.
+- The app support result when a same-name app-installed entry exists or the effective entry cannot be proved. The proposed rule is `blocked` with one review action; Make Docs leaves the app's own entry untouched.
 - Which platforms have direct proof. Unproved platforms stay `blocked` or `unsupported`.
 
 ## PRD Reconciliation

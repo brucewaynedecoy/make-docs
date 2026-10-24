@@ -60,7 +60,7 @@ export class HarnessOperationAccessDeniedError extends StoreAccessStateError {
       operation,
       message,
       nextAction ?? (code === "store-not-configured"
-        ? `Run \`make-docs setup --generic-mcp-client <label> --target ${JSON.stringify(targetRoot)}\` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.`
+        ? `Run \`make-docs setup --generic-mcp-client <label> --target ${JSON.stringify(targetRoot)}\` for an unsupported MCP client, or run normal setup and select Codex, Claude Code, or GitHub Copilot CLI.`
         : `Run \`make-docs setup --target ${JSON.stringify(targetRoot)}\` to review machine and project access.`),
       { projectRoot: targetRoot },
     );

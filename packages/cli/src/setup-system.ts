@@ -1,6 +1,6 @@
 import { confirm, isCancel, select } from "@clack/prompts";
 import path from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { createMcpConnection, hashMcpConnectionKey } from "./mcp-connection";
 import { classifyPendingNativeMcpChange, readNativeMcpConnection } from "./harness-access/native";
 import { ExecutableVerificationError, FIRST_PARTY_HARNESS_ADAPTERS, listBoundedHarnessCommandRules, requireFirstPartyHarnessAdapter, resolveHarnessMethodSupport, verifyMakeDocsExecutable, type HarnessAccessReceipt, type HarnessCommandRule, type HarnessCommandRuleAuthority, type HarnessMethodDefinition, type HarnessMethodSelection, type VerifiedExecutableIdentity } from "./harness-access/index.js";
@@ -12,7 +12,7 @@ import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt }
 import { completeHarnessSystemOperation, failHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
 import { readInstallationStatus } from "./store/installation-state";
 import type { SetupHarnessState } from "./setup-state";
-import type { Harness } from "./types";
+import type { Harness, HarnessSelections } from "./types";
 import { platform } from "./platform";
 
 export const SYSTEM_COMMAND_RULE_AUTHORITY: HarnessCommandRuleAuthority = Object.freeze({
@@ -21,11 +21,12 @@ export const SYSTEM_COMMAND_RULE_AUTHORITY: HarnessCommandRuleAuthority = Object
 });
 
 export type SystemSetupStatus = "configured" | "skipped-none" | "blocked" | "partial" | "failed" | "recovery" | "unchanged";
-export interface SystemSetupResult { schemaVersion: 2; status: SystemSetupStatus; scope: "machine"; selections: Record<Harness, HarnessMethodSelection>; configured: Harness[]; skipped: Harness[]; blocked: Array<{ harness: Harness; reason: string; nextAction: string }>; attemptedWork: string[]; mutationState: "none" | "planned" | "partial" | "verified"; failedCondition: string | null; nextAction: string | null; recoveryAction: string | null; }
+export interface SystemSetupResult { schemaVersion: 2; status: SystemSetupStatus; scope: "machine"; selections: HarnessMethodSelections; configured: Harness[]; skipped: Harness[]; blocked: Array<{ harness: Harness; reason: string; nextAction: string }>; attemptedWork: string[]; mutationState: "none" | "planned" | "partial" | "verified"; failedCondition: string | null; nextAction: string | null; recoveryAction: string | null; }
+type HarnessMethodSelections = Record<"claude-code" | "codex", HarnessMethodSelection> & Partial<Record<"github-copilot", HarnessMethodSelection>>;
 export type SystemHarnessState = "current" | "drifted" | "blocked" | "unsupported" | "incomplete" | "pending";
 export interface SystemHarnessOperationEffect { operation: string; store: "none" | "read" | "write"; project: "none" | "read" | "write"; hostConfig: "none" | "read" | "write"; }
 export interface SystemHarnessPlan { harness: Harness; method: string; status: SystemHarnessState; operations: string[]; operationEffects: SystemHarnessOperationEffect[]; allowedStoreOperations: HarnessMethodDefinition["allowedStoreOperations"]; ownedEntries: string[]; machineFiles: string[]; changed: boolean; detail: string; apply(): Promise<void>; verify(): Promise<boolean>; pendingOperation?(): boolean; }
-export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: Record<Harness, boolean>; methods?: Partial<Record<Harness, HarnessMethodSelection>>; rotateMcp?: boolean; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
+export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: import("./types").HarnessSelections; methods?: Partial<Record<Harness, HarnessMethodSelection>>; rotateMcp?: boolean; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
 
 interface SystemIntentChange {
   harness: Harness;
@@ -255,7 +256,7 @@ function persistReviewedDisabledIntents(
   storeRoot: string,
   projected: GlobalConfig,
   selections: Record<Harness, HarnessMethodSelection>,
-  included: Record<Harness, boolean>,
+  included: HarnessSelections,
 ): void {
   for (const harness of Object.keys(selections) as Harness[]) {
     if (included[harness] && selections[harness] === "none") {
@@ -309,7 +310,7 @@ async function selectMethods(
   storeRoot: string,
   executableAttempt: ExecutableVerificationAttempt,
 ): Promise<Record<Harness, HarnessMethodSelection>> {
-  const chosen: Record<Harness, HarnessMethodSelection> = { codex: "none", "claude-code": "none" };
+  const chosen: Record<Harness, HarnessMethodSelection> = { codex: "none", "claude-code": "none", "github-copilot": "none" };
   const existing = loadGlobalConfig(storeRoot).config.settings.harnesses;
   for (const adapter of FIRST_PARTY_HARNESS_ADAPTERS) {
     const saved = existing[adapter.harnessId];
@@ -347,6 +348,10 @@ function buildAdapterPlans(options: RunSystemSetupOptions, selections: Record<Ha
     const definition = adapter.methods.find(item => item.id === method)!;
     const nativeFile = path.resolve(root, definition.nativeFile("machine"));
     const reviewFacts = methodReviewFacts(definition, rules);
+    if (adapter.harnessId === "github-copilot") {
+      const blocker = copilotConfigBlocker(root, targetRoot);
+      if (blocker) { plans.push(blockedPlan(adapter.harnessId, method, blocker, nativeFile, reviewFacts)); continue; }
+    }
     const currentReceipt: HarnessAccessReceipt | null = existsSync(getStoreDatabasePath(storeRoot))
       ? readCurrentHarnessIntegrationReceipt(targetRoot, storeRoot, "machine", adapter.harnessId, method)
       : null;
@@ -381,6 +386,29 @@ function buildAdapterPlans(options: RunSystemSetupOptions, selections: Record<Ha
   return plans;
 }
 
+/** The CLI user entry is the only file this adapter may own. */
+function copilotConfigBlocker(machineRoot: string, targetRoot: string): string | null {
+  const expectedHome = path.resolve(machineRoot, ".copilot");
+  if (process.env.COPILOT_HOME && !platform.samePath(path.resolve(process.env.COPILOT_HOME), expectedHome)) {
+    return "COPILOT_HOME points to a different directory. Use the generic MCP setup path for this custom Copilot home, or use the default CLI home and review a new plan.";
+  }
+  for (const relative of [".mcp.json", ".github/mcp.json"]) {
+    const file = path.join(targetRoot, relative);
+    if (!existsSync(file)) continue;
+    try {
+      if (!lstatSync(file).isFile()) return `The project MCP file ${relative} is not a regular file. Review it before Copilot setup.`;
+      const parsed: unknown = JSON.parse(readFileSync(file, "utf8"));
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return `The project MCP file ${relative} is not a JSON object. Review it before Copilot setup.`;
+      const servers = (parsed as Record<string, unknown>).mcpServers;
+      if (servers !== undefined && (!servers || typeof servers !== "object" || Array.isArray(servers))) return `The project MCP file ${relative} has an invalid mcpServers value. Review it before Copilot setup.`;
+      if (servers && Object.hasOwn(servers, "make-docs")) return `The project MCP file ${relative} has a make-docs entry that can shadow the CLI user entry. Review the project entry before Copilot setup.`;
+    } catch {
+      return `The project MCP file ${relative} cannot be read as JSON. Review it before Copilot setup.`;
+    }
+  }
+  return null;
+}
+
 async function resumePendingSystemSetup(
   options: RunSystemSetupOptions,
   machineRoot: string,
@@ -389,7 +417,7 @@ async function resumePendingSystemSetup(
 ): Promise<SystemSetupResult | null> {
   const pending = readPendingHarnessSystemOperation(targetRoot, storeRoot);
   if (!pending) return null;
-  const selections: Record<Harness, HarnessMethodSelection> = { codex: "none", "claude-code": "none" };
+  const selections: Record<Harness, HarnessMethodSelection> = { codex: "none", "claude-code": "none", "github-copilot": "none" };
   selections[pending.harnessId] = pending.connectionMethod;
   const recoveryAction = `Run \`make-docs setup system --target ${JSON.stringify(targetRoot)}\` again to resume machine setup ${pending.operationId}.`;
   if (options.dryRun) {
@@ -528,7 +556,7 @@ function receiptFromPendingMcpPlan(pending: PendingHarnessSystemOperation): Harn
 function buildIntentProjection(
   storeRoot: string,
   selections: Record<Harness, HarnessMethodSelection>,
-  included: Record<Harness, boolean>,
+  included: HarnessSelections,
   enabled: boolean,
 ): SystemIntentProjection {
   const loaded = loadGlobalConfig(storeRoot);
@@ -571,7 +599,7 @@ function renderIntentChanges(storeRoot: string, changes: readonly SystemIntentCh
   ].join("\n");
 }
 
-function validateProjectHarnessIntegrations(records: readonly ProjectHarnessIntegrationRecord[] | undefined, selections: Record<Harness, HarnessMethodSelection>, included: Record<Harness, boolean>): void {
+function validateProjectHarnessIntegrations(records: readonly ProjectHarnessIntegrationRecord[] | undefined, selections: Record<Harness, HarnessMethodSelection>, included: HarnessSelections): void {
   for (const harness of Object.keys(selections) as Harness[]) {
     if (!included[harness]) continue;
     const method = selections[harness];
@@ -652,7 +680,7 @@ function formatExecutableVerificationFailure(error?: Error): string {
 }
 function blockedPlan(harness: Harness, method: string, detail: string, file: string, reviewFacts: Pick<SystemHarnessPlan, "operations" | "operationEffects" | "allowedStoreOperations" | "ownedEntries">): SystemHarnessPlan { return { harness, method, status: "blocked", ...reviewFacts, machineFiles: [file], changed: false, detail, async apply() {}, async verify() { return false; } }; }
 function makeResult(status: SystemSetupStatus, selections: Record<Harness, HarnessMethodSelection>, configured: Harness[], blocked: SystemSetupResult["blocked"], recoveryAction: string | null): SystemSetupResult { const mutationState: SystemSetupResult["mutationState"] = status === "configured" ? "verified" : status === "partial" || status === "recovery" ? "partial" : "none"; return { schemaVersion: 2, status, scope: "machine", selections, configured, skipped: (Object.keys(selections) as Harness[]).filter(h => selections[h] === "none"), blocked, attemptedWork: [...configured.map(harness => `verified ${harness}`), ...blocked.map(item => `checked ${item.harness}`)], mutationState, failedCondition: blocked[0]?.reason ?? null, nextAction: recoveryAction ?? blocked[0]?.nextAction ?? null, recoveryAction }; }
-function label(harness: Harness): string { return harness === "claude-code" ? "Claude Code" : "Codex"; }
+function label(harness: Harness): string { return harness === "claude-code" ? "Claude Code" : harness === "github-copilot" ? "GitHub Copilot CLI" : "Codex"; }
 
 export function renderSystemPlans(plans: SystemHarnessPlan[]): string {
   if (!plans.length) return ["No native harness method is selected.", "Choosing none makes no native file changes.", "Resource reads need no Store access."].join("\n");
@@ -667,9 +695,13 @@ export function renderSystemPlans(plans: SystemHarnessPlan[]): string {
       `- Store effects: ${plan.operationEffects.map(effect => `${effect.operation} (Store ${effect.store})`).join(", ") || "none"}`,
       `- Access ceiling: Store ${ceiling.store}; project ${ceiling.project}; host config ${ceiling.hostConfig}`,
       `- Effect: ${plan.detail}`,
+      ...(plan.harness === "github-copilot" ? [
+        `- GitHub Copilot CLI: ${plan.status}; this plan checks the CLI user entry.`,
+        "- GitHub Copilot app: blocked until a real app session proves which entry it uses. App-installed entries stay user-owned.",
+      ] : []),
       "- None effect: no native file changes; Store-backed agent operations stay unavailable; resource reads still need no Store access.",
     ];
   }).join("\n");
 }
 export function inspectSystemHarnesses(root = platform.userHome()): SetupHarnessState[] { return FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => { const detection = adapter.detect({ scope: "machine", root }); return { harness: adapter.harnessId, state: detection.state, detail: detection.reason ?? (detection.evidence.length ? detection.evidence.join(", ") : "No native entry found"), ...(detection.state === "blocked" ? { nextAction: `Resolve access to the ${adapter.displayName} native files, then run \`make-docs setup system\` again.` } : {}) }; }); }
-function renderMethodSupport(root: string, selected: Record<Harness, boolean>, executableAttempt: ExecutableVerificationAttempt): string[] { return FIRST_PARTY_HARNESS_ADAPTERS.filter(adapter => selected[adapter.harnessId]).flatMap(adapter => adapter.methods.map(method => { const support = resolveHarnessMethodSupport(adapter, method.id); const state = support.selectable && executableAttempt.executable ? support.state : "blocked"; const detail = support.selectable && executableAttempt.error ? formatExecutableVerificationFailure(executableAttempt.error) : `${support.reason} Next: ${support.nextAction}`; return `${adapter.displayName} ${method.id}: ${state}; ${detail}; native file ${path.resolve(root, method.nativeFile("machine"))}; owned native entries ${method.ownedEntries.join(", ")}.`; })); }
+function renderMethodSupport(root: string, selected: HarnessSelections, executableAttempt: ExecutableVerificationAttempt): string[] { return FIRST_PARTY_HARNESS_ADAPTERS.filter(adapter => selected[adapter.harnessId]).flatMap(adapter => adapter.methods.map(method => { const support = resolveHarnessMethodSupport(adapter, method.id); const state = support.selectable && executableAttempt.executable ? support.state : "blocked"; const detail = support.selectable && executableAttempt.error ? formatExecutableVerificationFailure(executableAttempt.error) : `${support.reason} Next: ${support.nextAction}`; return `${adapter.displayName} ${method.id}: ${state}; ${detail}; native file ${path.resolve(root, method.nativeFile("machine"))}; owned native entries ${method.ownedEntries.join(", ")}.`; })); }

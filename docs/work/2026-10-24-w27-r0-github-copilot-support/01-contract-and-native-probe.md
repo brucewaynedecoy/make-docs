@@ -18,6 +18,10 @@ Prove the installed Copilot contract and make the active PRD ready for code work
 
 Use [the P1 plan](../../plans/2026-10-24-w27-r0-github-copilot-support/01-contract-and-native-probe.md). Keep the installed-client check read-only. Use a disposable profile for any trial entry.
 
+## P1 Read-Only Observation
+
+On 2026-10-24, the installed `copilot` CLI reported version `1.0.102`. The GitHub Copilot app bundle reported version `1.1.30`. The CLI reported a user MCP configuration source, but no Make Docs entry. The check did not prove app MCP precedence, caller identity, Store access, or skill discovery. The saved Copilot configuration was not changed. GitHub's [app customization guide](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app) documents both CLI and repository MCP reuse and the app's own Customize > MCP install path. The owner accepted one managed CLI entry and user-owned app entries. The design and PRD now state that rule.
+
 ## Human Experience Outcome
 
 The later setup can name one exact native change and tell the user which client has proof. The affected surfaces are the Make Docs setup preview and status. The agent reviews the wording after P1. The executor records a redacted probe. No owner acceptance is inferred from a probe.
@@ -40,16 +44,17 @@ The later setup can name one exact native change and tell the user which client 
 
 ### Tasks
 
-- [ ] t1: Record the installed `copilot` CLI and GitHub Copilot app versions and platform.
-- [ ] t2: Check active MCP config home, user and project entry precedence, folder trust, app reuse, and skill discovery.
+- [x] t1: Record the installed `copilot` CLI and GitHub Copilot app versions and platform.
+- [ ] t2: Check active MCP config home, user and project entry precedence, folder trust, app reuse, app-installed MCP entries, and skill discovery.
 - [ ] t3: Check whether both clients pass the proposed connection identity and key to a disposable Make Docs server.
-- [ ] t4: Record blocked states for unproved clients, paths, policies, and platforms.
+- [x] t4: Record blocked states for unproved clients, paths, policies, and platforms.
 
 ### Acceptance criteria
 
 - A redacted record names each observed native source and each unproved assumption.
 - No installed connection changes during the probe.
 - CLI and app findings are separate.
+- A same-name app-installed entry or unknown effective source leaves app support blocked until reviewed.
 
 ### Dependencies
 
@@ -59,7 +64,7 @@ The later setup can name one exact native change and tell the user which client 
 
 ### Tasks
 
-- [ ] t5: Update PRD 28 with the accepted static adapter, one-entry rule, separate client proof, and fallback.
+- [x] t5: Update PRD 28 with the accepted static adapter, one-entry rule, separate client proof, and fallback.
 - [ ] t6: Update PRD 25 or PRD 38 only if a real boundary gap is proved; stop before a Store schema change.
 - [ ] t7: Add W27 R0 requirement history and update the risk register for any new gap.
 

@@ -99,7 +99,7 @@ describe("skill catalog", () => {
       sourcePolicyKind: "first-party",
       provenanceKind: "first-party",
       provenanceLabel: "make-docs embedded first-party Skill",
-      supportedHarnesses: ["claude-code", "codex"],
+      supportedHarnesses: ["claude-code", "codex", "github-copilot"],
       purposes: [
         {
           id: "archive-management",

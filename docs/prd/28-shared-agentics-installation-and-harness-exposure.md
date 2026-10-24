@@ -57,6 +57,8 @@ The native `SKILL.md` is the real entrypoint, never a generic forwarding stub. D
 - R-HARNESS-18 (MUST): a native executable route resolves and verifies the executable at call time. A native entry route verifies the current Make Docs-owned entry and reviewed command boundary. Current access binds the caller, adapter, method, executable proof when applicable, native entry, and operation.
 - R-HARNESS-19 (MUST): generic MCP admission remains per operation under the current accepted registry. The set may expand, contract, or consolidate through approved product work. A server tool is not admitted only because it exists.
 - R-HARNESS-20 (MUST): missing approval, drift, caller mismatch, executable mismatch, or native-entry mismatch stops only the affected operation and shows one recovery action. Status is read-only. Repair or method rotation is a separate reviewed plan and never an automatic verification side effect.
+- R-HARNESS-21 (MUST): GitHub Copilot CLI may offer a first-party MCP method only through a source-owned static adapter with an exact reviewed user configuration entry. The adapter must prove the active Copilot configuration home and effective entry before apply, repair, removal, or a `current` claim. It preserves other servers, unknown fields, and user-owned entries. A repository entry, custom home, duplicate name, or policy that prevents safe ownership blocks the managed method and leaves the generic MCP profile available.
+- R-HARNESS-22 (MUST): the GitHub Copilot app is a separate support result. It may use the CLI or repository MCP configuration, and it also offers an app-owned MCP install path. Make Docs does not edit that app path or create a second entry by default. The app is `current` only after direct installed-app proof identifies the effective Make Docs entry and verifies the same current Store grant and operation boundary. A same-name app-owned entry or unknown effective source blocks the app claim with one review action; a CLI pass alone does not admit the app.
 
 ### Manifest Ownership
 
@@ -145,6 +147,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - Isolated project/global lifecycle checks cover native symlink and copy exposure, repeat, update from old first-party remote provenance without fetch, edited-file conflict, removal, and shared recovery.
 - Isolated-home tests prove exact Codex and Claude Code native changes, user-entry preservation, verified-executable rules, separate machine and project receipts, drift states, and idempotent repeat setup.
 - Direct installed-harness tests prove each shown connection method. Pi stays absent until its first-party extension passes the same lifecycle, adapter-admission, package, and testing gates.
+- Copilot CLI and GitHub Copilot app have separate installed-client proof and support states. A managed CLI entry never implies an app pass. A same-name app-owned entry remains untouched and blocks the app claim until its effective source is reviewed.
 - Codex rule tests prove exact-prefix and outside-sandbox behavior. Claude Code rule tests prove both permission and sandbox behavior without broad home access, or the method stays unavailable with one useful action.
 ## Contracts and Data
 
@@ -245,6 +248,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Verification accepts only a safely resolved exact package bin. Method state is consistent. A bounded generic MCP profile supplies client-owned configuration output and reviewed identity. Active tasks can refresh access and retry one operation without losing Store-free progress.
 - Rationale: Both first-party MCP methods were shown as available and then blocked by a generic executable error, while an agent repeated a method choice instead of recovering access.
 - Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+### 2026-10-24 — W27 R0
+
+- Date: 2026-10-24
+- Coordinate: W27 R0
+- Affected requirement or section: `Harness Connection Methods` and `Acceptance Criteria`
+- Previous contract: Codex and Claude Code were the only first-party static adapters. Generic MCP setup could serve another local client, but it never edited that client's native files.
+- Replacement contract: Copilot CLI may gain a reviewed user MCP entry through one static adapter. The Copilot app is a separate proved consumer. Its own MCP install path stays user-owned, and any unknown effective entry blocks the app support claim.
+- Rationale: GitHub documents both CLI-config reuse and an independent app MCP install path. A CLI entry alone cannot prove the app's effective source.
+- Source: [W27 R0 design](../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [P1 plan](../plans/2026-10-24-w27-r0-github-copilot-support/01-contract-and-native-probe.md)
 
 ## Source Anchors
 
