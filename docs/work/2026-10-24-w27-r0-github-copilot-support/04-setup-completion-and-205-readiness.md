@@ -59,11 +59,11 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 
 ### Tasks
 
-- [ ] t4: Remove the repeated `Project state` text inside the initial card.
-- [ ] t5: Make selected harnesses and their MCP methods produce only their own reviewed native entries.
-- [ ] t6: Permit project apply after a safely blocked MCP method while keeping pending or unsafe native operations on the stop path.
-- [ ] t7: Render separate project and harness results in text and JSON. Add a safe one-time manual MCP entry path and later verification.
-- [ ] t8: Set the publishable package and lock metadata to 2.0.5.
+- [x] t4: Remove the repeated `Project state` text inside the initial card.
+- [x] t5: Make selected harnesses and their MCP methods produce only their own reviewed native entries.
+- [x] t6: Permit project apply after a safely blocked MCP method while keeping pending or unsafe native operations on the stop path.
+- [x] t7: Render separate project and harness results in text and JSON. Add a safe one-time manual MCP entry path and later verification.
+- [x] t8: Set the publishable package and lock metadata to 2.0.5.
 
 ### Acceptance criteria
 
@@ -80,9 +80,9 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 
 ### Tasks
 
-- [ ] t9: Run focused setup tests, build, TypeScript check, package check, and PRD authority validation.
-- [ ] t10: Inspect the rendered wizard card and final terminal result in a disposable setup run.
-- [ ] t11: Record Human Experience Review, exact test results, remaining host limits, and the W27 PR packet.
+- [x] t9: Run focused setup tests, build, TypeScript check, package check, and PRD authority validation.
+- [x] t10: Inspect the rendered wizard card and final terminal result in a disposable setup run.
+- [x] t11: Record Human Experience Review, exact test results, remaining host limits, and the W27 PR packet.
 
 ### Acceptance criteria
 
@@ -92,3 +92,21 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 ### Dependencies
 
 - Stage 2. Installed connection changes, push, PR, and publication need separate approval.
+
+## Verification and Human Experience Review
+
+- The selected-platform test planned a Codex-only entry and then separate Codex and Copilot entries. A mixed apply kept a verified Codex entry while Copilot stayed pending. The user-owned Copilot file did not change.
+- A blocked Copilot-only MCP plan let project setup finish. JSON reported `partial`, `project.state: ready`, and a pending Copilot CLI state. JSON held no raw connection key. A terminal run reported project readiness, the pending platform, and a one-time exact client-owned entry. The test checked only presence flags and did not save the raw key.
+- The manual-entry test found no key in the review or global config. The stored connection was inactive while pending. After the user-owned entry was added, a new setup plan matched the full adapter entry and key hash. Setup then activated the connection. A client policy block still needs client-side action.
+- A disposable 90-column terminal showed `Project state` once as the card title and `fresh.` as its body. The duplicate body label was absent. The final terminal result named the pending platform and its next action.
+- The CLI build and TypeScript check passed. The setup and adapter suite passed 83 tests. The broader CLI suite passed 210 tests before a later result-field compatibility fix; the final focused rerun passed. Default-resource validation passed 53 tests. The 2.0.5 package dry run contained 139 files, the built entry, and the template. The PRD authority check scanned 35 PRDs and 1,142 links with no diagnostic. `git diff --check` passed.
+- P3 proved direct Copilot CLI and app MCP calls on macOS, CLI-entry use by the app, trusted project entry precedence, and app Skill discovery. It did not prove Windows or Linux behavior, app Customize entry conflicts, or a way around an organization MCP policy. Those limits remain in the [P3 work record](03-installed-client-proof.md).
+
+## W27 PR Review Packet
+
+- Base: remote `main` at `47e0e9e8` after the merged W26 Store access work. The local `origin/main` has the same commit. Head: `w27-r0-github-copilot-cli-desktop-support`.
+- Local commits: `564c6d12` W27 plan, `5470fb14` P1-P3 source and proof, `1fe3bc37` P4 plan and PRD, and `267aa080` P4 CLI source and tests. This review record has its own local closeout commit.
+- Proposed title: `feat: [W27 R0] GitHub Copilot CLI and app support with setup completion`.
+- Scope: source-owned Copilot CLI adapter, project instructions and Skills, direct macOS client proof, selected-platform MCP setup, safe partial project result, one-time manual entry recovery, wizard card copy, and CLI version 2.0.5.
+- Review first: the machine and project approval order; client-owned manual entry proof; JSON key redaction; pending-operation stop; and the distinct CLI and app proof limits.
+- Release state: local source and records only. Package publication, installed connection changes, push, and PR need separate approval.
