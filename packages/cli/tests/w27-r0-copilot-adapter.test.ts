@@ -128,6 +128,15 @@ describe("W27 R0 Copilot CLI MCP entry", () => {
     const active = loadGlobalConfig(storeRoot).config.settings.harnesses["github-copilot"];
     expect(active?.mcpConnection?.active).toBe(true);
     expect(matchMcpConnection(loadGlobalConfig(storeRoot).config.settings.harnesses, offer!.connection.id, offer!.connection.key)).not.toBeNull();
+
+    const secondProject = path.join(root, "second-project");
+    mkdirSync(secondProject);
+    const secondPlan = await prepareSystemSetupCommand({ ...options, targetRoot: secondProject });
+    expect(secondPlan.plans[0]).toMatchObject({ status: "current", changed: false });
+    expect(secondPlan.plans[0]?.manualMcpOffer).toBeUndefined();
+    expect((await applyPreparedSystemSetup(secondPlan)).status).toBe("unchanged");
+    expect(matchMcpConnection(loadGlobalConfig(storeRoot).config.settings.harnesses, offer!.connection.id, offer!.connection.key)).not.toBeNull();
+    expect(JSON.parse(readFileSync(file, "utf8")).mcpServers.other).toEqual(other);
   });
 
   it("keeps a verified Codex entry when Copilot needs manual setup", async () => {
@@ -326,6 +335,9 @@ describe("W27 R0 Copilot CLI MCP entry", () => {
     expect(setup.status, setup.stderr || setup.stdout).toBe(0);
     const result = JSON.parse(setup.stdout);
     expect(result.status, JSON.stringify({ failedCondition: result.failedCondition, nextAction: result.nextAction, machine: result.machine?.states })).toBe("complete");
+    const copilotState = result.machine.states.find((state: { harness: string }) => state.harness === "github-copilot");
+    expect(copilotState.state).toBe("current");
+    expect(copilotState.clients.find((client: { client: string }) => client.client === "cli").state).toBe("current");
     const native = JSON.parse(readFileSync(path.join(home, ".copilot/mcp-config.json"), "utf8"));
     const connection = native.mcpServers["make-docs"].env as Record<string, string>;
     const transport = new StdioClientTransport({

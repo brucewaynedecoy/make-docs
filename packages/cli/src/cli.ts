@@ -188,6 +188,7 @@ type SkillsCommandOptions = {
   remove: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
+  noGithubCopilot: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
@@ -484,6 +485,7 @@ export async function runCli(
       remove: parsed.remove,
       noCodex: parsed.noCodex,
       noClaudeCode: parsed.noClaudeCode,
+      noGithubCopilot: parsed.noGithubCopilot,
       skillScope: parsed.skillScope,
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
@@ -2602,33 +2604,40 @@ function writeCanonicalSetupResult(input: {
     machine: {
       selections,
       projectMayProceed: input.system?.projectMayProceed ?? null,
-      states: plans.map(plan => ({
-        harness: plan.harness,
-        method: plan.method,
-        state: input.system?.configured.includes(plan.harness) ? "current"
-          : input.system?.blocked.some(item => item.harness === plan.harness) && !input.system.recoveryAction ? "pending"
-          : plan.status,
-        ...(plan.harness === "github-copilot" ? { clients: [
-          { client: "cli", state: input.system?.blocked.some(item => item.harness === plan.harness) && !input.system.recoveryAction ? "pending" : plan.status },
-          { client: "app", state: "blocked", nextAction: "Open a real app session and verify the effective Make Docs entry. App-installed entries are user-owned." },
-        ] } : {}),
-        attemptedWork: [...plan.operations],
-        mutationState: input.system
-          ? input.system.configured.includes(plan.harness) && plan.changed
-            ? "applied"
-            : input.system.manualInstructions?.some(item => item.harness === plan.harness)
-              ? "partial"
-            : input.system.recoveryAction && plan.pendingOperation?.()
-              ? "partial"
-              : "none"
-          : plan.changed
-            ? (input.dryRun ? "planned" : "none")
-            : "none",
-        detail: plan.detail,
-        ...(input.system?.blocked.find(item => item.harness === plan.harness) ? {
-          nextAction: input.system.blocked.find(item => item.harness === plan.harness)!.nextAction,
-        } : {}),
-      })),
+      states: plans.map(plan => {
+        const pending = input.status === "partial"
+          && input.system?.projectMayProceed === true
+          && !input.system.recoveryAction
+          && input.system.blocked.some(item => item.harness === plan.harness);
+        const state = input.system?.configured.includes(plan.harness) ? "current"
+          : pending ? "pending"
+          : plan.status;
+        return {
+          harness: plan.harness,
+          method: plan.method,
+          state,
+          ...(plan.harness === "github-copilot" ? { clients: [
+            { client: "cli", state },
+            { client: "app", state: "blocked", nextAction: "Open a real app session and verify the effective Make Docs entry. App-installed entries are user-owned." },
+          ] } : {}),
+          attemptedWork: [...plan.operations],
+          mutationState: input.system
+            ? input.system.configured.includes(plan.harness) && plan.changed
+              ? "applied"
+              : input.system.manualInstructions?.some(item => item.harness === plan.harness)
+                ? "partial"
+              : input.system.recoveryAction && plan.pendingOperation?.()
+                ? "partial"
+                : "none"
+            : plan.changed
+              ? (input.dryRun ? "planned" : "none")
+              : "none",
+          detail: plan.detail,
+          ...(input.system?.blocked.find(item => item.harness === plan.harness) ? {
+            nextAction: input.system.blocked.find(item => item.harness === plan.harness)!.nextAction,
+          } : {}),
+        };
+      }),
       configured: input.system?.configured ?? [],
       ...(input.genericMcp ? { genericMcp: {
         ...input.genericMcp,

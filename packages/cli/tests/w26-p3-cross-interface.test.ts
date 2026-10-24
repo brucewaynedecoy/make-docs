@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, test } from "vitest";
 import { parse } from "yaml";
 import { callMakeDocsMcpTool } from "../src/mcp/tools";
+import { verifyMakeDocsExecutable } from "../src/harness-access";
+import { applyGenericMcpSetup, prepareGenericMcpSetup } from "../src/generic-mcp-setup";
 import { MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection";
 import { buildBacklogSnapshot } from "../src/operations/work/backlog/snapshot";
 
@@ -74,12 +76,21 @@ describe("W26 P3 cross-interface proof", () => {
     const project = path.join(root, "project");
     const store = path.join(root, "store");
     mkdirSync(project);
+    const genericPlan = prepareGenericMcpSetup({
+      clientLabel: "p3-grants",
+      storeRoot: store,
+      executable: verifyMakeDocsExecutable({ executablePath: CLI }),
+    });
+    const connection = (genericPlan.configuration as {
+      mcpServers: { "make-docs": { env: Record<string, string> } };
+    }).mcpServers["make-docs"].env;
+    applyGenericMcpSetup(genericPlan);
     const setup = runCli([
       "setup", "--target", project, "--yes", "--no-codex", "--no-claude-code",
       "--no-skills", "--generic-mcp-client", "p3-grants", "--json",
     ], store);
     expect(setup.status).toBe("complete");
-    const connection = setup.machine.genericMcp.configuration.mcpServers["make-docs"].env;
+    expect(setup.machine.genericMcp.configuration).toBeNull();
     process.env.MAKE_DOCS_HOME = store;
     process.env[MCP_CONNECTION_ID_ENV] = connection.MAKE_DOCS_MCP_CONNECTION_ID;
     process.env[MCP_CONNECTION_KEY_ENV] = connection.MAKE_DOCS_MCP_CONNECTION_KEY;

@@ -410,7 +410,7 @@ function buildAdapterPlans(options: RunSystemSetupOptions, selections: Record<Ha
       const pending = pendingManual as Record<string, unknown>;
       let connection: { id: string; key: string } | null = null;
       try { connection = readNativeMcpConnection(adapter, root); } catch { /* Keep the native blocker. */ }
-      if (pending.targetRoot === path.resolve(targetRoot) && connection &&
+      if (connection &&
           pending.id === connection.id && pending.keySha256 === hashMcpConnectionKey(connection.key) &&
           verifyManualMcpEntry(adapter, root, executable, connection)) {
         plans.push({ harness: adapter.harnessId, method, status: "current", ...reviewFacts,

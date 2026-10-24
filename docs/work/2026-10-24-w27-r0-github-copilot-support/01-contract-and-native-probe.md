@@ -64,9 +64,10 @@ The later setup can name one exact native change and tell the user which client 
 
 ### Tasks
 
-- [x] t5: Update PRD 28 with the accepted static adapter, one-entry rule, separate client proof, and fallback.
+- [x] t5: Record the accepted static adapter, one-entry rule, separate client proof, and fallback in PRD 28. This scope decision does not close the native-fact gate.
 - [ ] t6: Update PRD 25 or PRD 38 only if a real boundary gap is proved; stop before a Store schema change.
 - [ ] t7: Add W27 R0 requirement history and update the risk register for any new gap.
+- [ ] t8: Reconcile the remaining native facts from t2 and t3 before closing P1. Keep app-owned entry conflicts and unproved platforms as explicit limits.
 
 ### Acceptance criteria
 

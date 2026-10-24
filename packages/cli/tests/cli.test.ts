@@ -1852,6 +1852,7 @@ personas:
         "--remove",
         "--no-codex",
         "--no-claude-code",
+        "--no-github-copilot",
         "--skill-scope",
         "global",
         "--target",
@@ -1866,6 +1867,7 @@ personas:
         remove: true,
         noCodex: true,
         noClaudeCode: true,
+        noGithubCopilot: true,
         skillScope: "global",
         selectedSkills: undefined,
       });
@@ -1901,6 +1903,7 @@ personas:
         remove: false,
         noCodex: false,
         noClaudeCode: false,
+        noGithubCopilot: false,
         skillScope: undefined,
         selectedSkills: ["decompose-codebase"],
       });
@@ -1979,6 +1982,22 @@ personas:
       expect(output).not.toContain("docs/assets/prompts");
       expect(output).not.toContain("docs/assets/templates");
       expect(output).not.toContain("docs/assets/references");
+    } finally {
+      cleanupTempDir(targetDir);
+    }
+  });
+
+  test("skills sync honors --no-github-copilot", async () => {
+    const targetDir = createTempDir();
+    try {
+      await installManifest(targetDir, (selections) => {
+        enableAllSkills(selections);
+        selections.harnesses["github-copilot"] = true;
+        selections.skillHarnesses = { ...selections.harnesses };
+      });
+
+      await captureCliOutput(["setup", "skills", "--yes", "--no-github-copilot", "--target", targetDir]);
+      expect(loadManifest(targetDir)?.selections.skillHarnesses?.["github-copilot"]).toBe(false);
     } finally {
       cleanupTempDir(targetDir);
     }

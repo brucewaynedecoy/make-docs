@@ -49,7 +49,8 @@ Evidence required:
 
 - A redacted setup preview and reviewed apply receipt for a disposable Copilot configuration.
 - Direct CLI and app sessions that list the Make Docs tools and exercise a Store read and a denied operation.
-- A changed-config, removed-entry, rollback, and repeat-setup check for each applicable client.
+- A changed-config, removed-entry, rollback, and repeat-setup check for the CLI-managed entry.
+- An app observation that identifies whether the effective entry is present, absent, or blocked. This check does not write an app-owned entry.
 
 ## Performance Evidence Candidates
 
