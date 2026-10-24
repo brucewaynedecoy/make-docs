@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,7 +8,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { fingerprintEntry, GITHUB_COPILOT_HARNESS_ADAPTER, sha256, verifyMakeDocsExecutable } from "../src/harness-access/index.js";
 import { readNativeMcpConnection } from "../src/harness-access/native.js";
-import { prepareSystemSetupCommand, runSystemSetupCommand } from "../src/setup-system.js";
+import { applyPreparedSystemSetup, prepareSystemSetupCommand, runSystemSetupCommand } from "../src/setup-system.js";
 import { MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection.js";
 import { matchMcpConnection } from "../src/mcp-connection.js";
 import { loadGlobalConfig } from "../src/store/global-config.js";
@@ -29,6 +29,128 @@ function fixture() {
 }
 
 describe("W27 R0 Copilot CLI MCP entry", () => {
+  it("plans native MCP entries only for selected platforms", async () => {
+    const { root, executable } = fixture();
+    const base = { dryRun: true, yes: true, machineRoot: root, targetRoot: root,
+      storeRoot: path.join(root, "store"), executable };
+    const codex = await prepareSystemSetupCommand({ ...base,
+      harnesses: { codex: true, "claude-code": false, "github-copilot": false },
+      methods: { codex: "mcp" } });
+    expect(codex.plans.map(plan => plan.harness)).toEqual(["codex"]);
+    const both = await prepareSystemSetupCommand({ ...base,
+      harnesses: { codex: true, "claude-code": false, "github-copilot": true },
+      methods: { codex: "mcp", "github-copilot": "mcp" } });
+    expect(both.plans.map(plan => plan.harness)).toEqual(["codex", "github-copilot"]);
+  });
+
+  it("keeps a one-time manual key out of JSON setup", async () => {
+    const { root, executable } = fixture();
+    const project = path.join(root, "project");
+    const file = path.join(root, ".copilot/mcp-config.json");
+    mkdirSync(project);
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, JSON.stringify({ mcpServers: { "make-docs": { command: "/bin/true" } } }));
+    const storeRoot = path.join(root, "store");
+    const prepared = await prepareSystemSetupCommand({
+      dryRun: false, yes: true, machineRoot: root, targetRoot: project, storeRoot, executable,
+      harnesses: { codex: false, "claude-code": false, "github-copilot": true },
+      methods: { "github-copilot": "mcp" }, projectHarnessIntegrations: [],
+      persistIntent: true, manualMcpOutput: false,
+    });
+    expect(prepared.plans[0]?.manualMcpOffer).toBeUndefined();
+    const result = await applyPreparedSystemSetup(prepared);
+    expect(result.status).toBe("partial");
+    expect(result.manualInstructions).toEqual([]);
+    expect(loadGlobalConfig(storeRoot).config.settings.harnesses["github-copilot"]?.mcpConnection).toBeUndefined();
+  });
+
+  it("finishes project setup with one pending Copilot entry in JSON", () => {
+    const { root, executable } = fixture();
+    const home = path.join(root, "home");
+    const project = path.join(root, "project");
+    const store = path.join(root, "store");
+    const nativeFile = path.join(home, ".copilot/mcp-config.json");
+    mkdirSync(project);
+    mkdirSync(path.dirname(nativeFile), { recursive: true });
+    const userEntry = { type: "local", command: "/bin/true", args: [] };
+    writeFileSync(nativeFile, JSON.stringify({ mcpServers: { "make-docs": userEntry } }));
+    const env = { ...process.env, HOME: home, USERPROFILE: home,
+      COPILOT_HOME: path.join(home, ".copilot"), MAKE_DOCS_HOME: store };
+    const args = [executable.path, "setup", "--yes", "--no-codex", "--no-claude-code",
+      "--no-skills", "--github-copilot-method", "mcp", "--target", project];
+    const json = spawnSync(process.execPath, [...args, "--json"], {
+      cwd: project, env, encoding: "utf8", timeout: 60_000,
+    });
+    expect(json.status, json.stderr || json.stdout).toBe(0);
+    const result = JSON.parse(json.stdout);
+    expect(result.status).toBe("partial");
+    expect(result.project.state).toBe("ready");
+    expect(result.machine.states.find((item: { harness: string }) => item.harness === "github-copilot").state).toBe("pending");
+    expect(json.stdout).not.toContain(MCP_CONNECTION_KEY_ENV);
+    expect(existsSync(path.join(project, ".make-docs/config.yaml"))).toBe(true);
+    expect(JSON.parse(readFileSync(nativeFile, "utf8")).mcpServers["make-docs"]).toEqual(userEntry);
+  });
+
+  it("keeps project setup available and verifies a later client-owned manual entry", async () => {
+    const { root, executable } = fixture();
+    const project = path.join(root, "project");
+    const storeRoot = path.join(root, "store");
+    const file = path.join(root, ".copilot/mcp-config.json");
+    mkdirSync(project);
+    mkdirSync(path.dirname(file), { recursive: true });
+    const other = { type: "local", command: "/bin/true", args: [], tools: ["hello"] };
+    writeFileSync(file, JSON.stringify({ mcpServers: { other, "make-docs": other } }));
+    const options = {
+      dryRun: false, yes: true, machineRoot: root, targetRoot: project, storeRoot, executable,
+      harnesses: { codex: false, "claude-code": false, "github-copilot": true },
+      methods: { "github-copilot": "mcp" as const },
+      projectHarnessIntegrations: [], persistIntent: true, manualMcpOutput: true,
+    };
+    const prepared = await prepareSystemSetupCommand(options);
+    const offer = prepared.plans[0]?.manualMcpOffer;
+    expect(prepared.plans[0]?.status).toBe("blocked");
+    expect(offer).toBeDefined();
+    expect(prepared.review).not.toContain(offer!.connection.key);
+    const partial = await applyPreparedSystemSetup(prepared);
+    expect(partial.status).toBe("partial");
+    expect(partial.recoveryAction).toBeNull();
+    expect(partial.manualInstructions?.[0]?.text).toContain(offer!.connection.key);
+    expect(JSON.parse(readFileSync(file, "utf8")).mcpServers.other).toEqual(other);
+    const pending = loadGlobalConfig(storeRoot).config.settings.harnesses["github-copilot"];
+    expect(pending?.mcpConnection?.active).toBe(false);
+    expect(JSON.stringify(pending)).not.toContain(offer!.connection.key);
+
+    const manual = JSON.parse(partial.manualInstructions![0]!.text);
+    writeFileSync(file, JSON.stringify({ mcpServers: { other, "make-docs": manual.mcpServers["make-docs"] } }));
+    const followUp = await prepareSystemSetupCommand(options);
+    expect(followUp.plans[0]).toMatchObject({ status: "current", changed: false });
+    expect((await applyPreparedSystemSetup(followUp)).status).toBe("unchanged");
+    const active = loadGlobalConfig(storeRoot).config.settings.harnesses["github-copilot"];
+    expect(active?.mcpConnection?.active).toBe(true);
+    expect(matchMcpConnection(loadGlobalConfig(storeRoot).config.settings.harnesses, offer!.connection.id, offer!.connection.key)).not.toBeNull();
+  });
+
+  it("keeps a verified Codex entry when Copilot needs manual setup", async () => {
+    const { root, executable } = fixture();
+    const project = path.join(root, "project");
+    const file = path.join(root, ".copilot/mcp-config.json");
+    mkdirSync(project);
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, JSON.stringify({ mcpServers: { "make-docs": { command: "/bin/true" } } }));
+    const prepared = await prepareSystemSetupCommand({
+      dryRun: false, yes: true, machineRoot: root, targetRoot: project,
+      storeRoot: path.join(root, "store"), executable,
+      harnesses: { codex: true, "claude-code": false, "github-copilot": true },
+      methods: { codex: "mcp", "github-copilot": "mcp" },
+      projectHarnessIntegrations: [], persistIntent: true, manualMcpOutput: true,
+    });
+    const result = await applyPreparedSystemSetup(prepared);
+    expect(result.status).toBe("partial");
+    expect(result.configured).toContain("codex");
+    expect(result.blocked.map(item => item.harness)).toEqual(["github-copilot"]);
+    expect(existsSync(path.join(root, ".codex/config.toml"))).toBe(true);
+    expect(result.manualInstructions?.map(item => item.harness)).toEqual(["github-copilot"]);
+  });
   it("writes one reviewed CLI entry and preserves other servers through repeat and removal", () => {
     const { root, executable } = fixture();
     const file = path.join(root, ".copilot/mcp-config.json");

@@ -884,7 +884,7 @@ function createClackWizardRenderer(): WizardRenderer {
       intro(title);
     },
     showProjectState(state) {
-      note(`Project state: ${state}.`, "Project state");
+      note(`${state}.`, "Project state");
     },
     async editCapabilities(state) {
       return promptForCapabilities(state.selections, state.config);

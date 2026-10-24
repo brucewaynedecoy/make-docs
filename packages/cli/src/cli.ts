@@ -111,6 +111,7 @@ import {
   type GenericMcpAction,
   type GenericMcpSetupPlan,
 } from "./generic-mcp-setup";
+import { redactMcpNativeValue } from "./mcp-connection";
 
 /**
  * The seven-command top level per PRD 39 R-TOP-1.
@@ -932,6 +933,7 @@ export async function runCli(
       "github-copilot": selections.harnesses["github-copilot"],
     },
     projectHarnessIntegrations: makeDocsConfig.harnessIntegrations,
+    manualMcpOutput: !jsonOutput,
     targetRoot: targetDir,
     persistIntent: true,
   };
@@ -1489,9 +1491,10 @@ export async function runCli(
   if (!jsonOutput && appliedGenericMcpPlan?.configuration) {
     output.write(renderGenericMcpSetupResult(appliedGenericMcpPlan));
   }
-  if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
-    else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
+  if (systemSetup.projectMayProceed === false ||
+      (systemSetup.projectMayProceed === undefined && ["blocked", "failed", "recovery"].includes(systemSetup.status))) {
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.nextAction });
+    else output.write(`Setup stopped at machine scope. ${systemSetup.nextAction ?? "Review the machine state."}\n`);
     return;
   }
 
@@ -1671,7 +1674,7 @@ export async function runCli(
 
   if (jsonOutput) {
     writeCanonicalSetupResult({
-      status: "complete",
+      status: systemSetup.status === "partial" ? "partial" : "complete",
       dryRun: false,
       targetRoot: targetDir,
       system: systemSetup,
@@ -1684,8 +1687,20 @@ export async function runCli(
         projectPrerequisiteChanged || applied.mutationApplied ? "applied" : "none",
       projectActions: applied.appliedActions,
       failedCondition: null,
-      nextAction: null,
+      nextAction: systemSetup.blocked[0]?.nextAction ?? null,
     });
+  } else if (systemSetup.status === "partial") {
+    output.write("Project setup: ready. MCP setup still needs manual work for these platforms:\n");
+    for (const item of systemSetup.blocked) {
+      output.write(`- ${item.harness}: pending. ${item.reason}\n`);
+      output.write(`  Next: ${item.nextAction}\n`);
+      const manual = systemSetup.manualInstructions?.find(entry => entry.harness === item.harness);
+      if (manual) {
+        output.write(`  Add this one-time MCP entry in ${manual.path} (${manual.entryId}):\n`);
+        output.write(`${manual.text}\n`);
+        output.write("  The client may still block this entry by policy. Run setup again after you add it.\n");
+      }
+    }
   }
 
 
@@ -2532,6 +2547,7 @@ function renderSystemSetupResult(result: import("./setup-system").SystemSetupRes
     `Machine setup: ${result.status}.`,
     `Codex method: ${result.selections.codex}.`,
     `Claude Code method: ${result.selections["claude-code"]}.`,
+    `GitHub Copilot method: ${result.selections["github-copilot"] ?? "none"}.`,
   ];
   for (const blocked of result.blocked) {
     lines.push(`${blocked.harness}: ${blocked.reason}`);
@@ -2560,7 +2576,7 @@ function storePrerequisiteFailureAction(error: unknown): string {
 }
 
 function writeCanonicalSetupResult(input: {
-  status: "planned" | "complete" | "blocked" | "machine-recovered";
+  status: "planned" | "complete" | "partial" | "blocked" | "machine-recovered";
   dryRun: boolean;
   targetRoot: string;
   prepared?: import("./setup-system").PreparedSystemSetup;
@@ -2585,30 +2601,41 @@ function writeCanonicalSetupResult(input: {
     targetRoot: input.targetRoot,
     machine: {
       selections,
+      projectMayProceed: input.system?.projectMayProceed ?? null,
       states: plans.map(plan => ({
         harness: plan.harness,
         method: plan.method,
-        state: plan.status,
+        state: input.system?.configured.includes(plan.harness) ? "current"
+          : input.system?.blocked.some(item => item.harness === plan.harness) && !input.system.recoveryAction ? "pending"
+          : plan.status,
         ...(plan.harness === "github-copilot" ? { clients: [
-          { client: "cli", state: plan.status },
+          { client: "cli", state: input.system?.blocked.some(item => item.harness === plan.harness) && !input.system.recoveryAction ? "pending" : plan.status },
           { client: "app", state: "blocked", nextAction: "Open a real app session and verify the effective Make Docs entry. App-installed entries are user-owned." },
         ] } : {}),
         attemptedWork: [...plan.operations],
         mutationState: input.system
-          ? input.system.mutationState === "partial"
-            ? "partial"
-            : input.system.mutationState === "verified" &&
-                plan.changed &&
-                input.system.configured.includes(plan.harness)
-              ? "applied"
+          ? input.system.configured.includes(plan.harness) && plan.changed
+            ? "applied"
+            : input.system.manualInstructions?.some(item => item.harness === plan.harness)
+              ? "partial"
+            : input.system.recoveryAction && plan.pendingOperation?.()
+              ? "partial"
               : "none"
           : plan.changed
             ? (input.dryRun ? "planned" : "none")
             : "none",
         detail: plan.detail,
+        ...(input.system?.blocked.find(item => item.harness === plan.harness) ? {
+          nextAction: input.system.blocked.find(item => item.harness === plan.harness)!.nextAction,
+        } : {}),
       })),
       configured: input.system?.configured ?? [],
-      ...(input.genericMcp ? { genericMcp: input.genericMcp } : {}),
+      ...(input.genericMcp ? { genericMcp: {
+        ...input.genericMcp,
+        configuration: input.genericMcp.configuration
+          ? redactMcpNativeValue(input.genericMcp.configuration)
+          : null,
+      } } : {}),
     },
     store: input.storeBridge ? {
       state: input.storeBridge.storeState,
@@ -2626,6 +2653,7 @@ function writeCanonicalSetupResult(input: {
     } : null,
     projectRecovery: input.projectRecovery ?? null,
     project: {
+      state: input.status === "complete" || input.status === "partial" ? "ready" : input.status,
       changed: input.projectChanged,
       mutationState: input.projectMutationState ?? (
         input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none"

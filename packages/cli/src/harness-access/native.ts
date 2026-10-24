@@ -709,6 +709,42 @@ export function readNativeMcpConnection(
   return parseNativeMcpConnection(method.nativeFormat, readNativeContent(root, nativePath));
 }
 
+/** Render a reviewed, client-owned MCP entry without changing the native file. */
+export function renderManualMcpEntry(
+  adapter: HarnessAdapter,
+  root: string,
+  executable: VerifiedExecutableIdentity,
+  connection: { id: string; key: string },
+): { path: string; entryId: string; text: string } {
+  const method = requireMethod(adapter, "mcp", "machine");
+  const desired = desiredEntry(adapter, method, "machine", root, executable, undefined, undefined, connection);
+  const value = method.nativeFormat === "codex-mcp-toml"
+    ? String(desired.value)
+    : JSON.stringify({ mcpServers: { "make-docs": desired.value } }, null, 2);
+  return { path: path.resolve(root, desired.path), entryId: desired.entryId, text: value };
+}
+
+/** Check a manually added entry without claiming ownership of that entry. */
+export function verifyManualMcpEntry(
+  adapter: HarnessAdapter,
+  root: string,
+  executable: VerifiedExecutableIdentity,
+  connection: { id: string; key: string },
+): boolean {
+  const method = requireMethod(adapter, "mcp", "machine");
+  assertSafeRoot(root);
+  const desired = desiredEntry(adapter, method, "machine", root, executable, undefined, undefined, connection);
+  assertNativePath(root, desired.path);
+  try {
+    const content = readNativeContent(root, desired.path);
+    const actual = inspectEntry(method.nativeFormat, content, desired.value);
+    return actual.exists && actual.value !== null &&
+      fingerprintEntry(actual.value) === fingerprintEntry(desired.value);
+  } catch {
+    return false;
+  }
+}
+
 /** Inspect a pending MCP write without using the redacted plan as write input. */
 export function classifyPendingNativeMcpChange(
   adapter: HarnessAdapter,
