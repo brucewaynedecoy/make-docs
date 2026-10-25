@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Contract and Native Probe"
 kind: "work"
-status: "draft"
+status: "active"
 coordinate: "W27 R0 P1"
 source:
   type: "prd"
@@ -45,8 +45,8 @@ The later setup can name one exact native change and tell the user which client 
 ### Tasks
 
 - [x] t1: Record the installed `copilot` CLI and GitHub Copilot app versions and platform.
-- [ ] t2: Check active MCP config home, user and project entry precedence, folder trust, app reuse, app-installed MCP entries, and skill discovery.
-- [ ] t3: Check whether both clients pass the proposed connection identity and key to a disposable Make Docs server.
+- [ ] t2: Check a same-name MCP entry added through the app. The config home, CLI and project precedence, folder trust, app reuse, and Skill discovery have direct macOS proof.
+- [x] t3: Check whether both clients pass the proposed connection identity and key to a disposable Make Docs server.
 - [x] t4: Record blocked states for unproved clients, paths, policies, and platforms.
 
 ### Acceptance criteria
@@ -65,9 +65,13 @@ The later setup can name one exact native change and tell the user which client 
 ### Tasks
 
 - [x] t5: Record the accepted static adapter, one-entry rule, separate client proof, and fallback in PRD 28. This scope decision does not close the native-fact gate.
-- [ ] t6: Update PRD 25 or PRD 38 only if a real boundary gap is proved; stop before a Store schema change.
-- [ ] t7: Add W27 R0 requirement history and update the risk register for any new gap.
-- [ ] t8: Reconcile the remaining native facts from t2 and t3 before closing P1. Keep app-owned entry conflicts and unproved platforms as explicit limits.
+- [x] t6: Review PRD 25 and PRD 38 for a boundary gap. No new Store schema or operation boundary change was needed.
+- [x] t7: Add W27 R0 requirement history. No new product gap required a risk-register entry.
+- [x] t8: Reconcile the native facts proved by t2 and t3. Keep app-owned entry conflicts and unproved platforms as explicit limits.
+
+## Closeout limit
+
+The macOS CLI and app tests proved CLI-entry reuse, trusted project-entry precedence, connection-key refusal, and Skill discovery. The same-name entry added through the app remains unproved, so t2 stays open for that case. The [P3 work record](03-installed-client-proof.md) gives the direct client evidence and keeps Windows and Linux client runs open. P1 makes no claim for those cases.
 
 ### Acceptance criteria
 

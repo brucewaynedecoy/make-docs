@@ -1,13 +1,13 @@
 ---
 title: "W27 R0 GitHub Copilot Support Work Backlog"
 kind: "work"
-status: "draft"
+status: "active"
 coordinate: "W27 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "The queue follows the accepted plan and the active PRD after P1 reconciliation."
-  coordinate_handoff: "Use W27 R0 P1-P3 for task and evidence records."
+  why: "P1 and P3 retain two bounded client-proof limits while 2.0.5 receives release review."
+  coordinate_handoff: "Use P1 t2 for app-added entry proof and P3 t4 for direct Windows and Linux client proof."
 source:
   type: "prd"
   path: "docs/prd/28-shared-agentics-installation-and-harness-exposure.md"
