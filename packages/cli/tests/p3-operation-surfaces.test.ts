@@ -127,7 +127,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.some((id) => id.startsWith("protocol."))).toBe(false);
     for (const id of LEGACY_COMPATIBILITY_OPERATION_IDS) {
       expect(() => operationCliCommand(id)).toThrow("Unknown operation identifier");
-      expect(deriveMcpToolName(id)).toBe(`make_docs_${id.replace(/[.-]/g, "_")}`);
+      expect(() => deriveMcpToolName(id)).toThrow("Missing MCP tool name for operation");
     }
   });
 
@@ -157,7 +157,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       { targetRoot: project },
       createExecutionContext({ surface: "cli", cwd: project }),
     );
-    const toolList = await callMakeDocsMcpTool("make_docs_resource_list", { targetRoot: project });
+    const toolList = await callMakeDocsMcpTool("resource_list", { targetRoot: project });
     expect(toolList.result).toEqual(directList.value);
 
     const nativeList = await listNativeMcpResources(project);
@@ -187,7 +187,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
         { uri: entry.identity.uri, targetRoot: project },
         createExecutionContext({ surface: "cli", cwd: project }),
       );
-      const toolRead = await callMakeDocsMcpTool("make_docs_resource_read", {
+      const toolRead = await callMakeDocsMcpTool("resource_read", {
         uri: entry.identity.uri,
         targetRoot: project,
       });
@@ -246,8 +246,8 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       project: projectContext(project, [overrideEvidence]),
     }));
 
-    const listTool = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === "make_docs_resource_list")!;
-    const readTool = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === "make_docs_resource_read")!;
+    const listTool = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === "resource_list")!;
+    const readTool = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === "resource_read")!;
     expect(Object.keys(listTool.inputSchema)).toEqual(
       expect.arrayContaining(["origin", "prefix", "targetRoot", "type"]),
     );
@@ -257,7 +257,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(listTool.inputSchema).not.toHaveProperty("format");
     expect(readTool.inputSchema).not.toHaveProperty("format");
 
-    const mcpLocalList = await callMakeDocsMcpTool("make_docs_resource_list", {
+    const mcpLocalList = await callMakeDocsMcpTool("resource_list", {
       targetRoot: project,
       type: "contract",
       prefix: contract.identity.path,
@@ -275,7 +275,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       }),
     ]);
 
-    const mcpInstalledRead = await callMakeDocsMcpTool("make_docs_resource_read", {
+    const mcpInstalledRead = await callMakeDocsMcpTool("resource_read", {
       uri: contract.identity.uri,
       targetRoot: project,
       origin: "installed",
@@ -449,15 +449,15 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
     const secondInput = { uri: secondEntry.identity.uri, targetRoot: project };
     await expect(
-      callMakeDocsMcpTool("make_docs_resource_ensure", secondInput),
+      callMakeDocsMcpTool("resource_ensure", secondInput),
     ).rejects.toBeInstanceOf(OperationWriteDeniedError);
     await expect(
-      callMakeDocsMcpTool("make_docs_resource_ensure", {
+      callMakeDocsMcpTool("resource_ensure", {
         ...secondInput,
         allowWrite: true,
       }),
     ).rejects.toBeInstanceOf(OperationApprovalRequiredError);
-    await expect(callMakeDocsMcpTool("make_docs_resource_ensure", {
+    await expect(callMakeDocsMcpTool("resource_ensure", {
       ...secondInput,
       allowWrite: true,
       approvals: [SYSTEM_RESOURCE_ENSURE_APPROVAL],

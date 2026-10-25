@@ -242,7 +242,7 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
   it("lists definition UI metadata and keeps complete client data out of model text", async () => {
     const value = report(); value.records[0].facts[0].text = "CLIENT_ONLY_FULL_REPORT_FACT";
     await withClient(async client => {
-      const tool = (await client.listTools()).tools.find(tool => tool.name === "make_docs_backlog_review_open")!;
+      const tool = (await client.listTools()).tools.find(tool => tool.name === "backlog_review_open")!;
       expect(tool._meta).toEqual({ ui: { resourceUri: BACKLOG_REVIEW_UI_RESOURCE.uri } });
       const result = await client.callTool({ name: tool.name, arguments: { report: value } });
       expect(result.isError).not.toBe(true);
@@ -257,7 +257,7 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
   it("returns typed source and cache limits on the refresh wire without a model-report leak", async () => {
     source();
     await withClient(async client => {
-      const result = await client.callTool({ name: "make_docs_backlog_review_refresh", arguments: { envelope: envelope() } });
+      const result = await client.callTool({ name: "backlog_review_refresh", arguments: { envelope: envelope() } });
       expect(result.isError).not.toBe(true);
       const payload = BacklogReviewRefreshPayloadV1Schema.parse(result);
       expect(payload._meta.backlog.refresh.state).toBe("unchanged");
@@ -271,12 +271,12 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
   it.each(MCP_SERVER_PROFILES)("exposes the two derived tools and one UI only in the allowed %s profile", async profile => {
     const allowed = profile === "all" || profile === "backlog";
     const names = listMakeDocsMcpTools(undefined, { profile }).map(tool => tool.name);
-    expect(names.includes("make_docs_backlog_review_open")).toBe(allowed);
-    expect(names.includes("make_docs_backlog_review_refresh")).toBe(allowed);
+    expect(names.includes("backlog_review_open")).toBe(allowed);
+    expect(names.includes("backlog_review_refresh")).toBe(allowed);
     expect(defaultAppResources(profile).length).toBe(allowed ? 1 : 0);
     if (!allowed) {
       const handler = spyHandler(open);
-      await expect(callMakeDocsMcpTool("make_docs_backlog_review_open", { report: report() }, { profile })).rejects.toThrow();
+      await expect(callMakeDocsMcpTool("backlog_review_open", { report: report() }, { profile })).rejects.toThrow();
       expect(handler).not.toHaveBeenCalled();
     }
   });
@@ -293,7 +293,7 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
   });
 
   it("isolates returned UI metadata from the canonical descriptors", () => {
-    const first = listMakeDocsMcpTools(undefined, { profile: "backlog" }).find(tool => tool.name === "make_docs_backlog_review_open")!;
+    const first = listMakeDocsMcpTools(undefined, { profile: "backlog" }).find(tool => tool.name === "backlog_review_open")!;
     first._meta!.ui.resourceUri = "ui://other/app/v9.html";
     expect(listMakeDocsMcpTools(undefined, { profile: "all" }).find(tool => tool.name === first.name)?._meta?.ui.resourceUri).toBe(BACKLOG_REVIEW_UI_RESOURCE.uri);
   });
@@ -302,10 +302,10 @@ describe("W25 R0 P4 MCP wire and bounded resource", () => {
     const html = defaultAppResources("backlog")[0].text;
     expect(html).toContain("widgetReport");
     expect(html).toContain("ui/notifications/tool-result");
-    expect(html.includes("make_docs_backlog_review_refresh")).toBe(true);
+    expect(html.includes("backlog_review_refresh")).toBe(true);
     expect(html.includes("tools/call")).toBe(true);
     expect(html.includes("ui/message")).toBe(true);
-    expect(/fetch\(|work\.backlog-cache\.write|make_docs_work_backlog_cache_write/.test(html)).toBe(false);
+    expect(/fetch\(|work\.backlog-cache\.write|backlog_cache_write|make_docs_work_backlog_cache_write/.test(html)).toBe(false);
     // Full validation and the bounded, fixed requests are widget/controller checks.
   });
 });

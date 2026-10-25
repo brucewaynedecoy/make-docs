@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "coordinate": "W26 R0 P3",
+  "capturedAt": "2026-10-23T23:50:31Z",
+  "branch": "w26-r0-simplified-store-access",
+  "sourceCommit": "0398949e0a752e687eedd3f7318eaccdfefc9757",
+  "scope": "Local candidate and isolated temporary project and Store. The saved Codex MCP entries were not changed.",
+  "candidateDistSha256": "37e1a87009652dab324bf14d0fd8a25b7509499c7ef8071c7e95299e89da4b2e",
+  "checks": {
+    "build": "pass",
+    "focusedTests": {
+      "result": "pass",
+      "files": 12,
+      "tests": 278
+    },
+    "freshSetup": {
+      "result": "pass",
+      "storeSchemaVersion": 6,
+      "genericMcpClient": "temporary client only"
+    },
+    "snapshotParity": {
+      "result": "pass",
+      "surface": "CLI and local MCP stdio",
+      "records": 0
+    },
+    "cacheProof": {
+      "result": "pass",
+      "surface": "CLI and local MCP stdio",
+      "input": "Copied W26 R1 work record with a synthetic test review fragment",
+      "records": 1,
+      "coldMisses": 1,
+      "refusedWriteChangedStore": false,
+      "explicitWriteIntentStored": 1,
+      "warmHits": 1
+    },
+    "denialProbes": {
+      "result": "pass",
+      "clientWithNoProjectGrant": "store-not-configured",
+      "wrongClientKey": "store-denied"
+    }
+  },
+  "installedHost": {
+    "selectedEntry": "make_docs",
+    "entryOwnership": "user-owned",
+    "entryChanged": false,
+    "installedDistSha256": "97d38f20a7ff7e2f90dc1d998acc66de9277df7040aacc2b7babfbe8cd051c14",
+    "activeInstalledProcessesAtCheck": 10,
+    "dryRunResult": "blocked: A user-owned Codex MCP entry already uses mcp_servers.make_docs."
+  },
+  "openProof": [
+    "Installed make_docs host call from the W26 candidate",
+    "Sandboxed client with no Store file access",
+    "Full grant-state and denied-write matrix",
+    "Migration and rollback on the exact candidate",
+    "Dirty-source and moved-checkout version parity"
+  ]
+}

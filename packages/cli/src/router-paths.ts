@@ -90,7 +90,7 @@ export function isConfiguredRouterPath(
 
 /** Static source variants keep the declared harness set readable without the CLI. */
 export function getRouterTemplateSourcePath(profile: InstallProfile, relativePath: string): string {
-  if (relativePath === "docs/AGENTS.md" && profile.selections.harnesses.codex && !profile.selections.harnesses["claude-code"]) return "docs/AGENTS.codex-only.md";
+  if (relativePath === "docs/AGENTS.md" && (profile.selections.harnesses.codex || profile.selections.harnesses["github-copilot"]) && !profile.selections.harnesses["claude-code"]) return "docs/AGENTS.codex-only.md";
   if (relativePath === "docs/CLAUDE.md" && profile.selections.harnesses["claude-code"] && !profile.selections.harnesses.codex) return "docs/CLAUDE.claude-only.md";
   return relativePath;
 }

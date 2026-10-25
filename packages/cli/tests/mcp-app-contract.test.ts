@@ -121,7 +121,7 @@ describe("P2 static MCP Apps resource boundary", () => {
         expect((await protocol.client.listTools()).tools.map(tool => tool.name)).toEqual(
           listMakeDocsMcpTools(process.cwd(), { profile: "all" }).map(tool => tool.name),
         );
-        expect((await protocol.client.callTool({ name: "make_docs_operation_domains", arguments: {} })).isError).not.toBe(true);
+        expect((await protocol.client.callTool({ name: "domains", arguments: {} })).isError).not.toBe(true);
         expect(protocol.client.getServerCapabilities()?.extensions).toEqual({
           "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] },
         });

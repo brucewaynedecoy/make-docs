@@ -23,6 +23,8 @@ lifecycle:
 
 Plan the shared access and data correction needed by W25 R0. Package F in the Bear coordinating plan maps to W26 R0. Its F1–F3 names are external planning labels only.
 
+This record stands on the W24 local `main` baseline. The W26 branch carries its own plan and work records. It does not carry W25 widget or live app code. The P1 access design was accepted on 2026-10-09. Current policy and installed connections did not change with that decision.
+
 ## Objective
 
 Make normal supported CLI and MCP setup reach allowed project and Store operations through one bounded policy. Keep explicit denial, Store safeguards, write gates, and shared identity and source-version rules. No policy implementation begins before the owner accepts the P1 design packet.
@@ -49,7 +51,7 @@ The active work-directory inventory reaches W25 R0 and contains no W26 R0. Use W
 | W25 cache and live consumption | `link-only` here | PRD 51 and W25 R0 own app behavior. |
 | Access risk and authority navigation | `update-existing` | PRD 03 and PRD 00. |
 
-The current PRD 25 caller-proof contract stays normative until the owner approves the exact P1 policy redline. P2 may not use this plan alone as permission to remove a check.
+The owner accepted the exact P1 access design on 2026-10-09. The current PRD 25 caller-proof contract stays normative until separately approved P2 work updates the PRDs and implementation. P1 acceptance alone removes no live check.
 
 This is a disclosed lifecycle departure. The P1 work record exists before the exact PRD access change because P1 must discover and present that change. After approval, P2 updates the owning PRDs before source implementation. P3 tests the accepted result.
 
@@ -64,7 +66,7 @@ This is a disclosed lifecycle departure. The P1 work record exists before the ex
 ## Dependencies
 
 - P1 reads the current PRDs, operation registry, setup path, and Store safeguards. It includes no policy edit.
-- P2 waits for the P1 access design and its exact PRD redline approval. Connection replacement is a separate W25 gate.
+- P2 has the P1 access-design decision. Before implementation, show the selected installed connection's enforced rules and differences from PRDs 25, 38, and 39. P2 work and its limit still need separate approval. Connection replacement is a separate W25 gate.
 - P3 tests the exact P2 source and setup result. W25 R0 P9 may integrate approved source in parallel only with clear ownership. W25 R0 P11 waits for passed P3 checks.
 - Later Q, U, H, and B packages are outside W26 R0. A future HTTP adapter must consume this core and policy.
 
@@ -75,6 +77,7 @@ The proposed first window is 90 active minutes for the P1 trace, inventory, affe
 ## Validation
 
 - Verify the call path for snapshot, cache lookup/write, and refresh through CLI and MCP.
+- Prove shared Store admission and cache behavior through the common operations. Trace the W25 Refresh call path, but leave visible app Refresh proof to W25 after it takes in the Store access change.
 - Test allowed, missing, read-only, revoked, out-of-scope, and unsafe Store states with exact typed reasons.
 - Test normal setup and migration without a private identity patch or grant widening.
 - Test dirty-source version, project/checkout selection, and unknown-state parity.

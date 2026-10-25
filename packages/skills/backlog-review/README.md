@@ -242,9 +242,9 @@ make-docs run work backlog-cache write \
 The MCP equivalents are:
 
 ```text
-make_docs_work_backlog_snapshot
-make_docs_work_backlog_cache_lookup
-make_docs_work_backlog_cache_write
+backlog_snapshot
+backlog_cache_read
+backlog_cache_write
 ```
 
 Lookup needs Store-read and project-read access. Write needs Store-write and project-read access.
@@ -255,7 +255,7 @@ There is no single CLI command that performs the full agent review. The Skill co
 
 There is also no dedicated cache `list`, `status`, or `clear` command. The read-only lookup operation is the supported way to inspect reuse for a current snapshot.
 
-The source registry also defines `backlog.review.open` and `backlog.review.refresh`. Their MCP names are `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`. They belong to the `backlog` profile and its exact `all` union. Open accepts `{report: BacklogReportV1, sessionId?: UUID}`. A report-only call keeps fresh server-generated UUID behavior. A trusted agent can supply a fresh UUID to retain its own open context. Refresh accepts `{envelope: BacklogLiveEnvelopeV1}`. Both reject unknown fields. Open validates the full report and returns unchanged V1 text/summary/client payload shapes. It needs no Store access. Refresh reads the current snapshot before one optional exact cache lookup. That nested lookup retains the existing caller and Store gate. Refresh writes no review conclusion or cache entry.
+The source registry also defines `backlog.review.open` and `backlog.review.refresh`. Their MCP names are `backlog_review_open` and `backlog_review_refresh`. They belong to the `backlog` profile and its exact `all` union. Open accepts `{report: BacklogReportV1, sessionId?: UUID}`. A report-only call keeps fresh server-generated UUID behavior. A trusted agent can supply a fresh UUID to retain its own open context. Refresh accepts `{envelope: BacklogLiveEnvelopeV1}`. Both reject unknown fields. Open validates the full report and returns unchanged V1 text/summary/client payload shapes. It needs no Store access. Refresh reads the current snapshot before one optional exact cache lookup. That nested lookup retains the active-key, current-grant, and Store gates. Refresh writes no review conclusion or cache entry.
 
 Both tools link `ui://make-docs/backlog-review/v1.html`. The widget shows the complete validated report with the accepted layout. Search, filter, sort, disclosure, theme, print, the Data modal, and user-started JSON download change only the local view. They make no tool call and send no agent message. The icon-only top Data button sits to the right of Refresh and opens the existing Data content. Work/Data tabs are absent. Display-size notifications do not request agent work. Icon-only Refresh sits beside Mode/Print. Explain this wave and Work on this wave sit inside expanded wave details. They send fixed messages to the connected agent's current chat and create no task. The app renders no per-wave request feedback and adds no replacement request words to the footer. Request controls follow the controlled flow below. Missing bridge support keeps useful prior data and a clear limit; if no valid report exists, state that limit. The active agent reports actual host results in chat. Tool success does not prove host display. Message receipt does not prove explanation or work. Installed host behavior needs separate proof. Read [the delivery rules](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/review-method.md#select-one-delivery-route) before making a live claim.
 

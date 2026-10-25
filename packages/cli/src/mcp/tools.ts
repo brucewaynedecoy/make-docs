@@ -32,12 +32,12 @@ import type {
 import { readPackageMeta } from "../utils";
 
 type HandDefinedMcpToolName =
-  | "make_docs_operation_domains"
-  | "make_docs_installed_state"
-  | "make_docs_manifest_read"
-  | "make_docs_config_read"
-  | "make_docs_compatibility_classify"
-  | "make_docs_install_plan";
+  | "domains"
+  | "install_status"
+  | "manifest"
+  | "config"
+  | "compatibility"
+  | "install_plan";
 
 type McpToolInput = Record<string, unknown>;
 
@@ -81,14 +81,14 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
   mcp: McpToolMetadata;
 })[] = [
   {
-    name: "make_docs_operation_domains",
+    name: "domains",
     mcp: { profiles: ["core"], defaultExposure: "eager" },
     title: "List Make Docs Operation Domains",
     description: "List deterministic operation domains shared by CLI and MCP tools.",
     inputSchema: {},
   },
   {
-    name: "make_docs_installed_state",
+    name: "install_status",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Inspect Make Docs Installed State",
     description:
@@ -96,28 +96,28 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "make_docs_manifest_read",
+    name: "manifest",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Manifest",
     description: "Read .make-docs/manifest.json without mutating the project.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "make_docs_config_read",
+    name: "config",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Config",
     description: "Read .make-docs/config.yaml with default overlay diagnostics.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "make_docs_compatibility_classify",
+    name: "compatibility",
     mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Classify Make Docs Compatibility State",
     description: "Run the same compatibility classifier used by the CLI.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "make_docs_install_plan",
+    name: "install_plan",
     mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Plan Make Docs Install Or Sync",
     description:
@@ -132,13 +132,56 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
 ];
 
 /**
- * MCP tool-name derivation rule (R-MIG-3): `make_docs_` + the registry
- * identifier with its `.` and `-` separators mapped to `_`
- * (`resource.list` -> `make_docs_resource_list`,
- * `package.surface-resolve` -> `make_docs_package_surface_resolve`).
+ * W26 R1 MCP presentation names. Registry IDs remain the operation authority.
  */
+export const MCP_TOOL_NAME_BY_OPERATION: Readonly<Record<string, string>> = Object.freeze({
+  "prd.authority.validate": "prd_validate",
+  "performance.evidence.validate": "performance_validate",
+  "work.item.resolve": "work_item_resolve",
+  "work.evidence.record": "evidence_record",
+  "work.evidence.read": "evidence_read",
+  "work.backlog.snapshot": "backlog_snapshot",
+  "work.backlog-cache.lookup": "backlog_cache_read",
+  "work.backlog-cache.write": "backlog_cache_write",
+  "backlog.review.open": "backlog_review_open",
+  "backlog.review.refresh": "backlog_review_refresh",
+  "resource.list": "resource_list",
+  "resource.read": "resource_read",
+  "resource.ensure": "resource_ensure",
+  "project.state.status": "project_status",
+  "project.state.recover": "project_recover",
+  "project.persona.list": "personas",
+  "project.layout.preview": "layout_preview",
+  "project.layout.prepare": "layout_prepare",
+  "project.layout.apply": "layout_apply",
+  "project.layout.verify": "layout_verify",
+  "project.surface.ensure": "surface_ensure",
+  "project.path-hygiene.validate": "paths_validate",
+  "project.path-hygiene.repair": "paths_repair",
+  "lifecycle.start": "lifecycle_start",
+  "lifecycle.show": "lifecycle_show",
+  "lifecycle.list": "lifecycle_list",
+  "lifecycle.checkpoint": "lifecycle_checkpoint",
+  "lifecycle.pause": "lifecycle_pause",
+  "lifecycle.resume": "lifecycle_resume",
+  "lifecycle.attach-evidence": "lifecycle_attach_evidence",
+  "lifecycle.complete": "lifecycle_complete",
+  "lifecycle.fail": "lifecycle_fail",
+  "lifecycle.abandon": "lifecycle_abandon",
+  "uat.scenario.validate": "uat_scenario_validate",
+  "uat.persona.resolve": "uat_persona_resolve",
+  "uat.target.validate": "uat_target_validate",
+  "uat.evidence-reference.validate": "uat_evidence_validate",
+  "uat.finding.validate": "uat_finding_validate",
+  "uat.result.validate": "uat_result_validate",
+});
+
 export function deriveMcpToolName(operationId: string): string {
-  return `make_docs_${operationId.replace(/[.-]/g, "_")}`;
+  const name = MCP_TOOL_NAME_BY_OPERATION[operationId];
+  if (name === undefined) {
+    throw new Error(`Missing MCP tool name for operation: ${operationId}`);
+  }
+  return name;
 }
 
 /**
@@ -205,10 +248,9 @@ function deriveToolDescription(definition: OperationDefinition): string {
 }
 
 /**
- * The derived operation tool list (R-REG-2, R-MIG-3): every registry
- * identifier — active and pending — gets exactly one MCP tool, with name,
- * title, description, and input schema derived from its registry
- * definition. No operation tool is hand-maintained here.
+ * The operation tool list (R-REG-2, R-MIG-3): every admitted registry
+ * identifier gets one mapped MCP name. Other tool fields come from its
+ * registry definition.
  */
 const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations().map(
   (operation) => {
@@ -236,6 +278,18 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   ...HAND_DEFINED_MCP_TOOLS,
   ...DERIVED_MCP_OPERATION_TOOLS,
 ];
+
+const registryToolIds = new Set(listOperations().map((operation) => operation.id));
+const mappedToolIds = Object.keys(MCP_TOOL_NAME_BY_OPERATION);
+if (
+  mappedToolIds.some((id) => !registryToolIds.has(id)) ||
+  [...registryToolIds].some((id) => !Object.hasOwn(MCP_TOOL_NAME_BY_OPERATION, id))
+) {
+  throw new Error("MCP tool name map must match admitted registry operations");
+}
+if (new Set(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).size !== MAKE_DOCS_MCP_TOOLS.length) {
+  throw new Error("MCP tool names must be unique");
+}
 
 for (const tool of MAKE_DOCS_MCP_TOOLS) {
   if (tool.mcpReady !== false || tool.mcp !== undefined) {
@@ -317,7 +371,7 @@ export function verifyDerivedMcpToolParity(
     if (!registryIds.has(tool.operation)) {
       unknownOperations.push(tool.operation);
     }
-    if (tool.name !== deriveMcpToolName(tool.operation)) {
+    if (registryIds.has(tool.operation) && tool.name !== deriveMcpToolName(tool.operation)) {
       misderivedNames.push(tool.name);
     }
   }
@@ -339,20 +393,20 @@ export async function callMakeDocsMcpTool(
     throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
   switch (name) {
-    case "make_docs_operation_domains":
+    case "domains":
       return mcpPayload(name, listOperationDomains());
-    case "make_docs_installed_state":
+    case "install_status":
       return mcpPayload(name, await readInstalledState(resolveTargetDir(args)));
-    case "make_docs_manifest_read":
+    case "manifest":
       return mcpPayload(name, readManifest(resolveTargetDir(args)));
-    case "make_docs_config_read":
+    case "config":
       return mcpPayload(name, readConfig(resolveTargetDir(args)));
-    case "make_docs_compatibility_classify":
+    case "compatibility":
       return mcpPayload(
         name,
         await classifyCompatibilityState({ targetDir: resolveTargetDir(args) }),
       );
-    case "make_docs_install_plan":
+    case "install_plan":
       return mcpPayload(name, await buildInstallPlan(resolveTargetDir(args), args));
   }
   const derived = DERIVED_TOOLS_BY_NAME.get(name);
@@ -387,6 +441,8 @@ async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promi
       surface: "mcp",
       route: "mcp",
       callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
+      mcpConnectionId: process.env.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: process.env.MAKE_DOCS_MCP_CONNECTION_KEY,
       writesAllowed: allowWrite === true,
       dryRun: dryRun === true,
       approvals: Array.isArray(approvals) ? approvals.map(String) : [],

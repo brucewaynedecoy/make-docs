@@ -84,7 +84,7 @@ describe("P7 fixed focused budget", () => {
   });
   it("O7 invalid input fails through both transports", async () => {
     await expect(runCli(args("uat.target.validate",{}))).rejects.toThrow();
-    await expect(callMakeDocsMcpTool("make_docs_uat_target_validate",{})).rejects.toThrow();
+    await expect(callMakeDocsMcpTool("uat_target_validate",{})).rejects.toThrow();
   });
   it("O8 provider workflow works without snapshots or Skill", async () => {
     const f = fixture(); expect((await invoke("uat.persona.resolve",{targetRoot:f.root})).value).toMatchObject({authority:UAT_WORKFLOW_RESOURCES,persona:{slug:"user"}});

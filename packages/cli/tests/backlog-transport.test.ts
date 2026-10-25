@@ -102,7 +102,7 @@ describe("lossless backlog client transport", () => {
     await Promise.all([server.connect(right), client.connect(left)]);
     try {
       const canonical = createBacklogLivePayload(fixture, PRESENTATION_SESSION_ID);
-      const received = await client.callTool({ name: "make_docs_backlog_review_open",
+      const received = await client.callTool({ name: "backlog_review_open",
         arguments: { report: fixture, sessionId: PRESENTATION_SESSION_ID } });
       expect(received.isError).not.toBe(true);
       expect(received._meta).not.toHaveProperty("backlog");

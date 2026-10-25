@@ -111,6 +111,7 @@ import {
   type GenericMcpAction,
   type GenericMcpSetupPlan,
 } from "./generic-mcp-setup";
+import { redactMcpNativeValue } from "./mcp-connection";
 
 /**
  * The seven-command top level per PRD 39 R-TOP-1.
@@ -150,10 +151,13 @@ interface ParsedArgs {
   noWork: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
+  noGithubCopilot: boolean;
   codexMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "command-rules">;
   claudeCodeMethod?: Extract<HarnessMethodSelection, "none" | "mcp" | "permission-rules">;
+  githubCopilotMethod?: Extract<HarnessMethodSelection, "none" | "mcp">;
   genericMcpClient?: string;
   genericMcpAction?: GenericMcpAction;
+  rotateMcp?: boolean;
   mcpProfile?: McpServerProfile;
   json: boolean;
   noSkills: boolean;
@@ -184,6 +188,7 @@ type SkillsCommandOptions = {
   remove: boolean;
   noCodex: boolean;
   noClaudeCode: boolean;
+  noGithubCopilot?: boolean;
   skillScope?: InstallSelections["skillScope"];
   selectedSkills?: string[];
   skillsManifest?: string;
@@ -400,15 +405,18 @@ export async function runCli(
     const result = await runSystemSetupCommand({
       dryRun: parsed.dryRun,
       yes: parsed.yes,
+      rotateMcp: parsed.rotateMcp,
       promptForMethods: !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY),
       targetRoot: path.resolve(parsed.targetDir ?? process.cwd()),
       methods: {
         ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
         ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
+        ...(parsed.githubCopilotMethod !== undefined ? { "github-copilot": parsed.githubCopilotMethod } : {}),
       },
       harnesses: {
         "claude-code": parsed.claudeCodeMethod !== undefined || !parsed.noClaudeCode,
         codex: parsed.codexMethod !== undefined || !parsed.noCodex,
+        "github-copilot": parsed.githubCopilotMethod !== undefined && !parsed.noGithubCopilot,
       },
       ...(!parsed.json && output.isTTY ? { onReview: (review: string) => note(review, "This computer") } : {}),
     });
@@ -477,6 +485,7 @@ export async function runCli(
       remove: parsed.remove,
       noCodex: parsed.noCodex,
       noClaudeCode: parsed.noClaudeCode,
+      ...(parsed.noGithubCopilot ? { noGithubCopilot: true } : {}),
       skillScope: parsed.skillScope,
       selectedSkills:
         parsed.selectedSkills === undefined ? undefined : [...parsed.selectedSkills],
@@ -816,7 +825,7 @@ export async function runCli(
   ) {
     selectionSource = "verified completed-removal resource records";
   }
-  let interactiveMethodSelections: Partial<Record<"codex" | "claude-code", HarnessMethodSelection>> = {};
+  let interactiveMethodSelections: Partial<Record<"codex" | "claude-code" | "github-copilot", HarnessMethodSelection>> = {};
 
   if (interactive) {
     const { inspectSystemHarnesses, promptForSystemSetupMethods } = await import("./setup-system");
@@ -829,10 +838,12 @@ export async function runCli(
         methods: {
           ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
           ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
+          ...(parsed.githubCopilotMethod !== undefined ? { "github-copilot": parsed.githubCopilotMethod } : {}),
         },
         harnesses: {
           codex: wizardSelections.harnesses.codex,
           "claude-code": wizardSelections.harnesses["claude-code"],
+          "github-copilot": wizardSelections.harnesses["github-copilot"],
         },
         projectHarnessIntegrations: makeDocsConfig.harnessIntegrations,
         targetRoot: targetDir,
@@ -916,12 +927,15 @@ export async function runCli(
       ...interactiveMethodSelections,
       ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
       ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
+      ...(parsed.githubCopilotMethod !== undefined ? { "github-copilot": parsed.githubCopilotMethod } : {}),
     },
     harnesses: {
       "claude-code": selections.harnesses["claude-code"],
       codex: selections.harnesses.codex,
+      "github-copilot": selections.harnesses["github-copilot"],
     },
     projectHarnessIntegrations: makeDocsConfig.harnessIntegrations,
+    manualMcpOutput: !jsonOutput,
     targetRoot: targetDir,
     persistIntent: true,
   };
@@ -1479,9 +1493,10 @@ export async function runCli(
   if (!jsonOutput && appliedGenericMcpPlan?.configuration) {
     output.write(renderGenericMcpSetupResult(appliedGenericMcpPlan));
   }
-  if (["blocked", "failed", "recovery"].includes(systemSetup.status)) {
-    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.recoveryAction });
-    else output.write(`Setup stopped at machine scope. ${systemSetup.recoveryAction ?? "Review the machine state."}\n`);
+  if (systemSetup.projectMayProceed === false ||
+      (systemSetup.projectMayProceed === undefined && ["blocked", "failed", "recovery"].includes(systemSetup.status))) {
+    if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: false, targetRoot: targetDir, system: systemSetup, prepared: preparedSystemSetup, genericMcp: appliedGenericMcpPlan, storeBridge: appliedStoreBridge, projectRecovery: priorProjectRecovery, projectChanged: recoveredProjectChanged, projectMutationState: recoveredProjectChanged ? "applied" : "none", projectActions: plan.actions, failedCondition: systemSetup.blocked[0]?.reason ?? systemSetup.status, nextAction: systemSetup.nextAction });
+    else output.write(`Setup stopped at machine scope. ${systemSetup.nextAction ?? "Review the machine state."}\n`);
     return;
   }
 
@@ -1661,7 +1676,7 @@ export async function runCli(
 
   if (jsonOutput) {
     writeCanonicalSetupResult({
-      status: "complete",
+      status: systemSetup.status === "partial" ? "partial" : "complete",
       dryRun: false,
       targetRoot: targetDir,
       system: systemSetup,
@@ -1674,8 +1689,20 @@ export async function runCli(
         projectPrerequisiteChanged || applied.mutationApplied ? "applied" : "none",
       projectActions: applied.appliedActions,
       failedCondition: null,
-      nextAction: null,
+      nextAction: systemSetup.blocked[0]?.nextAction ?? null,
     });
+  } else if (systemSetup.status === "partial") {
+    output.write("Project setup: ready. MCP setup still needs manual work for these platforms:\n");
+    for (const item of systemSetup.blocked) {
+      output.write(`- ${item.harness}: pending. ${item.reason}\n`);
+      output.write(`  Next: ${item.nextAction}\n`);
+      const manual = systemSetup.manualInstructions?.find(entry => entry.harness === item.harness);
+      if (manual) {
+        output.write(`  Add this one-time MCP entry in ${manual.path} (${manual.entryId}):\n`);
+        output.write(`${manual.text}\n`);
+        output.write("  The client may still block this entry by policy. Run setup again after you add it.\n");
+      }
+    }
   }
 
 
@@ -1899,12 +1926,14 @@ function resolveSelections(options: {
   if (parsed.noClaudeCode) {
     selections.harnesses["claude-code"] = false;
   }
+  if (parsed.noGithubCopilot) selections.harnesses["github-copilot"] = false;
   if (parsed.codexMethod !== undefined) {
     selections.harnesses.codex = true;
   }
   if (parsed.claudeCodeMethod !== undefined) {
     selections.harnesses["claude-code"] = true;
   }
+  if (parsed.githubCopilotMethod !== undefined) selections.harnesses["github-copilot"] = true;
   if (parsed.noSkills) {
     selections.skills = false;
     selections.selectedSkills = [];
@@ -2009,8 +2038,10 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.noWork ||
       parsed.noCodex ||
       parsed.noClaudeCode ||
+      parsed.noGithubCopilot ||
       parsed.codexMethod !== undefined ||
       parsed.claudeCodeMethod !== undefined ||
+      parsed.githubCopilotMethod !== undefined ||
       parsed.noSkills ||
       parsed.skillsManifest ||
       parsed.skillScope ||
@@ -2086,12 +2117,14 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.noClaudeCode) {
     flags.push("--no-claude-code");
   }
+  if (parsed.noGithubCopilot) flags.push("--no-github-copilot");
   if (parsed.codexMethod !== undefined) {
     flags.push("--codex-method");
   }
   if (parsed.claudeCodeMethod !== undefined) {
     flags.push("--claude-code-method");
   }
+  if (parsed.githubCopilotMethod !== undefined) flags.push("--github-copilot-method");
   if (parsed.genericMcpClient !== undefined) flags.push("--generic-mcp-client");
   if (parsed.genericMcpAction !== undefined) flags.push("--generic-mcp-action");
   if (parsed.noSkills) {
@@ -2126,6 +2159,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     noWork: false,
     noCodex: false,
     noClaudeCode: false,
+    noGithubCopilot: false,
     json: false,
     noSkills: false,
     runArgs: [],
@@ -2268,6 +2302,9 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--no-claude":
         parsed.noClaudeCode = true;
         break;
+      case "--no-github-copilot":
+        parsed.noGithubCopilot = true;
+        break;
       case "--codex-method": {
         const value = args.shift();
         if (value !== "none" && value !== "mcp" && value !== "command-rules") {
@@ -2284,6 +2321,12 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.claudeCodeMethod = value;
         break;
       }
+      case "--github-copilot-method": {
+        const value = args.shift();
+        if (value !== "none" && value !== "mcp") throw new Error("`--github-copilot-method` must be none or mcp.");
+        parsed.githubCopilotMethod = value;
+        break;
+      }
       case "--generic-mcp-client": {
         const value = args.shift();
         if (!value) throw new Error("`--generic-mcp-client` requires a stable local client label.");
@@ -2298,6 +2341,9 @@ function parseArgs(argv: string[]): ParsedArgs {
         parsed.genericMcpAction = value;
         break;
       }
+      case "--rotate-mcp":
+        parsed.rotateMcp = true;
+        break;
       case "--no-skills":
         parsed.noSkills = true;
         break;
@@ -2503,6 +2549,7 @@ function renderSystemSetupResult(result: import("./setup-system").SystemSetupRes
     `Machine setup: ${result.status}.`,
     `Codex method: ${result.selections.codex}.`,
     `Claude Code method: ${result.selections["claude-code"]}.`,
+    `GitHub Copilot method: ${result.selections["github-copilot"] ?? "none"}.`,
   ];
   for (const blocked of result.blocked) {
     lines.push(`${blocked.harness}: ${blocked.reason}`);
@@ -2531,7 +2578,7 @@ function storePrerequisiteFailureAction(error: unknown): string {
 }
 
 function writeCanonicalSetupResult(input: {
-  status: "planned" | "complete" | "blocked" | "machine-recovered";
+  status: "planned" | "complete" | "partial" | "blocked" | "machine-recovered";
   dryRun: boolean;
   targetRoot: string;
   prepared?: import("./setup-system").PreparedSystemSetup;
@@ -2546,7 +2593,7 @@ function writeCanonicalSetupResult(input: {
   failedCondition: string | null;
   nextAction: string | null;
 }): void {
-  const selections = input.system?.selections ?? input.prepared?.selections ?? { codex: "none", "claude-code": "none" };
+  const selections = input.system?.selections ?? input.prepared?.selections ?? { codex: "none", "claude-code": "none", "github-copilot": "none" };
   const plans = input.prepared?.plans ?? [];
   output.write(`${JSON.stringify({
     schemaVersion: 2,
@@ -2556,26 +2603,48 @@ function writeCanonicalSetupResult(input: {
     targetRoot: input.targetRoot,
     machine: {
       selections,
-      states: plans.map(plan => ({
-        harness: plan.harness,
-        method: plan.method,
-        state: plan.status,
-        attemptedWork: [...plan.operations],
-        mutationState: input.system
-          ? input.system.mutationState === "partial"
-            ? "partial"
-            : input.system.mutationState === "verified" &&
-                plan.changed &&
-                input.system.configured.includes(plan.harness)
+      projectMayProceed: input.system?.projectMayProceed ?? null,
+      states: plans.map(plan => {
+        const pending = input.status === "partial"
+          && input.system?.projectMayProceed === true
+          && !input.system.recoveryAction
+          && input.system.blocked.some(item => item.harness === plan.harness);
+        const state = input.system?.configured.includes(plan.harness) ? "current"
+          : pending ? "pending"
+          : plan.status;
+        return {
+          harness: plan.harness,
+          method: plan.method,
+          state,
+          ...(plan.harness === "github-copilot" ? { clients: [
+            { client: "cli", state },
+            { client: "app", state: "blocked", nextAction: "Open a real app session and verify the effective Make Docs entry. App-installed entries are user-owned." },
+          ] } : {}),
+          attemptedWork: [...plan.operations],
+          mutationState: input.system
+            ? input.system.configured.includes(plan.harness) && plan.changed
               ? "applied"
-              : "none"
-          : plan.changed
-            ? (input.dryRun ? "planned" : "none")
-            : "none",
-        detail: plan.detail,
-      })),
+              : input.system.manualInstructions?.some(item => item.harness === plan.harness)
+                ? "partial"
+              : input.system.recoveryAction && plan.pendingOperation?.()
+                ? "partial"
+                : "none"
+            : plan.changed
+              ? (input.dryRun ? "planned" : "none")
+              : "none",
+          detail: plan.detail,
+          ...(input.system?.blocked.find(item => item.harness === plan.harness) ? {
+            nextAction: input.system.blocked.find(item => item.harness === plan.harness)!.nextAction,
+          } : {}),
+        };
+      }),
       configured: input.system?.configured ?? [],
-      ...(input.genericMcp ? { genericMcp: input.genericMcp } : {}),
+      ...(input.genericMcp ? { genericMcp: {
+        ...input.genericMcp,
+        configuration: input.genericMcp.configuration
+          ? redactMcpNativeValue(input.genericMcp.configuration)
+          : null,
+      } } : {}),
     },
     store: input.storeBridge ? {
       state: input.storeBridge.storeState,
@@ -2593,6 +2662,7 @@ function writeCanonicalSetupResult(input: {
     } : null,
     projectRecovery: input.projectRecovery ?? null,
     project: {
+      state: input.status === "complete" || input.status === "partial" ? "ready" : input.status,
       changed: input.projectChanged,
       mutationState: input.projectMutationState ?? (
         input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none"
@@ -2607,13 +2677,19 @@ function writeCanonicalSetupResult(input: {
 }
 
 function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.rotateMcp && (parsed.command !== "setup" || parsed.setupSubcommand !== "system")) {
+    throw new Error("`--rotate-mcp` is valid only with `make-docs setup system`.");
+  }
   if (parsed.codexMethod !== undefined && parsed.noCodex) {
     throw new Error("`--codex-method` cannot be combined with `--no-codex`.");
   }
   if (parsed.claudeCodeMethod !== undefined && parsed.noClaudeCode) {
     throw new Error("`--claude-code-method` cannot be combined with `--no-claude-code`.");
   }
-  if ((parsed.codexMethod !== undefined || parsed.claudeCodeMethod !== undefined || parsed.genericMcpClient !== undefined || parsed.genericMcpAction !== undefined) &&
+  if (parsed.githubCopilotMethod !== undefined && parsed.noGithubCopilot) {
+    throw new Error("`--github-copilot-method` cannot be combined with `--no-github-copilot`.");
+  }
+  if ((parsed.codexMethod !== undefined || parsed.claudeCodeMethod !== undefined || parsed.githubCopilotMethod !== undefined || parsed.genericMcpClient !== undefined || parsed.genericMcpAction !== undefined) &&
       (parsed.command !== "setup" || ["skills", "backup", "remove"].includes(parsed.setupSubcommand ?? ""))) {
     throw new Error("Harness and generic MCP flags are valid only with setup, setup reconfigure, or setup system.");
   }
@@ -3153,11 +3229,13 @@ const SETUP_SHARED_OPTIONS = `General options:
 Harness options:
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --github-copilot-method <none|mcp>
   --generic-mcp-client <label>  Add one bounded generic MCP client profile.
   --generic-mcp-action <configure|rotate|repair|remove>
                                 Choose its repeat-safe lifecycle action.
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
+  --no-github-copilot           Skip the GitHub Copilot CLI harness.
   Deprecated aliases: --no-agents, --no-claude
 
 Skill options:
@@ -3190,11 +3268,13 @@ Content options:
 Harness options:
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --github-copilot-method <none|mcp>
   --generic-mcp-client <label>  Add one bounded generic MCP client profile.
   --generic-mcp-action <configure|rotate|repair|remove>
                                 Choose its repeat-safe lifecycle action.
   --no-codex                     Skip the Codex harness.
   --no-claude-code               Skip the Claude Code harness.
+  --no-github-copilot           Skip the GitHub Copilot CLI harness.
   Deprecated aliases: --no-agents, --no-claude
 
 Skill selections:
@@ -3211,7 +3291,7 @@ function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
       case "system":
         output.write(`make-docs setup system
 
-Review and configure machine-level support for Codex and Claude Code.
+Review and configure machine-level support for Codex, Claude Code, and GitHub Copilot CLI.
 Harness detection is a hint. It does not prove support and does not limit choice.
 Each planned method names the operations it enables and the machine files it changes.
 
@@ -3225,15 +3305,19 @@ Options:
   --json                         Emit only the canonical setup result JSON.
   --codex-method <none|mcp|command-rules>
   --claude-code-method <none|mcp|permission-rules>
+  --github-copilot-method <none|mcp>
   --generic-mcp-client <label>  Print a bounded client-owned MCP configuration.
   --generic-mcp-action <configure|rotate|repair|remove>
   --no-codex                     Skip Codex support.
   --no-claude-code               Skip Claude Code support.
+  --no-github-copilot           Skip GitHub Copilot CLI support.
+  --rotate-mcp                   Replace keys for selected first-party MCP methods.
   --help, -h                     Show help for this command.
 
 Examples:
   make-docs setup system --codex-method mcp --claude-code-method none --dry-run
   make-docs setup system --codex-method command-rules --no-claude-code --yes
+  make-docs setup system --github-copilot-method mcp --no-codex --no-claude-code --dry-run
 `);
         return;
       case "reconfigure":

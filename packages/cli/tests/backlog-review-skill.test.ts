@@ -42,7 +42,7 @@ describe("backlog-review first-party Skill", () => {
       source: "embedded:backlog-review",
       entryPoint: "SKILL.md",
       purposes: ["backlog-review"],
-      supportedHarnesses: ["claude-code", "codex"],
+      supportedHarnesses: ["claude-code", "codex", "github-copilot"],
     });
     expect(entry?.assets.map((asset) => asset.source)).toEqual([
       "README.md",
@@ -181,9 +181,9 @@ describe("backlog-review first-party Skill", () => {
     expect(skill.indexOf("Start every review with one fact source")).toBeLessThan(
       skill.indexOf("try the optional cache lookup"),
     );
-    expect(cache).toContain("make_docs_work_backlog_cache_lookup");
+    expect(cache).toContain("backlog_cache_read");
     expect(cache).toContain("make-docs run work backlog-cache lookup");
-    expect(cache).toContain("make_docs_work_backlog_cache_write");
+    expect(cache).toContain("backlog_cache_write");
     expect(cache).toContain("make-docs run work backlog-cache write");
     expect(cache).toContain("Never reuse a portfolio conclusion from cache.");
     expect(skill).toContain("attempt a cache write for every freshly reviewed `miss` or `rejected` record");
@@ -491,6 +491,20 @@ describe("backlog-review first-party Skill", () => {
     expect(sourceLink()).toContain("/00-index.md");
     report.snapshot.records[0]!.discoveredFiles = [];
     expect(sourceLink()).toBe(`file:///tmp/example-project/${recordPath}`);
+  });
+
+  test("encodes colons in file names but keeps a Windows drive", () => {
+    const template = read("assets/backlog-review-report.html");
+    const fileLogic = template.match(/const fileHref = [\s\S]*?(?=    const sourceHref =)/)?.[0];
+    expect(fileLogic).toBeDefined();
+    const context = { report: { targetRoot: "/tmp/example-project" } } as {
+      report: { targetRoot: string };
+      fileHref?: (relativePath: string) => string;
+    };
+    runInNewContext(`${fileLogic}; globalThis.fileHref = fileHref;`, context);
+    expect(context.fileHref?.("docs/a:b:c.md")).toBe("file:///tmp/example-project/docs/a%3Ab%3Ac.md");
+    context.report.targetRoot = "C:\\example-project";
+    expect(context.fileHref?.("docs/a:b.md")).toBe("file:///C:/example-project/docs/a%3Ab.md");
   });
 
   test("derives the wave display name without agent-written document labels", () => {

@@ -6,9 +6,11 @@ export const INSTRUCTION_KINDS = ["AGENTS.md", "CLAUDE.md"] as const;
 
 export type InstructionKind = (typeof INSTRUCTION_KINDS)[number];
 
-export const HARNESSES = ["claude-code", "codex"] as const;
+export const HARNESSES = ["claude-code", "codex", "github-copilot"] as const;
 
 export type Harness = (typeof HARNESSES)[number];
+/** Older manifests have only the two original keys. */
+export type HarnessSelections = Record<"claude-code" | "codex", boolean> & Partial<Record<"github-copilot", boolean>>;
 
 export const PROJECT_RESOURCE_TYPES = [
   "contract",
@@ -27,6 +29,7 @@ export const INSTRUCTION_KIND_TO_HARNESS: Record<InstructionKind, Harness> = {
 export const HARNESS_TO_INSTRUCTION: Record<Harness, InstructionKind> = {
   "claude-code": "CLAUDE.md",
   codex: "AGENTS.md",
+  "github-copilot": "AGENTS.md",
 };
 
 export type ManagedFileConflictResolution = "overwrite" | "skip";
@@ -119,9 +122,9 @@ export interface SystemAssetManifestState extends SystemAssetMaterializationPlan
 
 export interface InstallSelections {
   /** Native Skill tools can differ from the project router tool set. */
-  skillHarnesses?: Record<Harness, boolean>;
+  skillHarnesses?: HarnessSelections;
   capabilities: Record<Capability, boolean>;
-  harnesses: Record<Harness, boolean>;
+  harnesses: HarnessSelections;
   skills: boolean;
   skillScope: "project" | "global";
   selectedSkills: string[];

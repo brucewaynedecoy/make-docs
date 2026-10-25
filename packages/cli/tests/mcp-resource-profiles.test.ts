@@ -205,10 +205,10 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
 
   test("canonical CLI inventory and core resource tools still include resources hidden from native core", async () => {
     const canonical = await registry.invokeOperation("resource.list", { targetRoot: root }, context.createExecutionContext({ surface: "cli", cwd: root }));
-    const tool = await callMakeDocsMcpTool("make_docs_resource_list", { targetRoot: root }, { profile: "core" });
+    const tool = await callMakeDocsMcpTool("resource_list", { targetRoot: root }, { profile: "core" });
     expect(tool.result).toEqual(canonical.value);
     await withClient({ profile: "core" }, async (client) => {
-      expect((await client.callTool({ name: "make_docs_resource_list", arguments: { targetRoot: root } })).structuredContent).toEqual(tool);
+      expect((await client.callTool({ name: "resource_list", arguments: { targetRoot: root } })).structuredContent).toEqual(tool);
     });
     const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     await runCli(["resource", "list", "--target", root, "--format", "json"]);
@@ -216,7 +216,7 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
     expect((canonical.value as { resources: unknown[] }).resources).toHaveLength(FIXTURES.length);
     expect((await listNativeMcpResources(root, { profile: "core" })).resources).toHaveLength(1);
     const read = await registry.invokeOperation("resource.read", { uri: URI.backlog, targetRoot: root }, context.createExecutionContext({ surface: "cli", cwd: root }));
-    expect((await callMakeDocsMcpTool("make_docs_resource_read", { uri: URI.backlog, targetRoot: root }, { profile: "core" })).result).toEqual(read.value);
+    expect((await callMakeDocsMcpTool("resource_read", { uri: URI.backlog, targetRoot: root }, { profile: "core" })).result).toEqual(read.value);
     stdout.mockClear();
     await runCli(["resource", "read", URI.backlog, "--target", root, "--format", "json"]);
     expect(JSON.parse(stdout.mock.calls.map(([chunk]) => String(chunk)).join(""))).toEqual(read.value);
@@ -268,7 +268,7 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
         if (allowed) expect((await client.readResource({ uri: BACKLOG_REVIEW_UI_RESOURCE.uri })).contents[0]).toMatchObject({ mimeType: "text/html;profile=mcp-app" });
         else await expect(client.readResource({ uri: BACKLOG_REVIEW_UI_RESOURCE.uri })).rejects.toMatchObject({ data: { makeDocs: { code: "resource-not-found" } } });
         expect(invoke).not.toHaveBeenCalled();
-        expect((await client.listTools()).tools.some(({ name }) => name === "make_docs_backlog_review_open")).toBe(allowed);
+        expect((await client.listTools()).tools.some(({ name }) => name === "backlog_review_open")).toBe(allowed);
       });
     }
   });

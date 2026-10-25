@@ -63,7 +63,13 @@ Use `make-docs setup reconfigure` when you want to review an expansion to the fu
 
 Harness detection is a useful hint. It is not proof that a harness can use Make Docs. Setup can show a harness as detected, configured, drifted, blocked, or unsupported.
 
-The Codex static adapter declares MCP and narrow command rules. The Claude Code static adapter declares MCP. It keeps permission rules blocked because Claude did not keep the exact allowed command in a live test. Setup selects only these product-owned states. You can always select `none`.
+The Codex static adapter declares MCP and narrow command rules. The Claude Code static adapter declares MCP. It keeps permission rules blocked because Claude did not keep the exact allowed command in a live test. The GitHub Copilot adapter declares one CLI MCP method. You can always select `none`.
+
+The Copilot method reviews one `mcpServers.make-docs` entry in the CLI user file `~/.copilot/mcp-config.json`. The entry starts the verified Make Docs executable with `mcp`. The preview hides the connection key. Make Docs keeps other server entries and unknown JSON fields. It does not manage entries added in the Copilot app.
+
+GitHub says the app can use CLI MCP settings. Make Docs reports app support only after a real app session proves the entry in use. A custom `COPILOT_HOME`, a same-name project entry in `.mcp.json` or `.github/mcp.json`, or an unreadable project MCP file blocks the static setup method. Review that source or use the generic MCP setup path.
+
+Copilot can list an MCP entry but still block the server under account or organization policy. If Copilot reports a policy block, ask the policy owner to review that server. Do not treat the listed entry as a working connection.
 
 Choosing `none` makes no native harness change. You can still use project routers, optional Skills, and Store-free resource commands.
 
@@ -131,7 +137,7 @@ The repeat keeps the valid computer state. It resumes the incomplete project sco
 
 ## Current Support Limit
 
-The current static method set is Codex MCP, Codex command rules, and Claude Code MCP. Claude Code permission rules have a static blocked state. The generated rules are narrow. However, Claude did not use the exact command from a natural request. It also cut a supplied full command before the operation name. Use Claude Code MCP for Store read and write access.
+This W27 candidate adds GitHub Copilot CLI MCP to Codex MCP, Codex command rules, and Claude Code MCP. Direct Copilot CLI and app proof is still required before a support claim. Claude Code permission rules have a static blocked state. The generated rules are narrow. However, Claude did not use the exact command from a natural request. It also cut a supplied full command before the operation name. Use Claude Code MCP for Store read and write access.
 
 These static states do not block project setup, Skills, or Store-free resource reads.
 

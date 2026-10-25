@@ -210,7 +210,7 @@ A failed cache write also does not invalidate the completed report. It only mean
 
 ## CLI and MCP operations
 
-The Make Docs CLI provides three related operations.
+The Make Docs CLI provides three snapshot and cache operations.
 
 Create the current deterministic snapshot:
 
@@ -242,9 +242,9 @@ make-docs run work backlog-cache write \
 The MCP equivalents are:
 
 ```text
-make_docs_work_backlog_snapshot
-make_docs_work_backlog_cache_lookup
-make_docs_work_backlog_cache_write
+backlog_snapshot
+backlog_cache_read
+backlog_cache_write
 ```
 
 Lookup needs Store-read and project-read access. Write needs Store-write and project-read access.
@@ -254,6 +254,14 @@ Make Docs defines these shared CLI and MCP operations in product code outside th
 There is no single CLI command that performs the full agent review. The Skill coordinates snapshot, lookup, review, validation, cache write, and report rendering.
 
 There is also no dedicated cache `list`, `status`, or `clear` command. The read-only lookup operation is the supported way to inspect reuse for a current snapshot.
+
+The source registry also defines `backlog.review.open` and `backlog.review.refresh`. Their MCP names are `backlog_review_open` and `backlog_review_refresh`. They belong to the `backlog` profile and its exact `all` union. Open accepts `{report: BacklogReportV1, sessionId?: UUID}`. A report-only call keeps fresh server-generated UUID behavior. A trusted agent can supply a fresh UUID to retain its own open context. Refresh accepts `{envelope: BacklogLiveEnvelopeV1}`. Both reject unknown fields. Open validates the full report and returns unchanged V1 text/summary/client payload shapes. It needs no Store access. Refresh reads the current snapshot before one optional exact cache lookup. That nested lookup retains the active-key, current-grant, and Store gates. Refresh writes no review conclusion or cache entry.
+
+Both tools link `ui://make-docs/backlog-review/v1.html`. The widget shows the complete validated report with the accepted layout. Search, filter, sort, disclosure, theme, print, the Data modal, and user-started JSON download change only the local view. They make no tool call and send no agent message. The icon-only top Data button sits to the right of Refresh and opens the existing Data content. Work/Data tabs are absent. Display-size notifications do not request agent work. Icon-only Refresh sits beside Mode/Print. Explain this wave and Work on this wave sit inside expanded wave details. They send fixed messages to the connected agent's current chat and create no task. The app renders no per-wave request feedback and adds no replacement request words to the footer. Request controls follow the controlled flow below. Missing bridge support keeps useful prior data and a clear limit; if no valid report exists, state that limit. The active agent reports actual host results in chat. Tool success does not prove host display. Message receipt does not prove explanation or work. Installed host behavior needs separate proof. Read [the delivery rules](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/review-method.md#select-one-delivery-route) before making a live claim.
+
+The live view keeps a permanent plain `Status: <status>` line in the footer. It replaces only the live footer's `Open the project` link. The static report footer and masthead link stay unchanged. No notices sit above the masthead. Loaded reports use `Ready`, `Checking source facts`, `Needs review`, `Last reviewed report — source unavailable`, or `Last reviewed report — update failed`. Checking requires validated refresh input; the widget starts no refresh action. Source unavailable means a source-refresh failure. A failed update or missing/failed bridge keeps a valid prior report, shows update failed, and leaves local controls usable. Continue the review in chat when that limit matters.
+
+Before any valid report is loaded, the footer says `Status: Report unavailable`. The empty view says `No report is loaded. Ask for a backlog review in chat.` Invalid data or unavailable browser crypto keeps that empty state. The footer stays status text; the empty view and guidance carry the next action.
 
 ## Validate the cache
 
@@ -302,6 +310,20 @@ The Make Docs test suite also checks that the shipped Skill contains the require
 
 ## Report data is not a live cache view
 
-The HTML report's Data tab shows the normalized report model embedded in that report file. It is not a live view of the Global Store cache.
+The HTML report's Data modal shows the normalized report model embedded in that report file. It is not a live view of the Global Store cache.
 
 The report model's `records` array has the same record-fragment shape. However, the report can contain records that the cache rejected or could not store. The report data and the cache are related, but they are not exact copies of each other.
+
+## Shared model and delivery limits
+
+The source uses one unchanged `BacklogReportV1` for static, chat, Data, and full live payload meaning. A separate `BacklogLiveEnvelopeV1` adds live identity. The portable static validator is generated from the shared report contracts. Local filters and other display state do not become authority or reduce exported data.
+
+The live payload builder supplies a concise model-visible summary and full client data. It writes no static report and does not open a host widget. Client-only metadata is readable by the host and client. It is not secure storage. Open and refresh tools connect the report view to the shared registry. The live widget provides local controls and visible review-state feedback. Explain this wave and Work on this wave send prompts to the connected agent's current chat. They do not create a task or another chat. Installed host results need their own proof. The Skill completes its chat review and creates a saved report only after an explicit request. Source links keep the record path available when a host cannot open the file; use that path in the active chat.
+
+Read [the report model](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/report-model.md) for the shared boundaries and [the HTML guide](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/html-report.md) for the saved-file path and replacement consent. Cache rules and identities are unchanged.
+
+The optional `scripts/agent-contract.mjs` uses Node built-ins and the shared contracts. It needs no CLI, `node_modules`, Store, or network to validate supplied data. It does not acquire facts or create permission. The active agent obtains the latest snapshot and calls existing tools. The module exports preparation/confirmation for live open, fixed message creation/parsing/resolution, full rebuilt-model validation, and optional cache write preparation/attempt.
+
+Host tool-result notifications have no RPC request ID. The controller can accept the first strictly validated, scoped refresh view, including its prior reviewed envelope when no open result exists. It ignores exact duplicates. Once checked facts exist, a different uncorrelated notification cannot advance them; notifications during an owned Refresh call also cannot replace its result. This blocks late A from replacing checked B. Effect: a later unsolicited notification may not advance the view. Use the widget's Refresh for the next source check. Its owned RPC reply is current-facts authority. Invalid or wrong-session input never replaces the report. A matching external tool-input has a 30-second limit so it cannot leave Refresh disabled indefinitely.
+
+Preparation is provisional. Promote only a confirmed authoritative envelope from the actual own successful open result. A received action or message cannot confirm an open. Missing trusted context fails safely. Each action and cache/open check needs current facts. Preserve gated cache writes, fresh-fragment selection, and skipped all-hit or failed-lookup writes. An attempted write is not a written cache. Explain provides background on captured facts, findings, inferences, and action items. Work resolves captured inferred status and/or implements captured recommended actions within user permissions. Keep selected recommendation text and order. Caller instructions and raw source prose cannot replace those captured targets. An accepted message or draft does not prove work started. Read [the live agent workflow](https://github.com/brucewaynedecoy/make-docs/blob/main/packages/skills/backlog-review/references/review-method.md#live-agent-workflow) for exact APIs and boundaries.

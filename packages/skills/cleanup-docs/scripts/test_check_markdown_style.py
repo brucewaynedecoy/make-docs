@@ -122,6 +122,11 @@ class MarkdownStyleTests(unittest.TestCase):
 
         self.assertEqual(checker.fix_text(text), text)
 
+    def test_html_comment_bang_close_does_not_hide_following_text(self) -> None:
+        text = "<!-- note --!>\nParagraph one.\nParagraph two.\n"
+
+        self.assertEqual(self.rules_for(text), ["block-spacing", "paragraph-wrap"])
+
     def test_reports_but_does_not_fix_wrapped_list_continuation(self) -> None:
         text = (
             "- This unordered list item is long enough to look wrapped\n"

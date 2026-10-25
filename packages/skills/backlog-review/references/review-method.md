@@ -6,7 +6,7 @@ The snapshot supplies recorded facts. The report adds review conclusions. A revi
 
 Use the project root selected by the request or the current project context. Report one source method:
 
-- `MCP snapshot` when `make_docs_work_backlog_snapshot` returned the facts;
+- `MCP snapshot` when `backlog_snapshot` returned the facts;
 - `CLI snapshot` when the JSON CLI command returned the facts; or
 - `agentic fallback` when the file method supplied the facts.
 
@@ -85,7 +85,7 @@ For each distinct open:
 
 1. Obtain current deterministic facts and validate the whole V1 report.
 2. Generate a fresh UUID. When using the optional helper, call `prepareBacklogAgentOpen(report, latestSnapshot)`. Its `candidateEnvelope` is provisional.
-3. Call `make_docs_backlog_review_open` with the report and that fresh `sessionId`. With the helper, use its exact `openInput`.
+3. Call `backlog_review_open` with the report and that fresh `sessionId`. With the helper, use its exact `openInput`.
 4. Confirm the actual result from that own call. With the helper, call `confirmBacklogAgentOpen(prepared, actualOwnOpenResult)`. Retain expected context only from a confirmed `authoritativeEnvelope`, together with the captured report.
 
 A received action or message cannot confirm an open. Missing trusted context stops that reference. Obtain fresh facts and open a checked report again, or complete useful review in chat. Exact duplicate open/receipt delivery must not reset refresh or request deduplication.

@@ -10,7 +10,7 @@ const paths = [`${work}/04-compatibility-and-evidence.md`, `${work}/00-index.md`
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const failures = [];
 let links = 0;
-const slug = text => text.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
+const slug = text => text.toLowerCase().replace(/[^\p{L}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
 const anchors = file => {
   const text = fs.readFileSync(file, 'utf8').replace(/```[\s\S]*?```/g, '');
   const used = new Map();

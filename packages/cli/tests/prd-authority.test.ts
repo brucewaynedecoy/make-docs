@@ -583,7 +583,7 @@ describe("authoritative PRD validation", () => {
       expect.objectContaining({ status: "failed", targetRoot: root }),
     );
 
-    const mcp = await callMakeDocsMcpTool("make_docs_prd_authority_validate", {
+    const mcp = await callMakeDocsMcpTool("prd_validate", {
       targetRoot: root,
     });
     expect(JSON.stringify(mcp)).toContain("PRD-AUTH-001");

@@ -11,7 +11,7 @@ export type SkillProvenanceKind =
   | SkillManifestSourcePolicyKind
   | "third-party";
 
-export type SkillSupportedHarness = "claude-code" | "codex";
+export type SkillSupportedHarness = "claude-code" | "codex" | "github-copilot";
 
 export interface SkillAssetEntry {
   source: string;
@@ -103,6 +103,7 @@ const PROVENANCE_KINDS = new Set<SkillProvenanceKind>([
 const SUPPORTED_HARNESSES = new Set<SkillSupportedHarness>([
   "claude-code",
   "codex",
+  "github-copilot",
 ]);
 
 export function loadSkillRegistry(packageRoot: string): SkillRegistry {

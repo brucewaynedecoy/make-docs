@@ -77,6 +77,9 @@ export interface OperationExecutionContext {
   callerIdentityRaw?: string;
   /** Parsed compact caller reference captured at the CLI boundary. */
   callerReference?: HarnessCallerReference;
+  /** MCP connection proof captured from the host environment. */
+  mcpConnectionId?: string;
+  mcpConnectionKey?: string;
   /** Working directory operations resolve relative paths against. */
   cwd: string;
   /**
@@ -236,6 +239,8 @@ export function createExecutionContext(
     route?: OperationRoute;
     callerIdentityRaw?: string;
     callerReference?: HarnessCallerReference;
+    mcpConnectionId?: string;
+    mcpConnectionKey?: string;
     cwd?: string;
     writesAllowed?: boolean;
     dryRun?: boolean;
@@ -270,6 +275,8 @@ export function createExecutionContext(
     route: input.route ?? "test",
     ...(input.callerIdentityRaw ? { callerIdentityRaw: input.callerIdentityRaw } : {}),
     ...(input.callerReference ? { callerReference: input.callerReference } : {}),
+    ...(input.mcpConnectionId ? { mcpConnectionId: input.mcpConnectionId } : {}),
+    ...(input.mcpConnectionKey ? { mcpConnectionKey: input.mcpConnectionKey } : {}),
     cwd: input.cwd ?? process.cwd(),
     writesAllowed: input.writesAllowed ?? false,
     dryRun: input.dryRun ?? false,

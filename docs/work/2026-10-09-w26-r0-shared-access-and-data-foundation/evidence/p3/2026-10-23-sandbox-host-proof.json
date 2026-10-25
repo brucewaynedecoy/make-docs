@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "coordinate": "W26 R0 P3",
+  "capturedAt": "2026-10-24T00:09:10Z",
+  "branch": "w26-r0-simplified-store-access",
+  "sourceCommit": "0398949e0a752e687eedd3f7318eaccdfefc9757",
+  "scope": "Temporary generic MCP connection, isolated project, and isolated Store. Saved Codex entries were not changed.",
+  "candidate": {
+    "command": "packages/cli/dist/index.js",
+    "args": ["mcp"],
+    "sha256": "37e1a87009652dab324bf14d0fd8a25b7509499c7ef8071c7e95299e89da4b2e",
+    "harnessId": "generic-mcp-p3-sandbox",
+    "configurationDigest": "296ceac498ce6d276b0674bcf7c605f2694817c9d5136b6cefe7bf34691458c0",
+    "connectionEnvironmentNames": ["MAKE_DOCS_MCP_CONNECTION_ID", "MAKE_DOCS_MCP_CONNECTION_KEY"]
+  },
+  "setup": {
+    "result": "complete",
+    "storeState": "supported-current",
+    "projectMutation": "applied",
+    "storeMutation": "applied"
+  },
+  "sandbox": {
+    "runner": "/usr/bin/sandbox-exec",
+    "policy": "Deny file reads and writes beneath the isolated test root; allow other default host operations.",
+    "directStoreConfigRead": "EPERM",
+    "directSetupReceiptRead": "EPERM"
+  },
+  "hostMcpCall": {
+    "tool": "project_status",
+    "isError": false,
+    "storeAvailable": true,
+    "status": "ready",
+    "projectMatched": true,
+    "clientExitCode": 0,
+    "serverStderrBytes": 0
+  },
+  "attemptNote": "The first harness assertion checked the outer MCP result wrapper. The tool call itself succeeded. The harness then checked structuredContent.result and passed without a product change.",
+  "limits": [
+    "This proves one allowed host-owned Store read for a sandboxed client.",
+    "It does not prove the saved make_docs entry, the full grant-state matrix, migration or rollback, dirty-source or moved-checkout parity, or W25 widget Refresh."
+  ]
+}

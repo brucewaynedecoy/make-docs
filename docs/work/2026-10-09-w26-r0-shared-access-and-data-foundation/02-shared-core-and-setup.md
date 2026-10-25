@@ -55,7 +55,7 @@ Bear proposal steps 5 and 15; approved P1 access packet; normal setup, read-only
 
 ### Dependencies
 
-- P1 owner approval and exact file/test/work limits. A connection replacement needs separate W25 R0 P10 approval.
+- P1 design is accepted. Before implementation, show the selected installed connection's enforced rules and differences from PRDs 25, 38, and 39 with exact host and runtime evidence. P2 work and its file, test, and finite work limits need separate approval. A specific connection replacement needs separate W25 R0 P10 approval.
 
 ## Closeout Notes
 

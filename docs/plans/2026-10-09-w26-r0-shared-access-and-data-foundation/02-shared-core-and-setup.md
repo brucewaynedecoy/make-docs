@@ -28,4 +28,4 @@ Run focused policy, registry, setup, migration, Store, CLI, and MCP tests. Check
 
 ## Dependencies
 
-P1 design and access-policy redline approval. Separate approval is required for any installed connection change. Stop and revise scope if a larger migration is required.
+P1 design and access-policy redline are accepted. Before P2 implementation, show the rules enforced by the selected installed connection and their differences from PRDs 25, 38, and 39, using exact host and runtime evidence. P2 work and its finite limit require separate approval. Any exact installed connection replacement also requires separate approval. Stop and revise scope if a larger migration is required.

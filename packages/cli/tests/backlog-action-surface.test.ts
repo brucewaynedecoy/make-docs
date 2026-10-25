@@ -16,8 +16,8 @@ describe("backlog current-chat action surface", () => {
     await Promise.all([server.connect(right), client.connect(left)]);
     try {
       const tools = (await client.listTools()).tools.map(tool => tool.name);
-      expect(tools).toContain("make_docs_backlog_review_open");
-      expect(tools).toContain("make_docs_backlog_review_refresh");
+      expect(tools).toContain("backlog_review_open");
+      expect(tools).toContain("backlog_review_refresh");
       expect(tools).not.toContain("make_docs_backlog_review_request_resolve");
       expect((await client.listPrompts()).prompts.map(prompt => prompt.name)).toEqual(["ordinary_prompt"]);
       expect(await client.getPrompt({ name: "ordinary_prompt" })).toMatchObject({

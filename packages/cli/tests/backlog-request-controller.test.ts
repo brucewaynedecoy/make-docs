@@ -67,7 +67,7 @@ describe("P6 isolated refresh/request controller", () => {
   it("uses only the canonical refresh tool, keeps unchanged model, and requests no review", async () => {
     const r = rig(); await r.controller.acceptModel(opened());
     const promise = r.controller.refresh(), duplicate = r.controller.refresh(); expect(duplicate).toBe(promise);
-    expect(r.requests[0]).toMatchObject({ method: "tools/call", params: { name: "make_docs_backlog_review_refresh", arguments: { envelope: opened()._meta.backlog.envelope } } });
+    expect(r.requests[0]).toMatchObject({ method: "tools/call", params: { name: "backlog_review_refresh", arguments: { envelope: opened()._meta.backlog.envelope } } });
     r.reply(r.requests[0], refreshed()); expect(await promise).toEqual({ state: "unchanged" }); await tick();
     expect(r.requests).toHaveLength(1); expect(r.controller.getState().model).toEqual(opened()._meta.backlog);
   });

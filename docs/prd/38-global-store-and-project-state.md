@@ -77,6 +77,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-STORE-4 (MUST): every resolved Store root, override, database, lock, journal, temporary-state, and recovery metadata path remains outside the target project and all registered checkouts. Validate canonical paths and existing parent links before access, then revalidate under the lock before mutation. Reject project-contained overrides, symlink aliases, traversal, case collisions, and unsupported permission or filesystem states. Never fall back to a project path.
 - R-STORE-5 (MUST): agent and operation results distinguish `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied`. A Store-backed refusal stops only the affected operation. Store-free operations and ordinary repository work continue with no direct Store write, project-local fallback, queued write, or false success.
+- R-STORE-6 (MUST): existing machine and project intent remain the grant sources. Existing machine config stores each MCP connection ID, active state, key hash, and reviewed method and owner binding. The client cannot select a different method or owner on a call. The raw key stays only in the connection's native or client-owned configuration. Receipts record installation ownership, not operation authority. Store path, schema, ownership, lock, and recovery checks stay at session entry.
 
 ### The SQLite Database (R-DB)
 
@@ -90,6 +91,9 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-ID-1 (MUST): setup preserves or mints a stable project identifier in project-owned `.make-docs/config.yaml` as declarative identity. It is knowledge shared with the project, not proof of installation ownership. The Store binds a separate checkout identifier to each verified local installation. Project-operation records use project id, checkout id, and their own operation or record key.
 - R-ID-2 (MUST NOT): a directory path is not the primary key of persistent project state. Paths are secondary lookup metadata. A verified move may update that lookup; clones and worktrees sharing a project identifier receive distinct checkout bindings and do not inherit installed ownership without review. Missing or conflicting identity stops mutation until an explicit resolution.
+- R-ID-3 (MUST): project ID, verified checkout ID, and item path or coordinate are distinct. Explicit path, matching working directory, then preferred checkout resolve selection; ambiguity stops it. A Store-free read may report an unavailable binding but must not mint one.
+- R-ID-4 (MUST): source version hashes relevant paths, bytes, absence markers, and parsing version, including dirty and untracked files. HEAD and file time alone are insufficient. Unsafe or incomplete reads have no valid source version.
+- R-ID-5 (MUST): an open review stays pinned to its checkout. Cache and judgments carry source version and provenance. Unknown, unsupported, unavailable, and known zero stay distinct.
 
 ### Checkout Binding and Path Update Safety (R-CHECKOUT)
 
@@ -139,10 +143,10 @@ These W19 R5 requirements record accepted direction. The owner accepted the R5 b
 - R-HARNESS-STATE-2 (MUST): Store records retain historical receipt evidence for the exact adapter, method, operation, verified executable path and fingerprint where applicable, reviewed native configuration entries, before and after facts, ownership, applied version, verification result, drift state, and recovery status. These records explain past work and do not grant current access.
 - R-HARNESS-STATE-3 (MUST): machine setup and project setup use separate operation identifiers and receipts. Machine setup completes and verifies before project setup begins. A later project failure does not roll back a valid machine result.
 - R-HARNESS-STATE-4 (MUST): repeat setup reads global intent, project intent, live harness-native configuration, current executable proof where applicable, current owned native-entry proof, and Store receipt history. It reports current, missing, drifted, unsupported, blocked, and incomplete state. It changes only reviewed Make Docs-owned entries and resumes an incomplete operation without duplicating a verified change.
-- R-HARNESS-STATE-5 (MUST): the effective permission is the most restrictive valid result across static adapter admission, machine intent, project intent, live native configuration, current executable proof where applicable, current owned native entry, and the requested operation. A receipt never grants access or overrules a removed or narrowed permission. Project config cannot widen machine trust.
+- R-HARNESS-STATE-5 (MUST): the effective permission is the most restrictive valid result across static adapter admission, machine intent, project intent, route-specific live proof, and the requested operation. Native rule routes check current executable and owned native-entry proof. Store-backed MCP calls check the active connection key, current grants, and target under R-ACCESS-12. A receipt never grants access or overrules a removed or narrowed permission. Project config cannot widen machine trust.
 - R-HARNESS-STATE-6 (MUST): this capability uses the current Store schema when its records fit existing installation and operation data. W19 R6 must not add a database migration solely for setup state. If implementation proves that safe records cannot fit, it must stop for new authority before changing the schema.
 - R-HARNESS-STATE-7 (MUST): direct machine setup can safely initialize a missing Store and record its own intent and receipt without prior harness or MCP access. Project access remains absent until separate project intent is reviewed. Failure to create safe Store evidence stops only the managed machine change before native mutation; it does not block Store-free work or CLI remediation.
-- R-HARNESS-STATE-8 (MUST): a bounded generic MCP profile retains a validated client label, reviewed machine ceiling, separate project intent, non-secret identity metadata, one-way secret proof when required, rotation state, configuration output digest, and lifecycle result. Current admission still verifies the profile, caller proof, and requested operation at call time. Normal status never returns secret proof. Unknown client files remain user-owned and untouched.
+- R-HARNESS-STATE-8 (MUST): a bounded generic MCP profile retains a validated client label, reviewed machine ceiling, separate project intent, non-secret identity metadata, one-way secret proof when required, rotation state, configuration output digest, and lifecycle result. Current Store-backed MCP admission checks the active connection key, current machine and project grants, target, profile, and requested operation at call time. Normal status never returns secret proof. Unknown client files remain user-owned and untouched.
 
 ### Transfer and Recovery (R-XFER)
 
@@ -321,6 +325,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: No project Store intent is valid `store-not-configured` state. Four typed access results stop only the affected operation. Setup stores independent subplan results. Direct machine setup can initialize a safe missing Store without prior harness access. Generic MCP has bounded Store-owned proof. Remediation uses isolated Store evidence and never depends on live Store access in the maintainer checkout.
 - Rationale: The current setup and agent paths formed a closed loop that could not install, use, or repair Store access through a reachable action.
 - Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+### 2026-10-23 — W26 R0 P2
+
+- Affected requirement or section: R-STORE and R-ID.
+- Previous contract: Machine intent named harnesses and methods. Checkout identity and source versions had no complete rule for dirty files or open reviews.
+- Replacement contract: Machine intent also holds revocable MCP connection key hashes. Project identity, checkout binding, and source version remain distinct.
+- Rationale: Current grants must stay separate from connection proof and cache identity.
+- Source: [W26 access design](../plans/2026-10-09-w26-r0-shared-access-and-data-foundation/01-access-trace-and-design.md).
 
 ## Source Anchors
 

@@ -38,7 +38,8 @@ import {
   type VerifiedExecutableIdentity,
 } from "../src/harness-access/index.js";
 import { resolveCliLaunchArgv, runCli } from "../src/cli.js";
-import { __setHarnessNativeMutationHookForTests } from "../src/harness-access/native.js";
+import { __setHarnessNativeMutationHookForTests, readNativeMcpConnection } from "../src/harness-access/native.js";
+import { MCP_CONNECTION_ID_ENV, MCP_CONNECTION_KEY_ENV } from "../src/mcp-connection.js";
 import {
   listHarnessCommandRules,
   validateRegistryHarnessCommandRules,
@@ -116,10 +117,11 @@ function makeClaudeCallerIdentity(
 }
 
 describe("W19 R6 static first-party harness adapters", () => {
-  it("contains Codex and Claude Code while Pi stays explicitly unsupported", () => {
+  it("contains Codex, Claude Code, and Copilot while Pi stays explicitly unsupported", () => {
     expect(FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => adapter.harnessId)).toEqual([
       "codex",
       "claude-code",
+      "github-copilot",
     ]);
     expect(getFirstPartyHarnessAdapter("pi")).toBeUndefined();
     expect(PI_HARNESS_SUPPORT).toMatchObject({
@@ -196,7 +198,8 @@ describe("W19 R6 static first-party harness adapters", () => {
 
   it("distinguishes the trusted direct CLI route from identity-required agent routes", () => {
     const { root, executable } = fixture();
-    const storeRoot = path.join(root, "store");
+    const storeRoot = path.join(mkdtempSync(path.join(os.tmpdir(), "make-docs-harness-store-")), "store");
+    roots.push(path.dirname(storeRoot));
     const identity = makeCallerIdentityRaw(root, executable);
     expect(resolveCliOperationRoute(undefined)).toBe("direct-cli");
     expect(resolveCliOperationRoute(identity)).toBe("native-rule");
@@ -211,7 +214,7 @@ describe("W19 R6 static first-party harness adapters", () => {
       verified: true,
       access: { store: "write", project: "write", hostConfig: "none" },
     });
-    for (const route of ["mcp", "native-rule"] as const) {
+    for (const route of ["native-rule"] as const) {
       expect(resolveHarnessOperationPolicy({
         route,
         targetRoot: root,
@@ -223,6 +226,9 @@ describe("W19 R6 static first-party harness adapters", () => {
         reason: expect.stringContaining("no harness-proved native launch identity"),
       });
     }
+    expect(() => resolveHarnessOperationPolicy({
+      route: "mcp", targetRoot: root, storeRoot,
+    })).toThrow("MCP connection key is absent");
   });
 
   it("accepts one leading CLI caller identity and rejects unsafe placements", () => {
@@ -376,13 +382,29 @@ describe("W19 R6 static first-party harness adapters", () => {
         storeRoot,
       });
       expect(setup.status).toBe("configured");
+      if (method === "mcp") {
+        mkdirSync(path.join(root, ".make-docs"), { recursive: true });
+        writeFileSync(path.join(root, ".make-docs/config.yaml"), [
+          "harnessIntegrations:",
+          "  - harness: codex",
+          "    mode: narrow",
+          "    method: mcp",
+          "    accessCeiling:",
+          "      store: write",
+          "      project: write",
+          "      hostConfig: none",
+          "",
+        ].join("\n"));
+      }
       const callerIdentityRaw = makeCallerIdentityRaw(root, executable, method);
       const route = method === "mcp" ? "mcp" : "native-rule";
+      const connection = method === "mcp" ? readNativeMcpConnection(CODEX_HARNESS_ADAPTER, root) : null;
       expect(resolveHarnessOperationPolicy({
         route,
         targetRoot: root,
         storeRoot,
         callerIdentityRaw,
+        ...(connection ? { mcpConnectionId: connection.id, mcpConnectionKey: connection.key } : {}),
         commandRuleAuthority: COMMAND_RULE_AUTHORITY,
       })).toMatchObject({
         verified: true,
@@ -394,8 +416,9 @@ describe("W19 R6 static first-party harness adapters", () => {
         targetRoot: root,
         storeRoot,
         callerIdentityRaw,
+        ...(connection ? { mcpConnectionId: connection.id, mcpConnectionKey: connection.key } : {}),
         commandRuleAuthority: COMMAND_RULE_AUTHORITY,
-      })).toThrow(route === "mcp" ? "native-rule route" : "MCP route");
+      })).toThrow(route === "mcp" ? "native-rule route" : "MCP connection key is absent");
     }
   });
 
@@ -442,16 +465,26 @@ describe("W19 R6 static first-party harness adapters", () => {
       targetRoot: root,
       storeRoot,
     });
-    expect(repeated.status).toBe("configured");
+    expect(repeated.status).toBe("unchanged");
     expect(readCurrentHarnessIntegrationReceipt(root, storeRoot, "machine", "codex", "mcp"))
-      .toMatchObject({ schemaVersion: 2, result: "verified" });
-    expect(readCurrentHarnessIntegrationReceipt(root, storeRoot, "machine", "codex", "mcp"))
-      .not.toHaveProperty("executable");
+      .toMatchObject({ schemaVersion: 1, result: "verified" });
+    mkdirSync(path.join(root, ".make-docs"), { recursive: true });
+    writeFileSync(path.join(root, ".make-docs/config.yaml"), [
+      "harnessIntegrations:",
+      "  - harness: codex",
+      "    mode: narrow",
+      "    method: mcp",
+      "    accessCeiling:",
+      "      store: write",
+      "      project: write",
+      "      hostConfig: none",
+      "",
+    ].join("\n"));
     expect(resolveHarnessOperationPolicy({
       route: "mcp",
       targetRoot: root,
       storeRoot,
-      callerIdentityRaw: makeCallerIdentityRaw(root, movedExecutable, "mcp"),
+      ...(() => { const connection = readNativeMcpConnection(CODEX_HARNESS_ADAPTER, root)!; return { mcpConnectionId: connection.id, mcpConnectionKey: connection.key }; })(),
       commandRuleAuthority: COMMAND_RULE_AUTHORITY,
     })).toMatchObject({ verified: true, methods: ["mcp"] });
   });
@@ -580,40 +613,26 @@ describe("verified executable and bounded command rules", () => {
 });
 
 describe("Codex native access lifecycle", () => {
-  it("emits receipt-bound caller identities for both MCP adapters and detects tampering", () => {
+  it("emits connection keys for both MCP adapters and detects tampering", () => {
     for (const adapter of [CODEX_HARNESS_ADAPTER, CLAUDE_CODE_HARNESS_ADAPTER]) {
       const { root, executable } = fixture();
       const plan = adapter.plan({ method: "mcp", scope: "machine", root, executable });
       const plannedValue = plan.changes[0].afterEntryValue;
-      let encoded: string;
+      let key: string;
+      let id: string;
       if (adapter.harnessId === "codex") {
-        const line = String(plannedValue)
-          .split("\n")
-          .find(candidate => candidate.startsWith(`${HARNESS_CALLER_IDENTITY_ENV} = `));
-        expect(line).toBeDefined();
-        encoded = JSON.parse(line!.slice(line!.indexOf("=") + 1).trim()) as string;
+        const lines = String(plannedValue).split("\n");
+        const keyLine = lines.find(candidate => candidate.startsWith(`${MCP_CONNECTION_KEY_ENV} = `))!;
+        const idLine = lines.find(candidate => candidate.startsWith(`${MCP_CONNECTION_ID_ENV} = `))!;
+        key = JSON.parse(keyLine.slice(keyLine.indexOf("=") + 1).trim()) as string;
+        id = JSON.parse(idLine.slice(idLine.indexOf("=") + 1).trim()) as string;
       } else {
         const entry = plannedValue as Record<string, unknown>;
-        encoded = (entry.env as Record<string, string>)[HARNESS_CALLER_IDENTITY_ENV];
+        key = (entry.env as Record<string, string>)[MCP_CONNECTION_KEY_ENV];
+        id = (entry.env as Record<string, string>)[MCP_CONNECTION_ID_ENV];
       }
-
-      const identity = parseHarnessCallerIdentity(encoded);
-      expect(identity).toMatchObject({
-        schemaVersion: 1,
-        kind: "make-docs-harness-caller",
-        adapterId: adapter.id,
-        adapterVersion: adapter.version,
-        harnessId: adapter.harnessId,
-        connectionMethod: "mcp",
-        scope: "machine",
-        root: platform.describePath(root).canonicalPath,
-        executable,
-      });
-      expect(encodeHarnessCallerIdentity(identity)).toBe(encoded);
-      expect(() => parseHarnessCallerIdentity(JSON.stringify({
-        ...identity,
-        unverified: true,
-      }))).toThrow("invalid object shape");
+      expect(id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(key).toMatch(/^[A-Za-z0-9_-]{43}$/);
 
       const applied = adapter.apply({
         plan,
@@ -621,15 +640,12 @@ describe("Codex native access lifecycle", () => {
         operationId: `system.${adapter.harnessId}.mcp.identity`,
         appliedVersion: "2.0.0-rc",
       });
-      const tampered = encodeHarnessCallerIdentity({
-        ...identity,
-        connectionMethod: adapter.harnessId === "codex" ? "command-rules" : "permission-rules",
-      });
+      const tampered = `${key.slice(0, -1)}${key.endsWith("A") ? "B" : "A"}`;
       const nativePath = adapter.methods.find(method => method.id === "mcp")!.nativeFile("machine");
       const absolutePath = path.join(root, nativePath);
       writeFileSync(
         absolutePath,
-        readFileSync(absolutePath, "utf8").replace(JSON.stringify(encoded), JSON.stringify(tampered)),
+        readFileSync(absolutePath, "utf8").replace(JSON.stringify(key), JSON.stringify(tampered)),
       );
       const drift = adapter.plan({
         method: "mcp",

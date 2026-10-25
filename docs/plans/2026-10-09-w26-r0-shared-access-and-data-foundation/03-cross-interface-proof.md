@@ -26,6 +26,8 @@ Test read-only and write-intent access with missing, read-only, revoked, and out
 
 Retain small CLI/MCP result receipts and one sandbox proof with exact package/configuration identity. Confirm that Store-free source facts survive optional cache refusal and that a refused write changes nothing. Record each failed or unproved case. W25 may consume only the passed cases.
 
+Prove shared Store admission, cache lookup, cache write, and refusal in W26. This phase does not require the W25 widget to run live Refresh. W25 must prove its visible Refresh flow after it takes in the approved Store access change.
+
 ## Dependencies
 
 P2 source and setup checks pass. Any connection replacement remains under W25 R0 P10 approval.

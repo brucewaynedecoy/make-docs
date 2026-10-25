@@ -24,45 +24,45 @@ const sqliteAvailable = loadSqliteDriver().available;
  */
 
 const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
-  "prd.authority.validate": "make_docs_prd_authority_validate",
-  "performance.evidence.validate": "make_docs_performance_evidence_validate",
-  "work.item.resolve": "make_docs_work_item_resolve",
-  "work.evidence.record": "make_docs_work_evidence_record",
-  "work.evidence.read": "make_docs_work_evidence_read",
-  "work.backlog.snapshot": "make_docs_work_backlog_snapshot",
-  "work.backlog-cache.lookup": "make_docs_work_backlog_cache_lookup",
-  "work.backlog-cache.write": "make_docs_work_backlog_cache_write",
-  "backlog.review.open": "make_docs_backlog_review_open",
-  "backlog.review.refresh": "make_docs_backlog_review_refresh",
-  "resource.list": "make_docs_resource_list",
-  "resource.read": "make_docs_resource_read",
-  "resource.ensure": "make_docs_resource_ensure",
-  "project.surface.ensure": "make_docs_project_surface_ensure",
-  "project.path-hygiene.repair": "make_docs_project_path_hygiene_repair",
-  "project.path-hygiene.validate": "make_docs_project_path_hygiene_validate",
-  "project.state.status": "make_docs_project_state_status",
-  "project.state.recover": "make_docs_project_state_recover",
-  "project.persona.list": "make_docs_project_persona_list",
-  "project.layout.preview": "make_docs_project_layout_preview",
-  "project.layout.prepare": "make_docs_project_layout_prepare",
-  "project.layout.apply": "make_docs_project_layout_apply",
-  "project.layout.verify": "make_docs_project_layout_verify",
-  "lifecycle.start": "make_docs_lifecycle_start",
-  "lifecycle.show": "make_docs_lifecycle_show",
-  "lifecycle.list": "make_docs_lifecycle_list",
-  "lifecycle.checkpoint": "make_docs_lifecycle_checkpoint",
-  "lifecycle.pause": "make_docs_lifecycle_pause",
-  "lifecycle.resume": "make_docs_lifecycle_resume",
-  "lifecycle.attach-evidence": "make_docs_lifecycle_attach_evidence",
-  "lifecycle.complete": "make_docs_lifecycle_complete",
-  "lifecycle.fail": "make_docs_lifecycle_fail",
-  "lifecycle.abandon": "make_docs_lifecycle_abandon",
-  "uat.scenario.validate": "make_docs_uat_scenario_validate",
-  "uat.persona.resolve": "make_docs_uat_persona_resolve",
-  "uat.target.validate": "make_docs_uat_target_validate",
-  "uat.evidence-reference.validate": "make_docs_uat_evidence_reference_validate",
-  "uat.finding.validate": "make_docs_uat_finding_validate",
-  "uat.result.validate": "make_docs_uat_result_validate",
+  "prd.authority.validate": "prd_validate",
+  "performance.evidence.validate": "performance_validate",
+  "work.item.resolve": "work_item_resolve",
+  "work.evidence.record": "evidence_record",
+  "work.evidence.read": "evidence_read",
+  "work.backlog.snapshot": "backlog_snapshot",
+  "work.backlog-cache.lookup": "backlog_cache_read",
+  "work.backlog-cache.write": "backlog_cache_write",
+  "backlog.review.open": "backlog_review_open",
+  "backlog.review.refresh": "backlog_review_refresh",
+  "resource.list": "resource_list",
+  "resource.read": "resource_read",
+  "resource.ensure": "resource_ensure",
+  "project.surface.ensure": "surface_ensure",
+  "project.path-hygiene.repair": "paths_repair",
+  "project.path-hygiene.validate": "paths_validate",
+  "project.state.status": "project_status",
+  "project.state.recover": "project_recover",
+  "project.persona.list": "personas",
+  "project.layout.preview": "layout_preview",
+  "project.layout.prepare": "layout_prepare",
+  "project.layout.apply": "layout_apply",
+  "project.layout.verify": "layout_verify",
+  "lifecycle.start": "lifecycle_start",
+  "lifecycle.show": "lifecycle_show",
+  "lifecycle.list": "lifecycle_list",
+  "lifecycle.checkpoint": "lifecycle_checkpoint",
+  "lifecycle.pause": "lifecycle_pause",
+  "lifecycle.resume": "lifecycle_resume",
+  "lifecycle.attach-evidence": "lifecycle_attach_evidence",
+  "lifecycle.complete": "lifecycle_complete",
+  "lifecycle.fail": "lifecycle_fail",
+  "lifecycle.abandon": "lifecycle_abandon",
+  "uat.scenario.validate": "uat_scenario_validate",
+  "uat.persona.resolve": "uat_persona_resolve",
+  "uat.target.validate": "uat_target_validate",
+  "uat.evidence-reference.validate": "uat_evidence_validate",
+  "uat.finding.validate": "uat_finding_validate",
+  "uat.result.validate": "uat_result_validate",
 };
 
 const SUPPORT_EVIDENCE_REF =
@@ -159,8 +159,28 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     }
   });
 
+  test("W26 R1 removes every prior MCP tool name", async () => {
+    const oldNames = [
+      "make_docs_operation_domains",
+      "make_docs_installed_state",
+      "make_docs_manifest_read",
+      "make_docs_config_read",
+      "make_docs_compatibility_classify",
+      "make_docs_install_plan",
+      ...Object.keys(EXPECTED_DERIVED_TOOL_NAMES).map(
+        (operation) => `make_docs_${operation.replace(/[.-]/g, "_")}`,
+      ),
+    ];
+    const currentNames = new Set(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name));
+    expect(oldNames).toHaveLength(45);
+    for (const oldName of oldNames) {
+      expect(currentNames.has(oldName), oldName).toBe(false);
+      await expect(callMakeDocsMcpTool(oldName)).rejects.toThrow("Unknown make-docs MCP tool");
+    }
+  });
+
   test("write operations without allowWrite are refused by the core, not the tool", async () => {
-    await expect(callMakeDocsMcpTool("make_docs_work_evidence_record", {})).rejects.toThrow(
+    await expect(callMakeDocsMcpTool("evidence_record", {})).rejects.toThrow(
       "Operation `work.evidence.record` mutates state and requires write permission from the calling surface",
     );
 
@@ -174,7 +194,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
 
   test("derived descriptors mark write operations and carry operation input schemas", () => {
     const descriptors = new Map(MAKE_DOCS_MCP_TOOLS.map((tool) => [tool.name, tool]));
-    const writeTool = descriptors.get("make_docs_work_evidence_record")!;
+    const writeTool = descriptors.get("evidence_record")!;
     expect(writeTool.description).toContain("allowWrite=true");
     expect(Object.keys(writeTool.inputSchema)).toEqual(
       expect.arrayContaining(["allowWrite", "dryRun", "approvals"]),
@@ -183,24 +203,24 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
     // The progression identifiers are active with derived typed inputs:
     // playbook.next is a read tool with no allowWrite argument, and
     // Current lifecycle tools expose typed inputs and core write gating.
-    const nextTool = descriptors.get("make_docs_lifecycle_show")!;
+    const nextTool = descriptors.get("lifecycle_show")!;
     expect(nextTool.description).not.toContain("Pending");
     expect(Object.keys(nextTool.inputSchema)).toEqual(
       expect.arrayContaining(["runId", "dryRun", "approvals"]),
     );
     expect(Object.keys(nextTool.inputSchema)).not.toContain("allowWrite");
-    const advanceTool = descriptors.get("make_docs_lifecycle_checkpoint")!;
+    const advanceTool = descriptors.get("lifecycle_checkpoint")!;
     expect(Object.keys(advanceTool.inputSchema)).toEqual(
       expect.arrayContaining(["runId", "checkpoint", "expectedVersion", "allowWrite"]),
     );
 
-    const readTool = descriptors.get("make_docs_lifecycle_list")!;
+    const readTool = descriptors.get("lifecycle_list")!;
     expect(Object.keys(readTool.inputSchema)).not.toContain("allowWrite");
     expect(Object.keys(readTool.inputSchema)).toEqual(
       expect.arrayContaining(["repoRoot", "dryRun", "approvals"]),
     );
 
-    const backlogTool = descriptors.get("make_docs_work_backlog_snapshot")!;
+    const backlogTool = descriptors.get("backlog_snapshot")!;
     expect(Object.keys(backlogTool.inputSchema)).toEqual(
       expect.arrayContaining(["targetRoot", "dryRun", "approvals"]),
     );

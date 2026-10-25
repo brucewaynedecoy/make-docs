@@ -60,7 +60,7 @@ The proposed design has one approved connection context, explicit project and ch
 
 Use stable project and checkout IDs separately from names and paths. Explicit path selects its checkout; a matching working directory selects that checkout; preferred checkout is a fallback; unresolved ambiguity requires a choice. A view stays pinned to its selected checkout. A source version includes relevant uncommitted content. Known zero, unknown, unsupported, and unavailable are distinct. Recorded facts, cached judgment, and fresh agent judgment retain separate provenance.
 
-F2 changes only the approved shared core and supported setup path. F3 proves CLI/MCP parity, denial, grant changes, and sandbox access. W25 acceptance waits for the F3 checks it consumes. Later HTTP work may call this same core, but W26 R0 adds no HTTP server.
+F2 changes only the approved shared core and supported setup path. F3 proves CLI/MCP parity, shared Store and cache behavior, denial, grant changes, and sandbox access. W25 acceptance waits for the F3 checks it consumes. W25 proves its visible live Refresh flow after it takes in the Store access change. Later HTTP work may call this same core, but W26 R0 adds no HTTP server.
 
 ## Design Lineage
 

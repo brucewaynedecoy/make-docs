@@ -26,6 +26,14 @@ export const GLOBAL_CONFIG_SCHEMA_VERSION = 1;
 /** Self-update preference for the CLI (machine-level setting). */
 export type SelfUpdatePreference = "prompt" | "auto" | "off";
 
+export interface McpConnectionRecord {
+  id: string;
+  keySha256: string;
+  active: boolean;
+  method: "mcp";
+  owner: string;
+}
+
 export interface GlobalHarnessIntent {
   /** Whether this harness is selected for Make Docs setup on this machine. */
   selected: boolean;
@@ -33,6 +41,8 @@ export interface GlobalHarnessIntent {
   maximumMethod: string | null;
   /** Maximum operation access approved for this harness on this machine. */
   accessCeiling: OperationAccess;
+  /** Revocable proof for one reviewed MCP connection. The raw key stays in the host entry. */
+  mcpConnection?: McpConnectionRecord;
   /** Preserve newer or harness-owned settings during an older CLI round trip. */
   [key: string]: unknown;
 }
@@ -231,11 +241,13 @@ function normalizeGlobalConfig(
           warnings,
         );
         if (!accessCeiling) continue;
+        const mcpConnection = normalizeMcpConnection(intent.mcpConnection, harness);
         settings.harnesses[harness] = {
           ...intent,
           selected,
           maximumMethod,
           accessCeiling,
+          ...(mcpConnection ? { mcpConnection } : { mcpConnection: undefined }),
         };
       }
     }
@@ -248,6 +260,23 @@ function normalizeGlobalConfig(
         ? record.schemaVersion
         : GLOBAL_CONFIG_SCHEMA_VERSION,
     settings,
+  };
+}
+
+function normalizeMcpConnection(value: unknown, owner: string): McpConnectionRecord | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.id !== "string" || !/^[0-9a-f-]{36}$/.test(record.id) ||
+    typeof record.keySha256 !== "string" || !/^[a-f0-9]{64}$/.test(record.keySha256) ||
+    typeof record.active !== "boolean" || record.method !== "mcp" || record.owner !== owner
+  ) return null;
+  return {
+    id: record.id,
+    keySha256: record.keySha256,
+    active: record.active,
+    method: "mcp",
+    owner,
   };
 }
 

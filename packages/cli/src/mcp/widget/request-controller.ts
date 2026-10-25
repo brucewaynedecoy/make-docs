@@ -11,7 +11,7 @@ import type { z } from "zod";
 type ClientModel = WidgetResult["client"];
 type RefreshData = BacklogReviewRefreshPayloadV1["_meta"]["backlog"];
 export type BacklogControllerRequest = { jsonrpc: "2.0"; id: string } & (
-  { method: "tools/call"; params: { name: "make_docs_backlog_review_refresh"; arguments: { envelope: ClientModel["envelope"] } } }
+  { method: "tools/call"; params: { name: "backlog_review_refresh"; arguments: { envelope: ClientModel["envelope"] } } }
   | { method: "ui/message"; params: z.infer<typeof BacklogActionMessageSchema> });
 export type RequestOutcome = { state: "received"; action: BacklogLiveAction }
   | { state: "duplicate" } | { state: "rejected"; reason: string };
@@ -189,7 +189,7 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     state.checking = true; state.limit = null; state.sourceCheckFailed = false; changed();
     const run = async () => {
       try {
-        const raw = await rpc({ method: "tools/call", params: { name: "make_docs_backlog_review_refresh", arguments: { envelope } } });
+        const raw = await rpc({ method: "tools/call", params: { name: "backlog_review_refresh", arguments: { envelope } } });
         const parsed = await parseRefresh(raw);
         if (state.closed || epoch !== sourceEpoch || !state.model) return reject("stale-refresh");
         const data = parsed._meta.backlog;

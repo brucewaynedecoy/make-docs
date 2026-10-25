@@ -48,7 +48,8 @@ export function mountStaticReport(report, presentation, root, hooks = {}) {
     const recordTitle = (record) => presentationByPath.get(record.recordPath).title;
     const fileHref = (relativePath = "") => {
       const full = `${String(report.targetRoot).replace(/[\\/]+$/, "")}/${relativePath}`.replaceAll("\\", "/");
-      const parts = full.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part).replace("%3A", ":"));
+      const parts = full.split("/").map((part, index) => index === 0 && full.startsWith("/") ? "" : encodeURIComponent(part));
+      if (/^[A-Za-z]:\//.test(full)) parts[0] = `${full[0]}:`;
       return `${full.startsWith("/") ? "file://" : "file:///"}${parts.join("/")}`;
     };
     const sourceHref = (record) => fileHref(presentationByPath.get(record.recordPath).sourcePath);

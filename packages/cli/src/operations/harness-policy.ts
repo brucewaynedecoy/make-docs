@@ -21,6 +21,7 @@ import {
   type ProjectHarnessIntegrationRecord,
 } from "../config";
 import { loadGlobalConfig } from "../store/global-config";
+import { matchMcpConnection } from "../mcp-connection";
 import { readCurrentHarnessIntegrationReceipt } from "../store/harness-integration-receipts";
 import { validateInstallationStoreRoot } from "../store/installation-state";
 import { NO_ACCESS, type OperationAccess } from "./access";
@@ -59,7 +60,7 @@ export class HarnessOperationAccessDeniedError extends StoreAccessStateError {
       operation,
       message,
       nextAction ?? (code === "store-not-configured"
-        ? `Run \`make-docs setup --generic-mcp-client <label> --target ${JSON.stringify(targetRoot)}\` for an unsupported MCP client, or run normal setup and select Codex or Claude Code.`
+        ? `Run \`make-docs setup --generic-mcp-client <label> --target ${JSON.stringify(targetRoot)}\` for an unsupported MCP client, or run normal setup and select Codex, Claude Code, or GitHub Copilot CLI.`
         : `Run \`make-docs setup --target ${JSON.stringify(targetRoot)}\` to review machine and project access.`),
       { projectRoot: targetRoot },
     );
@@ -166,6 +167,8 @@ export function resolveHarnessOperationPolicy(input: {
   route: Exclude<OperationRoute, "test">;
   callerIdentityRaw?: string;
   callerReference?: HarnessCallerReference;
+  mcpConnectionId?: string;
+  mcpConnectionKey?: string;
   /** Test seam. Production uses the exact executable in process.argv[1]. */
   runtimeExecutablePath?: string;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
@@ -181,6 +184,46 @@ export function resolveHarnessOperationPolicy(input: {
       harnesses: [],
       methods: [],
       reason: "The operation came from the explicit trusted direct CLI route.",
+    };
+  }
+
+  if (input.route === "mcp") {
+    const storeRoot = validateInstallationStoreRoot(input.targetRoot, input.storeRoot);
+    const global = loadGlobalConfig(storeRoot).config;
+    const match = matchMcpConnection(
+      global.settings.harnesses,
+      input.mcpConnectionId,
+      input.mcpConnectionKey,
+    );
+    if (!match) {
+      throw denied(input.operation ?? "unknown", "The MCP connection key is absent, disabled, or invalid.", input.targetRoot);
+    }
+    const project = records.find(record => record.harness === match.owner);
+    if (!project) {
+      const genericLabel = match.owner.startsWith("generic-mcp-")
+        ? match.owner.slice("generic-mcp-".length)
+        : null;
+      throw new HarnessOperationAccessDeniedError(
+        input.operation ?? "unknown",
+        "This MCP connection has no reviewed project access intent.",
+        input.targetRoot,
+        "store-not-configured",
+        genericLabel
+          ? `Run \`make-docs setup --generic-mcp-client ${genericLabel} --target ${JSON.stringify(input.targetRoot)}\` to review project access.`
+          : undefined,
+      );
+    }
+    if (project.mode !== "narrow" || project.method !== "mcp" ||
+        !match.intent.selected || match.intent.maximumMethod !== "mcp") {
+      throw denied(input.operation ?? "unknown", "Current machine and project settings do not admit this MCP connection.", input.targetRoot);
+    }
+    return {
+      configured: true,
+      verified: true,
+      access: intersectAccess(match.intent.accessCeiling, project.accessCeiling ?? FULL_OPERATION_ACCESS),
+      harnesses: [match.owner],
+      methods: ["mcp"],
+      reason: "The active MCP connection key and current machine and project grants match.",
     };
   }
 
@@ -204,9 +247,6 @@ export function resolveHarnessOperationPolicy(input: {
     identity = resolveCallerIdentity(input);
   } catch (error) {
     throw denied(input.operation ?? "unknown", `The harness caller identity is invalid: ${message(error)}`, input.targetRoot);
-  }
-  if (input.route === "mcp" && identity.connectionMethod !== "mcp") {
-    throw denied(input.operation ?? "unknown", "The MCP route needs an exact MCP caller identity.", input.targetRoot);
   }
   if (input.route === "native-rule" && identity.connectionMethod === "mcp") {
     throw denied(input.operation ?? "unknown", "The native-rule route needs an exact command-rule or permission-rule caller identity.", input.targetRoot);
@@ -247,6 +287,8 @@ export function assertHarnessOperationAllowed(input: {
   route: Exclude<OperationRoute, "test">;
   callerIdentityRaw?: string;
   callerReference?: HarnessCallerReference;
+  mcpConnectionId?: string;
+  mcpConnectionKey?: string;
   runtimeExecutablePath?: string;
   commandRuleAuthority?: HarnessCommandRuleAuthority;
 }): HarnessOperationPolicyResult {

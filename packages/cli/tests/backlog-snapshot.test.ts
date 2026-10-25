@@ -439,7 +439,7 @@ describe("work.backlog.snapshot surfaces", () => {
     await runRunCommand(["work", "backlog", "snapshot", "--target-root", targetRoot, "--json"], { isTty: false });
     spy.mockRestore();
     const cli = JSON.parse(output.join("")) as BacklogSnapshotV1;
-    const mcp = await callMakeDocsMcpTool("make_docs_work_backlog_snapshot", { targetRoot });
+    const mcp = await callMakeDocsMcpTool("backlog_snapshot", { targetRoot });
     expect(mcp.result).toEqual(cli);
     expect(cli.records.map((record) => record.sourceShape.state)).toEqual(
       expect.arrayContaining(["supported", "partial", "unsupported"]),
@@ -455,7 +455,7 @@ describe("work.backlog.snapshot surfaces", () => {
       runRunCommand(["work", "backlog", "snapshot", "--target-root", missing, "--json"]),
     ).rejects.toMatchObject({ code: "BACKLOG-VAL-001", ruleId: "BACKLOG-RULE-001" });
     await expect(
-      callMakeDocsMcpTool("make_docs_work_backlog_snapshot", { targetRoot: missing }),
+      callMakeDocsMcpTool("backlog_snapshot", { targetRoot: missing }),
     ).rejects.toMatchObject({ code: "BACKLOG-VAL-001", ruleId: "BACKLOG-RULE-001" });
   });
 

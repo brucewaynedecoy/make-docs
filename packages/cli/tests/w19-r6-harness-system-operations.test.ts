@@ -74,9 +74,14 @@ describe("W19 R6 Store-owned harness system operations", () => {
       input.storeRoot,
       pending.operationId,
     )).toEqual(pending);
+    const keyLine = String(input.plan.changes[0].afterEntryValue).split("\n")
+      .find(line => line.startsWith("MAKE_DOCS_MCP_CONNECTION_KEY = "))!;
+    const rawKey = JSON.parse(keyLine.split(" = ")[1]!) as string;
+    expect(JSON.stringify(pending)).not.toContain(rawKey);
+    expect(JSON.stringify(pending)).toContain("<redacted-mcp-connection-key>");
 
     const applied = CODEX_HARNESS_ADAPTER.apply({
-      plan: pending.plan,
+      plan: input.plan,
       approved: true,
       operationId: pending.operationId,
       appliedVersion: pending.appliedVersion,
@@ -158,7 +163,7 @@ describe("W19 R6 Store-owned harness system operations", () => {
 
     const pending = prepare(input);
     const applied = CODEX_HARNESS_ADAPTER.apply({
-      plan: pending.plan,
+      plan: input.plan,
       approved: true,
       operationId: pending.operationId,
       appliedVersion: pending.appliedVersion,
