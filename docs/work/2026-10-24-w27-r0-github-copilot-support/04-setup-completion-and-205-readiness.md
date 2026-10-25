@@ -1,7 +1,7 @@
 ---
 title: "W27 R0 P4 Setup Completion and 2.0.5 Readiness"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W27 R0 P4"
 ---
 

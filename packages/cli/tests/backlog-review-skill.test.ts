@@ -482,6 +482,20 @@ describe("backlog-review first-party Skill", () => {
     expect(context.sourceHref?.({ recordPath })).toBe(`file:///tmp/example-project/${recordPath}`);
   });
 
+  test("encodes colons in file names but keeps a Windows drive", () => {
+    const template = read("assets/backlog-review-report.html");
+    const fileLogic = template.match(/const fileHref = [\s\S]*?(?=    const sourceHref =)/)?.[0];
+    expect(fileLogic).toBeDefined();
+    const context = { report: { targetRoot: "/tmp/example-project" } } as {
+      report: { targetRoot: string };
+      fileHref?: (relativePath: string) => string;
+    };
+    runInNewContext(`${fileLogic}; globalThis.fileHref = fileHref;`, context);
+    expect(context.fileHref?.("docs/a:b:c.md")).toBe("file:///tmp/example-project/docs/a%3Ab%3Ac.md");
+    context.report.targetRoot = "C:\\example-project";
+    expect(context.fileHref?.("docs/a:b.md")).toBe("file:///C:/example-project/docs/a%3Ab.md");
+  });
+
   test("derives the wave display name without agent-written document labels", () => {
     const template = read("assets/backlog-review-report.html");
     const titleLogic = template.match(

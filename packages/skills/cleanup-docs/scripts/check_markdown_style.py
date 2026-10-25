@@ -18,7 +18,7 @@ LIST_RE = re.compile(
 )
 HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+")
 HTML_COMMENT_START_RE = re.compile(r"^\s*<!--")
-HTML_COMMENT_END_RE = re.compile(r"-->\s*$")
+HTML_COMMENT_END_RE = re.compile(r"--!?>\s*$")
 
 
 @dataclass

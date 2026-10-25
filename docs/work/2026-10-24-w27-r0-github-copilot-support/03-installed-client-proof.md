@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Installed Client Proof"
 kind: "work"
-status: "draft"
+status: "active"
 coordinate: "W27 R0 P3"
 source:
   type: "prd"
@@ -43,7 +43,7 @@ A user can select Copilot, inspect one setup change, then use Make Docs in the C
 - [x] t1: Run a real Copilot CLI session from the built package. Record tool discovery, allowed Store read, denied operation, Store-free resource read, and sandbox result.
 - [x] t2: Run the same matrix in the GitHub Copilot app. Record its separate native source and result.
 - [x] t3: Check trusted and untrusted project entry behavior, same-name precedence, and shared skill discovery.
-- [ ] t4: Run the claimed host platform checks. Leave each unproved client or platform blocked.
+- [ ] t4: Run direct Copilot CLI and app checks on Windows and Linux. CI contract checks passed, but they do not prove those client runs.
 
 ### Acceptance criteria
 
@@ -62,7 +62,7 @@ A user can select Copilot, inspect one setup change, then use Make Docs in the C
 - [x] t5: Prove repeat setup, drift detection, reviewed repair, key rotation, removal, and rollback in a disposable profile.
 - [x] t6: Compare the real setup text with the Human Experience promises. Record observation, conclusion, limit, and next action for each.
 - [x] t7: Run build, type, focused tests, packaging checks, and link checks. Record exact results.
-- [ ] t8: Prepare the release and PR review packet. Ask for separate approval before push or PR.
+- [x] t8: Prepare the PR review packet and the 2.0.5 release notes. Separate approval was given for the W27 push and PR; PR #42 was merged. Release publication remains separate.
 
 ### Acceptance criteria
 
@@ -125,4 +125,4 @@ The personal Copilot app on macOS connected through a trusted disposable folder 
 
 With an approved temporary CLI user entry installed, the app listed Make Docs as Connected and returned `ready` through it. A same-name project entry stayed inactive while the folder was untrusted. After trust, the project entry took precedence and its changed key caused `store-denied`. The app also loaded the shipped `preflight` Skill from `.agents/skills`. Cleanup restored the exact original CLI MCP file, removed the saved folder trust and test files, and left Railway as the only installed MCP entry.
 
-Open gates: a same-name app-added entry, any host beyond macOS, and owner acceptance. A separate approval is needed before any further installed connection change, push, or PR. No cross-platform release claim is ready.
+Open proof limits: a same-name app-added entry and direct Copilot client runs beyond macOS. Windows and Linux CI contract checks do not replace those client runs. No cross-platform client claim is ready. The W27 PR was reviewed and merged as PR #42. Version 2.0.5 still needs its separate release review and publication decision. The [draft release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) support that decision.

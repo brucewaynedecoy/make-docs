@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Setup and Lifecycle"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W27 R0 P2"
 source:
   type: "prd"
