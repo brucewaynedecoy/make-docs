@@ -26,9 +26,9 @@ The upstream edit is in `packages/skills/backlog-review/assets/backlog-review-re
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-print-candidate-20261024/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-print-candidate-20261024/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `d599cb9b5ca8f245fca35cb3ef8943a01bbc9c416ad7bac8287f4da5f1ecc3d2` |
-| Isolated executable | `/private/tmp/w25-p11-print-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-print-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `4a5f01785c103f58a976003861ccd127bb63fcec6c34d00c856eb3c8092340e2` |
 | Widget SHA-256 | `f2083a53912bd5b15fb53a1ed9a36c6d870066fbe91d5a71116e3a4b2b4f5815` |
 | Static template SHA-256 | `9f2ecf76606b931782b06f1cb101aa7efe151ddfaf0e2d7fb3d0612babaa655d` |
@@ -52,4 +52,4 @@ The owner later approved this exact command change. `codex mcp list --json` pars
 
 The later static prompt source correction is outside this tarball and these hashes. It needs its own candidate before an installed check.
 
-The candidate is in `/private/tmp`. Keep that path until the installed check and an approved durable install route finish. No commit, push, publication, or release is implied by this packet.
+The candidate is in `<LOCAL_TEMP>`. Keep that path until the installed check and an approved durable install route finish. No commit, push, publication, or release is implied by this packet.

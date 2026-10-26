@@ -8,7 +8,7 @@
     "guide-developer.md",
     "coverage-pass-developer-guide.prompt.md"
   ],
-  "extractedRoot": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-persona-fix-extracted-uxto_a4d",
+  "extractedRoot": "<LOCAL_TEMP>/w19-r4-persona-fix-extracted-uxto_a4d",
   "templateInventory": {
     "files": {
       ".make-docs/AGENTS.md": "1777228d341d5c8577857ffa37c0cda76b029e0156f2e00db8280d07105bbb0b",

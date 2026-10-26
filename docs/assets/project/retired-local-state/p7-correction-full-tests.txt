@@ -1272,7 +1272,7 @@ Installed make-docs 2.0.0-rc into <temp-dir>/make-docs-target-f9VLY5.
 │  - generate: .make-docs/system/references/CLAUDE.md                          │
 │  - generate: .make-docs/system/templates/CLAUDE.md                           │
 │  - generate: native harness exposure: <temp-dir>  │
-│  0ww0000gn/T/make-docs-home-YXWFOc/.claude/skills/decompose-codebase         │
+│  <redacted>/T/make-docs-home-YXWFOc/.claude/skills/decompose-codebase         │
 │  - generate: shared payload:                                                 │
 │  <temp-dir>/make-docs-home-YXWFOc/.ma  │
 │  ke-docs/agentics/skills/decompose-codebase/SKILL.md                         │

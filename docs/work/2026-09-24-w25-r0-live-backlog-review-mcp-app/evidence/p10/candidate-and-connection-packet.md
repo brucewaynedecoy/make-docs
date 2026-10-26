@@ -21,10 +21,10 @@ Date: 2026-10-24. State: the first-party 2.0.5 `make_docs` entry is saved. The r
 | Source HEAD | `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Source state | Dirty. The changed package inputs are listed below. Project work records and the dogfood Skill are also dirty. |
 | Lockfile SHA-256 | `d1f2ad0b65f43102a925a5f78dd4d9e7c41ab61773a43c07f7cd2f1d28064de5` |
-| Tarball | `/private/tmp/w25-p10-candidate-20261024/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p10-candidate-20261024/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `beca5b8bcee208fbeed95eb99374efab6a115b025e29bbc2e33c1feb7c9ed30c` |
-| Isolated install | `/private/tmp/w25-p10-candidate-20261024/installed` |
-| Candidate executable | `/private/tmp/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated install | `<LOCAL_TEMP>/w25-p10-candidate-20261024/installed` |
+| Candidate executable | `<LOCAL_TEMP>/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Built and installed executable SHA-256 | `2bef0ef7e48babede537ee32368eecee3b464e23de0aeef9e21ea983e7866c19` |
 | Built and installed Skill bundle SHA-256 | `ecbd48bf8eecb6adf4d157faa4a3aec518a497f216ffbac17d45fd7d768238f2` |
 | Generated widget SHA-256 | `9699e31b10928b3bf7bd1a9965f29a5bafd2caa732ef7d1d34d8635fe5c09246` |
@@ -43,20 +43,20 @@ These dirty package inputs are part of the tarball source. Each hash is SHA-256.
 | `packages/skills/backlog-review/references/cache.md` | `34931ae25105c09d38df1c70136ac499ec2f9c5b7b133c60e6417c5d8a31a3ba` |
 | `packages/skills/backlog-review/scripts/agent-contract.mjs` | `fa1468d08995a57f2eff92b58fff588fa5e62720d7c796741b0b5229b1c5d575` |
 
-The package build copied the committed template into `packages/cli/template`. `npm pack` ran `prepack` and built the CLI. The first pack command could not write npm logs inside the sandbox. The second command used `/private/tmp/w25-p10-npm-cache` and made the tarball. An offline install first failed because that empty cache lacked `@clack/core`. An approved offline retry used the existing npm cache and installed 103 packages under the isolated path. No global package changed.
+The package build copied the committed template into `packages/cli/template`. `npm pack` ran `prepack` and built the CLI. The first pack command could not write npm logs inside the sandbox. The second command used `<LOCAL_TEMP>/w25-p10-npm-cache` and made the tarball. An offline install first failed because that empty cache lacked `@clack/core`. An approved offline retry used the existing npm cache and installed 103 packages under the isolated path. No global package changed.
 
 The isolated executable reports `2.0.5`. A real local MCP handshake with the exact proposed executable and `mcp` argument passed. The default profile listed 45 tools. It included `backlog_review_open`, `backlog_review_refresh`, `backlog_cache_read`, and `backlog_cache_write`. Resource read returned `ui://make-docs/backlog-review/v1.html`. Its bytes matched the generated widget hash above. The executable inside the tarball matches the built and isolated installed executable hash above.
 
 ## Current saved entry and completed command-only trial
 
-The named entry is `make_docs` in `/Users/tylerkneisly/.codex/config.toml`. It now launches global version `2.0.4`. Its current executable is `/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js`. That file has SHA-256 `d09f9b32839cb74577886c8c1ff4172e283f71e3d403a0cf8f932f3995105cd3`. The entry has `args = ["mcp"]`. It has no saved working directory. It has a private `MAKE_DOCS_HARNESS_CALLER_IDENTITY` value. This packet does not copy or show that value.
+The named entry is `make_docs` in `<LOCAL_HOME>/.codex/config.toml`. It now launches global version `2.0.4`. Its current executable is `<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js`. That file has SHA-256 `d09f9b32839cb74577886c8c1ff4172e283f71e3d403a0cf8f932f3995105cd3`. The entry has `args = ["mcp"]`. It has no saved working directory. It has a private `MAKE_DOCS_HARNESS_CALLER_IDENTITY` value. This packet does not copy or show that value.
 
 The owner approved this exact command-only diff. It was applied and then rolled back:
 
 ```diff
  [mcp_servers.make_docs]
--command = "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
-+command = "/private/tmp/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
+-command = "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
++command = "<LOCAL_TEMP>/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
  args = ["mcp"]
 ```
 
@@ -64,7 +64,7 @@ The trial kept the private environment value byte-for-byte unchanged. It kept th
 
 The candidate tarball and executable hashes matched this packet before the switch. The saved entry then showed the new command and the same private environment key. The old private caller identity still bound to the 2.0.4 executable. The candidate's first-party access check could not accept it. The candidate's setup preview also blocked on the existing `make_docs` entry because that entry has no exact Make Docs ownership receipt. This is a user-owned entry in the setup contract. The phrase means that Make Docs cannot prove that it created or may replace that saved entry. It does not mean a second server is required.
 
-The command-only trial did not prove running-host use. Its approved rollback restored the old command. A byte comparison with the pre-trial backup passed. The config file kept mode `0600`. The backup is `/Users/tylerkneisly/.codex/config.toml.w25-p10-backup`. Keep it until the replacement is settled.
+The command-only trial did not prove running-host use. Its approved rollback restored the old command. A byte comparison with the pre-trial backup passed. The config file kept mode `0600`. The backup is `<LOCAL_HOME>/.codex/config.toml.w25-p10-backup`. Keep it until the replacement is settled.
 
 ## Replacement needed for first-party access
 
@@ -72,9 +72,9 @@ The candidate's new grant format uses `MAKE_DOCS_MCP_CONNECTION_ID` and `MAKE_DO
 
 The first disposable setup passed with the five old tool tables left active. I then made an unsafe intermediate change in the live config: I removed only the `make_docs` parent and environment tables. TOML treated the remaining `make_docs.tools.*` tables as an implicit `make_docs` entry. That entry had no `command`. Codex rejected the file at startup with `invalid transport in mcp_servers.make_docs`. The owner commented out both Make Docs entries and every Make Docs tool table to restore startup. This stopped both connections from loading.
 
-A minimal disposable Codex config reproduced the same error with an active child tool table and no parent. The same config passed after adding a parent command. The live setup had not run when Codex failed. No new Store receipt existed from that failed intermediate step. The protected pre-change backup is `/Users/tylerkneisly/.codex/config.toml.w25-p10-migration-backup`, SHA-256 `57455b37d1a7b997324fcd84e2ffbf6c8defc99b5c4038bf2f74cd6a9e21286b`. The invalid intermediate file had SHA-256 `59b04a38228dbb374209b4b693af16a8553ac8a25b04f1240a7c0cc66f2c7b9f`.
+A minimal disposable Codex config reproduced the same error with an active child tool table and no parent. The same config passed after adding a parent command. The live setup had not run when Codex failed. No new Store receipt existed from that failed intermediate step. The protected pre-change backup is `<LOCAL_HOME>/.codex/config.toml.w25-p10-migration-backup`, SHA-256 `57455b37d1a7b997324fcd84e2ffbf6c8defc99b5c4038bf2f74cd6a9e21286b`. The invalid intermediate file had SHA-256 `59b04a38228dbb374209b4b693af16a8553ac8a25b04f1240a7c0cc66f2c7b9f`.
 
-The owner's commented config parsed with `codex mcp list --json`. I copied that working state to `/Users/tylerkneisly/.codex/config.toml.w25-p10-user-commented-backup`, SHA-256 `2095105f10d2b4980c2c5bdd4957583b36128f4b57d52061cefcd501b0cdfbfc`. A second disposable setup used the same commented shape. It returned `configured`; Codex parsed the result and found one active `make_docs` entry. That test changed no live files.
+The owner's commented config parsed with `codex mcp list --json`. I copied that working state to `<LOCAL_HOME>/.codex/config.toml.w25-p10-user-commented-backup`, SHA-256 `2095105f10d2b4980c2c5bdd4957583b36128f4b57d52061cefcd501b0cdfbfc`. A second disposable setup used the same commented shape. It returned `configured`; Codex parsed the result and found one active `make_docs` entry. That test changed no live files.
 
 The owner then asked me to continue with a safer approach. The live steps were:
 
@@ -91,7 +91,7 @@ The saved config has this shape. Setup generated the new ID and key. This packet
  # ... owner's commented old settings ...
 +# make-docs:begin harness-access codex mcp
 +[mcp_servers.make_docs]
-+command = "/private/tmp/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
++command = "<LOCAL_TEMP>/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
 +args = ["mcp"]
 +[mcp_servers.make_docs.env]
 +MAKE_DOCS_MCP_CONNECTION_ID = "[generated ID]"
@@ -117,11 +117,11 @@ Rollback diff for `make_docs`:
 
 ```diff
  [mcp_servers.make_docs]
--command = "/private/tmp/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
-+command = "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
+-command = "<LOCAL_TEMP>/w25-p10-candidate-20261024/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
++command = "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js"
  args = ["mcp"]
 ```
 
-The candidate is in `/private/tmp`. Its path is temporary. Keep it present until the review or install route changes. The local and running-host checks do not prove normal Store access, visible Refresh, connected-chat actions, or installed accessibility. P11 owns those checks.
+The candidate is in `<LOCAL_TEMP>`. Its path is temporary. Keep it present until the review or install route changes. The local and running-host checks do not prove normal Store access, visible Refresh, connected-chat actions, or installed accessibility. P11 owns those checks.
 
 The owner approved the command-only trial, then approved the broader first-party replacement. The owner later asked for a safer approach after the invalid intermediate file stopped Codex startup. The first-party entry is saved, parsed, and loaded by the running Codex host. P10 is complete within its connection scope.

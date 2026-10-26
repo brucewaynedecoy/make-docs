@@ -10,13 +10,13 @@
     "unusedSeconds": 2118
   },
   "newSuite": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts",
     "passed": 20,
     "failed": 0,
     "skipped": 0
   },
   "affected": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-review-operations.test.ts tests/backlog-live-contract.test.ts tests/mcp.test.ts tests/mcp-derivation.test.ts tests/mcp-profiles.test.ts tests/mcp-profile-discovery.test.ts tests/mcp-profile-cli.test.ts tests/registry-contract.test.ts tests/operations.test.ts tests/p3-operation-surfaces.test.ts tests/operation-dependency-direction.test.ts tests/backlog-review-skill.test.ts",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-review-operations.test.ts tests/backlog-live-contract.test.ts tests/mcp.test.ts tests/mcp-derivation.test.ts tests/mcp-profiles.test.ts tests/mcp-profile-discovery.test.ts tests/mcp-profile-cli.test.ts tests/registry-contract.test.ts tests/operations.test.ts tests/p3-operation-surfaces.test.ts tests/operation-dependency-direction.test.ts tests/backlog-review-skill.test.ts",
     "initial": {
       "passed": 237,
       "failed": 2,
@@ -26,14 +26,14 @@
   },
   "inventoryRepair": {
     "finding": "Independent inventory expectations omitted the one new admitted resolver.",
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/mcp.test.ts tests/mcp-derivation.test.ts",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/mcp.test.ts tests/mcp-derivation.test.ts",
     "passed": 12
   },
   "widgetDrift": {
     "finding": "New unused prompt schema changed shared-module client output.",
     "repair": "Make server/helper-only argument schema lazy; regenerate derived asset instead of rewriting source for byte sameness.",
     "affectedRetry": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts",
       "passed": 57
     },
     "fixedStyleAndMarkupEqual": true,
@@ -49,23 +49,23 @@
   },
   "checks": {
     "type": {
-      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
       "state": "passed"
     },
     "build": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
       "state": "passed"
     },
     "generation": {
-      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+      "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
       "state": "completed derived-source creation"
     },
     "helperGeneration": {
-      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
+      "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
       "state": "completed source creation"
     },
     "drift": {
-      "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
       "state": "passed after regeneration"
     },
     "whitespace": {

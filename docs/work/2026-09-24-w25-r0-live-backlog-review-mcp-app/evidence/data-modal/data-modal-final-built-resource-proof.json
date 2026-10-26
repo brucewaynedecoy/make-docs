@@ -14,14 +14,14 @@
     "productionHostDisplay": false
   },
   "builtInvocation": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "args": [
-      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "<REPO_ROOT>/packages/cli/dist/index.js",
       "mcp",
       "--profile",
       "backlog"
     ],
-    "cwd": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+    "cwd": "<REPO_ROOT>"
   },
   "builtFiles": [
     {

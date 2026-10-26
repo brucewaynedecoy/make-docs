@@ -1,11 +1,11 @@
 {
-  "input": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p6-source-harness-SRoJw7/data-modal-small-report.json",
-  "output": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-data-modal-OhtsuY/static-small-report.html",
+  "input": "<LOCAL_TEMP>/make-docs-w25-p6-source-harness-SRoJw7/data-modal-small-report.json",
+  "output": "<LOCAL_TEMP>/make-docs-data-modal-OhtsuY/static-small-report.html",
   "recordCount": 2,
   "fullDataMatchesInput": true,
   "bytes": 61762,
   "sha256": "6ba5cd3f44fa8c517eb243d3521802375794e79a0712c38445b607b768402845",
   "reportRebuilt": false,
   "modalHeightRule": "ceil(0.66 * actual standalone viewport height)",
-  "priorArtifact": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-data-modal-OhtsuY/static-small-report-interim-fb8.html"
+  "priorArtifact": "<LOCAL_TEMP>/make-docs-data-modal-OhtsuY/static-small-report-interim-fb8.html"
 }

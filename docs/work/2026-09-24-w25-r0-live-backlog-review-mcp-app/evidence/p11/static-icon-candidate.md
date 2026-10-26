@@ -22,9 +22,9 @@ The copy action first tries a synchronous browser copy while the click has user 
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-static-icon-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-static-icon-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `e6f6d9c01b590f521ad382d9f9d09df5fd2037ddcdf8ab41a0b5aad83deca5d4` |
-| Isolated executable | `/private/tmp/w25-p11-static-icon-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-static-icon-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `d0f0ab5af9ed03edb721454a8bf1e9d8a1485895d560dcbfaacf8f3008d00e4d` |
 | Static template SHA-256 | `bc680e5032d629cc3e76c71039ea40d977449301cc4e8e54a6fc3aac9ce28674` |
 | Static guide SHA-256 | `b00f022750c06fe99158fa8f2b009be18410787c6dfd113fd4f2ff7bb82029b2` |
@@ -47,7 +47,7 @@ The browser checks used stubbed clipboard calls. They did not read the operating
 
 ## Saved entry and running process
 
-The owner approved this exact executable. I checked the old and new executable hashes, then changed only the saved `make_docs` command to the path above. I saved the former complete config at `/Users/tylerkneisly/.codex/config.toml.w25-p11-static-icon-backup-20261025` with mode `0600`. A byte comparison showed that replacing the new command with the old one makes the files identical. Both files have mode `0600`.
+The owner approved this exact executable. I checked the old and new executable hashes, then changed only the saved `make_docs` command to the path above. I saved the former complete config at `<LOCAL_HOME>/.codex/config.toml.w25-p11-static-icon-backup-20261025` with mode `0600`. A byte comparison showed that replacing the new command with the old one makes the files identical. Both files have mode `0600`.
 
 `codex mcp list --json` parsed the full config. It shows the enabled stdio `make_docs` entry at the new path with argument `mcp`. I did not change the private identity, key, tool settings, or separate entry. A direct MCP client started the new executable and completed initialization. It listed 45 tools, including `backlog_snapshot`, `backlog_cache_read`, `backlog_cache_write`, `backlog_review_open`, and `backlog_review_refresh`.
 

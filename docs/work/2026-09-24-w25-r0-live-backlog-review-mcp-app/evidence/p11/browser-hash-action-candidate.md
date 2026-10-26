@@ -28,11 +28,11 @@ These checks prove the source and package. They do not prove delivery in Codex.
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-browser-hash-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-browser-hash-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `2b09a9a6de6f0b4721973ca577a11ef591266881f0363fea7e6d0c0db1ca2023` |
-| New command | `/private/tmp/w25-p11-browser-hash-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| New command | `<LOCAL_TEMP>/w25-p11-browser-hash-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | New command SHA-256 | `70cb6646974ea938ea457016f11e65f16285bfc53a8e7ff098a80a41cff370cf` |
-| Current saved command | `/private/tmp/w25-p11-action-feedback-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Current saved command | `<LOCAL_TEMP>/w25-p11-action-feedback-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Current command SHA-256 | `2fe3c489ca3b5b817ad40e9a2cb9bb278cd1116f666110ab7890285de8c5d642` |
 
 ## Saved entry plan

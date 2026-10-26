@@ -19,9 +19,9 @@ The live Print control now always gives one local help message. The message dire
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-live-print-guidance-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-live-print-guidance-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `40a7354d545cc870096d033f7e38a1e72376fe95e5616e31ac23cb288f5b0b99` |
-| Isolated executable | `/private/tmp/w25-p11-live-print-guidance-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-live-print-guidance-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `3e645389f30a6c5479ef1ac0370e1aec2c2277987c4377b06ac89fdd9419a5ed` |
 | MCP App resource SHA-256 | `c2a45dc425efc5f49d7b828948140c773c6e875997e9b65757b5871d2b7aecb8` |
 | Static report template SHA-256 | `bc680e5032d629cc3e76c71039ea40d977449301cc4e8e54a6fc3aac9ce28674` |
@@ -43,4 +43,4 @@ These checks do not prove the new package's Print result in Codex. The current i
 
 Change only the saved `make_docs` MCP command to the isolated executable above. Keep its `mcp` argument, private identity value, tool approvals, and the separate `make-docs` entry unchanged. First recheck the tarball and executable hashes. Parse the full config before Codex reload. After reload, check that `make_docs` starts, Store status is `ready`, the 76-record report opens, and Print shows the help message in the visible app. If startup or access fails, restore the saved config backup and the prior command. Keep the prior package for rollback.
 
-The current command is `/private/tmp/w25-p11-static-icon-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`. Its executable SHA-256 is `d0f0ab5af9ed03edb721454a8bf1e9d8a1485895d560dcbfaacf8f3008d00e4d`. This packet does not change that command. The earlier approval named that prior candidate. The new exact command needs a separate approval before it is saved.
+The current command is `<LOCAL_TEMP>/w25-p11-static-icon-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`. Its executable SHA-256 is `d0f0ab5af9ed03edb721454a8bf1e9d8a1485895d560dcbfaacf8f3008d00e4d`. This packet does not change that command. The earlier approval named that prior candidate. The new exact command needs a separate approval before it is saved.

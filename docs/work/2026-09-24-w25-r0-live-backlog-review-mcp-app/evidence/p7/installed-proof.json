@@ -3,8 +3,8 @@
   "mode": "automated-functional",
   "perfObservations": 0,
   "candidate": {
-    "stage": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm",
-    "tarball": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualifying-candidate/brucewaynedecoy-make-docs-2.0.4.tgz",
+    "stage": "<LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm",
+    "tarball": "<LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm/qualifying-candidate/brucewaynedecoy-make-docs-2.0.4.tgz",
     "name": "@brucewaynedecoy/make-docs",
     "version": "2.0.4",
     "sha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
@@ -21,7 +21,7 @@
   "package": {
     "name": "@brucewaynedecoy/make-docs",
     "version": "2.0.4",
-    "installedRoot": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualified-install/node_modules/@brucewaynedecoy/make-docs"
+    "installedRoot": "<LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm/qualified-install/node_modules/@brucewaynedecoy/make-docs"
   },
   "fixture": {
     "kind": "one-wave synthetic functional",

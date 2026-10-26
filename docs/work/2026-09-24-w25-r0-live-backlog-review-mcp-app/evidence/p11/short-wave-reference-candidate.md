@@ -10,11 +10,11 @@ Explain and Work reached this Codex chat as clear text. The first corrected pack
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-compact-actions-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-compact-actions-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `c8ca7ccf196042f713f2308e079dc8256a24d64ea6859a46e946b32869c06a00` |
-| Isolated executable | `/private/tmp/w25-p11-compact-actions-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-compact-actions-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `69b7ae42ed7b91329e40ad78e5bda29758eebe2937886b0406be67877638c035` |
-| Saved `make_docs` command now | `/private/tmp/w25-p11-clear-action-widget-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Saved `make_docs` command now | `<LOCAL_TEMP>/w25-p11-clear-action-widget-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Saved executable SHA-256 | `ec9b3a46c0980198614fac8d4586e59dd085b80063eb4f8a60ddfbd0630d3ee3` |
 
 The offline install used an empty npm cache and stopped on an uncached dependency. I copied the prior isolated 2.0.5 dependency tree into this temporary directory. I replaced only its Make Docs package with the new tarball contents. The old and new package versions, dependencies, and optional dependencies match. The new executable reports version `2.0.5` and reads the current 76-record snapshot. This temporary runtime is outside Git.
@@ -38,7 +38,7 @@ If startup, Store access, or either action fails, restore only the saved command
 
 ## Approved saved change and current limit
 
-The owner approved the exact command change. Both candidate hashes and the old executable hash matched this packet. The previous full config is in a private mode-`0600` backup at `/private/tmp/w25-p11-compact-actions-candidate-20261025/codex-config-before-command-change.toml`. A one-value draft was applied with an atomic file replacement. The saved config now matches that draft byte for byte and remains mode `0600`. `codex mcp list --json` reads the entry as enabled stdio with the approved command and unchanged `mcp` argument. No private identity was printed.
+The owner approved the exact command change. Both candidate hashes and the old executable hash matched this packet. The previous full config is in a private mode-`0600` backup at `<LOCAL_TEMP>/w25-p11-compact-actions-candidate-20261025/codex-config-before-command-change.toml`. A one-value draft was applied with an atomic file replacement. The saved config now matches that draft byte for byte and remains mode `0600`. `codex mcp list --json` reads the entry as enabled stdio with the approved command and unchanged `mcp` argument. No private identity was printed.
 
 A separate local MCP client started the new package and listed 45 tools. Its `project_status` call returned `store-unavailable`. The same client and saved identity returned the same result with the prior package. The running Codex MCP connection still returned `ready` with `storeAvailable: true`. This local test proves startup and tool discovery. It does not test Codex's project grant, so the `store-unavailable` result is not a candidate-specific failure. The approved command remains saved for the Codex restart and installed Store check. Explain and Work with the short reference remain unproved in Codex.
 

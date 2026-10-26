@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { execFileSync, spawnSync } from 'node:child_process';
 
-const root = process.argv[2] || '/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs';
+const root = process.argv[2] || '<REPO_ROOT>';
 const captureSuffix = process.argv[3] || 'final';
 const require = createRequire(path.join(root, 'packages/cli/package.json'));
 const { Client } = require('@modelcontextprotocol/sdk/client/index.js');

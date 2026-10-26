@@ -52,7 +52,7 @@ This grants the verified Codex MCP connection Store read and write access and pr
 
 ## Result
 
-The owner approved this plan. The first-party planner produced only the seven added YAML lines shown above. The prior file hash was `3dc312fb2a95626859429b476b1c6245c177bbefdc420914f4791ba6434685ce`. The applied file hash is `9fc3b33e855ad063bb9aea1a20eacc81724edcdda433f1c602d457c067c9d93b`. The protected copy is `/private/tmp/w25-p10-candidate-20261024/p11-config-backup.yaml` and matches the prior bytes. The parser accepted both the unchanged Claude Code record and the new Codex record.
+The owner approved this plan. The first-party planner produced only the seven added YAML lines shown above. The prior file hash was `3dc312fb2a95626859429b476b1c6245c177bbefdc420914f4791ba6434685ce`. The applied file hash is `9fc3b33e855ad063bb9aea1a20eacc81724edcdda433f1c602d457c067c9d93b`. The protected copy is `<LOCAL_TEMP>/w25-p10-candidate-20261024/p11-config-backup.yaml` and matches the prior bytes. The parser accepted both the unchanged Claude Code record and the new Codex record.
 
 The running Codex MCP `project_status` call returned `ready`. An invalid key returned `store-denied`. The current deterministic backlog snapshot found 76 records: 52 live and 24 archived. The optional cache lookup returned 76 misses and no hits or rejected rows. No cache write was attempted. The source snapshot reported 62 diagnostics: 48 `BACKLOG-VAL-004`, 10 `BACKLOG-VAL-009`, and 4 `BACKLOG-VAL-008`. These diagnostics need review before a report claim.
 

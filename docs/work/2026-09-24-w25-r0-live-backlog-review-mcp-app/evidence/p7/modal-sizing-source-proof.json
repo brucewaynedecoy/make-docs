@@ -4,25 +4,25 @@
   "change": "Use fixed host height when provided. Otherwise use allocated iframe height, capped by maxHeight. Preserve the66% rule.",
   "canonicalMatchesApprovedPreview": true,
   "sizingTests": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts -t 'reports smaller content after Data|loads exact Data locally|uses only valid standard container bounds|applies trusted host bounds'",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts -t 'reports smaller content after Data|loads exact Data locally|uses only valid standard container bounds|applies trusted host bounds'",
     "passed": 8,
     "skipped": 55,
     "scope": "Only sizing, existing Data-local behavior, and standard container-bound tests. No wave-review or New Task checks ran."
   },
   "generation": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
     "state": "passed"
   },
   "drift": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
     "state": "passed"
   },
   "type": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
     "state": "passed"
   },
   "build": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
     "state": "passed"
   },
   "whitespace": {

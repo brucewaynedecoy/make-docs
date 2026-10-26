@@ -38,7 +38,7 @@
 > vitest run
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 <REPO_ROOT>/packages/cli
 
  ✓ tests/w22-r0-p8-router-reinstall.test.ts (14 tests) 75425ms
    ✓ W22 R0 P8 router ownership and reviewed reinstall > plans and applies an exact managed-block insertion in a project-owned router  6101ms
@@ -64,39 +64,39 @@
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-sgV1yn/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-sgV1yn/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-sgV1yn/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-sgV1yn/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-sgV1yn/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -106,7 +106,7 @@
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-sgV1yn/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -118,7 +118,7 @@
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-mAkdhs   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-mAkdhs   [90m│[39m
 [90m│[39m  Mode: existing install reconfigure                                       [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (found or verified for       [90m│[39m
 [90m│[39m  transfer)                                                                [90m│[39m
@@ -164,9 +164,9 @@
 [90m├────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Reconfigured make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-mAkdhs.
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-iimx8S","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-RePLLR","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":6,"targetSchemaVersion":6,"disposition":"retain-history","mutationState":"none","changes":[],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":false,"mutationState":"none","actions":[{"path":".make-docs/AGENTS.md","action":"noop"},{"path":".make-docs/CLAUDE.md","action":"noop"},{"path":".make-docs/system-resources.catalog.json","action":"noop"},{"path":".make-docs/system-resources.schema.json","action":"noop"},{"path":".make-docs/system/AGENTS.md","action":"noop"},{"path":".make-docs/system/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/AGENTS.md","action":"noop"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/commit-message-convention.md","action":"noop"},{"path":".make-docs/system/contracts/coverage-pass-contract.md","action":"noop"},{"path":".make-docs/system/contracts/deferred-obligation-contract.md","action":"noop"},{"path":".make-docs/system/contracts/design-contract.md","action":"noop"},{"path":".make-docs/system/contracts/guide-contract.md","action":"noop"},{"path":".make-docs/system/contracts/history-record-contract.md","action":"noop"},{"path":".make-docs/system/contracts/human-experience-contract.md","action":"noop"},{"path":".make-docs/system/contracts/naive-uat-contract.md","action":"noop"},{"path":".make-docs/system/contracts/output-contract.md","action":"noop"},{"path":".make-docs/system/contracts/performance-evidence-governance.md","action":"noop"},{"path":".make-docs/system/contracts/system-resource-contract.md","action":"noop"},{"path":".make-docs/system/prompts/AGENTS.md","action":"noop"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/prompts/designs-to-plan-change.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/designs-to-plan.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/performance-coverage.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/plan-to-prd-change.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/plan-to-prd-green-field.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/request-to-design.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/session-to-history-record.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/update-readme-green-field.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/work-to-commit-message.prompt.md","action":"noop"},{"path":".make-docs/system/references/AGENTS.md","action":"noop"},{"path":".make-docs/system/references/CLAUDE.md","action":"noop"},{"path":".make-docs/system/references/design-workflow.md","action":"noop"},{"path":".make-docs/system/references/execution-workflow.md","action":"noop"},{"path":".make-docs/system/references/harness-capability-matrix.md","action":"noop"},{"path":".make-docs/system/references/human-experience.md","action":"noop"},{"path":".make-docs/system/references/lifecycle.md","action":"noop"},{"path":".make-docs/system/references/naive-uat-validation.md","action":"noop"},{"path":".make-docs/system/references/naive-uat-workflow.md","action":"noop"},{"path":".make-docs/system/references/path-and-link-hygiene.md","action":"noop"},{"path":".make-docs/system/references/performance-evidence.md","action":"noop"},{"path":".make-docs/system/references/planning-workflow.md","action":"noop"},{"path":".make-docs/system/references/prd-change-management.md","action":"noop"},{"path":".make-docs/system/references/wave-model.md","action":"noop"},{"path":".make-docs/system/templates/AGENTS.md","action":"noop"},{"path":".make-docs/system/templates/CLAUDE.md","action":"noop"},{"path":".make-docs/system/templates/design.md","action":"noop"},{"path":".make-docs/system/templates/guide-maintainer.md","action":"noop"},{"path":".make-docs/system/templates/guide-user.md","action":"noop"},{"path":".make-docs/system/templates/history-record.md","action":"noop"},{"path":".make-docs/system/templates/naive-uat-scenario.md","action":"noop"},{"path":".make-docs/system/templates/performance-evidence-profile.md","action":"noop"},{"path":".make-docs/system/templates/plan-overview.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd-change.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd-decompose.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd.md","action":"noop"},{"path":".make-docs/system/templates/prd-architecture.md","action":"noop"},{"path":".make-docs/system/templates/prd-glossary.md","action":"noop"},{"path":".make-docs/system/templates/prd-index.md","action":"noop"},{"path":".make-docs/system/templates/prd-overview.md","action":"noop"},{"path":".make-docs/system/templates/prd-reference.md","action":"noop"},{"path":".make-docs/system/templates/prd-risk-register.md","action":"noop"},{"path":".make-docs/system/templates/prd-subsystem.md","action":"noop"},{"path":"AGENTS.md","action":"noop"},{"path":"CLAUDE.md","action":"noop"},{"path":"docs/AGENTS.md","action":"noop"},{"path":"docs/CLAUDE.md","action":"noop"},{"path":"docs/designs/AGENTS.md","action":"noop"},{"path":"docs/designs/CLAUDE.md","action":"noop"},{"path":"docs/plans/AGENTS.md","action":"noop"},{"path":"docs/plans/CLAUDE.md","action":"noop"},{"path":"docs/prd/AGENTS.md","action":"noop"},{"path":"docs/prd/CLAUDE.md","action":"noop"}]},"failedCondition":null,"nextAction":null}
+Reconfigured make-docs 2.0.4 in <LOCAL_TEMP>/make-docs-test-mAkdhs.
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-test-iimx8S","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-test-RePLLR","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":6,"targetSchemaVersion":6,"disposition":"retain-history","mutationState":"none","changes":[],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":false,"mutationState":"none","actions":[{"path":".make-docs/AGENTS.md","action":"noop"},{"path":".make-docs/CLAUDE.md","action":"noop"},{"path":".make-docs/system-resources.catalog.json","action":"noop"},{"path":".make-docs/system-resources.schema.json","action":"noop"},{"path":".make-docs/system/AGENTS.md","action":"noop"},{"path":".make-docs/system/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/AGENTS.md","action":"noop"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/commit-message-convention.md","action":"noop"},{"path":".make-docs/system/contracts/coverage-pass-contract.md","action":"noop"},{"path":".make-docs/system/contracts/deferred-obligation-contract.md","action":"noop"},{"path":".make-docs/system/contracts/design-contract.md","action":"noop"},{"path":".make-docs/system/contracts/guide-contract.md","action":"noop"},{"path":".make-docs/system/contracts/history-record-contract.md","action":"noop"},{"path":".make-docs/system/contracts/human-experience-contract.md","action":"noop"},{"path":".make-docs/system/contracts/naive-uat-contract.md","action":"noop"},{"path":".make-docs/system/contracts/output-contract.md","action":"noop"},{"path":".make-docs/system/contracts/performance-evidence-governance.md","action":"noop"},{"path":".make-docs/system/contracts/system-resource-contract.md","action":"noop"},{"path":".make-docs/system/prompts/AGENTS.md","action":"noop"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/prompts/designs-to-plan-change.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/designs-to-plan.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/docs-path-hygiene-cleanup.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/performance-coverage.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/plan-to-prd-change.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/plan-to-prd-green-field.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/request-to-design.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/session-to-history-record.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/update-readme-green-field.prompt.md","action":"noop"},{"path":".make-docs/system/prompts/work-to-commit-message.prompt.md","action":"noop"},{"path":".make-docs/system/references/AGENTS.md","action":"noop"},{"path":".make-docs/system/references/CLAUDE.md","action":"noop"},{"path":".make-docs/system/references/design-workflow.md","action":"noop"},{"path":".make-docs/system/references/execution-workflow.md","action":"noop"},{"path":".make-docs/system/references/harness-capability-matrix.md","action":"noop"},{"path":".make-docs/system/references/human-experience.md","action":"noop"},{"path":".make-docs/system/references/lifecycle.md","action":"noop"},{"path":".make-docs/system/references/naive-uat-validation.md","action":"noop"},{"path":".make-docs/system/references/naive-uat-workflow.md","action":"noop"},{"path":".make-docs/system/references/path-and-link-hygiene.md","action":"noop"},{"path":".make-docs/system/references/performance-evidence.md","action":"noop"},{"path":".make-docs/system/references/planning-workflow.md","action":"noop"},{"path":".make-docs/system/references/prd-change-management.md","action":"noop"},{"path":".make-docs/system/references/wave-model.md","action":"noop"},{"path":".make-docs/system/templates/AGENTS.md","action":"noop"},{"path":".make-docs/system/templates/CLAUDE.md","action":"noop"},{"path":".make-docs/system/templates/design.md","action":"noop"},{"path":".make-docs/system/templates/guide-maintainer.md","action":"noop"},{"path":".make-docs/system/templates/guide-user.md","action":"noop"},{"path":".make-docs/system/templates/history-record.md","action":"noop"},{"path":".make-docs/system/templates/naive-uat-scenario.md","action":"noop"},{"path":".make-docs/system/templates/performance-evidence-profile.md","action":"noop"},{"path":".make-docs/system/templates/plan-overview.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd-change.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd-decompose.md","action":"noop"},{"path":".make-docs/system/templates/plan-prd.md","action":"noop"},{"path":".make-docs/system/templates/prd-architecture.md","action":"noop"},{"path":".make-docs/system/templates/prd-glossary.md","action":"noop"},{"path":".make-docs/system/templates/prd-index.md","action":"noop"},{"path":".make-docs/system/templates/prd-overview.md","action":"noop"},{"path":".make-docs/system/templates/prd-reference.md","action":"noop"},{"path":".make-docs/system/templates/prd-risk-register.md","action":"noop"},{"path":".make-docs/system/templates/prd-subsystem.md","action":"noop"},{"path":"AGENTS.md","action":"noop"},{"path":"CLAUDE.md","action":"noop"},{"path":"docs/AGENTS.md","action":"noop"},{"path":"docs/CLAUDE.md","action":"noop"},{"path":"docs/designs/AGENTS.md","action":"noop"},{"path":"docs/designs/CLAUDE.md","action":"noop"},{"path":"docs/plans/AGENTS.md","action":"noop"},{"path":"docs/plans/CLAUDE.md","action":"noop"},{"path":"docs/prd/AGENTS.md","action":"noop"},{"path":"docs/prd/CLAUDE.md","action":"noop"}]},"failedCondition":null,"nextAction":null}
  ✓ tests/install.test.ts (65 tests) 88476ms
    ✓ installer integration > fresh installs omit retired editorial PRD templates  1184ms
    ✓ installer integration > sync removes unchanged retired PRD templates but preserves and reports modified copies  2430ms
@@ -234,39 +234,39 @@ Reconfigured make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-BfUkKB/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-BfUkKB/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-BfUkKB/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-BfUkKB/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-BfUkKB/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -276,7 +276,7 @@ Reconfigured make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-BfUkKB/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -292,7 +292,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-BLabfI   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-BLabfI   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -351,7 +351,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├─────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-BLabfI.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-BLabfI.
 Legacy installation state will move to the global Make Docs Store. These verified records will be removed after Store readback:
 - .make-docs/manifest.json
 [90m│[39m
@@ -363,39 +363,39 @@ Legacy installation state will move to the global Make Docs Store. These verifie
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-cq7pSM/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-cq7pSM/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-cq7pSM/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-cq7pSM/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-cq7pSM/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -405,7 +405,7 @@ Legacy installation state will move to the global Make Docs Store. These verifie
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-cq7pSM/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -417,7 +417,7 @@ Legacy installation state will move to the global Make Docs Store. These verifie
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-cdn6p8   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-cdn6p8   [90m│[39m
 [90m│[39m  Mode: existing install sync                                              [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (found or verified for       [90m│[39m
 [90m│[39m  transfer)                                                                [90m│[39m
@@ -467,7 +467,7 @@ The legacy installation transfer changed the project review. Review the current 
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-cdn6p8   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-cdn6p8   [90m│[39m
 [90m│[39m  Mode: existing install sync                                              [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (found or verified for       [90m│[39m
 [90m│[39m  transfer)                                                                [90m│[39m
@@ -513,7 +513,7 @@ The legacy installation transfer changed the project review. Review the current 
 [90m├────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Synced make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-cdn6p8.
+Synced make-docs 2.0.4 in <LOCAL_TEMP>/make-docs-test-cdn6p8.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -522,19 +522,19 @@ Synced make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-home-jqkeVN/.claude.json; owned native entries                   [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-home-jqkeVN/.claude/settings.json; owned native  [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-home-jqkeVN/.claude/settings.json; owned native  [90m│[39m
 [90m│[39m   entries permissions.allow.make-docs.                                       [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -544,7 +544,7 @@ Synced make-docs 2.0.4 in /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-inIZSA/store/config.json                                      [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
 [90m│[39m  - Effect: saves the reviewed machine access ceiling only after its native   [90m│[39m
@@ -559,7 +559,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-IGXyum   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-IGXyum   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -595,63 +595,63 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m│[39m  - generate: .make-docs/system/prompts/CLAUDE.md                             [90m│[39m
 [90m│[39m  - generate: .make-docs/system/references/CLAUDE.md                          [90m│[39m
 [90m│[39m  - generate: .make-docs/system/templates/CLAUDE.md                           [90m│[39m
-[90m│[39m  - generate: Skill files: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/  [90m│[39m
+[90m│[39m  - generate: Skill files: <LOCAL_TEMP>/  [90m│[39m
 [90m│[39m  make-docs-home-jqkeVN/.agents/skills/decompose-codebase/SKILL.md            [90m│[39m
-[90m│[39m  - generate: Skill files: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/  [90m│[39m
+[90m│[39m  - generate: Skill files: <LOCAL_TEMP>/  [90m│[39m
 [90m│[39m  make-docs-home-jqkeVN/.agents/skills/decompose-codebase/agents/openai.yaml  [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/decomposition-plan.md       [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-architecture.md         [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-glossary.md             [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-index.md                [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-overview.md             [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-reference.md            [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-risk-register.md        [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/prd-subsystem.md            [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/rebuild-backlog-index.md    [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/assets/templates/rebuild-backlog-phase.md    [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/references/execution-workflow.md             [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/references/harness-capability-matrix.md      [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/references/mcp-playbook.md                   [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/references/output-contract.md                [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/references/planning-workflow.md              [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/scripts/probe_environment.py                 [90m│[39m
 [90m│[39m  - generate: Skill files:                                                    [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-home-jqkeVN/.ag  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-home-jqkeVN/.ag  [90m│[39m
 [90m│[39m  ents/skills/decompose-codebase/scripts/validate_output.py                   [90m│[39m
-[90m│[39m  - generate: native harness exposure: /var/folders/x8/zvcz1qzj2v7_pdsktm01v  [90m│[39m
-[90m│[39m  0ww0000gn/T/make-docs-home-jqkeVN/.claude/skills/decompose-codebase         [90m│[39m
+[90m│[39m  - generate: native harness exposure: <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-home-jqkeVN/.claude/skills/decompose-codebase         [90m│[39m
 [90m│[39m  - generate: CLAUDE.md                                                       [90m│[39m
 [90m│[39m  - generate: docs/CLAUDE.md                                                  [90m│[39m
 [90m│[39m  - generate: docs/designs/CLAUDE.md                                          [90m│[39m
@@ -662,7 +662,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-IGXyum.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-IGXyum.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -671,22 +671,22 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-1TFVxC/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-1TFVxC/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
@@ -697,7 +697,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-1TFVxC/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Effect: saves the reviewed machine access ceiling only after its native   [90m│[39m
@@ -712,7 +712,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-ECietG   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-ECietG   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -758,7 +758,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-ECietG.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-ECietG.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -767,19 +767,19 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-iCh7Ua/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-iCh7Ua/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-iCh7Ua/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -789,7 +789,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-iCh7Ua/store/config.json                                      [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
 [90m│[39m  - Effect: saves the reviewed machine access ceiling only after its native   [90m│[39m
@@ -804,7 +804,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-YD0lUk   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-YD0lUk   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -850,7 +850,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-YD0lUk.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-YD0lUk.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -860,39 +860,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-QkqCeR/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-QkqCeR/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-QkqCeR/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-QkqCeR/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-QkqCeR/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -902,7 +902,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-QkqCeR/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -918,7 +918,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-1x92Ur   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-1x92Ur   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -976,7 +976,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-1x92Ur.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-1x92Ur.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -986,39 +986,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-Iy19h2/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-Iy19h2/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1028,7 +1028,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-Iy19h2/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -1044,7 +1044,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-tAozgj   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-tAozgj   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1102,7 +1102,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-tAozgj.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-tAozgj.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1112,39 +1112,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Iy19h2/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-Iy19h2/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-Iy19h2/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1154,7 +1154,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-Iy19h2/store/config.json                                      [90m│[39m
 [90m│[39m  - Effect: no global harness intent change.                                  [90m│[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1163,7 +1163,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-QnrZ80   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-QnrZ80   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1315,7 +1315,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m├──────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-QnrZ80.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-QnrZ80.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1325,39 +1325,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-z8AYoX/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-z8AYoX/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-z8AYoX/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-z8AYoX/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-z8AYoX/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1367,7 +1367,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-z8AYoX/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -1383,7 +1383,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-RpnMdk   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-RpnMdk   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1442,7 +1442,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├─────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-RpnMdk.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-RpnMdk.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1452,39 +1452,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Fa17R4/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Fa17R4/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-Fa17R4/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-Fa17R4/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-Fa17R4/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1494,7 +1494,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-Fa17R4/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -1510,7 +1510,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-OLDIpI   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-OLDIpI   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1568,7 +1568,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-OLDIpI.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-OLDIpI.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1578,39 +1578,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-home-fTgmQJ/.codex/config.toml; owned native entries             [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-home-fTgmQJ/.codex/rules/make-docs.rules; owned native entries   [90m│[39m
 [90m│[39m  make-docs.command-rules.                                                    [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-home-fTgmQJ/.claude.json; owned native entries                   [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-home-fTgmQJ/.claude/settings.json; owned native  [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-home-fTgmQJ/.claude/settings.json; owned native  [90m│[39m
 [90m│[39m   entries permissions.allow.make-docs.                                       [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1620,7 +1620,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-vSGnEM/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
@@ -1636,7 +1636,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-kBdV16   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-kBdV16   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1694,7 +1694,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-kBdV16.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-kBdV16.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1703,22 +1703,22 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-S5lyfF/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-S5lyfF/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
@@ -1729,7 +1729,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-S5lyfF/store/config.json                                      [90m│[39m
 [90m│[39m  - Codex intent: none -> none                                                [90m│[39m
 [90m│[39m  - Effect: saves the reviewed machine access ceiling only after its native   [90m│[39m
@@ -1744,7 +1744,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-i7Ql9q   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-i7Ql9q   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1790,7 +1790,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-i7Ql9q.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-i7Ql9q.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1799,19 +1799,19 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-UpVXSa/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-UpVXSa/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-UpVXSa/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -1821,7 +1821,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-UpVXSa/store/config.json                                      [90m│[39m
 [90m│[39m  - Claude Code intent: none -> none                                          [90m│[39m
 [90m│[39m  - Effect: saves the reviewed machine access ceiling only after its native   [90m│[39m
@@ -1836,7 +1836,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8EzRMV   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-8EzRMV   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1882,7 +1882,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├──────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-8EzRMV.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-8EzRMV.
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1896,7 +1896,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-XYmbmW/store/config.json                                      [90m│[39m
 [90m│[39m  - Effect: no global harness intent change.                                  [90m│[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1909,7 +1909,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [32m◇[39m  [0mThis project[0m [90m────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                           [90m│[39m
 [90m│[39m  Target:                                                                  [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-DYgnj6   [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-DYgnj6   [90m│[39m
 [90m│[39m  Mode: first install                                                      [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)            [90m│[39m
 [90m│[39m  Installed version: none detected                                         [90m│[39m
@@ -1955,7 +1955,7 @@ Next: Review setup. Setup can create the Store without a compatibility conversio
 [90m├────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 
-Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-DYgnj6.
+Installed make-docs 2.0.4 into <LOCAL_TEMP>/make-docs-test-DYgnj6.
  ✓ tests/w19-r5-skill-adoption.test.ts (33 tests) 44177ms
    ✓ reviewed first-party Skill adoption > keeps canonical symlink ownership after adoption, normal setup and skills sync  2446ms
    ✓ reviewed first-party Skill adoption > keeps canonical copy-mirror ownership after adoption, normal setup and skills sync  1993ms
@@ -1984,8 +1984,8 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
    ✓ standard native Skill layout adoption > cuts over three old managed payloads with both tools and recorded Claude links: link create interruption  3151ms
 {"schemaVersion":2,"status":"skipped-none","scope":"machine","selections":{"codex":"none","claude-code":"none"},"configured":[],"skipped":["codex","claude-code"],"blocked":[],"attemptedWork":[],"mutationState":"none","failedCondition":null,"nextAction":null,"recoveryAction":null}
 {"schemaVersion":2,"status":"skipped-none","scope":"machine","selections":{"codex":"none","claude-code":"permission-rules"},"configured":[],"skipped":["codex"],"blocked":[],"attemptedWork":[],"mutationState":"none","failedCondition":null,"nextAction":null,"recoveryAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-system-first-gbd2bO","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-store-before-system-SKDMZb","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":3,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 3 to schema 6.","Archive device and inode strings for 0 checkout row(s), then remove both active columns."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-system-first-gbd2bO","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-store-before-system-SKDMZb","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":3,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 3 to schema 6.","Archive device and inode strings for 0 checkout row(s), then remove both active columns."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
 [90m│[39m
 [32m◇[39m  [0mThis computer[0m [90m──────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
@@ -1995,39 +1995,39 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Codex mcp: blocked; executable-not-executable: The resolved Make Docs       [90m│[39m
 [90m│[39m  package binary is not executable. Launch path:                              [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-D0WGB0/.codex/config.toml; owned native entries         [90m│[39m
 [90m│[39m  mcp_servers.make_docs.                                                      [90m│[39m
 [90m│[39m  Codex command-rules: blocked; executable-not-executable: The resolved Make  [90m│[39m
 [90m│[39m   Docs package binary is not executable. Launch path:                        [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-D0WGB0/.codex/rules/make-docs.rules; owned native       [90m│[39m
 [90m│[39m  entries make-docs.command-rules.                                            [90m│[39m
 [90m│[39m  Claude Code mcp: blocked; executable-not-executable: The resolved Make      [90m│[39m
 [90m│[39m  Docs package binary is not executable. Launch path:                         [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Resolved path:                             [90m│[39m
-[90m│[39m  /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/node_modules  [90m│[39m
+[90m│[39m  <REPO_ROOT>/node_modules  [90m│[39m
 [90m│[39m  /tinypool/dist/entry/process.js. Failed rule: executable-package-bin.       [90m│[39m
 [90m│[39m  Next: Repair the package file mode or reinstall the package, then review    [90m│[39m
-[90m│[39m  setup again.; native file /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T  [90m│[39m
+[90m│[39m  setup again.; native file <LOCAL_TEMP>  [90m│[39m
 [90m│[39m  /make-docs-cli-home-D0WGB0/.claude.json; owned native entries               [90m│[39m
 [90m│[39m  mcpServers.make-docs.                                                       [90m│[39m
 [90m│[39m  Claude Code permission-rules: blocked; Claude Code does not select or       [90m│[39m
 [90m│[39m  preserve the exact receipt-bound Make Docs command for permission-rule      [90m│[39m
 [90m│[39m  matching. Next: Use Claude Code MCP setup while Make Docs evaluates a       [90m│[39m
-[90m│[39m  shorter safe command carrier; native file /var/folders/x8/zvcz1qzj2v7_pdsk  [90m│[39m
-[90m│[39m  tm01v0ww0000gn/T/make-docs-cli-home-D0WGB0/.claude/settings.json; owned     [90m│[39m
+[90m│[39m  shorter safe command carrier; native file <LOCAL_TEMP>  [90m│[39m
+[90m│[39m  <redacted>/T/make-docs-cli-home-D0WGB0/.claude/settings.json; owned     [90m│[39m
 [90m│[39m  native entries permissions.allow.make-docs.                                 [90m│[39m
 [90m│[39m  Generic MCP client: available; Make Docs prints a standard configuration    [90m│[39m
 [90m│[39m  and does not edit client-owned files. Next: rerun setup with                [90m│[39m
@@ -2037,7 +2037,7 @@ Installed make-docs 2.0.4 into /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/
 [90m│[39m  Choosing none makes no native file changes.                                 [90m│[39m
 [90m│[39m  Resource reads need no Store access.                                        [90m│[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Global intent file: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-  [90m│[39m
+[90m│[39m  Global intent file: <LOCAL_TEMP>/make-  [90m│[39m
 [90m│[39m  docs-cli-home-D0WGB0/store/config.json                                      [90m│[39m
 [90m│[39m  - Effect: no global harness intent change.                                  [90m│[39m
 [90m│[39m                                                                              [90m│[39m
@@ -2050,7 +2050,7 @@ Next: Review this exact Store plan, then run setup to apply it.
 [90m│[39m
 [32m◇[39m  [0mThis project[0m [90m───────────────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
-[90m│[39m  Target: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-store-a  [90m│[39m
+[90m│[39m  Target: <LOCAL_TEMP>/make-docs-store-a  [90m│[39m
 [90m│[39m  pproval-WS9VHM                                                              [90m│[39m
 [90m│[39m  Mode: first install                                                         [90m│[39m
 [90m│[39m  Installation record: global Make Docs Store (will be created)               [90m│[39m
@@ -2175,14 +2175,14 @@ Next: Review this exact Store plan, then run setup to apply it.
 [90m├──────────────────────────────────────────────────────────────────────────────╯[39m
 Project harness intent: update .make-docs/config.yaml after machine verification.
 Machine setup was not approved. No system or project files were changed.
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-project-harness-intent-AMqinQ","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-project-harness-intent-AMqinQ","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
 [90m┌[39m  make-docs setup backup
 [90m│[39m
 [32m◇[39m  [0mmake-docs setup backup[0m [90m─────────────────────────────────────────────────────╮[39m
 [90m│[39m                                                                              [90m│[39m
 [90m│[39m  Target:                                                                     [90m│[39m
-[90m│[39m  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-tbGqsC      [90m│[39m
-[90m│[39m  Destination: /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-te  [90m│[39m
+[90m│[39m  <LOCAL_TEMP>/make-docs-test-tbGqsC      [90m│[39m
+[90m│[39m  Destination: <LOCAL_TEMP>/make-docs-te  [90m│[39m
 [90m│[39m  st-tbGqsC/.make-docs/backup/2026-10-03                                      [90m│[39m
 [90m│[39m  Skills: disabled                                                            [90m│[39m
 [90m│[39m  Plugins: disabled                                                           [90m│[39m
@@ -2400,7 +2400,7 @@ Machine setup was not approved. No system or project files were changed.
 ◇  make-docs setup backup ─────────────────────────────────────────────────────╮
 │                                                                              │
 │  Target:                                                                     │
-│  /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-test-DYdPiw      │
+│  <LOCAL_TEMP>/make-docs-test-DYdPiw      │
 │  Destination: (no backup directory will be created)                          │
 │  Files to copy: 0                                                            │
 │  Directories to materialize: 0                                               │
@@ -2851,8 +2851,8 @@ Machine setup was not approved. No system or project files were changed.
    ✓ W19 R5 Skill byte preservation > keeps raw bytes through copy-mirror install, repeat, audit, backup, and removal  3084ms
    ✓ W19 R5 Skill byte preservation > hashes changed binary bytes and protects edited binary payloads  1482ms
    ✓ W19 R5 Skill byte preservation > updates a clean old copy from prior ledger hashes and preserves an edited native copy  1548ms
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-p6-fresh-project-3sUmOY","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":1,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 1 to schema 6."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-p6-fresh-project-3sUmOY","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":1,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 1 to schema 6."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"noop"},{"path":".make-docs/CLAUDE.md","action":"noop"},{"path":".make-docs/system/AGENTS.md","action":"noop"},{"path":".make-docs/system/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/AGENTS.md","action":"noop"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/prompts/AGENTS.md","action":"noop"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/references/AGENTS.md","action":"noop"},{"path":".make-docs/system/references/CLAUDE.md","action":"noop"},{"path":".make-docs/system/templates/AGENTS.md","action":"noop"},{"path":".make-docs/system/templates/CLAUDE.md","action":"noop"},{"path":"AGENTS.md","action":"noop"},{"path":"CLAUDE.md","action":"noop"},{"path":"docs/AGENTS.md","action":"noop"},{"path":"docs/CLAUDE.md","action":"noop"},{"path":"docs/designs/AGENTS.md","action":"noop"},{"path":"docs/designs/CLAUDE.md","action":"noop"},{"path":"docs/plans/AGENTS.md","action":"noop"},{"path":"docs/plans/CLAUDE.md","action":"noop"},{"path":"docs/prd/AGENTS.md","action":"noop"},{"path":"docs/prd/CLAUDE.md","action":"noop"},{"path":"docs/work/AGENTS.md","action":"noop"},{"path":"docs/work/CLAUDE.md","action":"noop"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-p6-fresh-project-3sUmOY","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":1,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 1 to schema 6."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-p6-fresh-project-3sUmOY","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":1,"targetSchemaVersion":6,"disposition":"convert","mutationState":"applied","changes":["Create and verify one Store backup before converting schema 1 to schema 6."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"noop"},{"path":".make-docs/CLAUDE.md","action":"noop"},{"path":".make-docs/system/AGENTS.md","action":"noop"},{"path":".make-docs/system/CLAUDE.md","action":"noop"},{"path":".make-docs/system/contracts/AGENTS.md","action":"noop"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/prompts/AGENTS.md","action":"noop"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"noop"},{"path":".make-docs/system/references/AGENTS.md","action":"noop"},{"path":".make-docs/system/references/CLAUDE.md","action":"noop"},{"path":".make-docs/system/templates/AGENTS.md","action":"noop"},{"path":".make-docs/system/templates/CLAUDE.md","action":"noop"},{"path":"AGENTS.md","action":"noop"},{"path":"CLAUDE.md","action":"noop"},{"path":"docs/AGENTS.md","action":"noop"},{"path":"docs/CLAUDE.md","action":"noop"},{"path":"docs/designs/AGENTS.md","action":"noop"},{"path":"docs/designs/CLAUDE.md","action":"noop"},{"path":"docs/plans/AGENTS.md","action":"noop"},{"path":"docs/plans/CLAUDE.md","action":"noop"},{"path":"docs/prd/AGENTS.md","action":"noop"},{"path":"docs/prd/CLAUDE.md","action":"noop"},{"path":"docs/work/AGENTS.md","action":"noop"},{"path":"docs/work/CLAUDE.md","action":"noop"}]},"failedCondition":null,"nextAction":null}
  ✓ tests/p6-global-store-lifecycle.test.ts (20 tests) 3958ms
    ✓ W19 R1 P6 global Store lifecycle candidate > 3: fresh-project and no-op install paths run checkpoint 9 for an existing v1 Store  689ms
    ✓ W19 R1 P6 global Store lifecycle candidate > 15: checkpoints accept active or paused, permit stage revisit, and reject terminal runs  317ms
@@ -2862,10 +2862,10 @@ Machine setup was not approved. No system or project files were changed.
  ✓ tests/p8-runtime-retirement.test.ts (25 tests) 5109ms
    ✓ P8 runtime retirement > refuses retired route playbook.validate through the real CLI entry  308ms
    ✓ P8 runtime retirement > refuses retired route package.write through the real CLI entry  486ms
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-a-ZQKSAh","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-b-PLeU1x","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":6,"targetSchemaVersion":6,"disposition":"retain-history","mutationState":"none","changes":[],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-pUM2BI","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
-{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-target-HOBFhb","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-target-a-ZQKSAh","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-target-b-PLeU1x","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":6,"targetSchemaVersion":6,"disposition":"retain-history","mutationState":"none","changes":[],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-target-pUM2BI","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
+{"schemaVersion":2,"operation":"setup","status":"complete","dryRun":false,"targetRoot":"<LOCAL_TEMP>/make-docs-target-HOBFhb","machine":{"selections":{"codex":"none","claude-code":"none"},"states":[],"configured":[]},"store":{"state":"supported-current","sourceSchemaVersion":null,"targetSchemaVersion":6,"disposition":"rebuild","mutationState":"applied","changes":["Create a fresh schema-6 Store."],"blockers":[],"nextAction":"No compatibility conversion is required."},"projectRecovery":null,"project":{"changed":true,"mutationState":"applied","actions":[{"path":".make-docs/AGENTS.md","action":"create"},{"path":".make-docs/CLAUDE.md","action":"create"},{"path":".make-docs/system/AGENTS.md","action":"create"},{"path":".make-docs/system/CLAUDE.md","action":"create"},{"path":".make-docs/system/contracts/AGENTS.md","action":"create"},{"path":".make-docs/system/contracts/CLAUDE.md","action":"create"},{"path":".make-docs/system/prompts/AGENTS.md","action":"create"},{"path":".make-docs/system/prompts/CLAUDE.md","action":"create"},{"path":".make-docs/system/references/AGENTS.md","action":"create"},{"path":".make-docs/system/references/CLAUDE.md","action":"create"},{"path":".make-docs/system/templates/AGENTS.md","action":"create"},{"path":".make-docs/system/templates/CLAUDE.md","action":"create"},{"path":"AGENTS.md","action":"create"},{"path":"CLAUDE.md","action":"create"},{"path":"docs/AGENTS.md","action":"create"},{"path":"docs/CLAUDE.md","action":"create"},{"path":"docs/designs/AGENTS.md","action":"create"},{"path":"docs/designs/CLAUDE.md","action":"create"},{"path":"docs/plans/AGENTS.md","action":"create"},{"path":"docs/plans/CLAUDE.md","action":"create"},{"path":"docs/prd/AGENTS.md","action":"create"},{"path":"docs/prd/CLAUDE.md","action":"create"},{"path":"docs/work/AGENTS.md","action":"create"},{"path":"docs/work/CLAUDE.md","action":"create"}]},"failedCondition":null,"nextAction":null}
  ✓ tests/store.test.ts (16 tests) 8073ms
    ✓ local bootstrap independence (R-STORE-3, R-KEEP-2) > installs byte-identical managed content with and without an existing store  3264ms
    ✓ local bootstrap independence (R-STORE-3, R-KEEP-2) > bootstraps the store and upserts the registry mirror when the CLI applies an install  1717ms

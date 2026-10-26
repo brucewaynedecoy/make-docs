@@ -9,12 +9,12 @@
     "cost": 0
   },
   "commands": [
-    "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts tests/mcp.test.ts",
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
-    "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts tests/mcp.test.ts",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
     "git diff --check"
   ],
   "tests": {
@@ -37,9 +37,9 @@
     "visibleMarkupAndStyleAgainstApproved9aa1": "equal"
   },
   "stdio": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "args": [
-      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "<REPO_ROOT>/packages/cli/dist/index.js",
       "mcp",
       "--profile",
       "backlog"

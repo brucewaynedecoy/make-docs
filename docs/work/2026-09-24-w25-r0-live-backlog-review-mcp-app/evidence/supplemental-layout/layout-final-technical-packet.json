@@ -34,7 +34,7 @@
   ],
   "checks": {
     "focused": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-presentation.test.ts tests/backlog-widget.test.ts tests/backlog-review-skill.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-presentation.test.ts tests/backlog-widget.test.ts tests/backlog-review-skill.test.ts",
       "passed": 92,
       "suites": {
         "presentation": 30,
@@ -43,20 +43,20 @@
       }
     },
     "changedGuard": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts -t 'keeps the existing report contract bytes untouched'",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts -t 'keeps the existing report contract bytes untouched'",
       "passed": 1,
       "skipped": 36
     },
     "typecheck": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
       "passed": true
     },
     "build": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
       "passed": true
     },
     "drift": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
       "passed": true
     },
     "whitespace": "pass"
@@ -81,7 +81,7 @@
     "track": ".track-wrap .track",
     "taskCount": ".track-stats"
   },
-  "staticArtifact": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-report.html",
+  "staticArtifact": "<LOCAL_TEMP>/make-docs-wave-layout-Uq8ZGP/static-report.html",
   "browserGeometryReview": "pending final root check",
   "p6PriorPacket": "Retained as historical. This layout run does not add repeated cases to P6 totals.",
   "builtFiles": [
@@ -102,5 +102,5 @@
     }
   ],
   "desktopAlignmentRepair": "The browser measured a 3px offset in the badge. Desktop uses flex. Mobile stays block. The 92 focused cases pass again.",
-  "staticProof": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-proof.json"
+  "staticProof": "<LOCAL_TEMP>/make-docs-wave-layout-Uq8ZGP/static-proof.json"
 }

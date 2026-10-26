@@ -6,7 +6,7 @@
   "installedSdk": "1.31.0",
   "installedLockSha256": "f5ec9deb3078a275517485e432bcb17d5838399ba56c519669c24c554d26f697",
   "sourceTests": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test",
     "initial": {
       "rootPassed": 19,
       "cliPassed": 1900,
@@ -14,7 +14,7 @@
       "cliSkipped": 5
     },
     "correction": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/embedded-skills.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/embedded-skills.test.ts",
       "passed": 31,
       "reason": "Two guide bytes changed after virtual embedded loading but before source comparison. The frozen-source retry passed."
     },
@@ -27,16 +27,16 @@
     "repeatedCasesCountedOnce": true
   },
   "packageSmoke": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node scripts/smoke-pack.mjs --mode local --tarball /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualifying-candidate/brucewaynedecoy-make-docs-2.0.4.tgz --installed-package-root /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualified-install/node_modules/@brucewaynedecoy/make-docs",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node scripts/smoke-pack.mjs --mode local --tarball <LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm/qualifying-candidate/brucewaynedecoy-make-docs-2.0.4.tgz --installed-package-root <LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm/qualified-install/node_modules/@brucewaynedecoy/make-docs",
     "state": "passed"
   },
   "installed": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node scripts/w25-p7-installed-proof.mjs /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node scripts/w25-p7-installed-proof.mjs <LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm",
     "namedChecks": 66,
     "state": "passed"
   },
   "store": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node scripts/w25-p7-store-proof.mjs /var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node scripts/w25-p7-store-proof.mjs <LOCAL_TEMP>/make-docs-w25-p7-J1ZOgm",
     "namedChecks": 28,
     "state": "passed",
     "preparationRepairs": [
@@ -46,7 +46,7 @@
     ]
   },
   "meter": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node --test scripts/tests/w25-p7-meter.test.mjs",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node --test scripts/tests/w25-p7-meter.test.mjs",
     "passed": 4,
     "state": "passed",
     "mode": "preparatory",
@@ -54,8 +54,8 @@
   },
   "syntax": {
     "commands": [
-      "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node --check scripts/w25-p7-installed-proof.mjs",
-      "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node --check scripts/w25-p7-store-proof.mjs"
+      "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node --check scripts/w25-p7-installed-proof.mjs",
+      "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node --check scripts/w25-p7-store-proof.mjs"
     ],
     "state": "passed"
   },

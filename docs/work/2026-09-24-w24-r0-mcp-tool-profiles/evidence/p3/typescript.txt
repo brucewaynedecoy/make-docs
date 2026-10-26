@@ -1,5 +1,5 @@
 Command: ./node_modules/.bin/tsc --noEmit -p packages/cli/tsconfig.json
-Cwd: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+Cwd: <REPO_ROOT>
 Started: 2026-10-03T21:39:12.739Z
 
 

@@ -7,7 +7,7 @@
     "read-only",
     "--skip-git-repo-check",
     "--cd",
-    "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-bhW7Wa/fresh-review",
+    "/private<LOCAL_TEMP>/make-docs-skill-proof-bhW7Wa/fresh-review",
     "--json",
     "--output-last-message",
     "/tmp/w19-r5-approved-fresh-review-report.md",

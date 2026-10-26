@@ -609,7 +609,7 @@ Synced make-docs 2.0.0-rc in <temp-dir>/make-docs-test-CpYnrU.
 [90m│[39m  [2m- generate: .make-docs/system/references/CLAUDE.md[22m                          [90m│[39m
 [90m│[39m  [2m- generate: .make-docs/system/templates/CLAUDE.md[22m                           [90m│[39m
 [90m│[39m  [2m- generate: native harness exposure: <temp-dir>[22m  [90m│[39m
-[90m│[39m  [2m0ww0000gn/T/make-docs-home-NP2HCq/.claude/skills/decompose-codebase[22m         [90m│[39m
+[90m│[39m  [2m<redacted>/T/make-docs-home-NP2HCq/.claude/skills/decompose-codebase[22m         [90m│[39m
 [90m│[39m  [2m- generate: shared payload: [22m                                                [90m│[39m
 [90m│[39m  [2m<temp-dir>/make-docs-home-NP2HCq/.ma[22m  [90m│[39m
 [90m│[39m  [2mke-docs/agentics/skills/decompose-codebase/SKILL.md[22m                         [90m│[39m
