@@ -1,0 +1,150 @@
+{
+  "harnessVersion": "W25-R0-P7-STORE-1",
+  "candidateSha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
+  "perfObservations": 0,
+  "states": [
+    {
+      "name": "missing harness configuration",
+      "reason": "store-not-configured",
+      "refresh": "unchanged"
+    },
+    {
+      "name": "unidentified current caller",
+      "reason": "store-denied",
+      "refresh": "unchanged"
+    },
+    {
+      "name": "unavailable Store",
+      "reason": "store-unavailable",
+      "refresh": "unchanged"
+    },
+    {
+      "name": "corrupt SQLite file",
+      "reason": "cache-unavailable",
+      "refresh": "unchanged"
+    },
+    {
+      "name": "unsafe newer schema",
+      "reason": "store-unsafe",
+      "refresh": "unchanged"
+    }
+  ],
+  "checks": [
+    {
+      "name": "missing harness configuration: current source succeeds",
+      "pass": true
+    },
+    {
+      "name": "missing harness configuration: exact typed cache limit (actual store-not-configured)",
+      "pass": true
+    },
+    {
+      "name": "missing harness configuration: full prior review remains",
+      "pass": true
+    },
+    {
+      "name": "missing harness configuration: unchanged source facts",
+      "pass": true
+    },
+    {
+      "name": "missing configuration: project bytes unchanged",
+      "pass": true
+    },
+    {
+      "name": "unidentified current caller: current source succeeds",
+      "pass": true
+    },
+    {
+      "name": "unidentified current caller: exact typed cache limit (actual store-denied)",
+      "pass": true
+    },
+    {
+      "name": "unidentified current caller: full prior review remains",
+      "pass": true
+    },
+    {
+      "name": "unidentified current caller: unchanged source facts",
+      "pass": true
+    },
+    {
+      "name": "optional cache write: resolved denial is unavailable",
+      "pass": true
+    },
+    {
+      "name": "optional cache write: complete current report survives",
+      "pass": true
+    },
+    {
+      "name": "unavailable Store: current source succeeds",
+      "pass": true
+    },
+    {
+      "name": "unavailable Store: exact typed cache limit (actual store-unavailable)",
+      "pass": true
+    },
+    {
+      "name": "unavailable Store: full prior review remains",
+      "pass": true
+    },
+    {
+      "name": "unavailable Store: unchanged source facts",
+      "pass": true
+    },
+    {
+      "name": "unavailable Store: fault input is not repaired or written",
+      "pass": true
+    },
+    {
+      "name": "corrupt SQLite file: current source succeeds",
+      "pass": true
+    },
+    {
+      "name": "corrupt SQLite file: exact typed cache limit (actual cache-unavailable)",
+      "pass": true
+    },
+    {
+      "name": "corrupt SQLite file: full prior review remains",
+      "pass": true
+    },
+    {
+      "name": "corrupt SQLite file: unchanged source facts",
+      "pass": true
+    },
+    {
+      "name": "corrupt SQLite file: fault input is not repaired or written",
+      "pass": true
+    },
+    {
+      "name": "unsafe newer schema: current source succeeds",
+      "pass": true
+    },
+    {
+      "name": "unsafe newer schema: exact typed cache limit (actual store-unsafe)",
+      "pass": true
+    },
+    {
+      "name": "unsafe newer schema: full prior review remains",
+      "pass": true
+    },
+    {
+      "name": "unsafe newer schema: unchanged source facts",
+      "pass": true
+    },
+    {
+      "name": "unsafe newer schema: fault input is not repaired or written",
+      "pass": true
+    },
+    {
+      "name": "all fault routes: project bytes unchanged",
+      "pass": true
+    },
+    {
+      "name": "all fault routes: existing Store bytes unchanged",
+      "pass": true
+    }
+  ],
+  "passed": 28,
+  "limits": [
+    "Temporary faults only. No access grant, cache success, real-host render, or PERF observation is claimed."
+  ]
+}

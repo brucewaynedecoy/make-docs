@@ -20,6 +20,7 @@ import {
   AgentResponseSemanticExpectationSchema,
   BACKLOG_RULES,
   BacklogReportV1Schema,
+  createBacklogPresentation,
 } from "../src/operations/work/backlog";
 import { loadSkillRegistry } from "../src/skill-registry";
 import { PACKAGE_ROOT } from "../src/utils";
@@ -55,6 +56,8 @@ describe("backlog-review first-party Skill", () => {
       "examples/human-errors.json",
       "references/html-report.md",
       "scripts/render-report.mjs",
+      "scripts/report-contract.mjs",
+      "scripts/agent-contract.mjs",
       "scripts/collect-project-lead-context.mjs",
       "assets/backlog-review-report.html",
     ]);
@@ -85,7 +88,7 @@ describe("backlog-review first-party Skill", () => {
     for (const match of body.matchAll(/\]\(([^)]+)\)/g)) {
       const link = match[1];
       expect(link.includes("://")).toBe(false);
-      const target = path.resolve(SKILL_ROOT, link);
+      const target = path.resolve(SKILL_ROOT, link.split("#")[0]!);
       expect(target.startsWith(`${SKILL_ROOT}${path.sep}`)).toBe(true);
       expect(existsSync(target)).toBe(true);
     }
@@ -232,7 +235,7 @@ describe("backlog-review first-party Skill", () => {
         ':root[data-theme="dark"] .masthead { border-top-color: var(--line-strong); }',
       );
       expect(html).toContain("#projectLink, #projectFooterLink { color: var(--accent); }");
-      expect(html).toContain("Work Backlog|Work");
+      expect(html).toContain("const recordTitle = (record) => presentationByPath.get(record.recordPath).title;");
       expect(html).toContain('kind === "error" ? "Error"');
       expect(html).not.toContain("function appendEvidence");
       expect(html).not.toContain("<strong>Evidence boundary.</strong>");
@@ -246,9 +249,10 @@ describe("backlog-review first-party Skill", () => {
       expect(html).not.toContain("Review of ${report.tallies.workRecordsFound}");
       expect(html).toContain("report.projectLead.sentences.map");
       expect(html).toContain('<h2 id="ledgerHeading">Backlog</h2>');
-      expect(html).toContain('class="backlog-tabs" role="tablist" aria-label="Backlog views"');
-      expect(html).toContain('id="workTab" type="button" role="tab" aria-selected="true" aria-controls="workPanel"');
-      expect(html).toContain('id="dataTab" type="button" role="tab" aria-selected="false" aria-controls="dataPanel"');
+      expect(html).not.toMatch(/id="workTab"|id="dataTab"|data-backlog-tab/);
+      expect(html).toContain('id="openReportData" aria-label="Data" title="Data" aria-haspopup="dialog"');
+      expect(html).toContain('<dialog class="data-dialog" id="dataDialog" aria-labelledby="dataDialogTitle">');
+      expect(html).toContain('id="closeReportData" aria-label="Close data" title="Close data" autofocus');
       expect(html).toContain('<h2>Attention</h2>');
       expect(html).not.toContain('<h2>Needs attention</h2>');
       expect(html).toContain('id="attentionBlock"');
@@ -272,29 +276,37 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain("function focusBacklogRecord(record)");
       expect(html).toContain('setActiveFilter("all");');
       expect(html).toContain('searchInput.value = recordName(record);');
-      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('closeDataDialog();');
       expect(html).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
-      expect(html).toContain('id="workPanel" role="tabpanel" aria-labelledby="workTab"');
-      expect(html).toContain('id="dataPanel" role="tabpanel" aria-labelledby="dataTab" hidden');
+      expect(html).toContain('<div id="workPanel">');
+      expect(html).toContain('class="data-dialog-body" id="dataPanel"');
       expect(html).toContain("Complete normalized report data");
       expect(html).toContain('id="reportDataView" role="region" aria-label="Complete normalized report data" tabindex="0"');
       expect(html).not.toContain('id="toggleReportData"');
       expect(html).toContain("let normalizedReportJson = null;");
       expect(html).toContain("function getNormalizedReportJson()");
-      expect(html).toContain('tab.dataset.backlogTab === "data" && !reportDataLoaded');
+      expect(html).toContain('if (!reportDataLoaded)');
       expect(html).toContain("reportDataView.textContent = getNormalizedReportJson();");
-      expect(html).toContain('["ArrowLeft", "ArrowRight", "Home", "End"]');
+      expect(html).toContain('dataDialog.showModal();');
+      expect(html).toContain('dataDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeDataDialog(); });');
+      expect(html).toContain('dataButton.focus({ preventScroll: true });');
       expect(html).toContain('window.addEventListener("beforeprint"');
-      expect(html).toContain('activateBacklogTab(document.querySelector("#workTab"));');
+      expect(html).toContain('dataBeforePrint = dataDialog.open;');
       expect(html).toContain('window.addEventListener("afterprint"');
       expect(html).toContain("#workPanel { display: block !important; }");
-      expect(html).toContain(".backlog-tabs, #dataPanel { display: none !important; }");
+      expect(html).toContain(".meta-actions, .review-tabs, #dataDialog, .copy-actions { display: none !important; }");
+      expect(html).toContain('button.setAttribute("aria-label", label);');
+      expect(html).toContain('const button = node("button", "meta-button copy-icon-button");');
+      expect(html).toContain('field.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none";');
+      expect(html).not.toContain('node("textarea", "copy-fallback")');
+      expect(html).not.toContain('id="printReport"');
+      expect(html).not.toContain("Print preview is unavailable here.");
       expect(html).toContain('.workspace { display: block; }');
-      const tabControllerStart = html.indexOf("function activateBacklogTab");
-      const tabControllerEnd = html.indexOf("const searchInput", tabControllerStart);
-      expect(tabControllerStart).toBeGreaterThan(-1);
-      expect(tabControllerEnd).toBeGreaterThan(tabControllerStart);
-      expect(html.slice(tabControllerStart, tabControllerEnd)).not.toContain("renderWaves");
+      const dataControllerStart = html.indexOf("function syncDataDialogState");
+      const dataControllerEnd = html.indexOf("const searchInput", dataControllerStart);
+      expect(dataControllerStart).toBeGreaterThan(-1);
+      expect(dataControllerEnd).toBeGreaterThan(dataControllerStart);
+      expect(html.slice(dataControllerStart, dataControllerEnd)).not.toContain("renderWaves");
       expect(html).toContain("new Blob([getNormalizedReportJson()]");
       expect(html).not.toContain("reportDataView.textContent = normalizedReportJson;");
       expect(html).toContain('download.download = `${projectSlug}-backlog-review.json`;');
@@ -335,7 +347,7 @@ describe("backlog-review first-party Skill", () => {
       );
       expect(attentionResult.status).not.toBe(0);
       expect(attentionResult.stderr).toContain(
-        "Attention item 1 must refer to exactly one included report record.",
+        "A wave-specific Attention item must refer to exactly one included report record.",
       );
       expect(existsSync(attentionOutputPath)).toBe(false);
 
@@ -349,7 +361,7 @@ describe("backlog-review first-party Skill", () => {
       );
       expect(nextResult.status).not.toBe(0);
       expect(nextResult.stderr).toContain(
-        "Next item 1 must refer to exactly one included report record.",
+        "Every Next item must refer to exactly one included report record.",
       );
       expect(existsSync(nextOutputPath)).toBe(false);
     } finally {
@@ -468,18 +480,23 @@ describe("backlog-review first-party Skill", () => {
       /const snapshotByPath = [\s\S]*?(?=    const claimText =)/,
     )?.[0];
     expect(sourceLogic).toBeDefined();
-    const recordPath = "docs/work/2042-06-01-w1-r1-current-review";
+    const report = structuredClone(mixedPortfolioFixture.report);
+    report.targetRoot = "/tmp/example-project";
+    report.snapshot.targetRoot = report.targetRoot;
+    const recordPath = report.records[0].recordPath;
     const indexPath = `${recordPath}/00-index.md`;
-    const report = {
-      targetRoot: "/tmp/example-project",
-      records: [{ recordPath }],
-      snapshot: { records: [{ recordPath, discoveredFiles: [indexPath] }] },
+    report.snapshot.records[0].discoveredFiles = [indexPath];
+    const sourceLink = () => {
+      const context = { report, presentation: createBacklogPresentation(report).display } as {
+        report: typeof report; presentation: ReturnType<typeof createBacklogPresentation>["display"];
+        sourceHref?: (record: { recordPath: string }) => string;
+      };
+      runInNewContext(`${sourceLogic}; globalThis.sourceHref = sourceHref;`, context);
+      return context.sourceHref?.({ recordPath });
     };
-    const context = { report } as { report: typeof report; sourceHref?: (record: { recordPath: string }) => string };
-    runInNewContext(`${sourceLogic}; globalThis.sourceHref = sourceHref;`, context);
-    expect(context.sourceHref?.({ recordPath })).toContain("/00-index.md");
+    expect(sourceLink()).toContain("/00-index.md");
     report.snapshot.records[0]!.discoveredFiles = [];
-    expect(context.sourceHref?.({ recordPath })).toBe(`file:///tmp/example-project/${recordPath}`);
+    expect(sourceLink()).toBe(`file:///tmp/example-project/${recordPath}`);
   });
 
   test("encodes colons in file names but keeps a Windows drive", () => {
@@ -512,7 +529,10 @@ describe("backlog-review first-party Skill", () => {
       throw new Error("Synthetic report record is missing its coordinate.");
     }
     snapshotRecord.title.value = `${snapshotRecord.coordinate.value} Backlog Review and Reporting Work Backlog`;
-    const context = { report } as { report: typeof report; recordTitle?: (value: typeof record) => string };
+    const context = { report, presentation: createBacklogPresentation(report).display } as {
+      report: typeof report; presentation: ReturnType<typeof createBacklogPresentation>["display"];
+      recordTitle?: (value: typeof record) => string;
+    };
     runInNewContext(`${titleLogic}; globalThis.recordTitle = recordTitle;`, context);
     expect(context.recordTitle?.(record)).toBe("Backlog Review and Reporting");
   });

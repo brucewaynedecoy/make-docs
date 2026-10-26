@@ -1,0 +1,37 @@
+{
+  "scope": "Local installed-byte functional sizing reproduction only; no PERF observation",
+  "canonical": {
+    "sha256": "1aede1eb3ec63831e02f6dde585e6ed4caf9633990064a36a4296cbcb92a733b",
+    "bytes": 448361,
+    "maxHeight": 10000,
+    "initialFrameRequested": 1079,
+    "stableBefore": 984,
+    "earlierSettle": 1148,
+    "dialogOpenHeight": 6600,
+    "sizeRequest": 6624,
+    "frameOpen": 6624,
+    "afterEscape": 984,
+    "totalResizeEvents": 5,
+    "stopCap": 10,
+    "toolCalls": 0,
+    "agentMessages": 0,
+    "parentViewportHeight": 1074
+  },
+  "temporaryVariant": {
+    "sha256": "9aa1fbe83e560c34c710af1969d6a1fe70af0fc93254ee92ae6c8752e4db7725",
+    "bytes": 448373,
+    "helper": "fixed height; otherwise min(iframe height,maxHeight)",
+    "frameBeforeOpenCloseReopen": 1148,
+    "dialogHeight": 758,
+    "initialResizeEvents": 2,
+    "dataGrowthEvents": 0,
+    "toolCalls": 0,
+    "agentMessages": 0,
+    "parentViewportHeight": 720,
+    "ownerApprovalPending": true,
+    "canonicalSourceEdited": false
+  },
+  "comparison": "Two functional reproductions with different parent viewports; not exact comparative timing or performance",
+  "actualClaudeHostContext": "Not exposed by approved native surface; not inferred",
+  "privatePreviewScreenshot": "Kept TEMP for owner; no durable full capture"
+}

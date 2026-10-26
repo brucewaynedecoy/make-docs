@@ -129,10 +129,17 @@ function renderBacklogSnapshot(value: JsonValue): string[] | null {
 }
 
 const TEXT_RENDERERS: Record<string, (value: JsonValue) => string[] | null> = {
+  "backlog.review.open": renderBacklogReview,
+  "backlog.review.refresh": renderBacklogReview,
   "prd.authority.validate": renderPrdAuthorityValidation,
   "performance.evidence.validate": renderPerformanceEvidenceValidation,
   "work.backlog.snapshot": renderBacklogSnapshot,
 };
+
+function renderBacklogReview(value: JsonValue): string[] | null {
+  const content = recordEntries(asRecord(value)?.content);
+  return content.length === 1 && text(content[0], "type") === "text" ? [text(content[0], "text") ?? ""] : null;
+}
 
 /**
  * Generic fallback for operations without a bespoke renderer: results that

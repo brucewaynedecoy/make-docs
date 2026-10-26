@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "scope": "20-minute resolver array transport repair; source and built stdio proof only",
+  "startedAt": "2026-10-07T22:53:02Z",
+  "deadline": "2026-10-07T23:13:02Z",
+  "recordedAt": "2026-10-07T22:55:09.069Z",
+  "budget": {
+    "minutes": 20,
+    "cost": 0
+  },
+  "commands": [
+    "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-resolve.test.ts tests/backlog-request-controller.test.ts tests/mcp.test.ts",
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-backlog-presentation.mjs --agent",
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs",
+    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "git diff --check"
+  ],
+  "tests": {
+    "passed": 65,
+    "failed": 0,
+    "skipped": 0,
+    "suites": {
+      "backlog-request-resolve": 22,
+      "backlog-request-controller": 37,
+      "mcp": 6
+    },
+    "retryCount": 0
+  },
+  "checks": {
+    "typecheck": "passed",
+    "build": "passed",
+    "widgetDrift": "passed",
+    "portableHelperDrift": "passed in controller suite",
+    "whitespace": "passed",
+    "visibleMarkupAndStyleAgainstApproved9aa1": "equal"
+  },
+  "stdio": {
+    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "args": [
+      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "mcp",
+      "--profile",
+      "backlog"
+    ],
+    "tools": [
+      "make_docs_backlog_review_open",
+      "make_docs_backlog_review_refresh",
+      "make_docs_backlog_review_request_resolve",
+      "make_docs_work_backlog_cache_lookup",
+      "make_docs_work_backlog_cache_write",
+      "make_docs_work_backlog_snapshot"
+    ],
+    "prompts": [
+      "make_docs_backlog_wave_task"
+    ],
+    "contentSchema": {
+      "minItems": 1,
+      "maxItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "text"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "resource": {
+      "uri": "ui://make-docs/backlog-review/v1.html",
+      "mimeType": "text/html;profile=mcp-app",
+      "byteLength": 448381,
+      "sha256": "3c1d4ee565e5056c8afa6c7e1662c401d88392aa3cafdc639deaddd9625707ed",
+      "sourceExactMatch": true
+    }
+  },
+  "files": [
+    {
+      "path": "packages/cli/src/operations/work/backlog/agent-contracts.ts",
+      "bytes": 12904,
+      "sha256": "84030274aef916ab85ed2082ddf0e13cc50c679ca7bc530bf88b051998b29bd0"
+    },
+    {
+      "path": "packages/cli/tests/backlog-request-resolve.test.ts",
+      "bytes": 17689,
+      "sha256": "fc0906166d5a25ffef272c4093d630f3d76f2d8951d338d051f192be906c521b"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 448381,
+      "sha256": "3c1d4ee565e5056c8afa6c7e1662c401d88392aa3cafdc639deaddd9625707ed"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 479490,
+      "sha256": "48b6873761e8252543abd1927bb690d64371d5106faf30a65b957c1c1e5935f0"
+    },
+    {
+      "path": "packages/skills/backlog-review/scripts/agent-contract.mjs",
+      "bytes": 489812,
+      "sha256": "af7901f8befbe8f213205ae952d42fa9fa7cb428439f45681341336433e9a62c"
+    },
+    {
+      "path": "packages/cli/dist/index.js",
+      "bytes": 211445,
+      "sha256": "609af1687b96d0f93dbec787015c921d8ab4d7ec24f6e94091a71476f9cc8eaa"
+    },
+    {
+      "path": "packages/cli/dist/server-Q7IF4TNG.js",
+      "bytes": 488560,
+      "sha256": "729985bb260ef5ce64bb8ee85450ab118e99cddcadd0ea373182b68086e952af"
+    }
+  ],
+  "limits": [
+    "Native Codex discovery is not established by SDK stdio proof.",
+    "No real host button or task action ran.",
+    "No installed candidate or package was updated.",
+    "No PERF observation, Goose, installation, staging, commit, or release.",
+    "The tuple rejection cause remains inferred until native discovery reload."
+  ],
+  "stoppedAt": "2026-10-07T22:55:20Z",
+  "elapsedSeconds": 138,
+  "unusedSeconds": 1062,
+  "git": {
+    "branch": "w25-r0-p1-live-delivery-contract",
+    "head": "fe9d312cafd54dff39d2e4c30cb3a480abc97b0c",
+    "stagingEmpty": true
+  }
+}

@@ -48,6 +48,8 @@ const EXPECTED: Record<McpServerProfile, string[]> = {
 const SHIPPED_COUNTS: Record<McpServerProfile, number> = {
   core: 7, setup: 7, workflow: 48, quality: 33, backlog: 8, all: 62,
 };
+const wireUris = (profile: McpServerProfile, native: string[]) => [...native,
+  ...(profile === "all" || profile === "backlog" ? [BACKLOG_REVIEW_UI_RESOURCE.uri] : [])].sort();
 
 async function withClient<T>(options: McpProfileOptions, run: (client: Client) => Promise<T>): Promise<T> {
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -90,9 +92,9 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
     const all = await listNativeMcpResources(root, { profile: "all" });
     await withClient({ profile }, async (client) => {
       const resources = (await client.listResources()).resources;
-      expect(resources.map(({ uri }) => uri).sort()).toEqual(expected);
+      expect(resources.map(({ uri }) => uri).sort()).toEqual(wireUris(profile, expected));
       expect(new Set(resources.map(({ uri }) => uri)).size).toBe(resources.length);
-      for (const resource of resources) expect(resource).toEqual(all.resources.find(({ uri }) => uri === resource.uri));
+      for (const resource of resources.filter(({ uri }) => uri !== BACKLOG_REVIEW_UI_RESOURCE.uri)) expect(resource).toEqual(all.resources.find(({ uri }) => uri === resource.uri));
     });
   });
 
@@ -105,7 +107,7 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
     }
     const all = await withClient({ profile: "all" }, async (client) => (await client.listResources()).resources);
     expect(all.map(({ uri }) => uri).sort()).toEqual([...union].sort());
-    expect(all).toHaveLength(FIXTURES.length);
+    expect(all).toHaveLength(FIXTURES.length + 1);
   });
 
   test("default helpers and server preserve explicit all list, bytes, and provenance", async () => {
@@ -254,17 +256,19 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
     }
   });
 
-  test("reserves the Backlog Review UI only for backlog and all without a live resource", async () => {
-    expect(BACKLOG_REVIEW_UI_RESOURCE.ready).toBe(false);
+  test("serves the Backlog Review shell only for backlog and all", async () => {
+    expect(BACKLOG_REVIEW_UI_RESOURCE.ready).toBe(true);
     const invoke = vi.spyOn(registry, "invokeOperation");
     for (const profile of MCP_SERVER_PROFILES) {
       expect(isMcpResourceInProfile(BACKLOG_REVIEW_UI_RESOURCE.profiles, profile)).toBe(profile === "backlog" || profile === "all");
       await withClient({ profile }, async (client) => {
-        expect((await client.listResources()).resources.some(({ uri }) => uri === BACKLOG_REVIEW_UI_RESOURCE.uri)).toBe(false);
+        const allowed = profile === "backlog" || profile === "all";
+        expect((await client.listResources()).resources.some(({ uri }) => uri === BACKLOG_REVIEW_UI_RESOURCE.uri)).toBe(allowed);
         invoke.mockClear();
-        await expect(client.readResource({ uri: BACKLOG_REVIEW_UI_RESOURCE.uri })).rejects.toMatchObject({ data: { makeDocs: { code: "resource-not-found" } } });
+        if (allowed) expect((await client.readResource({ uri: BACKLOG_REVIEW_UI_RESOURCE.uri })).contents[0]).toMatchObject({ mimeType: "text/html;profile=mcp-app" });
+        else await expect(client.readResource({ uri: BACKLOG_REVIEW_UI_RESOURCE.uri })).rejects.toMatchObject({ data: { makeDocs: { code: "resource-not-found" } } });
         expect(invoke).not.toHaveBeenCalled();
-        expect((await client.listTools()).tools.map(({ name }) => name)).not.toContain("make_docs_backlog_review_open");
+        expect((await client.listTools()).tools.some(({ name }) => name === "backlog_review_open")).toBe(allowed);
       });
     }
   });
@@ -280,7 +284,7 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
       const expected = catalog.mcpResources.filter(({ profiles }) => profile === "all" || profiles.includes(profile)).map(({ uri }) => uri).sort();
       expect(expected).toHaveLength(SHIPPED_COUNTS[profile]);
       await withClient({ profile }, async (client) => {
-        expect((await client.listResources()).resources.map(({ uri }) => uri).sort()).toEqual(expected);
+        expect((await client.listResources()).resources.map(({ uri }) => uri).sort()).toEqual(wireUris(profile, expected));
       });
     }
   });

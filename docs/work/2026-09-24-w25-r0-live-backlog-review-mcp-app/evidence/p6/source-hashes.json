@@ -1,0 +1,113 @@
+{
+  "sourceFiles": [
+    {
+      "path": "packages/cli/src/mcp/widget/entry.ts",
+      "bytes": 6675,
+      "sha256": "0125bc91794f3f4a55d030ed16de30351fe5e277fd0b44e482894e4f71abf02a"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/request-controller.ts",
+      "bytes": 14219,
+      "sha256": "7baca868d484603773a5c2f277909f7e893d84f75836c86e6d1fb9df8f470d3b"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/host-capabilities.ts",
+      "bytes": 735,
+      "sha256": "84deb4cfad259b7c3bfeceb12b30ade24502045c9b14e1137211915f2ce9a02b"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/live-view.ts",
+      "bytes": 8339,
+      "sha256": "bc6979df7140f44b4a90248f42f1daca3109a91448e2d06ea5b7f285bcb5260a"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/live-view.css",
+      "bytes": 616,
+      "sha256": "09ce3647d09ce2d44077f5ff76df89b266bef0428a8fdd8d5b8d3c7dbc470609"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/static-renderer.js",
+      "bytes": 50561,
+      "sha256": "4af2d8454f374920ffb873fbb167fce036f363d1881180aeed69b10a0aae5ce1"
+    },
+    {
+      "path": "packages/cli/src/mcp/widget/static-renderer.d.ts",
+      "bytes": 554,
+      "sha256": "1e203aabce34f545320e7a55f7d4038eb71d6066b25d698f75d51f27f1b4ebd7"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.html",
+      "bytes": 441531,
+      "sha256": "e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438"
+    },
+    {
+      "path": "packages/cli/src/mcp/assets/backlog-review-v1.ts",
+      "bytes": 472456,
+      "sha256": "8c99986bf783e7715ef4c6d348f8bce2504ed6c5ed26e3822e4f2a5b537accf3"
+    },
+    {
+      "path": "packages/cli/scripts/build-mcp-app-assets.mjs",
+      "bytes": 6411,
+      "sha256": "94a329e4aaa7d4295aefb1b21a19ba981dcf04a2ed52f4ba15f86e9d882fa843"
+    },
+    {
+      "path": "packages/cli/scripts/build-backlog-presentation.mjs",
+      "bytes": 2664,
+      "sha256": "17907e3d977ab524b866fdbf419b46c77e79cc6df7c78fced18799b8b039b07e"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/agent-contracts.ts",
+      "bytes": 7765,
+      "sha256": "ce1a54df1228751dd94c3a7e8b94535478701c7a1804c5de2f9709b5f6822672"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/review-contracts.ts",
+      "bytes": 9154,
+      "sha256": "7fd64fed245c330466c7eca209778d8ee7ce92b0a7756e27134880ef0c9dead9"
+    },
+    {
+      "path": "packages/cli/src/operations/work/backlog/review-operation.ts",
+      "bytes": 4315,
+      "sha256": "71ac6eb41277c37bd7e55f1ded572e5fcc1dcf76d7ea277f1c2345412c8f61e0"
+    },
+    {
+      "path": "packages/skills/backlog-review/scripts/agent-contract.mjs",
+      "bytes": 485701,
+      "sha256": "4da1d16090e3eafdcc5d5a5fa6aa1ab39793f79179403781e6ca2af3b18860ce"
+    },
+    {
+      "path": "packages/cli/skill-registry.json",
+      "bytes": 14852,
+      "sha256": "4677d43b8d337cf77475431c604a3a08cfa1eaf44ca1af4d7abcc663f272f30f"
+    },
+    {
+      "path": "packages/cli/tests/backlog-request-controller.test.ts",
+      "bytes": 23165,
+      "sha256": "48dfb89f726d0e88d8f38e54be428175853ca9921260581d9f2c803077ce0407"
+    },
+    {
+      "path": "packages/cli/tests/backlog-widget.test.ts",
+      "bytes": 25362,
+      "sha256": "dc59c3fd83176760e2a62cf29028820884d475dc163c6b8b4217af19b6e8ae17"
+    },
+    {
+      "path": "packages/cli/tests/backlog-review-operations.test.ts",
+      "bytes": 23666,
+      "sha256": "38c1765c64b7b5aee63571c1d8f76f59aa8304765ba44cd8fd48619d74fcf4ce"
+    },
+    {
+      "path": "packages/cli/tests/backlog-review-skill.test.ts",
+      "bytes": 24515,
+      "sha256": "a6d0ac98932ab9723bc0c9882f4a0ccf206daac9b6dae76301781db312e16a40"
+    }
+  ],
+  "unchangedFromHEAD": [
+    "packages/skills/backlog-review/assets/backlog-review-report.html",
+    "packages/skills/backlog-review/scripts/report-contract.mjs",
+    "packages/cli/src/operations/work/backlog/schemas.ts",
+    "packages/cli/src/operations/work/backlog/live-contracts.ts",
+    "packages/cli/src/operations/work/backlog/presentation.ts",
+    "packages/cli/src/mcp/widget/browser-crypto.ts"
+  ],
+  "whitespace": "pass"
+}

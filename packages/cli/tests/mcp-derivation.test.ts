@@ -32,6 +32,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "work.backlog.snapshot": "backlog_snapshot",
   "work.backlog-cache.lookup": "backlog_cache_read",
   "work.backlog-cache.write": "backlog_cache_write",
+  "backlog.review.open": "backlog_review_open",
+  "backlog.review.refresh": "backlog_review_refresh",
   "resource.list": "resource_list",
   "resource.read": "resource_read",
   "resource.ensure": "resource_ensure",
@@ -170,7 +172,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
       ),
     ];
     const currentNames = new Set(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name));
-    expect(oldNames).toHaveLength(43);
+    expect(oldNames).toHaveLength(45);
     for (const oldName of oldNames) {
       expect(currentNames.has(oldName), oldName).toBe(false);
       await expect(callMakeDocsMcpTool(oldName)).rejects.toThrow("Unknown make-docs MCP tool");

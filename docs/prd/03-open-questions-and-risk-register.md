@@ -976,6 +976,80 @@ Code anchors:
 
 **Closeout evidence**: The focused authority and config tests passed all 36 cases. The default consistency, link, and package safety tests passed all 53 cases. The built validator passed against this Make Docs checkout and the North Atlantic BuildOS project. The [North Atlantic report](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-report.json) counted 6 numbered PRDs and 89 selected Markdown files with no findings. Its [run record](../work/2026-09-26-w18-r16-prd-authority-scan-scope/evidence/2026-09-28-north-atlantic-authority-final-run.txt) records the read-only project check and its limits.
 
+### D-044 Local History Router Gives Retired Paths
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Use the current archive router and history contract for P1. Do not write history to the retired assets path. The finding is limited to the local nested router. It does not reopen the prior package proof. | Check the nested router's ownership and installed source before any repair. Repair needs its own setup or resource authority. |
+
+**Issue**: During W25 R0 P1 on 2026-09-30, the local [history router](../../.make-docs/archive/history/AGENTS.md) still named `docs/assets/archive/history/` and retired contract and template homes. Those old resource paths put the resource type before the system segment. The linked local router retains the exact old text. The current [archive router](../../.make-docs/archive/AGENTS.md), [history contract](../../.make-docs/system/contracts/history-record-contract.md), and [history template](../../.make-docs/system/templates/history-record.md) use `.make-docs/archive/history/` and `.make-docs/system/` resource paths.
+
+**Why it matters**: A future agent can put a new history record in a retired home or read obsolete contract paths.
+
+**Recommendation**: Follow the current explicit history contract for project records. Preserve the local nested router until its ownership and safe repair route are known. Do not edit installed system assets as part of P1.
+
+**To close**: Prove the local router's owner and current source. Use an authorized repair to remove the conflicting current instruction or mark preserved legacy text as inactive. Confirm that new history records use the current path. [D-032](#d-032-project-asset-consolidation-and-persona-discovery-remain-incomplete) retains the prior consolidation proof. This finding does not claim a new package or migration test failure.
+
+### D-045 Wave Actions Name a Different Goal Than the Owner Requires
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Both wave controls send a prompt to the original connected agent chat. Explain gives background on captured facts, findings, inferences, and actions. Work resolves inferred status and/or implements captured recommended action. Neither creates another task. | Retain exact final package and actual connected-chat outcomes. Overall P7 acceptance remains separate. |
+
+**Issue**: The live page named its controls “Review this wave” and “Start a new Codex task.” Current product text also required a task prompt, separate-task creation, and a server resolver. The owner's 2026-10-08 correction defines explanation and work in the connected chat instead.
+
+**Why it matters**: Wrong product text can make agents challenge the intended work or disable a required control because an unrelated host action is unavailable.
+
+**Recommendation**: Keep the approved icons and positions. Use the approved accessible names “Explain this wave” and “Work on this wave.” Keep strict V1 wire identifiers as compatibility names with their corrected meanings. Remove resolver and task-creation machinery. Keep source text as data and retain exact identity and duplicate checks.
+
+**To close**: Prove current [PRD 51](51-backlog-review-and-reporting.md), shipped instructions, fixed requests, and actual agent output in one exact installed version. A message receipt or draft alone cannot close this gap. See the [current W25 work state](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md#current-state). Exact receipts remain in the separate local P7 recovery summary.
+
+**Resolution**: Final repair-1 version 2.0.4 carries the approved names and corrected shipped instructions. Both actual fixed messages reached the original connected chat, passed own-open and fresh-source checks, and produced their scoped agent outcomes. Explain supplied background. Work completed the captured read-only evidence review. No new task was created. Exact package and outcome receipts are in the single recovery summary.
+
+### D-046 Accepted Live Open Did Not Display the Report
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Actual Codex display of the complete report is proved on final repair-1. An accepted tool receipt alone remains insufficient. | Retain selected-host proof and launch path. Final-installed accessibility remains a separate P7/A58 gap. |
+
+**Issue**: The saved Codex open accepted a complete 73-record report. The expanded app displayed “No report is loaded.” The source checks and native receipt did not establish visible delivery.
+
+**Why it matters**: The user cannot use the promised live backlog. Button and refresh claims depend on a loaded checked report.
+
+**Recommendation**: Trace script start, host connection, result receipt, report validation, and rendering with bounded errors and byte counts. Use Codex first. If a small standard app also fails there, qualify the same package in Claude Desktop and retain the Codex limit as a separate claim.
+
+**To close**: The actual installed app displays the complete real report in the named proved host. See the [current W25 work state](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md#current-state). The exact package and launch path remain in the separate local P7 recovery summary. Keep unproved host support limited.
+
+**Resolution**: Final repair-1 version 2.0.4 displayed all 73 records in the actual Codex app. The native trace verified transport length/hash, strict validation, and render acceptance. The All filter showed 73 of 73, and Data retained complete report detail. The exact candidate and runtime are in the single recovery summary. This closes the named delivery blocker only. It makes no other-host, full accessibility, performance, release, or W25-closeout claim.
+
+### D-047 Normal W25 Connection Refuses Store Cache Access
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The accepted macOS Codex connection uses the reviewed W26 Store path. The 2.0.5 package passed allowed and denied access checks, current-source cache miss/write/hit, and a running Codex Store check. | Keep other host and platform results outside this proved scope. Review them before any wider support claim. |
+
+**Issue**: The owner-observed `work.backlog-cache.lookup` returned `store-denied` with effective Store and project access set to none. A private candidate and local report reuse do not prove ordinary supported setup or Store cache use.
+
+**Why it matters**: The app can display a report while missing the intended reusable data path. Treating that display as full acceptance would hide an access failure.
+
+**To close**: Normal supported setup grants only reviewed scope. An exact installed CLI/MCP path proves allowed and denied Store calls, cache miss/write/hit, dirty-source rejection, and sandboxed host-owned Store access. Keep Store-free review available with its exact limit.
+
+**Resolution**: The approved `make_docs` entry and project access intent returned Store `ready` in running Codex. The exact 2.0.5 executable passed the [P11 access matrix](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md#current-package-access-matrix--2026-10-26), including refused keys, scope, schema, and unavailable Store cases. Its cache gave miss/write/hit results and a source change gave a miss. The [lasting package check](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p12/final-205-package-and-connection-plan.md#applied-saved-entry-result-before-codex-restart) repeated Store `ready` and current source reads after Make Docs setup. This closes the named access drift for the tested macOS Codex path. It does not prove every host or platform.
+
+### D-048 Unknown Task Counts Display as Zero
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The approved task-count text keeps unsupported, unavailable, and known-zero states distinct. The installed report showed the correction for older records. | Keep this distinction in later report and renderer changes. |
+
+**Issue**: The visible report showed `0 of 0 tasks complete` for older records whose snapshot shape was unsupported. The review text said those task counts were unknown.
+
+**Why it matters**: A person could read an unsupported record as an empty one and choose the wrong work.
+
+**To close**: The owner approves the visible replacement. The final host shows no factual zero for unknown counts and preserves the approved layout and controls.
+
+**Resolution**: The owner approved the P9 wording. The final 2.0.5 Codex app showed `Task count unavailable: unsupported record format.` for older unsupported records and `62 of 66 tasks complete` for W25. The [P11 installed result](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md#owner-accepted-p11-scope--2026-10-26) and [current W25 summary](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md#2026-10-26-final-205-installed-result) retain the tested scope. This closes the false-zero drift in the named report path.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

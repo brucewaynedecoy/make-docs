@@ -1,0 +1,33 @@
+{
+  "builtResource": {
+    "uri": "ui://make-docs/backlog-review/v1.html",
+    "mimeType": "text/html;profile=mcp-app",
+    "bytes": 427186,
+    "sha256": "345e98fb764e671bdbfc6ced0645d015ad459ac1ccc272b28c6f5be3b08641b2",
+    "exactSourceParity": true,
+    "tools": 5,
+    "resourceMeta": {
+      "ui": {
+        "csp": {
+          "connectDomains": [],
+          "resourceDomains": [],
+          "frameDomains": [],
+          "baseUriDomains": []
+        },
+        "prefersBorder": true
+      }
+    },
+    "toolMeta": {
+      "ui": {
+        "resourceUri": "ui://make-docs/backlog-review/v1.html"
+      }
+    }
+  },
+  "retainedExample": {
+    "generatedAt": "2026-10-04T18:22:29.553Z",
+    "records": 73,
+    "currentSnapshot": false
+  },
+  "browser": "Root CUA in-app browser",
+  "resourceOverlay": false
+}

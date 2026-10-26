@@ -1,0 +1,37 @@
+{
+  "scope": "Supplementary Data modal and standard available-height bounds; not a new P6 controller/host proof",
+  "widget": {
+    "bytes": 444492,
+    "sha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+    "exactServedBytes": true,
+    "overlay": false
+  },
+  "static": {
+    "bytes": 61762,
+    "sha256": "6ba5cd3f44fa8c517eb243d3521802375794e79a0712c38445b607b768402845",
+    "exactServedBytes": true,
+    "records": 2,
+    "fullDataMatchesInput": true
+  },
+  "host": {
+    "sha256": "61d54a3438bb9899e95fb45405da6dafed6fabdc82210ba8f4e70a706c38fa39",
+    "contextShape": {
+      "containerDimensions": {
+        "width": "actual frame width",
+        "maxHeight": "parent visible viewport height"
+      }
+    },
+    "actualIframeMaximumEnforced": true,
+    "resizeMethod": "ui/notifications/host-context-changed",
+    "resizeParams": "plain HostContext",
+    "sdkTypeSource": "https://raw.githubusercontent.com/modelcontextprotocol/ext-apps/main/src/spec.types.ts",
+    "sdkTypeLines": "337-395",
+    "customProtocol": false,
+    "fullscreenRequest": false,
+    "parentDomAppAccess": false,
+    "downloadAudit": "hidden host event observer; local Blob only"
+  },
+  "realMessages": false,
+  "realTasks": false,
+  "storeWrites": false
+}

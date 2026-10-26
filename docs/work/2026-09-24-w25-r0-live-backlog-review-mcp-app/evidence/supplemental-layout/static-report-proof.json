@@ -1,0 +1,11 @@
+{
+  "input": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p5-preview-cWuL7V/report.json",
+  "output": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-report.html",
+  "recordCount": 73,
+  "retainedExample": true,
+  "freshSnapshot": false,
+  "fullDataMatchesInput": true,
+  "bytes": 4119474,
+  "sha256": "3bcf4ba5d6f4d340f297b682eb4b99e5c64709475c31b0239ca608038217a43d",
+  "interimArtifact": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-wave-layout-Uq8ZGP/static-report-interim.html"
+}

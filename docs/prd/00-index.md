@@ -65,7 +65,7 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 | `48` | [Performance Evidence Governance](48-performance-evidence-governance.md) | capability | Current | 06, 10, 14, 18, 21, 28, 38, 45, 46, 50 | Performance applicability, maturity, target authority, versioned `PERF-###` profiles, comparable bounded evidence, finite budgets, gate effects, expiry, and proof-mode boundaries. |
 | `49` | [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) | capability | Current | 01, 06, 14, 15, 23, 46, 47, 50 | Canonical Human Experience Standard, impact classification, conditional design intent, lifecycle propagation, human and machine surface boundary, evidence-review lens, and prospective adoption. |
 | `50` | [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) | capability | Current | 01, 06, 10, 14-16, 23, 28, 39, 45-49 | Four-type testing taxonomy, current-decision selection, automated-test levels, direct installed-harness proof, human testing experience, effort and stop rules, evidence reuse, and explicit gate effects. |
-| `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots, deterministic and agentic review twins, optional rebuildable per-record review reuse, a default live MCP App on compatible hosts, concise chat fallback, and explicit-request static HTML reports. |
+| `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots, valid optional Store cache reuse, truthful unknown counts, a visibly rendered live MCP App on compatible hosts, Explain and Work in the connected chat, concise chat fallback, and explicit-request static HTML reports. |
 
 ## Source Anchors
 
@@ -124,7 +124,7 @@ Resolve product authority from this active map, not from a historical action-nam
 
 ## Intended Follow-On
 
-W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions. W23 R0 P1-P6 are complete, and P7 has not started. W24 R0 and W25 R0 are draft product packages. Their implementation requires separate owner authority. W25 profile registration also requires accepted W24 profile authority.
+W19 R5 is closed after owner acceptance. Create the owner-requested implementation commit. W20 and W21 remain paused pending separate resume instructions. W23 R0 P1-P6 are complete, and P7 has not started. W24 R0 supplied accepted MCP profile authority. W25 R0 P1–P6 are historical closed work. Owner-authorized P7 recovery now proves the final installed Codex display, Data, Explain, Work, and Refresh paths. D-045 and D-046 are closed within that exact scope. A56 is waived for W25 R0 only. P7 and W25 remain active for final-installed accessibility evidence; no release authority is implied.
 
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.

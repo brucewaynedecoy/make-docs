@@ -1,0 +1,68 @@
+{
+  "scope": "Data modal peer-owned final artifacts only",
+  "sourceSha256": "3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117",
+  "brokenLinks": [],
+  "trailingWhitespace": [],
+  "artifacts": [
+    {
+      "file": "data-modal-browser-result.json",
+      "bytes": 7151,
+      "sha256": "fdd9114cace40c880c40cec13b81d75a1d88aa43e9c8e24cf01082cc9e5c72f1"
+    },
+    {
+      "file": "data-modal-peer-review.md",
+      "bytes": 6652,
+      "sha256": "259c8717638ae236bbdb19a42f67352bb46b09086d76300c1eddc88bb022b2df"
+    },
+    {
+      "file": "data-modal-resource-proof.json",
+      "bytes": 1267,
+      "sha256": "2edb7a59fa4d82ae39c4df340005589c800c00615b4a3c7b68e6055bacec3b88"
+    },
+    {
+      "file": "data-modal-final-technical-packet.json",
+      "bytes": 6770,
+      "sha256": "d23b18949aca1a44c3f1805e0840879bce67d4392dfb620b56ba44c5a4cebbc0"
+    },
+    {
+      "file": "data-modal-final-built-resource-proof.json",
+      "bytes": 1326,
+      "sha256": "05d416524aa25823a4d4527c7790b1535195bbcf9ef16cdbb39acb60bf201de7"
+    },
+    {
+      "file": "static-small-proof.json",
+      "bytes": 634,
+      "sha256": "2641ac4f2fd3eb037b4238d0597988e101fdd3f65f1159880f789a1b0b4db0bf"
+    },
+    {
+      "file": "download-emission-proof.json",
+      "bytes": 849,
+      "sha256": "0ba7c81a69517d6fb7f4686b9fefa4394a8fd74d58cb648b5533cb688fa7bd57"
+    },
+    {
+      "file": "observer-attribution-limit.json",
+      "bytes": 1087,
+      "sha256": "c384fc4db09ee55ff70bc98649517c521b98e67c2a01b1f87a6b3b1c3addf5b0"
+    },
+    {
+      "file": "live-wide-final.jpg",
+      "bytes": 38904,
+      "sha256": "aeedab9f1f44ae029bffad28e76a8334323f27a04c9a17c322643328d2a7fe2f"
+    },
+    {
+      "file": "live-narrow-final.jpg",
+      "bytes": 63679,
+      "sha256": "b3aeecf680daba0da47fec1b89324726a76d42423c5afca54c8dcac4071bc67e"
+    },
+    {
+      "file": "live-phone-final.jpg",
+      "bytes": 36021,
+      "sha256": "8f6599d287429966027916f977ede69d7ee8792d8f941187a0d20c94ef1f8fe0"
+    },
+    {
+      "file": "live-retained-final.jpg",
+      "bytes": 91770,
+      "sha256": "972de18f6e691abf9885512c317e38ac4bdba4f2676f3fff19b8dd353c05963c"
+    }
+  ]
+}

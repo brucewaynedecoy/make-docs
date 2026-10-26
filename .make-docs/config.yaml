@@ -7,3 +7,10 @@ harnessIntegrations:
       store: write
       project: write
       hostConfig: none
+  - harness: codex
+    mode: narrow
+    method: mcp
+    accessCeiling:
+      store: write
+      project: write
+      hostConfig: none

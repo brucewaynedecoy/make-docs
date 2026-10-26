@@ -30,13 +30,15 @@ MCP Apps add a UI resource to an MCP tool result. The UI can call declared tools
 
 W24 R0 owns the shared MCP profile foundation. W25 R0 consumes the `backlog` profile. It does not create a second registry, permission model, or tool implementation path.
 
+The owner rejected the current live app for release on 2026-10-08. The selected Codex host displayed a real report and exercised bounded actions, but the normal connection refused Store cache access. The visible report also showed zero task counts for records whose task counts were unknown. These observations require W25 R0 repair and a shared access foundation before W25 acceptance. The earlier source, mock, and private-candidate results retain only their tested scope.
+
 ## Human Experience Intent
 
 Impact: `direct`
 
 Affected humans: Maintainers and product owners who need a current view of a large work backlog.
 
-Human goal or effect: A person can refresh facts, inspect the current review model, and ask the active agent to review or start work on one wave without losing the static report option.
+Human goal or effect: A person can refresh facts, inspect the current review model, and ask the connected agent to explain captured wave details or work on inferred status and recommended action without losing the static report option.
 
 Experience promises:
 
@@ -86,7 +88,7 @@ If live UI is unavailable, the Skill completes a concise chat review, explains t
 
 One validated Backlog report model feeds the live MCP App, the static HTML renderer, the concise chat orientation, and the user-started JSON view. The live UI can add local display state. It cannot change the product meaning of the model.
 
-The implementation extends `BacklogReportV1` additively when possible. It creates `BacklogReportV2` only if a breaking session or action contract is required. A version change must include migration and parity fixtures.
+`BacklogReportV1` remains unchanged. The separate P1 `BacklogLiveEnvelopeV1` wraps the validated report with delivery and action identities. Its version is separate from report schema version. A breaking report change requires a new report version, migration rule, and parity fixtures.
 
 ### MCP operations
 
@@ -105,13 +107,15 @@ There is no separate publish operation. After the agent completes and validates 
 
 ### Widget actions
 
-Search, filter, sort, disclosure, theme, print, data view, and JSON download stay local to the UI.
+Search, filter, sort, disclosure, theme, data view, and JSON download stay local to the UI. The live app has no Print control. A saved static report remains printable through the browser.
 
 Refresh calls `backlog.review.refresh` through `tools/call`. If no source facts changed, the current review model remains valid. If facts changed, the UI shows the changed records and asks the active agent for a new review through a controlled `ui/message`.
 
 A wave action sends a fixed action identifier plus the project identity, record path, coordinate, and snapshot identity. It does not send agent-written instructions from project content.
 
-A `Start a new Codex task` action sends a follow-up message to the active conversation. That message asks the active agent to check host support and start a separate task for the named wave. The widget does not call a task-creation API. The active agent treats the click as the explicit user request for that task, validates the current wave, and uses the host task tool only when it is available.
+The two existing icon controls keep their positions. Their approved accessible names and tooltips are `Explain this wave` and `Work on this wave`. Explain asks the connected original agent for background on captured facts, findings, inferences, status, actions, evidence, and limits. Work asks that same agent to resolve inferred status and/or implement the captured recommended action. Both use the active-chat message path. Neither starts a new task in any harness. Task-creation support cannot disable either control. The V1 wire identifiers remain `review-wave` and `request-task` as compatibility names.
+
+The original agent checks its own successful open context, current facts, and current user authority before work. Raw project prose remains data. A draft or host message receipt proves neither explanation nor work. The normal Send step remains under user control. An uncertain result requires checking the existing chat state before a retry.
 
 ### Cache and activity state
 
@@ -120,6 +124,10 @@ The existing `backlog_review_cache` keeps bounded, rebuildable per-record review
 If future work needs durable task activity, it must define a separate schema and product owner. W25 R0 does not place that state in the review cache.
 
 The Store remains optional. A Store limit produces a complete stateless review and a natural human explanation when the limit matters.
+
+Normal supported setup must make the approved Store operations usable under explicit project and Store grants. W25 must read current source facts, reuse only valid fragments returned by the existing Store cache, create fresh judgment for misses, and write eligible fragments through the existing operation. A denied cache call permits a fresh stateless review; it does not permit reuse from a private report file. The shared access-policy design and its approval belong to W26 R0.
+
+Relevant uncommitted source changes must affect the source version used for cache and action checks. Unknown, unsupported, inaccessible, and known-zero task states remain distinct in the visible report. The exact replacement display for unknown counts requires owner review before a UI edit.
 
 ### MCP profile and transport
 
@@ -163,7 +171,7 @@ Rejected. Most actions are local display changes. Extra tools would add context 
 
 ### Let the widget create a Codex task directly
 
-Rejected. Task creation is a host action. The widget sends an explicit request to the active agent, which checks support and owns the action.
+Rejected. Task creation is outside both wave-control goals. The widget sends explanation or work requests to the connected agent chat.
 
 ### Store task activity in the review cache
 
@@ -177,7 +185,7 @@ Rejected. Review fragments are rebuildable derived data. Task activity has diffe
 - The Skill needs capability detection and a clear fallback path.
 - Live and static renderers need shared parity fixtures.
 - The app adds two public operations but reuses the existing snapshot and cache operations.
-- The widget can request agent action but cannot promise that every host can create a separate task.
+- The widget requests explanation or work in the connected chat. It makes no separate-task promise.
 - A breaking widget resource needs a new versioned resource URI.
 
 ## Intended Follow-On

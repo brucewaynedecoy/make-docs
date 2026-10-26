@@ -52,6 +52,7 @@ export interface MakeDocsMcpToolDescriptor {
   mcpReady?: boolean;
   /** Copied from canonical operation metadata, or declared on a non-operation tool. */
   mcp?: McpToolMetadata;
+  _meta?: { ui: { resourceUri: string } };
 }
 
 interface DerivedMcpToolDescriptor extends MakeDocsMcpToolDescriptor {
@@ -142,6 +143,8 @@ export const MCP_TOOL_NAME_BY_OPERATION: Readonly<Record<string, string>> = Obje
   "work.backlog.snapshot": "backlog_snapshot",
   "work.backlog-cache.lookup": "backlog_cache_read",
   "work.backlog-cache.write": "backlog_cache_write",
+  "backlog.review.open": "backlog_review_open",
+  "backlog.review.refresh": "backlog_review_refresh",
   "resource.list": "resource_list",
   "resource.read": "resource_read",
   "resource.ensure": "resource_ensure",
@@ -238,6 +241,9 @@ function deriveToolDescription(definition: OperationDefinition): string {
   if (definition.mutates === "write") {
     parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
   }
+  if (definition.storeAdmission === "optional") {
+    parts.push("Store access is optional for cache reuse. The cache lookup still needs its own current Store admission.");
+  }
   return parts.join(" ");
 }
 
@@ -259,6 +265,7 @@ const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations()
       access: { ...accessFact.access },
       mcpReady: accessFact.mcpReady,
       ...(definition.mcp ? { mcp: cloneMcpToolMetadata(definition.mcp) } : {}),
+      ...(definition.mcp?.uiResourceUri ? { _meta: { ui: { resourceUri: definition.mcp.uiResourceUri } } } : {}),
     };
   },
 );
@@ -306,6 +313,7 @@ export function listMakeDocsMcpTools(
       ...tool,
       ...(tool.access ? { access: { ...tool.access } } : {}),
       ...(tool.mcp ? { mcp: cloneMcpToolMetadata(tool.mcp) } : {}),
+      ...(tool._meta ? { _meta: { ui: { ...tool._meta.ui } } } : {}),
     }),
   );
 }

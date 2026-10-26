@@ -46,6 +46,8 @@ describe("make-docs MCP runtime", () => {
       "backlog_snapshot",
       "backlog_cache_read",
       "backlog_cache_write",
+      "backlog_review_open",
+      "backlog_review_refresh",
       "resource_list",
       "resource_read",
       "resource_ensure",

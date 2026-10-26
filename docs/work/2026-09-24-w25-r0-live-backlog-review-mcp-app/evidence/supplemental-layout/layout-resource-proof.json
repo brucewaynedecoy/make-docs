@@ -1,0 +1,29 @@
+{
+  "scope": "Supplementary backlog row layout; not a new P6 controller proof",
+  "widget": {
+    "bytes": 441742,
+    "sha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21",
+    "servedBytes": 441742,
+    "servedSha256": "a474ad4bb85cd682788cbf356c415b02f6e89f53033cb31b79bad935061d8b21",
+    "exactBytes": true,
+    "overlay": false
+  },
+  "static": {
+    "bytes": 4119474,
+    "sha256": "3bcf4ba5d6f4d340f297b682eb4b99e5c64709475c31b0239ca608038217a43d",
+    "servedBytes": 4119474,
+    "servedSha256": "3bcf4ba5d6f4d340f297b682eb4b99e5c64709475c31b0239ca608038217a43d",
+    "exactBytes": true,
+    "fullDataMatchesInput": true
+  },
+  "fixture": {
+    "records": 73,
+    "date": "2026-10-04",
+    "freshSnapshot": false
+  },
+  "originalP6ResourceSha256": "e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438",
+  "interimResourceSha256": "add233b643022905aacda3c38957e48eae62114c0083c3c9faa380885bee64fa",
+  "realHostMessages": false,
+  "realTasks": false,
+  "storeWrites": false
+}

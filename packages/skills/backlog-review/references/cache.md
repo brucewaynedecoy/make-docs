@@ -2,6 +2,8 @@
 
 The cache can reduce repeat review work. It is not project authority. It is Global Store data that Make Docs can delete or rebuild at any time.
 
+Live session, model, and snapshot identities are separate from cache identity. The existing exact-match cache rules remain unchanged. A Store failure affects optional reuse. It cannot make an available current snapshot unavailable or block a stateless review.
+
 ## Route the review
 
 Always get the current deterministic snapshot before any cache operation. Keep that snapshot as the fact source for the report.
@@ -26,9 +28,13 @@ After combining hits and fresh record reviews, rebuild these values from the ful
 
 Never reuse a portfolio conclusion from cache.
 
+The source live refresh operation follows the same snapshot and lookup rules. Its optional outer Store admission lets current source facts run first. It calls the existing lookup once with the same execution context. That lookup still checks the active connection key, current grants, target, operation, and Store policy and opens its own Store session. Optional admission does not grant access. Cache refusal, failure, or invalid output limits reuse only. Refresh writes no cache entry or agent conclusion. The standalone lookup and write contracts stay unchanged.
+
 ## Save fresh fragments
 
 Validate the full report model first. If the lookup returned one or more `miss` or `rejected` records, attempt to cache each freshly reviewed fragment. Do not write exact-hit fragments again. When every record was an exact hit, the cache is already current and no write is needed.
+
+Reread the latest snapshot before the write gate and validate the whole rebuilt report against it. Stale or invalid full-model validation stops cache/open; it is not an optional Store failure. The report must be rebuilt from current facts before claiming current review.
 
 Use the compatible MCP tool `backlog_cache_write`. If that tool is unavailable, save the current snapshot and record array to temporary JSON files outside the project. Run:
 
@@ -41,6 +47,12 @@ Remove temporary files after the operation. Do not create a project-local cache.
 Cache only the validated per-record report fragment. Do not add repository bodies, prompts, secrets, raw logs, absolute paths, the current snapshot, or portfolio conclusions to a cached value.
 
 The write attempt is part of the normal review flow when freshly reviewed fragments exist and the lookup succeeded. Write success is not required for the current report. A denied or failed write does not change the current snapshot, report records, or report result. It affects only reuse during a later review.
+
+The portable `scripts/agent-contract.mjs` exports `prepareBacklogAgentCacheWrite(report, latestSnapshot, lookup)` and `attemptBacklogAgentCacheWrite(report, latestSnapshot, lookup, callExistingWrite)`. Pass the successful lookup result from the current snapshot. Preparation checks each record digest and version against that snapshot. It validates the whole report. It selects only `miss` and `rejected` records for the write input. It returns no intent when every record was an exact hit. It performs no write or admission.
+
+The active agent must skip a write after failed or unavailable lookup. Do not validate a sliced partial report in place of the whole model. Reuse caller, Store, and allowWrite gates. Neither report validation, an action click, nor a helper proposal grants write permission. The widget does not perform this write.
+
+The attempt result preserves the validated report with cache state `not-needed`, `attempted`, or `unavailable`. `attempted` does not mean written. Use the actual operation result for any write claim. Thrown or resolved write failure cannot discard the validated current report. Complete the review and fresh confirmed open even when optional cache reuse/write fails.
 
 ## Explain cache limits to the human
 

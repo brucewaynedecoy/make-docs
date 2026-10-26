@@ -26,6 +26,7 @@ import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
 import { OperationError, type JsonValue } from "./types";
 import { workOperations } from "./work/ops";
+import { backlogReviewOperations } from "./work/backlog/review-operation";
 import {
   accessAtMost,
   assertHarnessOperationAllowed,
@@ -74,9 +75,13 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   mutates: OperationMutation;
   /** Exact Store, project, and host-config access needed by this operation. */
   access: OperationAccess;
+  /** Optional read-only sub-operations must obtain their own Store admission. */
+  storeAdmission?: "required" | "optional";
   status: OperationStatus;
   /** Required for MCP-ready operations; independent of admission and access. */
   mcp?: McpToolMetadata;
+  /** Strict app result contract. Transport uses it instead of the generic JSON formatter. */
+  mcpResultSchema?: ZodType;
   /** Lineage owning the not-yet-landed semantics when status is `pending`. */
   pendingLineage?: string;
   /** Named approvals the caller must grant before the handler runs. */
@@ -93,6 +98,7 @@ export interface OperationDescriptor {
   summary: string;
   mutates: OperationMutation;
   access: OperationAccess;
+  storeAdmission?: "required" | "optional";
   status: OperationStatus;
   pendingLineage?: string;
   cli: OperationCliProjection;
@@ -103,6 +109,7 @@ export interface OperationAccessFact {
   status: OperationStatus;
   cli: OperationCliProjection;
   access: OperationAccess;
+  storeAdmission?: "required" | "optional";
   mcpReady: boolean;
   commandRuleCandidate: boolean;
 }
@@ -129,6 +136,8 @@ export const ADMITTED_OPERATION_IDS = [
   "work.backlog.snapshot",
   "work.backlog-cache.lookup",
   "work.backlog-cache.write",
+  "backlog.review.open",
+  "backlog.review.refresh",
   "resource.list",
   "resource.read",
   "resource.ensure",
@@ -169,6 +178,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "work.backlog.snapshot": ["run", "work backlog snapshot"],
   "work.backlog-cache.lookup": ["run", "work backlog-cache lookup"],
   "work.backlog-cache.write": ["run", "work backlog-cache write"],
+  "backlog.review.open": ["run", "backlog review open"],
+  "backlog.review.refresh": ["run", "backlog review refresh"],
   "resource.list": ["resource", "list"],
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
@@ -201,6 +212,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
+  "backlog.review.open": "make-docs run backlog review open --report-json <file-or-json> [--json]",
+  "backlog.review.refresh": "make-docs run backlog review refresh --envelope-json <file-or-json> [--json]",
   "work.backlog.snapshot":
     "make-docs run work backlog snapshot --target-root <project> [--json]",
   "work.backlog-cache.lookup":
@@ -276,6 +289,21 @@ export function assertOperationMcpMetadata(definition: OperationDefinition): voi
   if (isOperationMcpReady(definition) || definition.mcp !== undefined) {
     assertMcpToolMetadata(definition.id, definition.mcp);
   }
+  if (Boolean(definition.mcp?.uiResourceUri) !== Boolean(definition.mcpResultSchema)) {
+    throw new Error(`Operation ${definition.id} must declare its UI resource URI and strict MCP result schema together.`);
+  }
+}
+
+export function assertOperationStoreAdmission(
+  definition: Pick<OperationDefinition, "id" | "mutates" | "access" | "storeAdmission">,
+): void {
+  const admission = definition.storeAdmission ?? "required";
+  if (admission !== "required" && admission !== "optional") {
+    throw new Error(`Operation ${definition.id} declares unknown Store admission.`);
+  }
+  if (admission === "optional" && (definition.mutates !== "read" || definition.access.store !== "read")) {
+    throw new Error(`Optional Store admission requires a read-only operation with Store read access: ${definition.id}.`);
+  }
 }
 
 function assembleRegistry(): Map<string, OperationDefinition> {
@@ -286,6 +314,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...projectOperations,
     ...projectLayoutOperations,
     ...workOperations,
+    ...backlogReviewOperations,
     ...resourceOperations,
     ...lifecycleOperations,
     ...uatOperations,
@@ -301,6 +330,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
       throw new Error(`Duplicate operation identifier in registry: \`${definition.id}\`.`);
     }
     assertOperationAccess(definition.id, definition.access, definition.mutates);
+    assertOperationStoreAdmission(definition);
     assertOperationMcpMetadata(definition);
     if (definition.status === "pending" && !definition.pendingLineage) {
       throw new Error(`Pending operation \`${definition.id}\` must name its owning lineage.`);
@@ -325,6 +355,7 @@ export function listOperations(): OperationDescriptor[] {
     summary: definition.summary,
     mutates: definition.mutates,
     access: cloneOperationAccess(definition.access),
+    ...(definition.storeAdmission ? { storeAdmission: definition.storeAdmission } : {}),
     status: definition.status,
     cli: operationCliProjection(definition.id),
     ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
@@ -338,6 +369,7 @@ export function listOperationAccessFacts(): OperationAccessFact[] {
     status: operation.status,
     cli: operation.cli,
     access: cloneOperationAccess(operation.access),
+    ...(operation.storeAdmission ? { storeAdmission: operation.storeAdmission } : {}),
     mcpReady: isOperationMcpReady(operation),
     commandRuleCandidate:
       operation.status === "active" &&
@@ -432,6 +464,7 @@ function describeOperation(id: string): OperationDescriptor {
     summary: definition.summary,
     mutates: definition.mutates,
     access: cloneOperationAccess(definition.access),
+    ...(definition.storeAdmission ? { storeAdmission: definition.storeAdmission } : {}),
     status: definition.status,
     cli: operationCliProjection(definition.id),
     ...(definition.pendingLineage ? { pendingLineage: definition.pendingLineage } : {}),
@@ -464,6 +497,7 @@ export async function invokeOperation(
   context: OperationExecutionContext,
 ): Promise<OperationInvocation> {
   const definition = getOperation(id);
+  assertOperationStoreAdmission(definition);
   if (definition.status === "pending") {
     throw new OperationPendingError(
       `Operation \`${id}\` is a reserved registry identifier; its semantics land with ${definition.pendingLineage}.`,
@@ -498,7 +532,7 @@ export async function invokeOperation(
   const targetRoot = operationTargetRoot(parsed.data, context.cwd);
   if (
     (context.surface === "cli" || context.surface === "mcp") &&
-    definition.access.store !== "none"
+    definition.access.store !== "none" && definition.storeAdmission !== "optional"
   ) {
     if (context.route === "test") {
       throw new OperationError("A production Store operation needs an explicit route.");
@@ -525,7 +559,7 @@ export async function invokeOperation(
   };
   let value: JsonValue;
   try {
-    value = definition.access.store === "none"
+    value = definition.access.store === "none" || definition.storeAdmission === "optional"
       ? await run()
       : await context.withStoreSession(
           definition.access.store,

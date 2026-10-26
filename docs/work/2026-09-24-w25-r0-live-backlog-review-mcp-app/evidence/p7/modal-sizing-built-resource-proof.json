@@ -1,0 +1,23 @@
+{
+  "kind": "current source-built stdio resource proof only",
+  "profile": "backlog",
+  "transport": "stdio",
+  "sha256": "9aa1fbe83e560c34c710af1969d6a1fe70af0fc93254ee92ae6c8752e4db7725",
+  "bytes": 448373,
+  "mimeType": "text/html;profile=mcp-app",
+  "csp": {
+    "connectDomains": [],
+    "resourceDomains": [],
+    "frameDomains": [],
+    "baseUriDomains": []
+  },
+  "sourceMatchesBuilt": true,
+  "toolCalls": 0,
+  "agentMessages": 0,
+  "perfObservations": 0,
+  "historicalCandidateSha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
+  "limits": [
+    "The old qualifying tarball and disposable install are not repaired or requalified.",
+    "No host render, wave review, task action, or PERF observation is proved by this resource read."
+  ]
+}

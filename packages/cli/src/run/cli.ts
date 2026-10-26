@@ -309,6 +309,10 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       ),
     },
   }),
+  "backlog.review.open": (options) => ({ input: { report: parseJsonPayload(
+    requiredValue(options, "report-json", operationPath("backlog.review.open")), "report-json") } }),
+  "backlog.review.refresh": (options) => ({ input: { envelope: parseJsonPayload(
+    requiredValue(options, "envelope-json", operationPath("backlog.review.refresh")), "envelope-json") } }),
   "work.backlog-cache.lookup": (options) => ({
     input: {
       targetRoot: path.resolve(

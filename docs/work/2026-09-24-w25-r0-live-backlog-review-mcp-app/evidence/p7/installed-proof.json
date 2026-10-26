@@ -1,0 +1,416 @@
+{
+  "harnessVersion": "W25-R0-P7-INSTALLED-1",
+  "mode": "automated-functional",
+  "perfObservations": 0,
+  "candidate": {
+    "stage": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm",
+    "tarball": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualifying-candidate/brucewaynedecoy-make-docs-2.0.4.tgz",
+    "name": "@brucewaynedecoy/make-docs",
+    "version": "2.0.4",
+    "sha256": "442c86ba97542dc703e370b2056759142b725bba5bf21a32ad2e28d55bcf461a",
+    "integrity": "sha512-bcH0Q2N/E9/i11abCeNuhFtLGkMt/T7zdcig5vZfKPMYfTXv4RgLwhKdTrlHx3Ccn1YjczCP+OXSr0vepBqq8g==",
+    "files": 141,
+    "node": "v24.19.0",
+    "sourceHead": "fe9d312cafd54dff39d2e4c30cb3a480abc97b0c",
+    "sourceDirty": " M docs/plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/07-parity-performance-and-acceptance.md\n M docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/07-parity-performance-and-acceptance.md\n M docs/work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md\n M packages/skills/backlog-review/references/review-method.md\n",
+    "reviewMethodSha256": "59c62cde6c074aa079e969cf0fc170e1b63472c7f2c685e613dfb407f80bf246",
+    "supersedesSha256": "0f9298819b3d2fa5e4249d18757b8b3451b674ce9f3f59adf6f4903ce765297d",
+    "reason": "Two authorized source-guide wording fixes before qualification or any PERF observation.",
+    "observationsStarted": 0
+  },
+  "package": {
+    "name": "@brucewaynedecoy/make-docs",
+    "version": "2.0.4",
+    "installedRoot": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-w25-p7-J1ZOgm/qualified-install/node_modules/@brucewaynedecoy/make-docs"
+  },
+  "fixture": {
+    "kind": "one-wave synthetic functional",
+    "snapshotSha256": "eeac1952256a2382c33b1b8b5cecafeef84d0fbdf0ed4acd07e955fe34ffb394",
+    "reportSha256": "fd3ceee9fd3847315867168b50fcdda3b327ff9e2e7ffcd2e793c57ed9e3bfca",
+    "records": 1,
+    "accepted70Equivalent": false
+  },
+  "resource": {
+    "sha256": "1aede1eb3ec63831e02f6dde585e6ed4caf9633990064a36a4296cbcb92a733b"
+  },
+  "profileTools": {
+    "core": [
+      "make_docs_config_read",
+      "make_docs_installed_state",
+      "make_docs_manifest_read",
+      "make_docs_operation_domains",
+      "make_docs_project_persona_list",
+      "make_docs_project_state_status",
+      "make_docs_resource_list",
+      "make_docs_resource_read"
+    ],
+    "setup": [
+      "make_docs_compatibility_classify",
+      "make_docs_config_read",
+      "make_docs_install_plan",
+      "make_docs_installed_state",
+      "make_docs_manifest_read",
+      "make_docs_project_layout_apply",
+      "make_docs_project_layout_prepare",
+      "make_docs_project_layout_preview",
+      "make_docs_project_layout_verify",
+      "make_docs_project_path_hygiene_repair",
+      "make_docs_project_path_hygiene_validate",
+      "make_docs_project_state_recover",
+      "make_docs_project_state_status",
+      "make_docs_project_surface_ensure",
+      "make_docs_resource_ensure"
+    ],
+    "workflow": [
+      "make_docs_lifecycle_abandon",
+      "make_docs_lifecycle_attach_evidence",
+      "make_docs_lifecycle_checkpoint",
+      "make_docs_lifecycle_complete",
+      "make_docs_lifecycle_fail",
+      "make_docs_lifecycle_list",
+      "make_docs_lifecycle_pause",
+      "make_docs_lifecycle_resume",
+      "make_docs_lifecycle_show",
+      "make_docs_lifecycle_start",
+      "make_docs_project_persona_list",
+      "make_docs_work_evidence_read",
+      "make_docs_work_evidence_record",
+      "make_docs_work_item_resolve"
+    ],
+    "quality": [
+      "make_docs_performance_evidence_validate",
+      "make_docs_prd_authority_validate",
+      "make_docs_project_path_hygiene_validate",
+      "make_docs_uat_evidence_reference_validate",
+      "make_docs_uat_finding_validate",
+      "make_docs_uat_persona_resolve",
+      "make_docs_uat_result_validate",
+      "make_docs_uat_scenario_validate",
+      "make_docs_uat_target_validate"
+    ],
+    "backlog": [
+      "make_docs_backlog_review_open",
+      "make_docs_backlog_review_refresh",
+      "make_docs_work_backlog_cache_lookup",
+      "make_docs_work_backlog_cache_write",
+      "make_docs_work_backlog_snapshot"
+    ],
+    "all": [
+      "make_docs_backlog_review_open",
+      "make_docs_backlog_review_refresh",
+      "make_docs_compatibility_classify",
+      "make_docs_config_read",
+      "make_docs_install_plan",
+      "make_docs_installed_state",
+      "make_docs_lifecycle_abandon",
+      "make_docs_lifecycle_attach_evidence",
+      "make_docs_lifecycle_checkpoint",
+      "make_docs_lifecycle_complete",
+      "make_docs_lifecycle_fail",
+      "make_docs_lifecycle_list",
+      "make_docs_lifecycle_pause",
+      "make_docs_lifecycle_resume",
+      "make_docs_lifecycle_show",
+      "make_docs_lifecycle_start",
+      "make_docs_manifest_read",
+      "make_docs_operation_domains",
+      "make_docs_performance_evidence_validate",
+      "make_docs_prd_authority_validate",
+      "make_docs_project_layout_apply",
+      "make_docs_project_layout_prepare",
+      "make_docs_project_layout_preview",
+      "make_docs_project_layout_verify",
+      "make_docs_project_path_hygiene_repair",
+      "make_docs_project_path_hygiene_validate",
+      "make_docs_project_persona_list",
+      "make_docs_project_state_recover",
+      "make_docs_project_state_status",
+      "make_docs_project_surface_ensure",
+      "make_docs_resource_ensure",
+      "make_docs_resource_list",
+      "make_docs_resource_read",
+      "make_docs_uat_evidence_reference_validate",
+      "make_docs_uat_finding_validate",
+      "make_docs_uat_persona_resolve",
+      "make_docs_uat_result_validate",
+      "make_docs_uat_scenario_validate",
+      "make_docs_uat_target_validate",
+      "make_docs_work_backlog_cache_lookup",
+      "make_docs_work_backlog_cache_write",
+      "make_docs_work_backlog_snapshot",
+      "make_docs_work_evidence_read",
+      "make_docs_work_evidence_record",
+      "make_docs_work_item_resolve"
+    ]
+  },
+  "checks": [
+    {
+      "name": "core: unique tools",
+      "pass": true
+    },
+    {
+      "name": "core: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "core: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "core: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "setup: unique tools",
+      "pass": true
+    },
+    {
+      "name": "setup: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "setup: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "setup: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "workflow: unique tools",
+      "pass": true
+    },
+    {
+      "name": "workflow: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "workflow: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "workflow: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "quality: unique tools",
+      "pass": true
+    },
+    {
+      "name": "quality: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "quality: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "quality: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "backlog: unique tools",
+      "pass": true
+    },
+    {
+      "name": "backlog: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "backlog: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "backlog: make_docs_backlog_review_open metadata",
+      "pass": true
+    },
+    {
+      "name": "backlog: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "backlog: make_docs_backlog_review_refresh metadata",
+      "pass": true
+    },
+    {
+      "name": "backlog: source/installed resource bytes",
+      "pass": true
+    },
+    {
+      "name": "backlog: MIME",
+      "pass": true
+    },
+    {
+      "name": "backlog: CSP has no external domain",
+      "pass": true
+    },
+    {
+      "name": "all: unique tools",
+      "pass": true
+    },
+    {
+      "name": "all: correct UI membership",
+      "pass": true
+    },
+    {
+      "name": "all: make_docs_backlog_review_open exposure",
+      "pass": true
+    },
+    {
+      "name": "all: make_docs_backlog_review_open metadata",
+      "pass": true
+    },
+    {
+      "name": "all: make_docs_backlog_review_refresh exposure",
+      "pass": true
+    },
+    {
+      "name": "all: make_docs_backlog_review_refresh metadata",
+      "pass": true
+    },
+    {
+      "name": "all: source/installed resource bytes",
+      "pass": true
+    },
+    {
+      "name": "all: MIME",
+      "pass": true
+    },
+    {
+      "name": "all: CSP has no external domain",
+      "pass": true
+    },
+    {
+      "name": "all is exact profile union",
+      "pass": true
+    },
+    {
+      "name": "installed snapshot succeeds",
+      "pass": true
+    },
+    {
+      "name": "small fixture has one exact record",
+      "pass": true
+    },
+    {
+      "name": "installed canonical open succeeds",
+      "pass": true
+    },
+    {
+      "name": "candidate authority confirms actual own open",
+      "pass": true
+    },
+    {
+      "name": "live keeps full report meaning",
+      "pass": true
+    },
+    {
+      "name": "model text does not leak full client report",
+      "pass": true
+    },
+    {
+      "name": "installed current refresh succeeds",
+      "pass": true
+    },
+    {
+      "name": "exact unchanged refresh",
+      "pass": true
+    },
+    {
+      "name": "unknown instruction rejected",
+      "pass": true
+    },
+    {
+      "name": "write gate rejects absent allowWrite",
+      "pass": true
+    },
+    {
+      "name": "no static report created by live/open/refresh",
+      "pass": true
+    },
+    {
+      "name": "explicit static keeps exact full report",
+      "pass": true
+    },
+    {
+      "name": "chat summary keeps status reason",
+      "pass": true
+    },
+    {
+      "name": "read-only product calls keep project bytes",
+      "pass": true
+    },
+    {
+      "name": "read-only product calls keep Store bytes",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: SKILL.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: README.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: agents/openai.yaml",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/review-method.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/report-model.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/fallback.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/cache.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/rule-map.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: examples/chat-reports.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: examples/human-errors.json",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: references/html-report.md",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: scripts/render-report.mjs",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: scripts/report-contract.mjs",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: scripts/agent-contract.mjs",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: scripts/collect-project-lead-context.mjs",
+      "pass": true
+    },
+    {
+      "name": "installed Skill bytes: assets/backlog-review-report.html",
+      "pass": true
+    }
+  ],
+  "passed": 66,
+  "limits": [
+    "No real-host render, fresh 70-record agent assembly, PERF timing, actual task creation, or release is proved."
+  ]
+}

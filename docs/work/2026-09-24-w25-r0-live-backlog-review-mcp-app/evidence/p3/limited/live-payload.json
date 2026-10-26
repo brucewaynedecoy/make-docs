@@ -1,0 +1,498 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Aurora Notes: 2 work records found; 1 still in scope; 0 historical; 1 archived."
+    }
+  ],
+  "structuredContent": {
+    "schemaVersion": 1,
+    "sourceSchemaVersion": 1,
+    "project": {
+      "id": "project-aurora-notes",
+      "manifestPath": ".make-docs/manifest.json"
+    },
+    "projectName": "Aurora Notes",
+    "projectNameTruncated": false,
+    "tallies": {
+      "workRecordsFound": 2,
+      "workRecordsStillInScope": 1,
+      "historicalRecords": 0,
+      "archivedRecords": 1
+    },
+    "currentRecords": [],
+    "attentionFindings": [],
+    "recommendationOrder": [],
+    "coverage": {
+      "currentRecords": {
+        "total": 0,
+        "included": 0
+      },
+      "attentionFindings": {
+        "total": 0,
+        "included": 0
+      },
+      "recommendationOrder": {
+        "total": 0,
+        "included": 0
+      }
+    },
+    "omitted": {
+      "currentRecords": 0,
+      "attentionFindings": 0,
+      "recommendationOrder": 0
+    },
+    "detail": "The full client report preserves every record, claim, limit, diagnostic, and source fact."
+  },
+  "_meta": {
+    "backlog": {
+      "schemaVersion": 1,
+      "dataBoundary": "client-visible-not-secret",
+      "envelope": {
+        "schemaVersion": 1,
+        "sessionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "projectKey": "ea37f01ffa1e564baa88dd3f81f9ec5a2d4accd3bafda8c20cc1e9f9ee418ba2",
+        "snapshotId": "4592b5eab6c1479248876b350431d2b2765d044e6885efdf11452120473c6653",
+        "modelId": "ad08ff18cbf8fd3dc43d0696cd240c0ab222b0e141aab799b66f19bdc9be1ec3",
+        "report": {
+          "schemaVersion": 1,
+          "generatedAt": "2042-06-15T12:00:00.000Z",
+          "targetRoot": "/synthetic/aurora-notes",
+          "project": {
+            "id": "project-aurora-notes",
+            "name": "Aurora Notes",
+            "manifestPath": ".make-docs/manifest.json"
+          },
+          "projectLead": null,
+          "snapshot": {
+            "schemaVersion": 1,
+            "generatedAt": "2042-06-15T12:00:00.000Z",
+            "targetRoot": "/synthetic/aurora-notes",
+            "project": {
+              "id": "project-aurora-notes",
+              "name": "Aurora Notes",
+              "manifestPath": ".make-docs/manifest.json"
+            },
+            "gitRevision": "1111111111111111111111111111111111111111",
+            "capabilities": {
+              "repositoryFiles": {
+                "state": "available",
+                "diagnosticCodes": []
+              },
+              "git": {
+                "state": "available",
+                "diagnosticCodes": []
+              },
+              "store": {
+                "state": "not-used",
+                "diagnosticCodes": []
+              },
+              "sourceLinks": {
+                "state": "available",
+                "diagnosticCodes": []
+              }
+            },
+            "recordCounts": {
+              "found": 2,
+              "live": 1,
+              "archived": 1
+            },
+            "records": [
+              {
+                "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+                "scope": "live",
+                "sourceShape": {
+                  "state": "partial",
+                  "standard": "current-frontmatter",
+                  "diagnosticCodes": [
+                    "BACKLOG-VAL-003"
+                  ]
+                },
+                "discoveredFiles": [
+                  "docs/work/2042-05-04-w3-r1-partial-current/00-index.md"
+                ],
+                "coordinate": {
+                  "value": "W1 R1",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+                      "line": 1,
+                      "field": "coordinate",
+                      "commit": null
+                    }
+                  ]
+                },
+                "title": {
+                  "value": null,
+                  "evidence": []
+                },
+                "recordedStatus": {
+                  "value": null,
+                  "evidence": []
+                },
+                "createdAt": {
+                  "value": "2042-06-01",
+                  "precision": "date",
+                  "source": "directory-name",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-05-04-w3-r1-partial-current",
+                      "line": 1,
+                      "field": null,
+                      "commit": null
+                    }
+                  ],
+                  "diagnosticCodes": []
+                },
+                "lastUpdatedAt": {
+                  "value": "2042-06-14T09:30:00Z",
+                  "precision": "second",
+                  "source": "git-commit",
+                  "evidence": [
+                    {
+                      "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+                      "line": 1,
+                      "field": null,
+                      "commit": null
+                    }
+                  ],
+                  "diagnosticCodes": []
+                },
+                "phaseCount": {
+                  "value": 0,
+                  "evidence": []
+                },
+                "taskCounts": {
+                  "total": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "complete": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "incomplete": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "unknown": {
+                    "value": 0,
+                    "evidence": []
+                  }
+                },
+                "phases": [],
+                "dependencies": [],
+                "blockers": [],
+                "closeout": null,
+                "sourceLinks": [],
+                "gitEvidence": []
+              },
+              {
+                "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+                "scope": "archived",
+                "sourceShape": {
+                  "state": "unsupported",
+                  "standard": null,
+                  "diagnosticCodes": [
+                    "BACKLOG-VAL-004"
+                  ]
+                },
+                "discoveredFiles": [
+                  "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+                  "docs/archive/work/2040-03-02-w3-r2-legacy-shape/notes.md"
+                ],
+                "coordinate": {
+                  "value": "W3 R2",
+                  "evidence": [
+                    {
+                      "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+                      "line": 1,
+                      "field": null,
+                      "commit": null
+                    }
+                  ]
+                },
+                "title": {
+                  "value": null,
+                  "evidence": []
+                },
+                "recordedStatus": {
+                  "value": null,
+                  "evidence": []
+                },
+                "createdAt": {
+                  "value": "2042-06-01",
+                  "precision": "date",
+                  "source": "directory-name",
+                  "evidence": [
+                    {
+                      "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+                      "line": 1,
+                      "field": null,
+                      "commit": null
+                    }
+                  ],
+                  "diagnosticCodes": []
+                },
+                "lastUpdatedAt": {
+                  "value": "2042-06-14T09:30:00Z",
+                  "precision": "second",
+                  "source": "git-commit",
+                  "evidence": [
+                    {
+                      "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+                      "line": 1,
+                      "field": null,
+                      "commit": null
+                    }
+                  ],
+                  "diagnosticCodes": []
+                },
+                "phaseCount": {
+                  "value": 0,
+                  "evidence": []
+                },
+                "taskCounts": {
+                  "total": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "complete": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "incomplete": {
+                    "value": 0,
+                    "evidence": []
+                  },
+                  "unknown": {
+                    "value": 0,
+                    "evidence": []
+                  }
+                },
+                "phases": [],
+                "dependencies": [],
+                "blockers": [],
+                "closeout": null,
+                "sourceLinks": [],
+                "gitEvidence": []
+              }
+            ],
+            "diagnostics": [
+              {
+                "code": "BACKLOG-VAL-003",
+                "ruleId": "BACKLOG-RULE-003",
+                "severity": "warning",
+                "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+                "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+                "line": 1,
+                "message": "The current frontmatter is incomplete.",
+                "reason": "The synthetic evidence triggered this fixture rule.",
+                "remediation": "Review the named synthetic record before using this fact."
+              },
+              {
+                "code": "BACKLOG-VAL-004",
+                "ruleId": "BACKLOG-RULE-004",
+                "severity": "warning",
+                "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+                "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+                "line": 1,
+                "message": "The record has no supported frontmatter.",
+                "reason": "The synthetic evidence triggered this fixture rule.",
+                "remediation": "Review the named synthetic record before using this fact."
+              }
+            ]
+          },
+          "tallies": {
+            "workRecordsFound": 2,
+            "workRecordsStillInScope": 1,
+            "historicalRecords": 0,
+            "archivedRecords": 1
+          },
+          "records": [
+            {
+              "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+              "scope": "live",
+              "createdAt": {
+                "value": "2042-06-01",
+                "precision": "date",
+                "source": "directory-name",
+                "evidence": [
+                  {
+                    "path": "docs/work/2042-05-04-w3-r1-partial-current",
+                    "line": 1,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "lastUpdatedAt": {
+                "value": "2042-06-14T09:30:00Z",
+                "precision": "second",
+                "source": "git-commit",
+                "evidence": [
+                  {
+                    "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+                    "line": 1,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "waveStatus": "attention",
+              "statusReason": "Only the linked phase can support this review.",
+              "statusEvidence": [
+                {
+                  "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+                  "line": 1,
+                  "field": "status",
+                  "commit": null
+                }
+              ],
+              "facts": [],
+              "inferences": [],
+              "recommendations": []
+            },
+            {
+              "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+              "scope": "archived",
+              "createdAt": {
+                "value": "2042-06-01",
+                "precision": "date",
+                "source": "directory-name",
+                "evidence": [
+                  {
+                    "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+                    "line": 1,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "lastUpdatedAt": {
+                "value": "2042-06-14T09:30:00Z",
+                "precision": "second",
+                "source": "git-commit",
+                "evidence": [
+                  {
+                    "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+                    "line": 1,
+                    "field": null,
+                    "commit": null
+                  }
+                ],
+                "diagnosticCodes": []
+              },
+              "waveStatus": null,
+              "statusReason": "Archived inventory only. Its source shape cannot support conclusions.",
+              "statusEvidence": [
+                {
+                  "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+                  "line": 1,
+                  "field": "status",
+                  "commit": null
+                }
+              ],
+              "facts": [],
+              "inferences": [],
+              "recommendations": []
+            }
+          ],
+          "attentionFindings": [],
+          "recommendationOrder": [],
+          "diagnostics": [
+            {
+              "code": "BACKLOG-VAL-003",
+              "ruleId": "BACKLOG-RULE-003",
+              "severity": "warning",
+              "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+              "path": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+              "line": 1,
+              "message": "The current frontmatter is incomplete.",
+              "reason": "The synthetic evidence triggered this fixture rule.",
+              "remediation": "Review the named synthetic record before using this fact."
+            },
+            {
+              "code": "BACKLOG-VAL-004",
+              "ruleId": "BACKLOG-RULE-004",
+              "severity": "warning",
+              "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+              "path": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+              "line": 1,
+              "message": "The record has no supported frontmatter.",
+              "reason": "The synthetic evidence triggered this fixture rule.",
+              "remediation": "Review the named synthetic record before using this fact."
+            }
+          ]
+        }
+      },
+      "display": {
+        "schemaVersion": 1,
+        "projectName": "Aurora Notes",
+        "records": [
+          {
+            "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+            "coordinate": "W1 R1",
+            "title": "Partial Current",
+            "summary": "Only the linked phase can support this review.",
+            "sourcePath": "docs/work/2042-05-04-w3-r1-partial-current/00-index.md",
+            "phases": []
+          },
+          {
+            "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+            "coordinate": "W3 R2",
+            "title": "Legacy Shape",
+            "summary": "Archived inventory only. Its source shape cannot support conclusions.",
+            "sourcePath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape/00-index.md",
+            "phases": []
+          }
+        ]
+      },
+      "actions": [
+        {
+          "schemaVersion": 1,
+          "sessionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "modelId": "ad08ff18cbf8fd3dc43d0696cd240c0ab222b0e141aab799b66f19bdc9be1ec3",
+          "projectKey": "ea37f01ffa1e564baa88dd3f81f9ec5a2d4accd3bafda8c20cc1e9f9ee418ba2",
+          "snapshotId": "4592b5eab6c1479248876b350431d2b2765d044e6885efdf11452120473c6653",
+          "action": "review-wave",
+          "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+          "coordinate": "W1 R1"
+        },
+        {
+          "schemaVersion": 1,
+          "sessionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "modelId": "ad08ff18cbf8fd3dc43d0696cd240c0ab222b0e141aab799b66f19bdc9be1ec3",
+          "projectKey": "ea37f01ffa1e564baa88dd3f81f9ec5a2d4accd3bafda8c20cc1e9f9ee418ba2",
+          "snapshotId": "4592b5eab6c1479248876b350431d2b2765d044e6885efdf11452120473c6653",
+          "action": "request-task",
+          "recordPath": "docs/work/2042-05-04-w3-r1-partial-current",
+          "coordinate": "W1 R1"
+        },
+        {
+          "schemaVersion": 1,
+          "sessionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "modelId": "ad08ff18cbf8fd3dc43d0696cd240c0ab222b0e141aab799b66f19bdc9be1ec3",
+          "projectKey": "ea37f01ffa1e564baa88dd3f81f9ec5a2d4accd3bafda8c20cc1e9f9ee418ba2",
+          "snapshotId": "4592b5eab6c1479248876b350431d2b2765d044e6885efdf11452120473c6653",
+          "action": "review-wave",
+          "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+          "coordinate": "W3 R2"
+        },
+        {
+          "schemaVersion": 1,
+          "sessionId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "modelId": "ad08ff18cbf8fd3dc43d0696cd240c0ab222b0e141aab799b66f19bdc9be1ec3",
+          "projectKey": "ea37f01ffa1e564baa88dd3f81f9ec5a2d4accd3bafda8c20cc1e9f9ee418ba2",
+          "snapshotId": "4592b5eab6c1479248876b350431d2b2765d044e6885efdf11452120473c6653",
+          "action": "request-task",
+          "recordPath": "docs/archive/work/2040-03-02-w3-r2-legacy-shape",
+          "coordinate": "W3 R2"
+        }
+      ]
+    }
+  }
+}
