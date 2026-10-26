@@ -1,7 +1,7 @@
 # Work Backlog Source Authority - Change Plan
 
 **Date:** 2026-05-06
-**Repository:** `/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs`
+**Repository:** `<REPO_ROOT>`
 **Purpose:** Produce a reviewable active-set evolution plan for the backlog source-authority behavior captured in [2026-05-06-work-backlog-source-authority.md](../../designs/2026-05-06-work-backlog-source-authority.md).
 
 ## Objective

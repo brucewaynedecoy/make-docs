@@ -116,7 +116,7 @@ const script = async (page) => {
 };
 const code = script.toString().replaceAll("OUTPUT", JSON.stringify(output)).replaceAll("RESUME", String(process.argv[4] === "resume"));
 let log;
-try { log = execFileSync("/Users/tylerkneisly/.codex/skills/playwright/scripts/playwright_cli.sh", ["-s=" + session, "run-code", code], { cwd, encoding: "utf8", timeout: 60000, maxBuffer: 2 * 1024 * 1024 }); }
+try { log = execFileSync("<LOCAL_HOME>/.codex/skills/playwright/scripts/playwright_cli.sh", ["-s=" + session, "run-code", code], { cwd, encoding: "utf8", timeout: 60000, maxBuffer: 2 * 1024 * 1024 }); }
 catch (error) { console.error(error.stdout || error.message); process.exitCode = 1; }
 if (!log) process.exit(1);
 const match = log.match(/### Result\n([^\n]+)/);

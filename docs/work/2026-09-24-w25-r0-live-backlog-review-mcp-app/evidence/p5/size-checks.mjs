@@ -39,7 +39,7 @@ const check = async page => {
     toolCalls: audit.toolCalls, agentMessages: audit.agentMessages, limit: "Synthetic host honors size notification exactly. No production host test." };
 };
 let log;
-try { log = execFileSync("/Users/tylerkneisly/.codex/skills/playwright/scripts/playwright_cli.sh", ["-s=" + session, "run-code", check.toString().replaceAll("OUTPUT",JSON.stringify(here))], { cwd, encoding: "utf8", timeout: 40000, maxBuffer: 65536 }); }
+try { log = execFileSync("<LOCAL_HOME>/.codex/skills/playwright/scripts/playwright_cli.sh", ["-s=" + session, "run-code", check.toString().replaceAll("OUTPUT",JSON.stringify(here))], { cwd, encoding: "utf8", timeout: 40000, maxBuffer: 65536 }); }
 catch (error) { console.error(error.stdout || error.message); process.exit(1); }
 const match = log.match(/### Result\n([^\n]+)/);
 if (!match) throw new Error("No size check result returned.");

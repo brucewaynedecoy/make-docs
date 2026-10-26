@@ -1,6 +1,6 @@
 {
   "packageSha256": "66cc68ee68feeb5265c2b75f815dc58bdf4198b82fa333fbd502097231900886",
-  "installedEntrypoint": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js",
+  "installedEntrypoint": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js",
   "installedEntrypointSha256": "73d12deaa7130ca8f140d20b0fd4e58920c0a726a403fbbe1ea8f954ae803702",
   "sourceBuildInstalledTarFileMatch": true,
   "sourceBuildInstalledDirectoryMatch": true,

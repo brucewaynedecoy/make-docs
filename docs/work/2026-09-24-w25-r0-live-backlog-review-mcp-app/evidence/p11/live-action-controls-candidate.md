@@ -12,9 +12,9 @@ The current source removes `.copy-actions` from each rendered wave in the live w
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-live-controls-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-live-controls-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `85e666fa474826cf555a38c5eaa94646f55291064ac6335087b0f560dded32df` |
-| Isolated executable | `/private/tmp/w25-p11-live-controls-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-live-controls-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `8b12adeafc57777314afd201ed86f341bcabd0799116b31ffd133259052d106b` |
 | MCP App resource SHA-256 | `fbdf614896cc461b606c7568f6a043360612fdb7d697acc4d2873352bc6e12b2` |
 | Static report template SHA-256 | `0dd8e183342421ec0faf20e4837b2b3f8af9a227739ace024e420315feeeab0b` |
@@ -31,7 +31,7 @@ The isolated executable reports `2.0.5`. A direct MCP client read its 471,907-by
 
 ## Saved entry change for owner review
 
-The owner approved the exact command change on 2026-10-25. The prior saved command was `/private/tmp/w25-p11-no-print-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`, SHA-256 `e54a377f5de07cdd3f6ed27134d130b213ac7bb8894ff0e5a52ca42293a727e2`. I changed only that command to the isolated executable above. The `mcp` argument, private identity, tool approvals, and separate `make-docs` entry were unchanged. A mode-0600 backup is at `/private/tmp/w25-p11-live-controls-candidate-20261025/codex-config-before-command-change.toml`. A full `codex mcp list --json` parse found the new enabled entry. A byte check found only the approved command difference in the saved config.
+The owner approved the exact command change on 2026-10-25. The prior saved command was `<LOCAL_TEMP>/w25-p11-no-print-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`, SHA-256 `e54a377f5de07cdd3f6ed27134d130b213ac7bb8894ff0e5a52ca42293a727e2`. I changed only that command to the isolated executable above. The `mcp` argument, private identity, tool approvals, and separate `make-docs` entry were unchanged. A mode-0600 backup is at `<LOCAL_TEMP>/w25-p11-live-controls-candidate-20261025/codex-config-before-command-change.toml`. A full `codex mcp list --json` parse found the new enabled entry. A byte check found only the approved command difference in the saved config.
 
 The isolated executable started as an MCP server with 45 tools. A direct `project_status` call using the saved private identity returned `ready` when the test process had Store access. The sandboxed call returned `store-unavailable` because it could not create the Store lock directory; no project file changed. This proves the candidate's Store path in a separate process. It does not prove that Codex loaded the new package or rendered its app.
 

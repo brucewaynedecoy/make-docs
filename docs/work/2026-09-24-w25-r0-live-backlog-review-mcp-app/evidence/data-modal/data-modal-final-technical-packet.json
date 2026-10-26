@@ -94,7 +94,7 @@
   },
   "checks": {
     "focused": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts tests/backlog-presentation.test.ts tests/backlog-request-controller.test.ts tests/backlog-review-skill.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-widget.test.ts tests/backlog-presentation.test.ts tests/backlog-request-controller.test.ts tests/backlog-review-skill.test.ts",
       "passed": 137,
       "suites": {
         "widget": 56,
@@ -106,15 +106,15 @@
       "localStateCasesIncluded": true
     },
     "typecheck": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
       "passed": true
     },
     "build": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
       "passed": true
     },
     "drift": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
       "passed": true
     },
     "whitespace": {
@@ -142,14 +142,14 @@
   "browserReview": "Root reports final 720/844/1314/1900 height/focus/JSON/local-request passes. Static/rebuild/retained proof still pending.",
   "interimTechnicalPacket": "data-modal-technical-packet.json",
   "builtInvocation": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "args": [
-      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "<REPO_ROOT>/packages/cli/dist/index.js",
       "mcp",
       "--profile",
       "backlog"
     ],
-    "cwd": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+    "cwd": "<REPO_ROOT>"
   },
   "builtFiles": [
     {

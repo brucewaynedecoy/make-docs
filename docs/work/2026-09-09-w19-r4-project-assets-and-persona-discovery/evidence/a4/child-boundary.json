@@ -1,7 +1,7 @@
 {
   "arguments": [
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
-    "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@openai/codex/bin/codex.js",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
+    "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@openai/codex/bin/codex.js",
     "exec",
     "--ephemeral",
     "--ignore-user-config",
@@ -18,17 +18,17 @@
     "workspace-write",
     "--skip-git-repo-check",
     "--cd",
-    "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/project",
+    "<LOCAL_TEMP>/w19-r4-a4-oa0zj4qs/project",
     "--json",
     "--output-last-message",
     "/tmp/w19-r4-a4-evidence-oa0zj4qs/last-message.txt",
     "-"
   ],
   "environment": {
-    "HOME": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/home",
-    "CODEX_HOME": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs/codex-home",
+    "HOME": "<LOCAL_TEMP>/w19-r4-a4-oa0zj4qs/home",
+    "CODEX_HOME": "<LOCAL_TEMP>/w19-r4-a4-oa0zj4qs/codex-home",
     "PATH": "/usr/bin:/bin",
-    "TMPDIR": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/w19-r4-a4-oa0zj4qs",
+    "TMPDIR": "<LOCAL_TEMP>/w19-r4-a4-oa0zj4qs",
     "LANG": "en_US.UTF-8",
     "TERM": "dumb"
   },

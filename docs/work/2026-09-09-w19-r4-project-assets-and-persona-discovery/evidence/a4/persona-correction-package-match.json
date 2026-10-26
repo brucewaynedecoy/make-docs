@@ -1,9 +1,9 @@
 {
   "checkedAt": "2026-09-09T19:37:45.888333+00:00",
-  "tarball": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+  "tarball": "<REPO_ROOT>/packages/cli/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
   "tarballSha256": "8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e",
   "requestedTarballSha256": "8b9d11d9b84d2961285f0e007c097191fcf2cae6411f5adfde6907b353cb6c6e",
-  "packageRoot": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "packageRoot": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
   "packageVersion": "2.0.0-rc",
   "installedEntrypointSha256": "73d12deaa7130ca8f140d20b0fd4e58920c0a726a403fbbe1ea8f954ae803702",
   "status": "match",

@@ -6,7 +6,7 @@
   "tarSha256": "fade83de44ba8b61e4c33fa498f7045f1dd2d8eea2ecc87a5a5c0f05bb6034cf",
   "owner": {
     "projectId": "831ddb50-b97a-47e2-9f2c-f491b27b8759",
-    "checkoutRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+    "checkoutRoot": "<REPO_ROOT>"
   },
   "selectedSkills": [
     "human-experience",

@@ -1,9 +1,9 @@
 {
-  "command": "node packages/cli/dist/index.js resource list --target /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs --format json",
+  "command": "node packages/cli/dist/index.js resource list --target <REPO_ROOT> --format json",
   "exitCode": 0,
   "result": {
     "schemaVersion": 1,
-    "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+    "targetRoot": "<REPO_ROOT>",
     "origin": "effective",
     "resources": [
       {

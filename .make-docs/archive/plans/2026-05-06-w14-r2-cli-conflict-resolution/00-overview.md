@@ -1,7 +1,7 @@
 # CLI Conflict Resolution - Change Plan
 
 **Date:** 2026-05-06
-**Repository:** `/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs`
+**Repository:** `<REPO_ROOT>`
 **Purpose:** Produce a reviewable active-set evolution plan for the CLI conflict-resolution behavior captured in [2026-05-06-cli-conflict-resolution.md](../../../../docs/designs/2026-05-06-cli-conflict-resolution.md).
 
 ## Objective

@@ -1,7 +1,7 @@
 # CLI Asset Selection Simplification - Change Plan
 
 **Date:** 2026-04-28
-**Repository:** `/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs`
+**Repository:** `<REPO_ROOT>`
 **Purpose:** Produce a reviewable active-set evolution plan for the CLI asset-selection simplification captured in [2026-04-28-cli-asset-selection-simplification.md](../../designs/2026-04-28-cli-asset-selection-simplification.md).
 
 ## Objective

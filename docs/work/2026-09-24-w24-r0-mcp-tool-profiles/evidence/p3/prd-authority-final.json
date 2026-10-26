@@ -1,12 +1,12 @@
 {
   "capturedAt": "2026-10-03T21:54:03.196Z",
-  "command": "node packages/cli/dist/index.js run prd authority validate --target-root /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs --json",
+  "command": "node packages/cli/dist/index.js run prd authority validate --target-root <REPO_ROOT> --json",
   "exitCode": 0,
   "report": {
     "status": "passed",
-    "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+    "targetRoot": "<REPO_ROOT>",
     "targetRootStatus": "valid",
-    "prdRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/docs/prd",
+    "prdRoot": "<REPO_ROOT>/docs/prd",
     "prdSetStatus": "present",
     "prdFilesScanned": 35,
     "markdownFilesScanned": 586,

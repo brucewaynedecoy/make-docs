@@ -8,7 +8,7 @@ Before removal, a fresh scan matched that SHA-256. The proposed roots matched th
 
 ## Removal
 
-All 52 approved roots were removed. No link was followed. A private local log at `/private/tmp/w25-p12-cleanup-applied-20261026.jsonl` has one success row per root. It has 52 rows and SHA-256 `dbc0058922f4d95c4432de766041dc39ad8aa932374db22a56f7f13fc11f960e`. The full file names and sizes remain in the private inventory and the approved proposal. No temp install, cache, Store file, private config, or live backlog JSON was added to Git.
+All 52 approved roots were removed. No link was followed. A private local log at `<LOCAL_TEMP>/w25-p12-cleanup-applied-20261026.jsonl` has one success row per root. It has 52 rows and SHA-256 `dbc0058922f4d95c4432de766041dc39ad8aa932374db22a56f7f13fc11f960e`. The full file names and sizes remain in the private inventory and the approved proposal. No temp install, cache, Store file, private config, or live backlog JSON was added to Git.
 
 All 52 approved roots are absent. All 15 kept roots are present. The kept set includes the active 2.0.5 package, two recovery packages, the saved-report proof folder, five older package folders with private config files, and six private config backups. The checkout's `.playwright-mcp/` files, W25 evidence, and the active Codex config were outside the removal list.
 

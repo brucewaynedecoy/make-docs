@@ -14,9 +14,9 @@ The accepted report source now lets each phase cell share the width available in
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-layout-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-layout-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `2e9040d3949d120a9112b0f9abcb5ab0ab17a53d513eeea881723befa4781050` |
-| Isolated executable | `/private/tmp/w25-p11-layout-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-layout-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `719276d7dc3888bcc7baaaf9954a2fc455a6d6abe3800cccd680f7afae8e0b20` |
 | MCP App resource SHA-256 | `504e2b4de46640f1dfaa526931337d0895fef1ea3c4b672e2c9492f1ad933652` |
 | Accepted report source SHA-256 | `e351c336f77567e80b16f858f86433f0fbc0dae30c4dd254e0bf036c3551934e` |
@@ -31,7 +31,7 @@ The accepted report source now lets each phase cell share the width available in
 
 ## Saved entry and installed check
 
-The owner approved the exact layout candidate. The prior saved command pointed to the live-controls executable at `/private/tmp/w25-p11-live-controls-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`, SHA-256 `8b12adeafc57777314afd201ed86f341bcabd0799116b31ffd133259052d106b`. I changed only the saved `make_docs` command. The `mcp` argument, private identity, tool approvals, other entry, and old package stayed as they were. A byte check found only that command difference in the full config. The mode-0600 backup is at `/private/tmp/w25-p11-layout-candidate-20261025/codex-config-before-command-change.toml`.
+The owner approved the exact layout candidate. The prior saved command pointed to the live-controls executable at `<LOCAL_TEMP>/w25-p11-live-controls-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js`, SHA-256 `8b12adeafc57777314afd201ed86f341bcabd0799116b31ffd133259052d106b`. I changed only the saved `make_docs` command. The `mcp` argument, private identity, tool approvals, other entry, and old package stayed as they were. A byte check found only that command difference in the full config. The mode-0600 backup is at `<LOCAL_TEMP>/w25-p11-layout-candidate-20261025/codex-config-before-command-change.toml`.
 
 After the owner reopened Codex, process 29237 ran the exact executable hash above. The loaded `project_status` tool returned `ready` with Store available. A fresh snapshot found 76 records and W25 at 53 of 66 tasks complete. The loaded review tool opened a new report in Codex. In its 1124-pixel app view, W25's row had 702 pixels and its bar had 201 pixels. The row and bar each had no horizontal overflow. The bar's right edge was 28 pixels inside the row's right edge. The expanded W25 detail still had one Explain and one Work icon and no static copy row. Refresh returned `Status: Ready`.
 

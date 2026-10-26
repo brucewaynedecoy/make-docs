@@ -13,7 +13,7 @@
     "operation": "project.path-hygiene.validate",
     "value": {
       "schemaVersion": 1,
-      "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+      "targetRoot": "<REPO_ROOT>",
       "inventorySource": "content",
       "inventoryNotice": "Checked local content only. This is not installation evidence.",
       "checkedFiles": 4,

@@ -1,5 +1,5 @@
 {
-  "targetRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
+  "targetRoot": "<REPO_ROOT>",
   "catalog": {
     "id": "make-docs.performance-evidence-validation-rules.v1",
     "version": 1,
@@ -1845,7 +1845,7 @@
       "path": "docs/work/2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md",
       "line": 256,
       "kind": "numeric-unit",
-      "excerpt": "- The corrected renderer accepted the retained 70-record report data after adding context from the product overview and W23 work index. After the style migration, it wrote `/private/tmp/make-docs-backlog-report-p4-project-lead.html`, 4,547,835 bytes, with SHA-256 `c045310130ea24feb84c3abe908a65f114d167824ebc3640162b2710ce84261e`. Static inspection found the two source-backed project sentences and no prior `Review of 70 work records` fallback."
+      "excerpt": "- The corrected renderer accepted the retained 70-record report data after adding context from the product overview and W23 work index. After the style migration, it wrote `<LOCAL_TEMP>/make-docs-backlog-report-p4-project-lead.html`, 4,547,835 bytes, with SHA-256 `c045310130ea24feb84c3abe908a65f114d167824ebc3640162b2710ce84261e`. Static inspection found the two source-backed project sentences and no prior `Review of 70 work records` fallback."
     },
     {
       "path": "docs/work/2026-09-18-w23-r0-backlog-review-and-reporting/evidence.md",

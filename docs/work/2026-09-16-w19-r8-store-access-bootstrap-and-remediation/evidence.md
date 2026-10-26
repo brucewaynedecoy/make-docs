@@ -36,7 +36,7 @@ This correction adds no TOML dependency and no public interface. It keeps W19 R2
 - The Stage 5 correction preserved all 20 earlier Performance Evidence paths. It did not stage, restore, or rewrite them.
 - No W19 R8 command applied setup to the real project or real Codex configuration. The required real command used `--dry-run` only.
 - No persistent setup result was written to the user's real Store. The real dry run used normal transient Store session controls.
-- Package installs, homes, Store roots, and project fixtures used `/private/tmp` or test-created temporary folders.
+- Package installs, homes, Store roots, and project fixtures used `<LOCAL_TEMP>` or test-created temporary folders.
 - No file was staged, committed, pushed, published, or released.
 - Free disk space at the final review was 59 GiB.
 
@@ -81,7 +81,7 @@ The following first candidate remains prior evidence. Live W19 R2 use replaced i
 
 | Field | Value |
 | --- | --- |
-| File | `/private/tmp/make-docs-w19-r8-final.XYQhpJ/brucewaynedecoy-make-docs-2.0.0-rc.tgz` |
+| File | `<LOCAL_TEMP>/make-docs-w19-r8-final.XYQhpJ/brucewaynedecoy-make-docs-2.0.0-rc.tgz` |
 | Package | `@brucewaynedecoy/make-docs` |
 | Version | `2.0.0-rc` |
 | SHA-256 | `15383b307cec71f4544972b13925330812d6034875d1b567af33b78de5bcbe17` |
@@ -90,11 +90,11 @@ The following first candidate remains prior evidence. Live W19 R2 use replaced i
 | Package entries | 139 |
 | Packed size | 1,473,399 bytes |
 | Unpacked size | 6,985,169 bytes |
-| Installed package root | `/private/tmp/make-docs-w19-r8-final.XYQhpJ/install/lib/node_modules/@brucewaynedecoy/make-docs` |
+| Installed package root | `<LOCAL_TEMP>/make-docs-w19-r8-final.XYQhpJ/install/lib/node_modules/@brucewaynedecoy/make-docs` |
 | Declared bin | `make-docs: dist/index.js` |
-| Launcher | `/private/tmp/make-docs-w19-r8-final.XYQhpJ/install/bin/make-docs` |
+| Launcher | `<LOCAL_TEMP>/make-docs-w19-r8-final.XYQhpJ/install/bin/make-docs` |
 | Link target | `../lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
-| Resolved bin | `/private/tmp/make-docs-w19-r8-final.XYQhpJ/install/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Resolved bin | `<LOCAL_TEMP>/make-docs-w19-r8-final.XYQhpJ/install/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Included guidance | `package/template/AGENTS.md` and `package/template/CLAUDE.md` |
 
 The normal npm launcher passed Codex MCP setup and Claude Code MCP setup in separate isolated homes. Each result had `status: configured` and `mutationState: verified`.
@@ -105,7 +105,7 @@ The same package passed generic MCP configure, repeat, rotate, repair, and remov
 
 | Field | Value |
 | --- | --- |
-| File | `/private/tmp/make-docs-w19-r8-correction.w7lICL/brucewaynedecoy-make-docs-2.0.0-rc.tgz` |
+| File | `<LOCAL_TEMP>/make-docs-w19-r8-correction.w7lICL/brucewaynedecoy-make-docs-2.0.0-rc.tgz` |
 | Package | `@brucewaynedecoy/make-docs` |
 | Version | `2.0.0-rc` |
 | SHA-256 | `aae05c724b209817644ae546a8935aaadd37f448d3716c01602fe4ca05e7ec38` |
@@ -114,11 +114,11 @@ The same package passed generic MCP configure, repeat, rotate, repair, and remov
 | Package entries | 139 |
 | Packed size | 1,474,804 bytes |
 | Unpacked size | 6,988,827 bytes |
-| Installed package root | `/private/tmp/make-docs-w19-r8-correction.w7lICL/install/lib/node_modules/@brucewaynedecoy/make-docs` |
+| Installed package root | `<LOCAL_TEMP>/make-docs-w19-r8-correction.w7lICL/install/lib/node_modules/@brucewaynedecoy/make-docs` |
 | Declared bin | `make-docs: dist/index.js` |
-| Launcher | `/private/tmp/make-docs-w19-r8-correction.w7lICL/install/bin/make-docs` |
+| Launcher | `<LOCAL_TEMP>/make-docs-w19-r8-correction.w7lICL/install/bin/make-docs` |
 | Link target | `../lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
-| Resolved bin | `/private/tmp/make-docs-w19-r8-correction.w7lICL/install/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Resolved bin | `<LOCAL_TEMP>/make-docs-w19-r8-correction.w7lICL/install/lib/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 
 The exact installed setup and upgrade matrix passes 5 of 5 tests. The new case uses this option shape:
 

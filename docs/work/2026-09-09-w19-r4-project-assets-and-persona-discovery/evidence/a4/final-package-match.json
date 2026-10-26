@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-09-09T18:45:46.348940+00:00",
-  "packageRoot": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "packageRoot": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
   "packageVersion": "2.0.0-rc",
   "installedEntrypointSha256": "167cefd78984d814c7a0ffe8589a76527ea8ed534d10f1e7b606904bac4186fa",
   "status": "match",

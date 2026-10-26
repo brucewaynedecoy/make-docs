@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "startedAt": "2026-09-10T01:55:07.846Z",
   "status": "passed",
-  "sourceRoot": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs",
-  "tarball": "/private/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+  "sourceRoot": "<REPO_ROOT>",
+  "tarball": "<LOCAL_TEMP>/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
   "tarSha256": "204e7c0233061ec1e18d5cfe5a511ffffe41e3f15f9a0909e38db0dd172fb9a9",
-  "scratch": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj",
+  "scratch": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj",
   "checks": [
     {
       "name": "seven first-party declarations",
@@ -70,7 +70,7 @@
           "source checkout file reads",
           "network including local listen"
         ],
-        "profile": "(version 1) (allow default) (deny network*) (deny file-read* (subpath \"/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs\"))"
+        "profile": "(version 1) (allow default) (deny network*) (deny file-read* (subpath \"<REPO_ROOT>\"))"
       }
     }
   ],
@@ -86,7 +86,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-archive-docs/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-archive-docs/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -107,7 +107,7 @@
           "files": 4
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-archive-docs/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-archive-docs/setup-output.txt"
     },
     {
       "id": "individual-cleanup-docs",
@@ -120,7 +120,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-cleanup-docs/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-cleanup-docs/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -141,7 +141,7 @@
           "files": 3
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-cleanup-docs/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-cleanup-docs/setup-output.txt"
     },
     {
       "id": "individual-decompose-codebase",
@@ -154,7 +154,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-decompose-codebase/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-decompose-codebase/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -175,7 +175,7 @@
           "files": 19
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-decompose-codebase/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-decompose-codebase/setup-output.txt"
     },
     {
       "id": "individual-preflight",
@@ -188,7 +188,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-preflight/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-preflight/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -209,7 +209,7 @@
           "files": 4
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-preflight/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-preflight/setup-output.txt"
     },
     {
       "id": "individual-software-factory",
@@ -222,7 +222,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-software-factory/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-software-factory/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -243,7 +243,7 @@
           "files": 5
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-software-factory/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-software-factory/setup-output.txt"
     },
     {
       "id": "individual-human-experience",
@@ -256,7 +256,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-human-experience/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-human-experience/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -277,7 +277,7 @@
           "files": 3
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-human-experience/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-human-experience/setup-output.txt"
     },
     {
       "id": "individual-naive-uat",
@@ -290,7 +290,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-naive-uat/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-naive-uat/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -311,7 +311,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/individual-naive-uat/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/individual-naive-uat/setup-output.txt"
     },
     {
       "id": "all-project-codex-symlink",
@@ -324,7 +324,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-codex-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-codex-symlink/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -387,7 +387,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-codex-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-codex-symlink/setup-output.txt"
     },
     {
       "id": "all-project-codex-copy",
@@ -400,7 +400,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-codex-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-codex-copy/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -463,7 +463,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-codex-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-codex-copy/setup-output.txt"
     },
     {
       "id": "all-project-claude-code-symlink",
@@ -476,7 +476,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-claude-code-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-claude-code-symlink/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -539,7 +539,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-claude-code-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-claude-code-symlink/setup-output.txt"
     },
     {
       "id": "all-project-claude-code-copy",
@@ -552,7 +552,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-claude-code-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-claude-code-copy/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -615,7 +615,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-claude-code-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-claude-code-copy/setup-output.txt"
     },
     {
       "id": "all-project-both-symlink",
@@ -628,7 +628,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-both-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-both-symlink/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -732,7 +732,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-both-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-both-symlink/setup-output.txt"
     },
     {
       "id": "all-project-both-copy",
@@ -745,7 +745,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-both-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-both-copy/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -849,7 +849,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-project-both-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-project-both-copy/setup-output.txt"
     },
     {
       "id": "all-global-codex-symlink",
@@ -862,7 +862,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-codex-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-codex-symlink/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -925,7 +925,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-codex-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-codex-symlink/setup-output.txt"
     },
     {
       "id": "all-global-codex-copy",
@@ -938,7 +938,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-codex-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-codex-copy/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -1001,7 +1001,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-codex-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-codex-copy/setup-output.txt"
     },
     {
       "id": "all-global-claude-code-symlink",
@@ -1014,7 +1014,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-claude-code-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-claude-code-symlink/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -1077,7 +1077,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-claude-code-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-claude-code-symlink/setup-output.txt"
     },
     {
       "id": "all-global-claude-code-copy",
@@ -1090,7 +1090,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-claude-code-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-claude-code-copy/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -1153,7 +1153,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-claude-code-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-claude-code-copy/setup-output.txt"
     },
     {
       "id": "all-global-both-symlink",
@@ -1166,7 +1166,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-both-symlink/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-both-symlink/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -1270,7 +1270,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-both-symlink/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-both-symlink/setup-output.txt"
     },
     {
       "id": "all-global-both-copy",
@@ -1283,7 +1283,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-both-copy/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-both-copy/project",
         "--yes",
         "--skill-scope",
         "global",
@@ -1387,7 +1387,7 @@
           "files": 1
         }
       ],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/all-global-both-copy/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/all-global-both-copy/setup-output.txt"
     },
     {
       "id": "none",
@@ -1400,7 +1400,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/none/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/none/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -1411,7 +1411,7 @@
       ],
       "selected": [],
       "exposures": [],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/none/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/none/setup-output.txt"
     },
     {
       "id": "bare",
@@ -1424,7 +1424,7 @@
       "args": [
         "setup",
         "--target",
-        "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/bare/project",
+        "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/bare/project",
         "--yes",
         "--skill-scope",
         "project",
@@ -1433,7 +1433,7 @@
       ],
       "selected": [],
       "exposures": [],
-      "stdout": "/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/bare/setup-output.txt"
+      "stdout": "<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/bare/setup-output.txt"
     }
   ],
   "limits": [

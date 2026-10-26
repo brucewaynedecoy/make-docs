@@ -1,5 +1,5 @@
 Command: npm run build
-Cwd: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+Cwd: <REPO_ROOT>
 Started: 2026-10-03T21:39:15.350Z
 
 
@@ -13,7 +13,7 @@ Started: 2026-10-03T21:39:15.350Z
 CLI Building entry: src/index.ts
 CLI Using tsconfig: tsconfig.json
 CLI tsup v8.5.1
-CLI Using tsup config: /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/tsup.config.ts
+CLI Using tsup config: <REPO_ROOT>/packages/cli/tsup.config.ts
 CLI Target: node24
 CLI Cleaning output folder
 ESM Build start

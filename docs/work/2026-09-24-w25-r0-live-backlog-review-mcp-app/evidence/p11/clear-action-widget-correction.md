@@ -16,11 +16,11 @@ The new packed server resource contains the fixed visible prompt and review refe
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-clear-action-widget-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-clear-action-widget-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `f131f2e4899407a3c70ac61dda479611a76fcdf091f1bd88e279ca950fd9014b` |
-| Isolated executable | `/private/tmp/w25-p11-clear-action-widget-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Isolated executable | `<LOCAL_TEMP>/w25-p11-clear-action-widget-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Executable SHA-256 | `ec9b3a46c0980198614fac8d4586e59dd085b80063eb4f8a60ddfbd0630d3ee3` |
-| Saved executable now | `/private/tmp/w25-p11-clear-actions-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Saved executable now | `<LOCAL_TEMP>/w25-p11-clear-actions-candidate-20261025/installed/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Saved executable SHA-256 | `87b225a0df2f1ea200f505fc91fe5e24e40b81d5978fa05a120ea3e02743ec75` |
 
 ## Checks and host plan
@@ -34,4 +34,4 @@ The remaining host check needs a separate saved-entry change. Change only `mcp_s
 
 ## Approved saved change
 
-The owner approved this exact replacement. I rechecked both executable hashes and the old saved command. I saved the full prior config at `/private/tmp/w25-p11-clear-action-widget-candidate-20261025/codex-config-before-command-change.toml` with mode `0600`. I changed only the `make_docs` command line. A full byte comparison found only that line change. `codex mcp list --json` parsed the complete config and showed the new command with the same `mcp` argument and enabled state. Codex still needs a restart before the corrected live widget can be tested.
+The owner approved this exact replacement. I rechecked both executable hashes and the old saved command. I saved the full prior config at `<LOCAL_TEMP>/w25-p11-clear-action-widget-candidate-20261025/codex-config-before-command-change.toml` with mode `0600`. I changed only the `make_docs` command line. A full byte comparison found only that line change. `codex mcp list --json` parsed the complete config and showed the new command with the same `mcp` argument and enabled state. Codex still needs a restart before the corrected live widget can be tested.

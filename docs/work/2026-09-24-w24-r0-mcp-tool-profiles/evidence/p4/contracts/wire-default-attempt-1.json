@@ -1,6 +1,6 @@
 {
   "launch": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "args": [
       "$TEMP/current/packages/cli/dist/index.js",
       "mcp"

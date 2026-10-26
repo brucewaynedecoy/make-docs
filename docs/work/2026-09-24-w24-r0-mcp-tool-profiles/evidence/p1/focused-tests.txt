@@ -3,7 +3,7 @@
 > vitest run mcp-profiles.test.ts mcp.test.ts mcp-derivation.test.ts w19-r6-access-config.test.ts
 
 
- RUN  v3.2.6 /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli
+ RUN  v3.2.6 <REPO_ROOT>/packages/cli
 
  ✓ tests/mcp-profiles.test.ts (17 tests) 107ms
  ✓ tests/mcp.test.ts (6 tests) 34ms

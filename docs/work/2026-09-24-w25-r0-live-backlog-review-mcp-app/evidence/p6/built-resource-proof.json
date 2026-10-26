@@ -14,14 +14,14 @@
   "byteCount": 441531,
   "sha256": "e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438",
   "invocation": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "args": [
-      "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist/index.js",
+      "<REPO_ROOT>/packages/cli/dist/index.js",
       "mcp",
       "--profile",
       "backlog"
     ],
-    "cwd": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs"
+    "cwd": "<REPO_ROOT>"
   },
   "productionHostDisplay": false
 }

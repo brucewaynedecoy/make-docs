@@ -23,11 +23,11 @@ This feedback will show whether the next installed click reaches the host. It do
 | --- | --- |
 | Branch and HEAD | `w25-r0-p1-live-delivery-contract` at `93c0ae6389fa345e6ef2ea3da51942cc6ad70279` |
 | Version | `2.0.5` |
-| Tarball | `/private/tmp/w25-p11-action-feedback-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
+| Tarball | `<LOCAL_TEMP>/w25-p11-action-feedback-candidate-20261025/brucewaynedecoy-make-docs-2.0.5.tgz` |
 | Tarball SHA-256 | `20d440d883d9d8e14a5d1f76e951f67ac89343337f90279290677a2bde41b7d4` |
-| Candidate command | `/private/tmp/w25-p11-action-feedback-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Candidate command | `<LOCAL_TEMP>/w25-p11-action-feedback-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Candidate command SHA-256 | `2fe3c489ca3b5b817ad40e9a2cb9bb278cd1116f666110ab7890285de8c5d642` |
-| Saved command now | `/private/tmp/w25-p11-compact-actions-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
+| Saved command now | `<LOCAL_TEMP>/w25-p11-compact-actions-candidate-20261025/runtime/node_modules/@brucewaynedecoy/make-docs/dist/index.js` |
 | Saved command SHA-256 | `69b7ae42ed7b91329e40ad78e5bda29758eebe2937886b0406be67877638c035` |
 
 The candidate has the same package version, dependencies, and optional dependencies as the saved package. Its executable reports `2.0.5`. The isolated runtime and tarball stay outside Git.
@@ -44,7 +44,7 @@ After restart, check the loaded process path, `project_status`, Store access, an
 
 ## Approved saved change
 
-The owner approved this exact command. Both executable hashes and the tarball hash matched this packet. The full prior config is saved at `/private/tmp/w25-p11-action-feedback-candidate-20261025/codex-config-before-command-change.toml` with mode `0600`. A draft changed only one command value. Codex parsed the new command as an override before the write. I applied the draft by atomic replacement. The saved file matched the draft byte for byte and retained mode `0600`. `codex mcp list --json` then reported the new enabled `make_docs` command with the unchanged `mcp` argument. The installed process and live action result remain unproved until Codex restarts.
+The owner approved this exact command. Both executable hashes and the tarball hash matched this packet. The full prior config is saved at `<LOCAL_TEMP>/w25-p11-action-feedback-candidate-20261025/codex-config-before-command-change.toml` with mode `0600`. A draft changed only one command value. Codex parsed the new command as an override before the write. I applied the draft by atomic replacement. The saved file matched the draft byte for byte and retained mode `0600`. `codex mcp list --json` then reported the new enabled `make_docs` command with the unchanged `mcp` argument. The installed process and live action result remain unproved until Codex restarts.
 
 ## Installed result
 

@@ -3,7 +3,7 @@
   "startedAt": "2026-09-10T04:05:05.515Z",
   "status": "passed",
   "sourceRoot": ".",
-  "tarball": "/private/tmp/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
+  "tarball": "<LOCAL_TEMP>/w19-r5-final-package/brucewaynedecoy-make-docs-2.0.0-rc.tgz",
   "tarSha256": "68d08ff1b586abf896edce450e16ca6cd3b4b3cbcf9cebf6bc12574891422a5b",
   "scratch": "<temp-dir>/make-docs-skill-proof-NimITh",
   "checks": [

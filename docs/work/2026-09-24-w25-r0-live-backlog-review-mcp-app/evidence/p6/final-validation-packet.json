@@ -3,7 +3,7 @@
   "nodeVersion": "v24.19.0",
   "uniqueCurrentCasesBeforeDefaults": 251,
   "focused": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-widget.test.ts",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-request-controller.test.ts tests/backlog-widget.test.ts",
     "suites": [
       {
         "file": "backlog-request-controller.test.ts",
@@ -17,7 +17,7 @@
     "passed": 85
   },
   "affected": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-live-contract.test.ts tests/backlog-presentation.test.ts tests/backlog-review-operations.test.ts tests/backlog-review-skill.test.ts tests/backlog-cache.test.ts tests/mcp-app-contract.test.ts",
     "suites": [
       {
         "file": "backlog-live-contract.test.ts",
@@ -51,21 +51,21 @@
     },
     "repair": "Only the obsolete test boundary changed. It still forbids network and cache-write transport.",
     "repairedSuite": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-operations.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-operations.test.ts",
       "passed": 34
     }
   },
   "typecheck": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node node_modules/typescript/bin/tsc --noEmit -p packages/cli/tsconfig.json",
     "passed": true
   },
   "build": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run build --workspace @brucewaynedecoy/make-docs",
     "passed": true,
     "afterFinalGuideFreeze": true
   },
   "assetDrift": {
-    "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
+    "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH node packages/cli/scripts/build-mcp-app-assets.mjs --check",
     "passed": true
   },
   "trackedWhitespace": {
@@ -74,12 +74,12 @@
   },
   "finalGuideChecks": {
     "skill": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm test --workspace @brucewaynedecoy/make-docs -- tests/backlog-review-skill.test.ts",
       "passed": 14,
       "countedOnceInAffected": true
     },
     "defaults": {
-      "command": "PATH=/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:$PATH npm run validate:defaults --workspace @brucewaynedecoy/make-docs",
+      "command": "PATH=<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:$PATH npm run validate:defaults --workspace @brucewaynedecoy/make-docs",
       "passed": 53,
       "suites": [
         {

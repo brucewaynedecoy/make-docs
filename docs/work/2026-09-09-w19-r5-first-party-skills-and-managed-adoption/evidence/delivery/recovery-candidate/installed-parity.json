@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "installed": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
-  "packed": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-AFi1nj/extracted/package",
+  "installed": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/lib/node_modules/@brucewaynedecoy/make-docs",
+  "packed": "/private<LOCAL_TEMP>/make-docs-skill-proof-AFi1nj/extracted/package",
   "tarSha256": "204e7c0233061ec1e18d5cfe5a511ffffe41e3f15f9a0909e38db0dd172fb9a9",
   "checks": {
     "dist": {

@@ -23,7 +23,7 @@
     "version": "v24.19.0",
     "platform": "darwin",
     "arch": "arm64",
-    "executable": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node"
+    "executable": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node"
   },
   "packageVersion": "2.0.4",
   "sdkVersion": "1.29.0",
@@ -214,7 +214,7 @@
     "docs/note.md": "bb38aba7fa182686d1c4b30b8fdfc39766cc0d5f6d800c5ddf3107402b0469ed"
   },
   "environment": {
-    "PATH": "/usr/local/go/bin:/Users/tylerkneisly/bin:/Users/tylerkneisly/.local/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/tylerkneisly/.dbx/bin:/Users/tylerkneisly/.local/bin:/opt/homebrew/opt/coreutils/libexec/gnubin:/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:/Users/tylerkneisly/.bun/bin:/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/usr/local/share/dotnet:~/.dotnet/tools:/usr/local/go/bin:/opt/podman/bin:/Users/tylerkneisly/bin:/Users/tylerkneisly/.local/bin:/Users/tylerkneisly/.codex/tmp/arg0/codex-arg0aoqign:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/tylerkneisly/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/tylerkneisly/.dbx/bin:/Users/tylerkneisly/.railway/bin:/opt/homebrew/opt/coreutils/libexec/gnubin:/Users/tylerkneisly/.bun/bin:/Users/tylerkneisly/.deno/bin:/Users/tylerkneisly/Library/pnpm:/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/tylerkneisly/.cargo/bin:/sbinexport:/Users/tylerkneisly/.lmstudio/bin:/Users/tylerkneisly/.orbstack/bin:/Users/tylerkneisly/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOSexport:/Users/tylerkneisly/.lmstudio/bin:/Users/tylerkneisly/.orbstack/binexport",
+    "PATH": "/usr/local/go/bin:<LOCAL_HOME>/bin:<LOCAL_HOME>/.local/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:<LOCAL_HOME>/.dbx/bin:<LOCAL_HOME>/.local/bin:/opt/homebrew/opt/coreutils/libexec/gnubin:<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:<LOCAL_HOME>/.bun/bin:<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/usr/local/share/dotnet:~/.dotnet/tools:/usr/local/go/bin:/opt/podman/bin:<LOCAL_HOME>/bin:<LOCAL_HOME>/.local/bin:<LOCAL_HOME>/.codex/tmp/arg0/codex-arg0aoqign:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:<LOCAL_HOME>/.dbx/bin:<LOCAL_HOME>/.railway/bin:/opt/homebrew/opt/coreutils/libexec/gnubin:<LOCAL_HOME>/.bun/bin:<LOCAL_HOME>/.deno/bin:<LOCAL_HOME>/Library/pnpm:<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:<LOCAL_HOME>/.cargo/bin:/sbinexport:<LOCAL_HOME>/.lmstudio/bin:<LOCAL_HOME>/.orbstack/bin:<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOSexport:<LOCAL_HOME>/.lmstudio/bin:<LOCAL_HOME>/.orbstack/binexport",
     "HOME": "$TEMP/home",
     "TMPDIR": "$TEMP",
     "MAKE_DOCS_HOME": "$TEMP/unconfigured-store",
@@ -227,7 +227,7 @@
     "fixture": "$TEMP/fixture"
   },
   "launch": {
-    "command": "/Users/tylerkneisly/.nvm/versions/node/v24.19.0/bin/node",
+    "command": "<LOCAL_HOME>/.nvm/versions/node/v24.19.0/bin/node",
     "oldArgs": [
       "$TEMP/old/packages/cli/dist/index.js",
       "mcp"

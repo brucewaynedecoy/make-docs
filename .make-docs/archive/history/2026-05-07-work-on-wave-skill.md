@@ -40,8 +40,8 @@ The Python helper tests passed 5 tests. The targeted Vitest run passed 5 files a
 Post-validation index refreshes:
 
 ```text
-jdocmunch index_local /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
-jcodemunch index_folder /Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs
+jdocmunch index_local <REPO_ROOT>
+jcodemunch index_folder <REPO_ROOT>
 ```
 
 Commit-message drafting used [docs/assets/references/commit-message-convention.md](../../system/contracts/commit-message-convention.md) and recent commit history. No W/R/P coordinate applies because this was general skill and CLI registry maintenance rather than a single work backlog phase.

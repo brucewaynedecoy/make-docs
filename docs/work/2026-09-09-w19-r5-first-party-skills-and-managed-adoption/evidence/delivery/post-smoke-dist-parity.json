@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "sourceDist": "/Users/tylerkneisly/Developer/Source/Tyler/Projects/make-docs/packages/cli/dist",
-  "extractedDist": "/private/var/folders/x8/zvcz1qzj2v7_pdsktm01v0ww0000gn/T/make-docs-skill-proof-5y2LZN/extracted/package/dist",
+  "sourceDist": "<REPO_ROOT>/packages/cli/dist",
+  "extractedDist": "/private<LOCAL_TEMP>/make-docs-skill-proof-5y2LZN/extracted/package/dist",
   "files": 34,
   "tarSha256": "fade83de44ba8b61e4c33fa498f7045f1dd2d8eea2ecc87a5a5c0f05bb6034cf",
   "source": {
