@@ -457,9 +457,9 @@ On 2026-09-22, the owner approved reopening W23 R0 and adding a new phase. The p
 | A maintainer can reverse the focused search without losing the selected filter. | The clear control appeared only when search had a value. It cleared the term, kept `All`, restored all results, and returned focus to search. | `satisfied` for the tested flow. | The check covers the supported report controls, not every browser or assistive tool. | Preserve this state rule in P7. |
 | Existing report behavior remains available. | Data-to-Next routing returned to Work. Source links and wave disclosure remain separate. Reduced motion changed scrolling to immediate movement. Print keeps the reading layout and removes action hover behavior. The owner completed direct P6 review and directed closeout. | `satisfied` within automated, visual, and owner-review limits. | This is not a full screen-reader, high-zoom, or cross-browser device review. | Repeat installed-candidate checks in P7. |
 
-### Current Boundary
+### P6 Boundary — 2026-09-22
 
-P6 is complete. Tasks t1 through t12 and A45-A52 are implemented and verified. The owner directed closeout and a local commit on 2026-09-22. This closeout does not publish, release, or push anything. P7 has not started and remains the final package parity and acceptance phase.
+P6 is complete. Tasks t1 through t12 and A45-A52 are implemented and verified. The owner directed closeout and a local commit on 2026-09-22. That P6 closeout did not publish, release, or push anything. At that date, P7 had not started and remained the final package parity and acceptance phase. The later P7 result follows below.
 
 ## P7 Cross-Wave Closeout — 2026-10-26
 
