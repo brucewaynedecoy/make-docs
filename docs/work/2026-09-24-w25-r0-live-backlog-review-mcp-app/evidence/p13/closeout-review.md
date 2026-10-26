@@ -59,6 +59,8 @@ The owner then ran the review in GitHub Copilot CLI with a personal Copilot acco
 | W25 maintainer and owner | Before Git mutation | Exact W25 source and evidence allowlist | Validation and source review | The owner approved the local commit on 2026-10-26. Check the staged list against the 77-path allowlist; no install, cache, private config, or scratch path enters Git. |
 | Release owner | Before publication | 2.0.5 release | Closeout and release review | Separate publication approval. A56 still carries a W25-only waiver, not a speed claim. |
 
+The owner accepted macOS as the tested GitHub Copilot client scope for the 2.0.5 release review on 2026-10-26. Direct Windows and Linux Copilot client checks remain open in W27. W25 A56 remains a W25-only speed and scale waiver, not a measured pass. The owner later closed W23 P7 on accepted W23 and W25 evidence, with its exact limits in the [W23 P7 closeout](../../../2026-09-18-w23-r0-backlog-review-and-reporting/07-package-parity-and-acceptance.md#2026-10-26-cross-wave-closeout). Publication still needs separate approval.
+
 ## Git disposition
 
 The current branch is `w25-r0-p1-live-delivery-contract` at pre-commit base `93c0ae6389fa345e6ef2ea3da51942cc6ad70279`. The exact approved file list is in [commit-allowlist.txt](commit-allowlist.txt). It excludes `.playwright-mcp/`, `.codex/`, private config, Store data, temporary archives, and lasting installs. The owner approved one local commit for the W25 design, PRD, source, tests, Skill, work records, and selected evidence on 2026-10-26. P13 t4 is checked and W25 is complete in the approved bounded scope. The final staged list and diff still require a check before the commit. No push, PR, or publication is in scope for that decision.

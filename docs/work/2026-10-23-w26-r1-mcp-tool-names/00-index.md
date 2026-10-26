@@ -1,12 +1,12 @@
 ---
 title: "W26 R1 Clear MCP Tool Names Work Backlog"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W26 R1"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "The owner asked for the R1 package and local rename implementation."
+  why: "The name contract, source, tests, and merged PR are complete."
   coordinate_handoff: "Use W26 R1 P1-P2 for task evidence and any later phase record."
 ---
 
@@ -29,8 +29,8 @@ The [Human Experience Contract](../../../.make-docs/system/contracts/human-exper
 
 ## Usage Notes
 
-Keep W26 R0 and R1 test claims distinct. No task here authorizes an installed connection change, publish, push, PR, merge, or local commit. The W26 R0 source edits remain uncommitted in this checkout.
+Keep W26 R0 and R1 test claims distinct. P1 and P2 tasks are complete. W26 R1 source was merged through W26 PR #41. W25 later installed and tested the 2.0.5 package in Codex. These later events do not change the earlier local proof limit in P2 or authorize publication.
 
 ## Intended Follow-On
 
-Review the local diff and test record. Decide the release version and migration notice before publishing a package. Run installed-host proof only after the separate approval for the selected entry.
+Use the [P2 proof](02-source-and-proof.md) for local names and the [W25 installed record](../2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p13/closeout-review.md) for later Codex proof. A 2.0.5 publication still needs its own decision.

@@ -1,7 +1,7 @@
 ---
 title: "W26 R1 P1 Name Contract and Authority"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W26 R1 P1"
 source:
   type: "prd"

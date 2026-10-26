@@ -1,7 +1,7 @@
 ---
 title: "Phase 7: Parity Performance and Acceptance"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W25 R0 P7"
 source:
   type: "prd"
@@ -387,3 +387,7 @@ The [P11 result record](evidence/p11/installed-acceptance-results.md) binds thes
 | A58 | Pass for tested hosts | The owner showed narrow dark, wide dark, and wide light views. The light view shows a focus ring. A browser host passed Tab focus, Enter/Space disclosure, narrow ArrowRight tabs, and reduced-motion style checks. The final installed layout candidate shows Theme, Refresh, and Data with no Print button, one live action pair, and no bar overflow at the owner's 201-pixel bar width. The saved report's browser print layout passed in a browser host. The owner reported that native Tab focus, Enter/Space disclosure, narrow ArrowRight tabs, and reduced motion all worked in the final Codex app. The [final Human Experience Review](evidence/p11/installed-acceptance-results.md#final-installed-human-experience-review--2026-10-25) records the scope. | This passes for the selected macOS Codex host and tested static browser path. No Windows, Linux, or unsupported-host result is claimed. |
 | A59 | Advisory | Advisory invitation remains available. | No owner answer is required. |
 | A60 | Pass for tested host and resolver | The owner confirmed a visible app and `Status: Ready` after Refresh. The current browser-hash 2.0.5 package sent clear Explain and Work text with one short reference each into this same chat. Both messages passed the strict agent resolver against independently rebuilt open context and unchanged current W25 facts. I read the current record before the answer and bounded P11 Work update. The installed app showed one live action pair, no copy row, no bar overflow, and a changed-Refresh `Needs review` state with actions disabled. A second Explain click showed `Already sent to chat`; one clear Explain action reached this chat. The strict resolver refused stale Work and a mismatched wave. The [Human Experience Review](evidence/p11/installed-acceptance-results.md#final-installed-human-experience-review--2026-10-25) found no material gap in these paths. | A duplicate Work click and a wrong-wave host click were not tested in the final package. Windows, Linux, and unsupported hosts are outside this result. Earlier failed packages remain historical failures. |
+
+## Final Bounded Disposition
+
+The owner approved W25 closeout in the tested macOS Codex and local text-client scope. P13 installed the corrected 2.0.5 package and checked the restarted Codex app. The owner later checked the saved HTML browser view and reported a GitHub Copilot CLI text review. [P13](evidence/p13/closeout-review.md) records those later results and limits. P7 is complete as a bounded acceptance ledger. The W25-only A56 waiver is not a performance pass and does not apply to W23 P7. A host with no app support and direct Windows and Linux Copilot clients remain unproved. This status does not authorize release.

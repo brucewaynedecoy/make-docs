@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Markdown Evidence Source Selection"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W18 R16 P3"
 source:
   type: "prd"

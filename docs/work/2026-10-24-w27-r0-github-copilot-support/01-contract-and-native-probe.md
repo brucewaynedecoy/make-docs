@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Contract and Native Probe"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W27 R0 P1"
 source:
   type: "prd"
@@ -45,7 +45,7 @@ The later setup can name one exact native change and tell the user which client 
 ### Tasks
 
 - [x] t1: Record the installed `copilot` CLI and GitHub Copilot app versions and platform.
-- [ ] t2: Check a same-name MCP entry added through the app. The config home, CLI and project precedence, folder trust, app reuse, and Skill discovery have direct macOS proof.
+- [x] t2: Dispose of the same-name app-added entry case. The owner excluded this user-created conflict from the 2.0.5 support claim. No app-added collision test passed. The config home, CLI and project precedence, folder trust, app reuse, and Skill discovery have direct macOS proof.
 - [x] t3: Check whether both clients pass the proposed connection identity and key to a disposable Make Docs server.
 - [x] t4: Record blocked states for unproved clients, paths, policies, and platforms.
 
@@ -67,11 +67,17 @@ The later setup can name one exact native change and tell the user which client 
 - [x] t5: Record the accepted static adapter, one-entry rule, separate client proof, and fallback in PRD 28. This scope decision does not close the native-fact gate.
 - [x] t6: Review PRD 25 and PRD 38 for a boundary gap. No new Store schema or operation boundary change was needed.
 - [x] t7: Add W27 R0 requirement history. No new product gap required a risk-register entry.
-- [x] t8: Reconcile the native facts proved by t2 and t3. Keep app-owned entry conflicts and unproved platforms as explicit limits.
+- [x] t8: Reconcile the native facts and t2's bounded disposition with t3. Keep app-owned entry conflicts and unproved platforms as explicit limits.
 
 ## Closeout limit
 
-The macOS CLI and app tests proved CLI-entry reuse, trusted project-entry precedence, connection-key refusal, and Skill discovery. The same-name entry added through the app remains unproved, so t2 stays open for that case. The [P3 work record](03-installed-client-proof.md) gives the direct client evidence and keeps Windows and Linux client runs open. P1 makes no claim for those cases.
+The macOS CLI and app tests proved CLI-entry reuse, trusted project-entry precedence, connection-key refusal, and Skill discovery. A same-name entry added through the app remains unproved. On 2026-10-26, the owner accepted a bounded closeout that excludes this user-created conflict from the 2.0.5 app claim. P1 t2 is discharged by that scope decision, not passed as a collision test. [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) still blocks a `current` app claim if an app-owned entry has the same name or the effective source is unknown. The [P3 work record](03-installed-client-proof.md) gives the direct client evidence and the Windows and Linux limit.
+
+The excluded part of t2 is one conflict case, not the normal Make Docs setup path. The normal app test used the managed CLI entry and returned `ready`. The project-entry test proved folder trust and project precedence. The excluded case would require a person to add a second Make Docs entry through the app's own MCP settings with the same name. Make Docs does not create or manage that entry. No app setting changed during this closeout.
+
+### Future test if the supported scope expands
+
+If a later release claims support for app-owned same-name entries, use a disposable project, Store, and Make Docs key on macOS. Save the current app and CLI MCP settings before the test. Add a valid `make-docs` CLI user entry and confirm its direct app call returns `ready`. Add another `make-docs` entry through the app's own add-server control with a different test key. In a fresh app session, record which entry the app lists and which key reaches Make Docs. A `ready` result for one key and `store-denied` for the other makes the effective source visible. Repeat with a trusted same-name project entry to establish the three-source order. Check that the `preflight` Skill still loads. Remove the app-added and project entries, restore the exact prior CLI settings, revoke both test keys, and verify the starting state. Keep the app version, redacted config sources, call results, and cleanup receipt. This test was not run for the bounded W27 closeout.
 
 ### Acceptance criteria
 

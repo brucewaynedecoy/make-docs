@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Installed Client Proof"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W27 R0 P3"
 source:
   type: "prd"
@@ -43,7 +43,7 @@ A user can select Copilot, inspect one setup change, then use Make Docs in the C
 - [x] t1: Run a real Copilot CLI session from the built package. Record tool discovery, allowed Store read, denied operation, Store-free resource read, and sandbox result.
 - [x] t2: Run the same matrix in the GitHub Copilot app. Record its separate native source and result.
 - [x] t3: Check trusted and untrusted project entry behavior, same-name precedence, and shared skill discovery.
-- [ ] t4: Run direct Copilot CLI and app checks on Windows and Linux. CI contract checks passed, but they do not prove those client runs.
+- [x] t4: Dispose of direct Copilot CLI and app checks on Windows and Linux for the 2.0.5 scope. The owner cannot run them before release and accepted macOS as the only tested client platform. No Windows or Linux Copilot client test passed; CI contract checks do not replace one.
 
 ### Acceptance criteria
 
@@ -125,4 +125,8 @@ The personal Copilot app on macOS connected through a trusted disposable folder 
 
 With an approved temporary CLI user entry installed, the app listed Make Docs as Connected and returned `ready` through it. A same-name project entry stayed inactive while the folder was untrusted. After trust, the project entry took precedence and its changed key caused `store-denied`. The app also loaded the shipped `preflight` Skill from `.agents/skills`. Cleanup restored the exact original CLI MCP file, removed the saved folder trust and test files, and left Railway as the only installed MCP entry.
 
-Open proof limits: a same-name app-added entry and direct Copilot client runs beyond macOS. Windows and Linux CI contract checks do not replace those client runs. No cross-platform client claim is ready. The W27 PR was reviewed and merged as PR #42. Version 2.0.5 still needs its separate release review and publication decision. The [draft release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) support that decision.
+Proof limits retained after bounded closeout: a same-name app-added entry and direct Copilot client runs beyond macOS. Windows and Linux CI contract checks do not replace those client runs. No tested cross-platform Copilot client claim is ready. On 2026-10-26, the owner accepted macOS as the tested client scope and discharged P3 t4 without a Windows or Linux test pass. The W27 PR was reviewed and merged as PR #42. Version 2.0.5 still needs its separate release review and publication decision. The [draft release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) retain that limit.
+
+### Future direct platform test if the support claim expands
+
+If a later release claims tested Windows or Linux Copilot clients, use a real host for each named platform with an account that permits MCP. Check app availability for each host before planning an app claim. Install the identified Make Docs package on each host. Use a disposable project and Store. Run setup for the Copilot CLI, then check the MCP handshake, tool list, allowed Store call, wrong-key and wrong-project refusal, Store-free resource after refusal, Backlog Review text, and Skill discovery. On a host with the Copilot app available, check CLI-entry reuse, folder trust, direct app call, and Skill loading separately. Record client versions, package hash, redacted entry source, results, and cleanup. Run the same case names on both hosts. A platform that has no usable app should be recorded as unsupported or untested, not passed from CLI or CI proof. These direct client tests were not run for the bounded W27 closeout.

@@ -1,7 +1,7 @@
 ---
 title: "Phase 10: Candidate and Connection"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W25 R0 P10"
 source:
   type: "prd"
