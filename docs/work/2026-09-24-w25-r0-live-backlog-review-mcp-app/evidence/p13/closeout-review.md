@@ -9,7 +9,7 @@ coordinate: W25 R0 P13
 
 ## Current decision
 
-The owner approved bounded W25 closeout on 2026-10-26 for the tested macOS Codex and local text-client scope. The saved HTML browser view, a separate unsupported agent host, Windows, Linux, and the W25-only A56 waiver remain release limits below. A P13 Skill-guide correction made a new archive necessary. The owner approved that exact archive and saved-entry change. Make Docs setup applied and verified it. Codex restarted with the new package. The fresh live app and both chat actions passed. The prior working archive remains for rollback. The owner also approved the exact local W25 commit. Release publication remains on hold.
+The owner approved bounded W25 closeout on 2026-10-26 for the tested macOS Codex and local text-client scope. The owner later checked the saved HTML view in a browser and reported a successful text review in GitHub Copilot CLI. A host with no app support, Windows, Linux, and the W25-only A56 waiver remain release limits below. A P13 Skill-guide correction made a new archive necessary. The owner approved that exact archive and saved-entry change. Make Docs setup applied and verified it. Codex restarted with the new package. The fresh live app and both chat actions passed. The prior working archive remains for rollback. The owner also approved the exact local W25 commit. Release publication remains on hold.
 
 ## Authority and evidence map
 
@@ -44,11 +44,16 @@ The owner expanded that report in Codex. It showed 76 records, 36 in scope, 16 h
 
 A second report used the current source. It showed the same totals and W25 count. Refresh returned to `Status: Ready`; the W25 Explain and Work controls were active. The owner clicked each icon and reported `Sent to chat`. Both messages reached this chat as clear text with W25 R0 and a short review reference. The agent read the current source record and found one W25 R0 record with active status and 64 of 66 tasks complete. The Work recommendation was still valid in part: the live host check passed, and P13 closeout and commit decisions remain. The host result proves message delivery and current-wave text. The earlier P11 resolver tests remain the evidence for rejecting old or wrong-wave actions; this P13 host run did not repeat those negative clicks. Step 5 passed in the tested macOS Codex scope. Recording these results changes the W25 source after the live report snapshot. Any later action in that open report needs a new current-source check.
 
+## Owner checks after the local W25 commit
+
+On 2026-10-26, the owner opened the saved 76-record HTML report in a browser. The report file has SHA-256 `74d92c3bb069a63417d322e4b34d2ee4cba93509fa277e9794c93418dfdadb72`. The owner supplied screen images of the wide dark and light views, narrow dark and light views, the browser Print preview, and visible keyboard focus on Explain. The report showed 36 in-scope, 16 historical, and 24 archived records; six Attention findings; and W25 at 66 of 66 tasks complete. The owner reported that both copied prompts worked. Each prompt named W25 R0 and told the agent to read its current source record. These checks pass the saved HTML browser view in the tested browser. The images and copied text are in the owner chat; no image was added to Git.
+
+The owner then ran the review in GitHub Copilot CLI with a personal Copilot account. The owner reported success and said the review appeared as text in the terminal. This passes the owner-run second agent-host text review. The chat has no terminal trace of the Make Docs tool call or the review body, so this result does not independently prove the exact MCP route, report counts, or package identity. The owner says this CLI can host a live MCP app. This run therefore does not prove the separate fallback case for a host with no app support.
+
 ## Carried obligations after bounded closeout
 
 | Owner | Trigger | Target | Dependency | Exit test |
 | --- | --- | --- | --- | --- |
-| Release reviewer | Before a saved-report visual claim | Exact saved HTML in a permitted browser host | Browser access for the saved file | Confirm visible counts, action copy, keyboard, and print layout from the exact report. Until then, keep the data-model-only claim. |
 | Host reviewer | Before an unsupported-agent fallback claim | A separate agent host with no app support | Access to that host | The host receives the current text summary and its limit. Until then, keep the local text-client claim. |
 | Platform reviewer | Before Windows or Linux support claims | Each named platform | A runnable host and package | Repeat install, MCP, Store, and report checks there. Until then, keep macOS Codex as the tested host. |
 | W25 maintainer and owner | Before Git mutation | Exact W25 source and evidence allowlist | Validation and source review | The owner approved the local commit on 2026-10-26. Check the staged list against the 77-path allowlist; no install, cache, private config, or scratch path enters Git. |
