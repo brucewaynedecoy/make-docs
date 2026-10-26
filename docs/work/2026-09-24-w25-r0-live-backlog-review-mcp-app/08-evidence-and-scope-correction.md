@@ -1,7 +1,7 @@
 ---
 title: "Phase 8: Evidence and Scope Correction"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W25 R0 P8"
 source:
   type: "prd"

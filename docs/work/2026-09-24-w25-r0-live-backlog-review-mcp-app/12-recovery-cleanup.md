@@ -1,7 +1,7 @@
 ---
 title: "Phase 12: Recovery Cleanup"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W25 R0 P12"
 source:
   type: "prd"

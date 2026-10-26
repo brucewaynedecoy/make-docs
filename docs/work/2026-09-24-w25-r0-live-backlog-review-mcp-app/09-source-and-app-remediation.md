@@ -1,7 +1,7 @@
 ---
 title: "Phase 9: Source and App Remediation"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W25 R0 P9"
 source:
   type: "prd"

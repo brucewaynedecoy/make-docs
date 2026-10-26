@@ -1,7 +1,7 @@
 ---
 title: "Phase 13: Closeout and Commit Disposition"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W25 R0 P13"
 source:
   type: "prd"

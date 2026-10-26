@@ -1,7 +1,7 @@
 ---
 title: "Phase 11: Installed Acceptance"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W25 R0 P11"
 source:
   type: "prd"

@@ -1,12 +1,12 @@
 ---
 title: "W26 R0 Shared Access and Data Foundation Work Backlog"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W26 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P3 local proof is complete. Review the W26 PR packet before any push or PR action."
+  why: "P1–P3 source and proof are complete. The W26 PR merged, and W25 tested the saved connection later."
   coordinate_handoff: "Use W26 R0 P1-P3 for tasks and history. W25 R0 consumes only passed P3 evidence after integration."
 source:
   type: "prd"
@@ -28,8 +28,8 @@ The [design](../../designs/2026-10-09-shared-access-and-data-foundation.md#human
 | Phase | Status | Work | Exit |
 | --- | --- | --- | --- |
 | P1 | Design accepted; no live policy change | [Access trace and design](01-access-trace-and-design.md) | Owner accepted the design on 2026-10-09. |
-| P2 | Local source and setup committed; saved connection unchanged | [Shared core and setup](02-shared-core-and-setup.md) | Approved source and setup changes pass focused checks. |
-| P3 | Local proof complete; PR pending | [Cross-interface proof](03-cross-interface-proof.md) | Normal CLI/MCP, denial, grant-change, source-version, migration, rollback, and sandbox proofs pass. |
+| P2 | Complete for merged source and setup | [Shared core and setup](02-shared-core-and-setup.md) | Approved source and setup changes passed focused checks. |
+| P3 | Complete for shared proof | [Cross-interface proof](03-cross-interface-proof.md) | Normal CLI/MCP, denial, grant-change, source-version, migration, rollback, and sandbox proofs passed. |
 
 ## Usage Notes
 
@@ -46,5 +46,5 @@ The [design](../../designs/2026-10-09-shared-access-and-data-foundation.md#human
 
 - Route: `implementation-loop`.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
-- Why: The local W26 proof is ready for PR review. The saved MCP connection remains on the installed package.
-- Coordinate Handoff: Review the [W26 PR packet](pr-review-packet.md) before any push or PR action. W25 later proves its visible Refresh flow.
+- Why: W26 PR #41 merged. W25 later proved the saved MCP connection, Store access, and visible Refresh in its accepted macOS scope.
+- Coordinate Handoff: Use the [W26 PR packet](pr-review-packet.md) and [W25 installed record](../2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p13/closeout-review.md) for their separate proof scopes.

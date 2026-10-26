@@ -1,13 +1,13 @@
 ---
 title: "W23 R0 Backlog Review and Reporting Work Backlog"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W23 R0"
 follow_on:
   route: "implementation-loop"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "The backlog is the implementation queue derived from PRD 51 and the W23 R0 plan."
-  coordinate_handoff: "Carry W23 R0 into phase history and commits, adding the active P coordinate."
+  why: "P1–P6 closed on W23 evidence, and P7 closed on accepted W23 and W25 proof."
+  coordinate_handoff: "Use W25 as the later owning wave for installed Backlog Review and release limits."
 source:
   type: "prd"
   path: "docs/prd/51-backlog-review-and-reporting.md"
@@ -17,9 +17,9 @@ source:
 
 ## Purpose
 
-Provide the draft implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
+Provide the implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
 
-The owner authorized P1 through P6, and P1 through P6 are complete. The former P6 package-acceptance phase is now P7 and is not authorized. Do not change source, Store, installation, publication, or release behavior outside the accepted phase boundary.
+The owner authorized P1 through P6, and P1 through P6 are complete. The former P6 package-acceptance phase became P7. On 2026-10-26, the owner accepted the cumulative W23 and W25 proof for P7 t2–t10 and directed t11 to close through W25's later handoff and release review. W23 is complete in that stated scope. This record update does not change source, Store, installation, publication, or release behavior.
 
 ## Human Experience Trace
 
@@ -44,7 +44,7 @@ The owner authorized P1 through P6, and P1 through P6 are complete. The former P
 | P4 | Complete | [Single-File Interactive Report](04-single-file-interactive-report.md) | Accepted safe, offline, accessible, responsive HTML template with corrected deterministic wave presentation and a source-backed project lead. |
 | P5 | Complete | [Incremental Review Cache and Data Access](05-incremental-review-cache-and-data-access.md) | Exact per-record review reuse, full stateless fallback, raw-data access, and bounded repeat-review characterization. |
 | P6 | Complete | [Report Item Traceability and Navigation](06-report-item-traceability-and-navigation.md) | Exact wave mapping, consistent Backlog finding labels, click-to-filter navigation, and search clearing. |
-| P7 | Not started | [Package Parity and Acceptance](07-package-parity-and-acceptance.md) | One installed package candidate passes parity, cache, data-access, traceability, offline, browser, and Human Experience review. |
+| P7 | Complete: cross-wave proof accepted | [Package Parity and Acceptance](07-package-parity-and-acceptance.md) | The owner accepted W23 and W25 evidence for the package, host, fallback, cache, report, browser, and review scope. W25 owns later release limits. |
 
 Evidence: [Central evidence report](evidence.md).
 
@@ -53,7 +53,7 @@ Evidence: [Central evidence report](evidence.md).
 - Review the completed P1 through P5 evidence before later implementation.
 - Read phases in order.
 - P5 closed after its bounded performance work and Human Experience Review completed. The owner accepted the three-entry size limit and fallback explanation on 2026-09-22.
-- Do not start P7 without separate owner authority.
+- Use the [P7 cross-wave closeout](07-package-parity-and-acceptance.md#2026-10-26-cross-wave-closeout) for the accepted result and its limits.
 - P2 passed its W22 preflight. The tested checkout contains W22 R0 P6 closeout commit `edd9d7e4` as an ancestor. Current PRD 38 and PRD 39 authority was reread. Project-read, Store-none, and host-configuration-none access was confirmed. Existing registry, access, CLI, and MCP tests passed before implementation.
 - Keep the core snapshot Store-free. P5 can add only the accepted optional rebuildable review cache. A cache failure must fall back to the full stateless review.
 - Keep one public snapshot operation. Private collectors do not receive public identities without a later product decision.
@@ -66,9 +66,9 @@ Evidence: [Central evidence report](evidence.md).
 
 ## Intended Follow-On
 
-This handoff is advisory-default-but-overridable. P1 through P6 are complete. P7 has not started.
+This handoff is advisory-default-but-overridable. P1 through P7 are complete in the accepted scope.
 
 - Route: `implementation-loop`
-- Next step: Review P7 package-parity and acceptance authority. Run P7 preflight only after separate owner authority.
-- Why: P6 closed the report-item traceability and navigation gap. P7 remains final package acceptance.
-- Coordinate Handoff: Continue at `W23 R0 P7` only after separate authority. Preserve the completed P1-P6 boundaries and the renumbered P7 acceptance scope.
+- Next step: Use the [W25 release review](../2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p13/closeout-review.md) for later package and publication decisions.
+- Why: W25 became the later owning wave for the installed Backlog Review and its bounded release result.
+- Coordinate Handoff: Preserve the W23 P1–P7 evidence and the exact W25 limits. Publication needs separate approval.

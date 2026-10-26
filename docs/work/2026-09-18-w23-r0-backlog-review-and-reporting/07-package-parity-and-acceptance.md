@@ -1,7 +1,7 @@
 ---
 title: "Phase 7: Package Parity and Acceptance"
 kind: "work"
-status: "draft"
+status: "complete"
 coordinate: "W23 R0 P7"
 source:
   type: "prd"
@@ -67,12 +67,12 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t1: Build one identified package candidate from reviewed source.
-- [ ] t2: Verify source, built output, packed output, registry, operation, Skill support files, and HTML template parity.
-- [ ] t3: Exercise installed CLI and MCP success, partial, conflict, unavailable, and failure cases.
-- [ ] t4: Exercise the installed Skill through MCP, CLI fallback, and agentic fallback with correct method reporting.
-- [ ] t5: Exercise Store absent, denied, unsafe, and unavailable cases plus Git available and unavailable cases.
-- [ ] t6: Exercise exact cache hits, misses, invalidation, pruning, and full stateless fallback from the installed package.
+- [x] t1: Build one identified package candidate from reviewed source.
+- [x] t2: Verify source, built output, packed output, registry, operation, Skill support files, and HTML template parity.
+- [x] t3: Exercise installed CLI and MCP success, partial, conflict, unavailable, and failure cases.
+- [x] t4: Exercise the installed Skill through MCP, CLI fallback, and agentic fallback with correct method reporting.
+- [x] t5: Exercise Store absent, denied, unsafe, and unavailable cases plus Git available and unavailable cases.
+- [x] t6: Exercise exact cache hits, misses, invalidation, pruning, and full stateless fallback from the installed package.
 
 ### Acceptance criteria
 
@@ -90,11 +90,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [ ] t7: Compare chat, HTML, data view, and JSON download meaning for the same report model across the fixture matrix.
-- [ ] t8: Repeat desktop, mobile, keyboard, reduced-motion, print, offline, and hostile-content browser checks from the package.
-- [ ] t9: Complete the per-promise Human Experience Review with observations, conclusions, evidence, limits, and next actions.
-- [ ] t10: Resolve each material finding or narrow the affected completion claim with an accepted bounded caveat.
-- [ ] t11: Prepare the optional owner experience handoff and the release-readiness recommendation.
+- [x] t7: Compare chat, HTML, data view, and JSON download meaning for the same report model across the fixture matrix.
+- [x] t8: Repeat desktop, mobile, keyboard, reduced-motion, print, offline, and hostile-content browser checks from the package.
+- [x] t9: Complete the per-promise Human Experience Review with observations, conclusions, evidence, limits, and next actions.
+- [x] t10: Resolve each material finding or narrow the affected completion claim with an accepted bounded caveat.
+- [x] t11: Prepare the optional owner experience handoff and the release-readiness recommendation.
 
 ### Acceptance criteria
 
@@ -116,3 +116,17 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 - Explicit human acceptance gate: none.
 - Evidence report: Create and link the central report after evidence exists.
 - Phase / capability status: P7 closes only the scope supported by package, installed, browser, parity, cache, raw-data, traceability, and Human Experience evidence.
+
+## 2026-10-26 Cross-Wave Closeout
+
+The owner confirmed that W23 implementation and later Backlog Review waves already supplied the P7 results. The owner directed t2–t10 to complete on that cumulative evidence. The final W25 2.0.5 archive, SHA-256 `c4687f2d032ed5dfdb0ea51fdbff7ee3c400da59fbe25ed78a80cf73dd2c83f2`, is the identified package for t1. The [W23 evidence report](evidence.md) records the original contract, installed Skill, cache, browser, offline, and safety tests. The [W25 P11 installed record](../2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md) and [P13 release review](../2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p13/closeout-review.md) record the later package, CLI, MCP, Store, cache, live app, static browser, and owner checks.
+
+| P7 tasks | Closeout basis | Limit |
+| --- | --- | --- |
+| t2–t3 | W23 package and CLI/MCP tests, plus W25 exact 2.0.5 package and installed checks. | W25's later package changes mean the original W23 fixture matrix was not repeated as one new run. |
+| t4–t6 | W23 P3 and P5 Skill, fallback, Store, Git, cache, and pruning tests; W25 installed Store and cache checks. | Agent wording can vary. The W25-only speed waiver is not evidence for W23 A56. |
+| t7–t8 | W23 report-model, HTML, Data, browser, offline, safety, and keyboard checks; W25 exact-model parity and owner browser checks. | No claim for every browser, device, or unsupported app host. |
+| t9–t10 | W23 per-promise reviews and owner corrections, followed by W25 installed Human Experience Review and bounded owner acceptance. | The accepted result is the named macOS and static-browser scope. |
+| t11 | W25 P13 supplied the owner handoff and release-readiness recommendation. | No duplicate W23 handoff is needed. This task is discharged by W25, not by a second W23 handoff. |
+
+P7 and W23 are complete in this owner-accepted cross-wave scope. [W22](../2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/00-index.md#revision-closeout) supplies the earlier platform and package compatibility basis; it does not prove the 2.0.5 Copilot clients on Windows or Linux. This closeout does not convert the W25-only speed waiver into a performance pass. The 2.0.5 release decision remains separate.

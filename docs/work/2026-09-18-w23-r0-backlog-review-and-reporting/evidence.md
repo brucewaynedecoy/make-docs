@@ -12,7 +12,7 @@ source:
 
 ## Current State
 
-P1 through P6 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. P4 corrected those defects. P5 added exact optional review reuse and lazy access to the normalized report data. P6 added exact report-item traceability, reversible Backlog navigation, consistent Next and Attention hierarchy, and the accepted Attention-before-Next layout. The owner directed P6 closeout and local commit on 2026-09-22. P7 has not started. The backlog review capability remains incomplete until P7.
+P1 through P6 are complete. Owner review of the first real 70-record report found deterministic-name, attention-icon, expanded-detail, evidence-display, and project-lead regressions. P4 corrected those defects. P5 added exact optional review reuse and lazy access to the normalized report data. P6 added exact report-item traceability, reversible Backlog navigation, consistent Next and Attention hierarchy, and the accepted Attention-before-Next layout. The owner directed P6 closeout and local commit on 2026-09-22. On 2026-10-26, the owner accepted the W23 and later W25 evidence for P7 t1–t10. W25 P13 supplied the optional handoff and release-readiness review for t11. [P7](07-package-parity-and-acceptance.md#2026-10-26-cross-wave-closeout) records the scope and limits. W23 is complete. W25 owns later installed Backlog Review and release decisions.
 
 The P4 tested base revision was `a976404` on branch `make-docs-v2`. This revision contains the committed P3 closeout. The P4 checks included the uncommitted P4 product, test, and closeout changes in the local maintainer checkout.
 
@@ -457,6 +457,10 @@ On 2026-09-22, the owner approved reopening W23 R0 and adding a new phase. The p
 | A maintainer can reverse the focused search without losing the selected filter. | The clear control appeared only when search had a value. It cleared the term, kept `All`, restored all results, and returned focus to search. | `satisfied` for the tested flow. | The check covers the supported report controls, not every browser or assistive tool. | Preserve this state rule in P7. |
 | Existing report behavior remains available. | Data-to-Next routing returned to Work. Source links and wave disclosure remain separate. Reduced motion changed scrolling to immediate movement. Print keeps the reading layout and removes action hover behavior. The owner completed direct P6 review and directed closeout. | `satisfied` within automated, visual, and owner-review limits. | This is not a full screen-reader, high-zoom, or cross-browser device review. | Repeat installed-candidate checks in P7. |
 
-### Current Boundary
+### P6 Boundary — 2026-09-22
 
-P6 is complete. Tasks t1 through t12 and A45-A52 are implemented and verified. The owner directed closeout and a local commit on 2026-09-22. This closeout does not publish, release, or push anything. P7 has not started and remains the final package parity and acceptance phase.
+P6 is complete. Tasks t1 through t12 and A45-A52 are implemented and verified. The owner directed closeout and a local commit on 2026-09-22. That P6 closeout did not publish, release, or push anything. At that date, P7 had not started and remained the final package parity and acceptance phase. The later P7 result follows below.
+
+## P7 Cross-Wave Closeout — 2026-10-26
+
+The owner accepted the W23 implementation proof and later W25 Backlog Review proof for P7 tasks t1–t10. The [P7 closeout](07-package-parity-and-acceptance.md#2026-10-26-cross-wave-closeout) maps those tasks to the original W23 tests, the W25 installed acceptance record, and the final 2.0.5 package review. W25 P13 supplies the optional handoff and release-readiness recommendation for t11. This closes W23 in the accepted scope without repeating W25's later work. The W25-only A56 speed waiver is not a W23 performance result. Direct Windows and Linux Copilot client runs and a user-created same-name app entry remain outside this W23 claim. Publication remains a separate decision.

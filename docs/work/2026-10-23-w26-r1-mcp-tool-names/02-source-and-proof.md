@@ -1,7 +1,7 @@
 ---
 title: "W26 R1 P2 MCP Source and Proof"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W26 R1 P2"
 source:
   type: "prd"

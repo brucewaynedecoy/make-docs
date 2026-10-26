@@ -1,7 +1,7 @@
 ---
 title: "W18 R16 PRD Authority Scan Scope Work"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W18 R16"
 source:
   type: "prd"
@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: ".make-docs/system/references/execution-workflow.md"
-  why: "P3 must apply the Markdown evidence path rule and prove it on the full project."
-  coordinate_handoff: "Carry W18 R16 P3 into phase history and the implementation commit."
+  why: "P3 applied the Markdown source rule and passed full-project proof."
+  coordinate_handoff: "Use the completed W18 R16 P3 rule and proof in later authority work."
 ---
 
 # W18 R16 PRD Authority Scan Scope Work
@@ -19,7 +19,7 @@ follow_on:
 
 Implement the file-scope rule in [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) and the custom-source declaration in [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md). Prove both on a project with stored evidence.
 
-The source decision is in the [design](../../designs/2026-09-26-prd-authority-source-scope.md). The [plan](../../plans/2026-09-26-w18-r16-prd-authority-scan-scope/00-overview.md) defines three phases. P1 and P2 are complete. P3 remains open for the Markdown evidence issue found in the P2 run.
+The source decision is in the [design](../../designs/2026-09-26-prd-authority-source-scope.md). The [plan](../../plans/2026-09-26-w18-r16-prd-authority-scan-scope/00-overview.md) defines three phases. P1, P2, and P3 are complete. P3 resolved the Markdown evidence issue found in the P2 run.
 
 ## Human Experience Trace
 
