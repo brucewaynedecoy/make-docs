@@ -448,7 +448,7 @@
     };
     const fileHref = (relativePath = "") => {
       const full = `${String(report.targetRoot).replace(/[\\/]+$/, "")}/${relativePath}`.replaceAll("\\", "/");
-      const parts = full.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part).replace("%3A", ":"));
+      const parts = full.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part).replaceAll("%3A", ":"));
       return `${full.startsWith("/") ? "file://" : "file:///"}${parts.join("/")}`;
     };
     const sourceHref = (record) => {

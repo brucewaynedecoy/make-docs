@@ -39,11 +39,15 @@ class TestElement {
   style = { setProperty() {} };
   append(...children: TestElement[]) { this.children.push(...children); }
   setAttribute() {}
+  addEventListener() {}
 }
 function staticWave(report: unknown, presentation: unknown, recordIndex: number): TestElement {
   const basics = template.slice(template.indexOf("    const snapshotByPath"), template.indexOf("    function matchesFilter"));
   const wave = template.slice(template.indexOf("    function renderWave("), template.indexOf("    function renderWaves("));
-  const context = { report, presentation, document: { createElement: () => new TestElement() }, result: undefined as TestElement | undefined };
+  const context = { report, presentation, document: {
+    createElement: () => new TestElement(),
+    createElementNS: () => new TestElement(),
+  }, result: undefined as TestElement | undefined };
   runInNewContext(`${basics}\n${wave}\nglobalThis.result = renderWave(report.records[${recordIndex}], ${recordIndex});`, context);
   return context.result!;
 }

@@ -1,4 +1,5 @@
 import path from "node:path";
+import os from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
@@ -257,7 +258,7 @@ describe("P2 static MCP Apps resource boundary", () => {
     const transport = new StdioClientTransport({
       command: process.execPath,
       args: ["--import", path.join(root, "node_modules/tsx/dist/loader.mjs"), path.join(root, "packages/cli/tests/fixtures/mcp-app-proof-stdio.ts")],
-      cwd: "/private/tmp",
+      cwd: os.tmpdir(),
       stderr: "pipe",
     });
     let stderr = "";
