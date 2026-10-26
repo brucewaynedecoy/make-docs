@@ -42,11 +42,11 @@ Bear steps 4–5 and 15; R-BACKLOG-APP-1–16; R-BACKLOG-CACHE-1–8; P7 A51–A
 
 ### Tasks
 
-- [ ] t1: Remove the uncommitted request-resolve tool, wave-task prompt, `prompts/get` override, resolver-only storage, and task-creation behavior. Keep strict action identity, stale-source, and duplicate guards. (Step 4; evidence: registry and action tests.)
-- [ ] t2: Read current facts, use only valid hits returned by the Store cache, judge misses freshly, validate the whole report, write eligible fresh fragments through the existing operation, and recompute portfolio conclusions. Reject wrong checkout/source/rule/schema fragments and private-report reuse. (Step 5; evidence: cache lifecycle tests.)
-- [ ] t3: Trace and repair real report delivery with only necessary bounded transport handling. Prove malformed or oversized payload rejection and complete model parity. (Steps 4–5; evidence: source and package checks.)
-- [ ] t4: Preserve approved Explain/Work names, icons, and layout. Correct shipped Skill/process/resource text; keep needed P7 scripts under evidence and out of shipped assets; retain removal of the `git show HEAD:` comparison test. (Step 4; evidence: package and instruction checks.)
-- [ ] t5: Show the exact replacement text and display behavior for unknown task counts, then apply only the owner-approved UI change. Distinguish known zero, unknown, unsupported, and unavailable. (Step 4; gate: separate UI review; evidence: source and visual checks.)
+- [x] t1: Remove the uncommitted request-resolve tool, wave-task prompt, `prompts/get` override, resolver-only storage, and task-creation behavior. Keep strict action identity, stale-source, and duplicate guards. (Step 4; evidence: registry and action tests.)
+- [x] t2: Read current facts, use only valid hits returned by the Store cache, judge misses freshly, validate the whole report, write eligible fresh fragments through the existing operation, and recompute portfolio conclusions. Reject wrong checkout/source/rule/schema fragments and private-report reuse. (Step 5; evidence: cache lifecycle tests.)
+- [x] t3: Trace and repair real report delivery with only necessary bounded transport handling. Prove malformed or oversized payload rejection and complete model parity. (Steps 4–5; evidence: source and package checks.)
+- [x] t4: Preserve approved Explain/Work names, icons, and layout. Correct shipped Skill/process/resource text; keep needed P7 scripts under evidence and out of shipped assets; retain removal of the `git show HEAD:` comparison test. (Step 4; evidence: package and instruction checks.)
+- [x] t5: Show the exact replacement text and display behavior for unknown task counts, then apply only the owner-approved UI change. Distinguish known zero, unknown, unsupported, and unavailable. (Step 4; gate: separate UI review; evidence: source and visual checks.)
 
 ### Acceptance criteria
 
@@ -62,4 +62,8 @@ Bear steps 4–5 and 15; R-BACKLOG-APP-1–16; R-BACKLOG-CACHE-1–8; P7 A51–A
 
 ## Closeout Notes
 
-Do not claim installed delivery, normal cache use, or connected-chat success from this phase alone.
+On 2026-10-24, source and package checks passed after the generated widget was rebuilt. The first full run passed 1,956 tests and failed one generated-byte check. The corrected generated-byte check and 128 affected tests then passed. Type check and build passed. The isolated 2.0.5 tarball started an MCP server with the four needed Backlog Review tools. Its widget resource bytes matched the generated source asset. [The task count browser review](evidence/p9/unknown-task-count-review.md) records the owner-approved text and its synthetic visual proof.
+
+The cache helper now checks lookup digests and versions against the current snapshot. It sends only fresh `miss` or `rejected` fragments to the existing write operation. Exact hits cause no write. Failed lookup or write does not discard the full report. The shared Store gates still control real reads and writes.
+
+The three untracked P7 proof scripts remain under `evidence/p7/tools/`. They did not enter the package. P13 must decide their final source-control state. P9 does not claim installed delivery, normal cache use, or connected-chat success. P11 owns those checks.

@@ -1026,7 +1026,7 @@ Code anchors:
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open; W25 release held | W26 R0 P1 must trace the current caller-proof and grant path before policy edits. W25 R0 may accept cache behavior only through the approved normal connection. | Link the approved policy redline, W26 R0 P3 allowed/denied proof, and W25 R0 P11 cache miss/write/hit evidence. |
+| Closed | The accepted macOS Codex connection uses the reviewed W26 Store path. The 2.0.5 package passed allowed and denied access checks, current-source cache miss/write/hit, and a running Codex Store check. | Keep other host and platform results outside this proved scope. Review them before any wider support claim. |
 
 **Issue**: The owner-observed `work.backlog-cache.lookup` returned `store-denied` with effective Store and project access set to none. A private candidate and local report reuse do not prove ordinary supported setup or Store cache use.
 
@@ -1034,17 +1034,21 @@ Code anchors:
 
 **To close**: Normal supported setup grants only reviewed scope. An exact installed CLI/MCP path proves allowed and denied Store calls, cache miss/write/hit, dirty-source rejection, and sandboxed host-owned Store access. Keep Store-free review available with its exact limit.
 
+**Resolution**: The approved `make_docs` entry and project access intent returned Store `ready` in running Codex. The exact 2.0.5 executable passed the [P11 access matrix](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md#current-package-access-matrix--2026-10-26), including refused keys, scope, schema, and unavailable Store cases. Its cache gave miss/write/hit results and a source change gave a miss. The [lasting package check](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p12/final-205-package-and-connection-plan.md#applied-saved-entry-result-before-codex-restart) repeated Store `ready` and current source reads after Make Docs setup. This closes the named access drift for the tested macOS Codex path. It does not prove every host or platform.
+
 ### D-048 Unknown Task Counts Display as Zero
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open; UI decision required | Preserve unknown, unsupported, unavailable, and known-zero states. W25 R0 P9 presents exact replacement text and display for owner review before the UI edit. | W25 R0 P11 checks the approved display on the final installed report, including older unsupported records. |
+| Closed | The approved task-count text keeps unsupported, unavailable, and known-zero states distinct. The installed report showed the correction for older records. | Keep this distinction in later report and renderer changes. |
 
 **Issue**: The visible report showed `0 of 0 tasks complete` for older records whose snapshot shape was unsupported. The review text said those task counts were unknown.
 
 **Why it matters**: A person could read an unsupported record as an empty one and choose the wrong work.
 
 **To close**: The owner approves the visible replacement. The final host shows no factual zero for unknown counts and preserves the approved layout and controls.
+
+**Resolution**: The owner approved the P9 wording. The final 2.0.5 Codex app showed `Task count unavailable: unsupported record format.` for older unsupported records and `62 of 66 tasks complete` for W25. The [P11 installed result](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md#owner-accepted-p11-scope--2026-10-26) and [current W25 summary](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md#2026-10-26-final-205-installed-result) retain the tested scope. This closes the false-zero drift in the named report path.
 
 ## Open Questions
 

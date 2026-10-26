@@ -21,6 +21,8 @@ export function createBacklogLiveView(root: HTMLElement, getState: () => Control
   let refreshButton: HTMLButtonElement | null = null;
   let disposed = false;
   const pendingPaths = new Set<string>();
+  const actionFeedback = new Map<string, { text: string; reason: string }>();
+  let feedbackSessionId: string | null = null;
   function blocked() {
     const state = getState();
     return !state.model || getCapabilities().agentMessages !== true || state.checking || state.limit !== null
@@ -29,10 +31,13 @@ export function createBacklogLiveView(root: HTMLElement, getState: () => Control
   function waveActions() {
     if (disposed) return;
     const state = getState();
+    const sessionId = state.model?.envelope.sessionId ?? null;
+    if (sessionId !== feedbackSessionId) { actionFeedback.clear(); feedbackSessionId = sessionId; }
     for (const article of root.querySelectorAll<HTMLElement>("#waveList article.wave")) {
       const detail = article.querySelector<HTMLElement>(".detail");
       const recordPath = article.dataset.recordPath!;
       const reference = state.model?.actions.find(action => action.action === "review-wave" && action.recordPath === recordPath);
+      detail?.querySelector(".copy-actions")?.remove();
       if (!detail || !reference) continue;
       if (!detail.querySelector(".live-wave-actions")) {
         const row = node("div", "", "live-wave-actions"), controls = node("div", "", "live-action-buttons");
@@ -43,15 +48,33 @@ export function createBacklogLiveView(root: HTMLElement, getState: () => Control
             if (blocked() || pendingPaths.has(recordPath)) return;
             const action = getState().model?.actions.find(value => value.action === "review-wave" && value.recordPath === recordPath);
             if (!action) return;
+            actionFeedback.set(recordPath, { text: "Sending to chat…", reason: "pending" });
             pendingPaths.add(recordPath); waveActions();
-            try { await controller.requestAction({ ...action, action: kind }); }
+            try {
+              const outcome = await controller.requestAction({ ...action, action: kind });
+              actionFeedback.set(recordPath, outcome.state === "received"
+                ? { text: "Sent to chat.", reason: "received" }
+                : outcome.state === "duplicate"
+                  ? { text: "Already sent to chat.", reason: "duplicate" }
+                  : { text: "Could not send to chat.", reason: outcome.reason });
+            } catch {
+              actionFeedback.set(recordPath, { text: "Could not send to chat.", reason: "unexpected-error" });
+            }
             finally { pendingPaths.delete(recordPath); waveActions(); }
           });
           controls.append(button);
         }
-        row.append(controls); detail.append(row);
+        const feedback = node("p", "", "live-action-status"); feedback.setAttribute("role", "status");
+        row.append(controls, feedback); detail.append(row);
       }
       detail.querySelectorAll<HTMLButtonElement>(".live-wave-actions button").forEach(button => button.disabled = blocked() || pendingPaths.has(recordPath));
+      const feedback = detail.querySelector<HTMLElement>(".live-action-status");
+      if (feedback) {
+        const result = actionFeedback.get(recordPath);
+        feedback.textContent = result?.text ?? "";
+        feedback.dataset.reason = result?.reason ?? "";
+        feedback.hidden = !result;
+      }
     }
   }
   function dataDetails() {
@@ -100,14 +123,12 @@ export function createBacklogLiveView(root: HTMLElement, getState: () => Control
   }
   function installToolbar() {
     const mode = root.querySelector<HTMLButtonElement>("#themeToggle")!; mode.classList.add("live-icon-button");
-    const print = root.querySelector<HTMLButtonElement>("#printReport")!; print.classList.add("live-icon-button"); named(print, "Print report");
-    print.querySelector("span")?.remove();
     refreshButton = doc.createElement("button"); refreshButton.id = "liveRefresh"; refreshButton.type = "button";
     refreshButton.className = "meta-button live-icon-button"; named(refreshButton, "Refresh source facts"); refreshButton.innerHTML = icon("refresh");
-    refreshButton.addEventListener("click", () => { void controller.refresh(); }); print.after(refreshButton); update();
+    refreshButton.addEventListener("click", () => { void controller.refresh(); }); mode.after(refreshButton); update();
   }
   const hooks: LiveReportHooks = { wavesRendered: waveActions, themeChanged: (button, dark) => {
     button.classList.add("live-icon-button"); named(button, dark ? "Light mode" : "Dark mode"); button.innerHTML = icon(dark ? "sun" : "moon");
   }, dataChanged: () => { dataDetails(); geometry?.changed(); }, dataViewportHeight: () => geometry?.viewportHeight() ?? doc.defaultView!.innerHeight };
-  return { hooks, installToolbar, update, dispose() { disposed = true; pendingPaths.clear(); } };
+  return { hooks, installToolbar, update, dispose() { disposed = true; pendingPaths.clear(); actionFeedback.clear(); } };
 }

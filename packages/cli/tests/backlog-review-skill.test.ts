@@ -294,7 +294,13 @@ describe("backlog-review first-party Skill", () => {
       expect(html).toContain('dataBeforePrint = dataDialog.open;');
       expect(html).toContain('window.addEventListener("afterprint"');
       expect(html).toContain("#workPanel { display: block !important; }");
-      expect(html).toContain(".meta-actions, .review-tabs, #dataDialog { display: none !important; }");
+      expect(html).toContain(".meta-actions, .review-tabs, #dataDialog, .copy-actions { display: none !important; }");
+      expect(html).toContain('button.setAttribute("aria-label", label);');
+      expect(html).toContain('const button = node("button", "meta-button copy-icon-button");');
+      expect(html).toContain('field.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none";');
+      expect(html).not.toContain('node("textarea", "copy-fallback")');
+      expect(html).not.toContain('id="printReport"');
+      expect(html).not.toContain("Print preview is unavailable here.");
       expect(html).toContain('.workspace { display: block; }');
       const dataControllerStart = html.indexOf("function syncDataDialogState");
       const dataControllerEnd = html.indexOf("const searchInput", dataControllerStart);

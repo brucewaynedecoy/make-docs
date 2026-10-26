@@ -107,7 +107,7 @@ There is no separate publish operation. After the agent completes and validates 
 
 ### Widget actions
 
-Search, filter, sort, disclosure, theme, print, data view, and JSON download stay local to the UI.
+Search, filter, sort, disclosure, theme, data view, and JSON download stay local to the UI. The live app has no Print control. A saved static report remains printable through the browser.
 
 Refresh calls `backlog.review.refresh` through `tools/call`. If no source facts changed, the current review model remains valid. If facts changed, the UI shows the changed records and asks the active agent for a new review through a controlled `ui/message`.
 

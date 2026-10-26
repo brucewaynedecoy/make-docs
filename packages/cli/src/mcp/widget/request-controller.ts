@@ -118,11 +118,16 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     const envelope = structuredClone(state.model.envelope);
     const snapshot = structuredClone(state.refresh?.currentSnapshot ?? state.model.envelope.report.snapshot);
     const epoch = modelEpoch, factsEpoch = sourceEpoch;
-    let resolution;
-    try { resolution = await withBrowserHashes(() => resolveBacklogLiveAction(input, envelope, snapshot)); }
+    let prepared;
+    try { prepared = await withBrowserHashes(() => {
+      const resolution = resolveBacklogLiveAction(input, envelope, snapshot);
+      return { resolution, message: resolution.state === "resolved" ? createBacklogActionMessage(resolution.action) : null };
+    }); }
     catch { return reject("invalid-action-context"); }
+    const { resolution, message } = prepared;
     if (state.closed || epoch !== modelEpoch || factsEpoch !== sourceEpoch) return reject("stale-action");
     if (resolution.state !== "resolved") return reject(resolution.reason);
+    if (!message) return reject("invalid-action-context");
     const action = resolution.action;
     if (action.action !== "review-backlog" && (state.checking || state.refresh?.refresh.reviewState === "needs-review"
       || state.refresh?.refresh.reviewState === "last-known" || state.limit !== null)) return reject("current-source-check-required");
@@ -130,11 +135,12 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     if (sent.has(key)) return { state: "duplicate" };
     sent.add(key);
     try {
-      await rpc({ method: "ui/message", params: createBacklogActionMessage(action) });
+      await rpc({ method: "ui/message", params: message });
       if (state.closed || epoch !== modelEpoch || factsEpoch !== sourceEpoch) return reject("stale-reply");
       const outcome: RequestOutcome = { state: "received", action };
       state.request = outcome; changed(); return outcome;
     } catch (error) {
+      sent.delete(key);
       const outcome = reject(error instanceof Error ? error.message : "request-unconfirmed");
       if (!state.closed && epoch === modelEpoch && factsEpoch === sourceEpoch) { state.request = outcome; changed(); }
       return outcome;

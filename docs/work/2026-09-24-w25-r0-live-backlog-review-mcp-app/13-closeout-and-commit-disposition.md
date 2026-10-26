@@ -44,10 +44,10 @@ Bear steps 9 and 15; P7 A51–A60; P11 outcome; P12 cleanup; owner release rejec
 
 ### Tasks
 
-- [ ] t1: Reconcile W25 design, plan, PRD 51, risk entries, shipped Skill, P7 A51–A60, work index, and evidence links. Preserve earlier bounded proof and failures. (Step 9; evidence: authority and link checks.)
-- [ ] t2: Update the single summary with supported behavior, access/delivery causes, retained and removed changes, exact package/configuration/host, test limits, A56 waiver, unresolved items, and release hold or release-candidate result. (Step 9; evidence: reviewed summary.)
-- [ ] t3: For each unmet check, propose an obligation with owner, trigger, target, dependencies, and exit test. Seek owner approval for any partial closeout. If not approved, leave W25 open or blocked. (Step 9; gate: named closeout decision.)
-- [ ] t4: Show the exact commit allowlist and diff on the current branch after required validation and coverage. Exclude `.codex/`, installs, and scratch data. Seek separate staging and commit approval. (Steps 9, 15; gate: Git mutation decision.)
+- [x] t1: Reconcile W25 design, plan, PRD 51, risk entries, shipped Skill, P7 A51–A60, work index, and evidence links. Preserve earlier bounded proof and failures. (Step 9; evidence: [P13 review](evidence/p13/closeout-review.md).)
+- [x] t2: Update the single summary with supported behavior, access/delivery causes, retained and removed changes, exact package/configuration/host, test limits, A56 waiver, unresolved items, and release hold or release-candidate result. (Step 9; evidence: [single summary](evidence.md#recovery-closeout-summary) and [P13 review](evidence/p13/closeout-review.md).)
+- [x] t3: For each unmet check, propose an obligation with owner, trigger, target, dependencies, and exit test. Seek owner approval for any partial closeout. If not approved, leave W25 open or blocked. (Step 9; evidence: [owner-approved bounded closeout](evidence/p13/closeout-review.md#current-decision).)
+- [x] t4: Show the exact commit allowlist and diff on the current branch after required validation and coverage. Exclude `.codex/`, installs, and scratch data. Seek separate staging and commit approval. (Steps 9, 15; evidence: [77-path allowlist](evidence/p13/commit-allowlist.txt) and [P13 review](evidence/p13/closeout-review.md). The owner approved the local commit on 2026-10-26.)
 
 ### Acceptance criteria
 
@@ -62,3 +62,5 @@ Bear steps 9 and 15; P7 A51–A60; P11 outcome; P12 cleanup; owner release rejec
 ## Closeout Notes
 
 Do not check off this phase because a time limit ends or a commit is prepared.
+
+The P13 review found stale shipped Skill control text. A corrected package passed isolated checks. Make Docs setup installed and verified that package for the saved `make_docs` entry. The owner approved bounded closeout and the exact local commit. The [P13 packet](evidence/p13/closeout-review.md) lists the tested scope, open host limits, and Git files. Publication remains held.

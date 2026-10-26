@@ -20,7 +20,7 @@ Each required W25 result has a linked observed pass, a named failure, or an appr
 
 ## Scope
 
-Test Store grant and denial states; first cache miss, valid write, later hit; dirty-source and cross-checkout rejection; sandbox access; real report rendering; unchanged and changed refresh; Explain and Work in the same chat; stale/duplicate actions; local controls; chat fallback and explicit static parity; wide/narrow/theme/print/keyboard/focus/reduced-motion access; and required Human Experience Review. Choose a reversible authorized Work target before clicking. A message receipt alone does not pass an action.
+Test Store grant and denial states; first cache miss, valid write, later hit; dirty-source and cross-checkout rejection; sandbox access; real report rendering; unchanged and changed refresh; Explain and Work in the same chat; stale/duplicate actions; local controls; chat fallback and explicit static parity; wide/narrow/theme/keyboard/focus/reduced-motion access; no Print button in either report; browser print layout for the saved report; and required Human Experience Review. Check that both live buttons show clear text in the Codex chat instead of raw JSON. Show one short visible reference and match it to the full action in the agent's own confirmed open. Reject old or wrong-wave actions. The connected agent reads the current source record before it answers or starts work. Do not assume a hidden host message field without host proof. Choose a reversible authorized Work target before clicking. A message receipt alone does not pass an action.
 
 ## Verification
 

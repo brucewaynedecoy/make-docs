@@ -29,7 +29,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "node scripts/build-mcp-app-assets.mjs --check && tsup",
     "dev": "npm run build && node dist/index.js",
     "test": "vitest run",
     "validate:defaults": "vitest run tests/consistency.test.ts tests/template-links.test.ts tests/package-safety.test.ts",

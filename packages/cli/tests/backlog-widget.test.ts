@@ -12,15 +12,17 @@ import { createBacklogReviewRefreshPayload } from "../src/operations/work/backlo
 import { defaultAppResources } from "../src/mcp/default-app-resources";
 import { presentationCases, PRESENTATION_SESSION_ID, smallPresentationReport } from "./fixtures/backlog-presentation";
 import type * as State from "../src/mcp/widget/state";
+import type * as RequestController from "../src/mcp/widget/request-controller";
 import { captureLocalState, restoreLocalState } from "../src/mcp/widget/local-state";
 import { readBacklogContainerBounds, backlogContainerHeight, constrainBacklogHeight } from "../src/mcp/widget/container-size";
 
 const url = (value: string) => new URL(value, import.meta.url);
-let stateCode: string, entryCode: string;
+let stateCode: string, entryCode: string, controllerCode: string;
 beforeAll(async () => {
   const common = { bundle: true, write: false, platform: "browser" as const, target: "es2022",
     alias: { "node:crypto": fileURLToPath(url("../src/mcp/widget/browser-crypto.ts")) } };
   stateCode = (await build({ ...common, entryPoints: [fileURLToPath(url("../src/mcp/widget/state.ts"))], format: "cjs" })).outputFiles![0].text;
+  controllerCode = (await build({ ...common, entryPoints: [fileURLToPath(url("../src/mcp/widget/request-controller.ts"))], format: "cjs" })).outputFiles![0].text;
   // Keep the protocol controller and validators real. The independent browser suite
   // exercises the accepted DOM renderer; this seam records mount/dispose decisions.
   entryCode = (await build({ ...common, entryPoints: [fileURLToPath(url("../src/mcp/widget/entry.ts"))], format: "iife", plugins: [{
@@ -38,6 +40,12 @@ function state(crypto: unknown = webcrypto): typeof State {
   const module = { exports: {} };
   runInNewContext(stateCode, { module, exports: module.exports, crypto, TextEncoder, TextDecoder, Blob, DecompressionStream, atob }, { contextCodeGeneration: { strings: false, wasm: false } });
   return module.exports as typeof State;
+}
+function browserController(): typeof RequestController {
+  const module = { exports: {} };
+  runInNewContext(controllerCode, { module, exports: module.exports, crypto: webcrypto, TextEncoder, TextDecoder, Blob,
+    DecompressionStream, atob, structuredClone }, { contextCodeGeneration: { strings: false, wasm: false } });
+  return module.exports as typeof RequestController;
 }
 function refresh(envelope = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID)._meta.backlog.envelope,
   snapshot: typeof envelope.report.snapshot | null = envelope.report.snapshot) {
@@ -84,6 +92,28 @@ function encoded(payload = createBacklogLivePayload(smallPresentationReport, PRE
 }
 
 describe("W25 R0 P5 unchanged browser contract validation", () => {
+  it("hashes both clear wave messages in the browser bundle before sending", async () => {
+    const outgoing: Array<{ jsonrpc: string; id: string; method: string; params: { content: Array<{ text: string }> } }> = [];
+    const controller = browserController().createBacklogRequestController({
+      capabilities: { appResource: true, toolCalls: true, agentMessages: true },
+      send: request => outgoing.push(request as typeof outgoing[number]),
+      timers: { set: () => 1, clear: () => {} },
+    });
+    const payload = createBacklogLivePayload(smallPresentationReport, PRESENTATION_SESSION_ID);
+    expect(await controller.acceptModel(payload)).toMatchObject({ state: "accepted" });
+    for (const [kind, text] of [["review-wave", "Please explain W1 R1"], ["request-task", "Please work on W1 R1"]] as const) {
+      const pending = controller.requestAction({ ...payload._meta.backlog.actions[0], action: kind });
+      await settle();
+      const request = outgoing.at(-1);
+      expect(request?.method).toBe("ui/message");
+      expect(request?.params.content[0].text).toContain(`${text} in this project.`);
+      expect(request?.params.content[0].text).toMatch(/Review reference: [a-f0-9]{24}/);
+      controller.receive({ jsonrpc: "2.0", id: request!.id, result: {} });
+      expect(await pending).toMatchObject({ state: "received" });
+    }
+    expect(outgoing).toHaveLength(2);
+    controller.teardown();
+  });
   it.each(presentationCases)("validates exact Node identities and full report meaning for $name", async ({ report }) => {
     const payload = createBacklogLivePayload(report, PRESENTATION_SESSION_ID);
     const result = await state().validateWidgetResult(payload);

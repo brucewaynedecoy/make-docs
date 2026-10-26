@@ -14,6 +14,8 @@ import {
 } from "../../../store/installation-state.js";
 import { getStoreDatabasePath } from "../../../store/paths.js";
 import { BACKLOG_RULE_CATALOG_VERSION } from "./catalog.js";
+import { BACKLOG_REVIEW_CACHE_SCHEMA_VERSION, BACKLOG_REVIEW_SKILL_VERSION,
+  backlogCacheRecordKey, canonicalJson } from "./cache-key.js";
 import {
   BacklogReportRecordV1Schema,
   type BacklogReportRecordV1,
@@ -21,8 +23,7 @@ import {
   type BacklogWorkRecordV1,
 } from "./schemas.js";
 
-export const BACKLOG_REVIEW_CACHE_SCHEMA_VERSION = 1;
-export const BACKLOG_REVIEW_SKILL_VERSION = 1;
+export { BACKLOG_REVIEW_CACHE_SCHEMA_VERSION, BACKLOG_REVIEW_SKILL_VERSION, backlogRecordDigest } from "./cache-key.js";
 export const BACKLOG_REVIEW_CACHE_FRAGMENT_MAX_BYTES = 65_536;
 export const BACKLOG_REVIEW_CACHE_MAX_ENTRIES_PER_CHECKOUT = 512;
 
@@ -82,31 +83,8 @@ interface CacheWriteOptions {
   now?: string;
 }
 
-function canonicalJson(value: unknown): string {
-  const normalize = (item: unknown): unknown => {
-    if (Array.isArray(item)) return item.map(normalize);
-    if (!item || typeof item !== "object") return item;
-    return Object.fromEntries(
-      Object.entries(item as Record<string, unknown>)
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, child]) => [key, normalize(child)]),
-    );
-  };
-  return JSON.stringify(normalize(value));
-}
-
-export function backlogRecordDigest(record: BacklogWorkRecordV1): string {
-  return createHash("sha256").update(canonicalJson(record)).digest("hex");
-}
-
 function keyFor(snapshot: BacklogSnapshotV1, record: BacklogWorkRecordV1): BacklogCacheRecordKey {
-  return {
-    recordPath: record.recordPath,
-    recordDigest: backlogRecordDigest(record),
-    snapshotSchemaVersion: snapshot.schemaVersion,
-    ruleCatalogVersion: BACKLOG_RULE_CATALOG_VERSION,
-    skillVersion: BACKLOG_REVIEW_SKILL_VERSION,
-  };
+  return backlogCacheRecordKey(snapshot, record);
 }
 
 function assertSnapshotTarget(targetRoot: string, snapshot: BacklogSnapshotV1): string {
