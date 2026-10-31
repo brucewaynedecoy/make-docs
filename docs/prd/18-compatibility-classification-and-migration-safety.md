@@ -15,7 +15,7 @@ The requirements below define the owned components, behaviors, boundaries, and e
 
 Classification priority:
 
-1. Resolve the external Store and declarative project identity. Classify Store safety and the checkout binding. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
+1. Resolve the external Store and valid declarative project identity. Read matching checkout candidates before path-bound manifest lookup or fresh classification. Classify Store safety and the current or reviewed candidate binding without changing it. A missing current-path binding does not erase an existing install record. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
 2. Validate the Store installation record or supported legacy input: schema, package identity, project and checkout identity, saved selections, ownership, hashes, resource provenance, and competing claims. A clone or missing Store cannot inherit ownership from project identity alone.
 3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the active filesystem surface without following links outside the approved project or machine root.
 4. Exclude `.make-docs/backup/**` and declared inactive backup, export, and archive roots from active installation discovery. Verify them only through their owning backup, restoration, or history contract.
@@ -154,6 +154,29 @@ Validation boundary:
 - R-BRIDGE-6 (MUST): a newer unknown, corrupt, or unclear schema fails closed for Store-backed mutation while Store-free work continues. Older packages fail closed on a newer schema and never rewrite it. A pre-project failure restores the verified Store backup. A post-project failure uses the recorded resume or rollback path.
 - R-BRIDGE-7 (MUST): router ownership evidence is interpreted under the source manifest schema. For a supported schema-1 manifest, an exact whole-file hash match is trusted legacy ownership and the absence of V2 managed-block markers is an expected legacy state. A whole-file hash mismatch, partial or malformed V2 marker, nested or duplicated marker, or contradiction between schema and file evidence fails closed before operation creation. The reviewed bridge converts an exact legacy router to the current managed-block form and preserves any separately classified project content.
 
+### Checkout Verification Compatibility
+
+- R-MOVE-COMPAT-1 (MUST): a missing binding at the current path is not proof of a missing install. Resolve valid declarative project identity and read its candidate checkout records before fresh-install classification, fallback recognition, or editable setup selections. An unresolved moved-install candidate remains a path review or a precise blocked state. It is not converted into `missing-manifest-recognizable` or a fresh install merely because path-bound manifest lookup returns no record.
+- R-MOVE-COMPAT-2 (MUST): checkout verification evidence has a versioned reader inside the existing `installation_checkouts.verification_json` field. Evidence version 2 is the current target form; its first writer release is 2.0.6. Retain the evidence-version-1 reader for 2.0.5 records. This transition changes no database schema and authorizes no Store bootstrap, broad migration, cleanup, or adoption.
+- R-MOVE-COMPAT-3 (MUST): before a selected version 1 record can receive version 2 evidence, validate the saved ledger and its project identity, verify its digest against the prior verification record, and prove each saved ownership class and provenance against the target. Current managed blocks must match their independently saved block hashes. Fully owned files must match their trusted saved full-file facts. Project-owned config is not a fully owned file for this test, even when an old ledger or aggregate captured all its bytes. Validate its declared identity without requiring old config-byte equality. Valid config identity and outside user text follow [PRD 24](24-project-configuration-and-convention-overlay.md#declarative-identity-and-settings) and [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md#checkout-move-ownership-proof).
+- R-MOVE-COMPAT-4 (MUST): missing per-block proof, an unknown evidence version, contradictory provenance, an invalid ledger, unsafe reads, or an unsupported Store schema stops only the affected move with the failed rule and one safe next action. Current file bytes, a matching project ID, source absence, and user approval cannot replace missing saved proof. Do not reset a checksum or create a new baseline to pass the move. Preview cannot replace old evidence.
+- R-MOVE-COMPAT-5 (MUST): apply may save the proved version 2 evidence only with the selected atomic path update under [PRD 38](38-global-store-and-project-state.md#checkout-binding-and-path-update-safety-r-checkout). Preserve the ledger, ownership claims, existing receipt history, and exact active-recovery snapshots. All corrected-writer verification updates use version 2; do not dual-write verification versions.
+- R-MOVE-COMPAT-6 (MUST): verification-evidence version 1 is distinct from manifest schema 1. R-BRIDGE-7 still owns authentic legacy whole-file router adoption. The evidence bridge cannot bypass that proof or use the absence of later markers as evidence of damaged authentic legacy ownership.
+
+| Evidence bridge field | Contract |
+| --- | --- |
+| Stable bridge ID | `checkout-verification-v1-v2` |
+| Old and target forms | Verification JSON version 1 aggregate whole-file facts; version 2 ownership-scoped facts |
+| First writer and owner | 2.0.6; checkout move service under PRD 38 |
+| Writer cutover proof | Corrected-writer tests prove new verification writes use version 2 only. Known old writers are stopped under R-MIG-STORE-1 and PRD 38 R-XFER-6 before apply. |
+| Remaining-state check | Read-only count of verification rows by supported evidence version; unknown forms remain visible and block the affected move |
+| Measurable end and retention | Keep each version 1 row until its selected reviewed apply independently proves and replaces it. Preserve opaque or unproved evidence. |
+| Reader removal | No removal in this repair. A later compatibility decision must name the removal release, native installed proof, and separate deletion approval under R-BRIDGE-5. |
+| Required proof | Authentic 2.0.5 seed; unchanged blocks with outside edits; missing/changed/unknown proof; schema-1 adoption; no durable preview change; atomic apply and retry |
+| Export and deletion | Existing scoped local export and retention rules apply. No implicit export, history cleanup, or deletion is authorized. |
+
+The old-binary limit is explicit. After version 2 evidence exists, released 2.0.5 is tested only for refusal of a further relocation that presents unfamiliar move evidence, without losing the saved rows or history. This does not promise that an immutable old binary refuses ordinary reads or writes at an already-bound path. It is not downgrade support. The shared operation reports this boundary; it cannot claim to enforce new code in an unsupported old binary.
+
 ## Existing-Project Adoption Boundaries
 
 Under [R-OBL-COMPAT](45-deferred-obligation-governance.md#r-obl-compat-existing-project-adoption) and [R-NUAT-COMPAT](46-naive-end-user-acceptance-testing.md#r-nuat-compat-existing-artifact-adoption), existing Make Docs projects adopt the new contracts conservatively at the first qualifying lifecycle, coverage, reconciliation, or phase-close event after upgrade. Historical phases are not retroactively failed, archived artifacts are not rewritten, and existing UAT/manual-test artifacts remain valid evidence unless a later qualifying slice requires them to be supplemented.
@@ -173,6 +196,8 @@ This capability integrates with the adjacent current authorities linked from Req
 Performance adoption integrates with [PRD 48](./48-performance-evidence-governance.md), the [accepted guardrails design](../designs/2026-08-12-performance-testing-guardrails.md), and the [W19 R2 plan](../plans/2026-08-13-w19-r2-performance-evidence-governance/00-overview.md); this compatibility PRD owns conservative adoption and migration safety, not performance profile semantics.
 
 ## Rebuild Notes
+
+Implementation evidence: the installed 2.0.5 CLI does not yet satisfy the checkout-move repair contract. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) remains open. These requirements define the expected 2.0.6 behavior; they do not claim code, package, or live-repair proof.
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 
@@ -262,6 +287,16 @@ R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, co
 - Replacement contract: Every supported prior state has a reachable repeat or recovery action. Input refusal before mutation creates no blocker. Independent verified subplans remain complete. CLI and Store-access remediation does not require working Store or MCP access in the maintainer checkout.
 - Rationale: The observed upgrade and setup paths could stop before Store access was installed and then require the same broken setup path to continue.
 - Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+### 2026-10-31 — W22 R1
+
+- Date: 2026-10-31.
+- Coordinate: W22 R1.
+- Affected requirement or section: classification priority; `Checkout Verification Compatibility`; `Compatibility Bridge Contract`.
+- Previous contract: classification resolved declarative identity and checkout state, and versioned compatibility preserved trusted source-schema ownership. It did not name the per-checkout verification-v1/v2 transition or require moved-record review before a fresh-install fallback.
+- Replacement contract: moved-record discovery precedes fallback classification. Evidence version 2 uses independent saved ownership proof in the existing JSON field, retains a version 1 reader, and commits only with a reviewed path update. Unknown or missing proof stops that move; authentic manifest-schema-1 whole-file adoption remains distinct.
+- Rationale: preserve existing installs without blessing current bytes, hiding a schema migration, or claiming new enforcement in an immutable old binary.
+- Source: [ownership plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md), [move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md), and [scoped work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-index.md).
 
 ## Source Anchors
 

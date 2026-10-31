@@ -25,6 +25,11 @@ Install, reconfigure, provider refresh, package sync, cache recovery, audit, bac
 - R-CONFIG-STATE-2 (MUST): setup previews and preserves existing config fields and comments when adding identity or supported desired settings. Unsupported, conflicting, or malformed config stops automatic transfer. The CLI must not replace a user's config merely to remove a local manifest.
 - R-CONFIG-STATE-3 (MUST): a clone may share project identity and desired settings. Only the Store's verified checkout binding proves local installation ownership. Changes to desired settings require the normal reviewed setup path before applied state changes.
 
+- R-CONFIG-STATE-4 (MUST): setup reads and validates the explicit target's declarative `projectId` before path-bound installation lookup or fresh-install classification. It can use that ID to find candidate Store checkout records. The ID does not prove a move, local installed ownership, or which same-project checkout the user intends.
+- R-CONFIG-STATE-5 (MUST): move identity uses the valid declared project ID, not equality of the entire config file with an old checksum. Comments and unrelated desired settings do not become durable move blockers. Current config validation still rejects unsupported, malformed, contradictory, or unsafe identity input. A change after review can invalidate the reviewed snapshot without becoming a permanent ownership claim.
+- R-CONFIG-STATE-6 (MUST): a path-only move reads config but does not create it, mint identity, rewrite comments or settings, add a checkout ID, or apply changed desired settings. Later setup refreshes the bound installation record and separately reviews any desired-state changes. Missing or conflicting identity follows a separately admitted repair; move apply cannot bootstrap it.
+- R-CONFIG-STATE-7 (MUST): a monorepo root and an independently configured kit remain separate explicit targets with their own project and checkout identities. Parent approval cannot retarget, adopt, or change nested kit bindings. Registering a distinct checkout is a separate reviewed project-write/adoption action under [PRD 38](38-global-store-and-project-state.md#checkout-binding-and-path-update-safety-r-checkout).
+
 ### Presentation Overlay
 
 Presentation configuration may affect only the approved overlay fields below. Persona entries carry the stable audience mapping owned by Persona authority; all other entries in this section are presentation-only:
@@ -143,6 +148,8 @@ The named paths, schemas, state records, metadata fields, and evidence shapes in
 This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
 ## Rebuild Notes
 
+Implementation evidence: the installed 2.0.5 CLI does not yet satisfy the checkout-move repair contract. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) remains open. These requirements define the expected 2.0.6 behavior; they do not claim code, package, or live-repair proof.
+
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Requirement History
 
@@ -213,6 +220,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Project config may list exact custom working Markdown files. The validator uses that repository-owned list with its default source paths and gives the same result without Store access.
 - Rationale: Custom working files need a positive source declaration. Copied frontmatter and optional Store records cannot identify the working copy.
 - Source: [PRD Authority Source Scope](../designs/2026-09-26-prd-authority-source-scope.md)
+
+### 2026-10-31 — W22 R1
+
+- Date: 2026-10-31.
+- Coordinate: W22 R1.
+- Affected requirement or section: `Declarative Identity and Settings`.
+- Previous contract: config held portable project identity and desired settings, while the Store alone proved local checkout ownership. Preservation of comments and fields applied during reviewed config writes.
+- Replacement contract: setup uses valid config identity before path-bound lookup. Outside comments/settings are not durable move identity. Path-only apply reads config without creating or rewriting it, and root/kit or separate-checkout actions retain their own explicit scopes.
+- Rationale: make the existing project-knowledge boundary govern moved installs as well as normal setup.
+- Source: [move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [setup work phase](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md).
 
 ## Source Anchors
 

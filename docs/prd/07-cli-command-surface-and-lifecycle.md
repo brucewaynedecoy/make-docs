@@ -45,6 +45,22 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - Full setup validates whether each saved or changed selection belongs to its owning subplan before final review. It does not collect a Skill, harness, machine, project, or resource choice that the selected entry cannot apply or route.
 - Machine, project, Skills, and resource placement are separate reviewed subplans inside one ordered setup result. Their statuses, blockers, and next actions remain visible independently.
 
+### Checkout Move Review
+
+The checkout-move flow below is the accepted 2.0.6 contract. The installed 2.0.5 tool does not yet provide this review. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) remains open until implementation and installed-package proof pass.
+
+- R-SETUP-MOVE-1 (MUST): setup validates target config and reads its project ID before path-bound manifest lookup and fresh-project classification. The ID finds candidate checkouts. It does not alone prove a move or grant ownership.
+- R-SETUP-MOVE-2 (MUST): setup calls the shared read-only preview in [PRD 39](39-cli-command-model-and-operation-registry.md#checkout-path-update-and-safety-stop-r-checkout). Before editable install selections, the review names the project, selected checkout, old path, current path, and exact effect. A recognizable moved install is not presented as fresh.
+- R-SETUP-MOVE-3 (MUST): the choices are `Move this existing install here`, `Register a separate checkout`, and `Cancel`. An unsafe choice is unavailable with its reason and one safe next action. Setup cannot guess a source from a name, timestamp, first matching row, or `--yes`.
+- R-SETUP-MOVE-4 (MUST): an existing old path cannot lose its checkout record to another path. Ambiguous records need explicit source selection and valid independent proof. Pending work, active writers, competing claims, unsafe paths, unsupported schemas, and invalid identity stop only the affected move. The result names the failed check and safe recovery or review route. Discovery does not migrate a Store or rewrite identity.
+- R-SETUP-MOVE-5 (MUST): status, preview, dry-run, cancel, and unanswered review create no durable binding, journal, review token, identity, ownership, or project-file change. Short-lived Store access leases may protect reads and must be released. Direct and guided callers use the same proof and result.
+- R-SETUP-MOVE-6 (MUST): a path-only move uses the Store-only atomic operation in [PRD 38](38-global-store-and-project-state.md). It preserves project files, config bytes, ledger bytes, project and checkout IDs, prior history, and host settings. A later setup approval does not widen move access.
+- R-SETUP-MOVE-7 (MUST): `Register a separate checkout` leaves the move flow for a separate reviewed install/adoption action with project-write admission. It keeps the project ID and creates a new checkout ID and ownership record. It cannot automatically move an absent source, copy source pending work, or claim unproved files.
+- R-SETUP-MOVE-8 (MUST): after the move, setup rereads the bound manifest and saved selections before ordinary setup planning. Later project, machine, Skill, or resource edits need their own applicable review and approval. Later failure or cancel preserves the completed move result and names the exact remaining action.
+- R-SETUP-MOVE-9 (MUST): each explicit target uses its own config and checkout. Parent approval cannot move or adopt nested kit records. A repeated move recognizes completion under the shared proof rules. It cannot mint identity or duplicate the receipt.
+- R-SETUP-MOVE-10 (MUST): human and JSON results distinguish move candidate, completed move, separate-checkout route, cancelled, and blocked states. The user can identify the effect and next action without knowing the Store schema. Agent Human Experience Review follows the [canonical contract](../../.make-docs/system/contracts/human-experience-contract.md). Guided Progress Review stays optional and advisory under [PRD 50](50-proportionate-testing-and-human-centered-validation.md).
+
+
 ### Interactive Selection Contract
 
 - Fresh setup defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It installs Designs, Plans, PRD, and Work without a document-type question. Existing partial projects keep their current document families until the user reviews an expansion. Setup always plans the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It keeps `docs/assets/` and its configured-harness root routers on demand. It creates no shared, Persona, testing, or legacy-family child until content needs that path. Shared inputs use `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archive remains `.make-docs/archive/`. The always-present docs router exposes default audiences, config, and exact selected asset-router filenames before the assets root exists.
@@ -62,7 +78,7 @@ The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibili
 - R-SETUP-CLI-8 (MUST): a method is selectable only when the source-owned static adapter declares it and the method is implemented. Setup does not use a provider, model, runtime, scenario, tuple, result record, or support registry as an eligibility gate. An unavailable method remains visible only when its reason and one useful next action help the person. The action must change a condition or open the owning setup path. It must not only rerun the same blocked command.
 - R-SETUP-CLI-9 (MUST): apply writes the reviewed project harness selection to `.make-docs/config.yaml` through the config-preserving writer. A repeat reads the saved project choice, live native state, Store receipt, and pending operation. It reports current, drifted, blocked, unsupported, or incomplete state before it asks for a change.
 - R-SETUP-CLI-10 (MUST): non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested. Missing, conflicting, or unsupported method input fails before writes. `--dry-run` uses the same resolution and prints the exact machine and project plan. `--yes` is approval only. It never selects `none` or another method.
-- R-SETUP-CLI-11 (MUST): `setup`, `setup reconfigure`, and `setup skills` inspect pending Store work for the target checkout before the first editable question. A pending operation stops the new setup flow and reports its operation type, saved-plan state, last safe stage, and one permitted next action. The stopped flow writes no project file, Store row, backup, or native configuration.
+- R-SETUP-CLI-11 (MUST): `setup`, `setup reconfigure`, and `setup skills` inspect pending Store work for the target checkout before the first editable question. A pending operation stops the new setup flow and reports its operation type, saved-plan state, last safe stage, and one permitted next action. The stopped flow writes no project file, durable Store row, backup, or native configuration. Transient Store access leases do not count as durable setup state.
 - R-SETUP-CLI-12 (MUST): full setup can apply a reviewed Skill change. It must not collect a valid selected-Skill change and reject that change only after the interview. The focused command can limit its final plan to Skill changes without using a second interview contract.
 
 ### Conflict Review Contract
@@ -215,7 +231,7 @@ Code and documentation anchors:
 ## Setup Composition and Store-Free Use
 
 - R-CLI-SETUP-1 (MUST): setup is one guided plan, review, apply, verify, and recover coordinator over the same shared operations used by direct CLI and MCP routes. It does not own a separate durable setup state machine.
-- R-CLI-SETUP-2 (MUST): discovery and status are read-only. They cannot repair, adopt, migrate, widen a selection, create Store state, or change native host configuration.
+- R-CLI-SETUP-2 (MUST): discovery and status are read-only. They cannot repair, adopt, migrate, widen a selection, create durable Store state, or change native host configuration. Existing short-lived Store access leases may protect safe reads and must be released. They create no binding, review row, journal, or receipt.
 - R-CLI-SETUP-3 (MUST): machine, project, Skill, and resource work remain separate reviewed subplans with separate effects, approvals, dependencies, results, and next actions. An independent approved subplan can complete when another subplan is blocked. A dependent subplan waits for its named prerequisite to apply and verify.
 - R-CLI-SETUP-4 (MUST): apply records intent before each write and uses the shared operation journal for progress, resume, and rollback. Repair is an explicit reviewed plan. Repeat setup with no requested or detected change is a content and state no-op.
 - R-CLI-SETUP-5 (MUST): direct machine setup and repair cannot depend on the Store, MCP, harness receipt, or access route that they create or repair. Failure to establish one route stops only that route and does not block resource reads or other declared Store-free work.
@@ -329,6 +345,17 @@ Code and documentation anchors:
 - Replacement contract: Setup validates each choice before final review and uses independent machine, project, Skills, and resource subplans. A verified earlier subplan remains complete and visible when a later subplan blocks. Repeat setup asks only for missing or changed choices.
 - Rationale: The installed CLI collected valid MCP selections and then changed nothing because the existing-project Skills path rejected a late selection.
 - Source: [W19 R8 design](../designs/2026-09-16-store-access-bootstrap-and-remediation.md) and [plan](../plans/2026-09-16-w19-r8-store-access-bootstrap-and-remediation/00-overview.md)
+
+### 2026-10-31 — W22 R1
+
+- Date: 2026-10-31
+- Coordinate: W22 R1
+- Affected requirement or section: Checkout Move Review; R-SETUP-CLI-11.
+- Previous contract: setup had pending-work admission and separate subplan results. It did not define a pre-classification move review or a distinct Store-only move result.
+- Replacement contract: setup discovers project-ID candidates before fresh classification. It reviews move, separate-checkout, and cancel choices through shared operations. A move and later install changes keep separate permissions and results.
+- Rationale: a renamed project needs to retain context and ownership without fresh-install choices or a false conflict on user text.
+- Source: [Checkout move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [authority work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
+
 
 ## Source Anchors
 

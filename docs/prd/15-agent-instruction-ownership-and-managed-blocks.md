@@ -41,6 +41,15 @@ managed block, not the whole shared file:
 - Existing installs migrate non-destructively; project-specific content (for make-docs's own repo, the template-first maintainer rules) lives outside the block and persists across reconfigure. Clean W17 dedicated instruction files are removed only when a frozen classification snapshot proves their manifest hashes and provenance still match.
 - Non-instruction files use the same provenance-aware, file-scoped conflict review as the installation lifecycle; directory membership or an old manifest path alone never proves current managed ownership.
 
+### Checkout Move Ownership Proof
+
+- R-INSTRUCTION-MOVE-1 (MUST): current move proof follows the saved ownership class and provenance for each active path. A `managed-block` entry is checked against its saved block-body hash through the strict managed-block parser. A fully owned file is checked against its trusted full-file facts. A filename, directory membership, or historical operation path never grants durable ownership.
+- R-INSTRUCTION-MOVE-2 (MUST): user text before or after a valid Make Docs block is excluded from durable move ownership proof and is preserved byte for byte. An outside edit never creates an ownership conflict. Missing, malformed, nested, duplicated, reversed, ambiguous, or contradictory current markers stop the move before a durable operation is created. Changed block content is a block-specific conflict; approval cannot turn unknown content into saved ownership proof.
+- R-INSTRUCTION-MOVE-3 (MUST): a move uses the previously saved block hash and ownership facts as its expected baseline. It must not refresh a failed aggregate whole-file checksum from the current file or treat matching project identity as installation ownership. Old verification records follow [PRD 18's evidence compatibility contract](18-compatibility-classification-and-migration-safety.md#checkout-verification-compatibility).
+- R-INSTRUCTION-MOVE-4 (MUST): exact whole-file snapshots remain valid guards for a reviewed write window and pending recovery. They do not widen durable ownership of a shared instruction file. A path-only move does not transform a file, adopt its outside text, release ownership, or change any pending recovery snapshot.
+- R-INSTRUCTION-MOVE-5 (MUST): authentic supported manifest-schema-1 ownership remains governed by PRD 18 R-BRIDGE-7. Exact legacy whole-file proof may be valid when V2 markers did not yet exist. This distinct source-schema bridge is not a reason to demand whole-file equality from a current `managed-block` entry.
+- R-INSTRUCTION-MOVE-6 (MUST): CLI, MCP, and shipped agent guidance use the same ownership boundary. Agents cannot waive failed proof or emulate a Store move through direct database edits. Without the operation, guidance reports the state and safe next action instead of claiming a completed repair.
+
 ### Human Experience Router Discovery
 
 - A managed `AGENTS.md`, `CLAUDE.md`, or equivalent router block points agents to lifecycle, the Human Experience Contract, and the Human Experience Reference when they create or materially update governed work.
@@ -82,6 +91,8 @@ The named paths, schemas, state records, metadata fields, and evidence shapes in
 
 This capability integrates with the adjacent current authorities linked from Requirements and Source Anchors; those authorities remain owners of their own boundaries.
 ## Rebuild Notes
+
+Implementation evidence: the installed 2.0.5 CLI does not yet satisfy the checkout-move repair contract. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) remains open. These requirements define the expected 2.0.6 behavior; they do not claim code, package, or live-repair proof.
 
 A rebuild must preserve the requirement identifiers, stable semantic anchors, ownership boundaries, and failure-safe behavior stated here. Implementation evidence does not silently weaken this authority.
 ## Managed Instruction Conflict Semantics
@@ -162,6 +173,16 @@ R-ASSET-ROUTER-3 (MUST): root asset routers stay within the existing short-route
 - Replacement contract: The same short route also applies to material agent task updates, decisions, recommendations, error or limit reports, and completion replies. The router still does not copy the detailed policy.
 - Rationale: An agent's own reply is a human-facing result. The agent needs a reliable route to the same Human Experience authority without adding a second writing policy to each router.
 - Source: [W20 R1 Human-Centered Agent Responses plan](../plans/2026-09-14-w20-r1-human-centered-agent-responses/00-overview.md)
+
+### 2026-10-31 — W22 R1
+
+- Date: 2026-10-31.
+- Coordinate: W22 R1.
+- Affected requirement or section: `Checkout Move Ownership Proof`; `Managed Instruction Conflict Semantics`.
+- Previous contract: shared instruction ownership was already block-scoped, and outside edits could not conflict. The durable move-evidence boundary and its distinction from transient recovery snapshots were not explicit.
+- Replacement contract: move proof follows saved ownership class and provenance, compares current managed blocks with saved block hashes, and preserves outside bytes. Fully owned files, transient snapshots, and authentic manifest-schema-1 adoption retain their distinct proof rules.
+- Rationale: the observed whole-file move digest is implementation drift, not a previously accepted whole-file ownership contract.
+- Source: [ownership plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md) and [authority work phase](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
 
 ## Source Anchors
 
