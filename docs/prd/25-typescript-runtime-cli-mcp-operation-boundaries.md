@@ -121,6 +121,23 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 - R-ACCESS-18 (MUST): MCP profile membership and tool listing do not grant access. Cache lookup needs Store read and project read. Cache write needs Store write, project read, and explicit surface write intent. Optional cache refusal preserves successful source facts.
 - R-ACCESS-19 (MUST): setup migration preserves current grants and unrelated entries. Grant changes and key disablement take effect on the next Store call. Deleting a native or client-owned configuration file alone does not disable an active key; setup provides explicit remove and disable actions.
 
+### Checkout Move Operation Boundary
+
+The following operations are accepted for the 2.0.6 target. They are unavailable in installed 2.0.5. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) tracks implementation and package proof. [PRD 39](39-cli-command-model-and-operation-registry.md#checkout-path-update-and-safety-stop-r-checkout) owns public names. [PRD 38](38-global-store-and-project-state.md) owns identity, evidence, and Store state.
+
+| Operation | Store | Project | Host config | Mutation |
+| --- | --- | --- | --- | --- |
+| `project.checkout-move.preview` | read | read | none | read-only |
+| `project.checkout-move.apply` | write | read | none | selected Store binding/evidence and bounded completed receipt |
+
+- R-MOVE-ACCESS-1 (MUST): setup, direct CLI, and MCP call the same registered operations. Preview returns stateless facts and an evidence-derived review ID. It creates no durable review row, journal, binding, identity, or project file. Temporary Store read leases do not become move state.
+- R-MOVE-ACCESS-2 (MUST): apply needs explicit write intent and the exact reviewed source and target. MCP requires `allowWrite=true`. The shared core checks the existing connection key, current machine/project grants, declared access ceiling, and allowed target roots. A review ID selects facts. It grants no permission.
+- R-MOVE-ACCESS-3 (MUST): an MCP connection bound to the old path cannot retarget itself or widen its roots to admit the new path. A denied target stops only the move and names the needed connection review or admitted local CLI route. The move cannot edit native entries, host settings, keys, or grants. Direct CLI uses its normal local operator admission.
+- R-MOVE-ACCESS-4 (MUST): apply recomputes reviewed facts under the write lock. They include project/source checkout IDs, both exact canonical paths and comparison keys, saved ledger/evidence digests and version, and target ownership proof. Source switches and stale or unsafe facts reject apply. Bare `--yes` cannot choose a source.
+- R-MOVE-ACCESS-5 (MUST): move uses a dedicated Store-only transaction. The generic installation wrapper cannot bootstrap identity, write config, replace the ledger, adopt files, migrate a Store schema, or register another checkout within move apply. An unsupported Store or evidence schema returns a typed scoped stop. A compatibility or separate-checkout action needs its own review and access.
+- R-MOVE-ACCESS-6 (MUST): CLI human output, CLI JSON, and MCP carry the same selected source, review state, failed check, exact effect, and next action. Path binding, proved evidence, and completed receipt commit together. Retry cannot change another record or duplicate completion.
+
+
 ### Asset and Config Boundaries
 
 MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
@@ -375,6 +392,17 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: A checked map supplies one unique MCP name for each admitted operation. The registry still supplies the operation behavior and other tool fields.
 - Rationale: The owner asked for shorter tool names without changing operation IDs.
 - Source: [W26 R1 name contract](../plans/2026-10-23-w26-r1-mcp-tool-names/01-name-contract.md).
+
+### 2026-10-31 — W22 R1
+
+- Date: 2026-10-31
+- Coordinate: W22 R1
+- Affected requirement or section: Checkout Move Operation Boundary; Required MCP Surface.
+- Previous contract: The shared access contract declared Store, project, and host ceilings and one operation core. It did not specify move projections or source-bound review facts.
+- Replacement contract: Move preview is Store-read/project-read. Move apply is Store-write/project-read with host-config none, explicit intent, stateless review, and unchanged caller ceilings. It cannot use project-write setup fallbacks.
+- Rationale: A path repair must not become a permission or host-configuration repair through an adapter.
+- Source: [Checkout move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [authority work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
+
 
 ## Source Anchors
 

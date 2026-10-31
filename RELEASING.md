@@ -21,14 +21,14 @@ The workflow uses a GitHub-hosted runner, Node 24, npm 11.17.0, and a short-live
 ## Each release
 
 1. Update `packages/cli/package.json` to a new version. Update `package-lock.json` with it. Use a version that is absent from npm.
-2. Review the package, license, docs, release notes, and open GitHub security alerts in a pull request. Resolve or assess high-severity findings before release. Read the automated check results. Merge the pull request to `main` when it is ready. GitHub does not require another maintainer's approval or a passing check.
+2. Run the required tests on one final package tarball. Save its SHA-256 digest as one lowercase hex line in `.github/release-candidates/v<package-version>.sha256`. Review that file with the package, license, docs, release notes, and open GitHub security alerts in a pull request. Resolve or assess high-severity findings before release. Read the automated check results. Merge the pull request to `main` when it is ready. GitHub does not require another maintainer's approval or a passing check.
 3. Create a draft GitHub Release for tag `v<package-version>`. Point the tag at the reviewed commit on `main`. Mark a version with a hyphen, such as `2.0.3-rc.1`, as a prerelease.
 4. Review the draft tag, target commit, notes, and package version. Publish the GitHub Release. Future published releases are immutable.
 5. Watch the **Publish npm package** workflow. It stages the inspected package on npm. A stable version is staged with the `latest` tag. A prerelease is staged with `next`.
 6. On npmjs.com, open **Staged Packages**. Review the staged version. To inspect the tarball, run `npm stage download <stage-id>`. Approve the stage with two-factor authentication to make it public. If the package is wrong, reject the stage. Do not report the npm release as complete while approval is pending.
 7. Check the new version and dist tag with `npm view @brucewaynedecoy/make-docs versions dist-tags --json`. Check the npm package page for the provenance link to the GitHub workflow.
 
-The workflow stops if the tag is not on `main`, the tag and package versions differ, the GitHub prerelease choice disagrees with the version, or the version already exists on npm. It builds and tests before it stages the inspected tarball. npm publishes that tarball only after a maintainer approves it. If a staged package is rejected, the published GitHub Release still exists. Use a new version and tag for a corrected release.
+The workflow stops if the tag is not on `main`, the tag and package versions differ, the GitHub prerelease choice disagrees with the version, the version already exists on npm, or the built tarball differs from the reviewed digest. It builds and tests before it stages the inspected tarball. npm publishes that tarball only after a maintainer approves it. If a staged package is rejected, the published GitHub Release still exists. Use a new version and tag for a corrected release.
 
 ## After the first trusted publish works
 

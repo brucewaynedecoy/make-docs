@@ -901,6 +901,15 @@ try {
     const localStartedAt = performance.now();
     console.log("[smoke:pack][local] START");
     runLocalPackedSmoke();
+    const released205Args = process.env.MAKE_DOCS_RELEASED_205_TARBALL
+      ? ['--released-205', process.env.MAKE_DOCS_RELEASED_205_TARBALL]
+      : [];
+    execFileSync(process.execPath, [
+      path.join(scriptDir, 'w22-r1-package-proof.mjs'),
+      '--candidate', tarballPath,
+      '--candidate-package-json', path.join(cliPackageDir, 'package.json'),
+      ...released205Args,
+    ], { cwd: repoRoot, env: process.env, stdio: 'inherit', timeout: 180000 });
     console.log(`[smoke:pack][local] PASS ${formatDuration(performance.now() - localStartedAt)}`);
   }
   if (runPackageRunners) await runPackageRunnerSmokes(tarballPath);

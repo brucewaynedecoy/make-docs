@@ -221,6 +221,14 @@ export async function runProjectCommand(
   argv: string[],
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
+  if (argv[0] === "checkout-move") {
+    await runProjectCheckoutMoveCommand(argv.slice(1), launch);
+    return;
+  }
+  if (argv[0] === "checkout-register") {
+    await runProjectCheckoutRegisterCommand(argv.slice(1), launch);
+    return;
+  }
   if (argv[0] === "layout" || argv[0] === "persona") {
     await runProjectLayoutCommand(argv, launch);
     return;
@@ -239,6 +247,9 @@ export async function runProjectCommand(
         "       make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
         "       make-docs project state status [--target-root <path>] [--json]",
         "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
+        "       make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
+        "       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
+        "       make-docs project checkout-register preview|apply [--review <digest>] [--target-root <path>] [--json]",
         "",
         "Installation state belongs to the global Make Docs Store.",
         "The ensure command checks Store installation evidence and configured routers",
@@ -317,6 +328,101 @@ export async function runProjectCommand(
       "",
     ].join("\n"),
   );
+}
+
+async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [verb, ...args] = argv;
+  if (!verb || verb === "--help" || verb === "-h") {
+    process.stdout.write("Usage: make-docs project checkout-register preview [--target-root <path>] [--json]\n       make-docs project checkout-register apply --review <digest> [--target-root <path>] [--json]\nThis makes a new checkout ID. It leaves other checkout IDs and pending work in place.\n");
+    return;
+  }
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-register action: ${verb}.`);
+  let targetRoot: string | undefined, reviewDigest: string | undefined, json = false;
+  const seen = new Set<string>();
+  while (args.length) {
+    const flag = args.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    if (flag === "--target-root" || flag === "--review") {
+      const value = args.shift();
+      if (!value || value.startsWith("--")) throw new OperationError(`${flag} requires a value.`);
+      if (flag === "--target-root") targetRoot = path.resolve(value);
+      else if (verb === "apply") reviewDigest = value;
+      else throw new OperationError("--review is valid only with checkout-register apply.");
+    } else if (flag === "--json") json = true;
+    else throw new OperationError(`Unexpected checkout-register option: ${flag}.`);
+  }
+  if (verb === "apply" && !reviewDigest) throw new OperationError("Checkout registration requires --review from one preview.");
+  const invocation = await invokeOperation(`project.checkout-register.${verb}`, {
+    ...(targetRoot ? {targetRoot} : {}), ...(reviewDigest ? {reviewDigest} : {}),
+  }, createExecutionContext({surface: "cli", route: launch.route, callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference, cwd: targetRoot, writesAllowed: verb === "apply"}));
+  const result = invocation.value as Record<string, any>;
+  if (json) { printJson(result); return; }
+  process.stdout.write([
+    `Checkout registration: ${result.status}`,
+    `Target: ${result.targetRoot}`,
+    ...(result.projectId ? [`Project ID: ${result.projectId}`] : []),
+    ...(result.checkoutId ? [`New checkout ID: ${result.checkoutId}`] : []),
+    ...(result.effect ? [`Effect: ${result.effect}`] : []),
+    ...(result.projectFilesChanged === false ? ['Project files: unchanged'] : []),
+    ...(result.separateReviewDigest ? [`Review: ${result.separateReviewDigest}`] : []),
+    ...(result.nextAction ? [`Next: ${result.nextAction}`] : []), "",
+  ].join("\n"));
+}
+
+async function runProjectCheckoutMoveCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [verb, ...args] = argv;
+  if (!verb || verb === "--help" || verb === "-h") {
+    process.stdout.write("Usage: make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]\n       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]\nPreview is read only. Apply changes one Store checkout path after exact review.\n");
+    return;
+  }
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-move action: ${verb}.`);
+  let targetRoot: string | undefined, sourceCheckoutId: string | undefined, sourceRoot: string | undefined, reviewDigest: string | undefined;
+  let json = false, dryRun = false;
+  const seen = new Set<string>();
+  while (args.length) {
+    const flag = args.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    const value = () => { const next = args.shift(); if (!next || next.startsWith("--")) throw new OperationError(`${flag} requires a value.`); return next; };
+    if (flag === "--target-root") targetRoot = path.resolve(value());
+    else if (flag === "--source-checkout") sourceCheckoutId = value();
+    else if (flag === "--source-root" && verb === "apply") sourceRoot = path.resolve(value());
+    else if (flag === "--review" && verb === "apply") reviewDigest = value();
+    else if (flag === "--json") json = true;
+    else if (flag === "--dry-run" && verb === "apply") dryRun = true;
+    else throw new OperationError(`Unexpected checkout-move option: ${flag}.`);
+  }
+  if (verb === "apply" && (!sourceCheckoutId || !sourceRoot || !reviewDigest)) throw new OperationError("Apply requires --source-checkout, --source-root, and --review from one preview.");
+  const invocation = await invokeOperation(`project.checkout-move.${verb}`, {
+    ...(targetRoot ? {targetRoot} : {}),
+    ...(sourceCheckoutId ? {sourceCheckoutId} : {}),
+    ...(sourceRoot ? {sourceRoot} : {}),
+    ...(reviewDigest ? {reviewDigest} : {}),
+  }, createExecutionContext({
+    surface: "cli", route: launch.route, callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference, cwd: targetRoot, writesAllowed: verb === "apply", dryRun,
+  }));
+  const result = invocation.value as Record<string, any>;
+  if (json) { printJson(result); return; }
+  process.stdout.write([
+    `Checkout move: ${result.status}`,
+    `Target: ${result.targetRoot}`,
+    ...(result.projectId ? [`Project ID: ${result.projectId}`] : []),
+    ...(result.checkoutId ? [`Checkout ID: ${result.checkoutId}`] : []),
+    ...(result.sourceRoot ? [`Source: ${result.sourceRoot}`] : []),
+    ...(result.effect ? [`Effect: ${result.effect}`] : []),
+    ...(result.projectFilesChanged === false ? ['Project files: unchanged'] : []),
+    ...(result.candidates ?? []).flatMap((candidate: any) => [
+      `Source: ${candidate.sourceRoot} (${candidate.checkoutId})`,
+      `Available: ${candidate.available ? "yes" : "no"}`,
+      ...(candidate.reviewDigest ? [`Review: ${candidate.reviewDigest}`] : []),
+      ...candidate.blockers.map((blocker: string) => `Blocker: ${blocker}`),
+    ]),
+    ...(result.nextAction ? [`Next: ${result.nextAction}`] : []),
+    "",
+  ].join("\n"));
 }
 
 async function runProjectLayoutCommand(

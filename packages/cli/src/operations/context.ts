@@ -306,7 +306,7 @@ function createProductionStoreSession(explicitStoreRoot?: string): OperationStor
     withInstallationDatabase(
       targetRoot,
       (database) => database.prepare("SELECT 1 AS admitted").get(),
-      { storeRoot, readOnly: access === "read" },
+      { storeRoot, readOnly: access === "read" || operation.startsWith("project.checkout-move.") || operation.startsWith("project.checkout-register.") },
     );
     const release = acquireStoreAccess(storeRoot);
     if (operation === "project.state.recover") {
