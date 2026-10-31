@@ -49,6 +49,10 @@ describe("operation domain modules", () => {
       // Appended by W18 R12 P3 (PRD 41 R-GRAM-3).
       "prd.authority.validate",
       "performance.evidence.validate",
+      "project.checkout-register.preview",
+      "project.checkout-register.apply",
+      "project.checkout-move.preview",
+      "project.checkout-move.apply",
       "project.state.status",
       "project.state.recover",
       "project.surface.ensure",
@@ -107,6 +111,8 @@ describe("operation domain modules", () => {
         .filter((command) => command.mutates)
         .map((command) => command.id),
     ).toEqual([
+      "project.checkout-register.apply",
+      "project.checkout-move.apply",
       "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.repair",

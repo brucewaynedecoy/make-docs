@@ -94,9 +94,9 @@ Stage 1 t1–t4 are complete. The named existing PRDs were updated, both indepen
 
 ### Tasks
 
-- [ ] t5: Add failing focused cases for unchanged valid blocks with edited prefix/suffix in both root files. Assert the existing 2.0.5 move digest rejects them while the saved block proof remains valid.
-- [ ] t6: Add grouped negative cases for changed blocks, strict missing/duplicate/reversed markers, changed fully owned files, invalid config identity, and historical paths that no longer prove current ownership.
-- [ ] t7: Add versioned-proof cases for valid v1 per-block evidence, missing independent saved proof, unknown evidence versions, and authentic schema-1 whole-file adoption. Add an evidence-v2 old-reader check: after the fixed tool saves v2 evidence, move a disposable copy again and attempt that further relocation with released 2.0.5. Assert refusal without losing rows or history. Do not claim that the immutable old binary refuses ordinary reads or writes at an already-bound path, or that downgrade is supported.
+- [x] t5: Add failing focused cases for unchanged valid blocks with edited prefix/suffix in both root files. Assert the existing 2.0.5 move digest rejects them while the saved block proof remains valid.
+- [x] t6: Add grouped negative cases for changed blocks, strict missing/duplicate/reversed markers, changed fully owned files, invalid config identity, and historical paths that no longer prove current ownership.
+- [x] t7: Add versioned-proof cases for valid v1 per-block evidence, missing independent saved proof, unknown evidence versions, and authentic schema-1 whole-file adoption. Add an evidence-v2 old-reader check: after the fixed tool saves v2 evidence, move a disposable copy again and attempt that further relocation with released 2.0.5. Assert refusal without losing rows or history. Do not claim that the immutable old binary refuses ordinary reads or writes at an already-bound path, or that downgrade is supported.
 
 ### Acceptance criteria
 
@@ -110,15 +110,15 @@ Stage 1 t1–t4 are complete. The named existing PRDs were updated, both indepen
 
 ### Closeout Notes
 
-The red results must be retained as failures that explain the defect. They are not release proof. Tests are planned and have not run.
+The focused v1 bridge case failed against the original verifier. It reported that the moved content did not match the last verified Store facts after outside text and a config comment changed. The edited verifier passed the same case. The released 2.0.5 executable also refused a further move after version 2 evidence was saved. These results use disposable checkouts and a temporary Store. See [Phase 1 implementation evidence](evidence.md#phase-1-implementation-evidence). They do not prove release readiness.
 
 ## Stage 3 - Implement Scoped Evidence
 
 ### Tasks
 
-- [ ] t8: Reuse strict parseManagedBlock and saved ownership/provenance readers in one shared move verifier. Hash only valid managed-block bodies; compare fully owned files with their trusted full-file facts. Preserve all project-owned bytes.
-- [ ] t9: Add evidence-version 2 inside existing verification_json with a retained version 1 reader. Upgrade only a selected record after independent proof. Keep ledger claims unchanged. Exclude config comments/unrelated settings and stale historical paths from permanent move identity.
-- [ ] t10: Run focused tests and review the verifier at its call sites. Preserve exact pending-recovery snapshots, safe file-kind/parent/path checks, and unknown-version refusal. Record the proof contract for P2 and the limits for P3.
+- [x] t8: Reuse strict parseManagedBlock and saved ownership/provenance readers in one shared move verifier. Hash only valid managed-block bodies; compare fully owned files with their trusted full-file facts. Preserve all project-owned bytes.
+- [x] t9: Add evidence-version 2 inside existing verification_json with a retained version 1 reader. Upgrade only a selected record after independent proof. Keep ledger claims unchanged. Exclude config comments/unrelated settings and stale historical paths from permanent move identity.
+- [x] t10: Run focused tests and review the verifier at its call sites. Preserve exact pending-recovery snapshots, safe file-kind/parent/path checks, and unknown-version refusal. Record the proof contract for P2 and the limits for P3.
 
 ### Acceptance criteria
 
@@ -133,4 +133,4 @@ The red results must be retained as failures that explain the defect. They are n
 
 ### Closeout Notes
 
-Record the four testing decisions, actual automated outcomes, required agent Human Experience Review, and supported scope in evidence.md. Guided Progress Review is advisory and deferred to an installed increment. No benchmark, NUAT run, or human gate is selected. Phase and capability status remain unimplemented until actual work and proof exist.
+The focused code and test work is complete but uncommitted. The current move path uses the new proof. P2 still must use that proof in shared preview and apply operations. P3 still needs an installed candidate review. See [Phase 1 implementation evidence](evidence.md#phase-1-implementation-evidence) for test results, Human Experience Review, and limits. No benchmark, Unassisted Goal Test, human gate, or release was run.

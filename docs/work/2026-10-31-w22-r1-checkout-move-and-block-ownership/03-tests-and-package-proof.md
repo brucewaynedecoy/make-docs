@@ -82,9 +82,9 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Tasks
 
-- [ ] t1: Add grouped cases to the focused w22-r1-checkout-move suite and nearest existing ownership, installation, CLI, wizard, MCP, and W22 platform/legacy/router suites. Keep the matrix explicit without making one task per edge.
-- [ ] t2: Add Store-only and old-reader guards. Compare logical durable tables, ledger bytes, IDs, and receipt/history identities; permit released transient leases without mistaking support-file checksums for durable mutation.
-- [ ] t3: Run affected suites after P1/P2. Retain failure details and fix only relevant defects within the common two-cycle repair budget. Stop for an unsafe fixture or exhausted budget.
+- [x] t1: Add grouped cases to the focused w22-r1-checkout-move suite and nearest existing ownership, installation, CLI, wizard, MCP, and W22 platform/legacy/router suites. Keep the matrix explicit without making one task per edge.
+- [x] t2: Add Store-only and old-reader guards. Compare logical durable tables, ledger bytes, IDs, and receipt/history identities; permit released transient leases without mistaking support-file checksums for durable mutation.
+- [x] t3: Run affected suites after P1/P2. Retain failure details and fix only relevant defects within the common two-cycle repair budget. Stop for an unsafe fixture or exhausted budget.
 
 ### Acceptance criteria
 
@@ -104,9 +104,9 @@ Expanded tests are planned, not run. Store each actual result and its covered gr
 
 ### Tasks
 
-- [ ] t4: Obtain the published @brucewaynedecoy/make-docs@2.0.5 tarball from the registry or an approved archive. Record source, package/version, published integrity, and local SHA-256. A verified cache may supply the same artifact. If unavailable or unverified, stop authentic proof as blocked; never substitute hand-written rows or current source.
-- [ ] t5: Use released 2.0.5 to install a disposable buildos root and a separately installed kits/make-blueprint project with another ID. Snapshot the seed project and Store, add prefix/suffix text to both root instruction files, then rename the parent to make-kit.
-- [ ] t6: Run normal setup with the fixed development candidate. Approve only the root move, prove kit unchanged, then separately move the kit. Record file bytes, selected path bindings, IDs, ledger facts, and history counts/identities. Repeat setup to prove no move/fresh install.
+- [x] t4: Obtain the published @brucewaynedecoy/make-docs@2.0.5 tarball from the registry or an approved archive. Record source, package/version, published integrity, and local SHA-256. A verified cache may supply the same artifact. If unavailable or unverified, stop authentic proof as blocked; never substitute hand-written rows or current source.
+- [x] t5: Use released 2.0.5 to install a disposable buildos root and a separately installed kits/make-blueprint project with another ID. Snapshot the seed project and Store, add prefix/suffix text to both root instruction files, then rename the parent to make-kit.
+- [x] t6: Run normal setup with the fixed development candidate. Approve only the root move, prove kit unchanged, then separately move the kit. Record file bytes, selected path bindings, IDs, ledger facts, and history counts/identities. Repeat setup to prove no move/fresh install.
 - [ ] t7: Inspect successful, cancelled, ambiguous, unsafe, and later-setup-failure output in the actual installed candidate. Record required agent Human Experience Review against index promises. Offer the bounded advisory Guided Progress Review and record feedback or decline without a release gate.
 
 ### Acceptance criteria
@@ -128,9 +128,9 @@ Do not call a development package the final 2.0.6 candidate. D-049 stays open. N
 
 ### Tasks
 
-- [ ] t8: Recheck package scripts, then run npm test, npm run validate:defaults, npm run build, and bounded npm run smoke:pack:local for development evidence. Preserve existing required legacy/setup/Store checks.
-- [ ] t9: Extend the package-proof runner and platform-safety workflow to carry the new case against one downloaded candidate. Keep real-host and final-artifact requirements for P4; source tests alone do not add installed workflow coverage.
-- [ ] t10: Assemble actual development results and limits in evidence.md. Retain exact artifact/runtime/OS/command facts and the seed snapshot route. Hand off final-version and full-smoke/host proof to P4.
+- [x] t8: Recheck package scripts, then run npm test, npm run validate:defaults, npm run build, and bounded npm run smoke:pack:local for development evidence. Preserve existing required legacy/setup/Store checks.
+- [x] t9: Extend the package-proof runner and platform-safety workflow to carry the new case against one downloaded candidate. Keep real-host and final-artifact requirements for P4; source tests alone do not add installed workflow coverage.
+- [x] t10: Assemble actual development results and limits in evidence.md. Retain exact artifact/runtime/OS/command facts and the seed snapshot route. Hand off final-version and full-smoke/host proof to P4.
 
 ### Acceptance criteria
 

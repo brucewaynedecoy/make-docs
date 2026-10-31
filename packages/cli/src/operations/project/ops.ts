@@ -1,12 +1,13 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { registerSkillAdoptionRecovery } from "../../skills-adoption";
-import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "../../store/installation-state";
+import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation, previewInstallationCheckoutMove, applyInstallationCheckoutMove, registerSeparateInstallationCheckout } from "../../store/installation-state";
 import { z } from "zod";
 import {
   PROJECT_READ_ACCESS,
   PROJECT_WRITE_ACCESS,
   STORE_READ_PROJECT_READ_ACCESS,
+  STORE_WRITE_PROJECT_READ_ACCESS,
   STORE_WRITE_PROJECT_WRITE_ACCESS,
 } from "../access";
 import {
@@ -76,8 +77,72 @@ const stateRecoverInput = z.object({
   operationId: z.string().min(1),
   mode: z.enum(["resume", "rollback"]),
 }).strict();
+const checkoutMovePreviewInput = z.object({
+  targetRoot: z.string().min(1).optional(),
+  sourceCheckoutId: z.string().min(1).optional(),
+}).strict();
+const checkoutMoveApplyInput = z.object({
+  targetRoot: z.string().min(1).optional(),
+  sourceCheckoutId: z.string().min(1),
+  sourceRoot: z.string().min(1),
+  reviewDigest: z.string().regex(/^[a-f0-9]{64}$/),
+}).strict();
+const checkoutRegisterApplyInput = z.object({
+  targetRoot: z.string().min(1).optional(),
+  reviewDigest: z.string().regex(/^[a-f0-9]{64}$/),
+}).strict();
 
 export const projectOperations: OperationDefinition[] = [{
+  id: "project.checkout-register.preview",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
+  summary: "Review a new checkout ID for an existing project without changing files or Store rows.",
+  mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: z.object({targetRoot: z.string().min(1).optional()}).strict(),
+  handler(rawInput, context) {
+    const input = z.object({targetRoot: z.string().min(1).optional()}).strict().parse(rawInput);
+    return previewInstallationCheckoutMove(path.resolve(input.targetRoot ?? context.cwd), undefined, context.storeRoot);
+  },
+}, {
+  id: "project.checkout-register.apply",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
+  summary: "Register a distinct reviewed checkout ID for a managed project install.",
+  mutates: "write",
+  access: STORE_WRITE_PROJECT_WRITE_ACCESS,
+  status: "active",
+  inputSchema: checkoutRegisterApplyInput,
+  handler(rawInput, context) {
+    const input = checkoutRegisterApplyInput.parse(rawInput);
+    if (context.dryRun) return previewInstallationCheckoutMove(path.resolve(input.targetRoot ?? context.cwd), undefined, context.storeRoot);
+    return registerSeparateInstallationCheckout(path.resolve(input.targetRoot ?? context.cwd), input.reviewDigest, context.storeRoot);
+  },
+}, {
+  id: "project.checkout-move.preview",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
+  summary: "Review saved checkout paths and target ownership without changing Store or project files.",
+  mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: checkoutMovePreviewInput,
+  handler(rawInput, context) {
+    const input = checkoutMovePreviewInput.parse(rawInput);
+    return previewInstallationCheckoutMove(path.resolve(input.targetRoot ?? context.cwd), input.sourceCheckoutId, context.storeRoot);
+  },
+}, {
+  id: "project.checkout-move.apply",
+  mcp: { profiles: ["setup"], defaultExposure: "deferred" },
+  summary: "Move one reviewed checkout binding in the Store. Project files stay unchanged.",
+  mutates: "write",
+  access: STORE_WRITE_PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: checkoutMoveApplyInput,
+  handler(rawInput, context) {
+    const input = checkoutMoveApplyInput.parse(rawInput);
+    if (context.dryRun) return previewInstallationCheckoutMove(path.resolve(input.targetRoot ?? context.cwd), input.sourceCheckoutId, context.storeRoot);
+    return applyInstallationCheckoutMove(path.resolve(input.targetRoot ?? context.cwd), input.sourceCheckoutId, input.sourceRoot, input.reviewDigest, context.storeRoot);
+  },
+}, {
   id: "project.state.status",
   mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
   summary: "Read installation state and the next safe action from the global Store.",

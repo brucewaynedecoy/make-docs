@@ -1,12 +1,12 @@
 ---
 title: "Checkout Move and Managed-Block Ownership Repair"
 kind: "work"
-status: "draft"
+status: "in-progress"
 coordinate: "W22 R1"
 follow_on:
   route: "implementation-loop"
-  next_prompt: "Obtain implementation authorization, then start Phase 1 with PRD authority reconciliation."
-  why: "The reviewed plan now has a bounded work queue; product and Store changes remain unapproved."
+  next_prompt: "Run Phase 3 installed-package and broader flow proof with temporary Stores."
+  why: "P1 and P2 local code and focused tests are complete. Installed-package proof remains open."
   coordinate_handoff: "Carry W22 R1 and the active phase into later evidence, history, and commits."
 ---
 
@@ -14,15 +14,15 @@ follow_on:
 
 ## Purpose
 
-This backlog turns the [reviewed W22 R1 plan](../../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-overview.md) into four ordered phases for a Make Docs 2.0.6 candidate. The user authorized plan review and backlog generation on 2026-10-31. The user then authorized scoped PRD reconciliation and gap review. P1 Stage 1 t1–t4 are now complete after independent review and Store-free validation. Four of 42 tasks are complete; the other 38 remain unchecked. A1–A3 are satisfied as documentation acceptance only. A4–A32 and every code, product test, version, release, and live-repair task remain unrun and unapproved.
+This backlog turns the [reviewed W22 R1 plan](../../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-overview.md) into four ordered phases for a Make Docs 2.0.6 candidate. The user authorized plan review, scoped PRD reconciliation, P1, and P2 implementation. P1 and P2 local code and focused tests are complete and uncommitted. P3 installed-package proof and P4 release work remain open.
 
-The plan review found and corrected material gaps. The [evidence report](evidence.md) retains those actual documentation findings. It contains no product test pass or repair result. [D-049](../../prd/03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) stays open.
+The plan review found and corrected material gaps. The [evidence report](evidence.md) retains those findings and the local P1 and P2 test results. [D-049](../../prd/03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) stays open until installed-package proof.
 
 ## Authority and Implementation Gate
 
-This is a scoped delta backlog. Existing PRDs remain current authority. The user requested this backlog before full PRD reconciliation. This is a bounded departure from the usual plan-to-PRD-to-work order. The user authorized Phase 1 Stage 1 documentation work. The named existing owners are reconciled and the independent semantic and Store-free authority checks passed. That documentation gate is complete. It does not authorize implementation.
+This is a scoped delta backlog. Existing PRDs remain current authority. The user requested this backlog before full PRD reconciliation. This is a bounded departure from the usual plan-to-PRD-to-work order. The named existing owners are reconciled and the independent semantic and Store-free authority checks passed. The user then authorized P1 regression tests and the ownership fix, followed by P2 implementation. Both local phases remain uncommitted.
 
-The future code implementation gate is separate user authorization plus completion of Phase 1 Stage 1. Saving or reviewing this backlog does not open that gate. Do not change the real Store, Make Kit files, global installation, package version, tests, or source code under this documentation request. Do not stage, commit, push, merge, tag, stage an npm package, publish, or repair the live root or kit.
+The user later authorized P3 and P4 work up to a check commit. The work uses temporary Stores. The user did not authorize a commit, live Store repair, tag, package publication, or release. The package version is now 2.0.6 in the uncommitted tree.
 
 No new PRD or broad rewrite is planned. Keep the active PRD set and W22 R0 history in place. Preserve authentic schema-1 adoption rules. Keep current shared-file ownership block-scoped.
 
@@ -97,7 +97,7 @@ Agent Human Experience Review is required for applicable promises. It is separat
 ## Intended Follow-On
 
 - Route: implementation-loop.
-- Next step: Obtain separate implementation authorization before P1 Stage 2 or any code/product-test task. The P1 Stage 1 documentation gate is complete.
-- Why: The reviewed repair now has a bounded queue and a clear pre-code authority gate.
+- Next step: Review the uncommitted Phase 1 result, then use its shared ownership proof in Phase 2 preview and apply work when that work starts.
+- Why: Phase 1 now has focused regression evidence and a versioned proof reader and writer.
 - Coordinate Handoff: Carry W22 R1 and the active P coordinate into later history and commits.
-- Current state: Documentation only. No implementation, test execution, version bump, Store repair, or release action has started.
+- Current state: Phase 1 code and focused tests are complete but uncommitted. Phase 2 to Phase 4, full package proof, version bump, live Store repair, and release remain open.

@@ -64,7 +64,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     ];
     const w23R0P2Ids = ["work.backlog.snapshot"];
     const w23R0P5Ids = ["work.backlog-cache.lookup", "work.backlog-cache.write"];
-    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
+    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !entry.id.startsWith("project.checkout-move.") && !entry.id.startsWith("project.checkout-register.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
     expect(admitted.filter(entry => r2P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "performance.evidence.validate", status: "active" },
     ]);

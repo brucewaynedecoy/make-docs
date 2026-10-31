@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Setup Path-Move Flow"
 kind: "work"
-status: "draft"
+status: "completed"
 coordinate: "W22 R1 P2"
 source:
   type: "prd"
@@ -18,7 +18,7 @@ Detect and review a moved install before fresh setup. Use the shared proof contr
 
 Discover records from valid config projectId without treating that ID alone as proof of a move. The shared preview and apply operations must serve setup, direct CLI, and MCP. Move apply changes only the selected Store path/evidence and its completed receipt in one transaction. It cannot write project files.
 
-Every task remains unrun. P1 authority and separate implementation authorization are prerequisites.
+The user authorized P2 implementation. The local code and focused tests use temporary Stores. Installed-package proof remains in P3.
 
 ## Human Experience Outcome
 
@@ -66,9 +66,9 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Tasks
 
-- [ ] t1: Write red flow cases for config-ID discovery before path-bound manifest lookup, fresh classification, or editable selections. Include the root and a distinct nested kit.
-- [ ] t2: Specify Move this existing install here, Register a separate checkout, and Cancel outcomes. Add grouped tests for live/recreated source paths, multiple candidates, target claims, missing/invalid IDs, pending work, and active/dead locks.
-- [ ] t3: Add red no-change cases for status, preview, dry-run, cancel, no approval, and bare non-interactive --yes. Assert logical durable state rather than raw SQLite file checksums.
+- [x] t1: Write red flow cases for config-ID discovery before path-bound manifest lookup, fresh classification, or editable selections. Include the root and a distinct nested kit.
+- [x] t2: Specify Move this existing install here, Register a separate checkout, and Cancel outcomes. Add grouped tests for live/recreated source paths, multiple candidates, target claims, missing/invalid IDs, pending work, and active/dead locks.
+- [x] t3: Add red no-change cases for status, preview, dry-run, cancel, no approval, and bare non-interactive --yes. Assert logical durable state rather than raw SQLite file checksums.
 
 ### Acceptance criteria
 
@@ -82,16 +82,16 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Closeout Notes
 
-These are focused red tests before code. No test has run in the current documentation task. Retain actual failures later in evidence.md.
+The focused cases cover config-ID discovery, root and kit independence, blocked moves, and logical Store no-change. The tests were added during implementation. A separate pre-fix red run was not retained. The remaining installed-package proof belongs to P3.
 
 ## Stage 2 - Add Shared Preview and Safe Apply
 
 ### Tasks
 
-- [ ] t4: Add proposed project.checkout-move.preview and project.checkout-move.apply to the shared operation contract and registry projections. Keep the three-part ID grammar. CLI checkout-move preview/apply and MCP checkout_move_preview/apply must use the same core.
-- [ ] t5: Build stateless reviewed facts from selected project/checkout, canonical source/target paths and comparison keys, saved ledger/evidence digests, evidence version, and proved target ownership. Preview writes no durable review row.
-- [ ] t6: Implement move apply with existing Store access/locking and one SQLite transaction for bounded move journal/receipt, path binding, and proved evidence. Do not use generic withInstallationOperation unchanged. Preserve ledger bytes and history.
-- [ ] t7: Enforce Store-write/project-read/host-config-none admission. Require allowWrite=true for MCP apply, the exact reviewed source/target, and caller root scope. Recheck under lock; reject source switching, stale proof, competing claims, unsupported schema, or pending work.
+- [x] t4: Add proposed project.checkout-move.preview and project.checkout-move.apply to the shared operation contract and registry projections. Keep the three-part ID grammar. CLI checkout-move preview/apply and MCP checkout_move_preview/apply must use the same core.
+- [x] t5: Build stateless reviewed facts from selected project/checkout, canonical source/target paths and comparison keys, saved ledger/evidence digests, evidence version, and proved target ownership. Preview writes no durable review row.
+- [x] t6: Implement move apply with existing Store access/locking and one SQLite transaction for bounded move journal/receipt, path binding, and proved evidence. Do not use generic withInstallationOperation unchanged. Preserve ledger bytes and history.
+- [x] t7: Enforce Store-write/project-read/host-config-none admission. Require allowWrite=true for MCP apply, the exact reviewed source/target, and caller root scope. Recheck under lock; reject source switching, stale proof, competing claims, unsupported schema, or pending work.
 
 ### Acceptance criteria
 
@@ -105,15 +105,15 @@ These are focused red tests before code. No test has run in the current document
 
 ### Closeout Notes
 
-Retain transaction/fault results and operation-access comparisons after execution. No ad hoc setup SQL or real Store repair is authorized by this backlog.
+The focused tests prove rollback when the receipt insert fails. An exact retry returns the saved receipt without a second row. Access checks cover the registry contract and the MCP write flag. The live Store was not used.
 
 ## Stage 3 - Integrate the Review and Reclassification
 
 ### Tasks
 
-- [ ] t8: Wire discovery before compatibility/fresh setup classification. Show source and target facts, available choices, disabled unsafe choices, and useful next actions. Keep JSON and human results consistent.
-- [ ] t9: Route Register a separate checkout to a distinct reviewed managed-install action with its own project-write admission and adoption review. Force a new checkout ID; do not let absent-source automatic binding steal the old record or copy pending work.
-- [ ] t10: After move, reread the bound manifest and saved selections before planning later setup changes. Keep move completion distinct from cancelled/failed later edits. Run focused cases, record root/kit independence, and hand off to P3.
+- [x] t8: Wire discovery before compatibility/fresh setup classification. Show source and target facts, available choices, disabled unsafe choices, and useful next actions. Keep JSON and human results consistent.
+- [x] t9: Route Register a separate checkout to a distinct reviewed managed-install action with its own project-write admission and adoption review. Force a new checkout ID; do not let absent-source automatic binding steal the old record or copy pending work.
+- [x] t10: After move, reread the bound manifest and saved selections before planning later setup changes. Keep move completion distinct from cancelled/failed later edits. Run focused cases, record root/kit independence, and hand off to P3.
 
 ### Acceptance criteria
 
@@ -129,4 +129,4 @@ Retain transaction/fault results and operation-access comparisons after executio
 
 ### Closeout Notes
 
-Record exact outcomes in evidence.md. Carry failed or unrun claims to P3 without calling them passed. Guided Progress Review is advisory; Performance Testing and Unassisted Goal Testing remain not-needed-now on the stated triggers. No live root or kit repair has occurred.
+Setup now reviews the config ID before the path-bound manifest and fresh-install checks. Move and separate registration use distinct shared operations. Setup restarts planning after either action. The focused root and kit test shows separate checkout IDs and paths. P3 still owns installed-package proof and broader flow checks. No live root or kit repair has occurred.

@@ -63,9 +63,9 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Tasks
 
-- [ ] t1: After P3 proof and implementation authorization, bump packages/cli/package.json from 2.0.5 to 2.0.6 and update only its workspace version entries in package-lock.json through supported tooling. Keep the private root at 0.0.0.
-- [ ] t2: Update only current-version claims and owning generated metadata. Author reusable guidance in packages/docs/template first; rebuild through scripts. Preserve historical 2.0.5 records and unrelated dependencies.
-- [ ] t3: Write a scoped release note using its actual writing date and the established 2.0.5 note shape. Update RELEASING.md, PRD 10, and the maintainer release guide only where steps/proof change.
+- [x] t1: After P3 proof and implementation authorization, bump packages/cli/package.json from 2.0.5 to 2.0.6 and update only its workspace version entries in package-lock.json through supported tooling. Keep the private root at 0.0.0.
+- [x] t2: Update only current-version claims and owning generated metadata. Author reusable guidance in packages/docs/template first; rebuild through scripts. Preserve historical 2.0.5 records and unrelated dependencies.
+- [x] t3: Write a scoped release note using its actual writing date and the established 2.0.5 note shape. Update RELEASING.md, PRD 10, and the maintainer release guide only where steps/proof change.
 - [ ] t4: Review candidate contents, license, dependency changes, automated results, and open GitHub security alerts under RELEASING.md. Resolve or explicitly assess high-severity findings. Carry prior platform/client and bounded performance caveats unless exact fresh proof closes them.
 
 ### Acceptance criteria
@@ -86,9 +86,9 @@ Version and notes remain unchanged until execution. A security review is scoped 
 
 ### Tasks
 
-- [ ] t5: Run required final-tree source and full CLI checks, defaults, build, and current release commands. Record reviewed source revision/tree state, package/lock versions, and exact command results. Pack one final 2.0.6 tarball and record SHA-256 and contents.
+- [x] t5: Run required final-tree source and full CLI checks, defaults, build, and current release commands. Record reviewed source revision/tree state, package/lock versions, and exact command results. Pack one final 2.0.6 tarball and record SHA-256 and contents.
 - [ ] t6: Install that tarball in clean isolated test roots with explicit disposable Stores and source repository unavailable. Confirm metadata and --version report 2.0.6. Repeat the authentic 2.0.5 rename fixture, entire PRD 10 fixed legacy/setup/Store matrix, persistent package-manager link proof, no-scripts checks, and CLI/MCP parity.
-- [ ] t7: Run complete npm run smoke:pack, including local and online package-runner paths, against that same tarball. Record one common digest. Separate passing runs on different tarballs cannot satisfy this gate.
+- [x] t7: Run complete npm run smoke:pack, including local and online package-runner paths, against that same tarball. Record one common digest. Separate passing runs on different tarballs cannot satisfy this gate.
 - [ ] t8: Run the required installed matrix on real Windows, macOS, and Linux hosts with Node.js 24 and source unavailable. Record exact runtime/package manager/host and common artifact digest. Missing seed, host, capability, or required case is blocked unless PRD 10 has an explicit valid time-bounded owner exception.
 
 ### Acceptance criteria
@@ -110,7 +110,7 @@ Retain exact results and limitations in evidence.md. D-049 can close only after 
 
 ### Tasks
 
-- [ ] t9: Review publish-npm.yml and platform-safety.yml against the final candidate. Add an artifact-match guard so a tag workflow rebuild cannot silently replace the approved digest. If different, stop staging until that replacement passes required proof.
+- [x] t9: Review publish-npm.yml and platform-safety.yml against the final candidate. Add an artifact-match guard so a tag workflow rebuild cannot silently replace the approved digest. If different, stop staging until that replacement passes required proof.
 - [ ] t10: Prepare the release decision with exact source, tested digest, security findings, limits, notes, and clean scoped diff. Obtain separate explicit authorization for tag/GitHub release, push/merge as needed, npm staging, and public npm approval. Stop at the first unapproved action.
 - [ ] t11: Only after those approvals, execute the approved release/stage steps. Verify stage identity and staged tarball digest before human npm approval with two-factor authentication. A GitHub release or staging job alone is not public npm availability.
 - [ ] t12: After separately approved public release, verify public 2.0.6, stable latest tag, provenance link, downloaded integrity/digest, and clean installed version. Record actual availability. Keep the live Make Kit root/kit repair separate, with its own later previews and authorization.

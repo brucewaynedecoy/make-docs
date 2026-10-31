@@ -94,6 +94,24 @@ jobs:
           appendFileSync(process.env.GITHUB_OUTPUT, `dist_tag=${process.env.RELEASE_PRERELEASE === 'true' ? 'next' : 'latest'}\n`);
           NODE
 
+      - name: Match the reviewed candidate digest
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          TARBALL: ${{ runner.temp }}/${{ steps.pack.outputs.filename }}
+        run: |
+          expected_file=".github/release-candidates/${RELEASE_TAG}.sha256"
+          test -f "$expected_file"
+          expected="$(cat "$expected_file")"
+          if ! [[ "$expected" =~ ^[a-f0-9]{64}$ ]]; then
+            echo "The reviewed candidate digest is missing or invalid."
+            exit 1
+          fi
+          actual="$(sha256sum "$TARBALL" | cut -d ' ' -f 1)"
+          if [ "$actual" != "$expected" ]; then
+            echo "The release package differs from the reviewed candidate."
+            exit 1
+          fi
+
       - name: Stage the inspected package with npm OIDC
         env:
           TARBALL: ${{ runner.temp }}/${{ steps.pack.outputs.filename }}
