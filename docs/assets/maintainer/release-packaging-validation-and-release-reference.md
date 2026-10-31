@@ -56,7 +56,7 @@ Run the validation set that matches the change, then escalate to the full chain 
 | `npm test` | smoke-harness behavior plus CLI behavior, planner/install flows, skills behavior, and integration coverage |
 | `npm run validate:defaults -w packages/cli` | profile-aware generated assets still match the checked-in default surface |
 | `bash scripts/check-instruction-routers.sh` | router pairs, byte identity, and line-budget rules still hold |
-| `npm run smoke:pack:local` | prepack bundling, local tarball checks, Store installation records, skills, backup, and uninstall work without package registry access |
+| `npm run smoke:pack:local` | prepack bundling, local tarball checks, Store records, skills, backup, uninstall, and the released 2.0.5 checkout-move seed. Supply a verified `MAKE_DOCS_RELEASED_205_TARBALL` for an offline seed; package dependencies still need an npm cache or registry access. |
 | `npm run smoke:pack:runners` | the cold-cache `npx`, `pnpm dlx`, and `bun x` package-runner checks pass with package registry access |
 | `npm run smoke:pack` | the local and package-runner paths pass together as the complete release gate |
 
@@ -97,9 +97,9 @@ Follow [RELEASING.md](../../../RELEASING.md) for the current GitHub Release and 
 1. Run `npm test`.
 2. Run `npm run validate:defaults -w packages/cli`.
 3. Run `bash scripts/check-instruction-routers.sh` when router or docs-resource changes are involved.
-4. Run `npm run smoke:pack` in an environment with package registry access.
-5. Inspect a tarball with `npm pack --json -w packages/cli` when package contents need manual review. The smoke pack already exercises `npx`, `pnpm dlx`, and Bun package-runner installs from the tarball.
-6. Open a release pull request. After it merges, publish a GitHub Release. The release workflow stages only `packages/cli` on npm. A maintainer reviews and approves the staged package with two-factor authentication before it becomes public.
+4. Run `npm run smoke:pack` against one exact tarball in an environment with package registry access. Include the released 2.0.5 root and kit move case.
+5. Inspect the tarball contents and record its SHA-256 digest in `.github/release-candidates/v<package-version>.sha256`. The tag workflow must build the same bytes before npm staging.
+6. Open a release pull request and read the real Windows, macOS, and Linux installed-package checks. After it merges, publish a GitHub Release. The release workflow stages only `packages/cli` on npm. A maintainer reviews and approves the staged package with two-factor authentication before it becomes public.
 
 If the issue is still at the local build stage, step back to [Building and Installing the CLI Locally](cli-development-local-build-and-install.md). If the issue is stale dogfood docs or template propagation, step back to [Dogfood and Maintainer Operations](maintainer-dogfood-and-maintainer-operations.md).
 

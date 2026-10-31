@@ -30,6 +30,10 @@ describe("make-docs MCP runtime", () => {
       // Derived from the operation registry (R-REG-2, R-MIG-3).
       "prd_validate",
       "performance_validate",
+      "checkout_register_preview",
+      "checkout_register_apply",
+      "checkout_move_preview",
+      "checkout_move_apply",
       "project_status",
       "project_recover",
       "surface_ensure",

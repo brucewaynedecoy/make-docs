@@ -1050,6 +1050,24 @@ Code anchors:
 
 **Resolution**: The owner approved the P9 wording. The final 2.0.5 Codex app showed `Task count unavailable: unsupported record format.` for older unsupported records and `62 of 66 tasks complete` for W25. The [P11 installed result](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md#owner-accepted-p11-scope--2026-10-26) and [current W25 summary](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence.md#2026-10-26-final-205-installed-result) retain the tested scope. This closes the false-zero drift in the named report path.
 
+### D-049 Moved Checkout Setup Bypasses Project Identity and Managed-Block Ownership
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The 2.0.5 path-move flow does not meet the existing project identity and block ownership rules. W22 R1 P1 and P2 code and focused tests now exist in the local checkout. They are uncommitted. Installed-package proof remains open. | Keep this entry open until the installed package passes the move, outside-edit, cancellation, and repeat-run checks. |
+
+**Issue**: On 2026-10-31, the owner reported that renaming the project folder from `buildos` to `make-kit` made root and Make Blueprint setup report missing installation ownership. Both config files retained their distinct project IDs. Read-only checks found both saved checkout records at the old paths, with no pending installation operation on either record. Setup reads the installation record by the new path before it reviews the moved checkout. It then reports `missing-manifest-recognizable` and starts the fresh-project flow.
+
+The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs block hashes match the saved installation record. Only text outside those blocks differs from the saved full-file state. Yet `managedContentDigest` hashes each whole tracked file. The move check therefore treats user-owned text as Make Docs ownership evidence. This conflicts with [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md). The user files do not need correction.
+
+**Why it matters**: A normal folder rename can strand a valid installation. Setup can present fresh-install choices for an existing project. Whole-file checks can also turn normal user edits into an ownership failure and make a manual Store change appear necessary.
+
+**Recommendation**: Follow the [W22 R1 plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-overview.md). Find candidate checkout records from the config project ID before fresh-install classification. Review the old and current paths before any move. Keep project identity separate from proof that a checkout moved. Use the existing managed-block ownership boundary for shared instruction files. Preserve user text, project and checkout IDs, saved settings, and history. Keep pending-operation and unsafe-path checks. Handle old whole-file verification records through proved ownership facts rather than a blind checksum reset.
+
+**To close**: The installed 2.0.6 candidate must prove the 2.0.5-to-2.0.6 move flow with user edits outside both root blocks. It must preserve those bytes and the saved identities and history. Root and nested kit moves must remain separate. Cancellation and dry runs must change no project or Store state. Changed blocks, unsafe paths, ambiguous records, and pending work must stop with a useful next action. A second successful run must make no change. Keep proof scoped to the tested platforms and package. Plan review, scoped backlog generation, PRD reconciliation, and P1/P2 local implementation are complete. The code is uncommitted. P3 installed-package proof, the version bump, release, and the owner's live Store repair have not been performed.
+
+**Evidence**: The owner report and read-only review in this chat on 2026-10-31; [checkout verification and binding](../../packages/cli/src/store/installation-state.ts); [setup classification](../../packages/cli/src/cli.ts); [W22 R1 plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-overview.md). Closed D-038 and D-039 retain their earlier tested scope. This entry records the new counterevidence without rewriting that history.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

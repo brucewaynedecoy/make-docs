@@ -57,6 +57,15 @@ export const P6_INSTALLED_SMOKE_CONTRACT = [
     nativeEntries: "unchanged",
   },
   {
+    case: "released-205-checkout-move",
+    publicState: "ready",
+    safetyResult: "reviewed-root-and-kit-moves",
+    nextAction: null,
+    files: "outside-block-bytes-preserved",
+    store: "separate-identities-ledgers-and-history-preserved",
+    nativeEntries: "unchanged",
+  },
+  {
     case: "supported-old-state-bridge",
     publicState: "ready",
     safetyResult: "converted-and-preserved",

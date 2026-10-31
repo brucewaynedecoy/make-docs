@@ -64,6 +64,9 @@ import {
 } from "./store";
 import {
   readInstallationStatus,
+  previewInstallationCheckoutMove,
+  applyInstallationCheckoutMove,
+  type CheckoutMovePreview,
   reviewCompletedRemovalHandoff,
   type CompletedRemovalHandoffReview,
 } from "./store/installation-state";
@@ -537,6 +540,54 @@ export async function runCli(
     throw new Error(
       `Store compatibility preview stopped setup: ${storeBridgePreview.blockers.join("; ")} ${storeBridgePreview.nextAction}`,
     );
+  }
+  // Project identity discovery comes before path-bound manifest and fresh-install checks.
+  const checkoutMove = previewInstallationCheckoutMove(targetDir, undefined, storeRoot);
+  if (checkoutMove.candidates.length) {
+    if (!jsonOutput) {
+      output.write(`Project ID: ${checkoutMove.projectId}\nCurrent path: ${checkoutMove.targetRoot}\n`);
+      for (const candidate of checkoutMove.candidates) {
+        output.write(`Saved checkout: ${candidate.sourceRoot} (${candidate.checkoutId})\n`);
+        for (const blocker of candidate.blockers) output.write(`- ${blocker}\n`);
+      }
+      output.write("Choose Move this checkout, Register a separate checkout, or Cancel.\n");
+    }
+    if (!interactive || parsed.dryRun) {
+      const nextAction = "Review the saved paths. Use an interactive setup to choose Move or Register separate, or use project checkout-move preview/apply with its exact digest.";
+      if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, storeBridge: storeBridgePreview, checkoutMove, storeMutationState: "none", projectChanged: false, projectMutationState: "none", projectActions: [], failedCondition: "Checkout identity needs a path choice.", nextAction });
+      else output.write(`Next: ${nextAction}\n`);
+      return;
+    }
+    const selected = await select({
+      message: "How should setup treat this path?",
+      options: [
+        ...checkoutMove.candidates.map(candidate => ({ value: `move:${candidate.checkoutId}`, label: `Move this checkout from ${candidate.sourceRoot}`, hint: candidate.blockers[0], disabled: !candidate.available })),
+        { value: "separate", label: "Register a separate checkout", hint: "Create a new checkout ID for this project." },
+        { value: "cancel", label: "Cancel", hint: "Keep all paths and Store rows as they are." },
+      ],
+    });
+    if (isCancel(selected) || selected === "cancel") { output.write("Setup cancelled. No checkout path changed.\n"); return; }
+    if (selected === "separate") {
+      const approved = await confirm({ message: `Register ${targetDir} as a separate checkout for project ${checkoutMove.projectId}?`, initialValue: false, active: "Yes", inactive: "No", withGuide: true });
+      if (isCancel(approved) || !approved) { output.write("Setup cancelled. No checkout was registered.\n"); return; }
+      const digest = checkoutMove.separateReviewDigest;
+      if (!digest) throw new Error("Separate checkout registration is blocked. Preview again.");
+      const registration = await invokeOperation('project.checkout-register.apply', { targetRoot: targetDir, reviewDigest: digest }, createExecutionContext({
+        surface: 'cli', route: resolvedLaunch.launch.route, callerIdentityRaw: resolvedLaunch.launch.callerIdentityRaw,
+        callerReference: resolvedLaunch.launch.callerReference, cwd: targetDir, writesAllowed: true, storeRoot,
+      }));
+      const result = registration.value as {checkoutId: string};
+      output.write(`Separate checkout registered: ${result.checkoutId}. Project files have not changed.\n`);
+      return runCli(argv, priorProjectRecovery, priorProjectMutationApplied);
+    }
+    const sourceCheckoutId = String(selected).slice("move:".length);
+    const candidate = checkoutMove.candidates.find(item => item.checkoutId === sourceCheckoutId);
+    if (!candidate?.available || !candidate.reviewDigest) throw new Error("The selected checkout move is blocked. Preview again.");
+    const approved = await confirm({ message: `Move checkout ${sourceCheckoutId} from ${candidate.sourceRoot} to ${targetDir}? Review: ${candidate.reviewDigest}`, initialValue: false, active: "Yes", inactive: "No", withGuide: true });
+    if (isCancel(approved) || !approved) { output.write("Setup cancelled. No checkout path changed.\n"); return; }
+    const result = applyInstallationCheckoutMove(targetDir, sourceCheckoutId, candidate.sourceRoot, candidate.reviewDigest, storeRoot);
+    output.write(`Checkout move completed: ${result.checkoutId}. Project files have not changed.\n`);
+    return runCli(argv, priorProjectRecovery, priorProjectMutationApplied);
   }
   const projectRecoveryReview = prepareSetupProjectRecoveryReview(targetDir, storeRoot);
   if (projectRecoveryReview) {
@@ -2586,6 +2637,7 @@ function writeCanonicalSetupResult(input: {
   genericMcp?: GenericMcpSetupPlan | null;
   storeBridge?: StoreCompatibilityBridgePreview;
   projectRecovery?: SetupProjectRecoveryReview | null;
+  checkoutMove?: CheckoutMovePreview | null;
   storeMutationState?: "none" | "planned" | "partial" | "applied";
   projectChanged: boolean;
   projectMutationState?: "none" | "planned" | "partial" | "applied";
@@ -2661,6 +2713,7 @@ function writeCanonicalSetupResult(input: {
       nextAction: input.storeBridge.nextAction,
     } : null,
     projectRecovery: input.projectRecovery ?? null,
+    checkoutMove: input.checkoutMove ?? null,
     project: {
       state: input.status === "complete" || input.status === "partial" ? "ready" : input.status,
       changed: input.projectChanged,

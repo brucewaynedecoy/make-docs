@@ -30,7 +30,7 @@ jobs:
 
           if git diff --quiet HEAD^1 HEAD -- \
             packages/cli packages/docs/template packages/skills scripts \
-            package.json package-lock.json .github/workflows; then
+            package.json package-lock.json .github/workflows .github/release-candidates; then
             echo "package=false" >> "$GITHUB_OUTPUT"
           else
             result=$?
@@ -91,6 +91,7 @@ jobs:
           tests/w19-r5-standard-skill-layout.test.ts
           tests/p4-projection-lifecycle.test.ts
           tests/w22-r0-p5-compatibility-bridge.test.ts
+          tests/w22-r1-ownership.test.ts
           tests/store.test.ts
 
   package-candidate:
@@ -141,6 +142,24 @@ jobs:
           --package-json packages/cli/package.json
           --source-revision ${{ github.sha }}
           --output .p6-candidate/candidate.json
+
+      - name: Match the reviewed candidate digest
+        env:
+          TARBALL: ${{ steps.package.outputs.tarball_path }}
+        run: |
+          version="$(node -p 'require("./packages/cli/package.json").version')"
+          expected_file=".github/release-candidates/v${version}.sha256"
+          test -f "$expected_file"
+          expected="$(cat "$expected_file")"
+          if ! [[ "$expected" =~ ^[a-f0-9]{64}$ ]]; then
+            echo "The reviewed candidate digest is missing or invalid."
+            exit 1
+          fi
+          actual="$(sha256sum "$TARBALL" | cut -d ' ' -f 1)"
+          if [ "$actual" != "$expected" ]; then
+            echo "The package candidate differs from the reviewed digest."
+            exit 1
+          fi
 
       - name: Upload the exact candidate
         uses: actions/upload-artifact@v4
@@ -200,6 +219,7 @@ jobs:
           tests/w19-r5-standard-skill-layout.test.ts
           tests/p4-projection-lifecycle.test.ts
           tests/w22-r0-p5-compatibility-bridge.test.ts
+          tests/w22-r1-ownership.test.ts
           tests/store.test.ts
 
       - name: Download the exact candidate

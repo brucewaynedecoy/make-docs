@@ -7,6 +7,7 @@ import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAsset
 import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, formatStoreIssue, isSqliteContention, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
+import { parseManagedBlock } from '../managed-block';
 import type { InstallManifest, ManifestFileEntry } from '../types';
 import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
 import { platform, PlatformOperationError, type FileMutationGuard } from '../platform';
@@ -33,13 +34,25 @@ interface Checkout {
     verification_json: string | null;
 }
 
-interface CheckoutVerificationEvidence {
+interface CheckoutVerificationEvidenceV1 {
     schemaVersion: 1;
     projectId: string;
     configDigest: string | null;
     ledgerDigest: string | null;
     managedContentDigest: string | null;
 }
+interface CheckoutOwnershipFact {
+    path: string;
+    ownershipClass: string;
+    hash: string;
+}
+interface CheckoutVerificationEvidenceV2 {
+    schemaVersion: 2;
+    projectId: string;
+    ledgerDigest: string | null;
+    ownershipFacts: CheckoutOwnershipFact[];
+}
+type CheckoutVerificationEvidence = CheckoutVerificationEvidenceV1 | CheckoutVerificationEvidenceV2;
 interface Operation {
     operation_id: string;
     checkout_id: string;
@@ -553,10 +566,11 @@ export function withReviewedStoreCompatibilityBridge<T>(fn: () => T): T {
 export function withInstallationDatabase<T>(projectRoot: string, fn: (db: StoreDatabase) => T, options: {
     storeRoot?: string;
     readOnly?: boolean;
+    skipPreparation?: boolean;
 } = {}): T {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, options.storeRoot ?? active.get(root)?.storeRoot ?? held.get(root)?.storeRoot ?? resolveStoreRoot());
-    if (!options.readOnly && !held.has(root))
+    if (!options.readOnly && !options.skipPreparation && !held.has(root))
         prepareStore(root, store);
     const databasePath = getStoreDatabasePath(store);
     try {
@@ -617,56 +631,118 @@ function checkout(db: StoreDatabase, root: string): Checkout | null {
     return matches[0] ?? null;
 }
 
-function managedContentDigest(root: string, ledgerJson: string | null, operationPaths: string[]): string | null {
-    const isCheckoutPath = (relative: string): boolean => {
-        if (relative === '.') return false;
-        const absolute = path.resolve(root, relative);
-        const relation = path.relative(root, absolute);
-        return relation !== '..' && !relation.startsWith(`..${path.sep}`) && !path.isAbsolute(relation);
-    };
-    const paths = new Set(operationPaths.filter(isCheckoutPath));
-    if (ledgerJson && ledgerJson !== 'null') {
-        const manifest = validateAndMigrateManifest(JSON.parse(ledgerJson), 'Make Docs Store checkout verification ledger');
-        for (const relative of Object.keys(manifest.files)) if (isCheckoutPath(relative)) paths.add(relative);
+function checkoutOwnershipFacts(root: string, ledgerJson: string | null, projectId: string, requireFullProof: boolean): CheckoutOwnershipFact[] {
+    if (!ledgerJson || ledgerJson === 'null') return [];
+    let manifest: InstallManifest;
+    try {
+        manifest = validateAndMigrateManifest(JSON.parse(ledgerJson), 'Make Docs Store checkout verification ledger');
+    } catch {
+        return fail('ownership-unverified', 'The saved installation ledger is invalid. No checkout ownership changed.');
     }
-    if (paths.size === 0) return null;
-    const facts = [...paths].sort().map(relative => {
-        const absolute = path.resolve(root, relative);
-        const relation = path.relative(root, absolute);
+    if (manifest.projectId !== projectId)
+        return fail('ownership-unverified', 'The saved installation ledger has a different project identity.');
+    const facts: CheckoutOwnershipFact[] = [];
+    for (const [relative, entry] of Object.entries(manifest.files).sort(([a], [b]) => a.localeCompare(b))) {
+        if (relative === '.make-docs/config.yaml' || entry.ownershipClass === 'project-owned' || entry.ownershipClass === 'runtime-state' || entry.ownershipClass === 'project-override') continue;
+        const ownershipClass = entry.ownershipClass ?? (manifest.schemaVersion === 1 ? 'managed-snapshot' : null);
+        if (!ownershipClass || !entry.sourceId || !/^[a-f0-9]{64}$/i.test(entry.hash)) {
+            if (!requireFullProof) continue;
+            return fail('ownership-unverified', `The saved ownership proof is incomplete for ${relative}. No checkout ownership changed.`);
+        }
+        const absolute = assertSafeFilePath(root, relative);
         const stat = lstatSync(absolute, { throwIfNoEntry: false });
-        if (!stat) return [relative, 'missing'];
-        if (stat.isSymbolicLink()) return [relative, `link:${readlinkSync(absolute)}`];
-        if (stat.isFile()) return [relative, `file:${sha(readFileSync(absolute))}`];
-        if (stat.isDirectory()) return [relative, 'directory'];
-        return [relative, 'unsupported'];
-    });
-    return sha(canonicalJson(facts));
+        if (entry.skillExposure) {
+            try { verifySkillExposure(root, relative, entry); }
+            catch (error) {
+                if (!requireFullProof && error instanceof InstallationStateError && error.code === 'ownership-unverified') continue;
+                throw error;
+            }
+            facts.push({ path: relative, ownershipClass, hash: entry.hash });
+            continue;
+        }
+        if (!stat?.isFile() || stat.isSymbolicLink()) {
+            if (requireFullProof) return fail('ownership-unverified', `The saved ${ownershipClass} path is not a regular file: ${relative}. No checkout ownership changed.`);
+            continue;
+        }
+        const bytes = readFileSync(absolute);
+        let actualHash: string;
+        if (ownershipClass === 'managed-block') {
+            const parsed = parseManagedBlock(bytes.toString('utf8'));
+            if (parsed.state !== 'valid' || parsed.body === null) {
+                if (requireFullProof) return fail('ownership-unverified', `The managed block markers are invalid for ${relative}. No checkout ownership changed.`);
+                continue;
+            }
+            actualHash = sha(parsed.body);
+        } else {
+            actualHash = sha(bytes);
+        }
+        if (actualHash !== entry.hash) {
+            if (requireFullProof) return fail('ownership-unverified', `The saved ${ownershipClass} hash does not match ${relative}. No checkout ownership changed.`);
+            continue;
+        }
+        facts.push({ path: relative, ownershipClass, hash: entry.hash });
+    }
+    return facts;
 }
 
-function checkoutVerificationEvidence(db: StoreDatabase, root: string, projectId: string, checkoutId: string, ledgerJson: string | null): CheckoutVerificationEvidence {
-    const config = path.join(root, '.make-docs', 'config.yaml');
-    const configStat = lstatSync(config, { throwIfNoEntry: false });
-    if (configStat && (!configStat.isFile() || configStat.isSymbolicLink()))
-        fail('ownership-unverified', 'The checkout identity file is not a safe regular file.');
-    const operationPaths = (db.prepare(`
-        SELECT DISTINCT step.relative_path
-        FROM installation_steps step
-        JOIN installation_operations operation ON operation.operation_id=step.operation_id
-        WHERE operation.checkout_id=? AND step.applied=1
-    `).all(checkoutId) as Array<{ relative_path: string }>).map(row => row.relative_path);
+function verifySkillExposure(root: string, relative: string, entry: ManifestFileEntry): void {
+    const exposure = entry.skillExposure!;
+    if (entry.ownershipClass !== 'selected-skill' || exposure.exposurePath !== relative || !exposure.mode)
+        fail('ownership-unverified', `The saved skill exposure proof is incomplete for ${relative}.`);
+    const absolute = assertSafeFilePath(root, relative);
+    const stat = lstatSync(absolute, { throwIfNoEntry: false });
+    if (exposure.mode === 'symlink') {
+        if (!stat?.isSymbolicLink() || readlinkSync(absolute) !== exposure.symlinkTarget)
+            fail('ownership-unverified', `The saved skill link does not match ${relative}.`);
+        const linked = path.resolve(path.dirname(absolute), exposure.symlinkTarget);
+        const canonical = assertSafeFilePath(root, exposure.canonicalPayloadPath);
+        if (!platform.samePath(linked, canonical))
+            fail('ownership-unverified', `The saved skill link target is inconsistent for ${relative}.`);
+        return;
+    }
+    if (!stat?.isDirectory() || stat.isSymbolicLink())
+        fail('ownership-unverified', `The saved skill copy is not a directory: ${relative}.`);
+    const canonical = assertSafeFilePath(root, exposure.canonicalPayloadPath);
+    if (!lstatSync(canonical, { throwIfNoEntry: false })?.isDirectory())
+        fail('ownership-unverified', `The saved skill source is not a directory: ${relative}.`);
+    const tree = (directory: string): Array<[string, string]> => {
+        const result: Array<[string, string]> = [];
+        const visit = (current: string) => {
+            for (const child of readdirSync(current, { withFileTypes: true })) {
+                const file = path.join(current, child.name);
+                if (child.isDirectory()) visit(file);
+                else if (child.isFile()) result.push([path.relative(directory, file), sha(readFileSync(file))]);
+                else fail('ownership-unverified', `The saved skill copy contains an unsafe path: ${relative}.`);
+            }
+        };
+        visit(directory);
+        return result.sort(([a], [b]) => a.localeCompare(b));
+    };
+    if (canonicalJson(tree(absolute)) !== canonicalJson(tree(canonical)))
+        fail('ownership-unverified', `The saved skill copy differs from its source: ${relative}.`);
+}
+
+function checkoutVerificationEvidence(_db: StoreDatabase, root: string, projectId: string, _checkoutId: string, ledgerJson: string | null, requireFullProof = true): CheckoutVerificationEvidenceV2 {
+    const declaredId = readDeclarativeProjectId(root);
+    if (declaredId && declaredId !== projectId)
+        return fail('ownership-unverified', 'The config project identity conflicts with the saved installation ledger.');
     return {
-        schemaVersion: 1,
+        schemaVersion: 2,
         projectId,
-        configDigest: configStat ? sha(readFileSync(config)) : null,
         ledgerDigest: ledgerJson && ledgerJson !== 'null' ? sha(ledgerJson) : null,
-        managedContentDigest: managedContentDigest(root, ledgerJson, operationPaths),
+        ownershipFacts: checkoutOwnershipFacts(root, ledgerJson, projectId, requireFullProof),
     };
 }
 
 function parseCheckoutVerification(row: Checkout): CheckoutVerificationEvidence | null {
     if (!row.verification_json) return null;
     try {
-        const value = JSON.parse(row.verification_json) as Partial<CheckoutVerificationEvidence>;
+        const value = JSON.parse(row.verification_json) as Partial<CheckoutVerificationEvidenceV1> & Partial<CheckoutVerificationEvidenceV2>;
+        if (value.schemaVersion === 2 && typeof value.projectId === 'string' &&
+            (typeof value.ledgerDigest === 'string' || value.ledgerDigest === null) &&
+            Array.isArray(value.ownershipFacts) && value.ownershipFacts.every(fact =>
+                typeof fact?.path === 'string' && typeof fact?.ownershipClass === 'string' && typeof fact?.hash === 'string'))
+            return value as CheckoutVerificationEvidenceV2;
         return value.schemaVersion === 1 && typeof value.projectId === 'string' &&
             (typeof value.configDigest === 'string' || value.configDigest === null) &&
             (typeof value.ledgerDigest === 'string' || value.ledgerDigest === null) &&
@@ -678,9 +754,10 @@ function parseCheckoutVerification(row: Checkout): CheckoutVerificationEvidence 
     }
 }
 
-function sameCheckoutEvidence(left: CheckoutVerificationEvidence, right: CheckoutVerificationEvidence): boolean {
-    return left.projectId === right.projectId && left.configDigest === right.configDigest &&
-        left.ledgerDigest === right.ledgerDigest && left.managedContentDigest === right.managedContentDigest;
+function sameCheckoutEvidence(left: CheckoutVerificationEvidence, right: CheckoutVerificationEvidenceV2): boolean {
+    if (left.projectId !== right.projectId || left.ledgerDigest !== right.ledgerDigest) return false;
+    if (left.schemaVersion === 1) return left.ledgerDigest !== null;
+    return canonicalJson(left.ownershipFacts) === canonicalJson(right.ownershipFacts);
 }
 
 function assertCheckoutIdentity(row: Checkout, root: string): void {
@@ -703,35 +780,180 @@ function bindCheckout(db: StoreDatabase, root: string, projectId?: string): Chec
         fail('ownership-unverified', 'The requested project identity conflicts with the checkout config.');
     const id = declarativeId ?? projectId ?? randomUUID();
     const sameProject = db.prepare('SELECT * FROM installation_checkouts WHERE project_id=?').all(id) as unknown as Checkout[];
-    const absent = sameProject.filter(row => !existsSync(row.root_path));
-    if (absent.length && declarativeId) {
-        if (absent.length !== 1)
-            fail('ownership-unverified', 'More than one absent checkout can claim this project path. No Store identity changed.');
-        const row = absent[0];
-        const busy = db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id);
-        if (busy || db.prepare('SELECT 1 FROM installation_locks WHERE root_path=?').get(row.root_path))
-            fail('recovery-required', 'Resolve the old checkout operation before rebinding its path.');
-        const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as { manifest_json: string } | undefined)?.manifest_json ?? null;
-        const priorEvidence = parseCheckoutVerification(row);
-        const currentEvidence = checkoutVerificationEvidence(db, root, id, row.checkout_id, ledger);
-        if (!priorEvidence || !sameCheckoutEvidence(priorEvidence, currentEvidence))
-            fail('ownership-unverified', 'The moved checkout content does not match its last verified Store facts. No Store identity changed.');
-        const key = platform.comparisonKey(root);
-        const competing = (db.prepare('SELECT * FROM installation_checkouts WHERE checkout_id<>?').all(row.checkout_id) as unknown as Checkout[])
-            .some(candidate => candidate.root_path_key === key || platform.samePath(candidate.root_path, root));
-        if (competing)
-            fail('ownership-unverified', 'Another checkout already claims this platform path. No Store identity changed.');
-        const verifiedAt = now();
-        const verificationJson = JSON.stringify(currentEvidence);
-        db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
-            .run(root, key, verifiedAt, verificationJson, row.checkout_id);
-        return { ...row, root_path: root, root_path_key: key, verified_at: verifiedAt, verification_json: verificationJson };
-    }
+    if (sameProject.length && declarativeId)
+        fail('ownership-unverified', 'This project ID has a Store checkout at another path. Review checkout move or register a separate checkout before setup. No Store identity changed.');
     const row: Checkout = { checkout_id: randomUUID(), project_id: id, root_path: root, root_path_key: platform.comparisonKey(root), verified_at: null, verification_json: null };
     db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
         .run(row.checkout_id, id, root, now(), row.root_path_key, row.verified_at, row.verification_json);
     return row;
 }
+
+export interface CheckoutMoveCandidate {
+    checkoutId: string;
+    sourceRoot: string;
+    targetRoot: string;
+    available: boolean;
+    blockers: string[];
+    reviewDigest: string | null;
+}
+export interface CheckoutMovePreview {
+    schemaVersion: 1;
+    status: 'none' | 'bound' | 'ready' | 'blocked';
+    projectId: string | null;
+    targetRoot: string;
+    candidates: CheckoutMoveCandidate[];
+    separateReviewDigest?: string | null;
+    nextAction: string;
+}
+interface CheckoutMoveReceipt {
+    schemaVersion: number;
+    operation: string;
+    projectId: string;
+    checkoutId: string;
+    sourceRoot: string;
+    targetRoot: string;
+    reviewDigest: string;
+    ledgerDigest: string;
+    evidenceDigest: string;
+    appliedAt: string;
+}
+
+/** Read only. It never creates a checkout, a lease, or a review row. */
+export function previewInstallationCheckoutMove(projectRoot: string, sourceCheckoutId?: string, storeRoot?: string): CheckoutMovePreview {
+    const root = canonicalInstallationPath(projectRoot);
+    const id = readDeclarativeProjectId(root);
+    const base = { schemaVersion: 1 as const, projectId: id, targetRoot: root };
+    if (!id) return { ...base, status: 'none', candidates: [], nextAction: 'A valid projectId in .make-docs/config.yaml is required before checkout move.' };
+    const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
+        return { ...base, status: 'blocked', candidates: [], nextAction: 'The Store must use the current schema before checkout move.' };
+    return withInstallationDatabase(root, db => previewInstallationCheckoutMoveInDatabase(db, root, id, sourceCheckoutId), {storeRoot: store, readOnly: true});
+}
+
+function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: string, id: string, sourceCheckoutId?: string): CheckoutMovePreview {
+        const base = { schemaVersion: 1 as const, projectId: id, targetRoot: root };
+        const bound = checkout(db, root);
+        if (bound && bound.project_id === id) {
+            assertCheckoutIdentity(bound, root);
+            return { ...base, status: 'bound' as const, candidates: [], nextAction: 'This checkout is already bound. Continue setup.' };
+        }
+        const rows = db.prepare('SELECT * FROM installation_checkouts WHERE project_id=? ORDER BY checkout_id').all(id) as unknown as Checkout[];
+        const targetKey = platform.comparisonKey(root);
+        const claimed = (db.prepare('SELECT * FROM installation_checkouts').all() as unknown as Checkout[])
+            .some(row => row.root_path_key === targetKey || platform.samePath(row.root_path, root));
+        const configDigest = sha(readFileSync(path.join(root, '.make-docs/config.yaml')));
+        const separateReviewDigest = claimed || !rows.length ? null : sha(canonicalJson({
+            schemaVersion: 1, action: 'register-separate', projectId: id, targetRoot: root,
+            targetKey, configDigest,
+            otherCheckouts: rows.map(row => [row.checkout_id, row.root_path, row.root_path_key]),
+        }));
+        const candidates = rows.map(row => {
+            const blockers: string[] = [];
+            if (sourceCheckoutId && row.checkout_id !== sourceCheckoutId) blockers.push('Another source checkout was selected.');
+            if (lstatSync(row.root_path, {throwIfNoEntry: false})) blockers.push('The source path still exists.');
+            if (claimed) blockers.push('Another checkout claims the target path.');
+            if (db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id)) blockers.push('The source has pending work.');
+            for (const lockedRoot of [row.root_path, root]) {
+                const lock = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(lockedRoot) as {pid: number; hostname: string} | undefined;
+                if (lock) blockers.push(isDead(lock.pid, lock.hostname) ? 'A dead writer lock needs recovery.' : 'A writer is active.');
+            }
+            if (db.prepare("SELECT 1 FROM tool_operations WHERE status='pending' LIMIT 1").get()) blockers.push('A tool operation is pending.');
+            const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined)?.manifest_json ?? null;
+            const saved = parseCheckoutVerification(row);
+            let current: CheckoutVerificationEvidenceV2 | null = null;
+            if (!ledger || !saved) blockers.push('The source lacks a saved ledger or ownership proof.');
+            else {
+                try { current = checkoutVerificationEvidence(db, root, id, row.checkout_id, ledger); }
+                catch (error) { blockers.push(error instanceof Error ? error.message : String(error)); }
+                if (current && !sameCheckoutEvidence(saved, current)) blockers.push('Target ownership does not match the saved Store facts.');
+                if (current && current.ownershipFacts.length === 0) blockers.push('The target has no independent managed ownership fact.');
+            }
+            const reviewDigest = blockers.length || !current || !saved || !ledger ? null : sha(canonicalJson({
+                schemaVersion: 1, projectId: id, checkoutId: row.checkout_id,
+                sourceRoot: canonicalInstallationPath(row.root_path), sourceKey: row.root_path_key,
+                targetRoot: root, targetKey, configDigest, ledgerDigest: sha(ledger),
+                targetFiles: current.ownershipFacts.map(fact => {
+                    const absolute = path.join(root, fact.path);
+                    const stat = lstatSync(absolute, {throwIfNoEntry: false});
+                    return [fact.path, stat?.isSymbolicLink() ? `link:${readlinkSync(absolute)}` : stat?.isFile() ? `file:${sha(readFileSync(absolute))}` : 'missing'];
+                }),
+                savedEvidenceDigest: sha(row.verification_json!), targetEvidence: current,
+            }));
+            return { checkoutId: row.checkout_id, sourceRoot: row.root_path, targetRoot: root, available: blockers.length === 0, blockers, reviewDigest };
+        });
+        const selected = sourceCheckoutId ? candidates.find(candidate => candidate.checkoutId === sourceCheckoutId) : candidates.length === 1 ? candidates[0] : null;
+        return {
+            ...base, status: selected?.available ? 'ready' as const : 'blocked' as const, candidates, separateReviewDigest,
+            nextAction: !candidates.length ? 'No saved checkout has this project ID. Review setup as a new registration.'
+                : candidates.length > 1 && !sourceCheckoutId ? 'Select one source checkout ID before move. Register separately or cancel if the source is not the same checkout.'
+                : selected?.available ? 'Review the exact source, target, and digest. Apply checkout move only with explicit approval.'
+                : 'Resolve the listed blockers. Register a separate checkout or cancel.',
+        };
+}
+
+/** Register a new checkout ID after a separate-checkout review. No old row is changed. */
+export function registerSeparateInstallationCheckout(projectRoot: string, reviewDigest: string, storeRoot?: string) {
+    const root = canonicalInstallationPath(projectRoot);
+    const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
+        fail('store-unavailable', 'Separate checkout registration requires a current Store.');
+    return withInstallationDatabase(root, db => transaction(db, () => {
+        const id = readDeclarativeProjectId(root);
+        if (!id) fail('ownership-unverified', 'A valid config projectId is required.');
+        const preview = previewInstallationCheckoutMoveInDatabase(db, root, id);
+        if (!preview.separateReviewDigest || preview.separateReviewDigest !== reviewDigest)
+            fail('ownership-unverified', 'Separate checkout review is stale or blocked. Preview again.');
+        const checkoutId = randomUUID();
+        db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
+            .run(checkoutId, id, root, now(), platform.comparisonKey(root), null, null);
+        return { status: 'registered' as const, projectId: id, checkoutId, targetRoot: root,
+            effect: 'new-checkout-binding' as const, projectFilesChanged: false,
+            nextAction: 'Run setup for this target to review its own installation state.' };
+    }), {storeRoot: store, skipPreparation: true});
+}
+
+/** Change only the selected checkout path and its proof in one Store transaction. */
+export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckoutId: string, sourceRoot: string, reviewDigest: string, storeRoot?: string) {
+    const root = canonicalInstallationPath(projectRoot);
+    const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
+        fail('store-unavailable', 'Checkout move requires a current Store. No Store state changed.');
+    return withInstallationDatabase(root, db => transaction(db, () => {
+        const alreadyBound = checkout(db, root);
+        if (alreadyBound?.checkout_id === sourceCheckoutId && canonicalInstallationPath(sourceRoot) !== root) {
+            const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(sourceCheckoutId) as {manifest_json: string} | undefined)?.manifest_json;
+            const receipts = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='receipt' AND record_id LIKE 'checkout-move:%'").all(sourceCheckoutId) as {record_json: string}[];
+            const receipt = receipts.map(item => JSON.parse(item.record_json) as CheckoutMoveReceipt).find(item =>
+                item.reviewDigest === reviewDigest && item.checkoutId === sourceCheckoutId &&
+                item.sourceRoot === canonicalInstallationPath(sourceRoot) && item.targetRoot === root &&
+                item.projectId === alreadyBound.project_id && item.ledgerDigest === (ledger ? sha(ledger) : null) &&
+                item.evidenceDigest === (alreadyBound.verification_json ? sha(alreadyBound.verification_json) : null));
+            if (receipt) return { status: 'already-completed' as const, ...receipt,
+                effect: 'checkout-already-bound' as const, projectFilesChanged: false,
+                nextAction: 'Continue setup for this target.' };
+        }
+        const id = readDeclarativeProjectId(root);
+        if (!id) fail('ownership-unverified', 'A valid config projectId is required for checkout move.');
+        const preview = previewInstallationCheckoutMoveInDatabase(db, root, id, sourceCheckoutId);
+        const selected = preview.candidates.find(candidate => candidate.checkoutId === sourceCheckoutId);
+        if (preview.status !== 'ready' || !selected?.reviewDigest || selected.reviewDigest !== reviewDigest || canonicalInstallationPath(selected.sourceRoot) !== canonicalInstallationPath(sourceRoot))
+            fail('ownership-unverified', 'Checkout move review is stale or blocked. Preview again. No Store identity changed.');
+        const row = db.prepare('SELECT * FROM installation_checkouts WHERE checkout_id=?').get(sourceCheckoutId) as unknown as Checkout;
+        const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(sourceCheckoutId) as {manifest_json: string}).manifest_json;
+        const evidence = checkoutVerificationEvidence(db, root, row.project_id, sourceCheckoutId, ledger);
+        const verifiedAt = now();
+        const verificationJson = JSON.stringify(evidence);
+        db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
+            .run(root, platform.comparisonKey(root), verifiedAt, verificationJson, sourceCheckoutId);
+        const receipt = { schemaVersion: 1, operation: 'project.checkout-move.apply', projectId: row.project_id, checkoutId: sourceCheckoutId, sourceRoot: row.root_path, targetRoot: root, reviewDigest, ledgerDigest: sha(ledger), evidenceDigest: sha(verificationJson), appliedAt: verifiedAt };
+        db.prepare("INSERT INTO installation_migration_records (checkout_id,kind,record_id,record_json) VALUES (?,'receipt',?,?)")
+            .run(sourceCheckoutId, `checkout-move:${randomUUID()}`, JSON.stringify(receipt));
+        return { status: 'completed' as const, ...receipt,
+            effect: 'checkout-binding-moved' as const, projectFilesChanged: false,
+            nextAction: 'Continue setup for this target.' };
+    }), {storeRoot: store, skipPreparation: true});
+}
+
 export function getInstallationCheckoutId(projectRoot: string, storeRoot?: string): string {
     const root = canonicalInstallationPath(projectRoot);
     return withInstallationDatabase(root, db => transaction(db, () => bindCheckout(db, root).checkout_id), { storeRoot });
@@ -914,7 +1136,7 @@ function commitOperation(db: StoreDatabase, id: string, root: string, rollback =
         else
             db.prepare('DELETE FROM installation_ledgers WHERE checkout_id=?').run(op.checkout_id);
         const owner = db.prepare('SELECT project_id FROM installation_checkouts WHERE checkout_id=?').get(op.checkout_id) as { project_id: string };
-        const evidence = checkoutVerificationEvidence(db, root, owner.project_id, op.checkout_id, ledger);
+        const evidence = checkoutVerificationEvidence(db, root, owner.project_id, op.checkout_id, ledger, false);
         db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
             .run(root, platform.comparisonKey(root), now(), JSON.stringify(evidence), op.checkout_id);
         db.prepare('UPDATE installation_operations SET status=?,finished_at=? WHERE operation_id=?').run(rollback ? 'rolled-back' : 'completed', now(), id);
