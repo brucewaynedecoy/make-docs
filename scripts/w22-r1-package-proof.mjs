@@ -71,7 +71,16 @@ function durable(store) {
 }
 
 function row(state, root) {
-  return state.installation_checkouts.find(item => item.root_path === root);
+  // Windows can use a short name before the unique temporary fixture directory.
+  const relative = value => {
+    const normalized = path.resolve(value).replaceAll('\\', '/').toLowerCase();
+    const marker = `/${path.basename(temp).toLowerCase()}/`;
+    const start = normalized.lastIndexOf(marker);
+    assert.ok(start >= 0, `Checkout path is outside the test fixture: ${value}`);
+    return normalized.slice(start + marker.length);
+  };
+  const target = relative(root);
+  return state.installation_checkouts.find(item => relative(item.root_path) === target);
 }
 
 function instructionBytes(root) {
@@ -151,15 +160,15 @@ try {
   assert.equal(rootChoice.available, true);
   const rootPreviewText = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', moved], store);
   assert.match(rootPreviewText, /Checkout move: ready/u);
-  assert.ok(rootPreviewText.includes(`Source: ${buildos} (${rootId.checkout_id})`));
+  assert.ok(rootPreviewText.includes(`Source: ${rootChoice.sourceRoot} (${rootId.checkout_id})`));
   assert.ok(rootPreviewText.includes(`Review: ${rootChoice.reviewDigest}`));
   assert.deepEqual(durable(store), before, 'Move preview wrote durable Store state');
-  const rootMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', buildos, '--review', rootChoice.reviewDigest, '--json'], store);
+  const rootMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest, '--json'], store);
   assert.equal(rootMove.status, 'completed');
-  const rootRetryText = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', buildos, '--review', rootChoice.reviewDigest], store);
+  const rootRetryText = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest], store);
   assert.match(rootRetryText, /Checkout move: already-completed/u);
   assert.ok(rootRetryText.includes(`Checkout ID: ${rootId.checkout_id}`));
-  assert.ok(rootRetryText.includes(`Source: ${buildos}`));
+  assert.ok(rootRetryText.includes(`Source: ${rootChoice.sourceRoot}`));
   assert.match(rootRetryText, /Project files: unchanged/u);
   assert.match(rootRetryText, /Next:/u);
   const afterRoot = durable(store);
@@ -173,7 +182,7 @@ try {
   const kitPreview = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', movedKit, '--json'], store);
   const kitChoice = kitPreview.candidates.find(item => item.checkoutId === kitId.checkout_id);
   assert.equal(kitChoice.available, true);
-  const kitMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', movedKit, '--source-checkout', kitId.checkout_id, '--source-root', oldKit, '--review', kitChoice.reviewDigest, '--json'], store);
+  const kitMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', movedKit, '--source-checkout', kitId.checkout_id, '--source-root', kitChoice.sourceRoot, '--review', kitChoice.reviewDigest, '--json'], store);
   assert.equal(kitMove.status, 'completed');
   const afterKit = durable(store);
   assert.equal(row(afterKit, movedKit)?.checkout_id, kitId.checkout_id);
