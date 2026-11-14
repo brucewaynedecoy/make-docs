@@ -268,6 +268,27 @@ prd_authority:
     expect(readFileSync(plan.configPath, "utf8")).toBe(before);
   });
 
+  test("reads a saved resource choice and rejects duplicate types", () => {
+    const targetDir = createTempDir();
+    writeConfig(targetDir, "resourceProjection:\n  - contract\n  - reference\n");
+    expect(loadMakeDocsConfig(targetDir).config.resourceProjection).toEqual(["contract", "reference"]);
+    writeConfig(targetDir, "resourceProjection:\n  - contract\n  - contract\n");
+    expect(loadMakeDocsConfig(targetDir).valid).toBe(false);
+  });
+
+  test("keeps a legacy config unchanged when no resource choice is reviewed", () => {
+    const targetDir = createTempDir();
+    const before = "# project comment\nprojectId: sample\nharnessIntegrations: []\n";
+    writeConfig(targetDir, before);
+    const plan = planProjectHarnessIntegrationWrite({
+      targetDir,
+      contentWhenMissing: "{}\n",
+      reviewed: [],
+    });
+    expect(plan.changed).toBe(false);
+    expect(plan.content).toBe(before);
+  });
+
   test("rejects invalid persona primitive values", () => {
     const targetDir = createTempDir();
     writeConfig(

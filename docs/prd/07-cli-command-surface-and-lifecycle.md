@@ -64,7 +64,8 @@ The checkout-move flow below is the accepted 2.0.6 contract. The installed 2.0.5
 ### Interactive Selection Contract
 
 - Fresh setup defaults to machine-served contract, prompt, reference, and template bodies with no eager project snapshot. It installs Designs, Plans, PRD, and Work without a document-type question. Existing partial projects keep their current document families until the user reviews an expansion. Setup always plans the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. It keeps `docs/assets/` and its configured-harness root routers on demand. It creates no shared, Persona, testing, or legacy-family child until content needs that path. Shared inputs use `docs/assets/project/`; audience assets use `docs/assets/<persona-slug>/`; archive remains `.make-docs/archive/`. The always-present docs router exposes default audiences, config, and exact selected asset-router filenames before the assets root exists.
-- The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or the saved manifest selection and never infers or broadens a projection choice.
+- The retired `--no-prompts`, `--templates`, and `--references` spellings remain invalid rather than aliases. Non-interactive setup/reconfigure accepts only the canonical explicit projection input defined by the command model or valid saved project config intent and never silently broadens a projection choice outside explicit adoption review.
+- A portable checkout uses valid saved config choices before fresh defaults. If resource intent is absent, explicit adoption may offer a complete and unambiguous local four-type projection for review. A partial local set needs a choice. Saved project harness methods are preselected only when valid and permitted by machine intent; a machine maximum is a bound, not a selected method.
 - Full-install and skills-only selection surfaces present one explicitly selectable skill list. They do not render `Default`, `Optional`, `Required skills`, or `Optional skills` categories; every skill row is selectable and deselectable; and the highlighted detail panel plus bottom selected-skill summary and instructions remain. Both entry points use one source-owned interaction model and renderer. The same effective manifest, saved selection, scope, harness support, and trust data must produce the same list, detail panel, selected summary, instructions, words, keys, cancellation result, and saved selection.
 - Non-interactive opt-in selection, including `--selected-skills all`, may install first-party skills. The CLI has no `--optional-skills` alias and performs no compatibility migration for deprecated skill-selection state.
 
@@ -80,12 +81,15 @@ The checkout-move flow below is the accepted 2.0.6 contract. The installed 2.0.5
 - R-SETUP-CLI-10 (MUST): non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested. Missing, conflicting, or unsupported method input fails before writes. `--dry-run` uses the same resolution and prints the exact machine and project plan. `--yes` is approval only. It never selects `none` or another method.
 - R-SETUP-CLI-11 (MUST): `setup`, `setup reconfigure`, and `setup skills` inspect pending Store work for the target checkout before the first editable question. A pending operation stops the new setup flow and reports its operation type, saved-plan state, last safe stage, and one permitted next action. The stopped flow writes no project file, durable Store row, backup, or native configuration. Transient Store access leases do not count as durable setup state.
 - R-SETUP-CLI-12 (MUST): full setup can apply a reviewed Skill change. It must not collect a valid selected-Skill change and reject that change only after the interview. The focused command can limit its final plan to Skill changes without using a second interview contract.
+- R-SETUP-CLI-13 (MUST): for explicit portable-checkout adoption, non-interactive setup may use a valid saved project method when the machine already permits it. If no valid saved or command-line method exists for a selected harness, setup stops before writes. The explicit adopt choice selects keep by default; `--conflicts` can state keep or request overwrite. The planner expands that policy into the frozen per-path review map. Interactive dry run collects or displays the same conflict resolutions as apply, then reports the same blocked or ready result without writing.
+- R-SETUP-CLI-14 (MUST): plain `make-docs setup` with a valid project ID, no installed record in this Store, and no local legacy manifest stops before any write. Interactive setup offers `Adopt this checkout`, `Continue with normal setup`, and `Cancel`, then shows the plan for the selected path. Plain `setup --yes` returns blocked and names `make-docs setup --adopt --yes` in `nextAction`. Dry run offers the same choice or blocked result without writing. Plain setup never silently treats the checkout as fresh. A local legacy manifest keeps its reviewed migration route.
 
 ### Conflict Review Contract
 
 - When reviewable selected-file diffs exist, the CLI reports the frozen classification and ownership/provenance evidence for each affected path before collecting a disposition.
 - Review may group paths for navigation, but each file resolves to preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop. Append-merge is not ownership evidence, and no batch action erases file-scoped provenance.
 - Interactive review produces the complete per-path resolution map and exact mutation plan before apply. Non-interactive execution fails on unresolved, incomplete, ambiguous, or contradictory evidence rather than inferring ownership, overwrite, preservation, or removal.
+- An explicit `--adopt` review uses a preserve policy for changed valid local content by default. `--conflicts keep|overwrite` states or changes the non-interactive policy. The planner expands the selected policy to each affected path and shows the map. Outside adoption, `overwrite` uses export-and-replace where the snapshot permits it. During adoption, batch overwrite requires prior local proof of clean managed ownership. Dry run uses the same map and blocker result as apply; it does not call unresolved `skip-conflict` actions a ready plan.
 
 Interactive selection is a first-class capability, not just a prompt wrapper. The next implementation replaces the present capability, harness, options, and review wizard with the state-aware flow in R-SETUP-CLI. Existing wizard code is a migration input, not authority for the replacement screen order. Reconfigure begins from saved intent, and review remains a mutable checkpoint that can return to any applicable setup section before approval.
 
@@ -356,6 +360,16 @@ Code and documentation anchors:
 - Rationale: a renamed project needs to retain context and ownership without fresh-install choices or a false conflict on user text.
 - Source: [Checkout move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [authority work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
 
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Interactive Selection Contract; Conflict Review Contract.
+- Previous contract: Fresh defaults and explicit non-interactive method input did not define a portable checkout path. Dry run could report a ready plan while apply stopped on the same conflict.
+- Replacement contract: Adoption starts from valid saved project choices, expands reviewed conflict policies per path, and gives dry run the same conflict result as apply.
+- Rationale: A person must see the same choices and blockers before and during apply.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 

@@ -64,6 +64,7 @@ import {
 } from "./store";
 import {
   readInstallationStatus,
+  readDeclarativeProjectId,
   previewInstallationCheckoutMove,
   applyInstallationCheckoutMove,
   type CheckoutMovePreview,
@@ -71,6 +72,7 @@ import {
   type CompletedRemovalHandoffReview,
 } from "./store/installation-state";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
+import { inferLocalResourceProjection } from "./project-projection";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
 import {
   getSkillRegistryNames,
@@ -168,6 +170,8 @@ interface ParsedArgs {
   selectedSkills?: string[];
   selectedSkillsValue?: string;
   projectResources?: ProjectResourceType[];
+  adopt?: boolean;
+  conflicts?: "keep" | "overwrite";
   skillsManifest?: string;
   adoptExisting?: string[];
   review?: string;
@@ -500,7 +504,7 @@ export async function runCli(
   }
 
   const jsonOutput = parsed.json || !output.isTTY;
-  const interactive = !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY);
+  const interactive = !parsed.yes && !parsed.json && Boolean(input.isTTY && output.isTTY);
   const recoveredProjectChanged =
     priorProjectMutationApplied || priorProjectRecovery !== null;
 
@@ -543,7 +547,42 @@ export async function runCli(
   }
   // Project identity discovery comes before path-bound manifest and fresh-install checks.
   const checkoutMove = previewInstallationCheckoutMove(targetDir, undefined, storeRoot);
-  if (checkoutMove.candidates.length) {
+  if (parsed.command === "setup" && parsed.setupSubcommand === undefined &&
+      !parsed.adopt && checkoutMove.status === "portable-unregistered" &&
+      !existsSync(path.join(targetDir, ".make-docs/manifest.json"))) {
+    const nextAction = "Run `make-docs setup --adopt --yes` to register this checkout, or run interactive `make-docs setup` to choose a path.";
+    if (!interactive) {
+      if (jsonOutput) writeCanonicalSetupResult({
+        status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir,
+        storeBridge: storeBridgePreview, checkoutMove, storeMutationState: "none",
+        projectChanged: false, projectMutationState: "none", projectActions: [],
+        failedCondition: "This checkout has a project ID but no installed record in this Store. Choose adoption or normal setup before any write.",
+        nextAction,
+      });
+      else output.write(`Setup stopped before any write. ${nextAction}\n`);
+      return;
+    }
+    const choice = await select({
+      message: "This checkout has a project ID but no installed record in this Store. How should setup continue?",
+      options: [
+        { value: "adopt", label: "Adopt this checkout", hint: "Keep its project ID and review file ownership." },
+        { value: "normal", label: "Continue with normal setup", hint: "Review the normal setup plan before any write." },
+        { value: "cancel", label: "Cancel", hint: "Keep project files and Store unchanged." },
+      ],
+    });
+    if (isCancel(choice) || choice === "cancel") {
+      output.write("Setup cancelled. No project or Store file changed.\n");
+      return;
+    }
+    if (choice === "adopt") parsed.adopt = true;
+  }
+  if (parsed.adopt && checkoutMove.candidates.length > 0) {
+    throw new Error("This Store already has this project ID. Review checkout move or separate checkout registration before setup.");
+  }
+  if (parsed.adopt && checkoutMove.status !== "portable-unregistered") {
+    throw new Error(`This checkout cannot be adopted yet. ${checkoutMove.nextAction}`);
+  }
+  if (checkoutMove.candidates.length && !parsed.adopt) {
     if (!jsonOutput) {
       output.write(`Project ID: ${checkoutMove.projectId}\nCurrent path: ${checkoutMove.targetRoot}\n`);
       for (const candidate of checkoutMove.candidates) {
@@ -835,7 +874,16 @@ export async function runCli(
     );
   }
 
-  const resolvedSelections = resolveSelections({ parsed, existingManifest: planningManifest });
+  const resolvedSelections = resolveSelections({ parsed, existingManifest: planningManifest, config: makeDocsConfig });
+  if (parsed.adopt && parsed.projectResources === undefined && makeDocsConfig.resourceProjection === undefined) {
+    const localProjection = inferLocalResourceProjection(targetDir);
+    if (localProjection.status === "partial" && !interactive) {
+      throw new Error("Local resource copies are incomplete. Supply `--project-resources <csv|all|none>` or review setup interactively.");
+    }
+    if (localProjection.status === "complete") {
+      resolvedSelections.resourceProjection = [...localProjection.types];
+    }
+  }
   if (
     parsed.projectResources === undefined &&
     completedRemovalResourceProjection !== undefined &&
@@ -844,6 +892,14 @@ export async function runCli(
     resolvedSelections.resourceProjection = [...completedRemovalResourceProjection];
   }
   let installationStatus = readInstallationStatus(targetDir, storeRoot);
+  if (parsed.adopt) {
+    if (!readDeclarativeProjectId(targetDir)) {
+      throw new Error("`setup --adopt` requires a valid projectId in .make-docs/config.yaml.");
+    }
+    if (installationStatus.status === "ready") {
+      throw new Error("This checkout already has a verified installation. Run `make-docs setup` without `--adopt`.");
+    }
+  }
   let projectState: SetupProjectState = freshInstallTarget
     ? "fresh"
     : installationStatus.status === "recovery-required"
@@ -883,7 +939,7 @@ export async function runCli(
     const harnessSupport = inspectSystemHarnesses();
     const afterHarnessSelection = async (wizardSelections: InstallSelections): Promise<boolean> => {
       interactiveMethodSelections = await promptForSystemSetupMethods({
-        dryRun: false,
+        dryRun: parsed.dryRun,
         yes: false,
         promptForMethods: true,
         methods: {
@@ -906,7 +962,7 @@ export async function runCli(
       const wizardSelections = await runSelectionWizard({
         initialSelections: selections,
         introTitle: "Let's configure your make-docs install",
-        projectState: "fresh",
+        projectState: parsed.adopt ? "partial" : "fresh",
         harnessSupport,
         afterHarnessSelection,
         config: makeDocsConfig,
@@ -970,11 +1026,18 @@ export async function runCli(
     prepareSystemSetupCommand,
     resumePendingSystemSetupCommand,
   } = await import("./setup-system");
+  const savedMethods = Object.fromEntries(
+    makeDocsConfig.harnessIntegrations
+      .filter(record => record.mode === "narrow" && record.method &&
+        (record.harness === "codex" || record.harness === "claude-code" || record.harness === "github-copilot"))
+      .map(record => [record.harness, record.method]),
+  ) as Partial<Record<"codex" | "claude-code" | "github-copilot", HarnessMethodSelection>>;
   const systemOptions = {
     dryRun: parsed.dryRun,
     yes: parsed.yes,
     promptForMethods: interactive && Object.keys(interactiveMethodSelections).length === 0,
     methods: {
+      ...savedMethods,
       ...interactiveMethodSelections,
       ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
       ...(parsed.claudeCodeMethod !== undefined ? { "claude-code": parsed.claudeCodeMethod } : {}),
@@ -1019,9 +1082,39 @@ export async function runCli(
     skillRegistry: effectiveSkillRegistry.registry,
     preserveExistingSkills: skillReconciliation.routed,
     operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+    adopt: parsed.adopt,
   });
 
+  if (parsed.adopt && parsed.conflicts === "overwrite" && findReviewableManagedFileConflicts(plan).length > 0) {
+    const failedCondition = "Adoption cannot batch-overwrite files without prior local managed ownership proof.";
+    const nextAction = "Run `make-docs setup --adopt --yes --conflicts keep` to preserve changed files, or review each file before replacing it.";
+    if (jsonOutput) writeCanonicalSetupResult({
+      status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir,
+      storeBridge: storeBridgePreview, checkoutMove, storeMutationState: "none",
+      projectChanged: false, projectMutationState: "none", projectActions: plan.actions,
+      failedCondition, nextAction,
+    });
+    else output.write(`${failedCondition}\n${nextAction}\n`);
+    return;
+  }
+
+  const conflictPolicy = parsed.conflicts ?? (parsed.adopt ? "keep" : undefined);
   let managedFileConflictResolutions: ManagedFileConflictResolutions | undefined;
+  if (conflictPolicy) {
+    managedFileConflictResolutions = resolveManagedFileConflictPolicy(plan, conflictPolicy);
+    plan = await planInstall({
+      targetDir,
+      selections,
+      existingManifest: planningManifest,
+      completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+      packageMeta,
+      managedFileConflictResolutions,
+      skillRegistry: effectiveSkillRegistry.registry,
+      preserveExistingSkills: skillReconciliation.routed,
+      operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+      adopt: parsed.adopt,
+    });
+  }
   if (interactive) {
     const managedFileConflicts = findReviewableManagedFileConflicts(plan);
     if (managedFileConflicts.length > 0) {
@@ -1042,6 +1135,7 @@ export async function runCli(
         skillRegistry: effectiveSkillRegistry.registry,
         preserveExistingSkills: skillReconciliation.routed,
         operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+        adopt: parsed.adopt,
       });
     }
   }
@@ -1096,12 +1190,15 @@ export async function runCli(
   let projectHarnessConfig = planProjectHarnessIntegrationWrite({
     targetDir,
     reviewed: reviewedHarnessIntegrations,
+    reviewedResourceProjection: freshInstallTarget || makeDocsConfig.resourceProjection !== undefined
+      ? selections.resourceProjection
+      : undefined,
     contentWhenMissing: plannedConfigContent,
   });
 
   let hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
   let requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
-  let hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+  let hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration || Boolean(parsed.adopt);
   let reviewedProjectFingerprint = setupProjectReviewFingerprint(
     plan,
     projectHarnessConfig,
@@ -1162,7 +1259,26 @@ export async function runCli(
       skillRegistry: effectiveSkillRegistry.registry,
       preserveExistingSkills: skillReconciliation.routed,
       operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+      adopt: parsed.adopt,
     });
+    if (conflictPolicy) {
+      managedFileConflictResolutions = {
+        ...managedFileConflictResolutions,
+        ...resolveManagedFileConflictPolicy(plan, conflictPolicy),
+      };
+      plan = await planInstall({
+        targetDir,
+        selections,
+        existingManifest: planningManifest,
+        completedRemovalHandoff: completedRemovalHandoff.status === "ready",
+        packageMeta,
+        managedFileConflictResolutions,
+        skillRegistry: effectiveSkillRegistry.registry,
+        preserveExistingSkills: skillReconciliation.routed,
+        operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+        adopt: parsed.adopt,
+      });
+    }
 
     if (interactive) {
       const refreshedConflicts = findReviewableManagedFileConflicts(plan);
@@ -1187,6 +1303,7 @@ export async function runCli(
           skillRegistry: effectiveSkillRegistry.registry,
           preserveExistingSkills: skillReconciliation.routed,
           operation: installIntent === "reconfigure" ? "setup.reconfigure" : "setup",
+          adopt: parsed.adopt,
         });
       }
     }
@@ -1220,11 +1337,14 @@ export async function runCli(
     projectHarnessConfig = planProjectHarnessIntegrationWrite({
       targetDir,
       reviewed: reviewedHarnessIntegrations,
+      reviewedResourceProjection: freshInstallTarget || makeDocsConfig.resourceProjection !== undefined
+        ? selections.resourceProjection
+        : undefined,
       contentWhenMissing: plannedConfigContent,
     });
     hasPlannedChanges = plan.actions.some((action) => action.type !== "noop") || projectHarnessConfig.changed;
     requiresProjectIdMigration = Boolean(existingManifest && !existingManifest.projectId);
-    hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration;
+    hasInstallMutation = hasPlannedChanges || requiresProjectIdMigration || Boolean(parsed.adopt);
     reviewedProjectFingerprint = setupProjectReviewFingerprint(
       plan,
       projectHarnessConfig,
@@ -1259,14 +1379,14 @@ export async function runCli(
     output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
   }
 
-  if (parsed.dryRun) {
+  const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
+  if (parsed.dryRun && unresolvedManagedFileConflicts.length === 0) {
     if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectRecovery: priorProjectRecovery, projectChanged: hasInstallMutation, projectActions: plan.actions, failedCondition: null, nextAction: hasInstallMutation || hasMachineMutation ? "Run setup with the same choices and --yes to apply this plan." : null });
     else output.write("\nDry run complete.\n");
     return;
   }
 
-  const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
-  if (!interactive && unresolvedManagedFileConflicts.length > 0) {
+  if (unresolvedManagedFileConflicts.length > 0) {
     const migrationReviewBlock = getInstallPlanMigrationReviewBlock(plan);
     const failedCondition = [
       "Non-interactive make-docs runs cannot apply unresolved managed-file diffs.",
@@ -1283,11 +1403,11 @@ export async function runCli(
     ].join("\n");
     const nextAction =
       migrationReviewBlock?.nextAction ??
-      "Run `make-docs setup` without `--yes` to review the conflicts interactively.";
+      "Run setup with `--conflicts keep` to preserve changed files, or review the conflicts interactively.";
     if (jsonOutput) {
       writeCanonicalSetupResult({
         status: "blocked",
-        dryRun: false,
+        dryRun: parsed.dryRun,
         targetRoot: targetDir,
         prepared: preparedSystemSetup,
         genericMcp: genericMcpPlan,
@@ -1647,7 +1767,7 @@ export async function runCli(
   }
   let applied: ReturnType<typeof applyInstallPlan>;
   try {
-    applied = !freshInstallTarget &&
+    applied = !parsed.adopt && !freshInstallTarget &&
         hasInstallMutation &&
         completedRemovalHandoff.status !== "ready"
       ? executeInstallPlanMigration({
@@ -1947,11 +2067,22 @@ function describeSelectionSource(options: {
 function resolveSelections(options: {
   parsed: ParsedArgs;
   existingManifest: InstallManifest | null;
+  config: MakeDocsConfig;
 }): InstallSelections {
-  const { parsed, existingManifest } = options;
+  const { parsed, existingManifest, config } = options;
   const baseSelections = existingManifest ? existingManifest.selections : defaultSelections();
 
   const selections = cloneSelections(baseSelections);
+  if (!existingManifest && parsed.adopt) {
+    for (const record of config.harnessIntegrations) {
+      if (record.harness === "codex" || record.harness === "claude-code" || record.harness === "github-copilot") {
+        selections.harnesses[record.harness] = record.mode !== "disable";
+      }
+    }
+  }
+  if (parsed.projectResources === undefined && config.resourceProjection !== undefined) {
+    selections.resourceProjection = [...config.resourceProjection];
+  }
   if (
     selections.resourceProjection === undefined &&
     (!existingManifest || parsed.setupSubcommand === "reconfigure")
@@ -2003,6 +2134,18 @@ function resolveSelections(options: {
     selections.resourceProjection = [...parsed.projectResources];
   }
   return selections;
+}
+
+function resolveManagedFileConflictPolicy(
+  plan: InstallPlan,
+  policy: "keep" | "overwrite",
+): ManagedFileConflictResolutions {
+  return Object.fromEntries(
+    findReviewableManagedFileConflicts(plan).map(conflict => [
+      conflict.relativePath,
+      policy === "keep" ? "skip" : "overwrite",
+    ]),
+  );
 }
 
 function inferCompletedRemovalResourceProjection(
@@ -2312,6 +2455,17 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--yes":
         parsed.yes = true;
         break;
+      case "--adopt":
+        parsed.adopt = true;
+        break;
+      case "--conflicts": {
+        const value = args.shift();
+        if (value !== "keep" && value !== "overwrite") {
+          throw new Error("`--conflicts` must be keep or overwrite.");
+        }
+        parsed.conflicts = value;
+        break;
+      }
       case "--json":
         parsed.json = true;
         break;
@@ -2730,6 +2884,12 @@ function writeCanonicalSetupResult(input: {
 }
 
 function validateParsedArgs(parsed: ParsedArgs): void {
+  if (parsed.adopt && (parsed.command !== "setup" || parsed.setupSubcommand !== undefined)) {
+    throw new Error("`--adopt` is valid only with plain `make-docs setup`.");
+  }
+  if (parsed.conflicts && (parsed.command !== "setup" || parsed.setupSubcommand === "system" || parsed.setupSubcommand === "skills" || parsed.setupSubcommand === "backup" || parsed.setupSubcommand === "remove")) {
+    throw new Error("`--conflicts` is valid only with project setup or reconfigure.");
+  }
   if (parsed.rotateMcp && (parsed.command !== "setup" || parsed.setupSubcommand !== "system")) {
     throw new Error("`--rotate-mcp` is valid only with `make-docs setup system`.");
   }
@@ -3275,6 +3435,8 @@ const SETUP_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
   --yes                          Approve a fully specified non-interactive plan.
+  --adopt                        Register a checkout with a saved projectId in this Store.
+  --conflicts <keep|overwrite>   Resolve changed managed files in this setup plan.
   --recover <resume|restore>     Choose recovery for unfinished project work.
   --json                         Emit only the canonical setup result JSON.
   --help, -h                     Show help for this command.
@@ -3530,6 +3692,8 @@ ${SETUP_SHARED_OPTIONS}
 Examples:
   make-docs setup
   make-docs setup --yes
+  make-docs setup --adopt --yes
+  make-docs setup --adopt --yes --conflicts keep
   make-docs setup --target ~/Projects/example --dry-run
   make-docs setup reconfigure --yes --no-work
   make-docs setup remove --backup

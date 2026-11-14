@@ -436,6 +436,53 @@ describe("cli interactive flows", () => {
     cleanupTempDir(isolatedSetupHome);
   });
 
+  test("offers explicit paths for a portable checkout before a dry-run plan", async () => {
+    const targetDir = createTempDir();
+    const otherDir = createTempDir();
+    mkdirSync(path.join(targetDir, ".make-docs"));
+    writeFileSync(path.join(targetDir, ".make-docs/config.yaml"), "projectId: existing-project-id\n");
+    withInstallationOperation(otherDir, "test.seed", () => {});
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      const { runCli } = await import("../src/cli");
+      selectMock.mockResolvedValueOnce("cancel");
+      await runCli(["setup", "--target", targetDir, "--dry-run"]);
+      expect(selectMock).toHaveBeenCalledWith(expect.objectContaining({
+        options: expect.arrayContaining([
+          expect.objectContaining({ value: "adopt", label: "Adopt this checkout" }),
+          expect.objectContaining({ value: "normal", label: "Continue with normal setup" }),
+          expect.objectContaining({ value: "cancel", label: "Cancel" }),
+        ]),
+      }));
+      expect(runSelectionWizardMock).not.toHaveBeenCalled();
+      expect(readInstallationStatus(targetDir).status).toBe("portable-unregistered");
+
+      selectMock.mockResolvedValueOnce("adopt");
+      runSelectionWizardMock.mockImplementation(async ({ initialSelections }) => initialSelections);
+      const adoptWrites = writeSpy.mock.calls.length;
+      await runCli(["setup", "--target", targetDir, "--dry-run", ...NONE_METHODS, "--no-github-copilot", "--no-skills", "--project-resources", "none"]);
+      expect(runSelectionWizardMock).toHaveBeenCalledWith(expect.objectContaining({ projectState: "partial" }));
+      const adoptOutput = writeSpy.mock.calls.slice(adoptWrites).map(call => String(call[0])).join("");
+      expect(adoptOutput).toContain("This project");
+      expect(adoptOutput).toContain("Dry run complete");
+      expect(readInstallationStatus(targetDir).status).toBe("portable-unregistered");
+
+      runSelectionWizardMock.mockClear();
+      selectMock.mockResolvedValueOnce("normal");
+      const priorWrites = writeSpy.mock.calls.length;
+      await runCli(["setup", "--target", targetDir, "--dry-run", ...NONE_METHODS, "--no-github-copilot", "--no-skills", "--project-resources", "none"]);
+      expect(runSelectionWizardMock).toHaveBeenCalled();
+      const normalOutput = writeSpy.mock.calls.slice(priorWrites).map(call => String(call[0])).join("");
+      expect(normalOutput).toContain("This project");
+      expect(normalOutput).toContain("Dry run complete");
+      expect(readInstallationStatus(targetDir).status).toBe("portable-unregistered");
+    } finally {
+      writeSpy.mockRestore();
+      cleanupTempDir(targetDir);
+      cleanupTempDir(otherDir);
+    }
+  });
+
   test("uses the wizard for interactive setup without an existing manifest", async () => {
     const targetDir = createTempDir();
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);

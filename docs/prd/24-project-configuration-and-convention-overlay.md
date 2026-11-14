@@ -29,6 +29,7 @@ Install, reconfigure, provider refresh, package sync, cache recovery, audit, bac
 - R-CONFIG-STATE-5 (MUST): move identity uses the valid declared project ID, not equality of the entire config file with an old checksum. Comments and unrelated desired settings do not become durable move blockers. Current config validation still rejects unsupported, malformed, contradictory, or unsafe identity input. A change after review can invalidate the reviewed snapshot without becoming a permanent ownership claim.
 - R-CONFIG-STATE-6 (MUST): a path-only move reads config but does not create it, mint identity, rewrite comments or settings, add a checkout ID, or apply changed desired settings. Later setup refreshes the bound installation record and separately reviews any desired-state changes. Missing or conflicting identity follows a separately admitted repair; move apply cannot bootstrap it.
 - R-CONFIG-STATE-7 (MUST): a monorepo root and an independently configured kit remain separate explicit targets with their own project and checkout identities. Parent approval cannot retarget, adopt, or change nested kit bindings. Registering a distinct checkout is a separate reviewed project-write/adoption action under [PRD 38](38-global-store-and-project-state.md#checkout-binding-and-path-update-safety-r-checkout).
+- R-CONFIG-STATE-8 (MUST): explicit adoption on a new machine reads valid saved harness, method, Skill, capability, and resource choices before fresh defaults. The machine's maximum method restricts a saved method but never selects one. Missing or conflicting desired settings remain unanswered choices. Setup does not rewrite a valid project ID or mint a second one to finish adoption.
 
 ### Presentation Overlay
 
@@ -119,6 +120,7 @@ If a default config template is introduced, it starts in `packages/docs/template
 - R-CONFIG-RESOURCE-1 (MUST): project config is the only desired-setting authority for selected resources, capabilities, harnesses, and Skills. Selected local resource bytes are repository content. Neither a Store ledger nor a receipt can silently change that intent or those bytes.
 - R-CONFIG-RESOURCE-2 (MUST): the Store records only reviewed applied results and minimum last-applied ownership. A clone or worktree inherits project identity, desired settings, and repository content, but it receives a distinct checkout identity and no inherited local ownership.
 - R-CONFIG-RESOURCE-3 (MUST): setup can apply a reviewed difference between desired and applied state. Status reports that difference without changing either side. Ensure, refresh, remove, repair, or migration cannot broaden selection or rewrite project intent as a side effect.
+- R-CONFIG-RESOURCE-4 (MUST): when resource intent is absent, explicit adoption may propose the complete, unambiguous local resource-type set as the reviewed choice for this checkout. Adoption of a legacy config must keep that config unchanged and record the applied choice in the Store. New installs save an explicit choice to config. A partial or unclear set requires explicit input. Local files alone do not become an applied Store receipt or authority to overwrite.
 
 ## Non-Requirements
 
@@ -230,6 +232,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: setup uses valid config identity before path-bound lookup. Outside comments/settings are not durable move identity. Path-only apply reads config without creating or rewriting it, and root/kit or separate-checkout actions retain their own explicit scopes.
 - Rationale: make the existing project-knowledge boundary govern moved installs as well as normal setup.
 - Source: [move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [setup work phase](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md).
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Declarative Identity and Settings; Resource Selection and Applied Ownership.
+- Previous contract: Config owned desired settings, but adoption defaults and absent resource choice were not defined.
+- Replacement contract: Adoption reads valid saved methods and selections. A complete local resource set may become the reviewed selection for this checkout. If a legacy config has no resource selection, adoption keeps its bytes and records the applied selection in the Store. New installs save an explicit resource selection in config.
+- Rationale: A cloned project should keep its declared choices without treating local bytes as prior Store ownership.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 

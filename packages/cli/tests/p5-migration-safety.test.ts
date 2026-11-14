@@ -44,6 +44,7 @@ import {
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
 import { runCli } from "../src/cli";
 import { defaultSelections } from "../src/profile";
+import { loadMakeDocsConfig, planProjectHarnessIntegrationWrite } from "../src/config";
 import { renderManagedBlock } from "../src/managed-block";
 import {
   failingPathHygieneFindings,
@@ -374,6 +375,39 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
       status: "ready",
       pendingOperation: null,
     });
+  });
+
+  it("keeps the reviewed resource choice when migration rebuilds project config", async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-reviewed-projection-"));
+    roots.push(root);
+    mkdirSync(path.join(root, ".make-docs"));
+    writeFileSync(path.join(root, ".make-docs/config.yaml"), "projectId: project-p5\nresourceProjection: []\n");
+    const selections = defaultSelections();
+    selections.resourceProjection = ["contract"];
+    const plan = await planInstall({
+      targetDir: root,
+      selections,
+      existingManifest: null,
+      operation: "setup",
+    });
+    const projectHarnessConfig = planProjectHarnessIntegrationWrite({
+      targetDir: root,
+      reviewed: [],
+      reviewedResourceProjection: selections.resourceProjection,
+      contentWhenMissing: "{}\n",
+    });
+
+    executeInstallPlanMigration({
+      projectRoot: root,
+      storeRoot: fixtureStore(root),
+      compatibility: reviewedCompatibility(root),
+      installPlan: plan,
+      existingManifest: null,
+      projectHarnessConfig,
+      backupId: "reviewed-projection",
+    });
+
+    expect(loadMakeDocsConfig(root).config.resourceProjection).toEqual(["contract"]);
   });
 
   it("blocks incomplete reviewed coverage before creating a pending operation", async () => {

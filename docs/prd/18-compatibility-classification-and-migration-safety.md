@@ -16,6 +16,7 @@ The requirements below define the owned components, behaviors, boundaries, and e
 Classification priority:
 
 1. Resolve the external Store and valid declarative project identity. Read matching checkout candidates before path-bound manifest lookup or fresh classification. Classify Store safety and the current or reviewed candidate binding without changing it. A missing current-path binding does not erase an existing install record. Inspect `.make-docs/manifest.json` only as a legacy transfer input.
+   A valid project ID with no installed ledger for this target is a portable checkout candidate. Classify it before generic missing-manifest recognition. Keep binding presence and installed-ledger trust as separate facts; a binding row without a ledger is not a completed install.
 2. Validate the Store installation record or supported legacy input: schema, package identity, project and checkout identity, saved selections, ownership, hashes, resource provenance, and competing claims. A clone or missing Store cannot inherit ownership from project identity alone.
 3. Compare recorded hashes, managed snapshots, selected-skill outputs, selected `.make-docs/system/**` projections, routers, and other owned paths against the active filesystem surface without following links outside the approved project or machine root.
 4. Exclude `.make-docs/backup/**` and declared inactive backup, export, and archive roots from active installation discovery. Verify them only through their owning backup, restoration, or history contract.
@@ -34,6 +35,7 @@ Source states:
 | `partial-install` | Some recognizable make-docs outputs exist, but manifest records, managed files, bootstrap files, or selected skill outputs are incomplete. | `migrate-with-review` when ownership is reviewable; otherwise `backup-and-reinstall` |
 | `malformed-manifest` | Manifest JSON, schema version, required fields, removed asset fields, or materialization provenance cannot be trusted. | `backup-and-reinstall` when fallback recognition is sufficient; otherwise `manual-review-required` |
 | `missing-manifest-recognizable` | No manifest exists, but known make-docs-managed paths or canonical fingerprints are present. | `migrate-with-review` when every mutation is reviewable; otherwise `backup-and-reinstall` |
+| `portable-unregistered` | Valid declarative project ID and repository content exist, but this target has no verified local installation ledger. An absent or incomplete binding is reported separately. | Offer explicit separate-checkout adoption; preserve changed content until reviewed. |
 | `unknown-shape` | The tree does not have enough trusted make-docs evidence to classify ownership. | `manual-review-required` |
 
 Disposition meanings:
@@ -297,6 +299,16 @@ R-ASSET-MIG-6 (MUST): test complete and partial CLI/manual moves, resumption, co
 - Replacement contract: moved-record discovery precedes fallback classification. Evidence version 2 uses independent saved ownership proof in the existing JSON field, retains a version 1 reader, and commits only with a reviewed path update. Unknown or missing proof stops that move; authentic manifest-schema-1 whole-file adoption remains distinct.
 - Rationale: preserve existing installs without blessing current bytes, hiding a schema migration, or claiming new enforcement in an immutable old binary.
 - Source: [ownership plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md), [move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md), and [scoped work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-index.md).
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Requirements; source states.
+- Previous contract: A recognizable tree without a local manifest could enter generic missing-manifest migration even with valid portable project identity.
+- Replacement contract: Valid project identity with no verified target ledger is classified as a portable unregistered checkout before generic fallback. Binding presence remains separate from ledger trust.
+- Rationale: Setup must offer the correct safe adoption action for a clone.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 

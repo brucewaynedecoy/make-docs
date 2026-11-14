@@ -66,6 +66,7 @@ managed block, not the whole shared file:
 - Setup and reconfigure classify an existing instruction surface before creating or adopting any block. Classification records the file owner, detected marker shape, managed snapshot and hash, project-owned bytes outside the block, router intent, manifest claim, provenance state, and any competing claims.
 - A fresh project receives the configured-harness router foundation at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and the four typed system directories. The resolved effective profile and its dependencies control capability-local routers at `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/`. On-demand `docs/assets/` has configured-harness root routers and no managed routers below it. `.make-docs/archive/` and `docs/assets/` receive configured-harness root routers only when created. Persona testing remains on demand and is routed from the `docs/assets/` root. System resources remain machine-served by default, so initialization does not require eager resource-body materialization; an explicitly selected local projection is recorded separately with its own provenance.
 - Adoption is explicit and file-scoped. A verified canonical block may be adopted as `managed-snapshot`; existing noncanonical content is `project-owned` unless the user reviews an export-and-replace or proven-managed overwrite plan. Successful adoption records a typed receipt, before/after snapshot identifiers, digests, bounded provenance, and content references in the Store-owned installation record. File and block bodies remain in verified provider, backup, or approved content-copy locations.
+- Portable-checkout adoption creates a checkout record under the existing project ID only when no valid target binding exists. It reuses a valid target checkout ID when a prior setup left a binding without a ledger. It compares a router's managed block with verified shipped block bytes. An exact block may become managed in the new checkout even when user text outside the block differs. A changed block remains project-owned under the reviewed keep policy. No block or surrounding text is replaced merely to register the checkout. Export-and-replace requires the reviewed conflict policy and preserves the outside text.
 - Setup, reconfigure, update, migration, and uninstall acquire the Store-owned checkout lock before taking the classification snapshot and hold it through block transformation, manifest write, and validation. Missing, malformed, nested, duplicated, ambiguous, or contradictory markers or provenance fail closed before mutation.
 - Instruction member paths held in the Store are normalized project-relative POSIX paths and resolved beneath the approved repository root. The operational manifest itself lives outside the repository in the Store. Traversal, absolute substitution, case-collision, or symlink escape is rejected on Windows, macOS, and Linux.
 
@@ -100,6 +101,8 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 ### Managed-Block Conflict Resolution
 
 Managed instruction files are compared and resolved at the managed-block boundary. User-authored text outside the block is always preserved. A divergent block requires one explicit disposition: preserve it as project-owned, export it and replace with the selected managed snapshot, overwrite only when clean managed provenance is proven, skip the file, or stop the operation. Non-interactive execution must not guess, append-merge is not ownership evidence, and whole-file hashing or replacement is invalid for a file that Make Docs owns only by managed block. Uninstall removes only a verified clean managed block from the frozen reviewed snapshot; it preserves divergent, project-owned, ambiguous, contradictory, marker-damaged, and surrounding user content and prunes no shared instruction file.
+
+An explicit adoption keep policy or `--conflicts keep` resolves a divergent but valid block to project-owned in the per-path map. Outside adoption, `--conflicts overwrite` requests export-and-replace of that block and must leave outside text intact. During adoption, batch overwrite requires prior local proof of clean managed ownership; a changed unproved block needs separate per-path review before replacement. Damaged or ambiguous markers still stop the operation. Dry run reports the same unresolved block as apply.
 
 ### Discovery Without the CLI
 
@@ -183,6 +186,16 @@ R-ASSET-ROUTER-3 (MUST): root asset routers stay within the existing short-route
 - Replacement contract: move proof follows saved ownership class and provenance, compares current managed blocks with saved block hashes, and preserves outside bytes. Fully owned files, transient snapshots, and authentic manifest-schema-1 adoption retain their distinct proof rules.
 - Rationale: the observed whole-file move digest is implementation drift, not a previously accepted whole-file ownership contract.
 - Source: [ownership plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md) and [authority work phase](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Initialization and Adoption Safety; Managed-Block Conflict Resolution.
+- Previous contract: File-scoped adoption was required, but new-checkout block comparison and a keep policy were not stated.
+- Replacement contract: Exact shipped blocks may become managed in the new checkout. Changed valid blocks stay project-owned under reviewed keep; export-and-replace preserves outside text.
+- Rationale: A new machine must not treat a changed router as a reason to replace project text.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 
