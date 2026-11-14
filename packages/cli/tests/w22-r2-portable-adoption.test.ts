@@ -6,6 +6,8 @@ import path from "node:path";
 import { afterEach, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
 import { readInstallationStatus, previewInstallationCheckoutMove, withInstallationDatabase } from "../src/store/installation-state";
+import { applyInstallPlan, planInstall } from "../src/install";
+import { defaultSelections } from "../src/profile";
 
 const roots: string[] = [];
 const setupFlags = [
@@ -50,7 +52,9 @@ test("a configured second Store adopts a clone and keeps tracked project files",
   const configPath = path.join(projectA, ".make-docs", "config.yaml");
   writeFileSync(configPath, readFileSync(configPath, "utf8").replace(/^resourceProjection:.*\n(?:  - .*\n)*/m, ""));
   const routerPath = path.join(projectA, ".make-docs", "AGENTS.md");
-  writeFileSync(routerPath, readFileSync(routerPath, "utf8").replace("# Make Docs System Router", "# Project System Router") + "\nProject note.\n");
+  const routerContent = readFileSync(routerPath, "utf8");
+  expect(routerContent).toContain("<!-- make-docs:begin -->");
+  writeFileSync(routerPath, routerContent.replace("<!-- make-docs:begin -->", "<!-- make-docs:begin -->\nProject router change.") + "\nProject note.\n");
   const resourcePath = path.join(projectA, ".make-docs", "system", "contracts", "naive-uat-contract.md");
   writeFileSync(resourcePath, readFileSync(resourcePath, "utf8") + "\nProject resource note.\n");
   git("init", "-q", projectA);
@@ -103,4 +107,40 @@ test("a configured second Store adopts a clone and keeps tracked project files",
   expect((await inStore(storeB, ["setup", "--target", projectB, "--yes", "--json"])).status).toBe("complete");
   expect(count()).toBe(1);
   expect(git("-C", projectB, "status", "--porcelain")).toBe("");
+});
+
+test("later setup keeps a changed router block adopted as project-owned", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-w22-r2-router-"));
+  roots.push(root);
+  const priorStore = process.env.MAKE_DOCS_HOME;
+  process.env.MAKE_DOCS_HOME = path.join(root, "store");
+  try {
+    const project = path.join(root, "project");
+    mkdirSync(project);
+    const selections = defaultSelections();
+    selections.resourceProjection = [];
+    const initial = await planInstall({ targetDir: project, selections, existingManifest: null, operation: "setup" });
+    const routerPath = ".make-docs/AGENTS.md";
+    const initialRouter = initial.actions.find(action => action.relativePath === routerPath);
+    expect(initialRouter?.type).toBe("create");
+    const changedRouter = String(initialRouter!.content).replace("<!-- make-docs:begin -->", "<!-- make-docs:begin -->\nProject router change.");
+    mkdirSync(path.join(project, ".make-docs"));
+    writeFileSync(path.join(project, routerPath), changedRouter);
+    const adopted = await planInstall({
+      targetDir: project, selections, existingManifest: null, operation: "setup", adopt: true,
+      managedFileConflictResolutions: { [routerPath]: "skip" },
+    });
+    expect(adopted.desiredFiles[routerPath]?.ownershipClass).toBe("project-owned");
+    const applied = applyInstallPlan({ targetDir: project, plan: adopted, existingManifest: null });
+    const next = await planInstall({
+      targetDir: project, selections, existingManifest: applied.manifest, operation: "setup",
+    });
+    expect(next.actions.find(action => action.relativePath === routerPath)?.type).toBe("noop");
+    expect(next.desiredFiles[routerPath]?.ownershipClass).toBe("project-owned");
+    expect(next.routerOwnership?.routers[routerPath]?.ownershipClass).toBe("project-owned");
+    expect(readFileSync(path.join(project, routerPath), "utf8")).toBe(changedRouter);
+  } finally {
+    if (priorStore === undefined) delete process.env.MAKE_DOCS_HOME;
+    else process.env.MAKE_DOCS_HOME = priorStore;
+  }
 });

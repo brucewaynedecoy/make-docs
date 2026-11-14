@@ -61,7 +61,7 @@ Use `make-docs setup reconfigure` when you want to review an expansion to the fu
 
 ### Adopt a Project on Another Computer
 
-If a clone has `.make-docs/config.yaml` with a project ID but this computer has no Store record for it, run:
+If a clone has `.make-docs/config.yaml` with a project ID but this computer's configured Store has no record for it, run:
 
 ```bash
 make-docs project state status --json
@@ -70,6 +70,8 @@ make-docs setup --adopt --yes
 ```
 
 The status command reports `portable-unregistered` and points to `setup --adopt`. Adoption keeps the project ID. It uses saved harness choices and local resource copies when the config has no resource selection. It registers the checkout in this computer's Store. It keeps changed routers and resource copies as project-owned by default. Files that match the installed package stay managed.
+
+If this computer has no Store yet, configure Make Docs first. The `portable-unregistered` result applies after the Store exists.
 
 Starting with 2.0.7, plain `make-docs setup` stops before it writes to this checkout or Store. In an interactive terminal, choose **Adopt this checkout**, **Continue with normal setup**, or **Cancel**. Setup shows the plan for the chosen path. `make-docs setup --yes` stops and points to `make-docs setup --adopt --yes`. A dry run offers the same choice or stop without writing.
 

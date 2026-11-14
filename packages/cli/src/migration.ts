@@ -1177,6 +1177,7 @@ export function executeInstallPlanMigration(input: InstallPlanMigrationInput): I
         ? planProjectHarnessIntegrationWrite({
             targetDir: prepared.projectRoot,
             reviewed: input.projectHarnessConfig.reviewed,
+            reviewedResourceProjection: input.projectHarnessConfig.reviewedResourceProjection,
             contentWhenMissing: input.projectHarnessConfig.content,
           })
         : undefined;

@@ -391,6 +391,26 @@ export async function createInstallPlan(options: {
       continue;
     }
 
+    if (
+      isInstructionPath(asset.relativePath) &&
+      manifestEntry?.ownershipClass === "project-owned" &&
+      manifestEntry.sourceId === asset.sourceId &&
+      currentHash !== null &&
+      currentHash === manifestEntry.hash &&
+      parseManagedBlock(currentContent).state === "valid"
+    ) {
+      desiredFiles[asset.relativePath] = manifestEntry;
+      actions.push({
+        type: "noop",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        reviewedConflictResolution: "skip",
+        contentHash: currentHash,
+        reason: "Preserve the verified project-owned router block.",
+      });
+      continue;
+    }
+
     const migrationContent = getInstructionMigrationContent(
       asset,
       currentContent,

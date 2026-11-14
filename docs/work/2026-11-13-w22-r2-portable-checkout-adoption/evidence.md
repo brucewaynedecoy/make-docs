@@ -39,7 +39,9 @@ The focused CLI, install, config, Store state, W22 R1 ownership, W22 R0 P8 reins
 
 The extracted 2.0.7 package ran against a fresh clone made by the installed 2.0.6 CLI and a separately configured Store B. Plain setup, `--yes`, and plain dry run each returned blocked with `make-docs setup --adopt --yes` as the next action. Explicit adopt dry run returned planned. `setup --adopt --yes` completed. Store B status became ready, checkout preview became bound, and git status stayed clean. Package dependencies were resolved from this workspace for this temporary proof. No live user Store was changed.
 
-The local 2.0.7 tarball and the GitHub package-candidate job each produced SHA-256 `3b02f72243b35209dcdf429da19c896feb6d97b78348ffc6f3d8af92a0303433`. The reviewed digest is in `.github/release-candidates/v2.0.7.sha256`. The first PR check stopped at the missing digest file after its build and tests passed. A new CI run must pass the digest and installed-package gates before merge.
+The first local 2.0.7 tarball and GitHub package-candidate job each produced SHA-256 `3b02f72243b35209dcdf429da19c896feb6d97b78348ffc6f3d8af92a0303433`. The first PR check stopped at the missing digest file after its build and tests passed. Review fixes then changed package bytes. Two local packs of the revised candidate produced SHA-256 `4ce1d6fec14d90d82662620d7c5c7b872692ed197fe10c2b3c8ee03adca5de64`. The reviewed digest in `.github/release-candidates/v2.0.7.sha256` now names that revised candidate. A new CI run must match it and pass the installed-package gates before merge.
+
+PR review found that a later setup could refresh a router kept as project-owned and that migration could drop a reviewed resource choice while rebuilding project config. Both paths now preserve the reviewed state. Focused migration and adoption tests passed 39 tests after these fixes. The user guide now states that the portable checkout result requires a configured Store. The owning PRDs now distinguish ordinary export-and-replace from adoption batch overwrite, and PRD 15 states when adoption reuses a target checkout binding.
 
 ## Human Experience Review
 

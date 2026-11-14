@@ -427,6 +427,7 @@ export interface ProjectHarnessIntegrationWritePlan extends ProjectHarnessIntegr
   configPath: string;
   beforeContent: string | null;
   reviewed: ProjectHarnessIntegrationRecord[];
+  reviewedResourceProjection?: ProjectResourceType[];
 }
 
 export function planProjectHarnessIntegrationWrite(input: {
@@ -451,6 +452,9 @@ export function planProjectHarnessIntegrationWrite(input: {
       ...record,
       ...(record.accessCeiling ? { accessCeiling: { ...record.accessCeiling } } : {}),
     })),
+    ...(input.reviewedResourceProjection !== undefined
+      ? { reviewedResourceProjection: [...input.reviewedResourceProjection] }
+      : {}),
   };
 }
 
