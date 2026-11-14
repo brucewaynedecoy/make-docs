@@ -284,3 +284,31 @@ test("later setup keeps a changed router block adopted as project-owned", async 
     else process.env.MAKE_DOCS_HOME = priorStore;
   }
 });
+
+test("adoption keep does not insert a block into a marker-free assets router", async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "make-docs-w22-r2-marker-free-"));
+  roots.push(root);
+  const priorStore = process.env.MAKE_DOCS_HOME;
+  process.env.MAKE_DOCS_HOME = path.join(root, "store");
+  try {
+    const project = path.join(root, "project");
+    const relativePath = "docs/assets/AGENTS.md";
+    const content = "Project asset instructions.\n";
+    mkdirSync(path.join(project, "docs", "assets"), { recursive: true });
+    writeFileSync(path.join(project, relativePath), content);
+    const selections = defaultSelections();
+    selections.resourceProjection = [];
+    const plan = await planInstall({
+      targetDir: project, selections, existingManifest: null, operation: "setup", adopt: true,
+      managedFileConflictResolutions: { [relativePath]: "skip" },
+    });
+    expect(plan.actions.find(action => action.relativePath === relativePath)?.type).toBe("skip");
+    const applied = applyInstallPlan({ targetDir: project, plan, existingManifest: null });
+    expect(readFileSync(path.join(project, relativePath), "utf8")).toBe(content);
+    expect(applied.manifest.files[relativePath]).toBeUndefined();
+    expect(applied.manifest.routerOwnership?.routers[relativePath]).toBeUndefined();
+  } finally {
+    if (priorStore === undefined) delete process.env.MAKE_DOCS_HOME;
+    else process.env.MAKE_DOCS_HOME = priorStore;
+  }
+});

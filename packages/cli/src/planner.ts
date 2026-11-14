@@ -419,7 +419,7 @@ export async function createInstallPlan(options: {
       manifestEntry,
       currentHash,
     );
-    if (migrationContent) {
+    if (migrationContent && !(options.adopt && conflictResolution === "skip")) {
       actions.push({
         type: "update",
         relativePath: asset.relativePath,
@@ -501,6 +501,7 @@ export async function createInstallPlan(options: {
         });
         continue;
       }
+      if (options.adopt) delete desiredFiles[asset.relativePath];
       actions.push({
         type: "skip",
         relativePath: asset.relativePath,
@@ -804,6 +805,10 @@ export async function createInstallPlan(options: {
   });
   for (const [relativePath, router] of Object.entries(routerOwnership.routers)) {
     const file = desiredFiles[relativePath];
+    if (options.adopt && !file) {
+      delete routerOwnership.routers[relativePath];
+      continue;
+    }
     if (file?.ownershipClass === "project-owned") {
       router.ownershipClass = "project-owned";
       router.installedHash = file.hash;
