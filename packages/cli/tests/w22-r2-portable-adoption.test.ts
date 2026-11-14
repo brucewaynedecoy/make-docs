@@ -7,7 +7,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
 import { readInstallationManifest, readInstallationStatus, previewInstallationCheckoutMove, withInstallationDatabase } from "../src/store/installation-state";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { defaultSelections } from "../src/profile";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createAuditReport } from "../src/audit";
 import { createProjectSurfaceRouterAssets } from "../src/project-projection";
 
@@ -165,6 +165,11 @@ test("a kept two-Store adoption has a clean first saved-choice sync", async () =
       writeFileSync(path.join(projectA, directory, name), source);
     }
   }
+  const sourceSelections = readInstallationManifest(projectA, storeA)!.selections;
+  const canonicalAssetsRouter = createProjectSurfaceRouterAssets(
+    resolveInstallProfile(sourceSelections), "assets",
+  ).find(asset => asset.relativePath === "docs/assets/AGENTS.md");
+  writeFileSync(path.join(projectA, "docs/assets/AGENTS.md"), canonicalAssetsRouter!.content);
   for (const relativePath of [
     ".make-docs/system/contracts/naive-uat-contract.md",
     ".make-docs/system/contracts/system-resource-contract.md",
@@ -229,7 +234,7 @@ test("a kept two-Store adoption has a clean first saved-choice sync", async () =
   });
   for (const relativePath of onDemandRouters) {
     expect(untrustedPlan.actions.find(action => action.relativePath === relativePath)?.type)
-      .toBe("skip-conflict");
+      .toBe(relativePath === "docs/assets/AGENTS.md" ? "noop" : "skip-conflict");
   }
   const markerFreePath = path.join(projectB, "docs/assets/AGENTS.md");
   const priorRouterContent = readFileSync(markerFreePath, "utf8");

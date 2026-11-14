@@ -304,16 +304,6 @@ export async function createInstallPlan(options: {
       });
       continue;
     }
-    if (currentHash === desiredHash) {
-      actions.push({
-        type: "noop",
-        relativePath: asset.relativePath,
-        sourceId: asset.sourceId,
-        contentHash: desiredHash,
-      });
-      continue;
-    }
-
     const priorAdoptionGapRouter =
       priorPortableAdoption &&
       carriedOnDemandRouterPaths.has(asset.relativePath) &&
@@ -344,6 +334,15 @@ export async function createInstallPlan(options: {
           reason: "The router omitted from the prior adoption has no valid managed block.",
         });
       }
+      continue;
+    }
+    if (currentHash === desiredHash) {
+      actions.push({
+        type: "noop",
+        relativePath: asset.relativePath,
+        sourceId: asset.sourceId,
+        contentHash: desiredHash,
+      });
       continue;
     }
 

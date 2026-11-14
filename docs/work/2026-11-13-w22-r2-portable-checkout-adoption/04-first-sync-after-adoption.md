@@ -39,7 +39,7 @@ A maintainer adopts a clone, then runs plain `make-docs setup --dry-run --json`.
 - Kept files have current project-owned hashes and valid router receipts or resource projection records.
 - The first bare dry run is unblocked, has no `skip-conflict`, and uses `noop` for every selected file.
 - A later edit to a kept file still needs review.
-- A checkout adopted with 2.0.7 gets a clean bare 2.0.8 dry run. The next apply adds only the missing Store proof and leaves git clean. Unrelated unrecorded routers still need review.
+- A checkout adopted with 2.0.7 gets a clean bare 2.0.8 dry run. The next apply adds only the missing Store proof and leaves git clean. A matching shipped block also records project-owned proof for this gap. Unrelated conflicting routers still need review.
 
 ### Dependencies
 
