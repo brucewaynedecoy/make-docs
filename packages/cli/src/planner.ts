@@ -125,6 +125,10 @@ export async function createInstallPlan(options: {
     adopt: options.adopt,
     completedRemovalHandoff: options.completedRemovalHandoff,
   });
+  const carriedOnDemandRouterPaths = new Set(
+    carriedOnDemandRouterAssets.map((asset) => asset.relativePath),
+  );
+  const priorPortableAdoption = hasPriorPortableAdoptionProof(existingManifest);
   const routerAssets = [...thinRouterAssets, ...carriedOnDemandRouterAssets];
   const thinRouterPaths = new Set(
     thinRouterAssets.map((asset) => asset.relativePath),
@@ -307,6 +311,39 @@ export async function createInstallPlan(options: {
         sourceId: asset.sourceId,
         contentHash: desiredHash,
       });
+      continue;
+    }
+
+    const priorAdoptionGapRouter =
+      priorPortableAdoption &&
+      carriedOnDemandRouterPaths.has(asset.relativePath) &&
+      !manifestEntry &&
+      !existingManifest?.routerOwnership?.routers[asset.relativePath];
+    if (priorAdoptionGapRouter) {
+      if (currentHash !== null && parseManagedBlock(currentContent).state === "valid") {
+        desiredFiles[asset.relativePath] = {
+          hash: currentHash,
+          sourceId: asset.sourceId,
+          ownershipClass: "project-owned",
+        };
+        forceManifestWrite = true;
+        actions.push({
+          type: "noop",
+          relativePath: asset.relativePath,
+          sourceId: asset.sourceId,
+          reviewedConflictResolution: "skip",
+          contentHash: currentHash,
+          reason: "Keep the router omitted from the prior portable-adoption ledger.",
+        });
+      } else {
+        conflictsRunId ??= createRunId();
+        actions.push({
+          type: "skip-conflict",
+          relativePath: asset.relativePath,
+          sourceId: asset.sourceId,
+          reason: "The router omitted from the prior adoption has no valid managed block.",
+        });
+      }
       continue;
     }
 
@@ -815,7 +852,8 @@ export async function createInstallPlan(options: {
       router.adoptionReceipt = existingManifest?.routerOwnership?.routers[relativePath]?.adoptionReceipt ?? {
         receiptId: hashText(`portable-router:${relativePath}:${file.hash}`),
         adoptedAt: verifiedAt,
-        priorOwnershipClass: existingManifest ? "managed-snapshot" : "unregistered",
+        priorOwnershipClass: existingManifest?.routerOwnership?.routers[relativePath]
+          ? "managed-snapshot" : "unregistered",
         evidenceRefs: [`project-file:${relativePath}`],
       };
     }
@@ -2023,6 +2061,20 @@ function schemaOneSurfaceHasPreservedContent(options: {
     });
 
   return visit(surfaceRoot);
+}
+
+function hasPriorPortableAdoptionProof(manifest: InstallManifest | null): boolean {
+  if (manifest?.packageVersion !== "2.0.7") return false;
+  return Object.entries(manifest.routerOwnership?.routers ?? {}).some(([relativePath, router]) => {
+    const file = manifest.files[relativePath];
+    return router.ownershipClass === "project-owned" &&
+      router.provenanceState === "verified" &&
+      router.lifecycleDisposition === "active" &&
+      router.adoptionReceipt?.priorOwnershipClass === "unregistered" &&
+      router.installedHash === file?.hash &&
+      router.sourceId === file?.sourceId &&
+      file?.ownershipClass === "project-owned";
+  });
 }
 
 function getCarriedOnDemandRouterAssets(options: {
