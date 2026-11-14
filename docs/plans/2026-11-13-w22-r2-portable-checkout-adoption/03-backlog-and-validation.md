@@ -26,4 +26,6 @@ The implementation backlog must include a CLI version bump. The publishable pack
 
 ## Validation
 
+For the 2.0.8 patch, add a post-adopt phase to the active W22 R2 work. Test a two-Store clone with selected harnesses and changed valid routers and resources. Compare the adopt plan with the first bare saved-choice dry run. Check clean compatibility, only `noop` actions, no `skip-conflict`, the original project ID, and clean git. Test that a later edit to an adopted project-owned file still needs review. Check audit and Store ownership claims against the saved hashes. Record the packaged result and version in the evidence report.
+
 Run the PRD authority validator after the backlog exists. Check every plan-to-PRD-to-work link, frontmatter, task checkbox, phase-local task ID, and plain acceptance bullet. Record any gap in D-050 or the work package. The implementation gate is a validated backlog, not a document-only completion claim for the product bug.

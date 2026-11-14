@@ -1084,6 +1084,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: Owner report in this chat on 2026-11-13; [portable checkout adoption design](../designs/2026-11-13-portable-checkout-adoption.md); [setup path](../../packages/cli/src/cli.ts); [installation state](../../packages/cli/src/store/installation-state.ts). A temporary Store A and Store B test used the globally installed 2.0.6 CLI. One changed managed router block and one changed resource produced two `skip-conflict` actions among 86 files. `--dry-run --yes` returned `planned`; the matching apply returned `blocked` with `ambiguous-ownership`. Both left the clone clean in git. This fixture returned `ownership-unverified` from state status and `blocked` from checkout registration preview before and after apply. Exact shipped files completed setup without a git change.
 
+### D-051 First Sync After Adoption Is Blocked
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | A 2.0.7 adoption kept the project ID and git clean, but the first bare saved-choice dry run was blocked. Source review found that compatibility rejects project-owned router and resource proof and that adoption omits existing on-demand router surfaces. A local 2.0.8 candidate passes the two-Store check. | Confirm the candidate in release CI and on an installed 2.0.8 user path before closing. |
+
+**Issue**: The Ursa checkout adopted on a second machine with 2.0.7. The saved manifest reports a ready installation. A bare `setup --dry-run --json` then reports `partial-install`, 17 modified managed files, and four `skip-conflict` routers under `.make-docs/archive/` and `docs/assets/`.
+
+**Why it matters**: A user cannot run a normal saved-choice sync after a clean adoption. A no-change checkout appears to need another ownership review.
+
+**Recommendation**: Accept verified project-owned hashes with router receipts or resource projection records as a clean baseline. Include existing on-demand router surfaces in the adopt plan. Keep a later edit reviewable.
+
+**To close**: Use Store A and Store B with selected harness methods, all four local resource types, changed valid routers, and changed resources. Adopt with keep. Run bare dry-run JSON at once. Check clean compatibility, no `skip-conflict`, all selected files `noop`, the same project ID, and clean git. Test a later edit and record package proof for 2.0.8.
+
+**Evidence**: Owner report in this chat on 2026-11-14; [portable checkout adoption design](../designs/2026-11-13-portable-checkout-adoption.md); [planner](../../packages/cli/src/planner.ts); [compatibility](../../packages/cli/src/compatibility.ts); [candidate proof](../work/2026-11-13-w22-r2-portable-checkout-adoption/evidence.md#208-candidate-first-saved-choice-sync).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

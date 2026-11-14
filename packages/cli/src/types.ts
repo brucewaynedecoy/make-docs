@@ -696,6 +696,7 @@ export type AuditReasonCode =
   | "fallback-root-fingerprint-mismatch"
   | "fallback-ambiguous"
   | "project-config-preserved"
+  | "project-owned-content-preserved"
   | "directory-contains-unmanaged-descendants"
   | "directory-contains-preserved-descendants";
 
@@ -745,6 +746,7 @@ export interface AuditCandidateMetadata extends AuditPathMetadata {
 
 export interface ManifestAuditRecord extends AuditManagedPathMetadata {
   manifestHash?: string;
+  ownershipClass?: ManifestOwnershipClass;
 }
 
 export interface ManifestAuditContext {
