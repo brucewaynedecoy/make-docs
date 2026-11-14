@@ -495,25 +495,30 @@ function hasTrustedLocalOwnershipProof(
 ): boolean {
   if (entry.sourceId.startsWith("router:")) {
     const router = manifest.routerOwnership?.routers[relativePath];
-    return Boolean(
+    const commonProof =
       router?.sourceId === entry.sourceId &&
-      router.ownershipClass === "managed-snapshot" &&
       router.provenanceState === "verified" &&
       router.lifecycleDisposition === "active" &&
-      router.adoptionReceipt === null &&
-      router.expectedSourceHash === entry.hash &&
-      router.installedHash === entry.hash,
-    );
+      router.installedHash === entry.hash;
+    if (entry.ownershipClass === "project-owned") {
+      return Boolean(commonProof && router.ownershipClass === "project-owned" &&
+        router.adoptionReceipt);
+    }
+    return Boolean(commonProof && router.ownershipClass === "managed-snapshot" &&
+      router.adoptionReceipt === null && router.expectedSourceHash === entry.hash);
   }
   if (entry.sourceId.startsWith("resource:")) {
     const uri = entry.sourceId.slice("resource:".length);
     const resource = manifest.resourceProjection?.resources[uri];
-    return Boolean(
+    const commonProof =
       resource?.managedDestination === relativePath &&
-      resource.ownershipClass === "managed-snapshot" &&
       resource.lifecycleDisposition === "active" &&
-      resource.installedDigest === entry.hash,
-    );
+      resource.installedDigest === entry.hash;
+    if (entry.ownershipClass === "project-owned") {
+      return Boolean(commonProof && resource.ownershipClass === "project-owned");
+    }
+    return Boolean(commonProof && resource.ownershipClass === "managed-snapshot" &&
+      entry.ownershipClass === "managed-projection");
   }
   return true;
 }

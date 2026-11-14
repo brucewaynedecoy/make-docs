@@ -46,3 +46,15 @@ PR review found that a later setup could refresh a router kept as project-owned 
 ## Human Experience Review
 
 Reviewer: implementing agent. The 2.0.7 candidate gives the user a clear path choice before plain setup writes. The interactive test shows the three choices and a plan for each selected setup path. The blocked batch result names a command the user can run. The packaged two-Store run confirms that explicit adoption keeps the project ID and a clean git checkout. This review covers the tested CLI and JSON paths. It does not prove the owner's MCP host flow or explain the three changed resource bodies. The next action is to run the remaining P3 negative cases and confirm the installed-package CI gates before release.
+
+## 2.0.8 Candidate: First Saved-Choice Sync
+
+The 2.0.7 release was published before this follow-up. The owner reported that an Ursa checkout adopted with 2.0.7 kept its project ID and git clean, but a bare dry run then reported 17 modified files and four new router conflicts. The exact Ursa adopt flags and three resource body causes remain unverified. Source review found two causes: compatibility accepted only managed router and resource proof, and the adopt planner omitted existing archive and assets routers until a later sync.
+
+The W22 R2 test now installs with Store A, commits and clones the project, and configures Store B. It uses MCP methods with temporary host homes. It changes 14 valid router blocks and three resource bodies, and adds the four reported archive and assets routers. `setup --adopt --yes` keeps the original project ID and leaves git clean. A bare `setup --dry-run --json` immediately after adoption returns `planned`; every project action is `noop`. The Store manifest marks sampled kept routers and resources `project-owned`. Audit preserves those files. A later edit to one kept resource makes bare dry run return `blocked`. A direct planner test checks all four on-demand routers in both plans.
+
+The focused compatibility, audit, install, and adoption run passed 103 tests. The full CLI run passed 112 test files and 2,003 tests; one file and six tests were skipped. TypeScript, `git diff --check`, and PRD authority validation passed. The PRD validator scanned 35 PRDs and returned zero diagnostics. The packed CLI reports `@brucewaynedecoy/make-docs` version `2.0.8`. Two packs of the final candidate produced SHA-256 `786b2ebedafe8c1cf5daf57398536ae64d100256f66d194212d6e1b36eed0615`, recorded in `.github/release-candidates/v2.0.8.sha256`.
+
+An extracted copy of that tarball ran the same two-Store path with temporary MCP host homes. Adoption completed under the saved project ID. The first bare dry run returned `planned` with 90 `noop` actions and no other action. Store B status was `ready`, and git was clean. The extracted CLI reported `2.0.8`. Package dependencies were resolved from the workspace for this temporary proof.
+
+This is local candidate proof. It does not show an installed 2.0.8 run on Ursa, a CI result, or a published package. D-051 stays open until that release check passes.

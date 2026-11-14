@@ -2502,6 +2502,7 @@ function createManifestAuditRecord(
     ownershipSource,
     sourceId: manifestEntry?.sourceId,
     manifestHash: manifestEntry?.hash,
+    ownershipClass: manifestEntry?.ownershipClass,
     skillExposure: manifestEntry?.skillExposure,
     agenticOwnership: manifestEntry?.agenticOwnership,
     ...(manifestEntry?.agenticOwnership?.role

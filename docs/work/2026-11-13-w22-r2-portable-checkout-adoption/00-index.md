@@ -40,6 +40,7 @@ The [design](../../designs/2026-11-13-portable-checkout-adoption.md), [plan](../
 | [P1 State and Store Binding](01-state-and-store-binding.md) | Classify a portable checkout and register a distinct local checkout safely. |
 | [P2 Adoption and Conflict Review](02-adoption-and-conflict-review.md) | Use saved choices and a reviewed path map to preserve or replace content. |
 | [P3 Package Proof and Closeout](03-package-proof-and-closeout.md) | Prove the two-Store path, negative cases, output, and guide decision. |
+| [P4 First Sync After Adoption](04-first-sync-after-adoption.md) | Repair kept-file trust and surface parity, then prove the 2.0.8 patch. |
 
 ## Usage Notes
 

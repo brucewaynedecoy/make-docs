@@ -122,6 +122,7 @@ export async function createInstallPlan(options: {
     targetDir,
     profile,
     existingManifest,
+    adopt: options.adopt,
     completedRemovalHandoff: options.completedRemovalHandoff,
   });
   const routerAssets = [...thinRouterAssets, ...carriedOnDemandRouterAssets];
@@ -2023,12 +2024,13 @@ function getCarriedOnDemandRouterAssets(options: {
   targetDir: string;
   profile: InstallProfile;
   existingManifest: InstallManifest | null;
+  adopt?: boolean;
   completedRemovalHandoff?: boolean;
 }): ResolvedAsset[] {
   const manifest = options.existingManifest;
   if (
-    !manifest ||
-    (!manifest.routerOwnership &&
+    (!manifest && !options.adopt) ||
+    (manifest && !manifest.routerOwnership &&
       !options.completedRemovalHandoff &&
       manifest.schemaVersion !== 1)
   ) {
@@ -2042,7 +2044,7 @@ function getCarriedOnDemandRouterAssets(options: {
   for (const [surface, directory] of Object.entries(surfaceDirectories)) {
     const surfaceExists = existsSync(path.join(options.targetDir, directory));
     const schemaOneSurfaceNeedsRouters =
-      manifest.schemaVersion === 1 &&
+      manifest?.schemaVersion === 1 &&
       schemaOneSurfaceHasPreservedContent({
         targetDir: options.targetDir,
         directory,
@@ -2052,13 +2054,14 @@ function getCarriedOnDemandRouterAssets(options: {
       options.profile,
       surface as keyof typeof surfaceDirectories,
     )) {
-      const proof = manifest.routerOwnership?.routers[asset.relativePath];
-      const file = manifest.files[asset.relativePath];
+      const proof = manifest?.routerOwnership?.routers[asset.relativePath];
+      const file = manifest?.files[asset.relativePath];
       const completedRemovalFileProof =
         options.completedRemovalHandoff === true &&
         file?.sourceId === asset.sourceId &&
         (file.ownershipClass === undefined || file.ownershipClass === "managed-block");
       if (
+        (options.adopt && surfaceExists) ||
         completedRemovalFileProof ||
         schemaOneSurfaceNeedsRouters ||
         (surfaceExists &&
@@ -2068,7 +2071,15 @@ function getCarriedOnDemandRouterAssets(options: {
           proof.lifecycleDisposition === "active" &&
           proof.sourceId === asset.sourceId &&
           file?.sourceId === asset.sourceId &&
-          file.ownershipClass === "managed-block")))
+          file.ownershipClass === "managed-block") ||
+          (proof.provenanceState === "verified" &&
+          proof.ownershipClass === "project-owned" &&
+          proof.lifecycleDisposition === "active" &&
+          proof.sourceId === asset.sourceId &&
+          proof.installedHash === file?.hash &&
+          Boolean(proof.adoptionReceipt) &&
+          file?.sourceId === asset.sourceId &&
+          file.ownershipClass === "project-owned")))
       ) {
         assets.push(asset);
       }

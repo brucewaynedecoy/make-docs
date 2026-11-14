@@ -17,6 +17,8 @@ follow_on:
 
 ## Purpose
 
+Post-release follow-up, 2026-11-14: 2.0.7 registers a second checkout, but a bare saved-choice sync can report false modified files and four new router conflicts. This revision keeps W22 R2 ownership because it repairs the same adoption promise. The patch target is 2.0.8. The [design](../../designs/2026-11-13-portable-checkout-adoption.md) and [D-051](../../prd/03-open-questions-and-risk-register.md#d-051-first-sync-after-adoption-is-blocked) govern this addition.
+
 Turn the [portable checkout adoption design](../../designs/2026-11-13-portable-checkout-adoption.md) into current product requirements and a scoped implementation backlog. The reported 2.0.6 failure concerns a checked-in project on a second machine with no installed Store ledger.
 
 ## Objective

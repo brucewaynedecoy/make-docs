@@ -18,6 +18,8 @@ The current [W19 R5 design](../designs/2026-09-09-first-party-skills-and-managed
 
 The checkout-move and managed-block requirements target a 2.0.6 candidate. The [W22 R1 plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-overview.md) and [backlog](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-index.md) trace existing owners 07, 10, 15, 18, 24, 25, 38, and 39. PRD 02 remains architecture context; PRD 05 retains installation/profile constraints. The scoped PRD reconciliation passed independent gap review and Store-free authority validation. This is current product authority, not a claim that 2.0.6 is implemented or released. [D-049](03-open-questions-and-risk-register.md#d-049-moved-checkout-setup-bypasses-project-identity-and-managed-block-ownership) remains open until required installed proof passes.
 
+The [W22 R2 backlog](../work/2026-11-13-w22-r2-portable-checkout-adoption/00-index.md) now includes the first sync after a 2.0.7 adoption. [D-051](03-open-questions-and-risk-register.md#d-051-first-sync-after-adoption-is-blocked) tracks the released gap. PRDs 05, 07, 15, and 18 own the current 2.0.8 patch requirements for kept-file trust and archive and assets router parity.
+
 ## Reading Order
 
 1. Start with [01 Product Overview](01-product-overview.md), [02 Architecture Overview](02-architecture-overview.md), [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), and [04 Glossary](04-glossary.md).

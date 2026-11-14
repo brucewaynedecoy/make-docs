@@ -323,6 +323,18 @@ function classifyManifestRecord(options: {
     return;
   }
 
+  if (record.ownershipClass === "project-owned") {
+    addPreserved(
+      preservedPaths,
+      record,
+      createReason(
+        "project-owned-content-preserved",
+        "The project owns this adopted file, so it is preserved.",
+      ),
+    );
+    return;
+  }
+
   if (isInstructionPath(record.path)) {
     const currentContent = currentBytes.toString("utf8");
     const currentBlockHash = getManifestFileHash(record.path, currentContent);
