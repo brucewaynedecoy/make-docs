@@ -68,7 +68,7 @@ Human Experience Review is required for the packaged result. Record observations
 
 ### Tasks
 
-- [ ] t1: Bump `packages/cli/package.json` from `2.0.6` to `2.0.7`. Update the CLI workspace entries in `package-lock.json` through the supported package process. Keep the private root at `0.0.0` and unrelated dependencies fixed. Follow the release-candidate digest gate for the final artifact.
+- [x] t1: Bump `packages/cli/package.json` from `2.0.6` to `2.0.7`. Update the CLI workspace entries in `package-lock.json` through the supported package process. Keep the private root at `0.0.0` and unrelated dependencies fixed. Follow the release-candidate digest gate for the final artifact.
 - [x] t2: Build and pack the bumped CLI. Check its package name and `2.0.7` version. Install a project with all four resource types on Store A. Commit and clone it. Configure Store B with no record for that project.
 - [ ] t3: Run status and checkout preview before setup. Run `setup --adopt --yes` with saved choices and the default keep policy. Repeat with `--conflicts keep`. Check one registered checkout, the saved project ID, ownership records, and git status.
 - [ ] t4: Repeat with exact shipped files, changed managed blocks, changed resources, a bound row without a ledger, and a prior failed setup. Test repeat setup and lost-reply retry.

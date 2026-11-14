@@ -22,7 +22,7 @@ This test confirms conflict and dry-run drift. It does not reproduce the owner's
 
 ## Remaining Evidence
 
-The candidate package and automated two-Store release check are recorded below. P3 still needs the full negative-case set, final package digest, and the owner's real second-machine check. The cause of the owner's three changed resource bodies remains unknown.
+The candidate package and automated two-Store release check are recorded below. P3 still needs the full negative-case set and the owner's real second-machine check. The cause of the owner's three changed resource bodies remains unknown.
 
 ## 2.0.7 Candidate: Plain Setup Choice Gate
 
@@ -39,6 +39,8 @@ The focused CLI, install, config, Store state, W22 R1 ownership, W22 R0 P8 reins
 
 The extracted 2.0.7 package ran against a fresh clone made by the installed 2.0.6 CLI and a separately configured Store B. Plain setup, `--yes`, and plain dry run each returned blocked with `make-docs setup --adopt --yes` as the next action. Explicit adopt dry run returned planned. `setup --adopt --yes` completed. Store B status became ready, checkout preview became bound, and git status stayed clean. Package dependencies were resolved from this workspace for this temporary proof. No live user Store was changed.
 
+The local 2.0.7 tarball and the GitHub package-candidate job each produced SHA-256 `3b02f72243b35209dcdf429da19c896feb6d97b78348ffc6f3d8af92a0303433`. The reviewed digest is in `.github/release-candidates/v2.0.7.sha256`. The first PR check stopped at the missing digest file after its build and tests passed. A new CI run must pass the digest and installed-package gates before merge.
+
 ## Human Experience Review
 
-Reviewer: implementing agent. The 2.0.7 candidate gives the user a clear path choice before plain setup writes. The interactive test shows the three choices and a plan for each selected setup path. The blocked batch result names a command the user can run. The packaged two-Store run confirms that explicit adoption keeps the project ID and a clean git checkout. This review covers the tested CLI and JSON paths. It does not prove the owner's MCP host flow or explain the three changed resource bodies. The next action is to run the remaining P3 negative cases and the final package digest check before release.
+Reviewer: implementing agent. The 2.0.7 candidate gives the user a clear path choice before plain setup writes. The interactive test shows the three choices and a plan for each selected setup path. The blocked batch result names a command the user can run. The packaged two-Store run confirms that explicit adoption keeps the project ID and a clean git checkout. This review covers the tested CLI and JSON paths. It does not prove the owner's MCP host flow or explain the three changed resource bodies. The next action is to run the remaining P3 negative cases and confirm the installed-package CI gates before release.
