@@ -7,7 +7,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
 import { readInstallationManifest, readInstallationStatus, previewInstallationCheckoutMove, withInstallationDatabase } from "../src/store/installation-state";
 import { applyInstallPlan, planInstall } from "../src/install";
-import { defaultSelections } from "../src/profile";
+import { defaultSelections, resolveInstallProfile } from "../src/profile";
 import { createAuditReport } from "../src/audit";
 import { createProjectSurfaceRouterAssets } from "../src/project-projection";
 
@@ -165,6 +165,11 @@ test("a kept two-Store adoption has a clean first saved-choice sync", async () =
       writeFileSync(path.join(projectA, directory, name), source);
     }
   }
+  const sourceSelections = readInstallationManifest(projectA, storeA)!.selections;
+  const canonicalAssetsRouter = createProjectSurfaceRouterAssets(
+    resolveInstallProfile(sourceSelections), "assets",
+  ).find(asset => asset.relativePath === "docs/assets/AGENTS.md");
+  writeFileSync(path.join(projectA, "docs/assets/AGENTS.md"), canonicalAssetsRouter!.content);
   for (const relativePath of [
     ".make-docs/system/contracts/naive-uat-contract.md",
     ".make-docs/system/contracts/system-resource-contract.md",
@@ -209,6 +214,60 @@ test("a kept two-Store adoption has a clean first saved-choice sync", async () =
   expect(firstSync.project?.actions?.length).toBeGreaterThan(0);
   expect(firstSync.project?.actions?.every(action => action.action === "noop")).toBe(true);
   expect(git("-C", projectB, "status", "--porcelain")).toBe("");
+
+  const priorAdoption = JSON.parse(JSON.stringify(manifest!).replaceAll("2.0.8", "2.0.7")) as NonNullable<typeof manifest>;
+  const onDemandRouters = [
+    ".make-docs/archive/AGENTS.md", ".make-docs/archive/CLAUDE.md",
+    "docs/assets/AGENTS.md", "docs/assets/CLAUDE.md",
+  ];
+  for (const relativePath of onDemandRouters) {
+    delete priorAdoption.files[relativePath];
+    if (priorAdoption.routerOwnership) delete priorAdoption.routerOwnership.routers[relativePath];
+  }
+  const withoutAdoptionProof = structuredClone(priorAdoption);
+  for (const router of Object.values(withoutAdoptionProof.routerOwnership?.routers ?? {})) {
+    router.adoptionReceipt = null;
+  }
+  const untrustedPlan = await planInstall({
+    targetDir: projectB, selections: manifest!.selections, existingManifest: withoutAdoptionProof,
+    operation: "setup",
+  });
+  for (const relativePath of onDemandRouters) {
+    expect(untrustedPlan.actions.find(action => action.relativePath === relativePath)?.type)
+      .toBe(relativePath === "docs/assets/AGENTS.md" ? "noop" : "skip-conflict");
+  }
+  const markerFreePath = path.join(projectB, "docs/assets/AGENTS.md");
+  const priorRouterContent = readFileSync(markerFreePath, "utf8");
+  writeFileSync(markerFreePath, "Project asset instructions.\n");
+  const markerFreePlan = await planInstall({
+    targetDir: projectB, selections: manifest!.selections, existingManifest: priorAdoption,
+    operation: "setup",
+  });
+  expect(markerFreePlan.actions.find(action => action.relativePath === "docs/assets/AGENTS.md")?.type)
+    .toBe("skip-conflict");
+  writeFileSync(markerFreePath, priorRouterContent);
+  withInstallationDatabase(projectB, db => {
+    const row = db.prepare("SELECT checkout_id FROM installation_checkouts WHERE project_id=?")
+      .get(projectId) as { checkout_id: string };
+    db.prepare("UPDATE installation_ledgers SET manifest_json=? WHERE checkout_id=?")
+      .run(JSON.stringify(priorAdoption), row.checkout_id);
+  }, { storeRoot: storeB });
+  const upgradeDryRun = await inStore(storeB, ["setup", "--target", projectB, "--dry-run", "--json"], hostB);
+  expect(upgradeDryRun.status, JSON.stringify(upgradeDryRun)).toBe("planned");
+  expect(upgradeDryRun.project?.actions?.every(action => action.action === "noop")).toBe(true);
+  const upgrade = await inStore(storeB, ["setup", "--target", projectB, "--yes", "--json"], hostB);
+  expect(upgrade.status, JSON.stringify(upgrade)).toBe("complete");
+  expect(readInstallationStatus(projectB, storeB)).toMatchObject({ status: "ready", projectId });
+  const repairedManifest = readInstallationManifest(projectB, storeB);
+  for (const relativePath of onDemandRouters) {
+    expect(repairedManifest?.files[relativePath]?.ownershipClass).toBe("project-owned");
+    expect(repairedManifest?.routerOwnership?.routers[relativePath]?.adoptionReceipt?.priorOwnershipClass)
+      .toBe("unregistered");
+  }
+  expect(git("-C", projectB, "status", "--porcelain")).toBe("");
+  const afterUpgrade = await inStore(storeB, ["setup", "--target", projectB, "--dry-run", "--json"], hostB);
+  expect(afterUpgrade.status, JSON.stringify(afterUpgrade)).toBe("planned");
+  expect(afterUpgrade.project?.actions?.every(action => action.action === "noop")).toBe(true);
 
   const changedResource = path.join(projectB, ".make-docs/system/contracts/naive-uat-contract.md");
   writeFileSync(changedResource, readFileSync(changedResource, "utf8") + "\nLater edit.\n");
