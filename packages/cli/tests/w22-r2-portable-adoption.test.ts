@@ -123,7 +123,7 @@ test("later setup keeps a changed router block adopted as project-owned", async 
     const routerPath = ".make-docs/AGENTS.md";
     const initialRouter = initial.actions.find(action => action.relativePath === routerPath);
     expect(initialRouter?.type).toBe("create");
-    const changedRouter = String(initialRouter!.content).replace("<!-- make-docs:begin -->", "<!-- make-docs:begin -->\nProject router change.");
+    const changedRouter = String(initialRouter!.content).replace("<!-- make-docs:begin -->", "<!-- make-docs:begin -->\nProject router change.") + "\nProject note.\n";
     mkdirSync(path.join(project, ".make-docs"));
     writeFileSync(path.join(project, routerPath), changedRouter);
     const adopted = await planInstall({
@@ -138,7 +138,20 @@ test("later setup keeps a changed router block adopted as project-owned", async 
     expect(next.actions.find(action => action.relativePath === routerPath)?.type).toBe("noop");
     expect(next.desiredFiles[routerPath]?.ownershipClass).toBe("project-owned");
     expect(next.routerOwnership?.routers[routerPath]?.ownershipClass).toBe("project-owned");
+    expect(next.routerOwnership?.routers[routerPath]?.adoptionReceipt)
+      .toEqual(applied.manifest.routerOwnership?.routers[routerPath]?.adoptionReceipt);
     expect(readFileSync(path.join(project, routerPath), "utf8")).toBe(changedRouter);
+
+    const replacement = await planInstall({
+      targetDir: project, selections, existingManifest: applied.manifest, operation: "setup",
+      managedFileConflictResolutions: { [routerPath]: "overwrite" },
+    });
+    expect(replacement.actions.find(action => action.relativePath === routerPath))
+      .toMatchObject({ type: "update", reviewedConflictResolution: "overwrite" });
+    applyInstallPlan({ targetDir: project, plan: replacement, existingManifest: applied.manifest });
+    const replacedRouter = readFileSync(path.join(project, routerPath), "utf8");
+    expect(replacedRouter).not.toContain("Project router change.");
+    expect(replacedRouter).toContain("Project note.");
   } finally {
     if (priorStore === undefined) delete process.env.MAKE_DOCS_HOME;
     else process.env.MAKE_DOCS_HOME = priorStore;

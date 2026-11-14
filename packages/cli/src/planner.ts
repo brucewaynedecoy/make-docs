@@ -397,7 +397,8 @@ export async function createInstallPlan(options: {
       manifestEntry.sourceId === asset.sourceId &&
       currentHash !== null &&
       currentHash === manifestEntry.hash &&
-      parseManagedBlock(currentContent).state === "valid"
+      parseManagedBlock(currentContent).state === "valid" &&
+      managedFileConflictResolutions?.[asset.relativePath] !== "overwrite"
     ) {
       desiredFiles[asset.relativePath] = manifestEntry;
       actions.push({
@@ -1834,6 +1835,10 @@ function getInstructionMigrationContent(
   currentHash: string | null,
 ): { content: string; reason: string } | null {
   if (!isInstructionPath(asset.relativePath)) {
+    return null;
+  }
+
+  if (manifestEntry?.ownershipClass === "project-owned") {
     return null;
   }
 
