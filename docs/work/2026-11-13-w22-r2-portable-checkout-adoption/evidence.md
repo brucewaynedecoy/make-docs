@@ -1,0 +1,44 @@
+---
+title: "W22 R2 Portable Checkout Adoption Evidence"
+kind: "work"
+status: "active"
+coordinate: "W22 R2"
+---
+
+# W22 R2 Evidence
+
+## Current 2.0.6 Package Check
+
+An isolated test used the globally installed Make Docs 2.0.6 CLI. Store A installed a project with all four local resource types. The test committed those files and cloned the project. A separate configured Store B had no record for the cloned project. The test used no harness method. It changed one router managed block and one resource body before the commit.
+
+- Store B status returned `ownership-unverified` before and after the failed setup.
+- Checkout registration preview returned `blocked` before and after the failed setup.
+- Non-interactive dry run returned `planned` with two `skip-conflict` actions among 86 planned files.
+- The matching apply returned `blocked` with `ambiguous-ownership` and the same two `skip-conflict` actions.
+- Git status of the clone stayed clean.
+- A separate exact-file clone completed setup in Store B and stayed clean in git.
+
+This test confirms conflict and dry-run drift. It does not reproduce the owner's later `unregistered` and `bound` pair. It does not test saved MCP method selection. It does not explain the three resource differences on the owner's machine. The temporary fixture and Store were kept outside this repository.
+
+## Remaining Evidence
+
+The candidate package and automated two-Store release check are recorded below. P3 still needs the full negative-case set, final package digest, and the owner's real second-machine check. The cause of the owner's three changed resource bodies remains unknown.
+
+## 2.0.7 Candidate: Plain Setup Choice Gate
+
+The candidate CLI workspace and lock entry now say `2.0.7`. `npm pack --dry-run --json`, with a temporary npm cache, reported `@brucewaynedecoy/make-docs` version `2.0.7` and a 141-file package. A real `npm pack` made `brucewaynedecoy-make-docs-2.0.7.tgz` under a temporary path. Its extracted CLI reported `2.0.7`. This proves package build and version, but does not prove publication.
+
+The two-Store regression in `packages/cli/tests/w22-r2-portable-adoption.test.ts` installs project A with all four resource types, commits it, clones it, and configures a separate Store B. The test removes the new resource-selection field before commit to model a 2.0.6 config. It changes one router block and one resource body. Before adoption, status and checkout preview report `portable-unregistered`.
+
+- Plain setup, `setup --yes`, dry run, and `setup --dry-run --yes` return blocked. Each result names `make-docs setup --adopt --yes`. The Store database digest and checkout row count stay fixed. Git stays clean.
+- Interactive dry run offers Adopt this checkout, Continue with normal setup, and Cancel. The selected adopt and normal paths each show a project plan. Cancel makes no checkout change.
+- `setup --adopt --yes` completes. Store B has one checkout under Store A's project ID. Changed files stay in git. Repeat setup keeps one checkout and a clean git status.
+- Adoption keep dry run returns planned with preserved files. Adoption overwrite dry run blocks because the new Store has no prior managed ownership proof. Plain setup with conflict flags still stops for the path choice.
+
+The focused CLI, install, config, Store state, W22 R1 ownership, W22 R0 P8 reinstall, and W22 R2 adoption set passed 298 tests with one skip before the latest plain-setup gate. The new plain-setup and interactive tests passed after that gate. The stable full CLI package suite passed: 112 test files passed, one file was skipped, 2,000 tests passed, and six tests were skipped. It ran with the source held steady and returned exit code zero. TypeScript and `git diff --check` passed. The PRD authority validator passed 35 PRDs, 644 Markdown files, and 1,232 links with zero diagnostics. The owner's three changed resource bodies and saved MCP method case remain unverified in a real second-machine session.
+
+The extracted 2.0.7 package ran against a fresh clone made by the installed 2.0.6 CLI and a separately configured Store B. Plain setup, `--yes`, and plain dry run each returned blocked with `make-docs setup --adopt --yes` as the next action. Explicit adopt dry run returned planned. `setup --adopt --yes` completed. Store B status became ready, checkout preview became bound, and git status stayed clean. Package dependencies were resolved from this workspace for this temporary proof. No live user Store was changed.
+
+## Human Experience Review
+
+Reviewer: implementing agent. The 2.0.7 candidate gives the user a clear path choice before plain setup writes. The interactive test shows the three choices and a plan for each selected setup path. The blocked batch result names a command the user can run. The packaged two-Store run confirms that explicit adoption keeps the project ID and a clean git checkout. This review covers the tested CLI and JSON paths. It does not prove the owner's MCP host flow or explain the three changed resource bodies. The next action is to run the remaining P3 negative cases and the final package digest check before release.

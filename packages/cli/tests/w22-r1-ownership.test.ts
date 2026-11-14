@@ -410,7 +410,7 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     writeFileSync(configPath, 'projectId: []\n');
     expect(() => previewInstallationCheckoutMove(moved, undefined, f.store)).toThrow(/invalid projectId/i);
     writeFileSync(configPath, 'name: same-project\nprojectId: another-project-id\n');
-    expect(previewInstallationCheckoutMove(moved, undefined, f.store)).toMatchObject({status: 'blocked', candidates: []});
+    expect(previewInstallationCheckoutMove(moved, undefined, f.store)).toMatchObject({status: 'portable-unregistered', candidates: []});
     writeFileSync(configPath, original);
     withInstallationDatabase(moved, db => db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
       .run('other-checkout', 'other-project', canonicalInstallationPath(moved), new Date().toISOString(), canonicalInstallationPath(moved), null, null), {storeRoot: f.store});

@@ -9,6 +9,7 @@ import {
   type HarnessMethodSelection,
 } from "./harness-access";
 import { NO_ACCESS, type OperationAccess } from "./operations/access";
+import { PROJECT_RESOURCE_TYPES, type ProjectResourceType } from "./types";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -102,6 +103,7 @@ export interface MakeDocsConfig {
   generatedProse: Record<string, string>;
   harnessCapabilities: HarnessCapabilityRecord[];
   harnessIntegrations: ProjectHarnessIntegrationRecord[];
+  resourceProjection?: ProjectResourceType[];
 }
 
 export interface MakeDocsConfigDiagnostic {
@@ -158,6 +160,7 @@ const TOP_LEVEL_KEYS = new Set([
   "generatedProse",
   "harnessCapabilities",
   "harnessIntegrations",
+  "resourceProjection",
   "prd_authority",
 ]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
@@ -381,6 +384,15 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
   applyPersonas(parsed.personas, config, configPath, diagnostics);
   applyHarnessCapabilities(parsed.harnessCapabilities, config, configPath, diagnostics);
   applyHarnessIntegrations(parsed.harnessIntegrations, config, configPath, diagnostics);
+  if (parsed.resourceProjection !== undefined) {
+    if (!Array.isArray(parsed.resourceProjection) ||
+        parsed.resourceProjection.some((type: unknown) => !PROJECT_RESOURCE_TYPES.includes(type as ProjectResourceType)) ||
+        new Set(parsed.resourceProjection).size !== parsed.resourceProjection.length) {
+      diagnostics.push({ code: "invalid-type", filePath: configPath, keyPath: "resourceProjection", message: "resourceProjection must be a list of distinct system resource types." });
+    } else {
+      config.resourceProjection = [...parsed.resourceProjection] as ProjectResourceType[];
+    }
+  }
 
   if (diagnostics.length > 0) {
     return invalidConfigResult(configPath, diagnostics);
@@ -420,6 +432,7 @@ export interface ProjectHarnessIntegrationWritePlan extends ProjectHarnessIntegr
 export function planProjectHarnessIntegrationWrite(input: {
   targetDir: string;
   reviewed: readonly ProjectHarnessIntegrationRecord[];
+  reviewedResourceProjection?: readonly ProjectResourceType[];
   contentWhenMissing: string;
 }): ProjectHarnessIntegrationWritePlan {
   const configPath = getMakeDocsConfigPath(input.targetDir);
@@ -427,6 +440,7 @@ export function planProjectHarnessIntegrationWrite(input: {
   const updated = updateProjectHarnessIntegrationsYaml(
     beforeContent ?? input.contentWhenMissing,
     input.reviewed,
+    input.reviewedResourceProjection,
   );
   return {
     configPath,
@@ -447,6 +461,7 @@ export function planProjectHarnessIntegrationWrite(input: {
 export function updateProjectHarnessIntegrationsYaml(
   raw: string,
   reviewed: readonly ProjectHarnessIntegrationRecord[],
+  reviewedResourceProjection?: readonly ProjectResourceType[],
 ): ProjectHarnessIntegrationYamlUpdate {
   const document = parseDocument(raw);
   if (document.errors.length > 0) {
@@ -506,6 +521,21 @@ export function updateProjectHarnessIntegrationsYaml(
     setYamlScalar(access, "store", record.accessCeiling!.store);
     setYamlScalar(access, "project", record.accessCeiling!.project);
     setYamlScalar(access, "hostConfig", record.accessCeiling!.hostConfig);
+  }
+  if (reviewedResourceProjection !== undefined) {
+    if (reviewedResourceProjection.some(type => !PROJECT_RESOURCE_TYPES.includes(type)) ||
+        new Set(reviewedResourceProjection).size !== reviewedResourceProjection.length) {
+      throw new Error("Reviewed resource projection has an invalid or duplicate type.");
+    }
+    const existing = getYamlMapValueNode(document.contents, "resourceProjection");
+    if (existing !== undefined && existing !== null && !isSeq(existing)) {
+      throw new Error("resourceProjection must be a YAML sequence.");
+    }
+    const current = isSeq(existing) ? existing.items.map(item => isScalar(item) ? item.value : null) : null;
+    if (!current || current.length !== reviewedResourceProjection.length ||
+        current.some((type, index) => type !== reviewedResourceProjection[index])) {
+      document.set("resourceProjection", document.createNode([...reviewedResourceProjection]));
+    }
   }
   const content = document.toString();
   return { content, changed: content !== raw };

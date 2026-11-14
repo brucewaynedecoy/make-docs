@@ -79,6 +79,7 @@ export async function createInstallPlan(options: {
   skillRegistry?: SkillRegistry;
   preserveExistingSkills?: boolean;
   operation?: "setup" | "setup.reconfigure" | "setup.sync";
+  adopt?: boolean;
 }): Promise<InstallPlan> {
   const {
     targetDir,
@@ -347,9 +348,19 @@ export async function createInstallPlan(options: {
       continue;
     }
 
+    const conflictClassification = classifyReviewableManagedFileConflictPath(
+      asset.relativePath,
+      { isDesiredSkillAsset: desiredSkillFileSet.has(asset.relativePath) },
+    );
+    const conflictResolution = getManagedFileConflictResolution(
+      asset.relativePath,
+      conflictClassification,
+      managedFileConflictResolutions,
+    );
     if (
       asset.sourceId.startsWith("resource:") &&
-      !hasVerifiedResourceOwnership(existingManifest, asset.relativePath, asset.sourceId)
+      !hasVerifiedResourceOwnership(existingManifest, asset.relativePath, asset.sourceId) &&
+      !conflictResolution
     ) {
       conflictsRunId ??= createRunId();
       actions.push({
@@ -417,15 +428,6 @@ export async function createInstallPlan(options: {
       continue;
     }
 
-    const conflictClassification = classifyReviewableManagedFileConflictPath(
-      asset.relativePath,
-      { isDesiredSkillAsset: desiredSkillFileSet.has(asset.relativePath) },
-    );
-    const conflictResolution = getManagedFileConflictResolution(
-      asset.relativePath,
-      conflictClassification,
-      managedFileConflictResolutions,
-    );
     if (conflictClassification && conflictResolution === "overwrite") {
       const content = getPlannedUpdateContent(asset, currentContent);
       actions.push({
@@ -447,23 +449,21 @@ export async function createInstallPlan(options: {
       const projectedResource = resourceUri
         ? selectedProjection.state.resources[resourceUri]
         : undefined;
-      if (
-        manifestEntry &&
-        resourceUri &&
-        currentHash !== null &&
-        projectedResource?.managedDestination === asset.relativePath
-      ) {
+      if (currentHash !== null && (options.adopt ||
+          (manifestEntry && resourceUri && projectedResource?.managedDestination === asset.relativePath))) {
         desiredFiles[asset.relativePath] = {
           hash: currentHash,
           sourceId: asset.sourceId,
           ownershipClass: "project-owned",
         };
-        selectedProjection.state.resources[resourceUri] = {
-          ...projectedResource,
-          ownershipClass: "project-owned",
-          installedDigest: currentHash,
-          lastVerifiedAt: verifiedAt,
-        };
+        if (resourceUri && projectedResource?.managedDestination === asset.relativePath) {
+          selectedProjection.state.resources[resourceUri] = {
+            ...projectedResource,
+            ownershipClass: "project-owned",
+            installedDigest: currentHash,
+            lastVerifiedAt: verifiedAt,
+          };
+        }
         forceManifestWrite = true;
         actions.push({
           type: "noop",
@@ -775,6 +775,24 @@ export async function createInstallPlan(options: {
       .filter((action) => action.reason?.includes("managed block is malformed"))
       .map((action) => action.relativePath),
   ])).sort();
+  const routerOwnership = createRouterOwnershipManifestState(profile, routerAssets, {
+    packageMeta,
+    verifiedAt,
+    existingState: existingManifest?.routerOwnership,
+  });
+  for (const [relativePath, router] of Object.entries(routerOwnership.routers)) {
+    const file = desiredFiles[relativePath];
+    if (file?.ownershipClass === "project-owned") {
+      router.ownershipClass = "project-owned";
+      router.installedHash = file.hash;
+      router.adoptionReceipt = existingManifest?.routerOwnership?.routers[relativePath]?.adoptionReceipt ?? {
+        receiptId: hashText(`portable-router:${relativePath}:${file.hash}`),
+        adoptedAt: verifiedAt,
+        priorOwnershipClass: existingManifest ? "managed-snapshot" : "unregistered",
+        evidenceRefs: [`project-file:${relativePath}`],
+      };
+    }
+  }
 
   return {
     packageName: packageMeta.name,
@@ -786,11 +804,7 @@ export async function createInstallPlan(options: {
     desiredSkillFiles: desiredSkillFiles.sort(),
     conflictsRunId,
     operation,
-    routerOwnership: createRouterOwnershipManifestState(profile, routerAssets, {
-      packageMeta,
-      verifiedAt,
-      existingState: existingManifest?.routerOwnership,
-    }),
+    routerOwnership,
     resourceProjection: selectedProjection.state,
     classificationSnapshot: createLifecyclePlanSnapshot(
       targetDir,

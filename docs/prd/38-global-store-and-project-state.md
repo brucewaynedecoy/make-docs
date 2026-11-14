@@ -94,6 +94,8 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-ID-3 (MUST): project ID, verified checkout ID, and item path or coordinate are distinct. Explicit path, matching working directory, then preferred checkout resolve selection. Unresolved ambiguity stops automatic selection. The explicit reviewed source choice and independent proof in R-CHECKOUT-5 may resolve a move candidate set without merging identities. A Store-free read may report an unavailable binding but must not mint one.
 - R-ID-4 (MUST): source version hashes relevant paths, bytes, absence markers, and parsing version, including dirty and untracked files. HEAD and file time alone are insufficient. Unsafe or incomplete reads have no valid source version.
 - R-ID-5 (MUST): an open review stays pinned to its checkout. Cache and judgments carry source version and provenance. Unknown, unsupported, unavailable, and known zero stay distinct.
+- R-ID-6 (MUST): a valid project ID with no verified installation ledger for the target is a portable unregistered checkout, not a fresh project. Status and checkout registration preview derive this shared classification from project identity, binding presence, and ledger trust. Both name the explicit `make-docs setup --adopt` route as the next action. A bound row without a ledger remains incomplete and cannot imply managed ownership.
+- R-ID-7 (MUST): plain setup reads portable unregistered identity and Store binding facts before any Store or project write. It cannot create a binding, ledger, or file change until the user selects adopt or normal setup in an interactive session, or supplies the explicit adopt flag. Non-interactive plain setup reports blocked and names `make-docs setup --adopt --yes`. Dry run leaves both Store and project unchanged.
 
 ### Checkout Binding and Path Update Safety (R-CHECKOUT)
 
@@ -112,6 +114,8 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-CHECKOUT-12 (MUST): `Register a separate checkout` exits the move flow for a separate explicit managed-install/adoption review with its own project-write admission. It preserves the portable project ID but creates a distinct checkout ID and its own proven ownership. It cannot inherit the selected old ledger, ownership, or pending work. It must not invoke absent-source automatic rebinding or take an old record even when matching files exist.
 - R-CHECKOUT-13 (MUST): root and kit bindings need separate explicit targets and reviews. A parent-directory move or approval never recursively adopts nested records. After a successful move, setup rereads the bound installation record and desired settings before a later reviewed setup plan. A later setup failure or cancellation reports move completion separately and does not replay or hide that committed result.
 - R-CHECKOUT-14 (MUST): verification evidence is versioned inside the existing `verification_json` field. Target version 2 follows [PRD 18's compatibility contract](18-compatibility-classification-and-migration-safety.md#checkout-verification-compatibility); version 1 is retained for safe reading. A transition requires independent saved-ledger and ownership proof and commits only with the selected move. An unknown or unproved form cannot be replaced from current bytes or approval. The transition changes no database schema.
+
+- R-CHECKOUT-15 (MUST): `setup --adopt` is the separate-checkout entry for a portable unregistered target. Review shows the existing project ID, any candidate or incomplete local binding, the distinct checkout to register, saved desired choices, file-scoped ownership evidence, and the resulting Store and project changes. Apply creates or completes only this target's binding and ledger under the Store operation boundary. Failure before verified completion leaves a recoverable result; retry cannot create a second checkout or claim old ownership.
 
 ### General Lifecycle Runs and Evidence (R-PS)
 
@@ -358,6 +362,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: read-only discovery and a stateless pinned review precede a shared Store-write/project-read apply. One transaction commits bounded intent/completion, path, and independently proved evidence while preserving ledger bytes, IDs, history, and project files. Distinct checkout registration is separately admitted; root/kit actions are independent.
 - Rationale: prevent generic install helpers from adding config/ledger effects to a path-only move and preserve exact crash/retry behavior.
 - Source: [move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md), [ownership plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md), and [scoped work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/00-index.md).
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Stable Project Identity (R-ID); Checkout Binding and Path Update Safety (R-CHECKOUT).
+- Previous contract: Separate checkout registration was required, but status and preview did not share a portable unregistered result or name its setup entry.
+- Replacement contract: `setup --adopt` registers a distinct checkout under the saved project ID. Status and preview report binding and ledger facts separately and name that action.
+- Rationale: A failed setup or partial binding must not look like installed ownership.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 

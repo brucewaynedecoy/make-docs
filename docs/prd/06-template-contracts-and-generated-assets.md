@@ -151,6 +151,7 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - R-PROJECTION-3 (MUST): resource list and read use one deterministic resolver and remain Store-free. CLI, machine-readable output, MCP tools, and native MCP resources return the same URI, bytes, origin meaning, and typed errors.
 - R-PROJECTION-4 (MUST): ensure changes one named resource only and cannot broaden saved selection. Refresh cannot overwrite a local edit without a specific reviewed replacement or adoption action. Removal deletes a path only when its current bytes still match the last-applied owned digest. Changed content is preserved and reported.
 - R-PROJECTION-5 (MUST): a clone or worktree receives repository content and desired selection but never inherits another checkout's applied Store ownership. Store absence stops only Store-backed ensure, refresh, removal, or recovery. It does not stop list, read, or independent repository work.
+- R-PROJECTION-7 (MUST): explicit adoption of a separate checkout compares each selected local resource with verified shipped provider bytes. An exact match may gain a new local managed projection record. A differing body stays project-owned under the reviewed keep policy. Export-and-replace needs a separate reviewed resolution and cannot claim that the old body was managed. Adoption records new checkout ownership only; it cannot copy another checkout's applied digest or receipt.
 - R-PROJECTION-6 (MUST): resolution order is explicit project override, then verified selected local projection, then verified installed provider. A source cannot silently replace a higher-priority source or turn a Store receipt into project-content authority.
 
 ## Requirement History
@@ -247,6 +248,16 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - Replacement contract: The UAT adapter shares the canonical packages/skills authoring and bundled first-party delivery model; template-owned system resources remain separate.
 - Rationale: One source owner prevents stale duplicate adapters without changing installed content roots.
 - Source: [First-Party Skills and Managed Adoption design](../designs/2026-09-09-first-party-skills-and-managed-adoption.md) and [W19 R5 plan](../plans/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/00-overview.md).
+
+### 2026-11-13 — W22 R2
+
+- Date: 2026-11-13
+- Coordinate: W22 R2
+- Affected requirement or section: Resource Projection Ownership.
+- Previous contract: A clone inherited no local Store ownership, but a new checkout adoption rule for local resource bodies was not defined.
+- Replacement contract: Adoption may manage exact shipped matches in the new checkout and keeps differing bodies project-owned unless export-and-replace is reviewed.
+- Rationale: A portable projection must retain project bytes and gain only proved local ownership.
+- Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
 
 ## Source Anchors
 

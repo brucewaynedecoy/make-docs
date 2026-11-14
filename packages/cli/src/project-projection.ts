@@ -1,4 +1,6 @@
 import { Buffer } from "node:buffer";
+import { lstatSync } from "node:fs";
+import path from "node:path";
 import { getManifestFileHash } from "./manifest";
 import { loadInstalledSystemResourceProvider } from "./operations/resource/provider";
 import {
@@ -18,14 +20,14 @@ import type {
   ResourceProjectionManifestState,
   RouterOwnershipManifestState,
 } from "./types";
-import { HARNESS_TO_INSTRUCTION } from "./types";
+import { HARNESS_TO_INSTRUCTION, PROJECT_RESOURCE_TYPES } from "./types";
 import { parseManagedBlock } from "./managed-block";
 import {
   getConfiguredRouterPaths,
   isConfiguredRouterPath,
   getRouterTemplateSourcePath,
 } from "./router-paths";
-import { readPackageFile } from "./utils";
+import { assertManagedPathHasNoSymlinks, readPackageFile } from "./utils";
 
 const P4_OPERATION_LINEAGE = "W19 R1 P4" as const;
 export const RESOURCE_PROJECTION_AUTHORITIES = Object.freeze({
@@ -40,6 +42,27 @@ export function normalizeProjectResourceSelection(
   values: readonly ProjectResourceType[],
 ): ProjectResourceType[] {
   return Array.from(new Set(values)).sort(compareCodeUnits);
+}
+
+export function inferLocalResourceProjection(targetDir: string): {
+  status: "none" | "complete" | "partial";
+  types: ProjectResourceType[];
+} {
+  const provider = unwrapProvider(loadInstalledSystemResourceProvider());
+  const types: ProjectResourceType[] = [];
+  for (const type of PROJECT_RESOURCE_TYPES) {
+    const resources = provider.resources.filter(resource => resource.identity.type === type);
+    if (resources.length === 0) continue;
+    let present = 0;
+    for (const resource of resources) {
+      const relativePath = projectionPath(type, resource.identity.path);
+      assertManagedPathHasNoSymlinks(targetDir, relativePath);
+      if (lstatSync(path.join(targetDir, relativePath), { throwIfNoEntry: false })?.isFile()) present += 1;
+    }
+    if (present > 0 && present < resources.length) return { status: "partial", types };
+    if (present === resources.length) types.push(type);
+  }
+  return { status: types.length ? "complete" : "none", types };
 }
 
 export function buildSelectedResourceProjection(options: {

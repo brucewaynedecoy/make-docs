@@ -60,6 +60,7 @@ export async function planInstall(options: {
   skillRegistry?: SkillRegistry;
   preserveExistingSkills?: boolean;
   operation?: "setup" | "setup.reconfigure" | "setup.sync";
+  adopt?: boolean;
 }): Promise<InstallPlan> {
   const packageMeta = options.packageMeta ?? readPackageMeta();
   const profile = resolveInstallProfile(options.selections);
@@ -75,6 +76,7 @@ export async function planInstall(options: {
     skillRegistry: options.skillRegistry,
     preserveExistingSkills: options.preserveExistingSkills,
     operation: options.operation,
+    adopt: options.adopt,
   });
 }
 

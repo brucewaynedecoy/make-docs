@@ -59,6 +59,24 @@ A partial project stays partial during a normal repeat of `make-docs setup`. Mak
 
 Use `make-docs setup reconfigure` when you want to review an expansion to the full surface. The project review must list the new paths before you approve them.
 
+### Adopt a Project on Another Computer
+
+If a clone has `.make-docs/config.yaml` with a project ID but this computer has no Store record for it, run:
+
+```bash
+make-docs project state status --json
+make-docs setup --adopt --dry-run
+make-docs setup --adopt --yes
+```
+
+The status command reports `portable-unregistered` and points to `setup --adopt`. Adoption keeps the project ID. It uses saved harness choices and local resource copies when the config has no resource selection. It registers the checkout in this computer's Store. It keeps changed routers and resource copies as project-owned by default. Files that match the installed package stay managed.
+
+Starting with 2.0.7, plain `make-docs setup` stops before it writes to this checkout or Store. In an interactive terminal, choose **Adopt this checkout**, **Continue with normal setup**, or **Cancel**. Setup shows the plan for the chosen path. `make-docs setup --yes` stops and points to `make-docs setup --adopt --yes`. A dry run offers the same choice or stop without writing.
+
+Use `--conflicts keep` to keep changed managed files in any non-interactive setup plan. Use `--conflicts overwrite` only after you review the planned replacements. Adoption blocks batch overwrite when this Store has no prior managed ownership proof. A dry run reports unresolved conflicts as blocked. An interactive dry run opens the same conflict review as a normal run.
+
+If this Store already has a checkout for the same project ID, review checkout move or separate checkout registration before setup.
+
 ## Harness Choices
 
 Harness detection is a useful hint. It is not proof that a harness can use Make Docs. Setup can show a harness as detected, configured, drifted, blocked, or unsupported.

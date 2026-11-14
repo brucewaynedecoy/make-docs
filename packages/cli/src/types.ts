@@ -294,7 +294,7 @@ export interface ManifestProvenanceClaim {
 export interface ManifestAdoptionReceipt {
   receiptId: string;
   adoptedAt: string;
-  priorOwnershipClass: "managed-snapshot";
+  priorOwnershipClass: "managed-snapshot" | "unregistered";
   evidenceRefs: string[];
 }
 

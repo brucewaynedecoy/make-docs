@@ -1013,13 +1013,13 @@ function validateAdoptionReceipt(
     return null;
   }
   assertPlainObject(value, label);
-  if (value.priorOwnershipClass !== "managed-snapshot") {
-    throw new Error(`${label}.priorOwnershipClass must be managed-snapshot`);
+  if (value.priorOwnershipClass !== "managed-snapshot" && value.priorOwnershipClass !== "unregistered") {
+    throw new Error(`${label}.priorOwnershipClass must be managed-snapshot or unregistered`);
   }
   return {
     receiptId: validateString(value.receiptId, `${label}.receiptId`),
     adoptedAt: validateIsoTimestamp(value.adoptedAt, `${label}.adoptedAt`),
-    priorOwnershipClass: "managed-snapshot",
+    priorOwnershipClass: value.priorOwnershipClass,
     evidenceRefs: validateNonEmptyStringArray(value.evidenceRefs, `${label}.evidenceRefs`),
   };
 }
@@ -1179,7 +1179,7 @@ function validateRouterOwnershipManifestState(
       expectedMaterializationMode: "managed-block",
     });
     if (
-      proof.expectedSourceHash !== files[relativePath]?.hash ||
+      (rawEntry.ownershipClass === "managed-snapshot" && proof.expectedSourceHash !== files[relativePath]?.hash) ||
       proof.installedHash !== files[relativePath]?.hash
     ) {
       throw new Error(

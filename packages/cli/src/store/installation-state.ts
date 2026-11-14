@@ -798,7 +798,7 @@ export interface CheckoutMoveCandidate {
 }
 export interface CheckoutMovePreview {
     schemaVersion: 1;
-    status: 'none' | 'bound' | 'ready' | 'blocked';
+    status: 'none' | 'bound' | 'ready' | 'blocked' | 'portable-unregistered' | 'recovery-required';
     projectId: string | null;
     targetRoot: string;
     candidates: CheckoutMoveCandidate[];
@@ -830,12 +830,24 @@ export function previewInstallationCheckoutMove(projectRoot: string, sourceCheck
     return withInstallationDatabase(root, db => previewInstallationCheckoutMoveInDatabase(db, root, id, sourceCheckoutId), {storeRoot: store, readOnly: true});
 }
 
+function hasCompletedRemoval(db: StoreDatabase, checkoutId: string): boolean {
+    const latest = db.prepare("SELECT operation FROM installation_operations WHERE checkout_id=? AND status='completed' ORDER BY finished_at DESC, operation_id DESC LIMIT 1").get(checkoutId) as { operation: string } | undefined;
+    return latest?.operation === 'setup.remove';
+}
+
 function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: string, id: string, sourceCheckoutId?: string): CheckoutMovePreview {
         const base = { schemaVersion: 1 as const, projectId: id, targetRoot: root };
         const bound = checkout(db, root);
         if (bound && bound.project_id === id) {
             assertCheckoutIdentity(bound, root);
-            return { ...base, status: 'bound' as const, candidates: [], nextAction: 'This checkout is already bound. Continue setup.' };
+            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending' LIMIT 1").get(bound.checkout_id) as { operation_id: string } | undefined;
+            if (pending) return { ...base, status: 'recovery-required' as const, candidates: [], nextAction: `Run make-docs project state status --target-root ${JSON.stringify(root)} before recovery.` };
+            const ledger = db.prepare('SELECT 1 FROM installation_ledgers WHERE checkout_id=?').get(bound.checkout_id);
+            const removed = !ledger && hasCompletedRemoval(db, bound.checkout_id);
+            return ledger
+                ? { ...base, status: 'bound' as const, candidates: [], nextAction: 'This checkout is already bound. Continue setup.' }
+                : removed ? { ...base, status: 'bound' as const, candidates: [], nextAction: 'Review the completed removal before setup.' }
+                : { ...base, status: 'portable-unregistered' as const, candidates: [], nextAction: 'Run make-docs setup --adopt to complete this checkout.' };
         }
         const rows = db.prepare('SELECT * FROM installation_checkouts WHERE project_id=? ORDER BY checkout_id').all(id) as unknown as Checkout[];
         const targetKey = platform.comparisonKey(root);
@@ -883,8 +895,9 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
         });
         const selected = sourceCheckoutId ? candidates.find(candidate => candidate.checkoutId === sourceCheckoutId) : candidates.length === 1 ? candidates[0] : null;
         return {
-            ...base, status: selected?.available ? 'ready' as const : 'blocked' as const, candidates, separateReviewDigest,
-            nextAction: !candidates.length ? 'No saved checkout has this project ID. Review setup as a new registration.'
+            ...base, status: !candidates.length && !claimed ? 'portable-unregistered' as const : selected?.available ? 'ready' as const : 'blocked' as const, candidates, separateReviewDigest,
+            nextAction: !candidates.length && !claimed ? 'Run make-docs setup --adopt to register this checkout.'
+                : !candidates.length ? 'Another project claims this path. Resolve that claim before setup.'
                 : candidates.length > 1 && !sourceCheckoutId ? 'Select one source checkout ID before move. Register separately or cancel if the source is not the same checkout.'
                 : selected?.available ? 'Review the exact source, target, and digest. Apply checkout move only with explicit approval.'
                 : 'Resolve the listed blockers. Register a separate checkout or cancel.',
@@ -1521,8 +1534,10 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
             if (toolOperations.length)
                 return { ...base, projectId: id, storeAvailable: true, status: 'recovery-required', toolOperations, nextAction: 'A tool operation is pending. Review its package manager result before managed changes.' };
             const row = checkout(db, root);
-            if (!row)
-                return { ...base, status: id ? 'ownership-unverified' : 'unregistered', projectId: id, storeAvailable: true, nextAction: 'Run make-docs setup and review this checkout.' };
+            if (!row) {
+                const prior = id ? db.prepare('SELECT 1 FROM installation_checkouts WHERE project_id=? LIMIT 1').get(id) : null;
+                return { ...base, status: prior ? 'ownership-unverified' : id ? 'portable-unregistered' : 'unregistered', projectId: id, storeAvailable: true, nextAction: prior ? 'Review checkout move or separate checkout registration before setup.' : id ? 'Run make-docs setup --adopt to register this checkout.' : 'Run make-docs setup and review this checkout.' };
+            }
             assertCheckoutIdentity(row, root);
             const lock = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
                 pid: number;
@@ -1540,7 +1555,8 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
                         ? `make-docs project state recover ${pending.operation_id} --resume --dry-run --target-root ${JSON.stringify(root)}`
                         : `make-docs project state recover ${pending.operation_id} --rollback --dry-run --target-root ${JSON.stringify(root)}`
                 : null;
-            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, planComplete: Boolean(pending.plan_complete), ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : 'unregistered', nextAction: pendingAction ?? (lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : 'Review setup before installing.') };
+            const removed = !manifest && hasCompletedRemoval(db, row.checkout_id);
+            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, planComplete: Boolean(pending.plan_complete), ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : removed ? 'unregistered' : 'portable-unregistered', nextAction: pendingAction ?? (lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : removed ? 'Review the completed removal before setup.' : 'Run make-docs setup --adopt to complete this checkout.') };
         }, { storeRoot: store, readOnly: true });
     }
     catch (e) {
