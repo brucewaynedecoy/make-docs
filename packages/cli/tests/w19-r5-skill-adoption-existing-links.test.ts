@@ -11,6 +11,18 @@ import { PACKAGE_ROOT } from "../src/utils";
 import { readInstallationManifest } from "../src/store/installation-state";
 
 // W19 R5 P2 (D-053): reviewed adoption must accept native Skill links that already exist.
+const faults = vi.hoisted(() => ({ denyLinks: false }));
+vi.mock("node:fs", async (original) => {
+  const actual = await original<typeof import("node:fs")>();
+  return {
+    ...actual,
+    symlinkSync: (...args: Parameters<typeof actual.symlinkSync>) => {
+      if (faults.denyLinks) throw Object.assign(new Error("symlink unavailable"), { code: "EPERM" });
+      return actual.symlinkSync(...args);
+    },
+  };
+});
+
 let temp: string, root: string, store: string, home: string;
 const shared = ".agents/skills/preflight";
 const native = ".claude/skills/preflight";
@@ -29,6 +41,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  faults.denyLinks = false;
   vi.restoreAllMocks();
   vi.unstubAllEnvs();
   fs.rmSync(temp, { recursive: true, force: true });
@@ -101,5 +114,29 @@ describe("reviewed Skill adoption with existing native links (D-053)", () => {
     const review = await buildSkillAdoptionReview(options());
     expect(review.blockers).toEqual([]);
     expect(Object.keys(review.plan.copyFallbacks ?? {})).toContain(native);
+  });
+
+  it("keeps the copy fallback when an outdated native folder is replaced by a link, and uses it when links are refused", async () => {
+    fs.mkdirSync(path.join(root, native), { recursive: true });
+    fs.writeFileSync(path.join(root, native, "SKILL.md"), "Outdated native folder copy.\n");
+    const review = await buildSkillAdoptionReview(options());
+    expect(review.blockers).toEqual([]);
+    expect(Object.keys(review.plan.copyFallbacks ?? {})).toContain(native);
+
+    faults.denyLinks = true;
+    expect(applySkillAdoptionReview(review, review.digest).status).toBe("completed");
+    expect(fs.lstatSync(path.join(root, native)).isDirectory()).toBe(true);
+    expect(fs.readFileSync(path.join(root, native, "SKILL.md"), "utf8")).toBe(fs.readFileSync(path.join(root, shared, "SKILL.md"), "utf8"));
+    expect(readInstallationManifest(root)!.files[native].skillExposure?.mode).toBe("copy-mirror");
+    expect(fs.readFileSync(path.join(root, review.backups[0]!.destination), "utf8")).toBe("Outdated native folder copy.\n");
+  });
+
+  it("replaces an outdated native folder with a link when links are allowed", async () => {
+    fs.mkdirSync(path.join(root, native), { recursive: true });
+    fs.writeFileSync(path.join(root, native, "SKILL.md"), "Outdated native folder copy.\n");
+    const review = await buildSkillAdoptionReview(options());
+    expect(applySkillAdoptionReview(review, review.digest).status).toBe("completed");
+    expect(fs.lstatSync(path.join(root, native)).isSymbolicLink()).toBe(true);
+    expect(readInstallationManifest(root)!.files[native].skillExposure?.mode).toBe("symlink");
   });
 });

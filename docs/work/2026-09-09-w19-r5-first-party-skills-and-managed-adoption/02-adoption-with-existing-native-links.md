@@ -20,7 +20,7 @@ Revises: [P1](01-skills-and-managed-adoption.md)
 
 This is a revision Phase, chosen by the owner on 2026-11-18. P1 is complete and committed. The fix changes one P1 result: adoption of existing copies when native links already exist. It reverses no approach, redoes no other completed Phase, and needs no design or multi-phase plan.
 
-The adoption builder declared a copy fallback for every native link exposure. The detached-plan validator and the executor accept a fallback only for a link that the plan creates from a missing path. An unchanged existing link has no planned change, so the validator rejected its fallback. Adoption now declares a fallback only for a link that the plan creates. Existing links stay links. No tracked link becomes a plain copy.
+The adoption builder declared a copy fallback for every native link exposure. The detached-plan validator and the executor accept a fallback only for a planned step that creates a link from a missing path. An unchanged existing link has no planned change, so the validator rejected its fallback. Adoption now keeps a fallback only for a planned missing-to-link step. That covers new links and outdated native folders that are removed and then linked. Existing links stay links. No tracked link becomes a plain copy.
 
 The defect is recorded as D-053 on the W28 R0 branch (PR #64). The released `make-docs` 2.0.8 has the same defect.
 
@@ -65,12 +65,14 @@ There are no performance candidates.
 - [x] t1: Add `packages/cli/tests/w19-r5-skill-adoption-existing-links.test.ts`. Build a throwaway project with `.agents/skills/preflight` and a relative `.claude/skills/preflight` link. Confirm that applying a reviewed adoption fails with "Invalid predeclared native copy fallback" before the fix.
 - [x] t2: In `packages/cli/src/skills-adoption.ts`, declare a copy fallback only when the native exposure path is currently missing.
 - [x] t3: Run the focused tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`, plus a real built-CLI adoption in a throwaway project and an adoption dry run in this checkout.
+- [x] t4: Keep the copy fallback when adoption replaces an outdated native folder with a link, by pruning fallbacks to planned missing-to-link steps after the plan is built. Add tests for a refused link, which must use the copy mirror, and for an allowed link.
 
 ### Acceptance criteria
 
 - A15: Reviewed adoption of a project whose `.claude/skills/preflight` already links to `.agents/skills/preflight` completes. The link keeps its target, and a repeat review reports `unchanged`.
 - A16: An outdated linked copy is refreshed with a backup of the replaced bytes, and the link still resolves to the refreshed canonical copy.
 - A17: A native link that the plan creates still has its declared copy fallback, so the platform fallback for unavailable links is preserved.
+- A18: When adoption replaces an outdated native folder with a link and the host refuses the link, adoption completes with the declared copy mirror. The replaced folder bytes are backed up. When links are allowed, the folder becomes a link.
 
 ### Dependencies
 

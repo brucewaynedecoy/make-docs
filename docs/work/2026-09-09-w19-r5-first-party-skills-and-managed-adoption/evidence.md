@@ -119,3 +119,13 @@ Covers A15 to A17 in [P2](02-adoption-with-existing-native-links.md). Evidence d
   - The installed `preflight` and `backlog-review` trees match `packages/skills/`, and a repeat review reports `unchanged`.
 - **Dry run in this checkout.** The built CLI's `setup skills --selected-skills backlog-review,factory,human-experience,preflight --adopt-existing <same> --dry-run` reported `ready`, with no blockers: 11 path changes, 2 backups, and 32 ownership entries to register. Against this base's Skill source, it changes only three installed `backlog-review` files. `git status` and the Store file were unchanged.
 - **Deterministic and agentic twins.** Skill adoption planning is CLI-only. No agent instruction describes copy fallbacks, so no agentic counterpart changes. PRD 28 already states the required behavior.
+
+### P2 Follow-Up: Copy Fallback For Replaced Native Folders (A18)
+
+Evidence date: 2026-11-19.
+
+- **Finding.** CodeRabbit (Major, PR #65) found that the first P2 guard dropped the copy fallback when adoption replaces an outdated native folder with a link. That plan removes the folder, then creates the link from a missing path.
+- **Fix.** `buildSkillAdoptionReview` now declares fallbacks for every link exposure, then prunes them to planned steps whose `before` is `missing` and whose `after` is `symlink`. That is the validator's own rule.
+- **Tests.** `w19-r5-skill-adoption-existing-links.test.ts` now has 5 cases, all passing. The new refused-link case fails against the earlier P2 code (`9fb05c4d`) and passes with the fix. It reports `completed`, a copy-mirror folder whose bytes match the canonical copy, a ledger mode of `copy-mirror`, and a backup of the outdated folder. The allowed-link case produces a link with mode `symlink`.
+- **Checks.** Focused Skill and adoption tests pass 245 of 245. `npm test` passes 2,006 tests, with the 3 known environment failures. `validate:defaults` passes 53 of 53. The build passes. `smoke:pack:local` passes, with this machine's Store file unchanged.
+- **Real adoption.** A built-CLI adoption in a throwaway copy of this repository's linked Skills applied, kept the `.claude/skills` links, and repeated as `unchanged`.

@@ -69,3 +69,14 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 - PRD decision: `none` — PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 already require adoption to review and reconcile file and link identities.
 - Owner approval: Tyler, 2026-11-18 11:00 PM CST, relayed by the coordinator. He chose a revision Phase over a new W19 R9.
 - Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
+
+### 2026-11-19 — W19 R5 P2
+
+- Kind: `edit`
+- Affected scope: P2 t4 and A18.
+- Previous scope: P2 declared a copy fallback only when the native link path was missing before the plan. An outdated native folder that adoption removes and then replaces with a link lost its fallback, so a refused link could not fall back to a copy.
+- Replacement scope: P2 keeps a fallback for every planned missing-to-link step and drops it only for links that already match. Tests cover a refused link, which uses the copy mirror, and an allowed link.
+- Rationale: CodeRabbit review of PR #65 (Major). This completes P2's own A17 promise inside its unmerged PR, so it is recorded as an edit of P2 rather than a new revision Phase.
+- PRD decision: `none` — PRD 28 already requires the copy-mirror fallback.
+- Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
