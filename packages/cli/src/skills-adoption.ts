@@ -240,7 +240,9 @@ export async function buildSkillAdoptionReview(options: {
       after[exposure.relativePath] = { kind: "symlink", target: exposure.skillExposure.symlinkTarget };
       symlinkTargets[exposure.relativePath] = exposure.skillExposure.symlinkTarget;
       alternatives[exposure.relativePath] = copy;
-      copyFallbacks[exposure.relativePath] = { changes: changesBetween({ [exposure.relativePath]: missing() }, copy), ledgerEntry: { ...entry, skillExposure: { ...exposure.skillExposure, mode: "copy-mirror", fallbackReason: "The reviewed native symlink is unavailable; use its declared copy mirror." } } };
+      // A copy fallback replaces only a link that this plan creates from a missing path; the
+      // detached-plan validator and executor accept nothing else. An existing link keeps its state (D-053).
+      if ((before[exposure.relativePath]?.kind ?? "missing") === "missing") copyFallbacks[exposure.relativePath] = { changes: changesBetween({ [exposure.relativePath]: missing() }, copy), ledgerEntry: { ...entry, skillExposure: { ...exposure.skillExposure, mode: "copy-mirror", fallbackReason: "The reviewed native symlink is unavailable; use its declared copy mirror." } } };
     }
   }
   for (const action of normal.actions) {

@@ -34,7 +34,8 @@ Current target paths depend on scope and selected harnesses. The [phase matrix](
 | File | Purpose |
 | --- | --- |
 | [Phase 1: Skills and Managed Adoption](01-skills-and-managed-adoption.md) | Promote and package Skills, add reviewed adoption, then prove the shipped product and real maintainer adoption. |
-| [Central evidence report](evidence.md) | Read actual A1–A14 results, package identities, and the review limits and owner acceptance gate. |
+| [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md) | Revision Phase for P1: let reviewed adoption keep existing native Skill links (D-053). |
+| [Central evidence report](evidence.md) | Read actual A1–A17 results, package identities, and the review limits and owner acceptance gate. |
 
 ## Usage Notes
 
@@ -55,3 +56,16 @@ This handoff is advisory-default-but-overridable. The owner satisfied the backlo
 - Coordinate Handoff: Use W19 R5 P1 for phase evidence, history, and a later authorized commit. Do not resume W20 or W21, publish, or commit from this handoff alone.
 
 Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19-r5-p1-skills-and-managed-adoption.md). The package stays in place; no archive move was requested.
+
+## Change History
+
+### 2026-11-18 — W19 R5 P2
+
+- Kind: `revision-phase`
+- Affected scope: New P2 t1–t3 and A15–A17, revising completed P1.
+- Previous scope: P1 delivered reviewed adoption of existing first-party Skill copies. Its apply step rejected projects whose native Skill links already existed, with "Invalid predeclared native copy fallback."
+- Replacement scope: P2 declares a copy fallback only for a native link that the plan creates. Existing links stay links, and replaced bytes are backed up.
+- Rationale: The defect blocked the W28 R0 Skill sync of this repository and also affects released 2.0.8. It changes one P1 result and passes no revision Wave test.
+- PRD decision: `none` — PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 already require adoption to review and reconcile file and link identities.
+- Owner approval: Tyler, 2026-11-18 11:00 PM CST, relayed by the coordinator. He chose a revision Phase over a new W19 R9.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)

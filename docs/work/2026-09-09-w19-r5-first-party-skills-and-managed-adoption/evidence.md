@@ -101,3 +101,21 @@ Final installed public cutover completed as operation d2a08984-a479-4532-9560-ef
 The owner accepted the final implementation and documentation on 2026-09-09 and explicitly requested closeout and commit. W19 R5 P1 is closed. The implementation commit is authorized and remains the next action. Publication and W20/W21 resumption remain outside this authorization.
 
 The [phase history](../../../.make-docs/archive/history/2026-09-09-w19-r5-p1-skills-and-managed-adoption.md) records this acceptance. Review limits above remain unchanged; owner acceptance does not turn agent review into a live harness or human usability test.
+
+## P2 Adoption With Existing Native Links
+
+Covers A15 to A17 in [P2](02-adoption-with-existing-native-links.md). Evidence date: 2026-11-18. Branch: `fix/d053-skill-symlink-adoption`, based on `origin/main` `ad84ffb8`. Node `v26.13.1`. CLI package version `2.0.8`.
+
+- **Cause.** `buildSkillAdoptionReview` (`packages/cli/src/skills-adoption.ts`) declared a copy fallback for every native link exposure. The detached-plan check in `packages/cli/src/store/installation-state.ts` and the executor's `selectDetachedCopyFallback` accept a fallback only for a link that the plan creates from a missing path. An unchanged existing link has no planned change, so the check rejected it. The fix declares a fallback only when the exposure path is currently missing.
+- **Regression test.** `packages/cli/tests/w19-r5-skill-adoption-existing-links.test.ts` runs in an isolated `HOME` and Store.
+  - Before the fix, its existing-link cases failed, and the outdated-copy case threw `Invalid predeclared native copy fallback.`
+  - After the fix, all 3 cases pass. That covers A15 (adopt and repeat `unchanged` with the link kept), A16 (outdated copy backed up and refreshed through the kept link), and A17 (a new link keeps its copy fallback).
+- **Focused tests.** 14 Skill, adoption, install, and Store files pass 243 of 243.
+- **Full suite.** `npm test` ran 114 test files: 111 passed, 2 failed, and 1 was skipped. Of 2,013 tests, 2,004 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases: two Node 26 `DEP0205` stdio tests, which fail the same way on unchanged `main`, and one fixture that fails only inside the agent sandbox.
+- **Packaging.** `npm run validate:defaults -w packages/cli` passes 53 of 53, after `node scripts/copy-template-to-cli.mjs` refreshed the git-ignored bundled template that an earlier branch had left behind. The build passes. `npm run smoke:pack:local` passes, and this machine's Store file did not change.
+- **Real adoption in a throwaway project.** A copy of this repository's `.agents/skills/` and `.claude/skills/` links, with a temporary `HOME` and Store, was adopted with the built CLI.
+  - The dry run reported `ready`, and the apply with its review digest exited 0.
+  - `.claude/skills/preflight` and `.claude/skills/backlog-review` stayed links to `../../.agents/skills/<name>`.
+  - The installed `preflight` and `backlog-review` trees match `packages/skills/`, and a repeat review reports `unchanged`.
+- **Dry run in this checkout.** The built CLI's `setup skills --selected-skills backlog-review,factory,human-experience,preflight --adopt-existing <same> --dry-run` reported `ready`, with no blockers: 11 path changes, 2 backups, and 32 ownership entries to register. Against this base's Skill source, it changes only three installed `backlog-review` files. `git status` and the Store file were unchanged.
+- **Deterministic and agentic twins.** Skill adoption planning is CLI-only. No agent instruction describes copy fallbacks, so no agentic counterpart changes. PRD 28 already states the required behavior.
