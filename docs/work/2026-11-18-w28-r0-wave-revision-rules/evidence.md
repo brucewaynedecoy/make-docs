@@ -475,3 +475,39 @@ The owner installed the fixed build at the Homebrew prefix, the path both MCP en
 - Focused suites: 33 files, 763 tests, all passing.
 - `npm test` ran 117 test files: 114 passed, 2 failed, and 1 was skipped. Of 2,056 tests, 2,047 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
 - `validate:defaults`: 53 of 53. The build passes.
+
+## P9 Second Review Corrections
+
+Covers A51 to A55 in [P9](09-second-review-corrections.md). Evidence date: 2026-11-19. Input: the CodeRabbit review of PR #64 at `e12583cb`, with 4 inline and 2 outside-diff comments. The open P7 comment about the installed Skill copy was already closed by P8.
+
+### Setup Follow-Up (A51)
+
+- `setupFollowUpAction` names a blocked platform action and the `make-docs setup skills` route together when both remain, either one alone, or null. The applied JSON result uses it. `w28-r0-setup-sync-safety.test.ts` covers all four cases.
+
+### Code In Snapshot Sections (A52)
+
+- Section lookup masks fenced code blocks and inline code spans before it blanks HTML comments, then restores the code in the returned text. Inline spans are found by a plain scan, not a regular expression.
+- `backlog-coordinate-facts.test.ts` adds 4 cases: a `<!--` in a fenced block or in inline code before live Closeout Notes, a fenced `<!--` before a live Change History, and a Closeout Notes heading inside a fenced block. All 4 fail without the change.
+
+### Review Display And Report Version (A53)
+
+- `phaseDisplayState` matches whole completion values: `complete`, `completed`, `closed`, and `done`. `incomplete` now displays from its tasks. The substring match dates from W25 R0 P3. `w28-r0-phase-display-state.test.ts` fails without the change.
+- The two Skill bundles and the MCP App widget were regenerated, and the build's widget check passes.
+- The `backlog-review` report model now states why refusing a report that embeds a version 1 snapshot is not a breaking report change: report fields and meaning are unchanged, and reports are rebuilt from a current snapshot. PRD 51 ties a new report version to a change in meaning.
+
+### Skill Refresh (A54)
+
+- The owner installed the P9 build at the Homebrew prefix. The `make-docs setup skills` dry run planned exactly 3 updates: `report-model.md`, `agent-contract.mjs`, and `report-contract.mjs` under `.agents/skills/backlog-review/`. The owner-approved apply updated them.
+- All four installed Skills match `packages/skills/`, and the `.claude/skills/*` entries are still links. Repeat dry runs: `setup skills` reports 32 current files, and `setup` reports 124 unchanged paths with no next action. `project state status` reports `ready` at 2.0.9. Both MCP entries keep the Homebrew command path.
+
+### Package Candidate (A55)
+
+- Two independent `npm pack -w packages/cli` runs produced the same tarball:
+  - build 1: `3946a861c1b5fde1dddd79b5a06c78f2f746def05648eccdbe3cdc32bf77864e`
+  - build 2: `3946a861c1b5fde1dddd79b5a06c78f2f746def05648eccdbe3cdc32bf77864e`
+- `smoke:pack:local` passed with the same digest, and the owner-installed build has it too. It replaces the P8 value in `.github/release-candidates/v2.0.9.sha256` as the last content change.
+
+### Checks
+
+- `npm test` ran 118 test files: 115 passed, 2 failed, and 1 was skipped. Of 2,067 tests, 2,058 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
+- `validate:defaults`: 53 of 53. The build passes.

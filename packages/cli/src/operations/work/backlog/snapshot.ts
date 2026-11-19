@@ -708,9 +708,61 @@ export function stripHtmlComments(text: string, replace: (comment: string) => st
   return current;
 }
 
-// Finds a section outside HTML comments. Comments are blanked first, with their line breaks kept, so a heading inside a comment never starts a section and line numbers stay exact.
+// Finds a live section: outside HTML comments and outside code. Code is literal text, so a `<!--` in a fenced block or an inline code span opens no comment, and a heading inside a fenced block starts no section. Comments are blanked with their line breaks kept, so line numbers stay exact.
 function liveSection(body: string, name: string): { text: string; startLine: number } | null {
-  return section(stripHtmlComments(body, (comment) => comment.replace(/[^\n]/g, "")), name);
+  const code: string[] = [];
+  const keep = (text: string) => `\u0000${code.push(text) - 1}\u0000`;
+  let fence: string | null = null;
+  const masked = body.split("\n").map((line) => {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fence !== null) {
+      if (marker && marker[1]![0] === fence[0] && marker[1]!.length >= fence.length && /^ {0,3}[`~]+\s*$/.test(line)) fence = null;
+      return keep(line);
+    }
+    if (marker) {
+      fence = marker[1]!;
+      return keep(line);
+    }
+    return maskInlineCode(line, keep);
+  }).join("\n");
+  const blanked = stripHtmlComments(masked, (comment) => comment.replace(/[^\n]/g, ""));
+  // Look up headings while code is still masked, then return the section text with its code restored.
+  const found = section(blanked, name);
+  if (!found) return null;
+  const restore = (text: string) => text.replace(/\u0000(\d+)\u0000/g, (_match, index: string) => code[Number(index)] ?? "");
+  return { text: restore(found.text), startLine: found.startLine };
+}
+
+// Replaces each inline code span on one line with a kept token. A span opens with a run of backticks and closes with a run of the same length.
+function maskInlineCode(line: string, keep: (text: string) => string): string {
+  let output = "";
+  let cursor = 0;
+  while (cursor < line.length) {
+    const open = line.indexOf("`", cursor);
+    if (open === -1) break;
+    let width = 1;
+    while (line[open + width] === "`") width += 1;
+    let close = -1;
+    for (let search = open + width; search < line.length;) {
+      const candidate = line.indexOf("`", search);
+      if (candidate === -1) break;
+      let run = 1;
+      while (line[candidate + run] === "`") run += 1;
+      if (run === width) {
+        close = candidate;
+        break;
+      }
+      search = candidate + run;
+    }
+    if (close === -1) {
+      output += line.slice(cursor, open + width);
+      cursor = open + width;
+      continue;
+    }
+    output += line.slice(cursor, open) + keep(line.slice(open, close + width));
+    cursor = close + width;
+  }
+  return output + line.slice(cursor);
 }
 
 function bodyLineOffset(markdown: string, body: string): number {

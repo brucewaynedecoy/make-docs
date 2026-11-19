@@ -55,6 +55,7 @@ Out of scope:
 | [P6 CI and Review Corrections](06-ci-and-review-corrections.md) | Revision Phase for P2 with P1 and P4 text corrections: fix the CodeQL comment-strip alert and the valid CodeRabbit findings on PR #64. |
 | [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md) | Revision Phase for P2: snapshot schema version 2, commit-required completion, one glossary definition, and the 2.0.9 candidate digest. |
 | [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md) | Revision Phase for P2 with design and guide text corrections: ignore headings inside HTML comments, fix the setup and Skill adoption defects D-054 and D-055, repair this repository's Store record, refresh the installed Skills, and repack the 2.0.9 candidate. |
+| [P9 Second Review Corrections](09-second-review-corrections.md) | Revision Phase for P8: name every setup follow-up, treat code as literal in snapshot section lookup, fix the `incomplete` review display, explain the report version, refresh the installed Skills, and repack the 2.0.9 candidate. |
 
 ## Usage Notes
 
@@ -176,3 +177,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `none` — PRD 14 R-COORD-4 and R-COORD-21 already state these rules.
 - Owner approval: Not required
 - Source: [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md)
+
+### 2026-11-19 — W28 R0 P9
+
+- Kind: `revision-phase`
+- Affected scope: New P9 t1–t6 and A51–A55, revising completed P8 and adding the W25 R0 P3 review display fix to W28.
+- Previous scope: The applied setup result named only a blocked platform when Skill changes also remained. A `<!--` in code could hide a live section. The review display treated `incomplete` as complete. The report model did not explain why the report version stays 1.
+- Replacement scope: Setup names every remaining follow-up. Snapshot section lookup treats code as literal text. The display matches whole completion values. The report model explains the version. The installed Skills are refreshed, and the 2.0.9 candidate is packed again.
+- Rationale: CodeRabbit findings on PR #64 at `e12583cb`. No revision Wave test passes.
+- PRD decision: `none` — PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require this behavior. PRD 51 ties a new report version to a change in report meaning, and the meaning is unchanged.
+- Owner approval: Tyler, 2026-11-19, chose to fix the two Skill-changing items in W28 and approved the Store write for the Skill sync.
+- Source: [P9 Second Review Corrections](09-second-review-corrections.md)

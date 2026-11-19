@@ -430,3 +430,30 @@ describe("headings inside HTML comments", () => {
     expect(changeHistoryDiagnostics(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT }))).toEqual([]);
   });
 });
+
+describe("comment openers inside code", () => {
+  const fenced = "\n```sh\necho '<!--'\n```\n";
+  const inline = "\nUse `<!--` to open a comment.\n";
+
+  test.each([["a fenced block", fenced], ["inline code", inline]])("in %s do not hide live Closeout Notes", (_label, code) => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1", "- Phase / capability status: Phase complete.").replace("# Fixture Phase\n", `# Fixture Phase\n${code}`));
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(true);
+  });
+
+  test("in a fenced block do not hide a live Change History", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-phase.md"], `${fenced}\n## Change History\n\n### June 10 — W9 R0\n`));
+    write(targetRoot, `${RECORD}/01-phase.md`, phase("W1 R0 P1"));
+    // The live section is found, so its malformed entry is reported.
+    expect(changeHistoryDiagnostics(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).map(entry => entry.message).join("\n")).toContain("June 10 — W9 R0");
+  });
+
+  test("a heading inside a fenced block does not start a section", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, `${phase("W1 R0 P1")}\n\`\`\`md\n### Closeout Notes\n\n- Phase / capability status: Phase complete.\n\`\`\`\n`);
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(false);
+  });
+});

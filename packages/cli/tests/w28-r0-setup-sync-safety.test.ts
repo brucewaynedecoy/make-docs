@@ -5,6 +5,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { runCli } from "../src/cli";
 import { readInstallationManifest, withInstallationDatabase } from "../src/store/installation-state";
 import { hashText } from "../src/utils";
+import { setupFollowUpAction } from "../src/migration";
 
 // W28 R0 P8: a setup sync must not turn "no resource choice saved" into "no resources chosen".
 const roots: string[] = [];
@@ -94,4 +95,13 @@ test("a full setup sync names Skill changes it leaves to setup skills instead of
   expect(sync.status, JSON.stringify(sync)).toBe("complete");
   expect(sync.nextAction).toContain("`make-docs setup skills`");
   expect(readFileSync(path.join(project, skillPath), "utf8")).toBe(olderBytes);
+});
+
+test("the applied setup result names both a blocked platform and the Skill route when both remain", () => {
+  expect(setupFollowUpAction("Add the MCP entry, then run setup again.", 3)).toBe(
+    "Add the MCP entry, then run setup again. Full setup leaves 3 Skill file changes to `make-docs setup skills`. Run it to apply them.",
+  );
+  expect(setupFollowUpAction("Add the MCP entry, then run setup again.", 0)).toBe("Add the MCP entry, then run setup again.");
+  expect(setupFollowUpAction(undefined, 1)).toBe("Full setup leaves 1 Skill file change to `make-docs setup skills`. Run it to apply that change.");
+  expect(setupFollowUpAction(null, 0)).toBeNull();
 });

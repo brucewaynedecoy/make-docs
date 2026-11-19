@@ -1795,6 +1795,13 @@ export function skillChangesNextAction(count: number): string {
   return `Full setup leaves ${count} Skill file ${count === 1 ? "change" : "changes"} to \`${SKILL_CHANGES_ROUTE}\`. Run it to apply ${count === 1 ? "that change" : "them"}.`;
 }
 
+/** Names every follow-up that remains after setup: a blocked platform action and any Skill changes left to `setup skills`. */
+export function setupFollowUpAction(blockedPlatformAction: string | null | undefined, skillChangesLeft: number): string | null {
+  const actions = [blockedPlatformAction, skillChangesLeft > 0 ? skillChangesNextAction(skillChangesLeft) : undefined]
+    .filter((action): action is string => Boolean(action));
+  return actions.length ? actions.join(" ") : null;
+}
+
 function mustPreserveOutsideP5(action: PlannedAction): boolean {
   return Boolean(
     action.skillExposure ||

@@ -40,6 +40,7 @@ import {
   executeInstallPlanMigration,
   skillChangesLeftForSkillsSetup,
   skillChangesNextAction,
+  setupFollowUpAction,
   executeStoreCheckpoint9Migration,
   MigrationSafetyError,
 } from "./migration";
@@ -1876,8 +1877,7 @@ export async function runCli(
         projectPrerequisiteChanged || applied.mutationApplied ? "applied" : "none",
       projectActions: applied.appliedActions,
       failedCondition: null,
-      nextAction: systemSetup.blocked[0]?.nextAction ??
-        (skillChangesLeft.length > 0 ? skillChangesNextAction(skillChangesLeft.length) : null),
+      nextAction: setupFollowUpAction(systemSetup.blocked[0]?.nextAction, skillChangesLeft.length),
     });
   } else if (systemSetup.status === "partial") {
     output.write("Project setup: ready. MCP setup still needs manual work for these platforms:\n");
