@@ -708,14 +708,19 @@ export function stripHtmlComments(text: string, replace: (comment: string) => st
   return current;
 }
 
+// Finds a section outside HTML comments. Comments are blanked first, with their line breaks kept, so a heading inside a comment never starts a section and line numbers stay exact.
+function liveSection(body: string, name: string): { text: string; startLine: number } | null {
+  return section(stripHtmlComments(body, (comment) => comment.replace(/[^\n]/g, "")), name);
+}
+
 function bodyLineOffset(markdown: string, body: string): number {
   return markdown.slice(0, markdown.length - body.length).split("\n").length - 1;
 }
 
 function closeoutNotesFact(body: string, phasePath: string, lineOffset: number): NullableSourcedBoolean {
-  const found = section(body, "Closeout Notes");
+  const found = liveSection(body, "Closeout Notes");
   if (!found) return nullableBoolean(false, [evidence(phasePath, "Closeout Notes")]);
-  const content = stripHtmlComments(found.text).trim();
+  const content = found.text.trim();
   return nullableBoolean(
     content.length > 0 && !content.includes("{{"),
     [evidence(phasePath, "Closeout Notes", lineOffset + found.startLine - 1)],
@@ -743,10 +748,9 @@ function changeHistoryDiagnostics(
   recordPath: string,
   expectedWave: string,
 ): BacklogDiagnostic[] {
-  const found = section(body, "Change History");
+  const found = liveSection(body, "Change History");
   if (!found) return [];
-  // Blank out HTML comments but keep their line breaks so line numbers stay exact.
-  const lines = stripHtmlComments(found.text, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
+  const lines = found.text.split("\n");
   const entries: Array<{ heading: string; level: number; line: number; fields: Map<string, string> }> = [];
   for (const [offset, line] of lines.entries()) {
     const fileLine = lineOffset + found.startLine + offset;

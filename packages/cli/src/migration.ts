@@ -1717,9 +1717,10 @@ function fixedStagePlan(
   }
   return {
     ...basePlan,
-    profile: resourceProjection ? resolveInstallProfile({
+    // An unset resource choice must stay unset. `[]` means "no resources chosen", and a later plan would remove the local bodies.
+    profile: resourceProjection && basePlan.profile.selections.resourceProjection !== undefined ? resolveInstallProfile({
       ...basePlan.profile.selections,
-      resourceProjection: [...(basePlan.profile.selections.resourceProjection ?? [])],
+      resourceProjection: [...basePlan.profile.selections.resourceProjection],
     }) : basePlan.profile,
     actions: [...actions],
     desiredSkillFiles: [...(product.currentManifest?.skillFiles ?? [])],
@@ -1774,6 +1775,24 @@ function assertOnDemandRoutingAvailable(projectRoot: string): void {
       );
     }
   }
+}
+
+/**
+ * Skill file changes that an existing-install setup sync leaves to `make-docs setup skills`.
+ * The migration path applies no preserved change except a ledger-only noop, so these must be shown and routed, not reported as applied.
+ */
+export function skillChangesLeftForSkillsSetup(installPlan: InstallPlan): PlannedAction[] {
+  return installPlan.actions.filter((action) =>
+    action.type !== "noop" &&
+    mustPreserveOutsideP5(action) &&
+    (Boolean(action.skillExposure) || /^(?:\.agents\/skills\/|\.claude\/skills\/)/.test(action.relativePath)),
+  );
+}
+
+export const SKILL_CHANGES_ROUTE = "make-docs setup skills";
+
+export function skillChangesNextAction(count: number): string {
+  return `Full setup leaves ${count} Skill file ${count === 1 ? "change" : "changes"} to \`${SKILL_CHANGES_ROUTE}\`. Run it to apply ${count === 1 ? "that change" : "them"}.`;
 }
 
 function mustPreserveOutsideP5(action: PlannedAction): boolean {

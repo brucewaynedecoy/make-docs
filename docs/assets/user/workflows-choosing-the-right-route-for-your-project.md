@@ -126,7 +126,7 @@ When the route creates or replaces a full PRD set, or when the user explicitly a
 
 ### When should I amend an existing backlog instead of creating one?
 
-When the change touches an outcome that an existing wave promised. If that work is unfinished and the change fits the plan, edit the backlog in place. If the change significantly deviates from the plan, the owner chooses between pivoting in place and finishing the wave first. If the work is complete, add a revision Phase instead. Create a new backlog only for a new wave or an approved revision Wave. See [Understanding W/R/P Coordinates](concepts-wave-revision-phase-coordinates.md).
+When the change touches an outcome that an existing wave promised. If that work is unfinished and the change fits the plan, edit the backlog in place. If the change significantly deviates from the plan, the owner chooses between pivoting in place and finishing the wave first. If the work is complete, add a revision Phase, unless the change reverses the approach, redoes two or more completed Phases, or needs its own design or multi-phase plan. Those changes need an owner-approved revision Wave. Create a new backlog only for a new wave or an approved revision Wave. See [Understanding W/R/P Coordinates](concepts-wave-revision-phase-coordinates.md).
 
 ### What if I am mostly correcting an earlier plan or backlog?
 

@@ -229,6 +229,7 @@ The decision stays agent-only. The outcome test, the deviation test, and the rev
 
 - **Per Phase:** whether all tasks are checked, whether closeout notes are present, and whether the Phase was committed.
   - The `committed` fact comes from git when git is available. Otherwise it is `null`.
+  - The `committed` fact describes the current working tree only. A completed Phase with a new uncommitted edit, such as an evidence link, reports `false`. The agent decides from history whether the Phase was completed earlier, and does not treat that Phase as unfinished.
   - The snapshot fills its existing `committed` closeout slot.
 - **Per Wave:** whether the Wave is archived.
 - **Per project:** the next free `P` for a W/R, the next free `R` for a Wave, and the highest `W`.

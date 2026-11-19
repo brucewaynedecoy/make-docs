@@ -54,6 +54,7 @@ Out of scope:
 | [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md) | Revision Phase for P2: count plan directories in coordinate facts, add per-Wave `archived`, and name `wave-model.md` in catalog parity. Runs before P4. |
 | [P6 CI and Review Corrections](06-ci-and-review-corrections.md) | Revision Phase for P2 with P1 and P4 text corrections: fix the CodeQL comment-strip alert and the valid CodeRabbit findings on PR #64. |
 | [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md) | Revision Phase for P2: snapshot schema version 2, commit-required completion, one glossary definition, and the 2.0.9 candidate digest. |
+| [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md) | Revision Phase for P2 with design and guide text corrections: ignore headings inside HTML comments, fix the setup and Skill adoption defects D-054 and D-055, repair this repository's Store record, refresh the installed Skills, and repack the 2.0.9 candidate. |
 
 ## Usage Notes
 
@@ -153,3 +154,25 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 51 R-BACKLOG-SNAPSHOT-10 and R-BACKLOG-SNAPSHOT-30, PRD 14 R-COORD-2 and R-COORD-21, and the PRD 04 Phase complete row.
 - Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
 - Source: [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md)
+
+### 2026-11-19 — W28 R0 P8
+
+- Kind: `revision-phase`
+- Affected scope: New P8 t1–t6 and A45–A50, revising completed P2 and adding the D-054 and D-055 CLI fixes to W28.
+- Previous scope: The snapshot found the Closeout Notes and Change History sections before it removed HTML comments. The installed `backlog-review` Skill trailed the source and refused version 2 snapshots. W28 did not cover setup or Skill adoption code.
+- Replacement scope: Comments are blanked in the whole body first. Full setup keeps an unset resource choice unset and routes the Skill changes it leaves to `make-docs setup skills`. The Skill adoption review blocks an older install record with the `make-docs setup` route. This repository's Store record is repaired, the installed Skills are refreshed, and the 2.0.9 candidate is packed again.
+- Rationale: CodeRabbit findings on PR #64 after P7, and the P7 Skill refresh limit. The refresh exposed D-054 and D-055, which blocked it. No revision Wave test passes.
+- PRD decision: `update-existing` — PRD 03 records and closes D-054 and D-055. PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require the corrected behavior and do not change.
+- Owner approval: Tyler, 2026-11-19, chose to fix D-054 and D-055 in W28, and approved each Store write.
+- Source: [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md)
+
+### 2026-11-19 — W28 R0
+
+- Kind: `edit`
+- Affected scope: P1 user route guide text and the P4 design text for the CLI twin.
+- Previous scope: The route guide said completed work gets a revision Phase, without the revision Wave test. The design said the CLI reports whether a Phase was committed, without saying that the fact describes only the current working tree.
+- Replacement scope: The route guide names the revision Wave test and its owner approval. The design states that `committed` describes the current working tree, and that the agent decides prior completion from history.
+- Rationale: CodeRabbit findings on PR #64. Both texts now match `wave-model.md` and the owner's Q1 decision.
+- PRD decision: `none` — PRD 14 R-COORD-4 and R-COORD-21 already state these rules.
+- Owner approval: Not required
+- Source: [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md)

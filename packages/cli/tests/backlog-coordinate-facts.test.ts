@@ -403,3 +403,30 @@ describe("review corrections for coordinate facts", () => {
     expect(found[0]!.message).toContain("### 2042-06-10 — W1 R0 P1");
   });
 });
+
+describe("headings inside HTML comments", () => {
+  test("do not count as live Closeout Notes", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, `${phase("W1 R0 P1")}\n<!--\n### Closeout Notes\n\n- Phase / capability status: Phase complete.\n-->\n`);
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(false);
+  });
+
+  test("keep the line of live Closeout Notes after an earlier comment", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    const text = phase("W1 R0 P1", "- Phase / capability status: Phase complete.").replace("# Fixture Phase\n", "# Fixture Phase\n\n<!-- one\ntwo\nthree -->\n");
+    write(targetRoot, `${RECORD}/01-one.md`, text);
+    const fact = record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent;
+    expect(fact.value).toBe(true);
+    const expectedLine = text.split("\n").indexOf("### Closeout Notes") + 1;
+    expect(fact.evidence[0]).toMatchObject({ line: expectedLine });
+  });
+
+  test("do not start a live Change History section", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-phase.md"], `\n<!--\n## Change History\n\n### June 10 — W9 R0\n-->\n`));
+    write(targetRoot, `${RECORD}/01-phase.md`, phase("W1 R0 P1"));
+    expect(changeHistoryDiagnostics(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT }))).toEqual([]);
+  });
+});

@@ -432,3 +432,46 @@ Covers A42 to A44 in [P7](07-schema-version-and-completion-rules.md). Evidence d
 ### Limit
 
 The Skill source changed again (`report-model.md` and the two regenerated bundles). The installed `.agents/skills/backlog-review/` copy therefore trails the source. Because it bundles the earlier schema, it refuses this CLI's version 2 snapshots until a reviewed Skill sync runs. That sync writes to this machine's Store and needs owner approval.
+
+## P8 Review Corrections and Skill Refresh
+
+Covers A45 to A50 in [P8](08-review-corrections-and-skill-refresh.md). Evidence date: 2026-11-19. Inputs: the CodeRabbit review of PR #64 at `0e6262ed`, and the P7 Skill refresh limit. The owner directed this work in a direct session.
+
+### Comments And Text (A45, A46)
+
+- `backlog-coordinate-facts.test.ts` adds three cases: a commented-out Closeout Notes heading reports `closeoutNotesPresent=false`, a commented-out Change History heading emits no `BACKLOG-VAL-017`, and the Closeout Notes evidence line stays exact after an earlier three-line comment. The first two fail before the fix.
+- The design's CLI twin section and the user route guide now match `wave-model.md`. The CodeRabbit item on the installed Skill copy is closed by A49.
+
+### Skill Refresh Attempts And Defects Found
+
+1. **Adoption with a temporary merged build.** The review of `setup skills --adopt-existing` reported `ready`. The apply failed with "source identity must equal the manifest package", and nothing was applied. The install record was written by 2.0.8, and the CLI was 2.0.9. Recorded as [D-054](../../prd/03-open-questions-and-risk-register.md#d-054-skill-adoption-review-reports-ready-for-an-older-install-record). The temporary merge worktree was removed.
+2. **Full setup with the owner-installed 2.0.9.** The owner installed a pack of this branch at the Homebrew prefix. The `make-docs setup` dry run planned three `backlog-review` updates, and both MCP entries were current. The apply reported `complete` but applied none of the three updates. It also saved an empty resource choice. A repeat dry run then planned to remove 62 tracked `.make-docs/system/` files, and it was not applied. Recorded as [D-055](../../prd/03-open-questions-and-risk-register.md#d-055-setup-sync-saves-an-empty-resource-choice-and-hides-skipped-skill-changes). The owner chose to fix both defects in W28.
+
+### Setup And Adoption Fixes (A47, A48)
+
+- **Cause of the empty choice:** the setup migration stage plan rebuilt the saved choices with `resourceProjection ?? []`. It now keeps an unset choice unset.
+- **Cause of the hidden Skill changes:** the setup migration applies no preserved Skill change. That matches PRD 08 R-SKILL-SETUP-6, but the plan and result did not name the route. Full setup now shows those changes as `skip` and names `make-docs setup skills` in the dry run and the result.
+- **Cause of the ready review:** the adoption review did not validate the prepared record that the apply validates. It does now. An older install record blocks the review with the `make-docs setup` route.
+- `w28-r0-setup-sync-safety.test.ts` (2 tests) and `w28-r0-skill-adoption-version.test.ts` (1 test) each fail without their fix and pass with it.
+
+### Store Repair And Skill Refresh (A49)
+
+The owner installed the fixed build at the Homebrew prefix, the path both MCP entries use, and approved each Store write.
+
+1. `make-docs project state recover <operation> --rollback` cannot change a completed operation; its preview reported `completed` with no changes, so it was not run.
+2. `make-docs setup reconfigure --project-resources all` replaced the saved empty choice with an explicit choice that matches this repository's local resource files. Its dry run planned 121 unchanged paths, 3 Skill `skip` steps with the `make-docs setup skills` route, and no removal. The apply changed no project file.
+3. `make-docs setup skills` updated `report-model.md`, `agent-contract.mjs`, and `report-contract.mjs` under `.agents/skills/backlog-review/`.
+4. All four installed Skills match `packages/skills/`, and the `.claude/skills/*` entries are still links to `../../.agents/skills/*`. Repeat dry runs: `setup skills` reports 32 current files and no change. `setup` reports 124 unchanged paths and no next action. `project state status` reports `ready` at 2.0.9. Both MCP entries still use the Homebrew command path.
+
+### Package Candidate (A50)
+
+- Two independent `npm pack -w packages/cli` runs produced the same tarball, `brucewaynedecoy-make-docs-2.0.9.tgz`:
+  - build 1: `fdf18978b4d8df639970cb23466fe3ed6fa4150a853638c65db3508ca4735451`
+  - build 2: `fdf18978b4d8df639970cb23466fe3ed6fa4150a853638c65db3508ca4735451`
+- `smoke:pack:local` passed with the same candidate digest. The owner-installed build has the same digest. The digest replaces the P7 value in `.github/release-candidates/v2.0.9.sha256` as the last content change. 2.0.9 is not yet published.
+
+### Checks
+
+- Focused suites: 33 files, 763 tests, all passing.
+- `npm test` ran 117 test files: 114 passed, 2 failed, and 1 was skipped. Of 2,056 tests, 2,047 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
+- `validate:defaults`: 53 of 53. The build passes.

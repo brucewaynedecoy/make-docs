@@ -1134,6 +1134,45 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout).
 
+### D-054 Skill Adoption Review Reports Ready For An Older Install Record
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The reviewed adoption validates its prepared Store record during the dry run. When the install was recorded by an older CLI, the review is blocked and names `make-docs setup` as the first step. | None. |
+
+**Issue**: `make-docs setup skills --adopt-existing ... --dry-run` reported `ready` for this repository on 2026-11-19. The apply then failed with "source identity must equal the manifest package", and nothing was applied. The install record was written by 2.0.8, and the CLI was 2.0.9. Adoption builds its new record for 2.0.9 but carries the 2.0.8 router records, and only the apply checked that record.
+
+**Why it matters**: A reviewed digest promises that the apply will do what the review showed. A ready review that always fails breaks that promise, and the error does not name the fix.
+
+**Recommendation**: Check the prepared record in the review. For an older install record, block the review and route the user to `make-docs setup` first.
+
+**To close**: An adoption review of an install recorded by an older CLI is blocked with the setup route, and the apply refuses the same review. A regression test covers it.
+
+**Resolution**: Closed on 2026-11-19 in W28 R0 P8 at the owner's direction. `buildSkillAdoptionReview` validates the prepared record the same way the apply does. `w28-r0-skill-adoption-version.test.ts` fails without the change (`ready`) and passes with it (`blocked`, with the `make-docs setup` route). This repository then refreshed its Skills through `make-docs setup` and `make-docs setup skills`, so adoption was not needed.
+
+**Evidence**: [W28 R0 P8 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p8-review-corrections-and-skill-refresh).
+
+### D-055 Setup Sync Saves An Empty Resource Choice And Hides Skipped Skill Changes
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | An existing-install setup sync keeps an unset resource choice unset. Its plan marks Skill file changes that full setup does not apply as `skip`, and its dry run and result name `make-docs setup skills` as the route for them. | None. |
+
+**Issue**: On 2026-11-19, `make-docs setup --yes` with 2.0.9 ran on this repository, whose install record had no saved resource choice. Two defects showed:
+
+- The setup migration rebuilt the saved choices with `resourceProjection ?? []`. That turned "no choice saved" into "no resources chosen". A repeat dry run then planned to remove 62 tracked `.make-docs/system/` files. Nothing was removed, because the repeat plan was not applied.
+- The dry run listed three `backlog-review` Skill file updates. The apply reported `complete` but applied none of them, because full setup leaves Skill file changes to `make-docs setup skills`. Neither the plan nor the result said so.
+
+**Why it matters**: The first defect turns a routine sync into a plan that deletes local system resources. The second breaks the review promise and PRD 08 R-SKILL-SETUP-6, which requires full setup to name the exact Skill route when it leaves a Skill change to `setup skills`.
+
+**Recommendation**: Keep an unset choice unset in the migration stage plan. Show Skill changes that full setup leaves as `skip`, and name `make-docs setup skills` in the dry run and in the result.
+
+**To close**: Regression tests cover both defects. This repository's Store record is repaired, a repeat setup dry run plans no removals, and `make-docs setup skills` refreshes the installed Skills.
+
+**Resolution**: Closed on 2026-11-19 in W28 R0 P8 at the owner's direction. The migration stage plan keeps an unset resource choice unset, and full setup routes the Skill changes it leaves. Both tests in `w28-r0-setup-sync-safety.test.ts` fail without the change and pass with it. Recovery cannot roll back a completed operation, so this repository's saved empty choice was replaced with an explicit choice: `make-docs setup reconfigure --project-resources all`. It changed no project file and planned no removal. `make-docs setup skills` then applied the three `backlog-review` updates. Repeat dry runs of both commands plan no change.
+
+**Evidence**: [W28 R0 P8 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p8-review-corrections-and-skill-refresh).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
