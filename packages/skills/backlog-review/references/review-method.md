@@ -109,6 +109,8 @@ Classify each live record with judgment over accepted authority, recorded status
 5. `complete` when implementation evidence is complete and the record remains useful in the active portfolio without a current-work signal.
 6. `history` when completed or closed work is retained as historical evidence and no current-work signal exists.
 
+When a completed wave is active again because a revision Phase reopened it, name that revision Phase in the status reason or its detail, for example `Revision phase P5 open`.
+
 Historical classification is an inference. Cite the complete or closed facts and state the limit. Completed tasks alone do not prove accepted closeout, a commit, closed history, release, or archive.
 
 Write a brief `statusReason` phrase for the badge, not a description or explanation. Prefer two to six words; use up to eight when an essential qualifier keeps the meaning true. Follow the [badge reason rules](report-model.md#status-rules). Put facts and longer reasoning in the existing detail. Keep authority or acceptance limits explicit there, and retain a badge qualifier when its removal would mislead. The agent writes this reason; the renderer does not shorten or replace it. The reason remains flexible V1 text and never changes filter membership or color.
@@ -124,6 +126,8 @@ Use these claim classes:
 Use only decisive evidence in report-layer claims. The source snapshot already retains the full record. Use one to three references for a status reason or fact and no more than five for an inference or recommendation. Remove duplicate references. Do not attach every source line that mentions the subject.
 
 Keep a report-level attention finding separate from wave status. A current or complete wave can still have a finding.
+
+Report each `BACKLOG-VAL-017` diagnostic as a wave-specific Attention item. Name the malformed `## Change History` entry and the fix that the diagnostic gives. The snapshot does not read plans, so also check the `## Change History` of each wave's plan overview against the shape in `make-docs://system/reference/wave-model.md#change-history` when the plan is in scope.
 
 Use the matched report `recordPath` for a wave-specific finding. Use null only for a backlog-wide finding. A backlog-wide finding is not a substitute for a wave reference that is known. In chat, show the matched coordinate for a wave-specific finding and use the fixed label `Backlog finding` for a null reference. Treat that label as metadata and use the finding claim as the main heading.
 

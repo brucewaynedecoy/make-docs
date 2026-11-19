@@ -128,3 +128,37 @@ Covers A32 to A35 in [P5](05-coordinate-facts-corrections.md), the revision Phas
   - W22 has `[0,1,2]` with next R3, and W28 has `[0]` with next R1.
   - Archived Waves: W2 to W8 and W11 to W15.
 - **Supersedes.** This section supersedes the P2 limit that said the coordinate facts count work directories only.
+
+## P3 Skills
+
+Covers A19 and A20 in [P3](03-skills.md). Evidence date: 2026-11-18.
+
+### Skill Text Changes
+
+- `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md`: Classification is now `new-wave` or `revision-wave`, with the legacy-alias note. The Evidence line names the outcome test or the revision Wave test and points to the Wave Model decision procedure.
+- `packages/skills/backlog-review/references/review-method.md`:
+  - A reopened Wave's status reason or detail names its revision Phase, for example `Revision phase P5 open`.
+  - Each `BACKLOG-VAL-017` diagnostic is a wave-specific Attention item that names the entry and the fix.
+  - The agent also checks plan-overview Change History, which the snapshot does not read.
+- `packages/skills/preflight/SKILL.md`: a requested change to earlier or completed work is classified with the decision procedure, the agent asks only at its owner gates and otherwise states the choice and reason, and committed backlogs need Change History entries.
+- The rule-map rows for 017 and 018 landed in P2 t12 (see the index Change History).
+
+### Parity And Wording (A19, A20)
+
+- The `backlog-review-skill.test.ts` test "maps every stable rule and marks judgment-only work" passes. `rule-map.md` lists all 18 catalog rules, and `BACKLOG-RULE-018`, which is `agent-only` in the catalog, is marked "Judgment-only".
+- The 017 row describes deterministic support with an agent check of plan overviews. That matches the catalog's `full` support and its one-sided reason.
+- A search of the three changed Skills finds no bare `revision` classification, and no instruction sends every correction to a new revision.
+
+### Tests
+
+- 11 Skill and consistency test files pass 212 of 212: `backlog-review-skill`, `skill-registry`, `skill-catalog`, `embedded-skills`, `w19-r5-standard-skill-layout`, `w19-r5-skill-adoption`, `w19-r5-skills-command`, `skills-adoption-cli`, `skill-adoption-store`, `skills-ui`, and `consistency`.
+- `npm run validate:defaults -w packages/cli` passes 53 of 53. That includes the template-link check, which also covers Skill templates such as `decomposition-plan.md`.
+- `npm run build -w packages/cli` passes. The build embeds the first-party Skills.
+
+### Installed Skill Copies (Limit)
+
+This repository tracks CLI-installed Skill copies under `.agents/skills/` and `.claude/skills/`. They are Store-managed outputs of `make-docs setup skills`, not authoring sources. Even on `main`, the installed `backlog-review` copy differed from `packages/skills/`. They were not hand-edited.
+
+A built-CLI `node packages/cli/dist/index.js setup skills --dry-run` exited 0 and left `git status` unchanged. It reported "Selected skills: none" and planned no file operations, because this checkout has no installed record or Skill selection in this machine's Store (`portable-unregistered`, see P1). It ran outside the sandbox for Store access.
+
+As a result, `.agents/skills/preflight/SKILL.md` now trails `packages/skills/preflight/SKILL.md` until a Skill sync runs from an adopted checkout with a CLI built from this branch. That sync, and the packed-tarball delivery check `scripts/verify-first-party-skill-delivery.mjs`, belong to P4 or release, and they need the owner's go-ahead.

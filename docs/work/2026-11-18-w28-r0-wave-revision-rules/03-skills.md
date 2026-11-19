@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Skills"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W28 R0 P3"
 source:
   type: "plan"
@@ -63,11 +63,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: In `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` line 16, set Classification to `new-wave` or `revision-wave`.
+- [x] t1: In `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` line 16, set Classification to `new-wave` or `revision-wave`.
 - [x] t2: Moved to [P2 t12](02-cli-snapshot-facts-and-rule.md#stage-5---generated-files-and-rule-map) on 2026-11-18, because the P2 Skill test requires the rows. See the index Change History.
-- [ ] t3: In `packages/skills/backlog-review/references/review-method.md`, add two rules. The status reason for a reopened Wave names its revision Phase. A `BACKLOG-VAL-017` finding is an Attention item.
-- [ ] t4: In `packages/skills/preflight/SKILL.md`, add one line: classify each requested change with the `wave-model.md` decision procedure, and stop at its owner gates.
-- [ ] t5: Run any existing Skill tests, and compare the rule-map rows with `catalog.ts`.
+- [x] t3: In `packages/skills/backlog-review/references/review-method.md`, add two rules. The status reason for a reopened Wave names its revision Phase. A `BACKLOG-VAL-017` finding is an Attention item.
+- [x] t4: In `packages/skills/preflight/SKILL.md`, add one line: classify each requested change with the `wave-model.md` decision procedure, and stop at its owner gates.
+- [x] t5: Run any existing Skill tests, and compare the rule-map rows with `catalog.ts`.
 
 ### Acceptance criteria
 
@@ -77,3 +77,13 @@ There are no performance candidates.
 ### Dependencies
 
 - P2 Stage 3 is complete.
+
+### Closeout Notes
+
+- Four testing decisions: Automated Implementation Testing selected and passed (11 Skill and consistency test files, 212 tests, including the rule-map parity test; `validate:defaults`, 53 tests; and the CLI build that embeds the Skills). Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none. This phase changes text only.
+- Human Experience Review: preflight now tells the agent to classify a change with the decision procedure, ask only at its gates, and otherwise state the choice and reason. Backlog review names the reopening revision Phase and reports `BACKLOG-VAL-017` as Attention. P4 reviews sample replies against these rules.
+- Optional experience handoff: not applicable until P4.
+- Explicit human acceptance gate: none.
+- Evidence report: [P3 Skills](evidence.md#p3-skills).
+- Phase / capability status: Phase complete on commit. Capability partial: validation and review (P4) remain. The installed Skill copies under `.agents/skills/` and `.claude/skills/` refresh only through a CLI Skill sync.
