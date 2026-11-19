@@ -58,7 +58,7 @@ Out of scope:
 - Every phase file includes `## Source PRD Docs`.
 - Each phase adds `### Closeout Notes` at closeout. Do not add a placeholder earlier. A placeholder would make the `closeoutNotesPresent` fact misleading.
 - Each Human Experience promise above is traceable through its phase, evidence decision, and implementation gate.
-- The central `evidence.md` report does not exist yet. Create it when the first acceptance evidence is retained (P2 preflight or P4 walkthrough), and add a link to it here. Follow the Acceptance-Case Evidence Retention section in [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md).
+- The central [evidence report](evidence.md) holds the retained acceptance evidence for each phase. Follow the Acceptance-Case Evidence Retention section in [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md).
 - No deferred obligation is in scope. Unassisted Goal Testing is `not-needed-now` in every phase, because no current decision needs it.
 - This backlog is a draft until its first commit. After that, scope edits need a `## Change History` entry, as PRD 14 R-COORD-13 requires.
 - Do not commit, push, or open a PR without Tyler's go-ahead.

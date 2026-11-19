@@ -20,6 +20,7 @@ Output target for implementation backlogs. In v2, every backlog is a **directory
 - Treat bundled skill assets, generated harness stubs, and archived backlogs as fallback/reference material only; they are not independent backlog-shape authority when live repo contracts are available.
 - In phase files, preserve markdown task syntax in `### Tasks` (`- [ ] t1: ...`) and keep `### Acceptance criteria` as plain bullets.
 - Always create work as a directory; never a flat `.md` file.
+- Change an existing backlog in place, or add a revision Phase, under the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`. After a backlog's first commit, record each scope edit in its `## Change History`.
 - Apply the date-W/R-slug naming; do not backdate.
 - Archived backlogs live in `.make-docs/archive/work/`. Before first use, run `make-docs project surface ensure archive`. **Never archive unless explicitly asked.**
 <!-- make-docs:end -->

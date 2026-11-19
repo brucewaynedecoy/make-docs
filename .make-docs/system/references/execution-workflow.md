@@ -112,7 +112,7 @@ Apply this gate only in `authoritative PRD maintenance` mode:
 2. Confirm candidate decisions, existing owner PRDs, and any genuinely new product subjects.
 3. Route surgical current-requirement updates and requirement-history entries to existing-owner workers.
 4. Route genuinely new product PRDs and shared index/risk updates to disjoint authoring or assembly workers when possible.
-5. Route delta backlog generation to a dedicated worker.
+5. Route work backlog updates to a dedicated worker.
 6. Route product-authority, status, link, and traceability validation to a dedicated validation worker.
 7. Keep the coordinator focused on status, blockers, and final reporting.
 
@@ -132,7 +132,7 @@ For authoritative PRD maintenance, prefer these separate write scopes when possi
 - existing owner PRD updates and requirement history
 - genuinely new product-authority PRDs
 - PRD index, risk register, and shared-doc status updates
-- delta backlog generation
+- work backlog updates
 - validation and fix-up
 
 ## Existing Documentation Rule
@@ -158,7 +158,7 @@ If a fallback source is used, record which fallback was used and why.
 ## Backlog Rules
 
 - Work is always a directory in v2. Full-set generation writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-index.md` plus `0N-<phase>.md` phase files.
-- Authoritative PRD maintenance writes `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` as a delta backlog directory containing `00-index.md` plus `0N-<phase>.md` phase files.
+- Authoritative PRD maintenance puts its work into the lineage wave's backlog, as an in-place edit or a revision Phase, under the `## Decision Procedure` in `wave-model.md`. It creates a new `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` directory only for a new wave or a revision Wave. After a backlog's first commit, record each scope edit in its `## Change History`.
 - Plans use the same form: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-overview.md` plus `0N-<phase>.md` phase files.
 - Keep backlog phases dependency-ordered across the `0N-<phase>.md` files.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
@@ -171,7 +171,7 @@ If a fallback source is used, record which fallback was used and why.
 - Make performance phase gates reject missing, expired, invalid, non-comparable, adjacent-mode, or unrun required evidence. Record `pass`, `fail`, `revise`, `blocked`, or `waived` only. Treat a waiver as bounded risk acceptance, not success. Reuse unchanged evidence, rerun only affected checks after material change, and stop when the authorized budget or diminishing-return rule ends.
 - Reject acceptance such as `UX is good`, `easy to use`, or `intuitive`. Replace it with a result that a reviewer can observe on the named surface or in evidence tied to the stated indirect effect.
 - When deferred-obligation or Unassisted Goal Testing routing is active, include applicable `O-###`, `NUAT-###`, and finding traceability plus phase and capability closeout language. Do not invent an ID for `not-needed-now`.
-- Delta backlogs cite the updated or genuinely new authoritative PRDs that constrain implementation. Maintenance plans provide sequencing and history provides provenance; neither replaces current PRD authority.
+- Every new or amended backlog phase cites the updated or genuinely new authoritative PRDs that constrain implementation. Maintenance plans provide sequencing and history provides provenance; neither replaces current PRD authority.
 
 ## Final Validation
 
@@ -180,7 +180,7 @@ Before closing the task:
 1. Resolve broken links, missing core docs, missing required headings, or misplaced backlog files.
 2. Confirm the PRD index reflects the final catalog, status, and lineage.
 3. Confirm the backlog links to the relevant PRD docs.
-4. For authoritative PRD maintenance, confirm current requirements are inline, history is non-normative, every new PRD is a coherent product authority, and delta backlog traceability points to current PRDs rather than retired change records.
+4. For authoritative PRD maintenance, confirm current requirements are inline, history is non-normative, every new PRD is a coherent product authority, and backlog traceability points to current PRDs rather than retired change records.
 5. When deferred-obligation or Unassisted Goal Testing routing is in scope, confirm closeout records separate testing decisions, any applicable `O-###` disposition, any activated `NUAT-###` scenario, evidence references, and explicit phase versus capability status. Record `not-needed-now` without creating a scenario or obligation.
 6. Confirm each accepted Human Experience promise reaches current PRD authority, work, and suitable evidence or an accepted obligation. For `none`, confirm the backlog records and proves the preserved human boundary.
 7. Confirm acceptance is observable. It must let a reviewer determine the subject, relationship, state, next action, recovery path, useful level of detail, or goal completion without relying on an unexplained internal identifier when one of those outcomes is promised.

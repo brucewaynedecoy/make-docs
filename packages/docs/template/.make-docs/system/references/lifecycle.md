@@ -121,6 +121,9 @@ When the current request is ambiguous, prefer the next step implied by that
 chain.
 If a work backlog already exists, treat it as the implementation authority for
 phase work unless the user directs a different source of truth.
+When an approved plan or backlog must change, use the `## Decision Procedure`
+in `wave-model.md`, and record each scope edit to a committed plan or backlog in
+its `## Change History`.
 
 ## Straddle Rule
 

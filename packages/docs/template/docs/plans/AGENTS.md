@@ -22,6 +22,6 @@ Pattern: `YYYY-MM-DD-w{W}-r{R}-<slug>/`
 - PRD authority-maintenance plans list existing PRD owners to update, genuinely new product PRDs if any, requirement-history entries, and affected links, risks, plans, and work artifacts. Editorial change and revision language belongs here, not in `docs/prd/`.
 - Always create the plan as a directory; even single-phase plans use the same shape with one `0N-<phase>.md` file.
 - Apply the date-slug-W/R naming; do not backdate plans.
-- Plans are written before execution, not retroactively.
+- Plans are written before execution. After a plan's first commit, amend it in place under the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`, and record each scope edit in its `## Change History`.
 - Archived plans live in `.make-docs/archive/plans/`. Before first use, run `make-docs project surface ensure archive`. Never archive unless explicitly asked.
 <!-- make-docs:end -->
