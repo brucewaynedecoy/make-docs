@@ -365,7 +365,7 @@ export const BACKLOG_RULES: readonly BacklogRule[] = Object.freeze([
     humanMeaning: "A Change History entry does not follow the required shape, so a reader cannot rely on it to explain the scope change.",
     safeNextAction: "Correct the named entry so its heading reads `YYYY-MM-DD — <coordinate>` for this record and it lists all eight fields with allowed values, newest entry last.",
     focusedTests: ["valid entries", "malformed heading", "foreign coordinate", "missing field", "invalid kind or PRD decision", "out-of-order dates", "absent section"],
-    parityMapping: "Both methods apply the Change History shape in the Wave Model reference; the snapshot checks work indexes, and the agent also checks plan overviews.",
+    parityMapping: "Both methods apply the Change History shape in wave-model.md (make-docs://system/reference/wave-model.md#change-history); the snapshot checks work indexes, and the agent also checks plan overviews.",
     oneSidedReason: "Plan overviews are outside the snapshot's work-record sources, so their Change History is checked by the agent only.",
   },
   {
@@ -383,7 +383,7 @@ export const BACKLOG_RULES: readonly BacklogRule[] = Object.freeze([
     humanMeaning: "The coordinate tells the reader whether work is new, continues, or is a change order on completed work.",
     safeNextAction: "Apply the Wave Model decision procedure, use the snapshot's committed, closeout, archive, and coordinate facts as evidence, and ask the owner at each gate.",
     focusedTests: ["outcome test", "significant deviation test", "revision Wave test", "owner gates", "unknown facts stay unknown"],
-    parityMapping: "The snapshot reports committed, closeout-notes, archive, next phase, revision, and highest-wave facts; only the agent selects a coordinate.",
+    parityMapping: "The agent applies the decision procedure in wave-model.md (make-docs://system/reference/wave-model.md#decision-procedure); the snapshot reports committed, closeout-notes, archived, next phase, revision, and highest-wave facts across work and plan directories, and never selects a coordinate.",
     oneSidedReason: "The outcome, significant deviation, and revision Wave tests need judgment about plan scope and intent.",
   },
 ] satisfies readonly BacklogRule[]);

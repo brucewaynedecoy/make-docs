@@ -263,6 +263,37 @@ function discoverRecords(targetRoot: string): RecordInventory[] {
   return records.sort((left, right) => left.recordPath.localeCompare(right.recordPath));
 }
 
+interface PlanDirectory {
+  planPath: string;
+  scope: WorkScope;
+  directoryCoordinate: string;
+}
+
+/** Dated W/R plan directories. They feed coordinate facts only and never become work records. */
+function discoverPlanDirectories(targetRoot: string): PlanDirectory[] {
+  const roots: Array<{ relative: string; scope: WorkScope }> = [
+    { relative: "docs/plans", scope: "live" },
+    { relative: ".make-docs/archive/plans", scope: "archived" },
+  ];
+  const plans: PlanDirectory[] = [];
+  for (const root of roots) {
+    const absoluteRoot = path.join(targetRoot, ...root.relative.split("/"));
+    if (!existsSync(absoluteRoot)) continue;
+    assertNoSymlink(targetRoot, absoluteRoot, `Plan directory ${root.relative}`);
+    if (!lstatSync(absoluteRoot).isDirectory()) continue;
+    for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
+      const match = RECORD_DIRECTORY.exec(entry.name);
+      if (!match || !entry.isDirectory()) continue;
+      plans.push({
+        planPath: relativePath(targetRoot, path.join(absoluteRoot, entry.name)),
+        scope: root.scope,
+        directoryCoordinate: `W${Number(match[2])} R${Number(match[3])}`,
+      });
+    }
+  }
+  return plans.sort((left, right) => left.planPath.localeCompare(right.planPath));
+}
+
 function parseFrontmatter(markdown: string): ParsedFrontmatter {
   if (!markdown.startsWith("---\n")) {
     return { body: markdown, data: null, present: false, malformed: false, fieldLines: new Map() };
@@ -724,22 +755,33 @@ function changeHistoryDiagnostics(
   return results;
 }
 
-function coordinateFacts(inventory: RecordInventory[]): BacklogCoordinateFacts {
-  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[] }>();
-  for (const record of inventory) {
-    const match = /^W(\d+) R(\d+)$/.exec(record.directoryCoordinate);
-    if (!match) continue;
+function coordinateFacts(inventory: RecordInventory[], plans: PlanDirectory[]): BacklogCoordinateFacts {
+  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[]; planPaths: string[]; scopes: WorkScope[] }>();
+  const add = (coordinate: string, scope: WorkScope, item: { recordPath?: string; planPath?: string }) => {
+    const match = /^W(\d+) R(\d+)$/.exec(coordinate);
+    if (!match) return;
     const wave = Number(match[1]);
-    const entry = waves.get(wave) ?? { revisions: new Set<number>(), recordPaths: [] };
+    const entry = waves.get(wave) ?? { revisions: new Set<number>(), recordPaths: [], planPaths: [], scopes: [] };
     entry.revisions.add(Number(match[2]));
-    entry.recordPaths.push(record.recordPath);
+    if (item.recordPath) entry.recordPaths.push(item.recordPath);
+    if (item.planPath) entry.planPaths.push(item.planPath);
+    entry.scopes.push(scope);
     waves.set(wave, entry);
-  }
+  };
+  for (const record of inventory) add(record.directoryCoordinate, record.scope, { recordPath: record.recordPath });
+  for (const plan of plans) add(plan.directoryCoordinate, plan.scope, { planPath: plan.planPath });
   const facts = [...waves.entries()]
     .sort(([left], [right]) => left - right)
     .map(([wave, entry]) => {
       const revisions = [...entry.revisions].sort((left, right) => left - right);
-      return { wave, revisions, nextRevision: revisions.at(-1)! + 1, recordPaths: entry.recordPaths.sort() };
+      return {
+        wave,
+        revisions,
+        nextRevision: revisions.at(-1)! + 1,
+        archived: entry.scopes.every((scope) => scope === "archived"),
+        recordPaths: entry.recordPaths.sort(),
+        planPaths: entry.planPaths.sort(),
+      };
     });
   return { highestWave: facts.at(-1)?.wave ?? null, waves: facts };
 }
@@ -1032,12 +1074,14 @@ export function buildBacklogSnapshot(
 ): BacklogSnapshotV1 {
   const targetRoot = resolveSafeTargetRoot(targetRootInput);
   let inventory: RecordInventory[];
+  let plans: PlanDirectory[];
   try {
     inventory = discoverRecords(targetRoot);
+    plans = discoverPlanDirectories(targetRoot);
   } catch (error) {
     if (error instanceof BacklogSnapshotError) throw error;
     throw new BacklogSnapshotError(
-      "The backlog record roots cannot be read safely. Check access to docs/work and .make-docs/archive/work, then retry.",
+      "The backlog record roots cannot be read safely. Check access to docs/work, docs/plans, and their .make-docs/archive directories, then retry.",
       sourceFailureReason(error),
     );
   }
@@ -1067,7 +1111,7 @@ export function buildBacklogSnapshot(
       live: records.filter((record) => record.scope === "live").length,
       archived: records.filter((record) => record.scope === "archived").length,
     },
-    coordinates: coordinateFacts(inventory),
+    coordinates: coordinateFacts(inventory, plans),
     records,
     diagnostics: uniqueDiagnostics(diagnostics).sort((left, right) =>
       [left.recordPath ?? "", left.code, left.path ?? "", left.line ?? 0]

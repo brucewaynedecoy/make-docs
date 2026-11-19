@@ -72,7 +72,7 @@ Code anchors:
 - R-BACKLOG-SNAPSHOT-26 (MUST): existing registry, access, CLI, and MCP contract tests pass before P2 changes a shared surface. A failed preflight blocks P2 and reports the drift. It does not permit a temporary workaround. Independent P1 contract and fixture work may continue.
 - R-BACKLOG-SNAPSHOT-27 (MUST): each interpreted phase has a sourced `closeoutNotesPresent` fact. It is true when the phase file's `### Closeout Notes` section has content with no unresolved `{{` placeholder. It is false when the section is absent or empty.
 - R-BACKLOG-SNAPSHOT-28 (MUST): each interpreted phase has a sourced `committed` fact. It is true when Git tracks the phase file and the file has no uncommitted change. It is false when the file is untracked or changed. It is `null` when Git evidence is unavailable, denied, or not a repository. The record's `closeout.committed` fact applies the same rule to the work index and every linked phase file.
-- R-BACKLOG-SNAPSHOT-29 (MUST): each supported or partial work record has a sourced `nextPhase` count, which is one more than its highest linked or numbered phase file. The snapshot has a top-level `coordinates` value: the highest Wave number, plus each Wave's existing revisions and next unused revision. These are derived from every discovered live and archived record directory.
+- R-BACKLOG-SNAPSHOT-29 (MUST): each supported or partial work record has a sourced `nextPhase` count, which is one more than its highest linked or numbered phase file. The snapshot has a top-level `coordinates` value: the highest Wave number, plus each Wave's existing revisions, next unused revision, and `archived` fact. These are derived from the union of every dated W/R work directory under `docs/work/` and `.make-docs/archive/work/` and every dated W/R plan directory under `docs/plans/` and `.make-docs/archive/plans/`, so a revision that exists only as a plan still counts. A Wave is `archived` only when every work and plan directory for it is in an archive namespace. Plan directories contribute coordinate facts only; they do not become work records.
 - R-BACKLOG-SNAPSHOT-30 (MUST): the facts in R-BACKLOG-SNAPSHOT-27 through R-BACKLOG-SNAPSHOT-29 remain separate signals. The operation never combines them into phase or wave completion, never selects a coordinate, and never classifies a change. Coordinate selection remains agent judgment under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md). These facts are additive keys of the version 1 snapshot. If a persisted artifact validates version 1 snapshot JSON against the strict schema and cannot accept them, the change requires a new schema version under R-BACKLOG-SNAPSHOT-10.
 
 ### Internal collectors and rule catalog
@@ -239,7 +239,7 @@ The operation returns a versioned JSON-compatible result. It includes:
 - recorded statuses without normalization loss;
 - explicit blocker and dependency records;
 - closeout and acceptance evidence records, including the per-phase `closeoutNotesPresent` and `committed` facts and the record-level `closeout.committed` fact;
-- each record's `nextPhase` count, and the project-level `coordinates` value with the highest Wave and each Wave's revisions and next unused revision;
+- each record's `nextPhase` count, and the project-level `coordinates` value with the highest Wave and each Wave's revisions, next unused revision, and archived state, counted across work and plan directories;
 - source conflicts and stable diagnostics; and
 - links or repository-relative paths to supporting records.
 
@@ -522,7 +522,7 @@ Code anchors:
 - Coordinate: W28 R0.
 - Affected requirement or section: `R-BACKLOG-SNAPSHOT-27` through `R-BACKLOG-SNAPSHOT-30`, `R-BACKLOG-RULES-11`, `R-BACKLOG-RULES-12`, and the snapshot result.
 - Previous contract: The record-level `closeout.committed` fact was always `null`. The snapshot reported no per-phase committed or closeout-notes fact and no coordinate facts. The rule catalog had no Change History rule and no coordinate-selection entry.
-- Replacement contract: Git evidence derives per-phase and record-level `committed`, and it stays `null` when Git is unavailable. Phases report `closeoutNotesPresent`. Records report `nextPhase`, and the snapshot reports the highest Wave and each Wave's revisions. `BACKLOG-VAL-017` checks the Change History shape. `BACKLOG-AGENT-018` keeps coordinate selection agent-only.
+- Replacement contract: Git evidence derives per-phase and record-level `committed`, and it stays `null` when Git is unavailable. Phases report `closeoutNotesPresent`. Records report `nextPhase`, and the snapshot reports the highest Wave and each Wave's revisions, next free revision, and archived state, counted across work and plan directories. `BACKLOG-VAL-017` checks the Change History shape. `BACKLOG-AGENT-018` keeps coordinate selection agent-only.
 - Rationale: The agent's coordinate decision under PRD 14 needs reliable facts. The decision itself stays judgment, so the snapshot reports signals separately and never classifies.
 - Source: [Wave, Revision, and Backlog Amendment Rules design](../designs/2026-11-18-wave-revision-and-backlog-amendment-rules.md) and [W28 R0 plan](../plans/2026-11-18-w28-r0-wave-revision-rules/00-overview.md).
 

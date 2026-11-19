@@ -86,7 +86,7 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 ### Dependencies
 
-- P1 to P3 are complete.
+- P1 to P3 and P5 are complete.
 
 ## Stage 2 - Human Experience Review
 

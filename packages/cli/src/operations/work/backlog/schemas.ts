@@ -506,10 +506,19 @@ export const BacklogWaveCoordinateFactSchema = z
     wave: z.number().int().positive(),
     revisions: z.array(z.number().int().nonnegative()).min(1),
     nextRevision: z.number().int().positive(),
-    recordPaths: z.array(repositoryRelativePath).min(1),
+    archived: z.boolean(),
+    recordPaths: z.array(repositoryRelativePath),
+    planPaths: z.array(repositoryRelativePath),
   })
   .strict()
   .superRefine((value, context) => {
+    if (value.recordPaths.length + value.planPaths.length === 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["recordPaths"],
+        message: "A wave coordinate fact needs at least one work or plan directory.",
+      });
+    }
     const sorted = [...new Set(value.revisions)].sort((left, right) => left - right);
     if (sorted.length !== value.revisions.length || sorted.some((revision, index) => revision !== value.revisions[index])) {
       context.addIssue({

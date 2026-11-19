@@ -191,6 +191,44 @@ describe("coordinate facts", () => {
     expect(record(snapshot, "docs/work/2042-06-03-w1-r2-legacy").nextPhase).toEqual({ value: null, evidence: [] });
   });
 
+  test("count plan-only revisions and plan-only waves", () => {
+    const targetRoot = root();
+    write(targetRoot, "docs/work/2042-06-01-w1-r0-base/00-index.md", index("W1 R0", []));
+    write(targetRoot, "docs/plans/2042-06-01-w1-r0-base/00-overview.md", "# Plan\n");
+    write(targetRoot, "docs/plans/2042-06-05-w1-r1-plan-only/00-overview.md", "# Plan only\n");
+    write(targetRoot, "docs/plans/2042-06-09-w4-r0-new-plan/00-overview.md", "# New plan\n");
+    write(targetRoot, "docs/plans/notes/readme.md", "# Not a coordinate directory\n");
+
+    const snapshot = buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT });
+    expect(snapshot.coordinates.highestWave).toBe(4);
+    expect(snapshot.coordinates.waves).toEqual([
+      {
+        wave: 1,
+        revisions: [0, 1],
+        nextRevision: 2,
+        archived: false,
+        recordPaths: ["docs/work/2042-06-01-w1-r0-base"],
+        planPaths: ["docs/plans/2042-06-01-w1-r0-base", "docs/plans/2042-06-05-w1-r1-plan-only"],
+      },
+      { wave: 4, revisions: [0], nextRevision: 1, archived: false, recordPaths: [], planPaths: ["docs/plans/2042-06-09-w4-r0-new-plan"] },
+    ]);
+    expect(snapshot.records.map((entry) => entry.recordPath)).toEqual(["docs/work/2042-06-01-w1-r0-base"]);
+  });
+
+  test("mark a wave archived only when every work and plan directory is archived", () => {
+    const targetRoot = root();
+    write(targetRoot, ".make-docs/archive/work/2042-01-01-w2-r0-old/00-index.md", index("W2 R0", []));
+    write(targetRoot, ".make-docs/archive/plans/2042-01-01-w2-r0-old/00-overview.md", "# Plan\n");
+    write(targetRoot, ".make-docs/archive/work/2042-01-02-w3-r0-old/00-index.md", index("W3 R0", []));
+    write(targetRoot, "docs/plans/2042-06-01-w3-r1-live-plan/00-overview.md", "# Live plan\n");
+
+    const waves = buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT }).coordinates.waves;
+    expect(waves.map(({ wave, archived }) => ({ wave, archived }))).toEqual([
+      { wave: 2, archived: true },
+      { wave: 3, archived: false },
+    ]);
+  });
+
   test("report no highest wave for a project without work records", () => {
     const snapshot = buildBacklogSnapshot(root(), { now: FIXED_NOW, runGit: NO_GIT });
     expect(snapshot.coordinates).toEqual({ highestWave: null, waves: [] });
@@ -271,6 +309,9 @@ describe("catalog entries for coordinate work", () => {
     expect(shape!.agentInstructionLocation).toBe("make-docs://system/reference/wave-model.md#change-history");
     expect(selection).toMatchObject({ diagnosticCode: "BACKLOG-AGENT-018", deterministicSupport: "agent-only", judgmentRequired: true });
     expect(selection!.oneSidedReason).not.toBeNull();
+    expect(shape!.parityMapping).toContain("wave-model.md");
+    expect(selection!.parityMapping).toContain("wave-model.md");
+    expect(selection!.agentInstructionLocation).toBe("make-docs://system/reference/wave-model.md#decision-procedure");
   });
 
   test("never emit the agent-only coordinate entry as a snapshot fact", () => {

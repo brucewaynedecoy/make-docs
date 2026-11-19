@@ -147,18 +147,19 @@ const baseRecord = (
 });
 
 const coordinatesFor = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1["coordinates"] => {
-  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[] }>();
+  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[]; archived: boolean }>();
   for (const record of records) {
     const match = /^\d{4}-\d{2}-\d{2}-w([1-9]\d*)-r(0|[1-9]\d*)(?:-|$)/i.exec(record.recordPath.split("/").at(-1) ?? "");
     if (!match) continue;
-    const entry = waves.get(Number(match[1])) ?? { revisions: new Set<number>(), recordPaths: [] };
+    const entry = waves.get(Number(match[1])) ?? { revisions: new Set<number>(), recordPaths: [], archived: true };
+    entry.archived &&= record.scope === "archived";
     entry.revisions.add(Number(match[2]));
     entry.recordPaths.push(record.recordPath);
     waves.set(Number(match[1]), entry);
   }
   const facts = [...waves.entries()].sort(([left], [right]) => left - right).map(([wave, entry]) => {
     const revisions = [...entry.revisions].sort((left, right) => left - right);
-    return { wave, revisions, nextRevision: revisions.at(-1)! + 1, recordPaths: entry.recordPaths.sort() };
+    return { wave, revisions, nextRevision: revisions.at(-1)! + 1, archived: entry.archived, recordPaths: entry.recordPaths.sort(), planPaths: [] };
   });
   return { highestWave: facts.at(-1)?.wave ?? null, waves: facts };
 };

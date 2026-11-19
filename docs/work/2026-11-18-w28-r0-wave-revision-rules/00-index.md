@@ -51,10 +51,11 @@ Out of scope:
 | [P2 CLI Snapshot Facts and Rule](02-cli-snapshot-facts-and-rule.md) | Add the committed, closeout-notes, and coordinate facts and the Change History rule to `work.backlog.snapshot`. |
 | [P3 Skills](03-skills.md) | Align `decompose-codebase`, `backlog-review`, and `preflight` with the rules and the new catalog entries. |
 | [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md) | Walk through past cases, run the Human Experience Review, run the package checks, run the coverage pass, and write history. |
+| [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md) | Revision Phase for P2: count plan directories in coordinate facts, add per-Wave `archived`, and name `wave-model.md` in catalog parity. Runs before P4. |
 
 ## Usage Notes
 
-- Read the phases in order. P3 depends on the P2 rule IDs. P4 depends on P1 to P3.
+- Read the phases in order. P3 depends on the P2 rule IDs. P5 revises P2. P4 depends on P1 to P3 and P5, so it runs last.
 - Every phase file includes `## Source PRD Docs`.
 - Each phase adds `### Closeout Notes` at closeout. Do not add a placeholder earlier. A placeholder would make the `closeoutNotesPresent` fact misleading.
 - Each Human Experience promise above is traceable through its phase, evidence decision, and implementation gate.
@@ -84,3 +85,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `none` — No product requirement changes; PRD 51 already requires the facts and the rule.
 - Owner approval: Not required. This is an edit to unfinished work that fits the plan.
 - Source: [P2 CLI Snapshot Facts and Rule](02-cli-snapshot-facts-and-rule.md)
+
+### 2026-11-18 — W28 R0 P5
+
+- Kind: `revision-phase`
+- Affected scope: New P5 t1–t4 and A32–A35, revising completed P2; P4 dependencies.
+- Previous scope: P2 coordinate facts counted work directories only, reported archived state per record only, and its catalog parity text did not name `wave-model.md`.
+- Replacement scope: P5 counts the union of work and plan W/R directories, adds a per-Wave `archived` fact, and names `wave-model.md` in both catalog parity mappings. P4 now also depends on P5.
+- Rationale: Owner review of committed P2 found that plan-only revisions such as W18 R15 were missing from the revision facts, which is the collision these facts exist to prevent. No revision Wave test passes.
+- PRD decision: `update-existing` — PRD 51 R-BACKLOG-SNAPSHOT-29 now names plan directories and per-Wave archived state.
+- Owner approval: Not required. This is a clear revision Phase that the agent may add alone; the owner requested the fixes in P2 review.
+- Source: [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md)

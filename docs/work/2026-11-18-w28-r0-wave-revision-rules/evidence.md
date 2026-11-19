@@ -112,3 +112,19 @@ Two `mcp-app-contract` tests fail on this machine because they expect empty stde
 - **On unchanged `main`:** in a temporary worktree at `main` (`ad84ffb8`, before any W28 commit), both tests fail with the identical `DEP0205` message. The worktree was removed after the run.
 
 This branch does not cause the failures. Re-check them on the supported CI Node version.
+
+## P5 Coordinate Facts Corrections
+
+Covers A32 to A35 in [P5](05-coordinate-facts-corrections.md), the revision Phase for P2. Evidence date: 2026-11-18.
+
+- **Coordinate classification.** P2 was complete and committed (`b7eb5dcd`). No revision Wave test passes, so the fix is a revision Phase, recorded in the index Change History with kind `revision-phase`. PRD 51 R-BACKLOG-SNAPSHOT-29 was updated first.
+- **Plan directories (A32).** New tests show that a work W1 R0 with plans W1 R0 and W1 R1 reports revisions `[0,1]` and `nextRevision` 2. A plan-only W4 R0 raises `highestWave` to 4, has `recordPaths: []`, and creates no work record. A non-coordinate folder under `docs/plans/` is ignored.
+- **Per-Wave archived (A33).** A Wave with archived work and archived plans reports `archived: true`. A Wave with archived work and a live plan reports `false`.
+- **Parity text (A34).** `BACKLOG-RULE-017` and `BACKLOG-RULE-018` name `wave-model.md` and its section URI in `parityMapping`. `BACKLOG-AGENT-018` keeps the instruction location `make-docs://system/reference/wave-model.md#decision-procedure` and its non-null `oneSidedReason`.
+- **Tests and build.** `backlog-coordinate-facts.test.ts` passes 23 of 23. The 19 backlog, registry, MCP-derivation, operations, and operation-domain files pass 399 of 399. The Skill bundles and the MCP App widget were regenerated, and `npm run build -w packages/cli` passes.
+- **Real snapshot (A35).** The built CLI on this repository reports `highestWave` 28 and 60 diagnostics (unchanged).
+  - W18 revisions are now `[1..13, 15, 16]`, with next R17. R15 exists only as a plan. Next R did not change here, because R16 already exists, but the list is now complete.
+  - W19 revisions are now `[0..8]`, with next R9. R0 exists only as a plan.
+  - W22 has `[0,1,2]` with next R3, and W28 has `[0]` with next R1.
+  - Archived Waves: W2 to W8 and W11 to W15.
+- **Supersedes.** This section supersedes the P2 limit that said the coordinate facts count work directories only.
