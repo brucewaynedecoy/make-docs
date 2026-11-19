@@ -1643,6 +1643,20 @@ P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validat
 
 All 24 registry operations project to MCP tools. A pending registration must not claim that its handler exists. The seven CLI roots are `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. The context-aware bare `make-docs` flow remains. This decision adds no agentic or plugin scope. It does not activate Q-012 or Q-013.
 
+### Q-025 Should the Store Become an Optional Durable Archive for Non-Active Documents?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner raised this as a future capability on 2026-11-18. | Write a dedicated design before any plan or work. |
+
+**Question**: Should a configured Make Docs Store optionally become the durable archive for non-active, non-product-authority documents, so that archiving writes to Store tables instead of an archive folder in the repository? Should a configured Store optionally keep a full redundant copy of all Make Docs documents?
+
+**Why it matters**: Archive and history location affects how archived Waves are restored, how prior versions are kept, and what a project folder must contain. Make Docs must still install and work entirely inside the project folder by default.
+
+**Recommendation**: Treat this as its own design. Keep the default configuration equal to the current in-repository behavior. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-19 already keeps coordinate and amendment rules independent of the storage location.
+
+**To close**: An accepted design decides whether each optional mode exists, its configuration, its restore and history behavior, and how the default in-repository mode is preserved.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -2175,6 +2189,8 @@ The following record preserves the prior claims, findings, and close conditions.
 **Recommendation**: Implement a deterministic coordinate-consistency check as a `run` validation operation over design, plan, PRD, and work artifacts, and enforce it with a pre-commit hook; a first-party Playbook wrapper is a natural early dogfood of the run and packaging pipeline.
 
 **To close**: A coordinate-consistency operation exists, is exposed on the CLI and as a hook, and fails when a design's coordinate or PRD disagrees with its downstream plan and work artifacts.
+
+**Related**: [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) `Coordinate Selection and Amendment` defines how a coordinate is selected, and [PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-SNAPSHOT-29 reports coordinate facts. Neither checks that a design, plan, PRD, and work record agree, so this risk stays open.
 
 ### R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance
 

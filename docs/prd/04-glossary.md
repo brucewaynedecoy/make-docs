@@ -77,6 +77,12 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Support-scope cell | One specific product-surface and support-context combination—such as platform, interface, input mode, or accessibility basis—that needs its own evidence when Make Docs makes a support claim for it. | [R-NUAT-SCOPE-MATRIX](46-naive-end-user-acceptance-testing.md#r-nuat-scope-matrix-cross-platform-visual-and-accessibility-scope) |
 | Project State | The operational project-scoped state surface that may hold execution progress and evidence pointers while repository artifacts retain semantic authority. | [PRD 38](38-global-store-and-project-state.md) |
 | Project State evidence reference | A non-authoritative operational pointer, identifier, timestamp, or run record that helps locate execution evidence; repository requirements, scenarios, findings, and terminal rationales remain the product authority. | [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) |
+| Wave | A self-contained unit of work, with coordinate `W{W}`, that defines the scope of that work. It can be a full build, one domain slice, or one change request. Its plan is the statement of work. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
+| Lineage Wave | The existing Wave whose plan promised the outcome that a request changes. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
+| Phase complete | Phase work that is done, closed out, and committed or deployed. Done but uncommitted work is not complete. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
+| Revision Phase | The next unused `P` in the same W/R that changes the result of a completed Phase. It carries no other coordinate marker. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
+| Revision Wave | The next unused `R` of a Wave. It is a change order that revisits or rearchitects a substantial part of completed work, with its own plan and work backlog. `R0` is the base revision. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
+| Change History | The dated, non-normative record of scope edits in a committed plan or work backlog. It follows the requirement-history shape. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment), [PRD 51](51-backlog-review-and-reporting.md) |
 
 ## Requirement History
 

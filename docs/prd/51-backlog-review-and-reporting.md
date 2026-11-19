@@ -70,6 +70,10 @@ Code anchors:
 - R-BACKLOG-SNAPSHOT-24 (MUST): the operation declares project-read, Store-none, and host-configuration-none access. Optional Git evidence does not broaden this declared access.
 - R-BACKLOG-SNAPSHOT-25 (MUST): the operation uses the existing registry-derived CLI and MCP paths. It adds no Store schema or state, setup path, harness trust path, parallel dispatcher, or MCP-only business logic.
 - R-BACKLOG-SNAPSHOT-26 (MUST): existing registry, access, CLI, and MCP contract tests pass before P2 changes a shared surface. A failed preflight blocks P2 and reports the drift. It does not permit a temporary workaround. Independent P1 contract and fixture work may continue.
+- R-BACKLOG-SNAPSHOT-27 (MUST): each interpreted phase has a sourced `closeoutNotesPresent` fact. It is true when the phase file's `### Closeout Notes` section has content with no unresolved `{{` placeholder. It is false when the section is absent or empty.
+- R-BACKLOG-SNAPSHOT-28 (MUST): each interpreted phase has a sourced `committed` fact. It is true when Git tracks the phase file and the file has no uncommitted change. It is false when the file is untracked or changed. It is `null` when Git evidence is unavailable, denied, or not a repository. The record's `closeout.committed` fact applies the same rule to the work index and every linked phase file.
+- R-BACKLOG-SNAPSHOT-29 (MUST): each supported or partial work record has a sourced `nextPhase` count, which is one more than its highest linked or numbered phase file. The snapshot has a top-level `coordinates` value: the highest Wave number, plus each Wave's existing revisions and next unused revision. These are derived from every discovered live and archived record directory.
+- R-BACKLOG-SNAPSHOT-30 (MUST): the facts in R-BACKLOG-SNAPSHOT-27 through R-BACKLOG-SNAPSHOT-29 remain separate signals. The operation never combines them into phase or wave completion, never selects a coordinate, and never classifies a change. Coordinate selection remains agent judgment under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md). These facts are additive keys of the version 1 snapshot. If a persisted artifact validates version 1 snapshot JSON against the strict schema and cannot accept them, the change requires a new schema version under R-BACKLOG-SNAPSHOT-10.
 
 ### Internal collectors and rule catalog
 
@@ -209,6 +213,15 @@ Code anchors:
 - `packages/cli/src/mcp/tools.ts`
 - `packages/skills/`
 
+- R-BACKLOG-RULES-11 (MUST): `BACKLOG-RULE-017` with diagnostic `BACKLOG-VAL-017` has default severity `warning`. It checks the `## Change History` section of a supported work index:
+  - each entry heading uses `YYYY-MM-DD — <coordinate>`, and the coordinate's Wave and revision match the record;
+  - each entry has the eight fields that [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-14 defines;
+  - `Kind` and `PRD decision` use their allowed values;
+  - entries are in ascending date order.
+
+  An absent section emits no diagnostic. Its parity mapping points to the Change History section of the shipped Wave Model reference. Plan Change History has agent-only checks, because the snapshot does not read plans. That is the one-sided reason.
+- R-BACKLOG-RULES-12 (MUST): agent-only entry `BACKLOG-AGENT-018` records coordinate selection under PRD 14. Its instruction location is the shipped Wave Model reference. Its one-sided reason is that the outcome, significant deviation, and revision Wave tests need judgment. It is not emitted as a deterministic snapshot fact.
+
 ## Contracts and Data
 
 ### Snapshot result
@@ -225,7 +238,8 @@ The operation returns a versioned JSON-compatible result. It includes:
 - phase and task counts with source provenance;
 - recorded statuses without normalization loss;
 - explicit blocker and dependency records;
-- closeout and acceptance evidence records;
+- closeout and acceptance evidence records, including the per-phase `closeoutNotesPresent` and `committed` facts and the record-level `closeout.committed` fact;
+- each record's `nextPhase` count, and the project-level `coordinates` value with the highest Wave and each Wave's revisions and next unused revision;
 - source conflicts and stable diagnostics; and
 - links or repository-relative paths to supporting records.
 
@@ -501,6 +515,16 @@ Code anchors:
 - Replacement contract: Each wave message shows one short reference. The original agent matches it against the full action from its own confirmed open. It still checks current source facts and reads the selected source record before it answers or starts work. A changed-backlog review keeps its exact changed-record list.
 - Rationale: The owner found the four IDs unnecessary in the visible message. A compact reference keeps the check while making the request easier to read. No hidden Codex field is assumed.
 - Source: [P11 work](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/11-installed-acceptance.md) and the [installed result](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/evidence/p11/installed-acceptance-results.md).
+
+### 2026-11-18 — W28 R0 coordinate facts and Change History rule
+
+- Date: 2026-11-18.
+- Coordinate: W28 R0.
+- Affected requirement or section: `R-BACKLOG-SNAPSHOT-27` through `R-BACKLOG-SNAPSHOT-30`, `R-BACKLOG-RULES-11`, `R-BACKLOG-RULES-12`, and the snapshot result.
+- Previous contract: The record-level `closeout.committed` fact was always `null`. The snapshot reported no per-phase committed or closeout-notes fact and no coordinate facts. The rule catalog had no Change History rule and no coordinate-selection entry.
+- Replacement contract: Git evidence derives per-phase and record-level `committed`, and it stays `null` when Git is unavailable. Phases report `closeoutNotesPresent`. Records report `nextPhase`, and the snapshot reports the highest Wave and each Wave's revisions. `BACKLOG-VAL-017` checks the Change History shape. `BACKLOG-AGENT-018` keeps coordinate selection agent-only.
+- Rationale: The agent's coordinate decision under PRD 14 needs reliable facts. The decision itself stays judgment, so the snapshot reports signals separately and never classifies.
+- Source: [Wave, Revision, and Backlog Amendment Rules design](../designs/2026-11-18-wave-revision-and-backlog-amendment-rules.md) and [W28 R0 plan](../plans/2026-11-18-w28-r0-wave-revision-rules/00-overview.md).
 
 ## Source Anchors
 
