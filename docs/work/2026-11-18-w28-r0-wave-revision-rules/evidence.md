@@ -262,3 +262,33 @@ The agent drafted the two samples below. They are not live harness output.
 1. **Installed Skill copies and Store writes.** Refreshing `.agents/skills/` and `.claude/skills/` needs `make-docs setup skills` from an adopted checkout. That writes to this machine's Make Docs Store, so it was not run, as directed. Until then, the installed `preflight` copy trails `packages/skills/preflight/SKILL.md`. Decide whether to adopt and sync here or leave it to release.
 2. **Full `smoke:pack` and packed Skill delivery proof.** The full `smoke:pack` needs Bun. The Skill delivery runner needs the D-052 fix. Run both on a machine with Bun or in CI after D-052 is fixed.
 3. **Walkthrough mismatches (A21).** Confirm that the shipped rules stand and that the design's expected-outcomes table should be corrected for W26 R1, W18 R16, and W19 R7, or direct a rule change.
+
+## Owner Follow-Up (2026-11-18)
+
+Covers A36 to A38 in [P4](04-validation-review-and-closeout.md) and the three open items above. Tyler made these decisions at 8:00 PM CST, and the coordinator relayed them. The index Change History records the scope change.
+
+### Open Item 3: Design Table (A36)
+
+Tyler kept the rules. The W26 R1, W18 R16, and W19 R7 rows of the design's [expected-outcomes table](../../designs/2026-11-18-wave-revision-and-backlog-amendment-rules.md#expected-outcomes-for-past-cases) now state the walkthrough results, and a note under the table records the correction and the owner's decision. All five rows now match the walkthrough. No PRD changed, so no Requirement History entry is needed.
+
+### Open Item 1: Skill Sync (A38) — Blocked By D-053
+
+1. **Plain sync dry run.** `setup skills --dry-run` with the built CLI planned nothing ("Selected skills: none"). The existing installed copies are not recorded in this machine's Store.
+2. **Reviewed adoption dry run.** `setup skills --selected-skills backlog-review,factory,human-experience,preflight --adopt-existing <same> --dry-run` reported `ready`, with no blockers and review digest `56880f4a…`. The plan had 21 path changes, 6 backups under the git-ignored `.make-docs/backup/`, and 32 ownership entries to register. It would update five installed `backlog-review` files, add `report-contract.mjs`, and update `preflight/SKILL.md`. It left `factory` and `human-experience` unchanged.
+3. **Apply.** `--review <digest> --yes` exited 1 with `ownership-unverified`: "Invalid predeclared native copy fallback." The CLI printed "No adoption changes have been applied."
+   - `git status` stayed unchanged, and no `.make-docs/backup/` folder was created.
+   - `project state status` still reports `portable-unregistered`, with no pending operation.
+   - The Store database file kept its size (`1531904` bytes), but its timestamp moved to `Nov 18 20:02`. The command opened a Store session even though it applied no change.
+4. **Cause.** Adoption declares a copy fallback for each native link exposure (`packages/cli/src/skills-adoption.ts`), but the detached-plan check in `packages/cli/src/store/installation-state.ts` accepts a fallback only when the plan creates the link. This repository already has `.claude/skills/<name>` links to `.agents/skills/<name>`. W28 did not change either file.
+5. **Reproduction.** The same project shape, in a throwaway project with a throwaway `HOME` and Store, fails the same way with the W28 build and with the released `make-docs` 2.0.8 from `/opt/homebrew/bin`.
+6. **Not done.** The only bypass, `MAKE_DOCS_DISABLE_SKILL_SYMLINKS=1`, would replace the tracked `.claude/skills` links with copies. It was not used. Recorded as [D-053](../../prd/03-open-questions-and-risk-register.md#d-053-reviewed-skill-adoption-rejects-existing-native-skill-links).
+7. **Result.** The installed `.agents/skills/preflight/SKILL.md` and `.agents/skills/backlog-review/` files still differ from `packages/skills/`. The `.claude/skills/*` entries are links to `.agents/skills/*`, so they show the same content. `factory` and `human-experience` already match.
+
+### Open Item 2: Package Proof (A25, A37)
+
+- `scripts/verify-first-party-skill-delivery.mjs` needed two fixes:
+  - its fixed Skill list now includes `backlog-review`, and its check label says "eight";
+  - its `setup` calls pass `--codex-method none` and `--claude-code-method none`, as setup has required since W19 R6, plus `--no-github-copilot`. That was the second stop.
+- Against a fresh pack of this branch (`@brucewaynedecoy/make-docs@2.0.8`, SHA-256 `08713ce414b6e1feae931c0f515c51ec17f6140350c50c210804752fa8efb5d0`), the runner reports **status `passed`**: all 6 checks and 22 isolated install runs. Those runs are 8 individual Skills, 12 scope × harness × mode cases, `none`, and `bare`.
+- It needed no Bun. It ran outside the sandbox because it uses `sandbox-exec`, and its runs used temporary `HOME` and Store directories. This machine's Store file did not change during the run. D-052 is closed, and no register item was renumbered.
+- The full `npm run smoke:pack` still stops in preflight. "Smoke pack package-runner validation requires: bun (bun x)." Bun is not installed here. That is the only remaining package-proof gap, and it is recorded as a bounded caveat in the P4 closeout.

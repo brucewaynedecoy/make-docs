@@ -1,7 +1,7 @@
 ---
 title: "W28 R0 Wave, Revision, and Backlog Amendment Rules"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W28 R0"
 follow_on:
   route: "implementation-loop"
@@ -96,3 +96,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 51 R-BACKLOG-SNAPSHOT-29 now names plan directories and per-Wave archived state.
 - Owner approval: Not required. This is a clear revision Phase that the agent may add alone; the owner requested the fixes in P2 review.
 - Source: [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md)
+
+### 2026-11-18 — W28 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 A21; new P4 t9–t11 and A36–A38.
+- Previous scope: A21 required a walkthrough mismatch to be fixed in P1. P4 had no task for the design table, the Skill sync, or the Skill delivery runner.
+- Replacement scope: A21 allows the fix in the design's expected-outcomes table by owner decision. t9 corrects that table. t10 runs the owner-approved Skill sync, or records why it failed. t11 fixes the Skill delivery runner and closes D-052. A36–A38 cover these tasks.
+- Rationale: The P4 walkthrough found that the design table, not the rules, was wrong for three cases. The owner approved one Store write for the Skill sync and asked for the D-052 fix in this change set.
+- PRD decision: `update-existing` — PRD 03 closes D-052 and adds D-053. PRDs 14 and 51 need no change.
+- Owner approval: Tyler, 2026-11-18 8:00 PM CST, relayed by the coordinator.
+- Source: [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md)

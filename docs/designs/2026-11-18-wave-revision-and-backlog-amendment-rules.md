@@ -259,9 +259,11 @@ A future design may make the Make Docs Store the durable archive for non-active 
 | --- | --- | --- |
 | W22 R2 P4 | A post-release fix to committed R2 work | Revision Phase. This matches what happened. |
 | W17 R3 | Reversed the R2 harness exposure architecture and migrated R2 output | Revision Wave. Test 1 passes. |
-| W26 R1 | An owner-directed add-on, while R0 was not complete | An in-place edit or new Phase in W26 R0 |
-| W18 R16 | A defect fix to one capability that W18 R11 delivered | Revision Phase in W18 R11 |
-| W19 R7 | A one-phase correction that was superseded before any commit | An in-place edit of the open backlog |
+| W26 R1 | The owner selected W26 R1 for an MCP name projection that W26 R0 left outside its scope | W26 R1 by explicit owner guidance (step 1). Without that guidance it is new work; because R0 was unfinished, the owner chooses between extending R0 and a new Wave. |
+| W18 R16 | A defect fix to the W18 R11 validator, with its own design and a three-phase plan | Revision Wave by test 3, borderline because it is a defect fix, so it needs an owner gate |
+| W19 R7 | A correction of completed W19 R3, R5, and R6 outcomes, with its own design, replaced by R8 before any R7 commit | Revision Wave by tests 2 and 3, behind an owner gate. R8's replacement of unfinished R7 is a significant deviation, so the owner chooses between pivoting R7 in place and finishing it first. |
+
+The W26 R1, W18 R16, and W19 R7 rows were corrected on 2026-11-18 after the W28 R0 P4 walkthrough checked each case against its own plan. The owner kept the rules and approved the corrected rows. See the [P4 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#expected-outcome-walkthrough-a21).
 
 ### Resources to change
 

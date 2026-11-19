@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Validation, Review, and Closeout"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W28 R0 P4"
 source:
   type: "plan"
@@ -82,7 +82,7 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
   - W18 R16: revision Phase in R11.
   - W19 R7: in-place edit.
 
-  Any mismatch is recorded with its cause and fixed in P1 before closure.
+  Any mismatch is recorded with its cause and fixed before closure: in P1 when the rules are wrong, or, by owner decision, in the design's expected-outcomes table when the table is wrong.
 
 ### Dependencies
 
@@ -127,24 +127,34 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 - [x] t6: Run the coverage pass under [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md): guide, system-resource, history, PRD reconciliation, documentation hygiene, validation, obligations, and testing decisions.
 - [x] t7: Write one history record per completed phase in `.make-docs/archive/history/`, under the history-record contract, with `coordinate: "W28 R0 P<n>"`.
-- [ ] t8: Add `### Closeout Notes` to each phase. Report the result to Tyler and wait for the commit go-ahead.
+- [x] t8: Add `## Stage 5 - Owner Follow-Up
+
+### Tasks
+
+- [x] t9: Correct the W26 R1, W18 R16, and W19 R7 rows of the design's expected-outcomes table to match each case's plan, as the owner decided on 2026-11-18.
+- [x] t10: Run the owner-approved reviewed Skill sync for this checkout. If it fails, record the cause without a workaround.
+- [x] t11: Fix `scripts/verify-first-party-skill-delivery.mjs` so that it expects all first-party Skills and passes the explicit setup harness method. Run it against a packed candidate, and close D-052 in PRD 03.
 
 ### Acceptance criteria
 
-- A27: Every coverage-pass surface has a verdict and a reason. PRD reconciliation finds PRDs 14, 51, and 04 current.
-- A28: Each phase has a history record and filled Closeout Notes with no unresolved placeholder.
-- A29: Nothing is committed, pushed, or opened as a PR before Tyler's go-ahead.
+- A36: The design's expected-outcomes table matches the walkthrough results for all five cases.
+- A37: The packed-candidate Skill delivery runner passes all of its checks and isolated install runs, and D-052 is closed without renumbering any register item.
+- A38: The installed Skill copies under `.agents/skills/` and `.claude/skills/` match `packages/skills/` after the reviewed sync, or the blocking cause is recorded with an owner and a follow-on route.
 
 ### Dependencies
 
-- Stage 3 is complete.
+- Stages 1 to 4 are complete.
 
 ### Closeout Notes
 
-- Four testing decisions: Automated Implementation Testing selected. `npm test` passes apart from the 3 known environment failures. `validate:defaults` and `smoke:pack:local` pass. Full `smoke:pack` is blocked without Bun, and the packed Skill delivery runner fails on pre-existing drift D-052. Performance Testing and Unassisted Goal Testing are `not-needed-now`. Guided Progress Review is optional and was not requested.
+- Four testing decisions: Automated Implementation Testing selected. `npm test` passes apart from the 3 known environment failures. `validate:defaults`, `smoke:pack:local`, and the packed Skill delivery runner pass. The full `smoke:pack` runner mode is blocked without Bun. Performance Testing and Unassisted Goal Testing are `not-needed-now`. Guided Progress Review is optional and was not requested.
 - Performance evidence: none.
 - Human Experience Review: A22, A23, and A24 are satisfied within the stated limits. The samples are agent-authored, no live harness session produced them, and no person's reaction is claimed.
 - Optional experience handoff: try one change in a project that uses Make Docs. Ask the agent to fix a finished phase and notice that it names a revision Phase and gives its reason. Then ask for a reversal of the plan's approach and notice that it asks you first. Feedback is welcome but not required.
 - Explicit human acceptance gate: none.
-- Evidence report: [P4 Validation, Review, and Closeout](evidence.md#p4-validation-review-and-closeout).
-- Phase / capability status: Phase not complete. A21 has two mismatches and one partial match that need an owner decision, and A25 is not fully met. Open items 1–3 in the evidence report wait on Tyler. Capability partial: the coordinate rules, snapshot facts, and Skill text ship on this branch, while the installed Skill copies and the full package proof are pending.
+- Evidence report: [P4 Validation, Review, and Closeout](evidence.md#p4-validation-review-and-closeout) and [Owner follow-up](evidence.md#owner-follow-up-2026-11-18).
+- Phase / capability status: Phase complete on commit, with two bounded caveats:
+  - **A25:** the full `smoke:pack` runner mode needs Bun. The owner is Tyler. Run it on a machine with Bun, or in CI, before release.
+  - **A38:** the reviewed Skill sync is blocked by the pre-existing CLI defect [D-053](../../prd/03-open-questions-and-risk-register.md#d-053-reviewed-skill-adoption-rejects-existing-native-skill-links), which also affects released 2.0.8. The installed `backlog-review` and `preflight` copies stay behind the source. The follow-on route is a separate fix for D-053, then a rerun of the sync.
+
+  Capability partial: the rules, snapshot facts, Skill source, and package proof ship on this branch. The installed Skill copies and the Bun runner proof remain.

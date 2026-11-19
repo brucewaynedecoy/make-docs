@@ -1104,7 +1104,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | `scripts/verify-first-party-skill-delivery.mjs` expects seven first-party Skills, but the package has shipped eight since `backlog-review` was added. The check stops at its first assertion before it proves any Skill. | Add `backlog-review` to the runner's expected Skill list in a separate maintainer change, then rerun it against a packed candidate. |
+| Closed | The runner expects all eight first-party Skills, including `backlog-review`, and passes against the packed W28 R0 candidate. | None. |
 
 **Issue**: On 2026-11-18, the runner was run against the packed `@brucewaynedecoy/make-docs@2.0.8` candidate built from the W28 R0 branch. It failed its embedded-bundle check because the bundle lists `backlog-review` and the runner's fixed list does not. The runner last changed on 2026-09-11, and `backlog-review` was added on 2026-09-20, so the gap predates W28.
 
@@ -1114,7 +1114,25 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: The runner passes against a packed candidate and reports every first-party Skill.
 
+**Resolution**: Closed on 2026-11-18 in W28 R0 P4 at the owner's direction. The runner's fixed list now includes `backlog-review`. Its setup calls also pass the explicit `none` harness method that setup has required since W19 R6, plus `--no-github-copilot`; that was the second stop the run reached. Against the packed `@brucewaynedecoy/make-docs@2.0.8` candidate (SHA-256 `08713ce4…`), the runner passes all 6 checks and 22 isolated install runs.
+
 **Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout); `scripts/verify-first-party-skill-delivery.mjs`.
+
+### D-053 Reviewed Skill Adoption Rejects Existing Native Skill Links
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | `make-docs setup skills --adopt-existing` with a ready review digest fails with `ownership-unverified`, "Invalid predeclared native copy fallback." It fails when the project already exposes its Skills through native links, such as `.claude/skills/<name>` pointing to `.agents/skills/<name>`. Nothing is applied. | Fix the copy-fallback validation in a separate CLI change, then rerun the W28 R0 installed-Skill refresh. |
+
+**Issue**: Adoption declares a copy fallback for every native link exposure (`packages/cli/src/skills-adoption.ts`). The detached-plan check in `packages/cli/src/store/installation-state.ts` accepts a fallback only when the plan creates that link from nothing. An already-present, unchanged link therefore fails the check. On 2026-11-18, the reviewed W28 R0 Skill sync of this repository hit this error. The same project shape fails in an isolated temporary Store with the W28 R0 build and with the released `make-docs` 2.0.8.
+
+**Why it matters**: A checkout that already has native Skill links cannot adopt and refresh its installed first-party Skills through the reviewed path. Installed copies then fall behind the packaged Skills.
+
+**Recommendation**: Declare a copy fallback only for an exposure that the plan creates, or accept an unchanged existing link that matches the reviewed target. Add a regression case for adoption with existing native links.
+
+**To close**: Reviewed adoption of a project with existing `.claude/skills` links applies, and the installed Skills match the packaged Skills.
+
+**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout).
 
 ## Open Questions
 
