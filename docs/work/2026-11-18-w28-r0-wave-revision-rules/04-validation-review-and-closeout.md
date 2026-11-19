@@ -71,7 +71,7 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 ### Tasks
 
-- [ ] t1: Walk the five design cases through the shipped `wave-model.md`: W22 R2 P4, W17 R3, W26 R1, W18 R16, and W19 R7. Record the input facts, each step's result, and the final outcome in `evidence.md`.
+- [x] t1: Walk the five design cases through the shipped `wave-model.md`: W22 R2 P4, W17 R3, W26 R1, W18 R16, and W19 R7. Record the input facts, each step's result, and the final outcome in `evidence.md`.
 
 ### Acceptance criteria
 
@@ -92,8 +92,8 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 ### Tasks
 
-- [ ] t2: Draft one sample gated owner question, for the W17 R3 revision Wave case, and one sample agent-alone reply, for the W22 R2 P4 revision Phase case. Review both against the User Action Requests rule and PRD 14 R-COORD-12. Record the observation, conclusion, limit, and next action for each.
-- [ ] t3: Fill one sample Change History entry from the shipped `work-index.md` template. Check that a reader can see the change, the reason, the PRD decision, and the approval without git history. Record the result.
+- [x] t2: Draft one sample gated owner question, for the W17 R3 revision Wave case, and one sample agent-alone reply, for the W22 R2 P4 revision Phase case. Review both against the User Action Requests rule and PRD 14 R-COORD-12. Record the observation, conclusion, limit, and next action for each.
+- [x] t3: Fill one sample Change History entry from the shipped `work-index.md` template. Check that a reader can see the change, the reason, the PRD decision, and the approval without git history. Record the result.
 
 ### Acceptance criteria
 
@@ -109,8 +109,8 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 ### Tasks
 
-- [ ] t4: Run `npm test`, then `npm run validate:defaults -w packages/cli`, then `npm run smoke:pack`, one after the other.
-- [ ] t5: Run `make-docs run prd authority validate --target-root .`, `make-docs project path-hygiene validate`, and `make-docs run work backlog snapshot --target-root . --json`. Record the results.
+- [x] t4: Run `npm test`, then `npm run validate:defaults -w packages/cli`, then `npm run smoke:pack`, one after the other.
+- [x] t5: Run `make-docs run prd authority validate --target-root .`, `make-docs project path-hygiene validate`, and `make-docs run work backlog snapshot --target-root . --json`. Record the results.
 
 ### Acceptance criteria
 
@@ -125,8 +125,8 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 ### Tasks
 
-- [ ] t6: Run the coverage pass under [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md): guide, system-resource, history, PRD reconciliation, documentation hygiene, validation, obligations, and testing decisions.
-- [ ] t7: Write one history record per completed phase in `.make-docs/archive/history/`, under the history-record contract, with `coordinate: "W28 R0 P<n>"`.
+- [x] t6: Run the coverage pass under [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md): guide, system-resource, history, PRD reconciliation, documentation hygiene, validation, obligations, and testing decisions.
+- [x] t7: Write one history record per completed phase in `.make-docs/archive/history/`, under the history-record contract, with `coordinate: "W28 R0 P<n>"`.
 - [ ] t8: Add `### Closeout Notes` to each phase. Report the result to Tyler and wait for the commit go-ahead.
 
 ### Acceptance criteria
@@ -138,3 +138,13 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 ### Dependencies
 
 - Stage 3 is complete.
+
+### Closeout Notes
+
+- Four testing decisions: Automated Implementation Testing selected. `npm test` passes apart from the 3 known environment failures. `validate:defaults` and `smoke:pack:local` pass. Full `smoke:pack` is blocked without Bun, and the packed Skill delivery runner fails on pre-existing drift D-052. Performance Testing and Unassisted Goal Testing are `not-needed-now`. Guided Progress Review is optional and was not requested.
+- Performance evidence: none.
+- Human Experience Review: A22, A23, and A24 are satisfied within the stated limits. The samples are agent-authored, no live harness session produced them, and no person's reaction is claimed.
+- Optional experience handoff: try one change in a project that uses Make Docs. Ask the agent to fix a finished phase and notice that it names a revision Phase and gives its reason. Then ask for a reversal of the plan's approach and notice that it asks you first. Feedback is welcome but not required.
+- Explicit human acceptance gate: none.
+- Evidence report: [P4 Validation, Review, and Closeout](evidence.md#p4-validation-review-and-closeout).
+- Phase / capability status: Phase not complete. A21 has two mismatches and one partial match that need an owner decision, and A25 is not fully met. Open items 1–3 in the evidence report wait on Tyler. Capability partial: the coordinate rules, snapshot facts, and Skill text ship on this branch, while the installed Skill copies and the full package proof are pending.

@@ -158,7 +158,7 @@ The product overview and architecture PRDs treat this namespace as the stable do
 Work backlogs are downstream from PRD work, not parallel alternatives to it.
 
 - full-set generation produces a full backlog directory under `docs/work/`
-- active-set evolution produces a new dated delta backlog directory by default
+- active-set evolution amends the lineage wave's backlog in place or adds a revision Phase, and records each scope edit after the first commit in `## Change History`; it creates a new backlog only for a new wave or a revision Wave
 - every work phase must link back to its source PRD docs
 
 That coupling matters because the backlog is supposed to implement the effective requirements, not bypass them.

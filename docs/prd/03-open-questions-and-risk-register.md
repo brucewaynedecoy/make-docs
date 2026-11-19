@@ -1100,6 +1100,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: Owner report in this chat on 2026-11-14; [portable checkout adoption design](../designs/2026-11-13-portable-checkout-adoption.md); [planner](../../packages/cli/src/planner.ts); [compatibility](../../packages/cli/src/compatibility.ts); [candidate proof](../work/2026-11-13-w22-r2-portable-checkout-adoption/evidence.md#208-candidate-first-saved-choice-sync).
 
+### D-052 First-Party Skill Delivery Check Omits Backlog Review
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | `scripts/verify-first-party-skill-delivery.mjs` expects seven first-party Skills, but the package has shipped eight since `backlog-review` was added. The check stops at its first assertion before it proves any Skill. | Add `backlog-review` to the runner's expected Skill list in a separate maintainer change, then rerun it against a packed candidate. |
+
+**Issue**: On 2026-11-18, the runner was run against the packed `@brucewaynedecoy/make-docs@2.0.8` candidate built from the W28 R0 branch. It failed its embedded-bundle check because the bundle lists `backlog-review` and the runner's fixed list does not. The runner last changed on 2026-09-11, and `backlog-review` was added on 2026-09-20, so the gap predates W28.
+
+**Why it matters**: The packed-tarball Skill delivery proof cannot pass for any current candidate, so release evidence for first-party Skill bytes, isolated installation, and exposure is missing.
+
+**Recommendation**: Derive the expected names from the first-party Skill registry, or add `backlog-review` to the fixed list, and keep the other checks unchanged.
+
+**To close**: The runner passes against a packed candidate and reports every first-party Skill.
+
+**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout); `scripts/verify-first-party-skill-delivery.mjs`.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

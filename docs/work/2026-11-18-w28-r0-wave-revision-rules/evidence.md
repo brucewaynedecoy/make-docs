@@ -162,3 +162,103 @@ This repository tracks CLI-installed Skill copies under `.agents/skills/` and `.
 A built-CLI `node packages/cli/dist/index.js setup skills --dry-run` exited 0 and left `git status` unchanged. It reported "Selected skills: none" and planned no file operations, because this checkout has no installed record or Skill selection in this machine's Store (`portable-unregistered`, see P1). It ran outside the sandbox for Store access.
 
 As a result, `.agents/skills/preflight/SKILL.md` now trails `packages/skills/preflight/SKILL.md` until a Skill sync runs from an adopted checkout with a CLI built from this branch. That sync, and the packed-tarball delivery check `scripts/verify-first-party-skill-delivery.mjs`, belong to P4 or release, and they need the owner's go-ahead.
+
+## P4 Validation, Review, and Closeout
+
+Covers A21 to A29 in [P4](04-validation-review-and-closeout.md). Evidence date: 2026-11-18. Node `v26.13.1`. The package candidate is `@brucewaynedecoy/make-docs@2.0.8`, built from this branch.
+
+### Expected-Outcome Walkthrough (A21)
+
+Each case was walked through the `## Decision Procedure` in the shipped `wave-model.md`, using facts from its own plan.
+
+| Case | Facts from its plan | Result under the shipped rules | Design expectation | Match |
+| --- | --- | --- | --- | --- |
+| W22 R2 P4 | R2 P1–P3 were committed and released as 2.0.7. A second-machine report exposed a new failure of the same adoption promise, fixed in one phase. | Not new work. Lineage W22 R2. The affected phases are complete. No revision Wave test passes. **Revision Phase**, decided by the agent alone. | Revision Phase | Yes |
+| W17 R3 | W17 R2 was complete. The R3 design replaces R2's generated-stub exposure decision with native harness exposure. It has its own design and a four-phase plan. | Test 1 passes (it reverses an architecture choice), and so does test 3. **Revision Wave**, behind an owner gate. | Revision Wave | Yes |
+| W26 R1 | "The owner selected W26 R1." It changes the MCP name projection "that W26 R0 left outside its scope." | Step 1 (explicit guidance) keeps **W26 R1**. Without that guidance, the outcome is outside R0's scope, so it is new work. With R0 unfinished, the owner chooses between extending R0 and a new Wave. | In-place edit or new Phase in R0 | **No** |
+| W18 R16 | A defect in the R11 validator source scope. R11 was complete. R16 has its own design (`2026-09-26-prd-authority-source-scope.md`) and a three-phase plan. | Not new work. Lineage W18 R11, complete. Test 3 passes, so the result is a **revision Wave**. It is borderline because the work is a defect fix, so an owner gate applies. | Revision Phase in R11 | **No** |
+| W19 R7 | It corrects completed W19 R3, R5, and R6 outcomes and has its own design. R8 replaced it the next day, before any R7 commit. | Test 2 passes (it redoes two or more completed phases), and so does test 3. That makes R7 a **revision Wave**, behind an owner gate. R8's replacement of unfinished R7 is a significant deviation, so the owner chooses to pivot R7 in place or finish first. | In-place edit of the open backlog | **Partial**: it matches for R8, not for R7 |
+
+Result: 2 cases match, 1 matches in part, and 2 do not.
+
+**Cause.** The design's expected-outcomes table came from summary-level case descriptions, before each case was checked against its own plan. The shipped rules follow owner-approved PRD 14 R-COORD-1 to R-COORD-21. Under those rules, the extra design and multi-phase plan in W18 R16 and W19 R7, and the owner's explicit choice in W26 R1, decide the result.
+
+**Not fixed.** A21 says a mismatch is "fixed in P1 before closure". Either fix needs the owner:
+- correcting the design table changes accepted expectations;
+- changing the rules changes owner-approved PRD 14 and a completed phase.
+
+Recommendation: keep the rules and correct the design's expected-outcomes table. **Open item 3, waiting on Tyler.**
+
+### Human Experience Review (A22, A23, A24)
+
+The agent drafted the two samples below. They are not live harness output.
+
+**Sample gated owner question (W17 R3):**
+
+> **Decision needed: make W17 R3 a revision Wave for native harness Skill exposure?**
+> W17 R2 is complete and committed. The new design replaces its choice to expose Skills through generated harness stubs with native harness Skill paths. That reverses an architecture choice in the W17 R2 plan, and it needs its own design and a four-phase plan, so the Wave Model treats it as a change order.
+>
+> - **Recommended — revision Wave W17 R3:** a new plan and backlog at W17 R3. The W17 R2 backlog gets a Change History entry that points to R3.
+> - **Alternative — revision Phase W17 R2 P5:** keeps one backlog, but hides an architecture reversal inside routine continuation.
+>
+> Your answer is required. Planning for this work waits on it. After you answer, I write the plan at the coordinate you choose.
+
+- Observation: the question names the choice, the reason (an architecture reversal plus its own design and plan), and the effect of each option. It says the answer is required and what it blocks, and it states the next step. It explains "change order" in context. It needs no link to be understood.
+- Conclusion: **satisfied** for A22, within the limits below.
+
+**Sample agent-alone reply (W22 R2 P4):**
+
+> I added this fix as W22 R2 P4, a revision Phase in the same Wave. W22 R2 P1–P3 are complete and committed, and the fix repairs the same adoption promise without reversing the plan's approach or redoing more than one completed phase. I recorded the change in the backlog's Change History. No decision is needed from you.
+
+- Observation: the first sentence names the coordinate. The second gives the reason in terms of the revision Wave test. The reply says that no action is needed.
+- Conclusion: **satisfied** for A23.
+
+**Change History template (A24):**
+
+- One entry was filled from the shipped `work-index.md` template: `### 2042-06-10 — W1 R0 P1`, kind `edit`, PRD decision `update-existing`, and a relative Source link. In a temporary project, the built-CLI snapshot emitted no `BACKLOG-VAL-017` for it.
+- An unfilled copy of the template example (`{{DATE}} — {{COORDINATE}}`) emitted two `BACKLOG-VAL-017` diagnostics on its heading line: one for the heading form and one for the placeholder fields. A copied-but-unfilled entry is therefore caught.
+- The filled entry shows what changed, why, which PRD decision applied, and who approved it, without git history. The backlog's own two real Change History entries also emit no `BACKLOG-VAL-017`.
+- Conclusion: **satisfied** for A24.
+
+**Limits.** The samples are agent-authored, so no person's reaction is claimed. No live harness session produced them. The optional experience handoff is in the closeout notes.
+
+### Package And Document Checks (A25, A26)
+
+- `npm test` ran 114 test files: 111 passed, 2 failed, and 1 was skipped. Of 2,033 tests, 2,024 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases: two Node 26 `DEP0205` stdio tests, which also fail on `main` (see P2), and one fixture that fails only inside the sandbox (see P1).
+- `npm run validate:defaults -w packages/cli`: 53 of 53 pass.
+- `npm run smoke:pack` (full mode): **blocked in preflight**. Its package-runner validation needs `bun`, and Bun is not installed on this machine. **Open item 2, waiting on Tyler.**
+- `npm run smoke:pack:local`: **PASS** in 20.8 s. It packed the candidate, checked packed upstream router parity, ran isolated setup flows, and passed the W22 R1 package proof against the published 2.0.5 tarball.
+  - Candidate SHA-256: `08713ce414b6e1feae931c0f515c51ec17f6140350c50c210804752fa8efb5d0`.
+  - It ran outside the sandbox, because Node's `fetch` does not use the sandbox network proxy.
+  - The script sets `HOME` and `MAKE_DOCS_HOME` to temporary directories. This machine's `~/.make-docs/store.db` kept its size and timestamp (`1531904`, `Nov 17 10:00`).
+- `npm pack -w packages/cli` reproduced the same SHA-256. The packed `template/.make-docs/system/references/wave-model.md` contains `## Decision Procedure` and `## Change History`. The packed `work-index.md` contains `## Change History`, and the packed `docs/plans/AGENTS.md` contains the amendment rule.
+- `scripts/verify-first-party-skill-delivery.mjs --tar <candidate>`: **failed at its first assertion**, before any install. Its fixed list of seven first-party Skills omits `backlog-review`, which the package has shipped since 2026-09-20. The script last changed on 2026-09-11, and W28 does not touch it.
+  - The run used a temporary `HOME` and Store, and it ran outside the sandbox because it needs `sandbox-exec`.
+  - Recorded as [D-052](../../prd/03-open-questions-and-risk-register.md#d-052-first-party-skill-delivery-check-omits-backlog-review).
+- `make-docs run prd authority validate --target-root .`: `passed`.
+- `make-docs project path-hygiene validate`: valid, zero failing findings.
+- `git diff main --check`: clean.
+- The built-CLI snapshot reports the W28 R0 record as `supported`, with 5 phases and no `BACKLOG-VAL-017`. Repository diagnostics stay at 60 (48 `VAL-004`, 10 `VAL-009`, 1 `VAL-008`, 1 `VAL-006`).
+
+**A25 is not fully met.** The full `smoke:pack` and the packed Skill delivery proof could not pass here. **A26 is met.**
+
+### Coverage Pass (A27)
+
+| Surface | Candidate | Verdict | Reason |
+| --- | --- | --- | --- |
+| System resources | Wave Model, workflows, contracts, prompts, templates, routers | `update-existing` | Changed in P1, upstream first, with dogfood parity. |
+| User guides | `concepts-wave-revision-phase-coordinates.md`, `workflows-choosing-the-right-route-for-your-project.md`, `workflows-how-make-docs-stages-fit-together.md` | `update-existing` | Updated in P1. |
+| Maintainer guides | `development-workflows-choosing-the-right-route.md`, `development-workflows-stage-model-and-artifact-relationships.md` | `update-existing` | P4 found delta-backlog and "increment the revision" guidance and replaced it with the lineage-amendment rules. |
+| Skills | `decompose-codebase`, `backlog-review`, `preflight` | `update-existing` | Updated in P2 and P3. The installed copies wait on open item 1. |
+| PRD reconciliation | PRDs 14, 51, 04 | `none` | Current: PRD 14 R-COORD-1 to 21, PRD 51 R-BACKLOG-SNAPSHOT-27 to 30 (29 updated in P5) and R-BACKLOG-RULES-11 to 12, and the PRD 04 terms match the shipped behavior. |
+| PRD reconciliation | PRD 03 risk register | `update-existing` | Q-025 (planned) and D-052 (new confirmed drift). |
+| History | P1, P2, P3, P4, P5 | `create` | One record per phase in `.make-docs/archive/history/`. |
+| Testing | Four testing types per phase | `none` | Each phase records its four decisions. Unassisted Goal Testing stays `not-needed-now`. |
+| Deferred obligations | Open items 1–3 | `none` | These are pending owner decisions and release-environment checks, not accepted later work, so no `O-###` is created. |
+| Documentation hygiene | All changed files | `none` | No unresolved placeholders outside templates, `git diff main --check` is clean, and the path-hygiene and PRD validators pass. |
+
+### Open Items Waiting On Tyler
+
+1. **Installed Skill copies and Store writes.** Refreshing `.agents/skills/` and `.claude/skills/` needs `make-docs setup skills` from an adopted checkout. That writes to this machine's Make Docs Store, so it was not run, as directed. Until then, the installed `preflight` copy trails `packages/skills/preflight/SKILL.md`. Decide whether to adopt and sync here or leave it to release.
+2. **Full `smoke:pack` and packed Skill delivery proof.** The full `smoke:pack` needs Bun. The Skill delivery runner needs the D-052 fix. Run both on a machine with Bun or in CI after D-052 is fixed.
+3. **Walkthrough mismatches (A21).** Confirm that the shipped rules stand and that the design's expected-outcomes table should be corrected for W26 R1, W18 R16, and W19 R7, or direct a rule change.

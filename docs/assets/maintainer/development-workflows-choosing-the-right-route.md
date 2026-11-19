@@ -80,8 +80,8 @@ The current CLI and PRD surface split route choice from skill execution:
 | --- | --- | --- | --- |
 | New idea, new design, or net-new initiative | Fresh PRD set and full backlog | Baseline plan -> full-set generation | The repo needs a baseline requirement surface before delivery planning |
 | Existing codebase with no reliable PRD set | Reverse-engineered PRD set and rebuild backlog | Decomposition plan -> full-set generation | The codebase is the primary input and needs to be turned into active product docs |
-| Active PRD set, net-new capability | Change docs and delta backlog | Change plan -> active-set evolution | The active namespace already exists and should be extended in place |
-| Active PRD set, changed or removed requirement | Revision/removal docs, baseline annotations, delta backlog | Change plan -> active-set evolution | Existing requirements must preserve lineage instead of being silently rewritten |
+| Active PRD set, net-new capability | Change docs and new or amended backlog phases | Change plan -> active-set evolution | The active namespace already exists and should be extended in place |
+| Active PRD set, changed or removed requirement | Revision/removal docs, baseline annotations, new or amended backlog phases | Change plan -> active-set evolution | Existing requirements must preserve lineage instead of being silently rewritten |
 | Existing initiative needs re-plan or follow-up work | Revised plan/work lineage, possibly no PRD change | Continue the existing wave/revision line as appropriate | W/R lineage belongs to plan/work, not the PRD namespace |
 
 ### Route-selection checks
@@ -147,7 +147,7 @@ Expected artifacts:
 - one or more new numbered change docs in `docs/prd/`
 - `### Change Notes` annotations in impacted baseline docs
 - an updated `docs/prd/00-index.md`
-- a new dated delta backlog directory under `docs/work/`
+- new or amended phases in the lineage wave's `docs/work/` backlog, or a new backlog only for a new wave or a revision Wave
 
 Do not use this route to silently rewrite baseline PRDs unless the user explicitly asks for a cleanup rewrite.
 
@@ -164,7 +164,8 @@ Choose this route when:
 In that case:
 
 - keep the relevant wave
-- increment the revision only when the work is a real redo or correction
+- edit its unfinished backlog in place, or add a revision Phase for a change to completed work
+- use the next revision only when the revision Wave test in `.make-docs/system/references/wave-model.md` passes and the owner agrees
 - avoid inventing PRD changes that do not exist
 
 ### What should not drive route selection
@@ -199,7 +200,7 @@ Yes, if it is a net-new or expanded capability inside the active namespace. Chan
 
 ### "When should I regenerate the full backlog?"
 
-Only when the task is full-set generation or when the user explicitly asks for a regenerated full backlog. Active-set evolution defaults to a new delta backlog.
+Only when the task is full-set generation or when the user explicitly asks for a regenerated full backlog. Active-set evolution amends the lineage wave's backlog. Rebuilding a backlog's unfinished phases from the PRD needs owner approval and a `rebuild` Change History entry, as `.make-docs/system/references/wave-model.md` describes.
 
 ### "When should I replace the active PRD set?"
 
