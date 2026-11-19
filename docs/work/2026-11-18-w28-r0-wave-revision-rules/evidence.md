@@ -292,3 +292,12 @@ Tyler kept the rules. The W26 R1, W18 R16, and W19 R7 rows of the design's [expe
 - Against a fresh pack of this branch (`@brucewaynedecoy/make-docs@2.0.8`, SHA-256 `08713ce414b6e1feae931c0f515c51ec17f6140350c50c210804752fa8efb5d0`), the runner reports **status `passed`**: all 6 checks and 22 isolated install runs. Those runs are 8 individual Skills, 12 scope × harness × mode cases, `none`, and `bare`.
 - It needed no Bun. It ran outside the sandbox because it uses `sandbox-exec`, and its runs used temporary `HOME` and Store directories. This machine's Store file did not change during the run. D-052 is closed, and no register item was renumbered.
 - The full `npm run smoke:pack` still stops in preflight. "Smoke pack package-runner validation requires: bun (bun x)." Bun is not installed here. That is the only remaining package-proof gap, and it is recorded as a bounded caveat in the P4 closeout.
+
+### Open Item 1 Closed: Skill Sync After The D-053 Fix
+
+On 2026-11-18, after the D-053 fix in PR #65 (`9fb05c4d`), the reviewed Skill sync ran on this checkout. The CLI was built from a temporary local merge of this branch (`8c13ec96`) and #65 in a separate worktree, which was removed afterwards. The checkout was on `docs/w28-wave-revision-rules`, so its `packages/skills/` held the source that the build ships. The run had owner approval to write to this machine's Store.
+
+- The adoption dry run reported `ready`: 21 path changes, 6 backups, 32 ownership entries, and no blockers. The apply with review digest `4865e966…` reported `completed`, and a repeat review reported `unchanged`.
+- `preflight`, `backlog-review`, `factory`, and `human-experience` under `.agents/skills/` now match `packages/skills/`. The `.claude/skills/*` entries are still links to `../../.agents/skills/*`.
+- `git status` was empty before the sync. Afterwards it showed only the planned Skill files: six modified `backlog-review` and `preflight` files, and the new `.agents/skills/backlog-review/scripts/report-contract.mjs`. The replaced bytes are in the git-ignored `.make-docs/backup/skill-adoption-fa3a32059e33/`.
+- Store side effects: the Store file grew from 1,531,904 to 33,873,920 bytes, and `project state status` now reports `ready`, because adoption records this checkout's ownership.

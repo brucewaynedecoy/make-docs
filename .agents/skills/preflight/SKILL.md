@@ -17,6 +17,8 @@ An ordinary request means review the phase, then work through its needed choices
 
 Read the applicable project instructions, target backlog, and the PRD sections that govern it. Inspect only the code or product evidence needed to compare the backlog with reality. Separate completed, partial, superseded, and remaining work.
 
+When a requested change touches earlier or completed work, or seems to need a new backlog, classify it with the decision procedure in `make-docs://system/reference/wave-model.md#decision-procedure`: an in-place edit, a revision Phase, a revision Wave, or a new Wave. Ask the owner only at that procedure's owner gates, and otherwise state the choice and its reason. After a backlog's first commit, each scope edit needs a `## Change History` entry.
+
 Use answers already settled by authority. Keep routine engineering choices with the agent. Keep later work with its current owner unless the phase depends on it. A settled contract is not an alternative to put up for a vote.
 
 Before asking, check related effects. Several small changes may together change installation, data, commands, file structure, or promised behavior. Present that combined effect before approval. Explain a conflict in the sources rather than choosing whichever source is convenient.

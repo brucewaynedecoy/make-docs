@@ -127,7 +127,19 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 
 - [x] t6: Run the coverage pass under [the coverage-pass contract](../../../.make-docs/system/contracts/coverage-pass-contract.md): guide, system-resource, history, PRD reconciliation, documentation hygiene, validation, obligations, and testing decisions.
 - [x] t7: Write one history record per completed phase in `.make-docs/archive/history/`, under the history-record contract, with `coordinate: "W28 R0 P<n>"`.
-- [x] t8: Add `## Stage 5 - Owner Follow-Up
+- [x] t8: Add `### Closeout Notes` to each phase. Report the result to Tyler and wait for the commit go-ahead.
+
+### Acceptance criteria
+
+- A27: Every coverage-pass surface has a verdict and a reason. PRD reconciliation finds PRDs 14, 51, and 04 current.
+- A28: Each phase has a history record and filled Closeout Notes with no unresolved placeholder.
+- A29: Nothing is committed, pushed, or opened as a PR before Tyler's go-ahead.
+
+### Dependencies
+
+- Stage 3 is complete.
+
+## Stage 5 - Owner Follow-Up
 
 ### Tasks
 
@@ -155,6 +167,6 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 - Evidence report: [P4 Validation, Review, and Closeout](evidence.md#p4-validation-review-and-closeout) and [Owner follow-up](evidence.md#owner-follow-up-2026-11-18).
 - Phase / capability status: Phase complete on commit, with two bounded caveats:
   - **A25:** the full `smoke:pack` runner mode needs Bun. The owner is Tyler. Run it on a machine with Bun, or in CI, before release.
-  - **A38:** the reviewed Skill sync is blocked by the pre-existing CLI defect [D-053](../../prd/03-open-questions-and-risk-register.md#d-053-reviewed-skill-adoption-rejects-existing-native-skill-links), which also affects released 2.0.8. The installed `backlog-review` and `preflight` copies stay behind the source. The follow-on route is a separate fix for D-053, then a rerun of the sync.
+  - **A38:** resolved on 2026-11-18. The installed `backlog-review` copy bundles the strict snapshot schema, so before the sync it rejected snapshots from this CLI, which add the `coordinates` and `nextPhase` keys; fresh opens and cache writes from that copy would fail. After the D-053 fix (PR #65), a reviewed Skill sync, built from a temporary local merge of #64 and #65, refreshed all four installed Skills. They now match `packages/skills/`, and the `.claude/skills` links were kept.
 
-  Capability partial: the rules, snapshot facts, Skill source, and package proof ship on this branch. The installed Skill copies and the Bun runner proof remain.
+  Capability partial: the rules, snapshot facts, Skill source, installed Skill copies, and package proof are on this branch. Only the Bun runner proof remains.

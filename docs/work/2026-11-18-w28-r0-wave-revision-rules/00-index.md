@@ -107,3 +107,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 03 closes D-052 and adds D-053. PRDs 14 and 51 need no change.
 - Owner approval: Tyler, 2026-11-18 8:00 PM CST, relayed by the coordinator.
 - Source: [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md)
+
+### 2026-11-18 — W28 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 Stage 4 (t8, A27–A29, and its dependency) and the A38 closeout caveat.
+- Previous scope: The owner follow-up edit had cut the P4 file inside task t8, which dropped the rest of t8, acceptance criteria A27–A29, and the Stage 4 dependency. A38 recorded the installed Skill copies as blocked by D-053.
+- Replacement scope: Stage 4 is restored unchanged from commit `e8518f69`. A38 is resolved: the reviewed Skill sync, run with the D-053 fix, refreshed the installed `.agents/skills/` copies, which this change set commits.
+- Rationale: CodeRabbit found the truncated Stage 4. The owner approved committing the synced Skill copies to close open item 1.
+- PRD decision: `none` — No product requirement changes.
+- Owner approval: Tyler, 2026-11-18, relayed by the coordinator.
+- Source: [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md)
