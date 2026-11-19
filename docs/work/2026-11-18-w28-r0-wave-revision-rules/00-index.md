@@ -52,6 +52,7 @@ Out of scope:
 | [P3 Skills](03-skills.md) | Align `decompose-codebase`, `backlog-review`, and `preflight` with the rules and the new catalog entries. |
 | [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md) | Walk through past cases, run the Human Experience Review, run the package checks, run the coverage pass, and write history. |
 | [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md) | Revision Phase for P2: count plan directories in coordinate facts, add per-Wave `archived`, and name `wave-model.md` in catalog parity. Runs before P4. |
+| [P6 CI and Review Corrections](06-ci-and-review-corrections.md) | Revision Phase for P2 with P1 and P4 text corrections: fix the CodeQL comment-strip alert and the valid CodeRabbit findings on PR #64. |
 
 ## Usage Notes
 
@@ -118,3 +119,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `none` — No product requirement changes.
 - Owner approval: Tyler, 2026-11-18, relayed by the coordinator.
 - Source: [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md)
+
+### 2026-11-18 — W28 R0 P6
+
+- Kind: `revision-phase`
+- Affected scope: New P6 t1–t4 and A39–A41. It revises completed P2 code, and it corrects P1 resource text and P4 guide text.
+- Previous scope: The snapshot stripped HTML comments with one regular-expression pass (CodeQL alert 44). It ignored missing linked phases in `nextPhase` and record `committed`, assumed the target was the repository root, and skipped Change History headings at other levels. The decision procedure let a stated coordinate or a revision-Phase choice skip owner gates and archived restoration. Some guides still described change documents.
+- Replacement scope: See P6 t1–t4.
+- Rationale: CI and review findings on PR #64. Each fix corrects a defect inside an existing result, and no revision Wave test passes.
+- PRD decision: `update-existing` — PRD 14 R-COORD-4 and R-COORD-5 now state the order, the gate rule, and the empty-scan fallback.
+- Owner approval: Not required for a clear revision Phase. The owner approved the CI-fix work on 2026-11-18.
+- Source: [P6 CI and Review Corrections](06-ci-and-review-corrections.md)

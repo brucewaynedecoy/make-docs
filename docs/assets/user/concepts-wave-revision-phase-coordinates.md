@@ -101,7 +101,7 @@ Top-level plan and work directories include wave and revision, but not phase. Ph
 Use this order:
 
 1. Follow the coordinate the user already gave you.
-2. If the task adds an outcome that no plan promised, start the next wave at `R0`.
+2. If the task adds an outcome that no plan promised, start the next wave at `R0`. If an unfinished wave could also take the outcome, the agent asks the owner whether to extend that wave or start a new one.
 3. Otherwise, find the wave whose plan promised the outcome being changed.
    - If that work is not complete yet, edit the existing backlog in place. If the change moves the plan's goal, scope, or approach, the agent asks the owner first.
    - If that work is complete, add a revision Phase to the same wave and revision.

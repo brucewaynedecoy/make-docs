@@ -80,10 +80,12 @@ Plans and work backlogs carry a `W{W} R{R}` coordinate, and their phases carry `
 - R-COORD-4 (MUST): the agent selects a coordinate in this order:
   1. A coordinate that the user states.
   2. The outcome test in R-COORD-5.
-  3. Lineage Wave handling under R-COORD-6 through R-COORD-8.
-  4. Archived lineage handling under R-COORD-9.
+  3. Archived lineage handling under R-COORD-9, before any lineage decision.
+  4. Lineage Wave handling under R-COORD-6 through R-COORD-8.
   5. The highest-wave rule in R-COORD-10.
-- R-COORD-5 (MUST): a request that adds an outcome that no Wave's plan promised is new work. New work can be a new capability or an enhancement, and the test is decided by outcome, not by code area. New work gets a new Wave at the highest existing `W` plus one, with `R0`. A Wave can be small. A PRD `create` decision is strong evidence of new work, but it does not decide the result alone. When an unfinished Wave could also absorb the outcome, the owner chooses between extending that Wave and starting a new one.
+
+  A stated coordinate or the outcome test can decide the coordinate, but R-COORD-7 and the owner gates in R-COORD-11 still apply before any plan or backlog changes.
+- R-COORD-5 (MUST): a request that adds an outcome that no Wave's plan promised is new work. New work can be a new capability or an enhancement, and the test is decided by outcome, not by code area. New work gets a new Wave at the highest existing `W` plus one, with `R0`, or `W1 R0` when no plan or work record exists. A Wave can be small. A PRD `create` decision is strong evidence of new work, but it does not decide the result alone. When an unfinished Wave could also absorb the outcome, the owner chooses between extending that Wave and starting a new one.
 - R-COORD-6 (MUST): a request that changes an outcome that an existing Wave promised belongs to that lineage Wave. For each affected Phase that is not complete, the agent edits the existing backlog in place when the change does not significantly deviate from the plan. When it does significantly deviate, the owner chooses one of two paths: amend the same plan and backlog in place, or finish the Wave and then open a revision Wave.
 - R-COORD-7 (MUST): a change significantly deviates from a plan when it changes the plan's goal, scope, or non-goals; replaces the plan's chosen approach or architecture; or adds a product capability that the plan does not name. These changes are not significant deviations: adding, splitting, or reordering Phases or tasks inside the stated scope; fixing defects; and adjusting tests or evidence.
 - R-COORD-8 (MUST): a change to a completed Phase is a revision Phase unless at least one of these is true, in which case it is a revision Wave:

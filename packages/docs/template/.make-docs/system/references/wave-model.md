@@ -42,20 +42,20 @@ Related terms:
 
 ## Decision Procedure
 
-Use this procedure before writing a new plan or work directory, and before changing a committed plan or work backlog. Apply the steps in order and stop at the first one that decides the result.
+Use this procedure before writing a new plan or work directory, and before changing a committed plan or work backlog. Apply the steps in order. Steps 1 and 2 can decide the coordinate, but the significant deviation test and the owner gates still apply before you change any plan or backlog.
 
-1. **Honor explicit guidance.** If the user states the coordinate (for example "this is wave 2" or "make this a revision wave"), use it.
+1. **Honor explicit guidance.** If the user states the coordinate (for example "this is wave 2" or "make this a revision wave"), use it. Still apply the significant deviation test and the owner gates to the change.
 2. **Outcome test.** Does the request add an outcome that no Wave's plan promised? An outcome can be a new capability or an enhancement. Decide by outcome, not by code area.
-   - If yes, the request is new work. Scan `docs/plans/`, `docs/work/`, and their archives for the highest `W`. Use the highest `W` plus one, with `r0`. A Wave can be small.
+   - If yes, the request is new work. Scan `docs/plans/`, `docs/work/`, and their archives for the highest `W`. Use the highest `W` plus one, with `r0`. If the scan finds no plan or work entries, use `w1-r0`. A Wave can be small.
    - A PRD `create` decision is strong evidence of new work, but it does not decide the result alone.
    - If an unfinished Wave could also absorb the outcome, ask the owner whether to extend that Wave or start a new one.
-3. **Lineage Wave.** Otherwise the request changes an outcome that an existing Wave promised. Inspect the user request, referenced designs, design lineage, coordinate handoffs, prior plans, prior work backlogs, and history records to find that lineage Wave. For each affected Phase:
+3. **Lineage Wave.** Otherwise the request changes an outcome that an existing Wave promised. Inspect the user request, referenced designs, design lineage, coordinate handoffs, prior plans, prior work backlogs, and history records to find that lineage Wave.
+   - **Archived lineage first.** If the lineage Wave's plan and work are archived, ask the owner before any other decision. After approval, restore them to the working set under their existing names, then continue with this step.
    - **Not complete** (unstarted, in progress, or done but not committed): if the change does not significantly deviate from the plan, edit the existing backlog in place. If it does significantly deviate, ask the owner to choose:
      - **Pivot:** amend the same plan and backlog in place, at the same W/R.
      - **Finish first:** complete the Wave, then open a revision Wave.
    - **Complete:** add a revision Phase at the next unused `P` of the same W/R, unless the revision Wave test passes. If it passes, open a revision Wave at the next unused `R` of the lineage Wave.
-4. **Archived lineage Wave.** If the lineage Wave's plan and work are archived, ask the owner first. Then restore them to the working set under their existing names and apply step 3.
-5. **No drift to newer Waves.** Do not assign a new Wave only because newer, unrelated Waves exist. The highest-wave scan is for new work only. If no prior plan or work entries exist, default to `w1-r0`.
+4. **No drift to newer Waves.** Do not assign a new Wave only because newer, unrelated Waves exist. The highest-wave scan is for new work only.
 
 ### Significant Deviation Test
 

@@ -79,6 +79,8 @@ interface RecordInventory {
 interface GitContext {
   state: "available" | "unavailable" | "denied" | "not-a-repository";
   revision: string | null;
+  /** The target root's path inside the repository, with a trailing slash, or "" at the repository root. */
+  prefix: string;
   run(cwd: string, args: string[]): GitCommandResult;
 }
 
@@ -486,11 +488,13 @@ function gitContext(targetRoot: string, run: GitContext["run"]): GitContext {
       : /permission denied|operation not permitted|access denied/i.test(combined)
         ? "denied"
         : "not-a-repository";
-    return { state, revision: null, run };
+    return { state, revision: null, prefix: "", run };
   }
   const revision = run(targetRoot, ["rev-parse", "--verify", "HEAD"]);
+  const prefixResult = run(targetRoot, ["rev-parse", "--show-prefix"]);
   return {
     state: "available",
+    prefix: prefixResult.status === 0 ? toPosix(prefixResult.stdout.trim()) : "",
     revision: revision.status === 0 && /^[a-f0-9]{7,64}$/i.test(revision.stdout.trim())
       ? revision.stdout.trim().toLowerCase()
       : null,
@@ -498,7 +502,7 @@ function gitContext(targetRoot: string, run: GitContext["run"]): GitContext {
   };
 }
 
-function changedRecordFiles(output: string, discoveredFiles: string[]): {
+function changedRecordFiles(output: string, discoveredFiles: string[], prefix = ""): {
   changed: string[];
   untracked: Set<string>;
 } {
@@ -509,7 +513,9 @@ function changedRecordFiles(output: string, discoveredFiles: string[]): {
     const entry = entries[index]!;
     if (entry.length < 4) continue;
     const status = entry.slice(0, 2);
-    const candidate = toPosix(entry.slice(3));
+    const repositoryPath = toPosix(entry.slice(3));
+    // Porcelain paths are repository-root relative; inventory paths are target-root relative.
+    const candidate = prefix && repositoryPath.startsWith(prefix) ? repositoryPath.slice(prefix.length) : repositoryPath;
     if ((status.includes("R") || status.includes("C")) && entries[index + 1]) {
       // Porcelain v1 reverses rename/copy paths under -z: the current path is first.
       index += 1;
@@ -532,7 +538,7 @@ function recordDates(
     ? git.run(targetRoot, ["status", "--porcelain=v1", "-z", "--untracked-files=all", "--", ...inventory.discoveredFiles])
     : null;
   const knownStatus = changed?.status === 0
-    ? changedRecordFiles(changed.stdout, inventory.discoveredFiles)
+    ? changedRecordFiles(changed.stdout, inventory.discoveredFiles, git.prefix)
     : null;
   const statusFacts = knownStatus ?? { changed: [], untracked: new Set<string>() };
   const changedPaths = statusFacts.changed;
@@ -654,8 +660,8 @@ function fileCommitFacts(
   statusFacts: DateEvidenceResult["statusFacts"],
 ): FileCommitFacts | null {
   if (git.state !== "available" || statusFacts === null || inventory.discoveredFiles.length === 0) return null;
-  // --full-name keeps paths repository-relative, matching porcelain status output.
-  const listed = git.run(targetRoot, ["ls-files", "-z", "--full-name", "--", ...inventory.discoveredFiles]);
+  // Without --full-name, ls-files prints paths relative to the target root, like the inventory.
+  const listed = git.run(targetRoot, ["ls-files", "-z", "--", ...inventory.discoveredFiles]);
   if (listed.status !== 0) return null;
   return {
     tracked: new Set(listed.stdout.split("\0").filter(Boolean).map(toPosix)),
@@ -672,6 +678,35 @@ function committedFact(facts: FileCommitFacts | null, files: string[]): Nullable
   );
 }
 
+/**
+ * Remove HTML comments with a comment-aware scan instead of one regular-expression pass.
+ * An unterminated `<!--` runs to the end of the text, as in HTML. The scan repeats when a
+ * removal joins two fragments into a new `<!--`, so the result never contains a comment opener.
+ * `replace` lets a caller keep line breaks in place of each removed comment.
+ */
+export function stripHtmlComments(text: string, replace: (comment: string) => string = () => ""): string {
+  let current = text;
+  while (current.includes("<!--")) {
+    let output = "";
+    let cursor = 0;
+    for (;;) {
+      const start = current.indexOf("<!--", cursor);
+      if (start === -1) {
+        output += current.slice(cursor);
+        break;
+      }
+      output += current.slice(cursor, start);
+      const end = current.indexOf("-->", start + 4);
+      const stop = end === -1 ? current.length : end + 3;
+      output += replace(current.slice(start, stop));
+      cursor = stop;
+    }
+    // Each pass removes at least one complete opener, so the loop always ends.
+    current = output;
+  }
+  return current;
+}
+
 function bodyLineOffset(markdown: string, body: string): number {
   return markdown.slice(0, markdown.length - body.length).split("\n").length - 1;
 }
@@ -679,16 +714,17 @@ function bodyLineOffset(markdown: string, body: string): number {
 function closeoutNotesFact(body: string, phasePath: string, lineOffset: number): NullableSourcedBoolean {
   const found = section(body, "Closeout Notes");
   if (!found) return nullableBoolean(false, [evidence(phasePath, "Closeout Notes")]);
-  const content = found.text.replace(/<!--[\s\S]*?-->/g, "").trim();
+  const content = stripHtmlComments(found.text).trim();
   return nullableBoolean(
     content.length > 0 && !content.includes("{{"),
     [evidence(phasePath, "Closeout Notes", lineOffset + found.startLine - 1)],
   );
 }
 
-function nextPhaseFact(inventory: RecordInventory): NullableSourcedPhaseNumber {
+function nextPhaseFact(inventory: RecordInventory, linkedPhasePaths: string[] = []): NullableSourcedPhaseNumber {
   let highest: { number: number; file: string } | null = null;
-  for (const file of inventory.discoveredFiles) {
+  // Linked phase files count even when the linked file is missing, so the next number never collides.
+  for (const file of [...inventory.discoveredFiles, ...linkedPhasePaths]) {
     const name = path.posix.basename(file);
     if (!PHASE_FILE.test(name)) continue;
     const number = Number(/^([0-9]+)/.exec(name)![1]);
@@ -709,13 +745,13 @@ function changeHistoryDiagnostics(
   const found = section(body, "Change History");
   if (!found) return [];
   // Blank out HTML comments but keep their line breaks so line numbers stay exact.
-  const lines = found.text.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
-  const entries: Array<{ heading: string; line: number; fields: Map<string, string> }> = [];
+  const lines = stripHtmlComments(found.text, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
+  const entries: Array<{ heading: string; level: number; line: number; fields: Map<string, string> }> = [];
   for (const [offset, line] of lines.entries()) {
     const fileLine = lineOffset + found.startLine + offset;
-    const heading = /^###\s+(.+?)\s*$/.exec(line);
+    const heading = /^(#{3,6})\s+(.+?)\s*$/.exec(line);
     if (heading) {
-      entries.push({ heading: heading[1]!, line: fileLine, fields: new Map() });
+      entries.push({ heading: heading[2]!, level: heading[1]!.length, line: fileLine, fields: new Map() });
       continue;
     }
     const field = /^-\s+([^:]+):\s*(.*?)\s*$/.exec(line);
@@ -727,6 +763,9 @@ function changeHistoryDiagnostics(
   let previousDate: string | null = null;
   for (const entry of entries) {
     const label = `Entry "${entry.heading}"`;
+    if (entry.level !== 3) {
+      report(entry.line, `${label} uses a level-${entry.level} heading; write it as \`### ${entry.heading}\`.`);
+    }
     const heading = CHANGE_HISTORY_HEADING.exec(entry.heading);
     const date = heading?.[1] ?? null;
     if (!heading || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
@@ -1003,14 +1042,14 @@ function readRecord(
     },
     lastUpdatedAt: dates.value,
     phaseCount: count(phases.length, [evidence(indexPath, "Phase Map")]),
-    nextPhase: nextPhaseFact(inventory),
+    nextPhase: nextPhaseFact(inventory, linkedPhasePaths),
     taskCounts,
     phases,
     dependencies: phases.flatMap((phase) => phase.dependencies),
     blockers: phases.flatMap((phase) => phase.blockers),
     closeout: {
       ...emptyCloseout(inventory.recordPath, inventory.scope, tasks),
-      committed: committedFact(commitFacts, [indexPath, ...interpretedPhasePaths]),
+      committed: committedFact(commitFacts, [indexPath, ...linkedPhasePaths]),
     },
     sourceLinks: [indexSource.value, ...phases.flatMap((phase) => phase.sourceLinks)].filter((value): value is WorkSourceLinkFact => value !== null),
     gitEvidence: dates.gitEvidence,

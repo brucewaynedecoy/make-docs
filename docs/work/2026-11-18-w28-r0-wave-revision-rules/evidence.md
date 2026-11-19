@@ -301,3 +301,80 @@ On 2026-11-18, after the D-053 fix in PR #65 (`9fb05c4d`), the reviewed Skill sy
 - `preflight`, `backlog-review`, `factory`, and `human-experience` under `.agents/skills/` now match `packages/skills/`. The `.claude/skills/*` entries are still links to `../../.agents/skills/*`.
 - `git status` was empty before the sync. Afterwards it showed only the planned Skill files: six modified `backlog-review` and `preflight` files, and the new `.agents/skills/backlog-review/scripts/report-contract.mjs`. The replaced bytes are in the git-ignored `.make-docs/backup/skill-adoption-fa3a32059e33/`.
 - Store side effects: the Store file grew from 1,531,904 to 33,873,920 bytes, and `project state status` now reports `ready`, because adoption records this checkout's ownership.
+
+## P6 CI and Review Corrections
+
+Covers A39 to A41 in [P6](06-ci-and-review-corrections.md). Evidence date: 2026-11-18. Inputs: CodeQL alert 44 and the CodeRabbit review of PR #64, which had 11 inline comments, 12 minor comments that repeat in its second review, and 1 outside-diff comment.
+
+### CodeQL Alert 44 (A39)
+
+- **Alert.** `js/incomplete-multi-character-sanitization` at `snapshot.ts:682`, on `found.text.replace(/<!--[\s\S]*?-->/g, "")`. The same pattern was at `snapshot.ts:712`, in the Change History parser. A search of the W28 diff found no other copy. `packages/cli/src/layout-plan.ts:363` has a similar regex, but it predates W28 and protects regions rather than sanitizing them.
+- **Fix.** Both sites now call `stripHtmlComments`. It is a comment-aware scan. An unterminated `<!--` runs to the end of the text, and the scan repeats when a removal joins fragments into a new `<!--`. Each pass removes at least one complete opener, so the loop always ends.
+- **Tests.** These inputs leave no `<!--` in the output:
+  - `<!<!--x-->--` gives `""`;
+  - `<!--a<!--b-->c-->` gives `c-->` (HTML comments do not nest);
+  - `<<!--a-->!<!--b-->--text-->tail` gives `tail`;
+  - an unterminated comment is removed to the end of the text;
+  - text without comments is unchanged.
+
+  A line-preserving call keeps line breaks, and Closeout Notes made only of `<!<!--x-->--` count as absent.
+
+### Snapshot Corrections (A40)
+
+- `nextPhase` counts linked phase files that are missing: a missing linked `09-nine.md` gives `nextPhase` 10, and `BACKLOG-VAL-006` is kept.
+- Record-level `committed` checks the index and every linked phase. A deleted linked phase gives `false`.
+- Git paths are normalized with `git rev-parse --show-prefix`, and `ls-files` now reports paths relative to the target. A project in a repository subdirectory reports the correct per-phase `committed` facts. Its `lastUpdatedAt` now sees working-tree changes, which repairs the same pre-existing assumption in the date logic.
+- A `####` Change History entry emits `BACKLOG-VAL-017`, and the message names the `###` form.
+- `backlog-coordinate-facts.test.ts` passes 35 of 35.
+
+### Procedure Order (A41)
+
+- `wave-model.md` (template and dogfood, byte-identical), PRD 14 R-COORD-4 and R-COORD-5, and the design procedure now agree:
+  - a stated coordinate or the outcome test can decide the coordinate, but the deviation test and the owner gates still apply;
+  - archived lineage is checked and restored before any lineage decision;
+  - an empty scan gives `w1-r0` inside the outcome test.
+- The flagged guides now name the owner gates and the new-Wave and revision-Wave backlogs. They describe in-place owning-PRD updates instead of change documents.
+- Older "change docs" text in `development-workflows-stage-model-and-artifact-relationships.md` (lines 88, 139, 146, 152, and 201) predates W28 and was not touched here.
+
+### Checks
+
+- Focused backlog, consistency, Skill-adoption, and registry tests: 21 files, 491 tests, all passing.
+- `validate:defaults`: 53 of 53.
+- `npm test` ran 114 test files: 111 passed, 2 failed, and 1 was skipped. Of 2,045 tests, 2,036 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
+- The build passes. The regenerated Skill bundles and MCP App widget are unchanged.
+- `smoke:pack:local`: PASS. This machine's Store file was unchanged by the smoke run.
+
+### CodeRabbit Triage
+
+| # | Location | Finding | Disposition |
+| --- | --- | --- | --- |
+| 1 | `wave-model.md:47` | A stated coordinate skips the owner gates | **Fixed** (A41) |
+| 2, 11 | `wave-model.md:57` (dogfood and template) | Archived lineage is checked after the Phase decision | **Fixed** (A41) |
+| 6 | Design `:103` | Same archived-lineage order | **Fixed** (A41) |
+| Minor | Template `wave-model.md:49` | Empty-scan fallback sits outside the outcome test | **Fixed** (A41) |
+| 3 | Maintainer route guide `:148` | Retired change-document workflow | **Fixed** |
+| 4 | Maintainer route guide `:167` | Missing owner gate for significant changes | **Fixed** |
+| 5 | Maintainer route guide `:203` | No new-Wave path for a new outcome | **Fixed** |
+| Minor | User concept guide `:104` | Missing owner choice for an absorbable Wave | **Fixed** |
+| Minor ×2 | User route guide `:130` | Completed work needs a revision Phase; significant changes need the owner gate | **Fixed** |
+| Minor | User stages guide `:144` | Revision Waves missing from the backlog step | **Fixed** |
+| Minor | `snapshot.ts:691` | `nextPhase` ignores missing linked phases | **Fixed** (A40) |
+| Minor | `snapshot.ts:658` | Git paths wrong for a nested target | **Fixed** (A40) |
+| Minor | `snapshot.ts:1013` | Record `committed` ignores broken links | **Fixed** (A40) |
+| Minor | P2 work `:116` | A non-`###` Change History heading is not reported | **Fixed** (A40) |
+| Minor | P4 work `:130` | Stage 5 heading embedded in t8 | **Fixed** in `bfb4aab8` (Stage 4 restored) |
+| 10 | P4 work `:158` | A38 should state the installed-copy incompatibility | **Fixed** in `bfb4aab8` (A38 resolved, consequence stated) |
+| Minor | Plan `03-backlog-and-validation.md:28` | P1 acceptance summary is too broad | **Not fixed**: the plan bullet is a summary, P1's operative criteria A1–A9 already scope each rule to its owning resource, and P1 is complete |
+| 7 | Design `:231` | `committed` (clean working tree) is not the same as prior completion | **Tyler** — see question 1 |
+| 8 | PRD 14 `:78` | Does deployment replace commitment? | **Tyler** — see question 2 |
+| Minor | PRD 04 `:82` | Two `Phase complete` glossary rows | **Tyler** — see question 3 |
+| 9 | P4 work `:157` | P4 closed with A25 (full `smoke:pack`) unmet | **Tyler** — see question 4 |
+| Outside diff | `report-contract.mjs:25` | New required snapshot keys under `schemaVersion: 1` | **Tyler** — see question 5 |
+
+### Questions For Tyler
+
+1. **Prior completion versus a clean tree (CodeRabbit 7).** `committed` means "tracked and no uncommitted change". A completed phase with a later uncommitted progress edit reads `false`. Should the snapshot add a separate "was committed at some point" fact, or should the agent keep judging this from history? Recommendation: keep agent judgment now, and add a history-based fact in a later change.
+2. **Deployed but not committed (CodeRabbit 8).** The rule reads "committed (or deployed)", and also "done but not committed is not complete". Does deployment alone make a phase complete? Recommendation: no; require a commit, and treat deployment as extra evidence.
+3. **Two `Phase complete` definitions (glossary).** PRD 45's row means "passed its gate with no orphaned accepted outcomes". The W28 row means "done, closed out, and committed". Merge them as both conditions, or keep two named terms? Recommendation: one row that requires both, citing PRD 14 and PRD 45.
+4. **A25 and P4 closure (CodeRabbit 9).** P4 is marked complete while the full `smoke:pack` (Bun) is unmet. Record your 2026-11-18 decision as an authorized bounded caveat, or reopen P4 until the Bun run? Recommendation: record it as an authorized caveat, and keep it in "Open before merge".
+5. **Snapshot schema version (outside diff).** The new keys are required under `schemaVersion: 1`. A new Skill rejects snapshots from an older CLI, and an older Skill rejects snapshots from this CLI. The installed copies are now synced. Bump to `schemaVersion: 2` with an explicit version-1 handling rule, or keep version 1 and make the new keys optional when parsing? Recommendation: bump to version 2, with the Skill rejecting version 1 and printing a clear "upgrade the CLI" message.

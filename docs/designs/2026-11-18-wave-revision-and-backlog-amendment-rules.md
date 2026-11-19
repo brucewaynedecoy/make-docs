@@ -94,21 +94,21 @@ Evidence required:
 
 ### Decision procedure
 
-The agent applies these steps in order:
+The agent applies these steps in order. A stated coordinate or the outcome test can decide the coordinate, but the significant deviation test and the owner gates still apply before any plan or backlog changes.
 
 1. **Explicit guidance.** If the user names the coordinate, use it.
 2. **Outcome test.** Does the request add an outcome that no Wave's plan promised? This can be a new capability or an enhancement. The test uses the outcome, not the code area.
-   - If yes, it is new work. Create a **new Wave** at the highest `W` + 1, `R0`. Small Waves are allowed. A PRD `create` decision is strong evidence for a new Wave, but it does not decide the result alone.
+   - If yes, it is new work. Create a **new Wave** at the highest `W` + 1, `R0`, or `W1 R0` when no plan or work exists. Small Waves are allowed. A PRD `create` decision is strong evidence for a new Wave, but it does not decide the result alone.
    - If an unfinished Wave could also absorb the outcome, ask the owner whether to extend that Wave or start a new one.
-3. **Lineage Wave.** If the request does not pass the outcome test, it changes an outcome that an existing Wave promised. That Wave is the lineage Wave. Classify each affected Phase:
+3. **Lineage Wave.** If the request does not pass the outcome test, it changes an outcome that an existing Wave promised. That Wave is the lineage Wave.
+   - **Archived lineage first:** if it is archived, ask the owner, then restore its plan and backlog to the working set under the same name before any other decision.
    - **Not complete** (unstarted, in progress, or done but not committed):
      - If the change does not significantly deviate from the plan, edit the backlog in place.
      - If it does significantly deviate, ask the owner. The owner chooses one of two:
        - **Pivot**: amend the same plan and backlog in place, at the same W/R.
        - **Finish first**: complete the Wave, then make a revision Wave.
    - **Complete:** add a **revision Phase**, unless the revision Wave test passes.
-4. **Archived lineage Wave.** Ask the owner. Restore the Wave's plan and backlog to the working set under the same name. Then apply step 3.
-5. **No drift to newer Waves.** Do not assign a new Wave only because newer, unrelated Waves exist. This existing rule stays.
+4. **No drift to newer Waves.** Do not assign a new Wave only because newer, unrelated Waves exist. This existing rule stays.
 
 ### Significant deviation test
 

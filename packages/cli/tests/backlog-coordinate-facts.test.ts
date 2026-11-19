@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { BACKLOG_RULES } from "../src/operations/work/backlog/catalog";
 import { buildBacklogSnapshot, type BacklogSnapshotV1 } from "../src/operations/work/backlog";
+import { stripHtmlComments } from "../src/operations/work/backlog/snapshot";
 
 const FIXED_NOW = () => new Date("2042-07-01T12:00:00.000Z");
 const NO_GIT = () => ({ status: 128, stdout: "", stderr: "fatal: not a git repository", errorCode: null });
@@ -320,5 +321,85 @@ describe("catalog entries for coordinate work", () => {
     write(targetRoot, `${RECORD}/01-phase.md`, phase("W1 R0 P1"));
     const snapshot = buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT });
     expect(snapshot.diagnostics.some((entry) => entry.code === "BACKLOG-AGENT-018")).toBe(false);
+  });
+});
+
+describe("HTML comment stripping (CodeQL js/incomplete-multi-character-sanitization)", () => {
+  test.each([
+    ["a plain comment", "a<!-- note -->b", "ab"],
+    ["an overlapping opener", "<!<!--x-->--", ""],
+    ["a nested-looking comment", "<!--a<!--b-->c-->", "c-->"],
+    ["an unterminated comment", "keep<!-- never closed", "keep"],
+    ["an opener rebuilt across two comments", "<<!--a-->!<!--b-->--text-->tail", "tail"],
+    ["text without comments", "plain -- text <! here", "plain -- text <! here"],
+  ])("removes %s and leaves no comment opener", (_label, input, expected) => {
+    const output = stripHtmlComments(input);
+    expect(output).toBe(expected);
+    expect(output).not.toContain("<!--");
+  });
+
+  test("keeps line breaks when the caller asks for them", () => {
+    expect(stripHtmlComments("a\n<!-- one\ntwo -->\nb", (comment) => comment.replace(/[^\n]/g, ""))).toBe("a\n\n\nb");
+  });
+
+  test("treats closeout notes made only of an overlapping comment as absent", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1", "<!<!--x-->--"));
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(false);
+  });
+});
+
+describe("review corrections for coordinate facts", () => {
+  test("count a linked phase number even when the linked file is missing", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md", "09-nine.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1"));
+    const snapshot = buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT });
+    expect(record(snapshot).nextPhase.value).toBe(10);
+    expect(record(snapshot).phases).toHaveLength(1);
+    expect(snapshot.diagnostics.some((entry) => entry.code === "BACKLOG-VAL-006")).toBe(true);
+  });
+
+  test("report the record as not committed when a linked phase was deleted", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md", "02-two.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1"));
+    write(targetRoot, `${RECORD}/02-two.md`, phase("W1 R0 P2"));
+    git(targetRoot, "init", "-q", "-b", "main");
+    git(targetRoot, "add", ".");
+    git(targetRoot, "commit", "-q", "-m", "fixture");
+    unlinkSync(path.join(targetRoot, ...`${RECORD}/02-two.md`.split("/")));
+    const facts = record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW }));
+    expect(facts.phases[0]!.committed.value).toBe(true);
+    expect(facts.closeout?.committed.value).toBe(false);
+  });
+
+  test("resolve committed facts when the project is a subdirectory of the repository", () => {
+    const repository = root();
+    const targetRoot = path.join(repository, "component");
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md", "02-two.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1"));
+    write(targetRoot, `${RECORD}/02-two.md`, phase("W1 R0 P2"));
+    git(repository, "init", "-q", "-b", "main");
+    git(repository, "add", ".");
+    git(repository, "commit", "-q", "-m", "fixture");
+    write(targetRoot, `${RECORD}/02-two.md`, `${phase("W1 R0 P2")}\nLocal change.\n`);
+    const facts = record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW }));
+    expect(Object.fromEntries(facts.phases.map((entry) => [path.posix.basename(entry.phasePath), entry.committed.value]))).toEqual({
+      "01-one.md": true,
+      "02-two.md": false,
+    });
+    expect(facts.lastUpdatedAt.source).toBe("working-tree-mtime");
+  });
+
+  test("report a Change History entry with the wrong heading level", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, withChangeHistory(VALID_ENTRY.replace("### 2042-06-10", "#### 2042-06-10")));
+    write(targetRoot, `${RECORD}/01-phase.md`, phase("W1 R0 P1"));
+    const found = changeHistoryDiagnostics(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT }));
+    expect(found).toHaveLength(1);
+    expect(found[0]!.message).toContain("level-4 heading");
+    expect(found[0]!.message).toContain("### 2042-06-10 — W1 R0 P1");
   });
 });

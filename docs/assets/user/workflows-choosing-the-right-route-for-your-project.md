@@ -36,7 +36,7 @@ The three main starting points are:
 | --- | --- | --- | --- |
 | A new initiative or design | A first active PRD set | Design -> plan -> full-set generation | Full PRD set plus full backlog |
 | An existing codebase with missing or weak product docs | A current product definition based on real behavior | Decomposition -> plan -> full-set generation | Full PRD set plus rebuild backlog |
-| An active PRD set that is still trustworthy | A targeted product change | Change planning -> active-set evolution | Change docs plus new or amended backlog phases |
+| An active PRD set that is still trustworthy | A targeted product change | Change planning -> active-set evolution | Owning PRDs updated in place, plus new or amended backlog phases |
 | Existing plan or backlog lineage for the same initiative | Follow-up execution work or a correction | Continue the same W/R line | Revised plan/work artifacts, with PRD updates only if needed |
 
 ## Route 1: Start from a New Idea or Design
@@ -86,9 +86,8 @@ This is the right fit when:
 Expected outcome:
 
 - a change plan
-- one or more PRD change docs
-- baseline annotations where needed
-- new or amended backlog phases, in the lineage wave's backlog or a new wave's backlog
+- in-place updates to the PRDs that own the changed requirements, with prior contracts kept in their Requirement History
+- new or amended backlog phases, in the lineage wave's backlog, a new wave's backlog, or a revision Wave's backlog
 
 This is the default route for iterative product work.
 
@@ -127,7 +126,7 @@ When the route creates or replaces a full PRD set, or when the user explicitly a
 
 ### When should I amend an existing backlog instead of creating one?
 
-When the change touches an outcome that an existing wave promised. Edit that wave's backlog in place, or add a revision Phase. Create a new backlog only for a new wave or a revision Wave. See [Understanding W/R/P Coordinates](concepts-wave-revision-phase-coordinates.md).
+When the change touches an outcome that an existing wave promised. If that work is unfinished and the change fits the plan, edit the backlog in place. If the change significantly deviates from the plan, the owner chooses between pivoting in place and finishing the wave first. If the work is complete, add a revision Phase instead. Create a new backlog only for a new wave or an approved revision Wave. See [Understanding W/R/P Coordinates](concepts-wave-revision-phase-coordinates.md).
 
 ### What if I am mostly correcting an earlier plan or backlog?
 
