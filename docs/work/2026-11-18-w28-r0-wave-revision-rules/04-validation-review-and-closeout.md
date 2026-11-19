@@ -166,7 +166,7 @@ Human Experience Review is required agent review work in Stage 2. It is not a te
 - Explicit human acceptance gate: none.
 - Evidence report: [P4 Validation, Review, and Closeout](evidence.md#p4-validation-review-and-closeout) and [Owner follow-up](evidence.md#owner-follow-up-2026-11-18).
 - Phase / capability status: Phase complete on commit, with two bounded caveats:
-  - **A25:** the full `smoke:pack` runner mode needs Bun. The owner is Tyler. Run it on a machine with Bun, or in CI, before release.
+  - **A25 (approved caveat, Tyler, 2026-11-19 12:05 AM CST):** the full `smoke:pack` runner mode did not run here, because Bun is not installed. Make Docs itself does not use Bun. The full `smoke:pack` tests `bun x` as one of the package runners that users might use to run Make Docs, alongside `npx` and `pnpm dlx`. `smoke:pack:local` passes. This caveat stays under "Open before merge" until the full run passes on a machine with Bun or in CI.
   - **A38:** resolved on 2026-11-18. The installed `backlog-review` copy bundles the strict snapshot schema, so before the sync it rejected snapshots from this CLI, which add the `coordinates` and `nextPhase` keys; fresh opens and cache writes from that copy would fail. After the D-053 fix (PR #65), a reviewed Skill sync, built from a temporary local merge of #64 and #65, refreshed all four installed Skills. They now match `packages/skills/`, and the `.claude/skills` links were kept.
 
   Capability partial: the rules, snapshot facts, Skill source, installed Skill copies, and package proof are on this branch. Only the Bun runner proof remains.

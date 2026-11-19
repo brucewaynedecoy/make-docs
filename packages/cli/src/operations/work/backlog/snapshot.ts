@@ -7,6 +7,7 @@ import { parseDocument } from "yaml";
 import { OperationError } from "../../types.js";
 import { BACKLOG_RULES } from "./catalog.js";
 import {
+  BACKLOG_SNAPSHOT_SCHEMA_VERSION,
   BacklogSnapshotV1Schema,
   type BacklogCoordinateFacts,
   type BacklogDiagnostic,
@@ -1134,7 +1135,7 @@ export function buildBacklogSnapshot(
   const gitCapabilityState = git.state === "available" && gitFallbackUsed ? "partial" : git.state;
   const gitDiagnosticCodes = gitCapabilityState === "available" ? [] : ["BACKLOG-VAL-010"];
   const snapshot: BacklogSnapshotV1 = {
-    schemaVersion: 1,
+    schemaVersion: BACKLOG_SNAPSHOT_SCHEMA_VERSION,
     generatedAt: (seams.now ?? (() => new Date()))().toISOString(),
     targetRoot,
     project: projectIdentity(targetRoot),

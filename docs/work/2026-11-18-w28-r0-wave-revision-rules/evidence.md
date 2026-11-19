@@ -378,3 +378,57 @@ Covers A39 to A41 in [P6](06-ci-and-review-corrections.md). Evidence date: 2026-
 3. **Two `Phase complete` definitions (glossary).** PRD 45's row means "passed its gate with no orphaned accepted outcomes". The W28 row means "done, closed out, and committed". Merge them as both conditions, or keep two named terms? Recommendation: one row that requires both, citing PRD 14 and PRD 45.
 4. **A25 and P4 closure (CodeRabbit 9).** P4 is marked complete while the full `smoke:pack` (Bun) is unmet. Record your 2026-11-18 decision as an authorized bounded caveat, or reopen P4 until the Bun run? Recommendation: record it as an authorized caveat, and keep it in "Open before merge".
 5. **Snapshot schema version (outside diff).** The new keys are required under `schemaVersion: 1`. A new Skill rejects snapshots from an older CLI, and an older Skill rejects snapshots from this CLI. The installed copies are now synced. Bump to `schemaVersion: 2` with an explicit version-1 handling rule, or keep version 1 and make the new keys optional when parsing? Recommendation: bump to version 2, with the Skill rejecting version 1 and printing a clear "upgrade the CLI" message.
+
+## P7 Schema Version and Completion Rules
+
+Covers A42 to A44 in [P7](07-schema-version-and-completion-rules.md). Evidence date: 2026-11-19. Tyler decided questions 1–6 at 12:05 AM CST, and the coordinator relayed the decisions.
+
+### Owner Decisions Applied
+
+| Question | Decision | Where |
+| --- | --- | --- |
+| Q1 Prior completion | The agent decides from history. A Git-history fact comes later. | PRD 14 R-COORD-21; `wave-model.md` Deterministic Support |
+| Q2 Deployed but not committed | Not complete. A commit is required, and deployment is extra evidence. | PRD 14 R-COORD-2; `wave-model.md` Terms; design Terms; PRD 04 |
+| Q3 Two glossary rows | Merged into one row that requires both conditions, with a Requirement History entry | PRD 04 |
+| Q4 A25 | Approved caveat that explains Bun as a tested user package runner. It stays under "Open before merge". | P4 closeout; index Change History |
+| Q5 Snapshot schema | Version 2. Version 1 is refused with "upgrade the make-docs CLI to 2.0.9 or later". | `schemas.ts`, `snapshot.ts`, `review-contracts.ts`; PRD 51; Skill `report-model.md` |
+| Q6 Version and digest | The package is 2.0.9, with `v2.0.9.sha256`. `v2.0.8.sha256` is unchanged, as RELEASING.md step 1 calls for a version that is absent from npm. | `packages/cli/package.json`, `package-lock.json`, `.github/release-candidates/` |
+
+### Schema Version (A42)
+
+- `backlog-snapshot-schema-version.test.ts` passes 5 of 5:
+  - version 2 is accepted;
+  - version 1 gives exactly the upgrade message;
+  - version 3 gives "Unsupported backlog snapshot schemaVersion 3";
+  - the CLI agent gate `validateBacklogRebuiltModel` refuses a version 1 latest snapshot with the upgrade message;
+  - the dependency-free Skill bundle `packages/skills/backlog-review/scripts/agent-contract.mjs` refuses it the same way and accepts version 2.
+- The cache-key and lookup literals move to snapshot version 2, so older cache entries miss cleanly.
+- The report and live-envelope versions stay 1. Only their embedded snapshot uses version 2. Older reports are rebuilt, not migrated.
+- The Skill bundles and the MCP App widget were regenerated, and the build's widget `--check` passes.
+
+### Completion Rules (A43)
+
+- No live rule in the template, PRD 14, PRD 04, the design, or the guides says "committed or deployed".
+- PRD 04 has one Phase complete row, citing PRD 45 and PRD 14. Its 2026-11-19 Requirement History entry records the merge.
+
+### Package Candidate (A44)
+
+- `npm version 2.0.9 -w packages/cli --no-git-tag-version` changed only `packages/cli/package.json` and the workspace entry in `package-lock.json`.
+- `w22-r2-portable-adoption.test.ts` had simulated a 2.0.7 adoption by replacing the hard-coded string `2.0.8`. It now reads the current version from `package.json`, so it still exercises a prior-version adoption.
+- Two independent `npm pack -w packages/cli` runs produced the same tarball, `brucewaynedecoy-make-docs-2.0.9.tgz`:
+  - build 1: `8b9e48838ca989e6c41e9e8cd32f9bfaef160c32448b3aa55db17e110a3fa732`
+  - build 2: `8b9e48838ca989e6c41e9e8cd32f9bfaef160c32448b3aa55db17e110a3fa732`
+- `smoke:pack:local` reported the same candidate digest.
+- The procedure is [RELEASING.md](../../../RELEASING.md) step 2: save the final tarball's SHA-256 as one lowercase hex line in `.github/release-candidates/v<package-version>.sha256`. The digest file is the last content change. The package files list (`dist`, `template`, `skill-registry.json`, `skill-registry.schema.json`, `README.md`) excludes this evidence and the history records.
+- Release notes for 2.0.9 are not part of this change.
+
+### Checks
+
+- Focused tests: 25 files, 535 tests, all passing.
+- `validate:defaults`: 53 of 53.
+- `npm test` ran 115 test files: 112 passed, 2 failed, and 1 was skipped. Of 2,050 tests, 2,041 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
+- The build passes. `smoke:pack:local` passes, and this machine's Store file was unchanged by it.
+
+### Limit
+
+The Skill source changed again (`report-model.md` and the two regenerated bundles). The installed `.agents/skills/backlog-review/` copy therefore trails the source. Because it bundles the earlier schema, it refuses this CLI's version 2 snapshots until a reviewed Skill sync runs. That sync writes to this machine's Store and needs owner approval.

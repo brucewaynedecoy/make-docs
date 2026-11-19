@@ -53,6 +53,7 @@ Out of scope:
 | [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md) | Walk through past cases, run the Human Experience Review, run the package checks, run the coverage pass, and write history. |
 | [P5 Coordinate Facts Corrections](05-coordinate-facts-corrections.md) | Revision Phase for P2: count plan directories in coordinate facts, add per-Wave `archived`, and name `wave-model.md` in catalog parity. Runs before P4. |
 | [P6 CI and Review Corrections](06-ci-and-review-corrections.md) | Revision Phase for P2 with P1 and P4 text corrections: fix the CodeQL comment-strip alert and the valid CodeRabbit findings on PR #64. |
+| [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md) | Revision Phase for P2: snapshot schema version 2, commit-required completion, one glossary definition, and the 2.0.9 candidate digest. |
 
 ## Usage Notes
 
@@ -130,3 +131,25 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 14 R-COORD-4 and R-COORD-5 now state the order, the gate rule, and the empty-scan fallback.
 - Owner approval: Not required for a clear revision Phase. The owner approved the CI-fix work on 2026-11-18.
 - Source: [P6 CI and Review Corrections](06-ci-and-review-corrections.md)
+
+### 2026-11-19 — W28 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 closeout, the A25 caveat.
+- Previous scope: A25 was recorded as a bounded caveat that waited on a Bun run.
+- Replacement scope: A25 is an owner-approved caveat. It explains that Make Docs does not use Bun, and that the full `smoke:pack` tests `bun x` as one of the package runners users might use, alongside `npx` and `pnpm dlx`. The caveat stays under "Open before merge".
+- Rationale: CodeRabbit noted that P4 closed with A25 unmet. The owner approved the caveat instead of reopening P4.
+- PRD decision: `none` — No product requirement changes.
+- Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
+- Source: [P4 Validation, Review, and Closeout](04-validation-review-and-closeout.md)
+
+### 2026-11-19 — W28 R0 P7
+
+- Kind: `revision-phase`
+- Affected scope: New P7 t1–t5 and A42–A44, revising completed P2.
+- Previous scope: Snapshot facts were additive keys of schema version 1. Phase complete allowed "committed or deployed", and the glossary had two Phase complete rows. The package version was 2.0.8, which is already published.
+- Replacement scope: Snapshot schema version 2 refuses version 1 with an upgrade message. A commit is required for completion, and deployment is extra evidence. One glossary row requires both conditions. The agent judges prior completion from history. The package is 2.0.9 with a reviewed candidate digest.
+- Rationale: Owner decisions on the PR #64 review questions. The schema change applies P2's own rule for consumers that cannot accept new keys, and no revision Wave test passes.
+- PRD decision: `update-existing` — PRD 51 R-BACKLOG-SNAPSHOT-10 and R-BACKLOG-SNAPSHOT-30, PRD 14 R-COORD-2 and R-COORD-21, and the PRD 04 Phase complete row.
+- Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
+- Source: [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md)

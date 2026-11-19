@@ -562,9 +562,20 @@ export const BacklogCoordinateFactsSchema = z
     }
   });
 
+/** Snapshot schema version 2 adds the W28 coordinate, commit, and closeout-notes facts as required keys. */
+export const BACKLOG_SNAPSHOT_SCHEMA_VERSION = 2 as const;
+export const BACKLOG_SNAPSHOT_V1_UPGRADE_MESSAGE =
+  "This backlog snapshot uses schema version 1 from an older make-docs CLI. Upgrade the make-docs CLI to 2.0.9 or later, then create the snapshot again.";
+
+// The exported name keeps its V1 suffix for compatibility with existing imports; it validates snapshot schema version 2.
 export const BacklogSnapshotV1Schema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(BACKLOG_SNAPSHOT_SCHEMA_VERSION, {
+      error: (issue) =>
+        issue.input === 1
+          ? BACKLOG_SNAPSHOT_V1_UPGRADE_MESSAGE
+          : `Unsupported backlog snapshot schemaVersion ${String(issue.input)}. This reader accepts schema version ${BACKLOG_SNAPSHOT_SCHEMA_VERSION}.`,
+    }),
     generatedAt: utcTimestamp,
     targetRoot: text,
     project: BacklogProjectSchema,

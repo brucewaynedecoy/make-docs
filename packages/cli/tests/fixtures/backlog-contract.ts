@@ -165,7 +165,7 @@ const coordinatesFor = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1["coor
 };
 
 const baseSnapshot = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1 => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: FIXED_GENERATED_AT,
   targetRoot: FIXED_TARGET_ROOT,
   project: {

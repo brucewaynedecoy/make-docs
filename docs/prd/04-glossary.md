@@ -59,7 +59,7 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Deferred obligation | An accepted required outcome that cannot be completed at its current work coordinate and therefore has an owner, trigger, target coordinate, dependencies, exit criteria, status, and durable `O-###` identity. | [PRD 45](45-deferred-obligation-governance.md) |
 | Orphan finding | An accepted incomplete outcome that is neither completed nor represented by a valid deferred obligation with a future consumption route. | [R-OBL-AUDIT](45-deferred-obligation-governance.md#r-obl-audit-phase-close-orphan-audit) |
 | Orphan audit | The mandatory, non-persona-scoped phase-close classification of accepted incomplete outcomes as completed, obligated, rejected, superseded, or unresolved blockers. | [PRD 45](45-deferred-obligation-governance.md) |
-| Phase complete | The current phase passed its gate and has no orphaned accepted outcomes; this says nothing stronger about the whole capability. | [PRD 45](45-deferred-obligation-governance.md) |
+| Phase complete | The current phase passed its gate, has no orphaned accepted outcomes, and its work is done, closed out, and committed. Deployment is extra evidence only; deployed or done but uncommitted work is not complete. This says nothing stronger about the whole capability. | [PRD 45](45-deferred-obligation-governance.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Capability partial | Some accepted capability outcomes are delivered while other accepted outcomes remain represented by active or deferred obligations. | [PRD 45](45-deferred-obligation-governance.md) |
 | Capability complete | Every accepted outcome for the capability is fulfilled or intentionally terminated with authoritative rationale. | [PRD 45](45-deferred-obligation-governance.md) |
 | Capability status unverified | The available evidence is insufficient to classify the capability as partial or complete. | [PRD 45](45-deferred-obligation-governance.md) |
@@ -79,7 +79,6 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Project State evidence reference | A non-authoritative operational pointer, identifier, timestamp, or run record that helps locate execution evidence; repository requirements, scenarios, findings, and terminal rationales remain the product authority. | [R-NUAT-STATE](46-naive-end-user-acceptance-testing.md#r-nuat-state-repository-and-evidence-boundary) |
 | Wave | A self-contained unit of work, with coordinate `W{W}`, that defines the scope of that work. It can be a full build, one domain slice, or one change request. Its plan is the statement of work. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Lineage Wave | The existing Wave whose plan promised the outcome that a request changes. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
-| Phase complete | Phase work that is done, closed out, and committed or deployed. Done but uncommitted work is not complete. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Revision Phase | The next unused `P` in the same W/R that changes the result of a completed Phase. It carries no other coordinate marker. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Revision Wave | The next unused `R` of a Wave. It is a change order that revisits or rearchitects a substantial part of completed work, with its own plan and work backlog. `R0` is the base revision. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Change History | The dated, non-normative record of scope edits in a committed plan or work backlog. It follows the requirement-history shape. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment), [PRD 51](51-backlog-review-and-reporting.md) |
@@ -93,6 +92,14 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: Two fixed audience defaults merge with custom entries; shared project material has a reserved path; reviewed layout progress and installation records live in the Store.
 - Rationale: Align stable vocabulary with current owners and remove stale local-state and asset-discovery guidance. This records the R4 draft target, not completed runtime work.
 - Source: [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-11-19 — W28 R0
+
+- Affected requirement or section: `Terms` — Phase complete.
+- Previous contract: One row defined Phase complete as a phase that passed its gate with no orphaned accepted outcomes (PRD 45). A second row defined it as work that is done, closed out, and committed or deployed (PRD 14).
+- Replacement contract: One row requires both conditions, and deployment is extra evidence only. Deployed or done but uncommitted work is not complete.
+- Rationale: The two rows could disagree about the same phase. The owner chose one definition that requires both conditions, and a commit.
+- Source: [W28 R0 work](../work/2026-11-18-w28-r0-wave-revision-rules/07-schema-version-and-completion-rules.md).
 
 ## Source Anchors
 

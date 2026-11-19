@@ -86,7 +86,7 @@ Evidence required:
 | Wave (`W`) | A self-contained unit of work. The Wave is the scope. It can be a full build, one domain slice, or one change request. |
 | Plan | The statement of work for one W/R. |
 | PRD | The product authority. A backlog never overrides it and can be rebuilt from it. |
-| Phase complete | The Phase work is done, closed out, and committed (or deployed). Work that is done but not committed is not complete. |
+| Phase complete | The Phase work is done, closed out, and committed. Deployment is extra evidence only. Work that is deployed or done but not committed is not complete. |
 | Revision Phase | A new Phase at the next `P` in the same W/R that changes a completed Phase. It gets no special coordinate. |
 | Revision Wave (`R+1`) | A change order. A substantial part of completed work must be revisited or rearchitected, so the fix is effectively its own Wave. It gets a new plan and backlog at the next `R`. |
 
