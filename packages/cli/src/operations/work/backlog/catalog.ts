@@ -45,12 +45,16 @@ export interface BacklogRule {
 }
 
 export const BACKLOG_RULE_CATALOG_ID = "make-docs.backlog-review-rules.v1";
-export const BACKLOG_RULE_CATALOG_VERSION = 1;
+export const BACKLOG_RULE_CATALOG_VERSION = 2;
 
 const AGENT_METHOD_ANCHOR =
   "make-docs://system/skill/backlog-review/SKILL.md#review-method";
 const SNAPSHOT_CONTRACT_ANCHOR =
   "docs/prd/51-backlog-review-and-reporting.md#backlog-snapshot-operation";
+const WAVE_MODEL_DECISION_ANCHOR =
+  "make-docs://system/reference/wave-model.md#decision-procedure";
+const WAVE_MODEL_CHANGE_HISTORY_ANCHOR =
+  "make-docs://system/reference/wave-model.md#change-history";
 
 /**
  * Stable map between the future deterministic snapshot and the guided review.
@@ -345,6 +349,42 @@ export const BACKLOG_RULES: readonly BacklogRule[] = Object.freeze([
     focusedTests: ["completed tasks", "accepted closeout", "commit evidence", "closed history", "release and archive evidence"],
     parityMapping: "Both methods keep each lifecycle signal separate and do not promote one signal into another.",
     oneSidedReason: null,
+  },
+  {
+    id: "BACKLOG-RULE-017",
+    title: "Change History entry shape",
+    ruleClass: "fact",
+    sourceClass: "repository",
+    evidenceClass: "repository-authority",
+    deterministicSupport: "full",
+    agentInstructionLocation: WAVE_MODEL_CHANGE_HISTORY_ANCHOR,
+    judgmentRequired: false,
+    diagnosticCode: "BACKLOG-VAL-017",
+    defaultSeverity: "warning",
+    trigger: "A supported work index has a Change History entry with a malformed heading, a coordinate outside its record, a missing field, an invalid Kind or PRD decision value, or an out-of-order date.",
+    humanMeaning: "A Change History entry does not follow the required shape, so a reader cannot rely on it to explain the scope change.",
+    safeNextAction: "Correct the named entry so its heading reads `YYYY-MM-DD — <coordinate>` for this record and it lists all eight fields with allowed values, newest entry last.",
+    focusedTests: ["valid entries", "malformed heading", "foreign coordinate", "missing field", "invalid kind or PRD decision", "out-of-order dates", "absent section"],
+    parityMapping: "Both methods apply the Change History shape in the Wave Model reference; the snapshot checks work indexes, and the agent also checks plan overviews.",
+    oneSidedReason: "Plan overviews are outside the snapshot's work-record sources, so their Change History is checked by the agent only.",
+  },
+  {
+    id: "BACKLOG-RULE-018",
+    title: "Coordinate selection",
+    ruleClass: "decision",
+    sourceClass: "agent-response",
+    evidenceClass: "agent-judgment",
+    deterministicSupport: "agent-only",
+    agentInstructionLocation: WAVE_MODEL_DECISION_ANCHOR,
+    judgmentRequired: true,
+    diagnosticCode: "BACKLOG-AGENT-018",
+    defaultSeverity: "info",
+    trigger: "An agent chooses between an in-place edit, a revision Phase, a revision Wave, or a new Wave.",
+    humanMeaning: "The coordinate tells the reader whether work is new, continues, or is a change order on completed work.",
+    safeNextAction: "Apply the Wave Model decision procedure, use the snapshot's committed, closeout, archive, and coordinate facts as evidence, and ask the owner at each gate.",
+    focusedTests: ["outcome test", "significant deviation test", "revision Wave test", "owner gates", "unknown facts stay unknown"],
+    parityMapping: "The snapshot reports committed, closeout-notes, archive, next phase, revision, and highest-wave facts; only the agent selects a coordinate.",
+    oneSidedReason: "The outcome, significant deviation, and revision Wave tests need judgment about plan scope and intent.",
   },
 ] satisfies readonly BacklogRule[]);
 

@@ -71,3 +71,16 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - Next step: After Tyler's go-ahead, start with P1 and continue phase by phase.
 - Why: The backlog turns the approved plan and current PRDs 14, 51, and 04 into implementation work.
 - Coordinate Handoff: Carry `W28 R0` into phase history records and commits, adding the active P number.
+
+## Change History
+
+### 2026-11-18 — W28 R0
+
+- Kind: `edit`
+- Affected scope: P2 t11, t12, and A31; P3 t2.
+- Previous scope: P2 changed the snapshot schema, snapshot code, catalog, and tests only. P3 t2 added the `rule-map.md` rows for `BACKLOG-RULE-017` and `BACKLOG-RULE-018`.
+- Replacement scope: P2 t11 regenerates the two generated backlog-review Skill bundles and the MCP App widget asset from the changed schema. P2 t12 adds the `rule-map.md` rows, moved from P3 t2. P3 t2 points to P2 t12. New acceptance A31 covers the regenerated files.
+- Rationale: The generated bundles embed the strict snapshot schema, and the Skill test checks that `rule-map.md` lists every catalog rule. P2's tests cannot pass without these files. The change stays inside the plan's stated scope.
+- PRD decision: `none` — No product requirement changes; PRD 51 already requires the facts and the rule.
+- Owner approval: Not required. This is an edit to unfinished work that fits the plan.
+- Source: [P2 CLI Snapshot Facts and Rule](02-cli-snapshot-facts-and-rule.md)

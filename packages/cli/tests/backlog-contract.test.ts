@@ -731,7 +731,7 @@ describe("date, capability, and stable-sort fixtures", () => {
 describe("rule and diagnostic catalog", () => {
   it("has stable catalog identity, complete entries, and one-to-one rule codes", () => {
     expect(BACKLOG_RULE_CATALOG_ID).toBe("make-docs.backlog-review-rules.v1");
-    expect(BACKLOG_RULE_CATALOG_VERSION).toBe(1);
+    expect(BACKLOG_RULE_CATALOG_VERSION).toBe(2);
 
     const ids = BACKLOG_RULES.map((rule) => rule.id);
     const codes = BACKLOG_RULES.map((rule) => rule.diagnosticCode);

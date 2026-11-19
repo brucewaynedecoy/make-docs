@@ -64,7 +64,7 @@ There are no performance candidates.
 ### Tasks
 
 - [ ] t1: In `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` line 16, set Classification to `new-wave` or `revision-wave`.
-- [ ] t2: In `packages/skills/backlog-review/references/rule-map.md`, add rows for `BACKLOG-RULE-017` and `BACKLOG-AGENT-018` that match the P2 catalog entries.
+- [x] t2: Moved to [P2 t12](02-cli-snapshot-facts-and-rule.md#stage-5---generated-files-and-rule-map) on 2026-11-18, because the P2 Skill test requires the rows. See the index Change History.
 - [ ] t3: In `packages/skills/backlog-review/references/review-method.md`, add two rules. The status reason for a reopened Wave names its revision Phase. A `BACKLOG-VAL-017` finding is an Attention item.
 - [ ] t4: In `packages/skills/preflight/SKILL.md`, add one line: classify each requested change with the `wave-model.md` decision procedure, and stop at its owner gates.
 - [ ] t5: Run any existing Skill tests, and compare the rule-map rows with `catalog.ts`.

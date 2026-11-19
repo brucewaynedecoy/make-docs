@@ -8,12 +8,14 @@ import { OperationError } from "../../types.js";
 import { BACKLOG_RULES } from "./catalog.js";
 import {
   BacklogSnapshotV1Schema,
+  type BacklogCoordinateFacts,
   type BacklogDiagnostic,
   type BacklogSnapshotV1,
   type BacklogWorkRecordV1,
   type EvidenceReference,
   type LastUpdatedAtFact,
   type NullableSourcedBoolean,
+  type NullableSourcedPhaseNumber,
   type NullableSourcedString,
   type SourcedCount,
   type WorkGitEvidence,
@@ -29,6 +31,19 @@ const PHASE_FILE = /^(0[1-9]|[1-9]\d)-.+\.md$/;
 const TASK = /^- \[([ xX])\]\s+(?:(t[1-9]\d*):\s*)?(.+?)\s*$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)]+)\)/g;
 const COMPLETE_STATUS = /^(?:complete|completed|closed)$/i;
+const CHANGE_HISTORY_HEADING = /^(\d{4}-\d{2}-\d{2}) — (W[1-9]\d* R(?:0|[1-9]\d*))(?: P[1-9]\d*)?$/;
+const CHANGE_HISTORY_FIELDS = [
+  "Kind",
+  "Affected scope",
+  "Previous scope",
+  "Replacement scope",
+  "Rationale",
+  "PRD decision",
+  "Owner approval",
+  "Source",
+] as const;
+const CHANGE_HISTORY_KINDS = new Set(["edit", "revision-phase", "pivot", "rebuild", "revision-wave"]);
+const CHANGE_HISTORY_PRD_DECISIONS = new Set(["update-existing", "create", "link-only", "none"]);
 
 type JsonObject = Record<string, unknown>;
 
@@ -71,6 +86,14 @@ interface DateEvidenceResult {
   value: LastUpdatedAtFact;
   gitEvidence: WorkGitEvidence[];
   diagnostics: BacklogDiagnostic[];
+  /** Working-tree status for the record's files, or null when Git status is unavailable. */
+  statusFacts: { changed: string[]; untracked: Set<string> } | null;
+}
+
+/** Tracked and changed record files, or null when Git cannot prove either. */
+interface FileCommitFacts {
+  tracked: Set<string>;
+  changed: Set<string>;
 }
 
 export class BacklogSnapshotError extends OperationError {
@@ -477,9 +500,10 @@ function recordDates(
   const changed = git.state === "available"
     ? git.run(targetRoot, ["status", "--porcelain=v1", "-z", "--untracked-files=all", "--", ...inventory.discoveredFiles])
     : null;
-  const statusFacts = changed?.status === 0
+  const knownStatus = changed?.status === 0
     ? changedRecordFiles(changed.stdout, inventory.discoveredFiles)
-    : { changed: [], untracked: new Set<string>() };
+    : null;
+  const statusFacts = knownStatus ?? { changed: [], untracked: new Set<string>() };
   const changedPaths = statusFacts.changed;
   if (changedPaths.length > 0) {
     const newest = newestFileTime(targetRoot, changedPaths);
@@ -507,6 +531,7 @@ function recordDates(
         },
         gitEvidence,
         diagnostics,
+        statusFacts: knownStatus,
       };
     }
   }
@@ -546,6 +571,7 @@ function recordDates(
           },
           gitEvidence,
           diagnostics,
+          statusFacts: knownStatus,
         };
       }
     }
@@ -572,6 +598,7 @@ function recordDates(
       },
       gitEvidence,
       diagnostics,
+      statusFacts: knownStatus,
     };
   }
   diagnostics.push(diagnostic("BACKLOG-VAL-011", inventory.recordPath, inventory.recordPath));
@@ -585,7 +612,136 @@ function recordDates(
     },
     gitEvidence,
     diagnostics,
+    statusFacts: knownStatus,
   };
+}
+
+function fileCommitFacts(
+  targetRoot: string,
+  inventory: RecordInventory,
+  git: GitContext,
+  statusFacts: DateEvidenceResult["statusFacts"],
+): FileCommitFacts | null {
+  if (git.state !== "available" || statusFacts === null || inventory.discoveredFiles.length === 0) return null;
+  // --full-name keeps paths repository-relative, matching porcelain status output.
+  const listed = git.run(targetRoot, ["ls-files", "-z", "--full-name", "--", ...inventory.discoveredFiles]);
+  if (listed.status !== 0) return null;
+  return {
+    tracked: new Set(listed.stdout.split("\0").filter(Boolean).map(toPosix)),
+    changed: new Set(statusFacts.changed),
+  };
+}
+
+/** True only when every file is tracked and has no uncommitted change. */
+function committedFact(facts: FileCommitFacts | null, files: string[]): NullableSourcedBoolean {
+  if (facts === null || files.length === 0) return nullableBoolean(null);
+  return nullableBoolean(
+    files.every((file) => facts.tracked.has(file) && !facts.changed.has(file)),
+    files.map((file) => evidence(file, "git status")),
+  );
+}
+
+function bodyLineOffset(markdown: string, body: string): number {
+  return markdown.slice(0, markdown.length - body.length).split("\n").length - 1;
+}
+
+function closeoutNotesFact(body: string, phasePath: string, lineOffset: number): NullableSourcedBoolean {
+  const found = section(body, "Closeout Notes");
+  if (!found) return nullableBoolean(false, [evidence(phasePath, "Closeout Notes")]);
+  const content = found.text.replace(/<!--[\s\S]*?-->/g, "").trim();
+  return nullableBoolean(
+    content.length > 0 && !content.includes("{{"),
+    [evidence(phasePath, "Closeout Notes", lineOffset + found.startLine - 1)],
+  );
+}
+
+function nextPhaseFact(inventory: RecordInventory): NullableSourcedPhaseNumber {
+  let highest: { number: number; file: string } | null = null;
+  for (const file of inventory.discoveredFiles) {
+    const name = path.posix.basename(file);
+    if (!PHASE_FILE.test(name)) continue;
+    const number = Number(/^([0-9]+)/.exec(name)![1]);
+    if (!highest || number > highest.number) highest = { number, file };
+  }
+  return highest
+    ? { value: highest.number + 1, evidence: [evidence(highest.file, "phase file number")] }
+    : { value: 1, evidence: [evidence(`${inventory.recordPath}/`, "no numbered phase file")] };
+}
+
+function changeHistoryDiagnostics(
+  body: string,
+  lineOffset: number,
+  indexPath: string,
+  recordPath: string,
+  expectedWave: string,
+): BacklogDiagnostic[] {
+  const found = section(body, "Change History");
+  if (!found) return [];
+  // Blank out HTML comments but keep their line breaks so line numbers stay exact.
+  const lines = found.text.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
+  const entries: Array<{ heading: string; line: number; fields: Map<string, string> }> = [];
+  for (const [offset, line] of lines.entries()) {
+    const fileLine = lineOffset + found.startLine + offset;
+    const heading = /^###\s+(.+?)\s*$/.exec(line);
+    if (heading) {
+      entries.push({ heading: heading[1]!, line: fileLine, fields: new Map() });
+      continue;
+    }
+    const field = /^-\s+([^:]+):\s*(.*?)\s*$/.exec(line);
+    if (field && entries.length > 0) entries.at(-1)!.fields.set(field[1]!.trim(), field[2]!);
+  }
+  const results: BacklogDiagnostic[] = [];
+  const report = (line: number, detail: string) =>
+    results.push(diagnostic("BACKLOG-VAL-017", recordPath, indexPath, line, detail));
+  let previousDate: string | null = null;
+  for (const entry of entries) {
+    const label = `Entry "${entry.heading}"`;
+    const heading = CHANGE_HISTORY_HEADING.exec(entry.heading);
+    const date = heading?.[1] ?? null;
+    if (!heading || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
+      report(entry.line, `${label} does not use the heading form \`YYYY-MM-DD — <coordinate>\`.`);
+    } else if (heading[2] !== expectedWave) {
+      report(entry.line, `${label} names ${heading[2]}, but this record is ${expectedWave}.`);
+    }
+    const missing = CHANGE_HISTORY_FIELDS.filter((name) => {
+      const value = entry.fields.get(name);
+      return value === undefined || value.trim() === "" || value.includes("{{");
+    });
+    if (missing.length > 0) report(entry.line, `${label} is missing ${missing.join(", ")}.`);
+    const kind = entry.fields.get("Kind")?.replace(/`/g, "").trim();
+    if (kind && !kind.includes("{{") && !CHANGE_HISTORY_KINDS.has(kind)) {
+      report(entry.line, `${label} uses Kind "${kind}", which is not edit, revision-phase, pivot, rebuild, or revision-wave.`);
+    }
+    const decision = entry.fields.get("PRD decision")?.replace(/`/g, "").trim().split(/\s/, 1)[0];
+    if (decision && !decision.includes("{{") && !CHANGE_HISTORY_PRD_DECISIONS.has(decision)) {
+      report(entry.line, `${label} uses PRD decision "${decision}", which is not update-existing, create, link-only, or none.`);
+    }
+    if (date && heading) {
+      if (previousDate && date < previousDate) report(entry.line, `${label} is dated before the entry above it; keep the newest entry last.`);
+      previousDate = date;
+    }
+  }
+  return results;
+}
+
+function coordinateFacts(inventory: RecordInventory[]): BacklogCoordinateFacts {
+  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[] }>();
+  for (const record of inventory) {
+    const match = /^W(\d+) R(\d+)$/.exec(record.directoryCoordinate);
+    if (!match) continue;
+    const wave = Number(match[1]);
+    const entry = waves.get(wave) ?? { revisions: new Set<number>(), recordPaths: [] };
+    entry.revisions.add(Number(match[2]));
+    entry.recordPaths.push(record.recordPath);
+    waves.set(wave, entry);
+  }
+  const facts = [...waves.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([wave, entry]) => {
+      const revisions = [...entry.revisions].sort((left, right) => left - right);
+      return { wave, revisions, nextRevision: revisions.at(-1)! + 1, recordPaths: entry.recordPaths.sort() };
+    });
+  return { highestWave: facts.at(-1)?.wave ?? null, waves: facts };
 }
 
 function emptyCloseout(recordPath: string, scope: WorkScope, tasks: WorkTaskFact[]) {
@@ -621,6 +777,7 @@ function unsupportedRecord(
     },
     lastUpdatedAt: dates.value,
     phaseCount: count(0),
+    nextPhase: { value: null, evidence: [] },
     taskCounts: { total: count(0), complete: count(0), incomplete: count(0), unknown: count(0) },
     phases: [],
     dependencies: [],
@@ -638,6 +795,7 @@ function readRecord(
 ): { record: BacklogWorkRecordV1; diagnostics: BacklogDiagnostic[] } {
   const dates = recordDates(targetRoot, inventory, git);
   const diagnostics = [...dates.diagnostics];
+  const commitFacts = fileCommitFacts(targetRoot, inventory, git, dates.statusFacts);
   const indexPath = `${inventory.recordPath}/00-index.md`;
   const indexAbsolute = path.join(targetRoot, ...indexPath.split("/"));
   if (!inventory.discoveredFiles.includes(indexPath)) {
@@ -733,6 +891,8 @@ function readRecord(
       dependencies,
       blockers,
       sourceLinks: source.value ? [source.value] : [],
+      closeoutNotesPresent: closeoutNotesFact(parsedPhase.body, resolved, bodyLineOffset(phaseText, parsedPhase.body)),
+      committed: committedFact(commitFacts, [resolved]),
     });
     interpretedPhasePaths.push(resolved);
   }
@@ -768,6 +928,17 @@ function readRecord(
   ) {
     diagnostics.push(diagnostic("BACKLOG-VAL-008", inventory.recordPath, indexPath, parsedIndex.fieldLines.get("status") ?? null));
   }
+  if (supported) {
+    diagnostics.push(
+      ...changeHistoryDiagnostics(
+        parsedIndex.body,
+        bodyLineOffset(indexText, parsedIndex.body),
+        indexPath,
+        inventory.recordPath,
+        indexCoordinate!,
+      ),
+    );
+  }
 
   const record: BacklogWorkRecordV1 = {
     recordPath: inventory.recordPath,
@@ -790,11 +961,15 @@ function readRecord(
     },
     lastUpdatedAt: dates.value,
     phaseCount: count(phases.length, [evidence(indexPath, "Phase Map")]),
+    nextPhase: nextPhaseFact(inventory),
     taskCounts,
     phases,
     dependencies: phases.flatMap((phase) => phase.dependencies),
     blockers: phases.flatMap((phase) => phase.blockers),
-    closeout: emptyCloseout(inventory.recordPath, inventory.scope, tasks),
+    closeout: {
+      ...emptyCloseout(inventory.recordPath, inventory.scope, tasks),
+      committed: committedFact(commitFacts, [indexPath, ...interpretedPhasePaths]),
+    },
     sourceLinks: [indexSource.value, ...phases.flatMap((phase) => phase.sourceLinks)].filter((value): value is WorkSourceLinkFact => value !== null),
     gitEvidence: dates.gitEvidence,
   };
@@ -892,6 +1067,7 @@ export function buildBacklogSnapshot(
       live: records.filter((record) => record.scope === "live").length,
       archived: records.filter((record) => record.scope === "archived").length,
     },
+    coordinates: coordinateFacts(inventory),
     records,
     diagnostics: uniqueDiagnostics(diagnostics).sort((left, right) =>
       [left.recordPath ?? "", left.code, left.path ?? "", left.line ?? 0]
