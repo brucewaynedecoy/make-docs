@@ -727,13 +727,15 @@ function maskCode(body: string, keep: (text: string) => string): string {
   return body.split("\n").map((line) => {
     if (fence !== null) {
       // A closing fence is a run of the opener's character only, at least as long, then optional spaces or tabs.
-      const closer = /^ {0,3}(`{3,}|~{3,})[ \t]*$/.exec(line);
+      // A CRLF line keeps its `\r` after the split, so it is allowed before the end.
+      const closer = /^ {0,3}(`{3,}|~{3,})[ \t]*\r?$/.exec(line);
       if (closer && closer[1]![0] === fence[0] && closer[1]!.length >= fence.length) fence = null;
       return keep(line);
     }
     if (!inComment) {
-      const opener = /^ {0,3}(`{3,}|~{3,})/.exec(line);
-      if (opener) {
+      const opener = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+      // A backtick fence's info string cannot contain a backtick, so such a line is inline code, not a fence.
+      if (opener && !(opener[1]![0] === "`" && opener[2]!.includes("`"))) {
         fence = opener[1]!;
         return keep(line);
       }

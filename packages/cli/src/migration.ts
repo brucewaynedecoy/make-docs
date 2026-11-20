@@ -1791,10 +1791,13 @@ export function skillChangesLeftForSkillsSetup(installPlan: InstallPlan): Planne
 
 export const SKILL_CHANGES_ROUTE = "make-docs setup skills";
 
-/** The exact `setup skills` command, with the reviewed target when setup ran on another directory. */
+/**
+ * The exact `setup skills` command, with the reviewed target when setup ran on another directory.
+ * The target uses the double-quoted form that other make-docs next actions use, so a path with spaces also works in Command Prompt and PowerShell.
+ */
 export function skillChangesRoute(targetDir?: string): string {
   if (!targetDir) return SKILL_CHANGES_ROUTE;
-  return `${SKILL_CHANGES_ROUTE} --target ${/^[\w@%+=:,./-]+$/.test(targetDir) ? targetDir : `'${targetDir.replace(/'/g, "'\\''")}'`}`;
+  return `${SKILL_CHANGES_ROUTE} --target ${JSON.stringify(targetDir)}`;
 }
 
 export function skillChangesNextAction(count: number, targetDir?: string): string {

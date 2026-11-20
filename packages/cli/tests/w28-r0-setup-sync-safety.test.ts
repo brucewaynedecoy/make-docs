@@ -89,11 +89,11 @@ test("a full setup sync names Skill changes it leaves to setup skills instead of
 
   const dry = await inStore(store, ["setup", "--target", project, "--dry-run", ...harness, "--json"]);
   expect(dry.project?.actions?.find(action => action.path === skillPath)?.action).toBe("skip");
-  expect(dry.nextAction).toContain(`\`make-docs setup skills --target ${project}\``);
+  expect(dry.nextAction).toContain(`\`make-docs setup skills --target ${JSON.stringify(project)}\``);
 
   const sync = await inStore(store, ["setup", "--target", project, "--yes", ...harness, "--json"]);
   expect(sync.status, JSON.stringify(sync)).toBe("complete");
-  expect(sync.nextAction).toContain(`\`make-docs setup skills --target ${project}\``);
+  expect(sync.nextAction).toContain(`\`make-docs setup skills --target ${JSON.stringify(project)}\``);
   expect(readFileSync(path.join(project, skillPath), "utf8")).toBe(olderBytes);
 });
 
@@ -104,5 +104,7 @@ test("the applied setup result names both a blocked platform and the Skill route
   expect(setupFollowUpAction("Add the MCP entry, then run setup again.", 0)).toBe("Add the MCP entry, then run setup again.");
   expect(setupFollowUpAction(undefined, 1)).toBe("Full setup leaves 1 Skill file change to `make-docs setup skills`. Run it to apply that change.");
   expect(setupFollowUpAction(null, 0)).toBeNull();
-  expect(setupFollowUpAction(undefined, 2, "/work/my project")).toContain("`make-docs setup skills --target '/work/my project'`");
+  // The target is quoted the way other make-docs next actions quote it, which also works in Windows shells.
+  expect(setupFollowUpAction(undefined, 2, "/work/my project")).toContain('`make-docs setup skills --target "/work/my project"`');
+  expect(setupFollowUpAction(undefined, 2, "C:\\My Project")).toContain('`make-docs setup skills --target "C:\\\\My Project"`');
 });

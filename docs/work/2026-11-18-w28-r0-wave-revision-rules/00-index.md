@@ -57,6 +57,7 @@ Out of scope:
 | [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md) | Revision Phase for P2 with design and guide text corrections: ignore headings inside HTML comments, fix the setup and Skill adoption defects D-054 and D-055, repair this repository's Store record, refresh the installed Skills, and repack the 2.0.9 candidate. |
 | [P9 Second Review Corrections](09-second-review-corrections.md) | Revision Phase for P8: name every setup follow-up, treat code as literal in snapshot section lookup, fix the `incomplete` review display, explain the report version, refresh the installed Skills, and repack the 2.0.9 candidate. |
 | [P10 Third Review Corrections](10-third-review-corrections.md) | Revision Phase for P9: name the target folder in the Skill route, recount Skill changes after a new plan, track comment and fence state together in the snapshot scan, record deferred findings D-056 and D-057, and repack the 2.0.9 candidate. |
+| [P11 Fourth Review Corrections](11-fourth-review-corrections.md) | Revision Phase for P10: quote the Skill route target for every shell, accept CRLF closing fences, open no fence for inline code, correct the P10 testing closeout, and repack the 2.0.9 candidate. |
 
 ## Usage Notes
 
@@ -200,3 +201,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 03 records D-056 and D-057 as open. PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require the corrected behavior and do not change.
 - Owner approval: Tyler, 2026-11-20, chose to defer the display and widget findings to a separate Wave.
 - Source: [P10 Third Review Corrections](10-third-review-corrections.md)
+
+### 2026-11-20 — W28 R0 P11
+
+- Kind: `revision-phase`
+- Affected scope: New P11 t1–t4 and A60–A63, revising completed P10.
+- Previous scope: The `make-docs setup skills` route quoted the target with POSIX single quotes, which Command Prompt does not accept. The snapshot code scan did not close a CRLF fenced block, and it opened a fence for a line of inline code that starts with three backticks. The P10 closeout said all selected testing passed.
+- Replacement scope: The route uses the double-quoted form of other make-docs next actions. The scan accepts a CRLF closing fence and opens no backtick fence when the rest of the line has a backtick. The P10 closeout names the 2 known `npm test` failures.
+- Rationale: CodeRabbit findings on PR #64 at `9a017abf`. No revision Wave test passes.
+- PRD decision: `none` — PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require this behavior.
+- Owner approval: Not required. The owner told the agent to keep correcting review findings on 2026-11-19.
+- Source: [P11 Fourth Review Corrections](11-fourth-review-corrections.md)

@@ -464,6 +464,20 @@ describe("comment openers inside code", () => {
     expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(false);
   });
 
+  test("a CRLF fenced block closes and does not hide later live Closeout Notes", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1", "- Phase / capability status: Phase complete.").replace("# Fixture Phase\n", "# Fixture Phase\n\n```md\r\nexample\r\n```\r\n"));
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(true);
+  });
+
+  test("a line of inline code that starts with three backticks opens no fenced block", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1", "- Phase / capability status: Phase complete.").replace("# Fixture Phase\n", "# Fixture Phase\n\n```literal```\n"));
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(true);
+  });
+
   test("a heading inside a fenced block does not start a section", () => {
     const targetRoot = root();
     write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));

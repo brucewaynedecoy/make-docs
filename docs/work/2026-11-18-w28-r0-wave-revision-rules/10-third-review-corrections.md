@@ -79,7 +79,7 @@ There are no performance candidates.
 
 ### Closeout Notes
 
-- Four testing decisions: Automated Implementation Testing selected and passed. See the [evidence](evidence.md#p10-third-review-corrections). Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`.
+- Four testing decisions: Automated Implementation Testing selected. The focused suites, `validate:defaults`, the build, and `smoke:pack:local` passed. `npm test` had 2 failures, both the known Node 26 stdio cases in `mcp-app-contract.test.ts`. See the [evidence](evidence.md#p10-third-review-corrections). Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`.
 - Performance evidence: none.
 - Human Experience Review: the setup route works from any folder. Comment and fence edge cases no longer change snapshot facts.
 - Optional experience handoff: not applicable.

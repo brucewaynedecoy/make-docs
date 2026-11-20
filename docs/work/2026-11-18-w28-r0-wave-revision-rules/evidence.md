@@ -543,3 +543,34 @@ Covers A56 to A59 in [P10](10-third-review-corrections.md). Evidence date: 2026-
 - The focused backlog and W28 suites: 17 files and 392 tests passed.
 - `npm test` ran 118 test files: 116 passed, 1 failed, and 1 was skipped. Of 2,069 tests, 2,061 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`.
 - `validate:defaults`: 53 of 53. The build passes.
+
+## P11 Fourth Review Corrections
+
+Covers A60 to A63 in [P11](11-fourth-review-corrections.md). Evidence date: 2026-11-20. Input: the CodeRabbit review of PR #64 at `9a017abf`, with 5 inline comments. The 3 earlier comments on `73f0ae00` that arrived with it are the P10 fixes and are outdated.
+
+### Setup Skill Route Quoting (A60)
+
+- `skillChangesRoute` quotes the target with `JSON.stringify`, the double-quoted form that other make-docs next actions use. A path with a space now works in Command Prompt and PowerShell as well as in POSIX shells.
+- `w28-r0-setup-sync-safety.test.ts` expects that form for a POSIX path and for `C:\My Project`. Its setup tests build the expected route from the same form, so a Windows temporary path also matches. The tests fail without the change.
+
+### Fence Edge Cases (A61)
+
+- A closing fence may end with the `\r` of a CRLF line. A backtick fence opens only when the rest of the line has no backtick, so a line such as ```` ```literal``` ```` stays inline code.
+- `backlog-coordinate-facts.test.ts` adds 2 cases: a CRLF fenced block before live Closeout Notes, and a line of inline code that starts with three backticks. Both fail without the change.
+
+### P10 Closeout (A62)
+
+- The P10 testing closeout now names the 2 known `npm test` failures instead of saying that all selected testing passed.
+
+### Package Candidate (A63)
+
+- Two independent `npm pack -w packages/cli` runs produced the same tarball:
+  - build 1: `d74dcbea0bebfcf93ac2991d78f0fc898db8debf84d9d6ba3e238c40c4fbf6ce`
+  - build 2: `d74dcbea0bebfcf93ac2991d78f0fc898db8debf84d9d6ba3e238c40c4fbf6ce`
+- `smoke:pack:local` passed with the same digest. It replaces the P10 value in `.github/release-candidates/v2.0.9.sha256` as the last content change.
+
+### Checks
+
+- The 4 W28 regression and snapshot suites: 56 tests passed. The Skill bundle generators and the widget check produce no change.
+- `npm test` ran 118 test files: 116 passed, 1 failed, and 1 was skipped. Of 2,071 tests, 2,063 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`.
+- `validate:defaults`: 53 of 53. The build passes.
