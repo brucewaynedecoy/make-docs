@@ -134,6 +134,8 @@ Read the exact file changes, backups, scope, harnesses, ownership changes, and b
 make-docs setup skills --target . --selected-skills preflight --adopt-existing preflight --review <review-digest> --yes
 ```
 
+The apply writes its summary and result to stderr. It first says that it is applying the reviewed adoption, then that the adoption completed. Its JSON on stdout has a top-level `status` and `nextAction` for the result, and a `review` with the facts it applied. When the digest does not match, or when `--review` is missing, nothing is applied, and the output names the step that applies the review.
+
 The adoption list must be part of the selected first-party set. `--yes` alone is insufficient. `--review` without adoption and adoption with `--remove` are invalid. Ordinary `setup` does not accept adoption flags.
 
 Known-file differences and missing declared files can be reconciled after review. Replaced bytes are backed up. Extra files, unsafe links, conflicting copies, and another owner stop the operation. If the input changes, preview again and review the new digest. Do not delete files just to force adoption.

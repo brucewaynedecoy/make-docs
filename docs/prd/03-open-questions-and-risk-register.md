@@ -1211,6 +1211,42 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
 
+### D-058 Skill Adoption Apply Output Says Nothing Was Applied
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The adoption summary and next action depend on the mode. An apply prints a result line, and its JSON has a top-level `nextAction` for the result. | None. |
+
+**Issue**: In the W19 R5 P2 throwaway adoption on 2026-11-20, `make-docs setup skills --adopt-existing … --review <digest> --yes` applied the adoption correctly. Before the apply, it printed the dry-run summary to stderr. That summary says "No adoption changes have been applied." and tells the person to repeat the command and replace `--dry-run` with `--review <digest>`. After the apply, it printed no readable result. The JSON result had a top-level `status` of `completed`, but its nested `review` still had `status: "ready"` and the same stale next action.
+
+**Why it matters**: The output contradicts what the command did. A person or an agent that reads it can think the adoption failed and run it again. PRD 39 R-SKILL-ADOPT-CMD-4 requires output to explain the material effect and the safe next action.
+
+**Recommendation**: Select the summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation. After an apply, print a result line, give the JSON a top-level `nextAction` for the result, and leave out the applied review's own next action.
+
+**To close**: Tests cover the output of each mode and fail without the change. A real apply says that it is applying and then that it completed.
+
+**Resolution**: Closed on 2026-11-20 in W19 R5 P3 at the owner's direction. `skills-command.ts` selects the summary text and next action by mode, prints a result line after the apply, and gives the apply JSON a top-level `nextAction` without the applied review's own next action. The new assertions in `w19-r5-skills-command.test.ts` fail without the change and pass with it. A built-CLI adoption in a throwaway project printed "Applying this reviewed adoption now." and then "Skill adoption completed."
+
+**Evidence**: [W19 R5 P3 evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md#p3-accurate-adoption-apply-output).
+
+### D-059 Windows Store Session Admission Fails On A Transient EPERM
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Store session admission retries transient Windows `EPERM`, `EACCES`, and `EBUSY` at every step, until the admission deadline. | None. |
+
+**Issue**: The "windows-latest installed package" job of PR #65 failed twice, on 2026-11-19 and 2026-11-20, and then passed. The failing test was "keeps shared Store sessions safe under 20 processes and five checkouts" in `packages/cli/tests/installation-state.test.ts`. The error was `access-denied` with `EPERM` on `store-access.lock` at the "secure session directory" step in `packages/cli/src/store/database.ts`. Windows returns `EPERM` when a process opens a path that another process is deleting. Store session admission races with the cleanup of the empty session directory. Admission already retries Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. It does not retry them when it creates or opens the session directory, or when it creates the session file on Windows.
+
+**Why it matters**: Under concurrent use on Windows, a Store-backed command can fail and tell the person to grant Store access that they already have. The failure also makes the Windows CI job unreliable. PRD 38 R-DB-3 requires bounded busy retry for concurrent Store writers.
+
+**Recommendation**: Treat Windows `EPERM`, `EACCES`, and `EBUSY` as transient at each session admission step, and retry them until the admission deadline. Keep the error fatal on other platforms and after the deadline.
+
+**To close**: A deterministic fault-injection test covers each step, a lasting error, and another platform. Each fails without the change. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
+
+**Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. After the PR #66 review, the admission loop also retries a wrapped transient code from any safety read between those steps, and a failed attempt removes its own pending session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
+
+**Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

@@ -35,7 +35,8 @@ Current target paths depend on scope and selected harnesses. The [phase matrix](
 | --- | --- |
 | [Phase 1: Skills and Managed Adoption](01-skills-and-managed-adoption.md) | Promote and package Skills, add reviewed adoption, then prove the shipped product and real maintainer adoption. |
 | [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md) | Revision Phase for P1: let reviewed adoption keep existing native Skill links (D-053). |
-| [Central evidence report](evidence.md) | Read actual A1–A19 results, package identities, and the review limits and owner acceptance gate. |
+| [Phase 3: Accurate Adoption Apply Output](03-accurate-adoption-apply-output.md) | Revision Phase for P1: make the adoption apply output match what the command did (D-058). |
+| [Central evidence report](evidence.md) | Read actual A1–A22 results, package identities, and the review limits and owner acceptance gate. |
 
 ## Usage Notes
 
@@ -91,3 +92,14 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 - PRD decision: `update-existing` — PRD 03 closes D-053. PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 do not change.
 - Owner approval: Tyler, relayed by the coordinator on 2026-11-20: merge `main` in, close D-053, and record the digest last.
 - Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
+
+### 2026-11-20 — W19 R5 P3
+
+- Kind: `revision-phase`
+- Affected scope: New P3 t1–t5 and A20–A22, revising completed P1.
+- Previous scope: P1 delivered the adoption command with one summary for every mode. A real apply printed the dry-run summary, which says that nothing was applied and asks for a repeat with `--review`. It printed no readable result, and its JSON kept the review's stale next action.
+- Replacement scope: P3 selects the summary text and next action by mode, prints a result line after an apply, and gives the apply JSON a top-level `nextAction` for the result.
+- Rationale: Found in the W19 R5 P2 throwaway adoption on 2026-11-20 and recorded as D-058. It changes one P1 result and passes no revision Wave test. The released 2.0.8 has the same output.
+- PRD decision: `update-existing` — PRD 03 records D-058. PRD 39 R-SKILL-ADOPT-CMD-4 and -5 already require truthful output and do not change.
+- Owner approval: Tyler, 2026-11-20. He chose one follow-up PR after #65 for this fix and D-059, and chose to ship both in 2.0.9.
+- Source: [Phase 3: Accurate Adoption Apply Output](03-accurate-adoption-apply-output.md)
