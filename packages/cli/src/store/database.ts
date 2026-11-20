@@ -605,6 +605,15 @@ function systemCode(error: unknown): string | undefined {
   return typeof code === "string" ? code : undefined;
 }
 
+/**
+ * Windows reports EPERM, EACCES, or EBUSY when a process opens or creates a path that another
+ * process is deleting. Store session admission races with the cleanup of the empty session
+ * directory, so these codes are transient there. Callers retry them only until their deadline.
+ */
+function isTransientWindowsAccessError(code: string | undefined): boolean {
+  return platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "");
+}
+
 function readStoreEntry(file: string, operation: string): Stats | null {
   try {
     return lstatSync(file, { throwIfNoEntry: false }) ?? null;
@@ -902,7 +911,7 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
       result = recoverDeadStoreAccessSessions(storeRoot);
     } catch (error) {
       const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
-      if (platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "") && Date.now() < deadline) {
+      if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
         pause(attempt++, deadline);
         continue;
       }
@@ -996,7 +1005,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
         recoverDeadStoreAccessSessions(storeRoot);
       } catch (error) {
         const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
-        if (platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "") && Date.now() < deadline) {
+        if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
           pause(attempt++, deadline);
           continue;
         }
@@ -1006,6 +1015,10 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
     try {
       mkdirSync(directory, { mode: 0o700 });
     } catch (error) {
+      if (isTransientWindowsAccessError(systemCode(error)) && Date.now() < deadline) {
+        pause(attempt++, deadline);
+        continue;
+      }
       if (systemCode(error) !== "EEXIST") throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "create session directory", error));
     }
     let directoryFd: number | null = null;
@@ -1034,7 +1047,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
     } catch (error) {
       if (error instanceof StoreUnavailableError) throw error;
       const code = systemCode(error);
-      if (code === "ENOENT" && Date.now() < deadline) {
+      if ((code === "ENOENT" || isTransientWindowsAccessError(code)) && Date.now() < deadline) {
         pause(attempt++, deadline);
         continue;
       }
@@ -1100,7 +1113,8 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       if (error instanceof StoreUnavailableError) throw error;
       const code = systemCode(error);
       const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
-        || (platform.kind === "darwin" && code === "EINVAL");
+        || (platform.kind === "darwin" && code === "EINVAL")
+        || isTransientWindowsAccessError(code);
       if (retryableSessionOpenError && Date.now() < deadline) {
         pause(attempt++, deadline);
         continue;

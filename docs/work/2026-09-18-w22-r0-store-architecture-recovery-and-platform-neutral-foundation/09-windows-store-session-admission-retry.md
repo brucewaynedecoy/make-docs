@@ -1,7 +1,7 @@
 ---
 title: "Phase 9: Windows Store Session Admission Retry"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W22 R0 P9"
 source:
   type: "prd"
@@ -62,10 +62,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: In `packages/cli/src/store/database.ts`, add one helper for transient Windows access codes. Retry them until the admission deadline when the session directory is created, when it is opened and secured, and when the session file is created. Use the helper at the two existing Windows retries too.
-- [ ] t2: Add `packages/cli/tests/w22-r0-p9-windows-session-admission.test.ts`. Inject `EPERM` at each step on a simulated Windows platform, and confirm that the tests fail without the change.
-- [ ] t3: Run the focused Store tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`. The three-platform CI then runs on the PR. A CI pass alone cannot prove a timing fix, so the deterministic test is the proof.
-- [ ] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`. This digest also covers W19 R5 P3 in the same PR.
+- [x] t1: In `packages/cli/src/store/database.ts`, add one helper for transient Windows access codes. Retry them until the admission deadline when the session directory is created, when it is opened and secured, and when the session file is created. Use the helper at the two existing Windows retries too.
+- [x] t2: Add `packages/cli/tests/w22-r0-p9-windows-session-admission.test.ts`. Inject `EPERM` at each step on a simulated Windows platform, and confirm that the tests fail without the change.
+- [x] t3: Run the focused Store tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`. The three-platform CI then runs on the PR. A CI pass alone cannot prove a timing fix, so the deterministic test is the proof.
+- [x] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`. This digest also covers W19 R5 P3 in the same PR.
 
 ### Acceptance criteria
 
@@ -79,4 +79,10 @@ There are no performance candidates.
 
 ### Closeout Notes
 
-- Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed. See the [evidence](evidence.md#p9-windows-store-session-admission-retry). Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none.
+- Human Experience Review: the change has no new output. A transient Windows race now waits instead of showing a false request for Store access. A lasting access problem still shows the same `access-denied` guidance, after the admission deadline. Limit: the race is reproduced by fault injection on macOS. A real Windows run is only the PR's CI, which cannot prove a timing fix by itself.
+- Optional experience handoff: not applicable.
+- Explicit human acceptance gate: none.
+- Evidence report: [P9 Windows Store Session Admission Retry](evidence.md#p9-windows-store-session-admission-retry).
+- Phase / capability status: Phase complete on commit. D-059 is closed.

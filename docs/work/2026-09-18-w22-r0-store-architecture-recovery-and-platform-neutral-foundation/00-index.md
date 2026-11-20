@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog"
 kind: "work"
-status: "active"
+status: "complete"
 coordinate: "W22 R0"
 source:
   type: "prd"
@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P1 through P8 and W22 revision closeout are complete. Keep publication and release separate."
-  coordinate_handoff: "Keep P1 through P8 complete and preserve the exact proof and limits."
+  why: "P1 through P9 and W22 revision closeout are complete. Keep publication and release separate."
+  coordinate_handoff: "Keep P1 through P9 complete and preserve the exact proof and limits."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -54,7 +54,7 @@ Videos Matter then proved that authentic schema-1 whole-file routers were still 
 
 ## Usage Notes
 
-- P1 through P8 are completed records. Preserve the rejected candidates and failed live attempts as historical evidence.
+- P1 through P9 are completed records. Preserve the rejected candidates and failed live attempts as historical evidence.
 - The source, isolated fixture, exact package, installed, and approved live North Atlantic BuildOS gates passed for P7 and P8.
 - Keep the P8 closeout bound to the recorded exact candidate and its Ubuntu, macOS, Windows, and live-project evidence.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
@@ -74,13 +74,13 @@ Videos Matter then proved that authentic schema-1 whole-file routers were still 
 - Next step: Use the completed W22 proof as the bounded basis for later work.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
 - Why: P1 through P8, P8 Stage 4, and D-038 have recorded closeout and proof.
-- Coordinate Handoff: Keep P1 through P8 complete and preserve all accepted and rejected evidence. Do not infer publication or release authority.
+- Coordinate Handoff: Keep P1 through P9 complete and preserve all accepted and rejected evidence. Do not infer publication or release authority.
 
 Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded each defect without rewriting prior phase history. The owner approved the prior exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Videos Matter reopened P8 and D-038 on 2026-09-24. The final `2.0.2` candidate and live correction passed, and the owner approved P8 and D-038 closeout and pull-request merge on 2026-09-24. P7 and P8 are closed.
 
 ## Revision Closeout
 
-W22 R0 is complete in the accepted P1–P8 scope. Each phase has all tasks checked and a closeout result. P6 records comparable installed package proof on Windows, macOS, and Linux. P7 and P8 record the later live setup repairs, the exact package checks, and the owner-approved closeouts. The rejected candidates and failed attempts remain in the evidence. This revision closeout changes record state only. It does not claim a new 2.0.5 platform test or authorize publication.
+W22 R0 is complete in the accepted P1–P9 scope. Each phase has all tasks checked and a closeout result. P6 records comparable installed package proof on Windows, macOS, and Linux. P7 and P8 record the later live setup repairs, the exact package checks, and the owner-approved closeouts. The rejected candidates and failed attempts remain in the evidence. This revision closeout changes record state only. It does not claim a new 2.0.5 platform test or authorize publication. P9, added on 2026-11-20, retries a transient Windows Store session race (D-059) and ships in the 2.0.9 candidate.
 
 ## Change History
 

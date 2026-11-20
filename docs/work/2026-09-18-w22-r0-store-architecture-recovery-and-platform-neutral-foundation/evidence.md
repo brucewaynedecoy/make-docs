@@ -1745,3 +1745,19 @@ The immediate plain-setup repeat reported installed and package version `2.0.2`,
 Human Experience Review used the actual preview, blocked, success, and repeat output. Codex performed the review, and the owner accepted the result on 2026-09-24. The preview named the two planned project effects. The blocked result clearly stated that approval was missing and made no change. The success result named the synced version and project. The repeat result made current state and zero planned changes visible. The flow preserved control and supplied one safe next action. The only limit is the split live evidence noted above: the final candidate repaired an already-upgraded live project, while the authentic fixture and three-platform installed workflow prove the direct schema-1 transition.
 
 Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release retain separate gates.
+
+## P9 Windows Store Session Admission Retry
+
+Evidence date: 2026-11-20. Base: `main` at `fb3f9473`, after PR #65 merged.
+
+- **Source of the defect.** The "windows-latest installed package" job of PR #65 failed in its first attempt of run 44773946247 (job 136421083839). The test "keeps shared Store sessions safe under 20 processes and five checkouts" failed with `access-denied`, `systemCode: 'EPERM'`, on `store-access.lock` at the "secure session directory" step. A later attempt and `workflow_dispatch` run 44779531642 on `main` passed.
+- **Change.** `isTransientWindowsAccessError` in `packages/cli/src/store/database.ts` names Windows `EPERM`, `EACCES`, and `EBUSY`. Session admission now retries them, until the admission deadline, when it creates the session directory, opens and secures it, and creates the session file. The two existing Windows retries use the same helper, with no change in behavior.
+- **Regression proof.** `w22-r0-p9-windows-session-admission.test.ts` injects `EPERM` through a `node:fs` mock on a simulated Windows platform. With the old `database.ts`, 4 of its 5 tests fail: each of the three steps, and the lasting error, which failed on the first attempt instead of after retries. With the change, 5 of 5 pass. A lasting `EPERM` still ends in `access-denied` after the deadline, and a simulated Linux platform still fails on the first attempt.
+- **Checks.** `npm test` ran 120 test files: 118 passed, 1 failed, and 1 was skipped. Of 2,081 tests, 2,073 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`. `validate:defaults` passes 53 of 53. The build and `smoke:pack:local` pass.
+- **Package candidate.** The candidate contains W19 R5 P3 and P9. Two independent `npm pack -w packages/cli` runs produced the same tarball:
+  - build 1: `113ccd0e2a2673e2e59f71d7c5b663d38de61637d8765b5b8c291bff46705ef2`
+  - build 2: `113ccd0e2a2673e2e59f71d7c5b663d38de61637d8765b5b8c291bff46705ef2`
+- `smoke:pack:local` passed with the same digest. 2.0.9 is not published, and `RELEASING.md` does not forbid replacing an unpublished candidate digest. The digest replaces the W19 R5 P2 value in `.github/release-candidates/v2.0.9.sha256` as the last change.
+- **Limit.** The race is reproduced by fault injection, not on real Windows. The PR's three-platform CI is supporting evidence only.
+- This Mac's Store was not changed.
+

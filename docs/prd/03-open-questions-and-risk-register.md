@@ -1233,7 +1233,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner chose on 2026-11-20 to fix this in W22 R0 P9 and ship it in 2.0.9. | Retry transient Windows access codes at every Store session admission step, until the admission deadline. |
+| Closed | Store session admission retries transient Windows `EPERM`, `EACCES`, and `EBUSY` at every step, until the admission deadline. | None. |
 
 **Issue**: The "windows-latest installed package" job of PR #65 failed twice, on 2026-11-19 and 2026-11-20, and then passed. The failing test was "keeps shared Store sessions safe under 20 processes and five checkouts" in `packages/cli/tests/installation-state.test.ts`. The error was `access-denied` with `EPERM` on `store-access.lock` at the "secure session directory" step in `packages/cli/src/store/database.ts`. Windows returns `EPERM` when a process opens a path that another process is deleting. Store session admission races with the cleanup of the empty session directory. Admission already retries Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. It does not retry them when it creates or opens the session directory, or when it creates the session file on Windows.
 
@@ -1243,7 +1243,9 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: A deterministic fault-injection test covers each step, a lasting error, and another platform. Each fails without the change. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
 
-**Evidence**: [W22 R0 P9](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/09-windows-store-session-admission-retry.md).
+**Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
+
+**Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
 
 ## Open Questions
 
