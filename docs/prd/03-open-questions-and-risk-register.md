@@ -1211,6 +1211,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
 
+### D-058 Skill Adoption Apply Output Says Nothing Was Applied
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner chose on 2026-11-20 to fix this in W19 R5 P3 and ship it in 2.0.9. | Make the adoption summary and next action depend on the mode, and add a result line and a result `nextAction` after an apply. |
+
+**Issue**: In the W19 R5 P2 throwaway adoption on 2026-11-20, `make-docs setup skills --adopt-existing … --review <digest> --yes` applied the adoption correctly. Before the apply, it printed the dry-run summary to stderr. That summary says "No adoption changes have been applied." and tells the person to repeat the command and replace `--dry-run` with `--review <digest>`. After the apply, it printed no readable result. The JSON result had a top-level `status` of `completed`, but its nested `review` still had `status: "ready"` and the same stale next action.
+
+**Why it matters**: The output contradicts what the command did. A person or an agent that reads it can think the adoption failed and run it again. PRD 39 R-SKILL-ADOPT-CMD-4 requires output to explain the material effect and the safe next action.
+
+**Recommendation**: Select the summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation. After an apply, print a result line, give the JSON a top-level `nextAction` for the result, and leave out the applied review's own next action.
+
+**To close**: Tests cover the output of each mode and fail without the change. A real apply says that it is applying and then that it completed.
+
+**Evidence**: [W19 R5 P3](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/03-accurate-adoption-apply-output.md).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
