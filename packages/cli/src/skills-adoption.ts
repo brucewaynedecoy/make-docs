@@ -5,7 +5,7 @@ import { isDeepStrictEqual } from "node:util";
 import { parse, stringify } from "yaml";
 import { loadMakeDocsConfigOrThrow } from "./config";
 import { planSkillsOnlyInstall } from "./install";
-import { createManifest, loadManifest, mintProjectId } from "./manifest";
+import { createManifest, loadManifest, mintProjectId, validateAndMigrateManifest } from "./manifest";
 import { getDesiredSkillAssets } from "./skill-catalog";
 import type { EffectiveSkillRegistry } from "./skill-registry";
 import { assertEmbeddedSkillPackageDigest, getEmbeddedSkillPackageDigest } from "./skill-resolver";
@@ -320,6 +320,14 @@ export async function buildSkillAdoptionReview(options: {
   for (const p of Object.keys(files)) if (legacySkillRoot(p) || (beforeLedger?.files[p]?.skillExposure && !desiredFiles[p] && after[p]?.kind === 'directory')) delete files[p];
   const skillFiles = [...new Set([...(beforeLedger?.skillFiles ?? []), ...normal.desiredSkillFiles])].filter(p => !!files[p] && !normal.actions.some(a => a.relativePath === p && a.type === "remove-managed"));
   const afterLedger = createManifest(packageMeta, normal.profile, files, skillFiles, beforeLedger?.systemAssetMaterialization ?? normal.systemAssetMaterialization, projectId, normal.routerOwnership!, normal.resourceProjection!);
+  // The apply validates this ledger before any write, so the review must validate it too and never report a ready plan that the apply refuses.
+  try {
+    validateAndMigrateManifest(JSON.parse(JSON.stringify(afterLedger)), "Prepared Skill adoption ledger");
+  } catch (error) {
+    blockers.push(beforeLedger && beforeLedger.packageVersion !== packageMeta.version
+      ? `This install was recorded by make-docs ${beforeLedger.packageVersion}, and this CLI is ${packageMeta.version}. Run \`make-docs setup\` first so the install records ${packageMeta.version}, then create a new adoption review.`
+      : `The prepared Skill adoption ledger is not valid: ${error instanceof Error ? error.message : String(error)}`);
+  }
   const ownershipChanges = [...new Set([...Object.keys(beforeLedger?.files ?? {}), ...Object.keys(files)])].filter(p => roots.some(root => under(p,root))).map(p => ({ path:p, effect: !beforeLedger?.files[p] ? "register" as const : !files[p] ? "remove" as const : isDeepStrictEqual(beforeLedger.files[p], files[p]) ? "retain" as const : "update" as const, before:beforeLedger?.files[p] ?? null, after:files[p] ?? null }));
   const changes = changesBetween(before, after);
   // Existing ancestor directories are pinned inputs, not deletion targets.

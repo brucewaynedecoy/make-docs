@@ -46,8 +46,8 @@ For current performance candidates, read `make-docs://system/contract/performanc
 ## Coordinate Decision
 
 - Coordinate: `W{{W}} R{{R}}`
-- Classification: `new-wave` or `revision`
-- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+- Classification: `new-wave` or `revision-wave` (the legacy value `revision` means `revision-wave`)
+- Evidence: Name the explicit user guidance, the outcome test result for a new wave, or the revision Wave test that passed, with the design handoff, source lineage, and prior plan/work/history records used. Apply the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`. An in-place amendment of a committed plan keeps this section and records the change in `## Change History`.
 
 ## Phase Map
 
@@ -74,3 +74,18 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - Next step: Generate or update the PRD set from this plan.
 - Why: The plan should become the product or documentation contract before work backlog generation.
 - Coordinate Handoff: Carry `W{{W}} R{{R}}` into the downstream PRD and work backlog lineage, or explain the coordinate question that must be resolved before writing.
+
+## Change History
+
+<!-- Optional. Add this section only after this plan has been committed and its scope changes. One entry per coherent scope edit, newest last. Progress updates need no entry. See the `## Change History` section of `.make-docs/system/references/wave-model.md`. `PRD decision` is `update-existing`, `create`, `link-only`, or `none`. `Source` is a relative Markdown link to the governing design, plan, work, history, owner decision, or evidence. Remove this comment and the example entry when the section is not needed. -->
+
+### {{DATE}} — {{COORDINATE}}
+
+- Kind: `{{EDIT_REVISION_PHASE_PIVOT_REBUILD_OR_REVISION_WAVE}}`
+- Affected scope: {{PHASES_OR_TASKS}}
+- Previous scope: {{PREVIOUS_SCOPE}}
+- Replacement scope: {{REPLACEMENT_SCOPE}}
+- Rationale: {{RATIONALE}}
+- PRD decision: `{{PRD_DECISION}}` — {{REASON_WHEN_NONE}}
+- Owner approval: {{APPROVAL_SOURCE_OR_NOT_REQUIRED}}
+- Source: {{RELATIVE_SOURCE_REFERENCE}}

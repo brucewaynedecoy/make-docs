@@ -31,8 +31,8 @@ Implementation sequencing, migration actions, reconciliation work, and editorial
 ## Coordinate Decision
 
 - Coordinate: `W{{W}} R{{R}}`
-- Classification: `new-wave` or `revision`
-- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+- Classification: `new-wave` or `revision-wave` (the legacy value `revision` means `revision-wave`)
+- Evidence: Name the explicit user guidance, the outcome test result for a new wave, or the revision Wave test that passed, with the design handoff, source lineage, and prior plan/work/history records used. Apply the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`. An in-place amendment of a committed plan keeps this section and records the change in `## Change History`.
 
 The coordinate identifies this maintenance plan. Product PRDs do not use W/R/P as document identity; carry the coordinate into requirement-history entries and source links only.
 
@@ -119,15 +119,15 @@ List material prior contracts that should be preserved after the current normati
 - Genuinely new authoritative PRDs, if any: {{NEW_PRD_TARGETS}}
 - Requirement-history entries: {{HISTORY_ENTRY_TARGETS}}
 - Shared PRD surfaces: {{INDEX_AND_RISK_TARGETS}}
-- Delta backlog:
-  - `docs/work/{{DATE}}-w{{W}}-r{{R}}-{{MAINTENANCE_SLUG}}/`
+- Work backlog (lineage amendment or new):
+  - `{{LINEAGE_OR_NEW_WORK_DIRECTORY}}`
 
 ## Worker Ownership
 
 List delegated workers, their scopes, write scopes, dependencies, and deliverables.
 
 - Assign every output-writing task to a worker when delegation is available.
-- Keep existing-owner updates, genuinely new product PRDs, shared index/risk maintenance, delta backlog generation, and validation as separate write scopes whenever practical.
+- Keep existing-owner updates, genuinely new product PRDs, shared index/risk maintenance, work backlog updates, and validation as separate write scopes whenever practical.
 - Include a dedicated validation or fix worker when the harness can support it.
 - The coordinator should not appear as the owner of any document-writing task when delegation is available.
 
@@ -151,5 +151,20 @@ Explain how execution will validate the outputs. Validation should confirm:
 - every material prior contract is preserved only in a standardized, non-normative `## Requirement History` entry
 - `docs/prd/00-index.md` uses product-oriented kinds and current-authority links
 - removals and deprecations are expressed as current scope, non-goal, limitation, status, or boundary statements before history is recorded
-- the delta backlog cites updated authoritative PRDs, not retired change records
+- the new or amended backlog phases cite updated authoritative PRDs, not retired change records
 - no existing PRD was renumbered or broadly rewritten without an ownership-based reason
+
+## Change History
+
+<!-- Optional. Add this section only after this plan has been committed and its scope changes. One entry per coherent scope edit, newest last. Progress updates need no entry. See the `## Change History` section of `.make-docs/system/references/wave-model.md`. `PRD decision` is `update-existing`, `create`, `link-only`, or `none`. `Source` is a relative Markdown link to the governing design, plan, work, history, owner decision, or evidence. Remove this comment and the example entry when the section is not needed. -->
+
+### {{DATE}} — {{COORDINATE}}
+
+- Kind: `{{EDIT_REVISION_PHASE_PIVOT_REBUILD_OR_REVISION_WAVE}}`
+- Affected scope: {{PHASES_OR_TASKS}}
+- Previous scope: {{PREVIOUS_SCOPE}}
+- Replacement scope: {{REPLACEMENT_SCOPE}}
+- Rationale: {{RATIONALE}}
+- PRD decision: `{{PRD_DECISION}}` — {{REASON_WHEN_NONE}}
+- Owner approval: {{APPROVAL_SOURCE_OR_NOT_REQUIRED}}
+- Source: {{RELATIVE_SOURCE_REFERENCE}}

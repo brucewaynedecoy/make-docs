@@ -23,7 +23,7 @@ Inspect:
 - the impact and Human Experience Intent in each applicable source design, using the [Human Experience Contract](../contracts/human-experience-contract.md) and [Human Experience Reference](human-experience.md)
 - any `Coordinate Handoff` or source-lineage notes in referenced designs
 - any existing plans, PRD docs, and work backlogs
-- any history records for prior phases that the request revises, reworks, corrects, standardizes, or finishes
+- any history records for prior phases whose outcomes the request changes
 - whether `docs/prd/` already contains active content (archives live under `.make-docs/archive/prds/YYYY-MM-DD/`)
 - whether the user request is best classified as baseline generation, decomposition, or authoritative PRD maintenance
 
@@ -34,7 +34,7 @@ requirements, and similar source material as artifacts.
 Use `docs/assets/project/` as the optional input home; do not create or require an
 architecture-specific seed directory name.
 
-Resolve the W/R coordinate using `.make-docs/system/references/wave-model.md` before writing. Explicit user guidance and source lineage from designs, prior plans, prior work backlogs, and history records take precedence over the highest existing wave. If source lineage points to an earlier wave but later unrelated waves exist, keep the lineage wave and increment its revision.
+Resolve the W/R coordinate with the `## Decision Procedure` in `.make-docs/system/references/wave-model.md` before writing. Explicit user guidance comes first. New work, decided by the outcome test, gets a new wave. A change to a lineage wave's unfinished work amends that wave's plan and backlog in place. A change to completed work becomes a revision Phase, or a revision Wave only when the revision Wave test passes. Stop at the owner gates listed there. Later unrelated waves never move work to a new wave.
 
 If the request is ambiguous, infer the likely mode from the repo, prompt, and explicit design handoff. Ask the user only when the ambiguity materially changes the output shape.
 
@@ -62,7 +62,7 @@ For authoritative PRD maintenance, the plan should also settle:
 - the genuinely new capability, subsystem, or product-boundary PRDs to create, if any
 - the standardized, non-normative requirement-history entries to add
 - the affected links, risks, plans, work artifacts, and downstream source-authority relationships
-- whether a scoped delta backlog is sufficient or the user explicitly wants a regenerated full backlog
+- whether the work amends the lineage wave's backlog in place, rebuilds its unfinished Phases from the PRD (owner approval required), or needs a new backlog because it is a new wave or a revision Wave
 - any deferred-obligation dispositions, material current human-experience uncertainties, proposed `NUAT-###` ownership for activated tests, and `not-needed-now` reasons needed before implementation
 
 ## Human Experience Planning
@@ -89,7 +89,7 @@ Ask the user only when the answer affects the output shape or execution style. T
 - whether reference-style docs should stay separate from subsystem docs
 - whether maintenance should stay a scoped delta or requires coordinated updates across several existing PRD owners
 - whether an apparent new subject is coherent enough for its own product PRD or belongs in an existing owner
-- whether the backlog directory should be scoped to a delta or regenerated as a full backlog
+- whether to rebuild a lineage backlog's unfinished Phases from the PRD, which needs owner approval under `wave-model.md`
 - whether the user explicitly wants to forbid delegation and force single-agent execution despite the default
 
 Do not ask questions that can be answered by repo inspection. Do not ask the user which planning route to use when the referenced design docs already declare `## Intended Follow-On`, unless the user is explicitly reconsidering that route.
@@ -106,7 +106,7 @@ Start from the relevant template in `.make-docs/system/templates/`:
 
 Every plan should cover:
 
-- coordinate decision, including whether the plan is a new wave or a revision and the evidence used
+- coordinate decision, including `Classification: new-wave` or `revision-wave` and the evidence used (explicit guidance, the outcome test, or the revision Wave test)
 - repo summary
 - output contract
 - execution mode and PRD lifecycle handling
@@ -125,7 +125,7 @@ PRD authority-maintenance plans should additionally cover:
 - genuinely new product PRDs, if any
 - requirement-history entries
 - affected links, risks, plans, and work artifacts
-- delta backlog scope and downstream authority links
+- work backlog placement (lineage backlog amendment or a new backlog) and downstream authority links
 - obligation routing, current-uncertainty planning, and separate testing decisions when Unassisted Goal Testing is implicated
 - canonical performance-profile ownership, execution-packet ownership, evidence reuse, expiry, and phase-gate consumption when Performance Testing is implicated
 
@@ -161,7 +161,7 @@ Do not imply that approving the plan automatically authorizes execution. If the 
 
 For authoritative PRD maintenance:
 
-- keep existing-owner updates, genuinely new product PRDs, shared index/risk updates, and delta backlog generation as separate write scopes whenever practical
+- keep existing-owner updates, genuinely new product PRDs, shared index/risk updates, and work backlog updates as separate write scopes whenever practical
 - route cross-doc status updates and backlink validation to assembly or validation workers rather than the coordinator
 
 ## Flat Vs Nested Decision
@@ -190,7 +190,7 @@ Before leaving planning mode, make the execution prerequisites explicit:
 - execution should use the delegation ladder by default: parallel agents, then subagents, then single-agent fallback
 - if delegation is available, the coordinator write scope is `none`
 - if the task is full-set replacement and `docs/prd/` already has active content, archival approval is required before execution can write the new PRD set
-- if the task is authoritative PRD maintenance, the plan names existing owners, any genuinely new product PRDs, requirement-history entries, affected links/risks/plans/work, and delta backlog scope
+- if the task is authoritative PRD maintenance, the plan names existing owners, any genuinely new product PRDs, requirement-history entries, affected links/risks/plans/work, and the work backlog placement
 - workstreams are disjoint
 - validation is mandatory
 - the plan keeps each accepted Human Experience promise or preserved boundary traceable to current PRD authority, work, evidence, and any accepted obligation

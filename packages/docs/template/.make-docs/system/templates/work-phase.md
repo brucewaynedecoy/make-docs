@@ -16,6 +16,9 @@ coordinate: "W{{W}} R{{R}} P{{PHASE_NUMBER}}"
 
 Explain why this phase exists and what foundation it depends on.
 
+<!-- For a revision Phase only, keep the next line and replace the token with a relative Markdown link to the completed Phase it changes. Otherwise remove it. See `.make-docs/system/references/wave-model.md`. -->
+Revises: {{REVISED_PHASE_REFERENCE}}
+
 ## Overview
 
 Explain the work covered by this phase and the value it unlocks.

@@ -9,12 +9,12 @@ export const backlogReviewRefreshInputSchema = z.strictObject({ envelope: Backlo
 const count = z.number().int().nonnegative();
 const counts = z.strictObject({ total: count, hits: count, misses: count, rejected: count });
 const key = { recordPath: z.string().min(1), recordDigest: z.string().regex(/^[a-f0-9]{64}$/),
-  snapshotSchemaVersion: z.literal(1), ruleCatalogVersion: z.number().int().positive(), skillVersion: z.number().int().positive() };
+  snapshotSchemaVersion: z.literal(2), ruleCatalogVersion: z.number().int().positive(), skillVersion: z.number().int().positive() };
 // This validates the existing service result at the transport boundary. It changes no cache rules or storage schema.
 const lookupResult = z.strictObject({
   schemaVersion: z.literal(1),
   service: z.strictObject({ state: z.literal("available"), checkout: z.enum(["bound", "unbound"]) }),
-  key: z.strictObject({ snapshotSchemaVersion: z.literal(1), ruleCatalogVersion: z.number().int().positive(), skillVersion: z.number().int().positive() }),
+  key: z.strictObject({ snapshotSchemaVersion: z.literal(2), ruleCatalogVersion: z.number().int().positive(), skillVersion: z.number().int().positive() }),
   records: z.array(z.discriminatedUnion("state", [
     z.strictObject({ ...key, state: z.literal("hit"), fragment: BacklogReportRecordV1Schema }),
     z.strictObject({ ...key, state: z.literal("miss"), reason: z.enum(["checkout-not-bound", "no-exact-match"]) }),

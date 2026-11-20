@@ -21,7 +21,7 @@ const tarball = fs.realpathSync(option('--tar'));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'make-docs-skill-proof-'));
 const output = path.resolve(option('--output') ?? path.join(scratch, 'report.json'));
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
-const names = ['archive-docs', 'cleanup-docs', 'decompose-codebase', 'preflight', 'factory', 'human-experience', 'naive-uat'];
+const names = ['archive-docs', 'backlog-review', 'cleanup-docs', 'decompose-codebase', 'preflight', 'factory', 'human-experience', 'naive-uat'];
 const report = {
   schemaVersion: 1, startedAt: new Date().toISOString(), status: 'running',
   sourceRoot, tarball, tarSha256: hash(fs.readFileSync(tarball)), scratch,
@@ -95,7 +95,7 @@ try {
   const packageBytes = fs.readFileSync(path.join(sourceRoot, 'packages/cli/package.json'));
   const registry = JSON.parse(registryBytes);
   const skills = registry.skills;
-  record('seven first-party declarations', () => { assert.deepEqual(skills.map((s) => s.name).sort(), [...names].sort()); return { names, registrySha256: hash(registryBytes) }; });
+  record('eight first-party declarations', () => { assert.deepEqual(skills.map((s) => s.name).sort(), [...names].sort()); return { names, registrySha256: hash(registryBytes) }; });
   const expected = Object.fromEntries(skills.map((s) => [s.name, expectedFiles(s)]));
   report.sourceInventory = Object.fromEntries(Object.entries(expected).map(([name, rows]) => [name, rows.map(({ base64, ...row }) => row)]));
   record('actual package disk has no Skill mirrors', () => {
@@ -166,8 +166,11 @@ try {
     const env = { ...process.env, HOME: home, USERPROFILE: home, CODEX_HOME: path.join(home, '.codex'), CLAUDE_CONFIG_DIR: path.join(home, '.claude'), MAKE_DOCS_HOME: path.join(home, '.make-docs'), XDG_CACHE_HOME: path.join(home, '.cache'), MAKE_DOCS_DISABLE_SKILL_SYMLINKS: test.mode === 'copy' ? '1' : '0', CI: '1', NO_COLOR: '1' };
     const args = ['setup', '--target', project, '--yes', '--skill-scope', test.scope, '--project-resources', 'none'];
     if (test.selection !== null) args.push('--selected-skills', test.selection);
-    if (test.harnesses === 'codex') args.push('--no-claude-code');
-    if (test.harnesses === 'claude-code') args.push('--no-codex');
+    // Setup requires an explicit harness method since W19 R6. `none` changes no native harness config; Skill delivery is separate.
+    args.push('--no-github-copilot');
+    if (test.harnesses === 'codex') args.push('--no-claude-code', '--codex-method', 'none');
+    if (test.harnesses === 'claude-code') args.push('--no-codex', '--claude-code-method', 'none');
+    if (test.harnesses === 'both') args.push('--codex-method', 'none', '--claude-code-method', 'none');
     const started = Date.now();
     const stdout = execute(sandbox, ['-p', profile, process.execPath, entry, ...args], { cwd: project, env });
     fs.writeFileSync(path.join(root, 'setup-output.txt'), stdout);

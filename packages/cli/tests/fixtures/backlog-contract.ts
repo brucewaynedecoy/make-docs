@@ -131,6 +131,7 @@ const baseRecord = (
     `${recordPath}/00-index.md`,
   ),
   phaseCount: sourcedCount(0, `${recordPath}/00-index.md`, "phases"),
+  nextPhase: { value: 1, evidence: [evidence(`${recordPath}/`, "no numbered phase file")] },
   taskCounts: {
     total: sourcedCount(0, `${recordPath}/00-index.md`, "tasks"),
     complete: sourcedCount(0, `${recordPath}/00-index.md`, "tasks"),
@@ -145,8 +146,26 @@ const baseRecord = (
   gitEvidence: [],
 });
 
+const coordinatesFor = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1["coordinates"] => {
+  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[]; archived: boolean }>();
+  for (const record of records) {
+    const match = /^\d{4}-\d{2}-\d{2}-w([1-9]\d*)-r(0|[1-9]\d*)(?:-|$)/i.exec(record.recordPath.split("/").at(-1) ?? "");
+    if (!match) continue;
+    const entry = waves.get(Number(match[1])) ?? { revisions: new Set<number>(), recordPaths: [], archived: true };
+    entry.archived &&= record.scope === "archived";
+    entry.revisions.add(Number(match[2]));
+    entry.recordPaths.push(record.recordPath);
+    waves.set(Number(match[1]), entry);
+  }
+  const facts = [...waves.entries()].sort(([left], [right]) => left - right).map(([wave, entry]) => {
+    const revisions = [...entry.revisions].sort((left, right) => left - right);
+    return { wave, revisions, nextRevision: revisions.at(-1)! + 1, archived: entry.archived, recordPaths: entry.recordPaths.sort(), planPaths: [] };
+  });
+  return { highestWave: facts.at(-1)?.wave ?? null, waves: facts };
+};
+
 const baseSnapshot = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1 => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: FIXED_GENERATED_AT,
   targetRoot: FIXED_TARGET_ROOT,
   project: {
@@ -166,6 +185,7 @@ const baseSnapshot = (records: BacklogWorkRecordV1[]): BacklogSnapshotV1 => ({
     live: records.filter((record) => record.scope === "live").length,
     archived: records.filter((record) => record.scope === "archived").length,
   },
+  coordinates: coordinatesFor(records),
   records,
   diagnostics: [],
 });
@@ -194,6 +214,7 @@ const canonicalRecord: BacklogWorkRecordV1 = {
   ...baseRecord(canonicalPath),
   discoveredFiles: [`${canonicalPath}/00-index.md`, canonicalPhasePath],
   phaseCount: sourcedCount(1, `${canonicalPath}/00-index.md`, "phases"),
+  nextPhase: { value: 2, evidence: [evidence(canonicalPhasePath, "phase file number")] },
   taskCounts: {
     total: sourcedCount(1, canonicalPhasePath, "tasks"),
     complete: sourcedCount(1, canonicalPhasePath, "tasks"),
@@ -219,6 +240,8 @@ const canonicalRecord: BacklogWorkRecordV1 = {
       dependencies: [],
       blockers: [],
       sourceLinks: [],
+      closeoutNotesPresent: { value: false, evidence: [evidence(canonicalPhasePath, "Closeout Notes")] },
+      committed: { value: true, evidence: [evidence(canonicalPhasePath, "git status")] },
     },
   ],
 };
@@ -410,6 +433,7 @@ const unsupportedRecord: BacklogWorkRecordV1 = {
   title: sourced(null),
   recordedStatus: sourced(null),
   phaseCount: sourcedCount(0, unsupportedPath),
+  nextPhase: { value: null, evidence: [] },
   taskCounts: {
     total: sourcedCount(0, unsupportedPath),
     complete: sourcedCount(0, unsupportedPath),
@@ -461,6 +485,7 @@ export const sourceShapeLimitsFixture = {
     "createdAt",
     "lastUpdatedAt",
     "phaseCount",
+    "nextPhase",
     "taskCounts",
     "phases",
     "dependencies",

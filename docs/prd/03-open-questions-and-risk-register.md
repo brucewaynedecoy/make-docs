@@ -1100,6 +1100,115 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: Owner report in this chat on 2026-11-14; [portable checkout adoption design](../designs/2026-11-13-portable-checkout-adoption.md); [planner](../../packages/cli/src/planner.ts); [compatibility](../../packages/cli/src/compatibility.ts); [candidate proof](../work/2026-11-13-w22-r2-portable-checkout-adoption/evidence.md#208-candidate-first-saved-choice-sync).
 
+### D-052 First-Party Skill Delivery Check Omits Backlog Review
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The runner expects all eight first-party Skills, including `backlog-review`, and passes against the packed W28 R0 candidate. | None. |
+
+**Issue**: On 2026-11-18, the runner was run against the packed `@brucewaynedecoy/make-docs@2.0.8` candidate built from the W28 R0 branch. It failed its embedded-bundle check because the bundle lists `backlog-review` and the runner's fixed list does not. The runner last changed on 2026-09-11, and `backlog-review` was added on 2026-09-20, so the gap predates W28.
+
+**Why it matters**: The packed-tarball Skill delivery proof cannot pass for any current candidate, so release evidence for first-party Skill bytes, isolated installation, and exposure is missing.
+
+**Recommendation**: Derive the expected names from the first-party Skill registry, or add `backlog-review` to the fixed list, and keep the other checks unchanged.
+
+**To close**: The runner passes against a packed candidate and reports every first-party Skill.
+
+**Resolution**: Closed on 2026-11-18 in W28 R0 P4 at the owner's direction. The runner's fixed list now includes `backlog-review`. Its setup calls also pass the explicit `none` harness method that setup has required since W19 R6, plus `--no-github-copilot`; that was the second stop the run reached. Against the packed `@brucewaynedecoy/make-docs@2.0.8` candidate (SHA-256 `08713ce4…`), the runner passes all 6 checks and 22 isolated install runs.
+
+**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout); `scripts/verify-first-party-skill-delivery.mjs`.
+
+### D-053 Reviewed Skill Adoption Rejects Existing Native Skill Links
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | `make-docs setup skills --adopt-existing` with a ready review digest fails with `ownership-unverified`, "Invalid predeclared native copy fallback." It fails when the project already exposes its Skills through native links, such as `.claude/skills/<name>` pointing to `.agents/skills/<name>`. Nothing is applied. | Fix the copy-fallback validation in a separate CLI change, then rerun the W28 R0 installed-Skill refresh. |
+
+**Issue**: Adoption declares a copy fallback for every native link exposure (`packages/cli/src/skills-adoption.ts`). The detached-plan check in `packages/cli/src/store/installation-state.ts` accepts a fallback only when the plan creates that link from nothing. An already-present, unchanged link therefore fails the check. On 2026-11-18, the reviewed W28 R0 Skill sync of this repository hit this error. The same project shape fails in an isolated temporary Store with the W28 R0 build and with the released `make-docs` 2.0.8.
+
+**Why it matters**: A checkout that already has native Skill links cannot adopt and refresh its installed first-party Skills through the reviewed path. Installed copies then fall behind the packaged Skills.
+
+**Recommendation**: Declare a copy fallback only for an exposure that the plan creates, or accept an unchanged existing link that matches the reviewed target. Add a regression case for adoption with existing native links.
+
+**To close**: Reviewed adoption of a project with existing `.claude/skills` links applies, and the installed Skills match the packaged Skills.
+
+**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout).
+
+### D-054 Skill Adoption Review Reports Ready For An Older Install Record
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The reviewed adoption validates its prepared Store record during the dry run. When the install was recorded by an older CLI, the review is blocked and names `make-docs setup` as the first step. | None. |
+
+**Issue**: `make-docs setup skills --adopt-existing ... --dry-run` reported `ready` for this repository on 2026-11-19. The apply then failed with "source identity must equal the manifest package", and nothing was applied. The install record was written by 2.0.8, and the CLI was 2.0.9. Adoption builds its new record for 2.0.9 but carries the 2.0.8 router records, and only the apply checked that record.
+
+**Why it matters**: A reviewed digest promises that the apply will do what the review showed. A ready review that always fails breaks that promise, and the error does not name the fix.
+
+**Recommendation**: Check the prepared record in the review. For an older install record, block the review and route the user to `make-docs setup` first.
+
+**To close**: An adoption review of an install recorded by an older CLI is blocked with the setup route, and the apply refuses the same review. A regression test covers it.
+
+**Resolution**: Closed on 2026-11-19 in W28 R0 P8 at the owner's direction. `buildSkillAdoptionReview` validates the prepared record the same way the apply does. `w28-r0-skill-adoption-version.test.ts` fails without the change (`ready`) and passes with it (`blocked`, with the `make-docs setup` route). This repository then refreshed its Skills through `make-docs setup` and `make-docs setup skills`, so adoption was not needed.
+
+**Evidence**: [W28 R0 P8 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p8-review-corrections-and-skill-refresh).
+
+### D-055 Setup Sync Saves An Empty Resource Choice And Hides Skipped Skill Changes
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | An existing-install setup sync keeps an unset resource choice unset. Its plan marks Skill file changes that full setup does not apply as `skip`, and its dry run and result name `make-docs setup skills` as the route for them. | None. |
+
+**Issue**: On 2026-11-19, `make-docs setup --yes` with 2.0.9 ran on this repository, whose install record had no saved resource choice. Two defects showed:
+
+- The setup migration rebuilt the saved choices with `resourceProjection ?? []`. That turned "no choice saved" into "no resources chosen". A repeat dry run then planned to remove 62 tracked `.make-docs/system/` files. Nothing was removed, because the repeat plan was not applied.
+- The dry run listed three `backlog-review` Skill file updates. The apply reported `complete` but applied none of them, because full setup leaves Skill file changes to `make-docs setup skills`. Neither the plan nor the result said so.
+
+**Why it matters**: The first defect turns a routine sync into a plan that deletes local system resources. The second breaks the review promise and PRD 08 R-SKILL-SETUP-6, which requires full setup to name the exact Skill route when it leaves a Skill change to `setup skills`.
+
+**Recommendation**: Keep an unset choice unset in the migration stage plan. Show Skill changes that full setup leaves as `skip`, and name `make-docs setup skills` in the dry run and in the result.
+
+**To close**: Regression tests cover both defects. This repository's Store record is repaired, a repeat setup dry run plans no removals, and `make-docs setup skills` refreshes the installed Skills.
+
+**Resolution**: Closed on 2026-11-19 in W28 R0 P8 at the owner's direction. The migration stage plan keeps an unset resource choice unset, and full setup routes the Skill changes it leaves. Both tests in `w28-r0-setup-sync-safety.test.ts` fail without the change and pass with it. Recovery cannot roll back a completed operation, so this repository's saved empty choice was replaced with an explicit choice: `make-docs setup reconfigure --project-resources all`. It changed no project file and planned no removal. `make-docs setup skills` then applied the three `backlog-review` updates. Repeat dry runs of both commands plan no change.
+
+**Evidence**: [W28 R0 P8 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p8-review-corrections-and-skill-refresh).
+
+### D-056 Backlog Review Display Completion Rules Disagree With Recorded Status And W28 Completion
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner deferred these display findings to a separate Wave on 2026-11-20. Whether "complete" needs the snapshot `committed` fact is a product decision. | Plan a backlog review display Wave. Decide the completion rule first, then fix the display, the Skill bundles, and the MCP App widget together. |
+
+**Issue**: The CodeRabbit review of PR #64 at `73f0ae00` raised three findings on `phaseDisplayState` in `packages/cli/src/operations/work/backlog/presentation.ts`, which dates from W25 R0 P3:
+
+- A Phase whose recorded status is `complete` but that has an unchecked task displays as complete. A `conflict` state may fit better.
+- A Phase whose recorded status is `incomplete` but whose tasks are all checked displays as complete. The recorded status is lost.
+- The display calls a Phase complete from its status or tasks alone. W28 R0 says a Phase is complete only when it is done, closed out, and committed. The snapshot reports a `committed` fact that the display does not use.
+
+**Why it matters**: The backlog review can show a Phase as complete when the record or the W28 rule says it is not. A person can then skip work that is still open.
+
+**Recommendation**: Decide whether the display uses the `committed` fact for complete, and how it shows a recorded status that its tasks contradict. Then change the display rule, regenerate the Skill bundles and the widget, and refresh the installed Skills.
+
+**To close**: The display rule matches the decided completion rule, tests cover each case, and the installed `backlog-review` Skill matches the source.
+
+**Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
+
+### D-057 Backlog Review Widget Drops A Changed Second Refresh Result
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner deferred this widget finding to a separate Wave on 2026-11-20. It is not related to W28. | Fix the refresh request correlation in the MCP App widget in the same Wave as D-056, or in its own change. |
+
+**Issue**: The CodeRabbit review of PR #64 at `73f0ae00` found that the backlog review MCP App widget (`packages/cli/src/mcp/widget/`) can ignore a second refresh result that differs from the first. The widget then keeps showing the older data.
+
+**Why it matters**: A person who refreshes the review can see stale backlog data without any sign that it is stale.
+
+**Recommendation**: Correlate each refresh result with the request that asked for it, accept the newest result, and add a widget test for two refreshes with different results.
+
+**To close**: A second, changed refresh result replaces the shown data, and a test covers it.
+
+**Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -1643,6 +1752,20 @@ P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validat
 
 All 24 registry operations project to MCP tools. A pending registration must not claim that its handler exists. The seven CLI roots are `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. The context-aware bare `make-docs` flow remains. This decision adds no agentic or plugin scope. It does not activate Q-012 or Q-013.
 
+### Q-025 Should the Store Become an Optional Durable Archive for Non-Active Documents?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner raised this as a future capability on 2026-11-18. | Write a dedicated design before any plan or work. |
+
+**Question**: Should a configured Make Docs Store optionally become the durable archive for non-active, non-product-authority documents, so that archiving writes to Store tables instead of an archive folder in the repository? Should a configured Store optionally keep a full redundant copy of all Make Docs documents?
+
+**Why it matters**: Archive and history location affects how archived Waves are restored, how prior versions are kept, and what a project folder must contain. Make Docs must still install and work entirely inside the project folder by default.
+
+**Recommendation**: Treat this as its own design. Keep the default configuration equal to the current in-repository behavior. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-19 already keeps coordinate and amendment rules independent of the storage location.
+
+**To close**: An accepted design decides whether each optional mode exists, its configuration, its restore and history behavior, and how the default in-repository mode is preserved.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -2175,6 +2298,8 @@ The following record preserves the prior claims, findings, and close conditions.
 **Recommendation**: Implement a deterministic coordinate-consistency check as a `run` validation operation over design, plan, PRD, and work artifacts, and enforce it with a pre-commit hook; a first-party Playbook wrapper is a natural early dogfood of the run and packaging pipeline.
 
 **To close**: A coordinate-consistency operation exists, is exposed on the CLI and as a hook, and fails when a design's coordinate or PRD disagrees with its downstream plan and work artifacts.
+
+**Related**: [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) `Coordinate Selection and Amendment` defines how a coordinate is selected, and [PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-SNAPSHOT-29 reports coordinate facts. Neither checks that a design, plan, PRD, and work record agree, so this risk stays open.
 
 ### R-026 The W18 R12 UAT Remediation Round Must Land Before W18 R9 Conformance
 

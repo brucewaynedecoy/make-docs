@@ -13,8 +13,8 @@ State what the decomposition should preserve, who the outputs are for, and what 
 ## Coordinate Decision
 
 - Coordinate: `W{{W}} R{{R}}`
-- Classification: `new-wave` or `revision`
-- Evidence: Explain the explicit user guidance, design handoff, source lineage, prior plan/work/history records, or highest-wave fallback used to choose this coordinate.
+- Classification: `new-wave` or `revision-wave` (the legacy value `revision` means `revision-wave`)
+- Evidence: Name the explicit user guidance, the outcome test result for a new wave, or the revision Wave test that passed, with the design handoff, source lineage, and prior plan/work/history records used. Apply the decision procedure in `make-docs://system/reference/wave-model.md`.
 
 ## Output Contract
 

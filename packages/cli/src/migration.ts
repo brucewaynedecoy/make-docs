@@ -1717,9 +1717,10 @@ function fixedStagePlan(
   }
   return {
     ...basePlan,
-    profile: resourceProjection ? resolveInstallProfile({
+    // An unset resource choice must stay unset. `[]` means "no resources chosen", and a later plan would remove the local bodies.
+    profile: resourceProjection && basePlan.profile.selections.resourceProjection !== undefined ? resolveInstallProfile({
       ...basePlan.profile.selections,
-      resourceProjection: [...(basePlan.profile.selections.resourceProjection ?? [])],
+      resourceProjection: [...basePlan.profile.selections.resourceProjection],
     }) : basePlan.profile,
     actions: [...actions],
     desiredSkillFiles: [...(product.currentManifest?.skillFiles ?? [])],
@@ -1774,6 +1775,40 @@ function assertOnDemandRoutingAvailable(projectRoot: string): void {
       );
     }
   }
+}
+
+/**
+ * Skill file changes that an existing-install setup sync leaves to `make-docs setup skills`.
+ * The migration path applies no preserved change except a ledger-only noop, so these must be shown and routed, not reported as applied.
+ */
+export function skillChangesLeftForSkillsSetup(installPlan: InstallPlan): PlannedAction[] {
+  return installPlan.actions.filter((action) =>
+    action.type !== "noop" &&
+    mustPreserveOutsideP5(action) &&
+    (Boolean(action.skillExposure) || /^(?:\.agents\/skills\/|\.claude\/skills\/)/.test(action.relativePath)),
+  );
+}
+
+export const SKILL_CHANGES_ROUTE = "make-docs setup skills";
+
+/**
+ * The exact `setup skills` command, with the reviewed target when setup ran on another directory.
+ * The target uses the double-quoted form that other make-docs next actions use, so a path with spaces also works in Command Prompt and PowerShell.
+ */
+export function skillChangesRoute(targetDir?: string): string {
+  if (!targetDir) return SKILL_CHANGES_ROUTE;
+  return `${SKILL_CHANGES_ROUTE} --target ${JSON.stringify(targetDir)}`;
+}
+
+export function skillChangesNextAction(count: number, targetDir?: string): string {
+  return `Full setup leaves ${count} Skill file ${count === 1 ? "change" : "changes"} to \`${skillChangesRoute(targetDir)}\`. Run it to apply ${count === 1 ? "that change" : "them"}.`;
+}
+
+/** Names every follow-up that remains after setup: a blocked platform action and any Skill changes left to `setup skills`. */
+export function setupFollowUpAction(blockedPlatformAction: string | null | undefined, skillChangesLeft: number, targetDir?: string): string | null {
+  const actions = [blockedPlatformAction, skillChangesLeft > 0 ? skillChangesNextAction(skillChangesLeft, targetDir) : undefined]
+    .filter((action): action is string => Boolean(action));
+  return actions.length ? actions.join(" ") : null;
 }
 
 function mustPreserveOutsideP5(action: PlannedAction): boolean {

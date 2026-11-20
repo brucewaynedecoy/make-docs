@@ -215,7 +215,9 @@ test("a kept two-Store adoption has a clean first saved-choice sync", async () =
   expect(firstSync.project?.actions?.every(action => action.action === "noop")).toBe(true);
   expect(git("-C", projectB, "status", "--porcelain")).toBe("");
 
-  const priorAdoption = JSON.parse(JSON.stringify(manifest!).replaceAll("2.0.8", "2.0.7")) as NonNullable<typeof manifest>;
+  // Simulate an adoption recorded by the released 2.0.7 package, whatever the current package version is.
+  const currentVersion = (JSON.parse(readFileSync(path.join(__dirname, "..", "package.json"), "utf8")) as { version: string }).version;
+  const priorAdoption = JSON.parse(JSON.stringify(manifest!).replaceAll(currentVersion, "2.0.7")) as NonNullable<typeof manifest>;
   const onDemandRouters = [
     ".make-docs/archive/AGENTS.md", ".make-docs/archive/CLAUDE.md",
     "docs/assets/AGENTS.md", "docs/assets/CLAUDE.md",

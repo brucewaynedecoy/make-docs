@@ -80,8 +80,8 @@ The current CLI and PRD surface split route choice from skill execution:
 | --- | --- | --- | --- |
 | New idea, new design, or net-new initiative | Fresh PRD set and full backlog | Baseline plan -> full-set generation | The repo needs a baseline requirement surface before delivery planning |
 | Existing codebase with no reliable PRD set | Reverse-engineered PRD set and rebuild backlog | Decomposition plan -> full-set generation | The codebase is the primary input and needs to be turned into active product docs |
-| Active PRD set, net-new capability | Change docs and delta backlog | Change plan -> active-set evolution | The active namespace already exists and should be extended in place |
-| Active PRD set, changed or removed requirement | Revision/removal docs, baseline annotations, delta backlog | Change plan -> active-set evolution | Existing requirements must preserve lineage instead of being silently rewritten |
+| Active PRD set, net-new capability | Owning PRD updated in place, or a new PRD for an unowned capability, plus backlog phases | Change plan -> active-set evolution | The active namespace already exists and should be extended in place |
+| Active PRD set, changed or removed requirement | Owning PRD updated in place with Requirement History, plus backlog phases | Change plan -> active-set evolution | Existing requirements must preserve lineage instead of being silently rewritten |
 | Existing initiative needs re-plan or follow-up work | Revised plan/work lineage, possibly no PRD change | Continue the existing wave/revision line as appropriate | W/R lineage belongs to plan/work, not the PRD namespace |
 
 ### Route-selection checks
@@ -144,12 +144,12 @@ Use it when:
 Expected artifacts:
 
 - a change plan directory
-- one or more new numbered change docs in `docs/prd/`
-- `### Change Notes` annotations in impacted baseline docs
-- an updated `docs/prd/00-index.md`
-- a new dated delta backlog directory under `docs/work/`
+- surgical, in-place updates to the owning PRDs in `docs/prd/`, with material prior contracts kept in their `## Requirement History`, as `.make-docs/system/references/prd-change-management.md` describes
+- a new numbered PRD only for a coherent capability that no existing PRD owns
+- an updated `docs/prd/00-index.md` when navigation changes
+- work in a `docs/work/` backlog chosen by the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`: new or amended phases in the lineage wave's backlog, a new wave's backlog for an outcome that no plan promised, or a revision Wave's backlog
 
-Do not use this route to silently rewrite baseline PRDs unless the user explicitly asks for a cleanup rewrite.
+Do not create standalone change documents or annotate baseline PRDs with change notes. Update the owning PRD inline instead.
 
 ### Route 4: W/R follow-up work
 
@@ -164,7 +164,9 @@ Choose this route when:
 In that case:
 
 - keep the relevant wave
-- increment the revision only when the work is a real redo or correction
+- edit its unfinished backlog in place when the change fits the plan; if it significantly deviates from the plan, the owner chooses between pivoting in place and finishing the wave first
+- add a revision Phase for a change to completed work
+- use the next revision only when the revision Wave test in `.make-docs/system/references/wave-model.md` passes and the owner agrees
 - avoid inventing PRD changes that do not exist
 
 ### What should not drive route selection
@@ -199,7 +201,7 @@ Yes, if it is a net-new or expanded capability inside the active namespace. Chan
 
 ### "When should I regenerate the full backlog?"
 
-Only when the task is full-set generation or when the user explicitly asks for a regenerated full backlog. Active-set evolution defaults to a new delta backlog.
+Only when the task is full-set generation or when the user explicitly asks for a regenerated full backlog. Active-set evolution amends the lineage wave's backlog, or starts a new wave when the outcome is one that no plan promised. Rebuilding a backlog's unfinished phases from the PRD needs owner approval and a `rebuild` Change History entry, as `.make-docs/system/references/wave-model.md` describes.
 
 ### "When should I replace the active PRD set?"
 

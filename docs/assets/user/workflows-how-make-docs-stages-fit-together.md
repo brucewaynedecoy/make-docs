@@ -61,8 +61,8 @@ flowchart TD
     F --> H["Active PRD set"]
     H --> I["Full backlog"]
 
-    G --> J["Change docs + annotations"]
-    J --> K["Delta backlog"]
+    G --> J["Owning PRDs updated in place"]
+    J --> K["Lineage or new backlog"]
 ```
 
 The important distinction is not "did I use planning?" You always plan. The real distinction is whether planning leads to:
@@ -101,10 +101,9 @@ This is the normal route when:
 Typical outputs:
 
 - a change-oriented plan
-- one or more numbered PRD change docs
-- `### Change Notes` in affected baseline PRD docs
-- an updated `docs/prd/00-index.md`
-- a new delta backlog under `docs/work/`
+- in-place updates to the owning PRDs, with prior contracts kept in their Requirement History
+- an updated `docs/prd/00-index.md` when navigation changes
+- new or amended phases in a `docs/work/` backlog: the lineage wave's backlog, or a new one for a new wave or a revision Wave
 
 This route keeps the active PRD set in place instead of replacing it.
 
@@ -140,8 +139,8 @@ The usual flow is:
 
 1. identify the change
 2. plan the update
-3. evolve the PRD set with change docs and annotations
-4. create a delta backlog
+3. update the owning PRDs in place
+4. amend the lineage backlog, or create a new one for new work or an approved revision Wave
 
 ## How W/R Coordinates Fit In
 

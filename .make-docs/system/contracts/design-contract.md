@@ -48,7 +48,7 @@ Required prompt targets:
 - `baseline-plan` → `[designs-to-plan.prompt.md](../prompts/designs-to-plan.prompt.md)`
 - `change-plan` → `[designs-to-plan-change.prompt.md](../prompts/designs-to-plan-change.prompt.md)`
 
-For `change-plan` designs, include `Coordinate Handoff` whenever the design revises, reworks, corrects, standardizes, or finishes earlier wave work. The handoff should identify the prior coordinate, the recommended downstream coordinate, and the basis for treating the work as a revision rather than a new wave. If the coordinate cannot be resolved from the request or repository history, write `Coordinate Handoff: unresolved; planner must resolve before writing.`
+For `change-plan` designs, include `Coordinate Handoff` whenever the design changes an outcome that an earlier wave promised. Apply the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`. The handoff should identify the prior coordinate, the recommended downstream coordinate or in-place amendment, and the test that decided it: the outcome test for a new wave, or the revision Wave test for a revision Wave. If the coordinate cannot be resolved from the request or repository history, write `Coordinate Handoff: unresolved; planner must resolve before writing.`
 
 ## Optional Design Lineage
 

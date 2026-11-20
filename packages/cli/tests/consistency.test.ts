@@ -761,6 +761,7 @@ describe("risk register routing contract", () => {
       "Q-022 The Make Docs Agentics Production Pipeline",
       "Q-023 How must P3 handle the existing legacy Playbook and Protocol surfaces?",
       "Q-024 What is the finite P3 operation inventory and phase ownership?",
+      "Q-025 Should the Store Become an Optional Durable Archive for Non-Active Documents?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",

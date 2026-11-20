@@ -33,9 +33,9 @@ Read `W13 R0 P3` as "wave 13, revision 0, phase 3."
 
 | Token | Meaning | Used for |
 | --- | --- | --- |
-| `W13` | The thirteenth end-to-end initiative | Plan and work lineage |
-| `R0` | The first version of that initiative | Corrections or redos stay in the same wave and increment revision |
-| `P3` | The third phase inside that plan or backlog | Phase files, history records, and phase-level commits |
+| `W13` | The thirteenth wave: one self-contained unit of work | New work gets a new wave |
+| `R0` | The base revision of that wave | A higher `R` is a change order on completed work |
+| `P3` | The third phase inside that plan or backlog | Continuing work, revision Phases, history records, and phase-level commits |
 
 The source of truth for the naming rules is [wave-model.md](../../../.make-docs/system/references/wave-model.md).
 
@@ -58,36 +58,31 @@ That distinction matters because [How Make Docs Stages Fit Together](workflows-h
 
 ### Wave
 
-A wave is one end-to-end initiative. In user terms, it is the planning and delivery line for one coherent body of work.
+A wave is one self-contained unit of work. The wave sets the scope. It can be a full build, one slice such as the frontend, or a single change request. The wave's plan is its statement of work.
 
-Start a new wave when:
-
-- the task is a new initiative
-- it is not a correction or continuation of an earlier plan/work line
+Start a new wave when the request adds an outcome that no earlier plan promised. Judge this by the outcome, not by which code it touches. A small new wave is fine.
 
 Do not start a new wave only because a newer unrelated wave already exists.
 
 ### Revision
 
-A revision is a meaningful redo inside the same wave.
+A revision above `R0` is a revision Wave: a change order. Use one only when completed, committed work must be substantially revisited or rearchitected, so the fix is effectively its own wave. One of these must be true:
 
-Use the next revision when:
+- the change reverses an approach or architecture choice in the plan
+- the change must redo the results of two or more completed phases
+- the fix needs its own design, or a plan with several phases
 
-- the task corrects an earlier plan
-- the task reworks an existing initiative
-- the task continues the same initiative after a real reset or redo
-
-`R0` is normal. Revisions are zero-based.
+Shipping or deploying the work does not make a fix a revision Wave by itself. `R0` is normal. Revisions are zero-based.
 
 ### Phase
 
-A phase is one numbered chunk inside a plan or work backlog.
-
-Use a phase when the work is tied to a specific plan phase or backlog phase. Phase numbers appear in:
+A phase is one numbered chunk inside a plan or work backlog. Phase numbers appear in:
 
 - phase files
 - phase-scoped history records
 - commits that clearly belong to that phase
+
+A phase is complete when its work is done, closed out, and committed. A change to a completed phase usually becomes a revision Phase: the next phase number in the same wave and revision.
 
 ## How Coordinates Show Up in Files
 
@@ -106,12 +101,18 @@ Top-level plan and work directories include wave and revision, but not phase. Ph
 Use this order:
 
 1. Follow the coordinate the user already gave you.
-2. If the task belongs to an existing plan or backlog line, keep that wave.
-3. If the task is a redo or correction of that same line, increment the revision.
-4. If the task is a new initiative, start the next wave at `R0`.
-5. Add `P` only when the work is clearly tied to a specific phase.
+2. If the task adds an outcome that no plan promised, start the next wave at `R0`. If an unfinished wave could also take the outcome, the agent asks the owner whether to extend that wave or start a new one.
+3. Otherwise, find the wave whose plan promised the outcome being changed.
+   - If that work is not complete yet, edit the existing backlog in place. If the change moves the plan's goal, scope, or approach, the agent asks the owner first.
+   - If that work is complete, add a revision Phase to the same wave and revision.
+   - Use the next revision only when the revision Wave test above passes, and only after the owner agrees.
+4. Add `P` only when the work is clearly tied to a specific phase.
 
-If you cannot prove the coordinate, leave it out instead of guessing.
+If you cannot prove the coordinate, leave it out instead of guessing. The full procedure and its owner gates are in [wave-model.md](../../../.make-docs/system/references/wave-model.md).
+
+## How Changes Are Recorded
+
+After a plan or work backlog has been committed, every change to its scope adds an entry to a `## Change History` section at the end of the plan overview or work index. Each entry says what changed, why, which PRD decision applied, and who approved it. Ticking tasks and updating status are progress, not scope changes, so they need no entry.
 
 ## Common Questions
 
@@ -126,6 +127,10 @@ Designs are dated, topic-first artifacts. They feed later planning, but they are
 ### Is `R0` an error?
 
 No. `R0` means the first revision.
+
+### Why do older records have so many revisions?
+
+Before W28, a new revision was also used for fixes and add-ons, so some waves have many revisions. Those records keep their coordinates. New work follows the rules on this page.
 
 ### What if I know the wave and revision but not the phase?
 
