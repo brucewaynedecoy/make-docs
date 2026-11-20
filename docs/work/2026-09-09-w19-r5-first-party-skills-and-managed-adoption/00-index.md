@@ -34,7 +34,8 @@ Current target paths depend on scope and selected harnesses. The [phase matrix](
 | File | Purpose |
 | --- | --- |
 | [Phase 1: Skills and Managed Adoption](01-skills-and-managed-adoption.md) | Promote and package Skills, add reviewed adoption, then prove the shipped product and real maintainer adoption. |
-| [Central evidence report](evidence.md) | Read actual A1–A14 results, package identities, and the review limits and owner acceptance gate. |
+| [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md) | Revision Phase for P1: let reviewed adoption keep existing native Skill links (D-053). |
+| [Central evidence report](evidence.md) | Read actual A1–A19 results, package identities, and the review limits and owner acceptance gate. |
 
 ## Usage Notes
 
@@ -55,3 +56,38 @@ This handoff is advisory-default-but-overridable. The owner satisfied the backlo
 - Coordinate Handoff: Use W19 R5 P1 for phase evidence, history, and a later authorized commit. Do not resume W20 or W21, publish, or commit from this handoff alone.
 
 Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19-r5-p1-skills-and-managed-adoption.md). The package stays in place; no archive move was requested.
+
+## Change History
+
+### 2026-11-18 — W19 R5 P2
+
+- Kind: `revision-phase`
+- Affected scope: New P2 t1–t3 and A15–A17, revising completed P1.
+- Previous scope: P1 delivered reviewed adoption of existing first-party Skill copies. Its apply step rejected projects whose native Skill links already existed, with "Invalid predeclared native copy fallback."
+- Replacement scope: P2 declares a copy fallback only for a native link that the plan creates. Existing links stay links, and replaced bytes are backed up.
+- Rationale: The defect blocked the W28 R0 Skill sync of this repository and also affects released 2.0.8. It changes one P1 result and passes no revision Wave test.
+- PRD decision: `none` — PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 already require adoption to review and reconcile file and link identities.
+- Owner approval: Tyler, 2026-11-18 11:00 PM CST, relayed by the coordinator. He chose a revision Phase over a new W19 R9.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
+
+### 2026-11-19 — W19 R5 P2
+
+- Kind: `edit`
+- Affected scope: P2 t4 and A18.
+- Previous scope: P2 declared a copy fallback only when the native link path was missing before the plan. An outdated native folder that adoption removes and then replaces with a link lost its fallback, so a refused link could not fall back to a copy.
+- Replacement scope: P2 keeps a fallback for every planned missing-to-link step and drops it only for links that already match. Tests cover a refused link, which uses the copy mirror, and an allowed link.
+- Rationale: CodeRabbit review of PR #65 (Major). This completes P2's own A17 promise inside its unmerged PR, so it is recorded as an edit of P2 rather than a new revision Phase.
+- PRD decision: `none` — PRD 28 already requires the copy-mirror fallback.
+- Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
+
+### 2026-11-20 — W19 R5 P2
+
+- Kind: `edit`
+- Affected scope: P2 t5 and A19.
+- Previous scope: P2 ended with the copy-fallback fix and its checks on a base without W28 R0. D-053 lived only on the W28 R0 branch, and P2 recorded no package candidate digest.
+- Replacement scope: P2 merges `main` with W28 R0, repeats the checks and the throwaway adoption, closes D-053 in PRD 03, and records the 2.0.9 candidate digest as its last change.
+- Rationale: PR #64 merged W28 R0 into `main` on 2026-11-20, which brought D-053 and the 2.0.9 candidate digest into `main`. P2 changes the package, so the reviewed digest must match its content.
+- PRD decision: `update-existing` — PRD 03 closes D-053. PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 do not change.
+- Owner approval: Tyler, relayed by the coordinator on 2026-11-20: merge `main` in, close D-053, and record the digest last.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)

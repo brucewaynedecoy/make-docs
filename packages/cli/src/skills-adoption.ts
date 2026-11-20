@@ -240,6 +240,7 @@ export async function buildSkillAdoptionReview(options: {
       after[exposure.relativePath] = { kind: "symlink", target: exposure.skillExposure.symlinkTarget };
       symlinkTargets[exposure.relativePath] = exposure.skillExposure.symlinkTarget;
       alternatives[exposure.relativePath] = copy;
+      // Declared here for every link exposure; pruned below to the links the plan actually creates (D-053).
       copyFallbacks[exposure.relativePath] = { changes: changesBetween({ [exposure.relativePath]: missing() }, copy), ledgerEntry: { ...entry, skillExposure: { ...exposure.skillExposure, mode: "copy-mirror", fallbackReason: "The reviewed native symlink is unavailable; use its declared copy mirror." } } };
     }
   }
@@ -340,6 +341,12 @@ export async function buildSkillAdoptionReview(options: {
   const intermediateStates: Record<string, State[]> = {};
   for (const change of filteredChanges) (intermediateStates[change.path] ??= []).push(change.before, change.after);
   const review: SkillAdoptionReview = { schemaVersion:1, targetRoot, digest, packageDigest, package:packageMeta, selections, adoptExisting:names, roots, cleanupPaths, bootstrapPaths, before, after, alternatives, intermediateStates, backups, claims, beforeLedger, blockers:[...new Set(blockers)].sort(), ownershipChanges, plan: undefined! };
+  // A copy fallback can only replace a planned step that creates a native link from a missing path.
+  // That covers new links and outdated native folders that are removed first, then linked. An existing
+  // link that already matches has no such step, so its fallback is dropped (D-053).
+  for (const exposure of Object.keys(copyFallbacks)) {
+    if (!filteredChanges.some(change => change.path === exposure && change.before.kind === "missing" && change.after.kind === "symlink")) delete copyFallbacks[exposure];
+  }
   review.plan = { schemaVersion:1, reviewDigest:digest, mode:"cli", metadata:undefined, changes:filteredChanges, afterLedger, skillScope:{ roots, symlinkTargets, beforeSymlinkTargets, bootstrapPaths, backupRoots:backups.length ? [backupRoot] : [] }, copyFallbacks };
   review.plan.metadata = { ...review, plan:undefined };
   return review;
