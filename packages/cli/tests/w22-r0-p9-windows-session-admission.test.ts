@@ -54,7 +54,7 @@ describe('Store session admission on Windows (D-059)', () => {
     ['create', 'creates the session directory'],
     ['secure', 'opens the session directory'],
     ['open', 'creates the session file'],
-  ] as const)('retries a transient EPERM when it %s (%s)', step => {
+  ] as const)('retries a transient EPERM when it %s (%s)', (step, _description) => {
     Object.assign(faults, {kind: 'win32', step, remaining: 2});
     const release = acquireStoreAccess(store, false, 5_000);
     expect(faults.hits).toBe(2);
