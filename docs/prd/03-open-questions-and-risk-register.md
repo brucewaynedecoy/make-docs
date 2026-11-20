@@ -1227,6 +1227,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W19 R5 P3](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/03-accurate-adoption-apply-output.md).
 
+### D-059 Windows Store Session Admission Fails On A Transient EPERM
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner chose on 2026-11-20 to fix this in W22 R0 P9 and ship it in 2.0.9. | Retry transient Windows access codes at every Store session admission step, until the admission deadline. |
+
+**Issue**: The "windows-latest installed package" job of PR #65 failed twice, on 2026-11-19 and 2026-11-20, and then passed. The failing test was "keeps shared Store sessions safe under 20 processes and five checkouts" in `packages/cli/tests/installation-state.test.ts`. The error was `access-denied` with `EPERM` on `store-access.lock` at the "secure session directory" step in `packages/cli/src/store/database.ts`. Windows returns `EPERM` when a process opens a path that another process is deleting. Store session admission races with the cleanup of the empty session directory. Admission already retries Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. It does not retry them when it creates or opens the session directory, or when it creates the session file on Windows.
+
+**Why it matters**: Under concurrent use on Windows, a Store-backed command can fail and tell the person to grant Store access that they already have. The failure also makes the Windows CI job unreliable. PRD 38 R-DB-3 requires bounded busy retry for concurrent Store writers.
+
+**Recommendation**: Treat Windows `EPERM`, `EACCES`, and `EBUSY` as transient at each session admission step, and retry them until the admission deadline. Keep the error fatal on other platforms and after the deadline.
+
+**To close**: A deterministic fault-injection test covers each step, a lasting error, and another platform. Each fails without the change. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
+
+**Evidence**: [W22 R0 P9](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/09-windows-store-session-admission-retry.md).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

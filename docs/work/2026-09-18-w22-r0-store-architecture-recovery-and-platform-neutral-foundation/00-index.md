@@ -1,7 +1,7 @@
 ---
 title: "W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog"
 kind: "work"
-status: "complete"
+status: "active"
 coordinate: "W22 R0"
 source:
   type: "prd"
@@ -50,6 +50,7 @@ Videos Matter then proved that authentic schema-1 whole-file routers were still 
 | P6 | [Real Platform Package Proof and Closeout](06-real-platform-package-proof-and-closeout.md) | One package passes comparable installed cases on Windows, macOS, and Linux. |
 | P7 | [Setup Bridge Order and Recovery Loop Repair](07-setup-bridge-order-and-recovery-loop-repair.md) | Plain setup uses one final post-prerequisite plan, passes every safety check before operation creation, and provides normal resume or restore without deep recovery commands. |
 | P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Complete. The source-schema ownership repair, exact three-platform `2.0.2` candidate, live Videos Matter correction, and immediate no-op repeat pass. |
+| P9 | [Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md) | Revision Phase for P7: Windows Store session admission retries a transient `EPERM` until its deadline (D-059). |
 
 ## Usage Notes
 
@@ -80,3 +81,16 @@ Reopening the completed wave and adding P8 were explicit lifecycle departures. T
 ## Revision Closeout
 
 W22 R0 is complete in the accepted P1–P8 scope. Each phase has all tasks checked and a closeout result. P6 records comparable installed package proof on Windows, macOS, and Linux. P7 and P8 record the later live setup repairs, the exact package checks, and the owner-approved closeouts. The rejected candidates and failed attempts remain in the evidence. This revision closeout changes record state only. It does not claim a new 2.0.5 platform test or authorize publication.
+
+## Change History
+
+### 2026-11-20 — W22 R0 P9
+
+- Kind: `revision-phase`
+- Affected scope: New P9 t1–t4 and A71–A73, revising completed P7.
+- Previous scope: P6 and P7 made Store session admission retry Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. Admission did not retry the Windows codes when it creates or opens the session directory, or when it creates the session file.
+- Replacement scope: P9 retries the transient Windows codes at those three steps, until the same admission deadline. Other platforms and a lasting error still fail.
+- Rationale: The PR #65 Windows installed-package job failed twice on this race, recorded as D-059. It extends one P7 result and passes no revision Wave test.
+- PRD decision: `update-existing` — PRD 03 records D-059. PRD 38 R-DB-3 already requires bounded busy retry and does not change.
+- Owner approval: Tyler, 2026-11-20. He chose to fix this with D-058 in one follow-up PR after #65, and to ship both in 2.0.9.
+- Source: [Phase 9: Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md)
