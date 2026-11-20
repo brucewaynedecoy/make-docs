@@ -35,7 +35,7 @@ Current target paths depend on scope and selected harnesses. The [phase matrix](
 | --- | --- |
 | [Phase 1: Skills and Managed Adoption](01-skills-and-managed-adoption.md) | Promote and package Skills, add reviewed adoption, then prove the shipped product and real maintainer adoption. |
 | [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md) | Revision Phase for P1: let reviewed adoption keep existing native Skill links (D-053). |
-| [Central evidence report](evidence.md) | Read actual A1–A17 results, package identities, and the review limits and owner acceptance gate. |
+| [Central evidence report](evidence.md) | Read actual A1–A19 results, package identities, and the review limits and owner acceptance gate. |
 
 ## Usage Notes
 
@@ -79,4 +79,15 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 - Rationale: CodeRabbit review of PR #65 (Major). This completes P2's own A17 promise inside its unmerged PR, so it is recorded as an edit of P2 rather than a new revision Phase.
 - PRD decision: `none` — PRD 28 already requires the copy-mirror fallback.
 - Owner approval: Tyler, 2026-11-19 12:05 AM CST, relayed by the coordinator.
+- Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)
+
+### 2026-11-20 — W19 R5 P2
+
+- Kind: `edit`
+- Affected scope: P2 t5 and A19.
+- Previous scope: P2 ended with the copy-fallback fix and its checks on a base without W28 R0. D-053 lived only on the W28 R0 branch, and P2 recorded no package candidate digest.
+- Replacement scope: P2 merges `main` with W28 R0, repeats the checks and the throwaway adoption, closes D-053 in PRD 03, and records the 2.0.9 candidate digest as its last change.
+- Rationale: PR #64 merged W28 R0 into `main` on 2026-11-20, which brought D-053 and the 2.0.9 candidate digest into `main`. P2 changes the package, so the reviewed digest must match its content.
+- PRD decision: `update-existing` — PRD 03 closes D-053. PRD 28 R-SKILL-ADOPT-2 and R-SKILL-ADOPT-3 do not change.
+- Owner approval: Tyler, relayed by the coordinator on 2026-11-20: merge `main` in, close D-053, and record the digest last.
 - Source: [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md)

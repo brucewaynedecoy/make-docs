@@ -104,7 +104,7 @@ The [phase history](../../../.make-docs/archive/history/2026-09-09-w19-r5-p1-ski
 
 ## P2 Adoption With Existing Native Links
 
-Covers A15 to A17 in [P2](02-adoption-with-existing-native-links.md). Evidence date: 2026-11-18. Branch: `fix/d053-skill-symlink-adoption`, based on `origin/main` `ad84ffb8`. Node `v26.13.1`. CLI package version `2.0.8`.
+Covers A15 to A19 in [P2](02-adoption-with-existing-native-links.md). Evidence date: 2026-11-18. Branch: `fix/d053-skill-symlink-adoption`, based on `origin/main` `ad84ffb8`. Node `v26.13.1`. CLI package version `2.0.8`.
 
 - **Cause.** `buildSkillAdoptionReview` (`packages/cli/src/skills-adoption.ts`) declared a copy fallback for every native link exposure. The detached-plan check in `packages/cli/src/store/installation-state.ts` and the executor's `selectDetachedCopyFallback` accept a fallback only for a link that the plan creates from a missing path. An unchanged existing link has no planned change, so the check rejected it. The fix declares a fallback only when the exposure path is currently missing.
 - **Regression test.** `packages/cli/tests/w19-r5-skill-adoption-existing-links.test.ts` runs in an isolated `HOME` and Store.
@@ -129,3 +129,18 @@ Evidence date: 2026-11-19.
 - **Tests.** `w19-r5-skill-adoption-existing-links.test.ts` now has 5 cases, all passing. The new refused-link case fails against the earlier P2 code (`9fb05c4d`) and passes with the fix. It reports `completed`, a copy-mirror folder whose bytes match the canonical copy, a ledger mode of `copy-mirror`, and a backup of the outdated folder. The allowed-link case produces a link with mode `symlink`.
 - **Checks.** Focused Skill and adoption tests pass 245 of 245. `npm test` passes 2,006 tests, with the 3 known environment failures. `validate:defaults` passes 53 of 53. The build passes. `smoke:pack:local` passes, with this machine's Store file unchanged.
 - **Real adoption.** A built-CLI adoption in a throwaway copy of this repository's linked Skills applied, kept the `.claude/skills` links, and repeated as `unchanged`.
+
+### P2 Follow-Up: Merge With W28 R0 And D-053 Closure (A19)
+
+Evidence date: 2026-11-20. PR #64 merged W28 R0 into `main` as `d381dae5`.
+
+- **Merge.** `origin/main` was merged into `fix/d053-skill-symlink-adoption` with no conflicts. Both PRs change `packages/cli/src/skills-adoption.ts` in different places: W28 R0 P8 validates the prepared adoption ledger (D-054), and P2 prunes copy fallbacks (D-053).
+- **Adoption tests.** `w19-r5-skill-adoption-existing-links.test.ts`, `w28-r0-skill-adoption-version.test.ts`, and `w28-r0-setup-sync-safety.test.ts` pass together, 9 of 9.
+- **Real adoption.** In a throwaway project with a temporary `HOME` and Store, `.agents/skills/preflight` and `.agents/skills/backlog-review` were copied from this repository, and `preflight/SKILL.md` was replaced with older bytes. `.claude/skills/<name>` were relative links to `../../.agents/skills/<name>`. The built CLI's `setup skills --adopt-existing preflight,backlog-review --dry-run` reported `ready`. The apply with its review digest reported `completed`. Both links kept their targets, both installed Skills match `packages/skills/`, the older `SKILL.md` was backed up, and a repeat review reported `unchanged`.
+- **D-053.** Closed in [PRD 03](../../prd/03-open-questions-and-risk-register.md).
+- **Checks.** `npm test` ran 119 test files: 117 passed, 1 failed, and 1 was skipped. Of 2,076 tests, 2,068 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`. `validate:defaults` passes 53 of 53. The build passes.
+- **Package candidate.** Two independent `npm pack -w packages/cli` runs produced the same tarball:
+  - build 1: `f9f832fb93f904f36cb345aee17854a3be2967825f7ce440633036d51d6dad0c`
+  - build 2: `f9f832fb93f904f36cb345aee17854a3be2967825f7ce440633036d51d6dad0c`
+- `smoke:pack:local` passed with the same digest. 2.0.9 is not published, and `RELEASING.md` does not forbid replacing an unpublished candidate digest. The digest replaces the W28 R0 P11 value in `.github/release-candidates/v2.0.9.sha256` as the last content change.
+- This Mac's Store and installed Skills were not changed.

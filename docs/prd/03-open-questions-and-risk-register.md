@@ -1122,7 +1122,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | `make-docs setup skills --adopt-existing` with a ready review digest fails with `ownership-unverified`, "Invalid predeclared native copy fallback." It fails when the project already exposes its Skills through native links, such as `.claude/skills/<name>` pointing to `.agents/skills/<name>`. Nothing is applied. | Fix the copy-fallback validation in a separate CLI change, then rerun the W28 R0 installed-Skill refresh. |
+| Closed | Reviewed adoption keeps a copy fallback only for a native link that the plan creates from a missing path. An existing link that already matches stays a link and needs no fallback. | None. |
 
 **Issue**: Adoption declares a copy fallback for every native link exposure (`packages/cli/src/skills-adoption.ts`). The detached-plan check in `packages/cli/src/store/installation-state.ts` accepts a fallback only when the plan creates that link from nothing. An already-present, unchanged link therefore fails the check. On 2026-11-18, the reviewed W28 R0 Skill sync of this repository hit this error. The same project shape fails in an isolated temporary Store with the W28 R0 build and with the released `make-docs` 2.0.8.
 
@@ -1132,7 +1132,9 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: Reviewed adoption of a project with existing `.claude/skills` links applies, and the installed Skills match the packaged Skills.
 
-**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout).
+**Resolution**: Closed on 2026-11-20 in W19 R5 P2 at the owner's direction. `buildSkillAdoptionReview` declares a copy fallback for every link exposure, then keeps it only for planned steps that create a link from a missing path, which is the validator's own rule. Existing links stay links, and an outdated native folder that adoption replaces with a link keeps its copy fallback. `w19-r5-skill-adoption-existing-links.test.ts` fails without the change and passes with it. A built-CLI adoption in a throwaway project with existing `.claude/skills` links applies, keeps the links, and leaves the installed Skills equal to `packages/skills/`. This repository's installed Skills were already refreshed through `make-docs setup skills` in W28 R0 P8, so its Store needs no adoption.
+
+**Evidence**: [W28 R0 evidence report](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p4-validation-review-and-closeout); [W19 R5 P2 evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md#p2-adoption-with-existing-native-links).
 
 ### D-054 Skill Adoption Review Reports Ready For An Older Install Record
 
