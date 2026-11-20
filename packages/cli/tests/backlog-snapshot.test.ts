@@ -142,7 +142,7 @@ describe("work.backlog.snapshot core", () => {
     fixture(targetRoot);
     const snapshot = buildBacklogSnapshot(targetRoot, { now: () => FIXED_NOW, runGit: NO_GIT });
 
-    expect(snapshot.schemaVersion).toBe(1);
+    expect(snapshot.schemaVersion).toBe(2);
     expect(snapshot.generatedAt).toBe(FIXED_NOW.toISOString());
     expect(snapshot.project).toEqual({
       id: "fixture-project",
@@ -404,7 +404,7 @@ describe("work.backlog.snapshot surfaces", () => {
       createExecutionContext({ surface: "test", writesAllowed: false }),
     );
     expect(invocation.value).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       capabilities: { store: { state: "not-used", diagnosticCodes: [] } },
     });
   });

@@ -56,3 +56,18 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - Next step: Start with the first applicable phase in this backlog and continue phase-by-phase.
 - Why: The backlog is the implementation queue derived from the plan and PRD contract.
 - Coordinate Handoff: Carry this backlog's W/R coordinate into phase history records and commits, adding the active P coordinate for each phase.
+
+## Change History
+
+<!-- Optional. Add this section only after this work backlog has been committed and its scope changes. One entry per coherent scope edit, newest last. Progress updates need no entry. See the `## Change History` section of `.make-docs/system/references/wave-model.md`. `PRD decision` is `update-existing`, `create`, `link-only`, or `none`. `Source` is a relative Markdown link to the governing design, plan, work, history, owner decision, or evidence. Remove this comment and the example entry when the section is not needed. -->
+
+### {{DATE}} — {{COORDINATE}}
+
+- Kind: `{{EDIT_REVISION_PHASE_PIVOT_REBUILD_OR_REVISION_WAVE}}`
+- Affected scope: {{PHASES_OR_TASKS}}
+- Previous scope: {{PREVIOUS_SCOPE}}
+- Replacement scope: {{REPLACEMENT_SCOPE}}
+- Rationale: {{RATIONALE}}
+- PRD decision: `{{PRD_DECISION}}` — {{REASON_WHEN_NONE}}
+- Owner approval: {{APPROVAL_SOURCE_OR_NOT_REQUIRED}}
+- Source: {{RELATIVE_SOURCE_REFERENCE}}

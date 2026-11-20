@@ -20,3 +20,5 @@ Review this table whenever deterministic snapshot logic or Skill logic changes. 
 | BACKLOG-RULE-014 | Judgment-only; snapshot supplies sort and dependency facts. | Review recommends order with rationale, evidence, and limits. |
 | BACKLOG-RULE-015 | Judgment-only; tool supplies structured meaning. | Agent explains subject, context, effect, limits, next action, and human action level. |
 | BACKLOG-RULE-016 | Snapshot keeps lifecycle evidence separate. | Review does not promote task completion into closeout, commit, history, release, or archive. |
+| BACKLOG-RULE-017 | Snapshot checks the Change History entry shape in supported work indexes. | Review reports a malformed entry as Attention and also checks plan overviews, which the snapshot does not read. |
+| BACKLOG-RULE-018 | Judgment-only; snapshot supplies committed, closeout-notes, archive, next-phase, revision, and highest-wave facts. | Agent selects a coordinate with the Wave Model decision procedure and asks the owner at each gate. |

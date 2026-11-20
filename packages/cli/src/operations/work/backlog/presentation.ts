@@ -65,12 +65,13 @@ export const BacklogModelSummaryV1Schema = z.strictObject({
 });
 export type BacklogModelSummaryV1 = z.infer<typeof BacklogModelSummaryV1Schema>;
 
-function phaseDisplayState(phase: WorkPhaseFact): z.infer<typeof phaseState> {
+export function phaseDisplayState(phase: WorkPhaseFact): z.infer<typeof phaseState> {
   const status = String(phase.recordedStatus.value ?? "").toLowerCase();
   if (/supersed|defer|pause/.test(status)) return "superseded";
   if (/conflict/.test(status)) return "conflict";
   if (/block/.test(status)) return "blocked";
-  if (/complete|closed|done/.test(status)) return "complete";
+  // Match whole completion values, as the snapshot does, so `incomplete` falls through to the task checks.
+  if (/^(?:complete|completed|closed|done)$/.test(status.trim())) return "complete";
   if (phase.tasks.length && phase.tasks.every(task => task.completed.value === true)) return "complete";
   if (phase.tasks.some(task => task.completed.value === false)) return "open";
   return "unknown";

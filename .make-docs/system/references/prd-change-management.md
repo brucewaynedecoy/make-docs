@@ -117,8 +117,8 @@ Changes that activate, defer, narrow, cancel, or supersede user-observable accep
 - History records preserve execution provenance and completed maintenance activity.
 - Downstream work reads the updated authoritative PRDs for product requirements. It may read the governing plan for sequencing and the history record for provenance, but neither overrides the current PRD body.
 - Plans and backlogs are always directories: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` and `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
-- A scoped maintenance effort normally produces a dated delta backlog rather than rewriting an earlier backlog.
-- Every delta backlog phase cites the updated or genuinely new authoritative PRDs that constrain implementation.
+- Maintenance work goes into the lineage wave's work backlog, as an in-place edit or a revision Phase, under the `## Decision Procedure` in `.make-docs/system/references/wave-model.md`. A new work backlog exists only for a new wave or a revision Wave. After a backlog's first commit, each scope edit adds a `## Change History` entry that records its PRD decision.
+- Every new or amended backlog phase cites the updated or genuinely new authoritative PRDs that constrain implementation.
 - For `direct` or `indirect` Human Experience impact, the plan and backlog map each accepted promise to its owning PRD, affected surface or effect, work phase, evidence source or selected testing type, and any accepted obligation. For `none` Human Experience impact, they name the preserved human boundary and its proof. These links carry the accepted outcome forward without making the plan or backlog a second product authority.
 
 ## Validation Checklist

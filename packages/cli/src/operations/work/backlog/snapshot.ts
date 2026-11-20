@@ -7,13 +7,16 @@ import { parseDocument } from "yaml";
 import { OperationError } from "../../types.js";
 import { BACKLOG_RULES } from "./catalog.js";
 import {
+  BACKLOG_SNAPSHOT_SCHEMA_VERSION,
   BacklogSnapshotV1Schema,
+  type BacklogCoordinateFacts,
   type BacklogDiagnostic,
   type BacklogSnapshotV1,
   type BacklogWorkRecordV1,
   type EvidenceReference,
   type LastUpdatedAtFact,
   type NullableSourcedBoolean,
+  type NullableSourcedPhaseNumber,
   type NullableSourcedString,
   type SourcedCount,
   type WorkGitEvidence,
@@ -29,6 +32,19 @@ const PHASE_FILE = /^(0[1-9]|[1-9]\d)-.+\.md$/;
 const TASK = /^- \[([ xX])\]\s+(?:(t[1-9]\d*):\s*)?(.+?)\s*$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)]+)\)/g;
 const COMPLETE_STATUS = /^(?:complete|completed|closed)$/i;
+const CHANGE_HISTORY_HEADING = /^(\d{4}-\d{2}-\d{2}) — (W[1-9]\d* R(?:0|[1-9]\d*))(?: P[1-9]\d*)?$/;
+const CHANGE_HISTORY_FIELDS = [
+  "Kind",
+  "Affected scope",
+  "Previous scope",
+  "Replacement scope",
+  "Rationale",
+  "PRD decision",
+  "Owner approval",
+  "Source",
+] as const;
+const CHANGE_HISTORY_KINDS = new Set(["edit", "revision-phase", "pivot", "rebuild", "revision-wave"]);
+const CHANGE_HISTORY_PRD_DECISIONS = new Set(["update-existing", "create", "link-only", "none"]);
 
 type JsonObject = Record<string, unknown>;
 
@@ -64,6 +80,8 @@ interface RecordInventory {
 interface GitContext {
   state: "available" | "unavailable" | "denied" | "not-a-repository";
   revision: string | null;
+  /** The target root's path inside the repository, with a trailing slash, or "" at the repository root. */
+  prefix: string;
   run(cwd: string, args: string[]): GitCommandResult;
 }
 
@@ -71,6 +89,14 @@ interface DateEvidenceResult {
   value: LastUpdatedAtFact;
   gitEvidence: WorkGitEvidence[];
   diagnostics: BacklogDiagnostic[];
+  /** Working-tree status for the record's files, or null when Git status is unavailable. */
+  statusFacts: { changed: string[]; untracked: Set<string> } | null;
+}
+
+/** Tracked and changed record files, or null when Git cannot prove either. */
+interface FileCommitFacts {
+  tracked: Set<string>;
+  changed: Set<string>;
 }
 
 export class BacklogSnapshotError extends OperationError {
@@ -238,6 +264,37 @@ function discoverRecords(targetRoot: string): RecordInventory[] {
     }
   }
   return records.sort((left, right) => left.recordPath.localeCompare(right.recordPath));
+}
+
+interface PlanDirectory {
+  planPath: string;
+  scope: WorkScope;
+  directoryCoordinate: string;
+}
+
+/** Dated W/R plan directories. They feed coordinate facts only and never become work records. */
+function discoverPlanDirectories(targetRoot: string): PlanDirectory[] {
+  const roots: Array<{ relative: string; scope: WorkScope }> = [
+    { relative: "docs/plans", scope: "live" },
+    { relative: ".make-docs/archive/plans", scope: "archived" },
+  ];
+  const plans: PlanDirectory[] = [];
+  for (const root of roots) {
+    const absoluteRoot = path.join(targetRoot, ...root.relative.split("/"));
+    if (!existsSync(absoluteRoot)) continue;
+    assertNoSymlink(targetRoot, absoluteRoot, `Plan directory ${root.relative}`);
+    if (!lstatSync(absoluteRoot).isDirectory()) continue;
+    for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
+      const match = RECORD_DIRECTORY.exec(entry.name);
+      if (!match || !entry.isDirectory()) continue;
+      plans.push({
+        planPath: relativePath(targetRoot, path.join(absoluteRoot, entry.name)),
+        scope: root.scope,
+        directoryCoordinate: `W${Number(match[2])} R${Number(match[3])}`,
+      });
+    }
+  }
+  return plans.sort((left, right) => left.planPath.localeCompare(right.planPath));
 }
 
 function parseFrontmatter(markdown: string): ParsedFrontmatter {
@@ -432,11 +489,13 @@ function gitContext(targetRoot: string, run: GitContext["run"]): GitContext {
       : /permission denied|operation not permitted|access denied/i.test(combined)
         ? "denied"
         : "not-a-repository";
-    return { state, revision: null, run };
+    return { state, revision: null, prefix: "", run };
   }
   const revision = run(targetRoot, ["rev-parse", "--verify", "HEAD"]);
+  const prefixResult = run(targetRoot, ["rev-parse", "--show-prefix"]);
   return {
     state: "available",
+    prefix: prefixResult.status === 0 ? toPosix(prefixResult.stdout.trim()) : "",
     revision: revision.status === 0 && /^[a-f0-9]{7,64}$/i.test(revision.stdout.trim())
       ? revision.stdout.trim().toLowerCase()
       : null,
@@ -444,7 +503,7 @@ function gitContext(targetRoot: string, run: GitContext["run"]): GitContext {
   };
 }
 
-function changedRecordFiles(output: string, discoveredFiles: string[]): {
+function changedRecordFiles(output: string, discoveredFiles: string[], prefix = ""): {
   changed: string[];
   untracked: Set<string>;
 } {
@@ -455,7 +514,9 @@ function changedRecordFiles(output: string, discoveredFiles: string[]): {
     const entry = entries[index]!;
     if (entry.length < 4) continue;
     const status = entry.slice(0, 2);
-    const candidate = toPosix(entry.slice(3));
+    const repositoryPath = toPosix(entry.slice(3));
+    // Porcelain paths are repository-root relative; inventory paths are target-root relative.
+    const candidate = prefix && repositoryPath.startsWith(prefix) ? repositoryPath.slice(prefix.length) : repositoryPath;
     if ((status.includes("R") || status.includes("C")) && entries[index + 1]) {
       // Porcelain v1 reverses rename/copy paths under -z: the current path is first.
       index += 1;
@@ -477,9 +538,10 @@ function recordDates(
   const changed = git.state === "available"
     ? git.run(targetRoot, ["status", "--porcelain=v1", "-z", "--untracked-files=all", "--", ...inventory.discoveredFiles])
     : null;
-  const statusFacts = changed?.status === 0
-    ? changedRecordFiles(changed.stdout, inventory.discoveredFiles)
-    : { changed: [], untracked: new Set<string>() };
+  const knownStatus = changed?.status === 0
+    ? changedRecordFiles(changed.stdout, inventory.discoveredFiles, git.prefix)
+    : null;
+  const statusFacts = knownStatus ?? { changed: [], untracked: new Set<string>() };
   const changedPaths = statusFacts.changed;
   if (changedPaths.length > 0) {
     const newest = newestFileTime(targetRoot, changedPaths);
@@ -507,6 +569,7 @@ function recordDates(
         },
         gitEvidence,
         diagnostics,
+        statusFacts: knownStatus,
       };
     }
   }
@@ -546,6 +609,7 @@ function recordDates(
           },
           gitEvidence,
           diagnostics,
+          statusFacts: knownStatus,
         };
       }
     }
@@ -572,6 +636,7 @@ function recordDates(
       },
       gitEvidence,
       diagnostics,
+      statusFacts: knownStatus,
     };
   }
   diagnostics.push(diagnostic("BACKLOG-VAL-011", inventory.recordPath, inventory.recordPath));
@@ -585,7 +650,262 @@ function recordDates(
     },
     gitEvidence,
     diagnostics,
+    statusFacts: knownStatus,
   };
+}
+
+function fileCommitFacts(
+  targetRoot: string,
+  inventory: RecordInventory,
+  git: GitContext,
+  statusFacts: DateEvidenceResult["statusFacts"],
+): FileCommitFacts | null {
+  if (git.state !== "available" || statusFacts === null || inventory.discoveredFiles.length === 0) return null;
+  // Without --full-name, ls-files prints paths relative to the target root, like the inventory.
+  const listed = git.run(targetRoot, ["ls-files", "-z", "--", ...inventory.discoveredFiles]);
+  if (listed.status !== 0) return null;
+  return {
+    tracked: new Set(listed.stdout.split("\0").filter(Boolean).map(toPosix)),
+    changed: new Set(statusFacts.changed),
+  };
+}
+
+/** True only when every file is tracked and has no uncommitted change. */
+function committedFact(facts: FileCommitFacts | null, files: string[]): NullableSourcedBoolean {
+  if (facts === null || files.length === 0) return nullableBoolean(null);
+  return nullableBoolean(
+    files.every((file) => facts.tracked.has(file) && !facts.changed.has(file)),
+    files.map((file) => evidence(file, "git status")),
+  );
+}
+
+/**
+ * Remove HTML comments with a comment-aware scan instead of one regular-expression pass.
+ * An unterminated `<!--` runs to the end of the text, as in HTML. The scan repeats when a
+ * removal joins two fragments into a new `<!--`, so the result never contains a comment opener.
+ * `replace` lets a caller keep line breaks in place of each removed comment.
+ */
+export function stripHtmlComments(text: string, replace: (comment: string) => string = () => ""): string {
+  let current = text;
+  while (current.includes("<!--")) {
+    let output = "";
+    let cursor = 0;
+    for (;;) {
+      const start = current.indexOf("<!--", cursor);
+      if (start === -1) {
+        output += current.slice(cursor);
+        break;
+      }
+      output += current.slice(cursor, start);
+      const end = current.indexOf("-->", start + 4);
+      const stop = end === -1 ? current.length : end + 3;
+      output += replace(current.slice(start, stop));
+      cursor = stop;
+    }
+    // Each pass removes at least one complete opener, so the loop always ends.
+    current = output;
+  }
+  return current;
+}
+
+// Finds a live section: outside HTML comments and outside code. Code is literal text, so a `<!--` in a fenced block or an inline code span opens no comment, and a heading inside a fenced block starts no section. Comments are blanked with their line breaks kept, so line numbers stay exact.
+function liveSection(body: string, name: string): { text: string; startLine: number } | null {
+  const code: string[] = [];
+  const keep = (text: string) => `\u0000${code.push(text) - 1}\u0000`;
+  const blanked = stripHtmlComments(maskCode(body, keep), (comment) => comment.replace(/[^\n]/g, ""));
+  // Look up headings while code is still masked, then return the section text with its code restored.
+  const found = section(blanked, name);
+  if (!found) return null;
+  const restore = (text: string) => text.replace(/\u0000(\d+)\u0000/g, (_match, index: string) => code[Number(index)] ?? "");
+  return { text: restore(found.text), startLine: found.startLine };
+}
+
+// Masks fenced code blocks and inline code spans outside HTML comments. Comment and fence state are tracked together, so a fence marker inside a comment is ignored and a comment delimiter inside code stays literal.
+function maskCode(body: string, keep: (text: string) => string): string {
+  let fence: string | null = null;
+  let inComment = false;
+  return body.split("\n").map((line) => {
+    if (fence !== null) {
+      // A closing fence is a run of the opener's character only, at least as long, then optional spaces or tabs.
+      // A CRLF line keeps its `\r` after the split, so it is allowed before the end.
+      const closer = /^ {0,3}(`{3,}|~{3,})[ \t]*\r?$/.exec(line);
+      if (closer && closer[1]![0] === fence[0] && closer[1]!.length >= fence.length) fence = null;
+      return keep(line);
+    }
+    if (!inComment) {
+      const opener = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+      // A backtick fence's info string cannot contain a backtick, so such a line is inline code, not a fence.
+      if (opener && !(opener[1]![0] === "`" && opener[2]!.includes("`"))) {
+        fence = opener[1]!;
+        return keep(line);
+      }
+    }
+    let output = "";
+    let cursor = 0;
+    while (cursor < line.length) {
+      if (inComment) {
+        const close = line.indexOf("-->", cursor);
+        if (close === -1) {
+          output += line.slice(cursor);
+          cursor = line.length;
+          break;
+        }
+        output += line.slice(cursor, close + 3);
+        cursor = close + 3;
+        inComment = false;
+        continue;
+      }
+      const tick = line.indexOf("`", cursor);
+      const open = line.indexOf("<!--", cursor);
+      if (open !== -1 && (tick === -1 || open < tick)) {
+        output += line.slice(cursor, open + 4);
+        cursor = open + 4;
+        inComment = true;
+        continue;
+      }
+      if (tick === -1) break;
+      const span = inlineCodeEnd(line, tick);
+      output += line.slice(cursor, tick) + (span === -1 ? line.slice(tick, nextNonTick(line, tick)) : keep(line.slice(tick, span)));
+      cursor = span === -1 ? nextNonTick(line, tick) : span;
+    }
+    return output + line.slice(cursor);
+  }).join("\n");
+}
+
+function nextNonTick(line: string, from: number): number {
+  let cursor = from;
+  while (line[cursor] === "`") cursor += 1;
+  return cursor;
+}
+
+// Returns the index just past the inline code span that opens at `open`, or -1 when the backtick run is never closed by a run of the same length.
+function inlineCodeEnd(line: string, open: number): number {
+  const width = nextNonTick(line, open) - open;
+  for (let search = open + width; search < line.length;) {
+    const candidate = line.indexOf("`", search);
+    if (candidate === -1) return -1;
+    const after = nextNonTick(line, candidate);
+    if (after - candidate === width) return after;
+    search = after;
+  }
+  return -1;
+}
+
+function bodyLineOffset(markdown: string, body: string): number {
+  return markdown.slice(0, markdown.length - body.length).split("\n").length - 1;
+}
+
+function closeoutNotesFact(body: string, phasePath: string, lineOffset: number): NullableSourcedBoolean {
+  const found = liveSection(body, "Closeout Notes");
+  if (!found) return nullableBoolean(false, [evidence(phasePath, "Closeout Notes")]);
+  const content = found.text.trim();
+  return nullableBoolean(
+    content.length > 0 && !content.includes("{{"),
+    [evidence(phasePath, "Closeout Notes", lineOffset + found.startLine - 1)],
+  );
+}
+
+function nextPhaseFact(inventory: RecordInventory, linkedPhasePaths: string[] = []): NullableSourcedPhaseNumber {
+  let highest: { number: number; file: string } | null = null;
+  // Linked phase files count even when the linked file is missing, so the next number never collides.
+  for (const file of [...inventory.discoveredFiles, ...linkedPhasePaths]) {
+    const name = path.posix.basename(file);
+    if (!PHASE_FILE.test(name)) continue;
+    const number = Number(/^([0-9]+)/.exec(name)![1]);
+    if (!highest || number > highest.number) highest = { number, file };
+  }
+  return highest
+    ? { value: highest.number + 1, evidence: [evidence(highest.file, "phase file number")] }
+    : { value: 1, evidence: [evidence(`${inventory.recordPath}/`, "no numbered phase file")] };
+}
+
+function changeHistoryDiagnostics(
+  body: string,
+  lineOffset: number,
+  indexPath: string,
+  recordPath: string,
+  expectedWave: string,
+): BacklogDiagnostic[] {
+  const found = liveSection(body, "Change History");
+  if (!found) return [];
+  const lines = found.text.split("\n");
+  const entries: Array<{ heading: string; level: number; line: number; fields: Map<string, string> }> = [];
+  for (const [offset, line] of lines.entries()) {
+    const fileLine = lineOffset + found.startLine + offset;
+    const heading = /^(#{3,6})\s+(.+?)\s*$/.exec(line);
+    if (heading) {
+      entries.push({ heading: heading[2]!, level: heading[1]!.length, line: fileLine, fields: new Map() });
+      continue;
+    }
+    const field = /^-\s+([^:]+):\s*(.*?)\s*$/.exec(line);
+    if (field && entries.length > 0) entries.at(-1)!.fields.set(field[1]!.trim(), field[2]!);
+  }
+  const results: BacklogDiagnostic[] = [];
+  const report = (line: number, detail: string) =>
+    results.push(diagnostic("BACKLOG-VAL-017", recordPath, indexPath, line, detail));
+  let previousDate: string | null = null;
+  for (const entry of entries) {
+    const label = `Entry "${entry.heading}"`;
+    if (entry.level !== 3) {
+      report(entry.line, `${label} uses a level-${entry.level} heading; write it as \`### ${entry.heading}\`.`);
+    }
+    const heading = CHANGE_HISTORY_HEADING.exec(entry.heading);
+    const date = heading?.[1] ?? null;
+    if (!heading || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
+      report(entry.line, `${label} does not use the heading form \`YYYY-MM-DD — <coordinate>\`.`);
+    } else if (heading[2] !== expectedWave) {
+      report(entry.line, `${label} names ${heading[2]}, but this record is ${expectedWave}.`);
+    }
+    const missing = CHANGE_HISTORY_FIELDS.filter((name) => {
+      const value = entry.fields.get(name);
+      return value === undefined || value.trim() === "" || value.includes("{{");
+    });
+    if (missing.length > 0) report(entry.line, `${label} is missing ${missing.join(", ")}.`);
+    const kind = entry.fields.get("Kind")?.replace(/`/g, "").trim();
+    if (kind && !kind.includes("{{") && !CHANGE_HISTORY_KINDS.has(kind)) {
+      report(entry.line, `${label} uses Kind "${kind}", which is not edit, revision-phase, pivot, rebuild, or revision-wave.`);
+    }
+    const decision = entry.fields.get("PRD decision")?.replace(/`/g, "").trim().split(/\s/, 1)[0];
+    if (decision && !decision.includes("{{") && !CHANGE_HISTORY_PRD_DECISIONS.has(decision)) {
+      report(entry.line, `${label} uses PRD decision "${decision}", which is not update-existing, create, link-only, or none.`);
+    }
+    if (date && heading) {
+      if (previousDate && date < previousDate) report(entry.line, `${label} is dated before the entry above it; keep the newest entry last.`);
+      previousDate = date;
+    }
+  }
+  return results;
+}
+
+function coordinateFacts(inventory: RecordInventory[], plans: PlanDirectory[]): BacklogCoordinateFacts {
+  const waves = new Map<number, { revisions: Set<number>; recordPaths: string[]; planPaths: string[]; scopes: WorkScope[] }>();
+  const add = (coordinate: string, scope: WorkScope, item: { recordPath?: string; planPath?: string }) => {
+    const match = /^W(\d+) R(\d+)$/.exec(coordinate);
+    if (!match) return;
+    const wave = Number(match[1]);
+    const entry = waves.get(wave) ?? { revisions: new Set<number>(), recordPaths: [], planPaths: [], scopes: [] };
+    entry.revisions.add(Number(match[2]));
+    if (item.recordPath) entry.recordPaths.push(item.recordPath);
+    if (item.planPath) entry.planPaths.push(item.planPath);
+    entry.scopes.push(scope);
+    waves.set(wave, entry);
+  };
+  for (const record of inventory) add(record.directoryCoordinate, record.scope, { recordPath: record.recordPath });
+  for (const plan of plans) add(plan.directoryCoordinate, plan.scope, { planPath: plan.planPath });
+  const facts = [...waves.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([wave, entry]) => {
+      const revisions = [...entry.revisions].sort((left, right) => left - right);
+      return {
+        wave,
+        revisions,
+        nextRevision: revisions.at(-1)! + 1,
+        archived: entry.scopes.every((scope) => scope === "archived"),
+        recordPaths: entry.recordPaths.sort(),
+        planPaths: entry.planPaths.sort(),
+      };
+    });
+  return { highestWave: facts.at(-1)?.wave ?? null, waves: facts };
 }
 
 function emptyCloseout(recordPath: string, scope: WorkScope, tasks: WorkTaskFact[]) {
@@ -621,6 +941,7 @@ function unsupportedRecord(
     },
     lastUpdatedAt: dates.value,
     phaseCount: count(0),
+    nextPhase: { value: null, evidence: [] },
     taskCounts: { total: count(0), complete: count(0), incomplete: count(0), unknown: count(0) },
     phases: [],
     dependencies: [],
@@ -638,6 +959,7 @@ function readRecord(
 ): { record: BacklogWorkRecordV1; diagnostics: BacklogDiagnostic[] } {
   const dates = recordDates(targetRoot, inventory, git);
   const diagnostics = [...dates.diagnostics];
+  const commitFacts = fileCommitFacts(targetRoot, inventory, git, dates.statusFacts);
   const indexPath = `${inventory.recordPath}/00-index.md`;
   const indexAbsolute = path.join(targetRoot, ...indexPath.split("/"));
   if (!inventory.discoveredFiles.includes(indexPath)) {
@@ -733,6 +1055,8 @@ function readRecord(
       dependencies,
       blockers,
       sourceLinks: source.value ? [source.value] : [],
+      closeoutNotesPresent: closeoutNotesFact(parsedPhase.body, resolved, bodyLineOffset(phaseText, parsedPhase.body)),
+      committed: committedFact(commitFacts, [resolved]),
     });
     interpretedPhasePaths.push(resolved);
   }
@@ -768,6 +1092,17 @@ function readRecord(
   ) {
     diagnostics.push(diagnostic("BACKLOG-VAL-008", inventory.recordPath, indexPath, parsedIndex.fieldLines.get("status") ?? null));
   }
+  if (supported) {
+    diagnostics.push(
+      ...changeHistoryDiagnostics(
+        parsedIndex.body,
+        bodyLineOffset(indexText, parsedIndex.body),
+        indexPath,
+        inventory.recordPath,
+        indexCoordinate!,
+      ),
+    );
+  }
 
   const record: BacklogWorkRecordV1 = {
     recordPath: inventory.recordPath,
@@ -790,11 +1125,15 @@ function readRecord(
     },
     lastUpdatedAt: dates.value,
     phaseCount: count(phases.length, [evidence(indexPath, "Phase Map")]),
+    nextPhase: nextPhaseFact(inventory, linkedPhasePaths),
     taskCounts,
     phases,
     dependencies: phases.flatMap((phase) => phase.dependencies),
     blockers: phases.flatMap((phase) => phase.blockers),
-    closeout: emptyCloseout(inventory.recordPath, inventory.scope, tasks),
+    closeout: {
+      ...emptyCloseout(inventory.recordPath, inventory.scope, tasks),
+      committed: committedFact(commitFacts, [indexPath, ...linkedPhasePaths]),
+    },
     sourceLinks: [indexSource.value, ...phases.flatMap((phase) => phase.sourceLinks)].filter((value): value is WorkSourceLinkFact => value !== null),
     gitEvidence: dates.gitEvidence,
   };
@@ -857,12 +1196,14 @@ export function buildBacklogSnapshot(
 ): BacklogSnapshotV1 {
   const targetRoot = resolveSafeTargetRoot(targetRootInput);
   let inventory: RecordInventory[];
+  let plans: PlanDirectory[];
   try {
     inventory = discoverRecords(targetRoot);
+    plans = discoverPlanDirectories(targetRoot);
   } catch (error) {
     if (error instanceof BacklogSnapshotError) throw error;
     throw new BacklogSnapshotError(
-      "The backlog record roots cannot be read safely. Check access to docs/work and .make-docs/archive/work, then retry.",
+      "The backlog record roots cannot be read safely. Check access to docs/work, docs/plans, and their .make-docs/archive directories, then retry.",
       sourceFailureReason(error),
     );
   }
@@ -876,7 +1217,7 @@ export function buildBacklogSnapshot(
   const gitCapabilityState = git.state === "available" && gitFallbackUsed ? "partial" : git.state;
   const gitDiagnosticCodes = gitCapabilityState === "available" ? [] : ["BACKLOG-VAL-010"];
   const snapshot: BacklogSnapshotV1 = {
-    schemaVersion: 1,
+    schemaVersion: BACKLOG_SNAPSHOT_SCHEMA_VERSION,
     generatedAt: (seams.now ?? (() => new Date()))().toISOString(),
     targetRoot,
     project: projectIdentity(targetRoot),
@@ -892,6 +1233,7 @@ export function buildBacklogSnapshot(
       live: records.filter((record) => record.scope === "live").length,
       archived: records.filter((record) => record.scope === "archived").length,
     },
+    coordinates: coordinateFacts(inventory, plans),
     records,
     diagnostics: uniqueDiagnostics(diagnostics).sort((left, right) =>
       [left.recordPath ?? "", left.code, left.path ?? "", left.line ?? 0]

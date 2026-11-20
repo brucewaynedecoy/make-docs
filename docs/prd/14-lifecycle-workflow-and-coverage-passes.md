@@ -13,6 +13,7 @@ This authority owns lifecycle workflow, coverage passes, and phase-close routing
 ## Component and Capability Map
 
 - [PRD 49](49-human-experience-standard-and-intent.md) owns the standard and impact model. This PRD owns lifecycle propagation, coverage candidacy, obligation routing, and phase-close use.
+- This PRD owns plan and work coordinate selection, plan and backlog amendment, and Change History under `### Coordinate Selection and Amendment`. [PRD 51](51-backlog-review-and-reporting.md) owns the snapshot facts that support them.
 
 The requirements below define the owned components, behaviors, boundaries, and evidence expectations for this capability.
 ## Requirements
@@ -68,6 +69,60 @@ Doc anchors:
 
 - `docs/assets/archive/plans/2026-05-28-w16-r0-coverage-pass-contract/00-overview.md`
 - `docs/assets/archive/designs/2026-06-17-make-docs-lifecycle-foundation.md`
+
+### Coordinate Selection and Amendment
+
+Plans and work backlogs carry a `W{W} R{R}` coordinate, and their phases carry `W{W} R{R} P{P}`. This section owns how an agent selects that coordinate and how a committed plan or backlog changes. The shipped [Wave Model reference](../../.make-docs/system/references/wave-model.md) explains the procedure. [PRD 51](51-backlog-review-and-reporting.md) owns the deterministic facts that support it.
+
+- R-COORD-1 (MUST): a Wave (`W`) is a self-contained unit of work, and it defines the scope of that work. A Wave can be a full build, one domain slice, or one change request. A plan is the statement of work for one W/R. The active PRD set is the product authority. A plan or work backlog never overrides it, and a backlog can be rebuilt from it.
+- R-COORD-2 (MUST): a Phase is complete only when its work is done, closed out, and committed. Deployment is extra evidence, not a substitute for a commit: work that is deployed but not committed is not complete. Phase work that is done but not committed is not complete. It can be edited or undone in place. A complete phase also meets the phase-close rules of [PRD 45](45-deferred-obligation-governance.md).
+- R-COORD-3 (MUST): a revision Phase is the next unused `P` in the same W/R. It changes the result of a completed Phase and carries no other coordinate marker. A revision Wave is the next unused `R` of a Wave. It is a change order for completed work and has its own plan and work backlog. `R0` is the base revision of every Wave.
+- R-COORD-4 (MUST): the agent selects a coordinate in this order:
+  1. A coordinate that the user states.
+  2. The outcome test in R-COORD-5.
+  3. Archived lineage handling under R-COORD-9, before any lineage decision.
+  4. Lineage Wave handling under R-COORD-6 through R-COORD-8.
+  5. The highest-wave rule in R-COORD-10.
+
+  A stated coordinate or the outcome test can decide the coordinate, but R-COORD-7 and the owner gates in R-COORD-11 still apply before any plan or backlog changes.
+- R-COORD-5 (MUST): a request that adds an outcome that no Wave's plan promised is new work. New work can be a new capability or an enhancement, and the test is decided by outcome, not by code area. New work gets a new Wave at the highest existing `W` plus one, with `R0`, or `W1 R0` when no plan or work record exists. A Wave can be small. A PRD `create` decision is strong evidence of new work, but it does not decide the result alone. When an unfinished Wave could also absorb the outcome, the owner chooses between extending that Wave and starting a new one.
+- R-COORD-6 (MUST): a request that changes an outcome that an existing Wave promised belongs to that lineage Wave. For each affected Phase that is not complete, the agent edits the existing backlog in place when the change does not significantly deviate from the plan. When it does significantly deviate, the owner chooses one of two paths: amend the same plan and backlog in place, or finish the Wave and then open a revision Wave.
+- R-COORD-7 (MUST): a change significantly deviates from a plan when it changes the plan's goal, scope, or non-goals; replaces the plan's chosen approach or architecture; or adds a product capability that the plan does not name. These changes are not significant deviations: adding, splitting, or reordering Phases or tasks inside the stated scope; fixing defects; and adjusting tests or evidence.
+- R-COORD-8 (MUST): a change to a completed Phase is a revision Phase unless at least one of these is true, in which case it is a revision Wave:
+  1. It reverses an approach or architecture choice in the plan, so the plan must be rewritten rather than extended.
+  2. It must redo the results of two or more completed Phases.
+  3. It needs its own design, or a plan with several Phases.
+
+  Deployment alone does not make a change a revision Wave.
+- R-COORD-9 (MUST): when the lineage Wave is archived, the owner approves first. The agent then restores that Wave's plan and work backlog to the working set under their existing names and applies R-COORD-6 through R-COORD-8.
+- R-COORD-10 (MUST): a newer, unrelated Wave never moves work to a new Wave. The highest-wave scan is used only for new work. A project with no prior plan or work record starts at `W1 R0`.
+- R-COORD-11 (MUST): the agent asks the owner before it takes any of these actions:
+  - a significant plan deviation on an unfinished Wave;
+  - a revision Wave;
+  - a new Wave when an existing Wave could absorb the work;
+  - a backlog rebuild from the PRD;
+  - an archived-Wave restore;
+  - a revision Phase whose R-COORD-8 result is borderline.
+
+  The agent decides alone when it edits unfinished work that fits the plan, and when it adds a clear revision Phase.
+- R-COORD-12 (MUST): an owner question for an R-COORD-11 action names the choice, the reason, and the effect, and follows the user action request rules of the [Human Experience Contract](../../.make-docs/system/contracts/human-experience-contract.md). For a coordinate choice that the agent makes alone, the agent's reply names the choice and the reason. A coordinate choice is never silent.
+- R-COORD-13 (MUST): after a plan or work backlog has been committed once, each later scope edit adds one entry to a `## Change History` section. The section sits at the end of the work `00-index.md`, or at the end of the plan `00-overview.md` when the plan changes. A scope edit adds, removes, or rewrites tasks, acceptance criteria, or Phases. Checked tasks, status changes, closeout notes, and evidence links are progress, not scope edits, and need no entry. A plan or backlog that has not been committed is a draft and needs no entries.
+- R-COORD-14 (MUST): Change History follows the requirement-history shape. It has one dated `### {{DATE}} — {{COORDINATE}}` entry per coherent change, with the newest entry last. The coordinate is the most specific one affected. Each entry records these fields:
+  - `Kind`, which is one of `edit`, `revision-phase`, `pivot`, `rebuild`, or `revision-wave`;
+  - `Affected scope`;
+  - `Previous scope`;
+  - `Replacement scope`;
+  - `Rationale`;
+  - `PRD decision`, with a reason when it is `none`;
+  - `Owner approval`, or `Not required`;
+  - `Source`.
+- R-COORD-15 (MUST): a revision Phase names the Phase it changes in a `Revises:` line. When a revision Phase opens new work in a completed Wave, the work index status is `active`. A revision Wave's plan names the completed Phases that it changes in `## Coordinate Decision`, and the prior backlog's Change History records a `revision-wave` entry that links to it. Plan classification is `new-wave` or `revision-wave`. The legacy value `revision` means `revision-wave`.
+- R-COORD-16 (MUST): a work backlog rebuilt from the PRD set keeps its W/R and its location. Completed Phases, including their tasks, checkboxes, and closeout notes, stay unchanged. Only unfinished Phases are rebuilt. The rebuild records a `rebuild` Change History entry. History keeps the prior version.
+- R-COORD-17 (MUST): the PRD decision (`update-existing`, `create`, `link-only`, or `none`) is separate from the coordinate decision. When a change alters product requirements, the owning PRD is updated before the plan or backlog. PRD maintenance work goes into the lineage Wave's backlog, as an in-place edit or a revision Phase. A new work backlog exists only for a new Wave or a revision Wave.
+- R-COORD-18 (MUST): a plan is written before execution. After its first commit, it is amended in place, with Change History, when the owner approves a pivot or when a revision Phase changes plan-level scope. An amended plan keeps its W/R.
+- R-COORD-19 (MUST): coordinate and amendment rules name outcomes, such as restoring a record to the working set or keeping the prior version in history, rather than a storage mechanism. They remain valid when a record's history or archive is kept outside the project folder.
+- R-COORD-20 (MUST): these rules govern coordinates selected and records changed from their effective date. Existing plan and work records keep their coordinates and are not renumbered or rewritten to conform.
+- R-COORD-21 (MUST): coordinate selection is agent judgment. Deterministic tooling may report facts such as committed state, closeout presence, archived state, next free `P` and `R`, and the highest `W`. It does not select a coordinate or classify a change. The agent treats an unknown fact as unknown, never as false. The `committed` fact describes the current working tree; the agent decides from history whether a phase with a later uncommitted progress edit was completed and committed earlier.
 ## Adversarial Review Coverage-Pass Extension
 
 Adversarial review is optional. It is not a release, merge, publish, push, implementation, or batch-approval gate and is not a plugin, prompt, CLI command, MCP operation, or conformance scenario by default. A downstream plan may select an exposure surface only through its current owner and evidence path.
@@ -229,6 +284,14 @@ R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project materi
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-11-18 — W28 R0
+
+- Affected requirement or section: `Coordinate Selection and Amendment` (`R-COORD-1` through `R-COORD-21`) and the Component and Capability Map.
+- Previous contract: No PRD owned coordinate selection. Shipped resources gave the next unused revision to any work that revised, reworked, corrected, standardized, or finished delivered wave work. PRD maintenance work used a separate dated delta backlog, and plans were not amended after execution started.
+- Replacement contract: An outcome test selects new Waves. Unfinished lineage work is edited in place. A change to a completed Phase is a revision Phase unless one of three revision-Wave tests applies. Owner gates cover serious actions. Committed plans and backlogs record scope edits in Change History. PRD maintenance work joins the lineage backlog.
+- Rationale: Revisions had become routine fixes and add-ons, so a revision number no longer showed which changes were serious. The plan is the statement of work for a Wave, and the PRD remains the product authority.
+- Source: [Wave, Revision, and Backlog Amendment Rules design](../designs/2026-11-18-wave-revision-and-backlog-amendment-rules.md) and [W28 R0 plan](../plans/2026-11-18-w28-r0-wave-revision-rules/00-overview.md).
 
 ## Source Anchors
 

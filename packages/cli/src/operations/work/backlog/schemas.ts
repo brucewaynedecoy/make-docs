@@ -70,6 +70,13 @@ export const SourcedCountSchema = z
   })
   .strict();
 
+export const NullableSourcedPhaseNumberSchema = z
+  .object({
+    value: z.number().int().positive().nullable(),
+    evidence: z.array(EvidenceReferenceSchema),
+  })
+  .strict();
+
 export const CreatedAtFactSchema = z
   .object({
     value: dateOnly.nullable(),
@@ -270,6 +277,8 @@ export const WorkPhaseFactSchema = z
     dependencies: z.array(WorkRelationshipFactSchema),
     blockers: z.array(WorkRelationshipFactSchema),
     sourceLinks: z.array(WorkSourceLinkFactSchema),
+    closeoutNotesPresent: NullableSourcedBooleanSchema,
+    committed: NullableSourcedBooleanSchema,
   })
   .strict()
   .superRefine((value, context) => {
@@ -376,6 +385,7 @@ export const BacklogWorkRecordV1Schema = z
     createdAt: CreatedAtFactSchema,
     lastUpdatedAt: LastUpdatedAtFactSchema,
     phaseCount: SourcedCountSchema,
+    nextPhase: NullableSourcedPhaseNumberSchema,
     taskCounts: TaskCountsSchema,
     phases: z.array(WorkPhaseFactSchema),
     dependencies: z.array(WorkRelationshipFactSchema),
@@ -478,6 +488,7 @@ export const BacklogWorkRecordV1Schema = z
         value.recordedStatus.value !== null ||
         value.recordedStatus.evidence.length > 0 ||
         value.closeout !== null ||
+        value.nextPhase.value !== null ||
         value.phaseCount.value !== 0 ||
         value.taskCounts.total.value !== 0 ||
         interpretedCollections.some((items) => items.length > 0)
@@ -490,9 +501,81 @@ export const BacklogWorkRecordV1Schema = z
     }
   });
 
+export const BacklogWaveCoordinateFactSchema = z
+  .object({
+    wave: z.number().int().positive(),
+    revisions: z.array(z.number().int().nonnegative()).min(1),
+    nextRevision: z.number().int().positive(),
+    archived: z.boolean(),
+    recordPaths: z.array(repositoryRelativePath),
+    planPaths: z.array(repositoryRelativePath),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.recordPaths.length + value.planPaths.length === 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["recordPaths"],
+        message: "A wave coordinate fact needs at least one work or plan directory.",
+      });
+    }
+    const sorted = [...new Set(value.revisions)].sort((left, right) => left - right);
+    if (sorted.length !== value.revisions.length || sorted.some((revision, index) => revision !== value.revisions[index])) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["revisions"],
+        message: "Wave revisions must be unique and in ascending order.",
+      });
+    }
+    if (value.nextRevision !== Math.max(...value.revisions) + 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["nextRevision"],
+        message: "The next revision must be one more than the highest existing revision.",
+      });
+    }
+  });
+
+export const BacklogCoordinateFactsSchema = z
+  .object({
+    highestWave: z.number().int().positive().nullable(),
+    waves: z.array(BacklogWaveCoordinateFactSchema),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const waves = value.waves.map((entry) => entry.wave);
+    const sorted = [...new Set(waves)].sort((left, right) => left - right);
+    if (sorted.length !== waves.length || sorted.some((wave, index) => wave !== waves[index])) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["waves"],
+        message: "Wave coordinate facts must be unique and in ascending wave order.",
+      });
+    }
+    const expected = waves.length === 0 ? null : Math.max(...waves);
+    if (value.highestWave !== expected) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["highestWave"],
+        message: "The highest wave must equal the largest discovered wave, or null when none exists.",
+      });
+    }
+  });
+
+/** Snapshot schema version 2 adds the W28 coordinate, commit, and closeout-notes facts as required keys. */
+export const BACKLOG_SNAPSHOT_SCHEMA_VERSION = 2 as const;
+export const BACKLOG_SNAPSHOT_V1_UPGRADE_MESSAGE =
+  "This backlog snapshot uses schema version 1 from an older make-docs CLI. Upgrade the make-docs CLI to 2.0.9 or later, then create the snapshot again.";
+
+// The exported name keeps its V1 suffix for compatibility with existing imports; it validates snapshot schema version 2.
 export const BacklogSnapshotV1Schema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(BACKLOG_SNAPSHOT_SCHEMA_VERSION, {
+      error: (issue) =>
+        issue.input === 1
+          ? BACKLOG_SNAPSHOT_V1_UPGRADE_MESSAGE
+          : `Unsupported backlog snapshot schemaVersion ${String(issue.input)}. This reader accepts schema version ${BACKLOG_SNAPSHOT_SCHEMA_VERSION}.`,
+    }),
     generatedAt: utcTimestamp,
     targetRoot: text,
     project: BacklogProjectSchema,
@@ -506,6 +589,7 @@ export const BacklogSnapshotV1Schema = z
       })
       .strict(),
     recordCounts: BacklogRecordCountsSchema,
+    coordinates: BacklogCoordinateFactsSchema,
     records: z.array(BacklogWorkRecordV1Schema),
     diagnostics: z.array(BacklogDiagnosticSchema),
   })
@@ -1109,6 +1193,8 @@ export type NullableSourcedString = z.infer<typeof NullableSourcedStringSchema>;
 export type SourcedString = z.infer<typeof SourcedStringSchema>;
 export type NullableSourcedBoolean = z.infer<typeof NullableSourcedBooleanSchema>;
 export type SourcedCount = z.infer<typeof SourcedCountSchema>;
+export type NullableSourcedPhaseNumber = z.infer<typeof NullableSourcedPhaseNumberSchema>;
+export type BacklogCoordinateFacts = z.infer<typeof BacklogCoordinateFactsSchema>;
 export type CreatedAtFact = z.infer<typeof CreatedAtFactSchema>;
 export type LastUpdatedAtFact = z.infer<typeof LastUpdatedAtFactSchema>;
 export type CapabilityState = z.infer<typeof CapabilityStateSchema>;

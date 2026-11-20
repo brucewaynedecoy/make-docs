@@ -34,7 +34,7 @@ The governing PRD invariant is:
 
 Plan directories contain `00-overview.md` plus one or more `0N-<phase>.md` files. Work directories contain `00-index.md` plus one or more `0N-<phase>.md` files. See `.make-docs/system/references/wave-model.md` for the full naming pattern and `## Work Phase Structure Rules` below for work content requirements.
 
-For change-oriented plans and delta backlogs, carry the distinguishing context in the `<slug>` (for example `...-auth-recovery-change` or `...-notifications-delta`) rather than in the directory structure. Every plan and every work backlog uses the same W/R directory shape.
+Change-oriented work uses the lineage wave's existing plan and work directories unless `.make-docs/system/references/wave-model.md` selects a new wave or a revision Wave. For a new directory, carry the distinguishing context in the `<slug>` (for example `...-auth-recovery-change`) rather than in the directory structure. Every plan and every work backlog uses the same W/R directory shape.
 
 ## PRD Lifecycle Rules
 
@@ -258,7 +258,8 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Organize phases and stages by dependency order, not by implementation convenience.
 - Include markdown task-list items and plain-bullet acceptance criteria in every stage.
 - Use phase-local task IDs (`t1`, `t2`, etc.) on task items so a task can be referenced externally as `w{W} r{R} p{P} t{T}`.
-- For PRD authority-maintenance work, use a dated delta work directory with a distinguishing slug (for example `...-<subject>-delta`) instead of rewriting a prior backlog.
+- For PRD authority-maintenance work, amend the lineage wave's work backlog in place or add a revision Phase. Create a new dated work directory only for a new wave or a revision Wave, as `.make-docs/system/references/wave-model.md` decides.
+- After a plan or work backlog's first commit, record each scope edit in its `## Change History`, using the entry shape in `wave-model.md`. Progress updates need no entry.
 - Treat updated and genuinely new product PRDs as downstream requirement authority. Plans describe sequencing and requirement-history entries preserve provenance; neither overrides the current normative PRD body.
 - Every phase file must include `## Source PRD Docs`.
 - New generated work indexes and phases, and substantial active-work updates that affect the human path, must carry the mapping required by `## Human Experience Propagation`, including a proved preserved boundary for `none`. This does not require a repository-wide backfill.
