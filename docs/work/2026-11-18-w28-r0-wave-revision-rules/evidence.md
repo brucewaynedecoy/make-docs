@@ -511,3 +511,35 @@ Covers A51 to A55 in [P9](09-second-review-corrections.md). Evidence date: 2026-
 
 - `npm test` ran 118 test files: 115 passed, 2 failed, and 1 was skipped. Of 2,067 tests, 2,058 passed, 3 failed, and 6 were skipped. The 3 failures are the known environment cases.
 - `validate:defaults`: 53 of 53. The build passes.
+
+## P10 Third Review Corrections
+
+Covers A56 to A59 in [P10](10-third-review-corrections.md). Evidence date: 2026-11-20. Input: the CodeRabbit review of PR #64 at `73f0ae00`, with 16 comments. Four are defects in W28's own code and are fixed here. The other 12 cover 4 backlog review display and widget topics from W25 R0. The owner deferred them, and PRD 03 records them as D-056 and D-057.
+
+### Setup Skill Route (A56)
+
+- The dry run and the result name `make-docs setup skills --target <folder>` when setup ran with `--target`. A folder that is not shell-safe is quoted. `w28-r0-setup-sync-safety.test.ts` checks the target in the dry run, in the applied result, and for a folder with a space.
+- Setup counts the Skill changes it leaves again after it plans again, so the result matches the final plan.
+
+### Comment And Fence Scan (A57)
+
+- The snapshot code mask tracks HTML comment and fenced code state in one scan. A fence marker inside a comment opens no block. A block closes only on a line of the same marker, at least as long as the opener, with nothing after it but spaces.
+- `backlog-coordinate-facts.test.ts` adds 2 cases: a fence marker inside a comment before live Closeout Notes, and a line that mixes fence markers inside a block. Both fail without the change.
+
+### Deferred Findings (A58)
+
+- D-056 records the three display completion findings on `phaseDisplayState`, including the open question of whether "complete" needs the `committed` fact. D-057 records the widget refresh finding. Both are open.
+- No Skill or widget source changed. The two Skill bundle generators and `build-mcp-app-assets.mjs --check` produce no change, so no installed Skill sync or Store write was needed.
+
+### Package Candidate (A59)
+
+- Two independent `npm pack -w packages/cli` runs produced the same tarball:
+  - build 1: `d2362a6a26b67bcea9efc60680091ae7830b673d504e7607aa90171b84342556`
+  - build 2: `d2362a6a26b67bcea9efc60680091ae7830b673d504e7607aa90171b84342556`
+- `smoke:pack:local` passed with the same digest. It replaces the P9 value in `.github/release-candidates/v2.0.9.sha256` as the last content change.
+
+### Checks
+
+- The focused backlog and W28 suites: 17 files and 392 tests passed.
+- `npm test` ran 118 test files: 116 passed, 1 failed, and 1 was skipped. Of 2,069 tests, 2,061 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`.
+- `validate:defaults`: 53 of 53. The build passes.

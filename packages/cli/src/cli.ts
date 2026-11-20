@@ -1364,12 +1364,14 @@ export async function runCli(
     output.write(`Next: ${storeBridgePreview.nextAction}\n`);
   }
   // An existing-install sync applies through the setup migration, which leaves Skill file changes to `setup skills` (PRD 08 R-SKILL-SETUP-6).
-  const usesSetupMigration = !parsed.adopt && !freshInstallTarget && hasInstallMutation &&
-    completedRemovalHandoff.status !== "ready";
-  const skillChangesLeft = usesSetupMigration ? skillChangesLeftForSkillsSetup(plan) : [];
+  // Recomputed from the current plan, because a later review reload can replace the plan.
+  const skillChangesLeftNow = () => !parsed.adopt && !freshInstallTarget && hasInstallMutation &&
+    completedRemovalHandoff.status !== "ready" ? skillChangesLeftForSkillsSetup(plan) : [];
+  const skillRouteTarget = parsed.targetDir;
+  const skillChangesLeft = skillChangesLeftNow();
   const shownProjectActions: PlannedAction[] = skillChangesLeft.length === 0 ? plan.actions : plan.actions.map((action) =>
     skillChangesLeft.includes(action)
-      ? { ...action, type: "skip" as const, reason: skillChangesNextAction(skillChangesLeft.length) }
+      ? { ...action, type: "skip" as const, reason: skillChangesNextAction(skillChangesLeft.length, skillRouteTarget) }
       : action,
   );
   if (!jsonOutput) printPlan({
@@ -1393,7 +1395,7 @@ export async function runCli(
 
   const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
   if (parsed.dryRun && unresolvedManagedFileConflicts.length === 0) {
-    const skillRoute = skillChangesLeft.length > 0 ? ` ${skillChangesNextAction(skillChangesLeft.length)}` : "";
+    const skillRoute = skillChangesLeft.length > 0 ? ` ${skillChangesNextAction(skillChangesLeft.length, skillRouteTarget)}` : "";
     if (jsonOutput) writeCanonicalSetupResult({ status: "planned", dryRun: true, targetRoot: targetDir, prepared: preparedSystemSetup, genericMcp: genericMcpPlan, storeBridge: storeBridgePreview, projectRecovery: priorProjectRecovery, projectChanged: hasInstallMutation, projectActions: shownProjectActions, failedCondition: null, nextAction: hasInstallMutation || hasMachineMutation ? `Run setup with the same choices and --yes to apply this plan.${skillRoute}` : null });
     else output.write(`\nDry run complete.${skillRoute}\n`);
     return;
@@ -1851,8 +1853,9 @@ export async function runCli(
     });
   }
 
-  if (skillChangesLeft.length > 0 && !jsonOutput) {
-    output.write(`${skillChangesNextAction(skillChangesLeft.length)}\n`);
+  const appliedSkillChangesLeft = skillChangesLeftNow();
+  if (appliedSkillChangesLeft.length > 0 && !jsonOutput) {
+    output.write(`${skillChangesNextAction(appliedSkillChangesLeft.length, skillRouteTarget)}\n`);
   }
 
   if (applied.conflictFiles.length > 0 && !jsonOutput) {
@@ -1877,7 +1880,7 @@ export async function runCli(
         projectPrerequisiteChanged || applied.mutationApplied ? "applied" : "none",
       projectActions: applied.appliedActions,
       failedCondition: null,
-      nextAction: setupFollowUpAction(systemSetup.blocked[0]?.nextAction, skillChangesLeft.length),
+      nextAction: setupFollowUpAction(systemSetup.blocked[0]?.nextAction, appliedSkillChangesLeft.length, skillRouteTarget),
     });
   } else if (systemSetup.status === "partial") {
     output.write("Project setup: ready. MCP setup still needs manual work for these platforms:\n");

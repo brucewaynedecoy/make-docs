@@ -56,6 +56,7 @@ Out of scope:
 | [P7 Schema Version and Completion Rules](07-schema-version-and-completion-rules.md) | Revision Phase for P2: snapshot schema version 2, commit-required completion, one glossary definition, and the 2.0.9 candidate digest. |
 | [P8 Review Corrections and Skill Refresh](08-review-corrections-and-skill-refresh.md) | Revision Phase for P2 with design and guide text corrections: ignore headings inside HTML comments, fix the setup and Skill adoption defects D-054 and D-055, repair this repository's Store record, refresh the installed Skills, and repack the 2.0.9 candidate. |
 | [P9 Second Review Corrections](09-second-review-corrections.md) | Revision Phase for P8: name every setup follow-up, treat code as literal in snapshot section lookup, fix the `incomplete` review display, explain the report version, refresh the installed Skills, and repack the 2.0.9 candidate. |
+| [P10 Third Review Corrections](10-third-review-corrections.md) | Revision Phase for P9: name the target folder in the Skill route, recount Skill changes after a new plan, track comment and fence state together in the snapshot scan, record deferred findings D-056 and D-057, and repack the 2.0.9 candidate. |
 
 ## Usage Notes
 
@@ -188,3 +189,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `none` — PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require this behavior. PRD 51 ties a new report version to a change in report meaning, and the meaning is unchanged.
 - Owner approval: Tyler, 2026-11-19, chose to fix the two Skill-changing items in W28 and approved the Store write for the Skill sync.
 - Source: [P9 Second Review Corrections](09-second-review-corrections.md)
+
+### 2026-11-20 — W28 R0 P10
+
+- Kind: `revision-phase`
+- Affected scope: New P10 t1–t4 and A56–A59, revising completed P9.
+- Previous scope: The `make-docs setup skills` route had no target folder, and setup did not count Skill changes again after a new plan. The snapshot code scan opened a fenced block from a marker inside an HTML comment, and closed a block on a line that mixed fence markers.
+- Replacement scope: The route names `--target <folder>` when setup ran with a target, and the count matches the final plan. The scan tracks comment and fence state together and needs a matching closing fence. The backlog review display and widget findings are recorded as D-056 and D-057.
+- Rationale: CodeRabbit findings on PR #64 at `73f0ae00`. No revision Wave test passes. The display and widget findings are W25 behavior outside W28's plan, and one needs a product decision.
+- PRD decision: `update-existing` — PRD 03 records D-056 and D-057 as open. PRD 51 R-BACKLOG-SNAPSHOT-27 and R-BACKLOG-RULES-11, and PRD 08 R-SKILL-SETUP-6, already require the corrected behavior and do not change.
+- Owner approval: Tyler, 2026-11-20, chose to defer the display and widget findings to a separate Wave.
+- Source: [P10 Third Review Corrections](10-third-review-corrections.md)

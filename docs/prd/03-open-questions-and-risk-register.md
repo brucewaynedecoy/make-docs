@@ -1173,6 +1173,42 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W28 R0 P8 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p8-review-corrections-and-skill-refresh).
 
+### D-056 Backlog Review Display Completion Rules Disagree With Recorded Status And W28 Completion
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner deferred these display findings to a separate Wave on 2026-11-20. Whether "complete" needs the snapshot `committed` fact is a product decision. | Plan a backlog review display Wave. Decide the completion rule first, then fix the display, the Skill bundles, and the MCP App widget together. |
+
+**Issue**: The CodeRabbit review of PR #64 at `73f0ae00` raised three findings on `phaseDisplayState` in `packages/cli/src/operations/work/backlog/presentation.ts`, which dates from W25 R0 P3:
+
+- A Phase whose recorded status is `complete` but that has an unchecked task displays as complete. A `conflict` state may fit better.
+- A Phase whose recorded status is `incomplete` but whose tasks are all checked displays as complete. The recorded status is lost.
+- The display calls a Phase complete from its status or tasks alone. W28 R0 says a Phase is complete only when it is done, closed out, and committed. The snapshot reports a `committed` fact that the display does not use.
+
+**Why it matters**: The backlog review can show a Phase as complete when the record or the W28 rule says it is not. A person can then skip work that is still open.
+
+**Recommendation**: Decide whether the display uses the `committed` fact for complete, and how it shows a recorded status that its tasks contradict. Then change the display rule, regenerate the Skill bundles and the widget, and refresh the installed Skills.
+
+**To close**: The display rule matches the decided completion rule, tests cover each case, and the installed `backlog-review` Skill matches the source.
+
+**Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
+
+### D-057 Backlog Review Widget Drops A Changed Second Refresh Result
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner deferred this widget finding to a separate Wave on 2026-11-20. It is not related to W28. | Fix the refresh request correlation in the MCP App widget in the same Wave as D-056, or in its own change. |
+
+**Issue**: The CodeRabbit review of PR #64 at `73f0ae00` found that the backlog review MCP App widget (`packages/cli/src/mcp/widget/`) can ignore a second refresh result that differs from the first. The widget then keeps showing the older data.
+
+**Why it matters**: A person who refreshes the review can see stale backlog data without any sign that it is stale.
+
+**Recommendation**: Correlate each refresh result with the request that asked for it, accept the newest result, and add a widget test for two refreshes with different results.
+
+**To close**: A second, changed refresh result replaces the shown data, and a test covers it.
+
+**Evidence**: [W28 R0 P10 evidence](../work/2026-11-18-w28-r0-wave-revision-rules/evidence.md#p10-third-review-corrections).
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

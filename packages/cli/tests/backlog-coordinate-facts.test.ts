@@ -450,6 +450,20 @@ describe("comment openers inside code", () => {
     expect(changeHistoryDiagnostics(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).map(entry => entry.message).join("\n")).toContain("June 10 — W9 R0");
   });
 
+  test("a fence marker inside an HTML comment does not hide later live Closeout Notes", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, phase("W1 R0 P1", "- Phase / capability status: Phase complete.").replace("# Fixture Phase\n", "# Fixture Phase\n\n<!--\n```\n-->\n"));
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(true);
+  });
+
+  test("a mixed-marker line does not close a fenced block", () => {
+    const targetRoot = root();
+    write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));
+    write(targetRoot, `${RECORD}/01-one.md`, `${phase("W1 R0 P1")}\n\`\`\`md\n\`\`\`~~~\n### Closeout Notes\n\n- Phase / capability status: Phase complete.\n\`\`\`\n`);
+    expect(record(buildBacklogSnapshot(targetRoot, { now: FIXED_NOW, runGit: NO_GIT })).phases[0]!.closeoutNotesPresent.value).toBe(false);
+  });
+
   test("a heading inside a fenced block does not start a section", () => {
     const targetRoot = root();
     write(targetRoot, `${RECORD}/00-index.md`, index("W1 R0", ["01-one.md"]));

@@ -1791,13 +1791,19 @@ export function skillChangesLeftForSkillsSetup(installPlan: InstallPlan): Planne
 
 export const SKILL_CHANGES_ROUTE = "make-docs setup skills";
 
-export function skillChangesNextAction(count: number): string {
-  return `Full setup leaves ${count} Skill file ${count === 1 ? "change" : "changes"} to \`${SKILL_CHANGES_ROUTE}\`. Run it to apply ${count === 1 ? "that change" : "them"}.`;
+/** The exact `setup skills` command, with the reviewed target when setup ran on another directory. */
+export function skillChangesRoute(targetDir?: string): string {
+  if (!targetDir) return SKILL_CHANGES_ROUTE;
+  return `${SKILL_CHANGES_ROUTE} --target ${/^[\w@%+=:,./-]+$/.test(targetDir) ? targetDir : `'${targetDir.replace(/'/g, "'\\''")}'`}`;
+}
+
+export function skillChangesNextAction(count: number, targetDir?: string): string {
+  return `Full setup leaves ${count} Skill file ${count === 1 ? "change" : "changes"} to \`${skillChangesRoute(targetDir)}\`. Run it to apply ${count === 1 ? "that change" : "them"}.`;
 }
 
 /** Names every follow-up that remains after setup: a blocked platform action and any Skill changes left to `setup skills`. */
-export function setupFollowUpAction(blockedPlatformAction: string | null | undefined, skillChangesLeft: number): string | null {
-  const actions = [blockedPlatformAction, skillChangesLeft > 0 ? skillChangesNextAction(skillChangesLeft) : undefined]
+export function setupFollowUpAction(blockedPlatformAction: string | null | undefined, skillChangesLeft: number, targetDir?: string): string | null {
+  const actions = [blockedPlatformAction, skillChangesLeft > 0 ? skillChangesNextAction(skillChangesLeft, targetDir) : undefined]
     .filter((action): action is string => Boolean(action));
   return actions.length ? actions.join(" ") : null;
 }
