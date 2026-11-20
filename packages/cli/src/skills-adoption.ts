@@ -401,13 +401,18 @@ export function verifySkillAdoptionBeforeCleanup(root: string, metadata: unknown
   return verifySkillAdoption(root,{...review,after},'after');
 }
 
+/** The safe first step for an adoption operation that did not complete. */
+export function skillAdoptionRecoveryAction(root: string, operationId: string): string {
+  return `Inspect make-docs project state recover ${operationId} --resume --dry-run --target-root ${JSON.stringify(root)}.`;
+}
+
 let recoveryRegistered = false;
 export function registerSkillAdoptionRecovery(): void {
   if (recoveryRegistered) return;
   registerDetachedInstallationOperation(OPERATION, {
     validate:verifySkillAdoption,
     beforeRetiredCleanup:verifySkillAdoptionBeforeCleanup,
-    nextAction:(root,id)=>`Inspect make-docs project state recover ${id} --resume --dry-run --target-root ${JSON.stringify(root)}.`,
+    nextAction:skillAdoptionRecoveryAction,
   });
   recoveryRegistered = true;
 }

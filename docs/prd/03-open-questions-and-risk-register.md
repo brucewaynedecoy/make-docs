@@ -1215,7 +1215,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner chose on 2026-11-20 to fix this in W19 R5 P3 and ship it in 2.0.9. | Make the adoption summary and next action depend on the mode, and add a result line and a result `nextAction` after an apply. |
+| Closed | The adoption summary and next action depend on the mode. An apply prints a result line, and its JSON has a top-level `nextAction` for the result. | None. |
 
 **Issue**: In the W19 R5 P2 throwaway adoption on 2026-11-20, `make-docs setup skills --adopt-existing … --review <digest> --yes` applied the adoption correctly. Before the apply, it printed the dry-run summary to stderr. That summary says "No adoption changes have been applied." and tells the person to repeat the command and replace `--dry-run` with `--review <digest>`. After the apply, it printed no readable result. The JSON result had a top-level `status` of `completed`, but its nested `review` still had `status: "ready"` and the same stale next action.
 
@@ -1225,7 +1225,9 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: Tests cover the output of each mode and fail without the change. A real apply says that it is applying and then that it completed.
 
-**Evidence**: [W19 R5 P3](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/03-accurate-adoption-apply-output.md).
+**Resolution**: Closed on 2026-11-20 in W19 R5 P3 at the owner's direction. `skills-command.ts` selects the summary text and next action by mode, prints a result line after the apply, and gives the apply JSON a top-level `nextAction` without the applied review's own next action. The new assertions in `w19-r5-skills-command.test.ts` fail without the change and pass with it. A built-CLI adoption in a throwaway project printed "Applying this reviewed adoption now." and then "Skill adoption completed."
+
+**Evidence**: [W19 R5 P3 evidence](../work/2026-09-09-w19-r5-first-party-skills-and-managed-adoption/evidence.md#p3-accurate-adoption-apply-output).
 
 ### D-059 Windows Store Session Admission Fails On A Transient EPERM
 

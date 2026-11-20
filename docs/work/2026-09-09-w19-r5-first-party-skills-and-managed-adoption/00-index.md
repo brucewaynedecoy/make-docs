@@ -1,7 +1,7 @@
 ---
 title: "First-Party Skills and Managed Adoption"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R5"
 source:
   type: "prd"
@@ -36,7 +36,7 @@ Current target paths depend on scope and selected harnesses. The [phase matrix](
 | [Phase 1: Skills and Managed Adoption](01-skills-and-managed-adoption.md) | Promote and package Skills, add reviewed adoption, then prove the shipped product and real maintainer adoption. |
 | [Phase 2: Adoption With Existing Native Links](02-adoption-with-existing-native-links.md) | Revision Phase for P1: let reviewed adoption keep existing native Skill links (D-053). |
 | [Phase 3: Accurate Adoption Apply Output](03-accurate-adoption-apply-output.md) | Revision Phase for P1: make the adoption apply output match what the command did (D-058). |
-| [Central evidence report](evidence.md) | Read actual A1–A19 results, package identities, and the review limits and owner acceptance gate. |
+| [Central evidence report](evidence.md) | Read actual A1–A22 results, package identities, and the review limits and owner acceptance gate. |
 
 ## Usage Notes
 

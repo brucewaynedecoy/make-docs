@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Accurate Adoption Apply Output"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R5 P3"
 source:
   type: "prd"
@@ -68,11 +68,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: In `packages/cli/src/skills-command.ts`, select the adoption summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation.
-- [ ] t2: After an apply, print a result line on stderr. In the JSON result, add a top-level `nextAction` for the result and leave out the applied review's own `nextAction`.
-- [ ] t3: Add output assertions for each mode to `packages/cli/tests/w19-r5-skills-command.test.ts`, and confirm that they fail without the change.
-- [ ] t4: Describe the apply output in `docs/assets/user/skills-installing-and-managing-skills.md`.
-- [ ] t5: Run the focused tests, `npm test`, `validate:defaults`, the build, `smoke:pack:local`, and a real built-CLI adoption in a throwaway project.
+- [x] t1: In `packages/cli/src/skills-command.ts`, select the adoption summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation.
+- [x] t2: After an apply, print a result line on stderr. In the JSON result, add a top-level `nextAction` for the result and leave out the applied review's own `nextAction`.
+- [x] t3: Add output assertions for each mode to `packages/cli/tests/w19-r5-skills-command.test.ts`, and confirm that they fail without the change.
+- [x] t4: Describe the apply output in `docs/assets/user/skills-installing-and-managing-skills.md`.
+- [x] t5: Run the focused tests, `npm test`, `validate:defaults`, the build, `smoke:pack:local`, and a real built-CLI adoption in a throwaway project.
 
 ### Acceptance criteria
 
@@ -86,4 +86,10 @@ There are no performance candidates.
 
 ### Closeout Notes
 
-- Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed. See the [evidence](evidence.md#p3-accurate-adoption-apply-output). Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none.
+- Human Experience Review: in a throwaway project, the apply output says "Applying this reviewed adoption now." and then "Skill adoption completed." It no longer says that nothing was applied, and it asks for no repeat. The dry run still names the exact `--review` digest. Limit: the public CLI rejects `--yes` without `--review` before this summary runs, so that mode is shown only by the command tests.
+- Optional experience handoff: run an adoption dry run and its `--review` apply, and read the stderr lines. Feedback is optional.
+- Explicit human acceptance gate: none.
+- Evidence report: [P3 Accurate Adoption Apply Output](evidence.md#p3-accurate-adoption-apply-output).
+- Phase / capability status: Phase complete on commit. D-058 is closed. The 2.0.9 candidate digest is recorded by [W22 R0 P9](../2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/09-windows-store-session-admission-retry.md), the last Phase in the same PR.

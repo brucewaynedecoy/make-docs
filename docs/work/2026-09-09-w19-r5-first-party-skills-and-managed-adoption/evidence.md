@@ -144,3 +144,16 @@ Evidence date: 2026-11-20. PR #64 merged W28 R0 into `main` as `d381dae5`.
   - build 2: `f9f832fb93f904f36cb345aee17854a3be2967825f7ce440633036d51d6dad0c`
 - `smoke:pack:local` passed with the same digest. 2.0.9 is not published, and `RELEASING.md` does not forbid replacing an unpublished candidate digest. The digest replaces the W28 R0 P11 value in `.github/release-candidates/v2.0.9.sha256` as the last content change.
 - This Mac's Store and installed Skills were not changed.
+
+## P3 Accurate Adoption Apply Output
+
+Evidence date: 2026-11-20. Base: `main` at `fb3f9473`, after PR #65 merged.
+
+- **Regression proof.** `w19-r5-skills-command.test.ts` adds output assertions for the dry run, `--yes` without a digest, a different digest, interactive confirmation and cancel, and the apply with the matching digest. With the old `skills-command.ts`, 4 of its 13 tests fail. With the change, 13 of 13 pass.
+- **JSON.** The apply result has top-level `status: "completed"` and `nextAction: "No further adoption is needed."`. Its nested `review` keeps `status: "ready"` and the digest, and has no `nextAction`. The dry-run JSON does not change.
+- **Real adoption.** In a throwaway project with a temporary `HOME` and Store, `.agents/skills/preflight` and `.agents/skills/backlog-review` were copied from this repository, `preflight/SKILL.md` was replaced with older bytes, and `.claude/skills/<name>` were relative links. The built CLI's dry run printed "No adoption changes have been applied." and the `--review` next action. The apply with that digest printed "Applying this reviewed adoption now.", then "Skill adoption completed. The reviewed file and ownership changes are applied." and "No further adoption is needed." Both links kept their targets, both Skills match `packages/skills/`, the older `SKILL.md` was backed up, and a repeat review reported `unchanged`.
+- **Guide.** [Installing and managing Skills](../../assets/user/skills-installing-and-managing-skills.md) describes the apply output.
+- **Checks.** `npm test` ran 120 test files: 118 passed, 1 failed, and 1 was skipped. Of 2,081 tests, 2,073 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases in `mcp-app-contract.test.ts`. `validate:defaults` passes 53 of 53. The build and `smoke:pack:local` pass.
+- **Package candidate.** This PR also contains W22 R0 P9. Its [evidence](../2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry) records the shared 2.0.9 candidate digest.
+- This Mac's Store and installed Skills were not changed.
+
