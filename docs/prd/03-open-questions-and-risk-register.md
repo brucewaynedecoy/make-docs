@@ -1243,7 +1243,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: A deterministic fault-injection test covers each step, a lasting error, and another platform. Each fails without the change. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
 
-**Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
+**Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. After the PR #66 review, the admission loop also retries a wrapped transient code from any safety read between those steps, and a failed attempt removes its own pending session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
 
 **Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
 

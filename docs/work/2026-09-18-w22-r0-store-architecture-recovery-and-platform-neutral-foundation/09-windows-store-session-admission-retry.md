@@ -66,12 +66,14 @@ There are no performance candidates.
 - [x] t2: Add `packages/cli/tests/w22-r0-p9-windows-session-admission.test.ts`. Inject `EPERM` at each step on a simulated Windows platform, and confirm that the tests fail without the change.
 - [x] t3: Run the focused Store tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`. The three-platform CI then runs on the PR. A CI pass alone cannot prove a timing fix, so the deterministic test is the proof.
 - [x] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`. This digest also covers W19 R5 P3 in the same PR.
+- [x] t5: Apply the CodeRabbit review of PR #66. Retry a wrapped transient Windows access code from any safety read in the admission loop, and remove a failed attempt's own pending session file before a retry. Fix the test row types that failed `tsc` in the platform contract jobs. Add fault tests for the verification read and the session file write. Repeat the checks, and repeat t4's digest step last.
 
 ### Acceptance criteria
 
 - A71: On Windows, a transient `EPERM` when Store session admission creates the session directory, opens it, or creates the session file is retried, and the session opens.
 - A72: An `EPERM` that lasts past the admission deadline still fails with `access-denied`. On other platforms, `EPERM` still fails on the first attempt.
 - A73: Two packs of the 2.0.9 candidate have the same SHA-256, and `.github/release-candidates/v2.0.9.sha256` holds it as one lowercase hex line.
+- A74: A transient Windows access code from a safety read between session steps is retried until the deadline. A failed attempt leaves no pending session file, so only the live session file remains.
 
 ### Dependencies
 

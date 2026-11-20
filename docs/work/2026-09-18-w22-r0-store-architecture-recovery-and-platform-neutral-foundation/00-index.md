@@ -94,3 +94,15 @@ W22 R0 is complete in the accepted P1–P9 scope. Each phase has all tasks check
 - PRD decision: `update-existing` — PRD 03 records D-059. PRD 38 R-DB-3 already requires bounded busy retry and does not change.
 - Owner approval: Tyler, 2026-11-20. He chose to fix this with D-058 in one follow-up PR after #65, and to ship both in 2.0.9.
 - Source: [Phase 9: Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md)
+
+### 2026-11-20 — W22 R0 P9
+
+- Kind: `edit`
+- Affected scope: P9 t5 and A74.
+- Previous scope: P9 retried transient Windows codes only inside the three session steps. A safety read between the steps wraps its system error, so a transient `EPERM` there still failed at once. A failed session file write also left its pending file on disk, because cleanup knew the file's identity only after the write.
+- Replacement scope: The admission loop retries a wrapped transient Windows access code until the deadline. A failed attempt removes its own pending file, matched by the identity captured when the file was created. New fault tests cover the verification read and the write.
+- Rationale: CodeRabbit review of PR #66 (one Minor, one Major) and the platform contract `tsc` failure. Both complete P9's own A71 promise inside its unmerged PR, so they are recorded as an edit of P9.
+- PRD decision: `update-existing` — PRD 03 updates the D-059 resolution. PRD 38 R-DB-3 does not change.
+- Owner approval: Tyler's standing direction for this PR, 2026-11-20: fix review findings and ship both fixes in 2.0.9.
+- Source: [Phase 9: Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md)
+

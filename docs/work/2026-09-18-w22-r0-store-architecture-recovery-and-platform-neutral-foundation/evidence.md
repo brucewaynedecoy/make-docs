@@ -1761,3 +1761,17 @@ Evidence date: 2026-11-20. Base: `main` at `fb3f9473`, after PR #65 merged.
 - **Limit.** The race is reproduced by fault injection, not on real Windows. The PR's three-platform CI is supporting evidence only.
 - This Mac's Store was not changed.
 
+### P9 Follow-Up: PR #66 Review Corrections (A74)
+
+Evidence date: 2026-11-20. Run 44809419324 on `3aee7e2f` failed the three platform contract jobs at `tsc --noEmit`, and CodeRabbit posted two findings on `database.ts`.
+
+- **Type fix.** The `it.each` callback now takes both row values. `npm exec -- tsc --noEmit -p packages/cli/tsconfig.json` passes.
+- **Wrapped safety reads (Minor).** `readStoreEntry` wraps a failed `lstat` in a Store error, so the step retries could not see its `EPERM`. `isTransientWindowsStoreIssue` now lets the admission loop retry a wrapped transient Windows access code from any safety read, until the deadline. Unsafe-path, ownership, and contention results stay final. The test for the verification read also showed the same gap in the safety reads at the top of the loop, and the loop-level retry covers them too.
+- **Pending file cleanup (Major).** The pending session file's identity is now captured when the file is created. A failed write or sync removes the attempt's own pending file before the retry, under the same identity check.
+- **Regression proof.** With the `database.ts` from `6c8aca98`, the new verification-read and write tests fail: the first throws `access-denied`, and the second leaves a `.pending-` file. With the change, all 7 tests pass, and each successful retry leaves only the live session file. The Store suites pass, 108 of 108.
+- **Checks.** `npm test` ran 120 test files: 118 passed, 1 failed, and 1 was skipped. Of 2,083 tests, 2,075 passed, 2 failed, and 6 were skipped. The 2 failures are the known Node 26 stdio cases. `validate:defaults` passes 53 of 53. The build passes.
+- **Package candidate.** Two independent packs produced the same tarball, and `smoke:pack:local` passed with it:
+  - build 1: `34f35f2374fc7359cfeff2ea0a6ad0e99e44d4ca59d95c55179e6f65234dc3db`
+  - build 2: `34f35f2374fc7359cfeff2ea0a6ad0e99e44d4ca59d95c55179e6f65234dc3db`
+- The digest replaces the earlier P9 value in `.github/release-candidates/v2.0.9.sha256` as the last change.
+

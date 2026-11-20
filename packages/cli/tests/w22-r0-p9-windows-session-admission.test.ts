@@ -4,8 +4,8 @@ import path from 'node:path';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {acquireStoreAccess, StoreUnavailableError} from '../src/store/database';
 
-type Step = 'create' | 'secure' | 'open';
-const faults = vi.hoisted(() => ({kind: null as null | 'win32' | 'linux', step: null as null | 'create' | 'secure' | 'open', remaining: 0, hits: 0}));
+type Step = 'create' | 'secure' | 'verify' | 'open' | 'write';
+const faults = vi.hoisted(() => ({kind: null as null | 'win32' | 'linux', step: null as null | 'create' | 'secure' | 'verify' | 'open' | 'write', remaining: 0, hits: 0, directoryOpened: false}));
 
 // Windows returns EPERM when a process opens or creates a Store session path that another process is deleting.
 vi.mock('node:fs', async original => {
@@ -24,9 +24,18 @@ vi.mock('node:fs', async original => {
     },
     openSync: (...args: Parameters<typeof actual.openSync>) => {
       const target = String(args[0]);
-      if (target.endsWith('store-access.lock')) inject('secure', target);
+      if (target.endsWith('store-access.lock')) { inject('secure', target); faults.directoryOpened = true; }
       else if (path.basename(target).startsWith('.pending-')) inject('open', target);
       return actual.openSync(...args);
+    },
+    // Only the verification read after the directory opens fails, not the earlier existence check.
+    lstatSync: ((...args: Parameters<typeof actual.lstatSync>) => {
+      if (String(args[0]).endsWith('store-access.lock') && faults.directoryOpened) inject('verify', String(args[0]));
+      return actual.lstatSync(...args);
+    }) as typeof actual.lstatSync,
+    writeFileSync: (...args: Parameters<typeof actual.writeFileSync>) => {
+      if (typeof args[0] === 'number') inject('write', `fd ${args[0]}`);
+      return actual.writeFileSync(...args);
     },
   };
 });
@@ -42,10 +51,10 @@ let store = '';
 beforeEach(() => {
   temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'make-docs-session-admission-')));
   store = path.join(temp, 'store');
-  Object.assign(faults, {kind: null, step: null, remaining: 0, hits: 0});
+  Object.assign(faults, {kind: null, step: null, remaining: 0, hits: 0, directoryOpened: false});
 });
 afterEach(() => {
-  Object.assign(faults, {kind: null, step: null, remaining: 0, hits: 0});
+  Object.assign(faults, {kind: null, step: null, remaining: 0, hits: 0, directoryOpened: false});
   fs.rmSync(temp, {recursive: true, force: true});
 });
 
@@ -53,11 +62,17 @@ describe('Store session admission on Windows (D-059)', () => {
   it.each([
     ['create', 'creates the session directory'],
     ['secure', 'opens the session directory'],
+    ['verify', 'verifies the opened session directory'],
     ['open', 'creates the session file'],
+    ['write', 'writes the session file'],
   ] as const)('retries a transient EPERM when it %s (%s)', (step, _description) => {
     Object.assign(faults, {kind: 'win32', step, remaining: 2});
     const release = acquireStoreAccess(store, false, 5_000);
     expect(faults.hits).toBe(2);
+    // A failed attempt leaves no pending file behind; only the live session file remains.
+    const entries = fs.readdirSync(path.join(store, 'store-access.lock'));
+    expect(entries.filter(name => name.startsWith('.pending-'))).toEqual([]);
+    expect(entries).toHaveLength(1);
     release();
     expect(fs.existsSync(path.join(store, 'store-access.lock'))).toBe(false);
   });

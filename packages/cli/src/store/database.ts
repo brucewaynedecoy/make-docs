@@ -614,6 +614,13 @@ function isTransientWindowsAccessError(code: string | undefined): boolean {
   return platform.kind === "win32" && new Set(["EPERM", "EACCES", "EBUSY"]).has(code ?? "");
 }
 
+/** A Store error that wraps a transient Windows access code. Unsafe-path, ownership, and contention results stay final. */
+function isTransientWindowsStoreIssue(error: unknown): boolean {
+  return error instanceof StoreUnavailableError &&
+    !new Set(["unsafe-path", "owner-unverified", "contention-timeout"]).has(error.issue.code) &&
+    isTransientWindowsAccessError(error.issue.systemCode);
+}
+
 function readStoreEntry(file: string, operation: string): Stats | null {
   try {
     return lstatSync(file, { throwIfNoEntry: false }) ?? null;
@@ -958,168 +965,181 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
   const deadline = started + timeoutMs;
   let attempt = 0;
   while (true) {
-    for (const suffix of ["store.db", "store.db-wal", "store.db-shm", STORE_ACCESS_PATH, "removal.lock", "installation-bootstrap.lock", "installation-lease-recovery.lock"]) {
-      assertSafeStoreEntry(path.join(storeRoot, suffix), "open Store session");
-    }
     try {
-      mkdirSync(storeRoot, { recursive: true, mode: 0o700 });
-    } catch (error) {
-      throw new StoreUnavailableError(makeStoreIssue("io-error", storeRoot, "create", error));
-    }
-
-    const blocker = exclusiveBlocker(storeRoot, preparing);
-    if (blocker) {
-      if (blocker.pid === process.pid && blocker.hostname === platform.hostname) {
-        throw new StoreUnavailableError({ code: "contention-timeout", path: blocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
+      for (const suffix of ["store.db", "store.db-wal", "store.db-shm", STORE_ACCESS_PATH, "removal.lock", "installation-bootstrap.lock", "installation-lease-recovery.lock"]) {
+        assertSafeStoreEntry(path.join(storeRoot, suffix), "open Store session");
       }
-      if (ownerState(blocker) !== "alive") {
-        throw new StoreUnavailableError(makeStoreIssue("owner-unverified", blocker.file, "wait for Store maintenance", new Error("A stopped maintenance owner requires lease recovery.")));
-      }
-      if (Date.now() >= deadline) {
-        throw new StoreUnavailableError({ code: "contention-timeout", path: blocker.file, operation: "wait for Store maintenance", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${blocker.pid} is still active.` });
-      }
-      pause(attempt++, deadline);
-      continue;
-    }
-
-    const directory = path.join(storeRoot, STORE_ACCESS_PATH);
-    const existing = readStoreEntry(directory, "open Store session");
-    if (existing?.isFile()) {
-      const legacy = readOwnerLease(directory, "open legacy Store session");
-      if (!legacy) continue;
-      if (ownerState(legacy) === "dead") {
-        unlinkLeaseIfUnchanged(legacy);
-        continue;
-      }
-      if (Date.now() >= deadline) {
-        throw new StoreUnavailableError({ code: "contention-timeout", path: directory, operation: "wait for legacy Store session", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${legacy.pid} is still active.` });
-      }
-      pause(attempt++, deadline);
-      continue;
-    }
-    if (existing && !existing.isDirectory()) {
-      throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "open Store session", new Error("The Store access path is not a directory.")));
-    }
-    if (existing?.isDirectory()) {
       try {
-        recoverDeadStoreAccessSessions(storeRoot);
+        mkdirSync(storeRoot, { recursive: true, mode: 0o700 });
       } catch (error) {
-        const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
-        if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
-          pause(attempt++, deadline);
-          continue;
-        }
-        throw error;
+        throw new StoreUnavailableError(makeStoreIssue("io-error", storeRoot, "create", error));
       }
-    }
-    try {
-      mkdirSync(directory, { mode: 0o700 });
-    } catch (error) {
-      if (isTransientWindowsAccessError(systemCode(error)) && Date.now() < deadline) {
-        pause(attempt++, deadline);
-        continue;
-      }
-      if (systemCode(error) !== "EEXIST") throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "create session directory", error));
-    }
-    let directoryFd: number | null = null;
-    try {
-      directoryFd = openSync(directory, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
-      const opened = fstatSync(directoryFd);
-      const named = readStoreEntry(directory, "verify session directory");
-      if (!named) {
-        if (Date.now() < deadline) {
-          pause(attempt++, deadline);
-          continue;
-        }
-        throw Object.assign(new Error("The Store session directory disappeared."), { code: "ENOENT" });
-      }
-      if (named.isSymbolicLink() || !named.isDirectory()) {
-        throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "verify session directory", new Error("The Store session path is not a safe directory.")));
-      }
-      if (!platform.sameFileObject(opened, named, "directory")) {
-        if (Date.now() < deadline) {
-          pause(attempt++, deadline);
-          continue;
-        }
-        throw new StoreUnavailableError(makeStoreIssue("owner-unverified", directory, "verify session directory", new Error("The Store session directory changed during admission.")));
-      }
-      platform.applyPrivateMode(directoryFd, 0o700);
-    } catch (error) {
-      if (error instanceof StoreUnavailableError) throw error;
-      const code = systemCode(error);
-      if ((code === "ENOENT" || isTransientWindowsAccessError(code)) && Date.now() < deadline) {
-        pause(attempt++, deadline);
-        continue;
-      }
-      throw new StoreUnavailableError(makeStoreIssue(code === "ELOOP" ? "unsafe-path" : "io-error", directory, "secure session directory", error));
-    } finally {
-      if (directoryFd !== null) closeSync(directoryFd);
-    }
 
-    const token = randomUUID();
-    const file = path.join(directory, `${token}.json`);
-    const pendingFile = path.join(directory, storeSessionPendingName(process.pid, platform.hostname, token));
-    let fd: number | null = null;
-    let leaseStat: Stats | null = null;
-    try {
-      // O_EXCL makes an existing file or link fail. macOS rejects O_NOFOLLOW
-      // when O_CREAT creates a new file, so it must not be used here.
-      fd = openSync(pendingFile, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
-      platform.applyPrivateMode(fd, 0o600);
-      writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() }));
-      fsyncSync(fd);
-      leaseStat = fstatSync(fd);
-      platform.atomicReplace(pendingFile, file);
-      const lateBlocker = exclusiveBlocker(storeRoot, preparing);
-      if (lateBlocker) {
-        closeSync(fd);
-        fd = null;
-        removeOwnedSession(file, token, leaseStat, "cancel Store session");
-        cleanupAccessDirectory(directory);
-        if (lateBlocker.pid === process.pid && lateBlocker.hostname === platform.hostname) {
-          throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
+      const blocker = exclusiveBlocker(storeRoot, preparing);
+      if (blocker) {
+        if (blocker.pid === process.pid && blocker.hostname === platform.hostname) {
+          throw new StoreUnavailableError({ code: "contention-timeout", path: blocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
         }
-        if (ownerState(lateBlocker) !== "alive") {
-          throw new StoreUnavailableError(makeStoreIssue("owner-unverified", lateBlocker.file, "wait for Store maintenance", new Error("A stopped maintenance owner requires lease recovery.")));
+        if (ownerState(blocker) !== "alive") {
+          throw new StoreUnavailableError(makeStoreIssue("owner-unverified", blocker.file, "wait for Store maintenance", new Error("A stopped maintenance owner requires lease recovery.")));
         }
         if (Date.now() >= deadline) {
-          throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "wait for Store maintenance", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${lateBlocker.pid} is still active.` });
+          throw new StoreUnavailableError({ code: "contention-timeout", path: blocker.file, operation: "wait for Store maintenance", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${blocker.pid} is still active.` });
         }
         pause(attempt++, deadline);
         continue;
       }
 
-      let released = false;
-      const lease = { count: 1, release: () => {} };
-      const release = () => {
-        if (released || --lease.count > 0) return;
-        released = true;
-        accessLeases.delete(storeRoot);
-        try {
-          removeOwnedSession(file, token, leaseStat, "release Store session");
-          cleanupAccessDirectory(directory);
-        } finally {
-          if (fd !== null) closeSync(fd);
+      const directory = path.join(storeRoot, STORE_ACCESS_PATH);
+      const existing = readStoreEntry(directory, "open Store session");
+      if (existing?.isFile()) {
+        const legacy = readOwnerLease(directory, "open legacy Store session");
+        if (!legacy) continue;
+        if (ownerState(legacy) === "dead") {
+          unlinkLeaseIfUnchanged(legacy);
+          continue;
         }
-      };
-      lease.release = release;
-      accessLeases.set(storeRoot, lease);
-      return release;
-    } catch (error) {
-      if (fd !== null) closeSync(fd);
-      removeOwnedSession(file, token, leaseStat, "clean failed Store session");
-      removePendingSession(pendingFile, leaseStat);
-      cleanupAccessDirectory(directory);
-      if (error instanceof StoreUnavailableError) throw error;
-      const code = systemCode(error);
-      const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
-        || (platform.kind === "darwin" && code === "EINVAL")
-        || isTransientWindowsAccessError(code);
-      if (retryableSessionOpenError && Date.now() < deadline) {
+        if (Date.now() >= deadline) {
+          throw new StoreUnavailableError({ code: "contention-timeout", path: directory, operation: "wait for legacy Store session", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${legacy.pid} is still active.` });
+        }
         pause(attempt++, deadline);
         continue;
       }
-      throw new StoreUnavailableError(makeStoreIssue("io-error", file, "open Store session", error, { attempts: attempt + 1, waitedMs: Date.now() - started }));
+      if (existing && !existing.isDirectory()) {
+        throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "open Store session", new Error("The Store access path is not a directory.")));
+      }
+      if (existing?.isDirectory()) {
+        try {
+          recoverDeadStoreAccessSessions(storeRoot);
+        } catch (error) {
+          const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
+          if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
+            pause(attempt++, deadline);
+            continue;
+          }
+          throw error;
+        }
+      }
+      try {
+        mkdirSync(directory, { mode: 0o700 });
+      } catch (error) {
+        if (isTransientWindowsAccessError(systemCode(error)) && Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        if (systemCode(error) !== "EEXIST") throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "create session directory", error));
+      }
+      let directoryFd: number | null = null;
+      try {
+        directoryFd = openSync(directory, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
+        const opened = fstatSync(directoryFd);
+        const named = readStoreEntry(directory, "verify session directory");
+        if (!named) {
+          if (Date.now() < deadline) {
+            pause(attempt++, deadline);
+            continue;
+          }
+          throw Object.assign(new Error("The Store session directory disappeared."), { code: "ENOENT" });
+        }
+        if (named.isSymbolicLink() || !named.isDirectory()) {
+          throw new StoreUnavailableError(makeStoreIssue("unsafe-path", directory, "verify session directory", new Error("The Store session path is not a safe directory.")));
+        }
+        if (!platform.sameFileObject(opened, named, "directory")) {
+          if (Date.now() < deadline) {
+            pause(attempt++, deadline);
+            continue;
+          }
+          throw new StoreUnavailableError(makeStoreIssue("owner-unverified", directory, "verify session directory", new Error("The Store session directory changed during admission.")));
+        }
+        platform.applyPrivateMode(directoryFd, 0o700);
+      } catch (error) {
+        if (error instanceof StoreUnavailableError) throw error;
+        const code = systemCode(error);
+        if ((code === "ENOENT" || isTransientWindowsAccessError(code)) && Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        throw new StoreUnavailableError(makeStoreIssue(code === "ELOOP" ? "unsafe-path" : "io-error", directory, "secure session directory", error));
+      } finally {
+        if (directoryFd !== null) closeSync(directoryFd);
+      }
+
+      const token = randomUUID();
+      const file = path.join(directory, `${token}.json`);
+      const pendingFile = path.join(directory, storeSessionPendingName(process.pid, platform.hostname, token));
+      let fd: number | null = null;
+      let leaseStat: Stats | null = null;
+      // Identity of the pending file as created, so a failed attempt can remove its own file before a retry.
+      let createdStat: Stats | null = null;
+      try {
+        // O_EXCL makes an existing file or link fail. macOS rejects O_NOFOLLOW
+        // when O_CREAT creates a new file, so it must not be used here.
+        fd = openSync(pendingFile, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
+        createdStat = fstatSync(fd);
+        platform.applyPrivateMode(fd, 0o600);
+        writeFileSync(fd, JSON.stringify({ version: STORE_SESSION_VERSION, token, pid: process.pid, hostname: platform.hostname, startedAt: new Date().toISOString() }));
+        fsyncSync(fd);
+        leaseStat = fstatSync(fd);
+        platform.atomicReplace(pendingFile, file);
+        const lateBlocker = exclusiveBlocker(storeRoot, preparing);
+        if (lateBlocker) {
+          closeSync(fd);
+          fd = null;
+          removeOwnedSession(file, token, leaseStat, "cancel Store session");
+          cleanupAccessDirectory(directory);
+          if (lateBlocker.pid === process.pid && lateBlocker.hostname === platform.hostname) {
+            throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
+          }
+          if (ownerState(lateBlocker) !== "alive") {
+            throw new StoreUnavailableError(makeStoreIssue("owner-unverified", lateBlocker.file, "wait for Store maintenance", new Error("A stopped maintenance owner requires lease recovery.")));
+          }
+          if (Date.now() >= deadline) {
+            throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "wait for Store maintenance", retryable: true, attempts: attempt + 1, waitedMs: Date.now() - started, cause: `Process ${lateBlocker.pid} is still active.` });
+          }
+          pause(attempt++, deadline);
+          continue;
+        }
+
+        let released = false;
+        const lease = { count: 1, release: () => {} };
+        const release = () => {
+          if (released || --lease.count > 0) return;
+          released = true;
+          accessLeases.delete(storeRoot);
+          try {
+            removeOwnedSession(file, token, leaseStat, "release Store session");
+            cleanupAccessDirectory(directory);
+          } finally {
+            if (fd !== null) closeSync(fd);
+          }
+        };
+        lease.release = release;
+        accessLeases.set(storeRoot, lease);
+        return release;
+      } catch (error) {
+        if (fd !== null) closeSync(fd);
+        removeOwnedSession(file, token, leaseStat, "clean failed Store session");
+        removePendingSession(pendingFile, leaseStat ?? createdStat);
+        cleanupAccessDirectory(directory);
+        if (error instanceof StoreUnavailableError) throw error;
+        const code = systemCode(error);
+        const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
+          || (platform.kind === "darwin" && code === "EINVAL")
+          || isTransientWindowsAccessError(code);
+        if (retryableSessionOpenError && Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        throw new StoreUnavailableError(makeStoreIssue("io-error", file, "open Store session", error, { attempts: attempt + 1, waitedMs: Date.now() - started }));
+      }
+    } catch (error) {
+      // Windows also reports a transient access code from the safety reads between these steps,
+      // because the same session path can be pending deletion. Retry those until the deadline.
+      if (isTransientWindowsStoreIssue(error) && Date.now() < deadline) {
+        pause(attempt++, deadline);
+        continue;
+      }
+      throw error;
     }
   }
 }
