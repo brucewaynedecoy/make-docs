@@ -9,8 +9,8 @@ source:
 follow_on:
   route: "implementation-loop"
   next_prompt: "../../../.make-docs/system/references/execution-workflow.md"
-  why: "P1 through P8 and W22 revision closeout are complete. Keep publication and release separate."
-  coordinate_handoff: "Keep P1 through P8 complete and preserve the exact proof and limits."
+  why: "P1 through P9 and W22 revision closeout are complete. Keep publication and release separate."
+  coordinate_handoff: "Keep P1 through P9 complete and preserve the exact proof and limits."
 ---
 
 # W22 R0 Store Architecture Recovery and Platform-Neutral Foundation Work Backlog
@@ -50,10 +50,11 @@ Videos Matter then proved that authentic schema-1 whole-file routers were still 
 | P6 | [Real Platform Package Proof and Closeout](06-real-platform-package-proof-and-closeout.md) | One package passes comparable installed cases on Windows, macOS, and Linux. |
 | P7 | [Setup Bridge Order and Recovery Loop Repair](07-setup-bridge-order-and-recovery-loop-repair.md) | Plain setup uses one final post-prerequisite plan, passes every safety check before operation creation, and provides normal resume or restore without deep recovery commands. |
 | P8 | [Router Ownership and Reviewed Reinstall Repair](08-router-ownership-and-reviewed-reinstall-repair.md) | Complete. The source-schema ownership repair, exact three-platform `2.0.2` candidate, live Videos Matter correction, and immediate no-op repeat pass. |
+| P9 | [Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md) | Revision Phase for P7: Windows Store session admission retries a transient `EPERM` until its deadline (D-059). |
 
 ## Usage Notes
 
-- P1 through P8 are completed records. Preserve the rejected candidates and failed live attempts as historical evidence.
+- P1 through P9 are completed records. Preserve the rejected candidates and failed live attempts as historical evidence.
 - The source, isolated fixture, exact package, installed, and approved live North Atlantic BuildOS gates passed for P7 and P8.
 - Keep the P8 closeout bound to the recorded exact candidate and its Ubuntu, macOS, Windows, and live-project evidence.
 - Recheck branch, HEAD, dirty files, disk, indexes, installed CLI, and relevant Store state before each phase. Preserve concurrent edits.
@@ -73,10 +74,35 @@ Videos Matter then proved that authentic schema-1 whole-file routers were still 
 - Next step: Use the completed W22 proof as the bounded basis for later work.
 - Next Prompt: [execution-workflow.md](../../../.make-docs/system/references/execution-workflow.md).
 - Why: P1 through P8, P8 Stage 4, and D-038 have recorded closeout and proof.
-- Coordinate Handoff: Keep P1 through P8 complete and preserve all accepted and rejected evidence. Do not infer publication or release authority.
+- Coordinate Handoff: Keep P1 through P9 complete and preserve all accepted and rejected evidence. Do not infer publication or release authority.
 
 Reopening the completed wave and adding P8 were explicit lifecycle departures. The product-authority update recorded each defect without rewriting prior phase history. The owner approved the prior exact-candidate installation, live setup, P7 and P8 closeout, and pull-request merge on 2026-09-23. Videos Matter reopened P8 and D-038 on 2026-09-24. The final `2.0.2` candidate and live correction passed, and the owner approved P8 and D-038 closeout and pull-request merge on 2026-09-24. P7 and P8 are closed.
 
 ## Revision Closeout
 
-W22 R0 is complete in the accepted P1–P8 scope. Each phase has all tasks checked and a closeout result. P6 records comparable installed package proof on Windows, macOS, and Linux. P7 and P8 record the later live setup repairs, the exact package checks, and the owner-approved closeouts. The rejected candidates and failed attempts remain in the evidence. This revision closeout changes record state only. It does not claim a new 2.0.5 platform test or authorize publication.
+W22 R0 is complete in the accepted P1–P9 scope. Each phase has all tasks checked and a closeout result. P6 records comparable installed package proof on Windows, macOS, and Linux. P7 and P8 record the later live setup repairs, the exact package checks, and the owner-approved closeouts. The rejected candidates and failed attempts remain in the evidence. This revision closeout changes record state only. It does not claim a new 2.0.5 platform test or authorize publication. P9, added on 2026-11-20, retries a transient Windows Store session race (D-059) and ships in the 2.0.9 candidate.
+
+## Change History
+
+### 2026-11-20 — W22 R0 P9
+
+- Kind: `revision-phase`
+- Affected scope: New P9 t1–t4 and A71–A73, revising completed P7.
+- Previous scope: P6 and P7 made Store session admission retry Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. Admission did not retry the Windows codes when it creates or opens the session directory, or when it creates the session file.
+- Replacement scope: P9 retries the transient Windows codes at those three steps, until the same admission deadline. Other platforms and a lasting error still fail.
+- Rationale: The PR #65 Windows installed-package job failed twice on this race, recorded as D-059. It extends one P7 result and passes no revision Wave test.
+- PRD decision: `update-existing` — PRD 03 records D-059. PRD 38 R-DB-3 already requires bounded busy retry and does not change.
+- Owner approval: Tyler, 2026-11-20. He chose to fix this with D-058 in one follow-up PR after #65, and to ship both in 2.0.9.
+- Source: [Phase 9: Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md)
+
+### 2026-11-20 — W22 R0 P9
+
+- Kind: `edit`
+- Affected scope: P9 t5 and A74.
+- Previous scope: P9 retried transient Windows codes only inside the three session steps. A safety read between the steps wraps its system error, so a transient `EPERM` there still failed at once. A failed session file write also left its pending file on disk, because cleanup knew the file's identity only after the write.
+- Replacement scope: The admission loop retries a wrapped transient Windows access code until the deadline. A failed attempt removes its own pending file, matched by the identity captured when the file was created. New fault tests cover the verification read and the write.
+- Rationale: CodeRabbit review of PR #66 (one Minor, one Major) and the platform contract `tsc` failure. Both complete P9's own A71 promise inside its unmerged PR, so they are recorded as an edit of P9.
+- PRD decision: `update-existing` — PRD 03 updates the D-059 resolution. PRD 38 R-DB-3 does not change.
+- Owner approval: Tyler's standing direction for this PR, 2026-11-20: fix review findings and ship both fixes in 2.0.9.
+- Source: [Phase 9: Windows Store Session Admission Retry](09-windows-store-session-admission-retry.md)
+

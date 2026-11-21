@@ -6,7 +6,7 @@ import {
 } from "./install";
 import { loadMakeDocsConfigOrThrow, type MakeDocsConfig } from "./config";
 import { loadManifest } from "./manifest";
-import { applySkillAdoptionReview, buildSkillAdoptionReview, presentSkillAdoptionReview } from "./skills-adoption";
+import { applySkillAdoptionReview, buildSkillAdoptionReview, presentSkillAdoptionReview, skillAdoptionRecoveryAction } from "./skills-adoption";
 import { cloneSelections, defaultSelections } from "./profile";
 import {
   applySkillRegistrySelectionMetadata,
@@ -68,19 +68,25 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
   if (options.adoptExisting) {
     const review = await buildSkillAdoptionReview({targetDir:options.targetDir,selections:initialSelections,adoptExisting:options.adoptExisting,effectiveRegistry:effectiveSkillRegistry});
     const presented = presentSkillAdoptionReview(review);
-    reviewOutput.write(renderAdoptionSummary(presented));
+    const mode = adoptionSummaryMode(options, presented.status, review.digest);
+    const nextAction = adoptionSummaryNextAction(mode, presented);
+    reviewOutput.write(renderAdoptionSummary(presented, mode, nextAction));
     if (options.dryRun) { output.write(`${JSON.stringify(presented,null,2)}\n`); return; }
     if (presented.status === "blocked") throw new Error(review.blockers.join("\n"));
     let digest = options.review;
     if (!digest && presented.status !== "unchanged") {
-      if (options.yes || !input.isTTY || !output.isTTY) throw new Error("Adoption requires --review <digest> from a complete dry run. --yes does not approve adoption.");
-      output.write(`${JSON.stringify(presented,null,2)}\n`);
+      if (mode === "needs-review") throw new Error("Adoption requires --review <digest> from a complete dry run. --yes does not approve adoption.");
+      output.write(`${JSON.stringify({...presented,nextAction},null,2)}\n`);
       const accepted = await confirm({message:"Apply this exact Skill adoption review?"});
-      if (isCancel(accepted) || !accepted) { output.write("Skill adoption cancelled.\n"); return; }
+      if (isCancel(accepted) || !accepted) { output.write("Skill adoption cancelled. No adoption changes have been applied.\n"); return; }
       digest = review.digest;
     }
     const result = applySkillAdoptionReview(review,digest ?? review.digest);
-    output.write(`${JSON.stringify({...result,review:presented},null,2)}\n`);
+    const resultNextAction = adoptionResultNextAction(result, review.targetRoot);
+    reviewOutput.write(renderAdoptionResult(result, resultNextAction));
+    // The review's own next action asks for this apply, so the result carries the next action instead.
+    const {nextAction:_reviewNextAction, ...appliedReview} = presented;
+    output.write(`${JSON.stringify({...result,nextAction:resultNextAction,review:appliedReview},null,2)}\n`);
     return;
   }
   const interactiveState = await resolveInteractiveSkillsState({
@@ -166,7 +172,31 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
   }
 }
 
-function renderAdoptionSummary(review: ReturnType<typeof presentSkillAdoptionReview>): string {
+type PresentedAdoptionReview = ReturnType<typeof presentSkillAdoptionReview>;
+
+/**
+ * How this run uses the adoption review. Only `apply` changes anything; every other mode leaves the
+ * project and the Store unchanged, so its summary says so and names the step that would apply it.
+ */
+type AdoptionSummaryMode = "dry-run" | "needs-review" | "stale-review" | "confirm" | "apply";
+
+function adoptionSummaryMode(options: SkillsCommandOptions, status: PresentedAdoptionReview["status"], digest: string): AdoptionSummaryMode {
+  if (options.dryRun) return "dry-run";
+  if (options.review) return options.review === digest ? "apply" : "stale-review";
+  if (status === "unchanged") return "apply";
+  return options.yes || !input.isTTY || !output.isTTY ? "needs-review" : "confirm";
+}
+
+function adoptionSummaryNextAction(mode: AdoptionSummaryMode, review: PresentedAdoptionReview): string {
+  if (review.status !== "ready" || mode === "dry-run") return review.nextAction;
+  if (mode === "needs-review") return `Check this review, then run the same command again with --review ${review.reviewDigest}.`;
+  if (mode === "stale-review") return `The --review digest does not match this review. Check this review, then run the same command again with --review ${review.reviewDigest}.`;
+  if (mode === "confirm") return "Answer the prompt below to apply this exact review. Decline it to make no changes.";
+  return "";
+}
+
+function renderAdoptionSummary(review: PresentedAdoptionReview, mode: AdoptionSummaryMode, nextAction: string): string {
+  const applying = mode === "apply";
   const effects = {register: 0, update: 0, remove: 0, retain: 0};
   for (const row of review.ownership) effects[row.effect]++;
   const files = review.ownership.filter(row => row.after && !row.after.skillExposure).length;
@@ -196,14 +226,38 @@ function renderAdoptionSummary(review: ReturnType<typeof presentSkillAdoptionRev
   } else {
     if (!review.changes.length) {
       lines.push('No file contents will change.');
-      if (registeredFiles) lines.push(`If approved, Make Docs will manage ${registeredFiles} existing files across ${registeredSkills} ${registeredSkills === 1 ? 'Skill' : 'Skills'}.`);
-      else lines.push('Ownership records will change only if you approve.');
+      const skillLabel = registeredSkills === 1 ? 'Skill' : 'Skills';
+      if (registeredFiles) lines.push(applying
+        ? `Make Docs will now manage ${registeredFiles} existing files across ${registeredSkills} ${skillLabel}.`
+        : `If approved, Make Docs will manage ${registeredFiles} existing files across ${registeredSkills} ${skillLabel}.`);
+      else lines.push(applying ? 'Only ownership records will change.' : 'Ownership records will change only if you approve.');
     }
     lines.push(`Planned path changes: ${new Set(review.changes.map(change => change.path)).size}. Backup files: ${review.backups.length}.`);
-    lines.push('No adoption changes have been applied.');
+    lines.push(applying ? 'Applying this reviewed adoption now.' : 'No adoption changes have been applied.');
   }
   lines.push(`Ownership entries: ${effects.register} to register, ${effects.update} to update, ${effects.remove} to remove, ${effects.retain} to retain.`);
-  lines.push(...review.recoveryLimits, review.nextAction);
+  lines.push(...review.recoveryLimits);
+  if (nextAction) lines.push(nextAction);
+  return lines.join('\n') + '\n';
+}
+
+type AdoptionApplyResult = ReturnType<typeof applySkillAdoptionReview>;
+
+function adoptionResultNextAction(result: AdoptionApplyResult, targetRoot: string): string {
+  if (result.status === "completed") return "No further adoption is needed.";
+  if (result.status === "unchanged") return "These Skill files and ownership already match. No adoption is needed.";
+  return "operationId" in result ? skillAdoptionRecoveryAction(targetRoot, result.operationId) : "Run a new dry run and review its exact digest.";
+}
+
+function renderAdoptionResult(result: AdoptionApplyResult, nextAction: string): string {
+  const conflicts = "conflicts" in result ? result.conflicts : [];
+  const lines = [
+    result.status === "completed" ? "Skill adoption completed. The reviewed file and ownership changes are applied."
+      : result.status === "unchanged" ? "Skill adoption result: unchanged. No changes were applied."
+        : `Skill adoption did not complete. Status: ${result.status}.`,
+    ...conflicts.map(message => `- ${message}`),
+    nextAction,
+  ];
   return lines.join('\n') + '\n';
 }
 
