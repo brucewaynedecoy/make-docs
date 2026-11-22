@@ -93,6 +93,7 @@ Evidence required:
   - task references in prose, such as `t3`, `P2 t11`, and `t1–t10`, as whole words.
 - Each finding names the file, the line, the current text, and the replacement. The check reports the totals first, in plain words, then the detail.
 - The fix binds the file bytes that the check read. A file that changed after the check is refused and named, and the person runs the check again. The fix uses the existing reviewed project write path, with its backup and conflict rules. It reports each changed file and the undo path: git, or the backup when the folder has no git.
+- Both commands accept a repeatable `--exclude <path>` option, and the digest binds it. This repository's one-time rewrite excludes the W22 R2 backlog while W22 R2 is open. A second run fixes it after W22 R2 closes.
 - Exit codes and results follow the existing operation contract. A clean project returns no findings and says so.
 - The doctor has a deterministic form and an agentic twin. A new reference, `make-docs://system/reference/project-doctor.md`, explains each check for an agent that has no CLI, so the agent can find and fix the same lines by hand. A change to either form needs a review of the other.
 - Store data checks are not part of the project doctor. Register D-062 owns a separate Store review and its maintenance job. A later design can decide whether that job shares the doctor's check list.
