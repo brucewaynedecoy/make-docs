@@ -162,6 +162,11 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - R-WORK-RESOURCE-4 (MUST): examples in the factory resources describe tools only by capability. They name no app, harness, provider, or multiplexer as a default or requirement.
 - R-WORK-RESOURCE-5 (MUST): the work index and work phase templates stay stable enough for the work store parser and writer to round-trip current files byte for byte. A template change that alters parsed structure needs a matching parser and writer change and round-trip proof in the same change set.
 
+## Task ID Form and Project Doctor Resource
+
+- R-TASK-RESOURCE-1 (MUST): the work phase template, the output contract, the execution workflow, the wave model, and the docs and work routers write task IDs as `T` and a number, under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22. No shipped template-owned file shows a lower-case task ID.
+- R-TASK-RESOURCE-2 (MUST): the project doctor agent twin uses stable URI `make-docs://system/reference/project-doctor.md`. It explains each doctor check of [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR for an agent without the CLI. It uses the existing reference type, the installed provider, and the optional projection model, and it is authored in `packages/docs/template/` first.
+
 ## Requirement History
 
 ### 2026-09-18 — W22 R0
@@ -274,6 +279,14 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - Replacement contract: One work store reference, one factory contract, and three workflow type references use existing types and projection. Work templates stay round-trip stable for the work store parser.
 - Rationale: The work store and the factory need shared rules for agents without the CLI.
 - Source: [Work store design](../designs/2026-11-21-work-store.md) and [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: new `Task ID Form and Project Doctor Resource`.
+- Previous contract: shipped templates, contracts, references, and routers wrote task IDs with a lower-case `t`, and no doctor reference existed.
+- Replacement contract: shipped files write `T`, and `make-docs://system/reference/project-doctor.md` is the doctor's agent twin.
+- Rationale: one coordinate form everywhere, and one doctor path for projects without the CLI.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
 
 ## Source Anchors
 

@@ -76,6 +76,7 @@ Code anchors:
 - R-BACKLOG-SNAPSHOT-30 (MUST): the facts in R-BACKLOG-SNAPSHOT-27 through R-BACKLOG-SNAPSHOT-29 remain separate signals. The operation never combines them into phase or wave completion, never selects a coordinate, and never classifies a change. Coordinate selection remains agent judgment under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md). These facts are required keys of the version 2 snapshot. Installed backlog-review Skill copies validate snapshot JSON against the bundled strict schema, so the version change makes an older Skill or CLI fail clearly instead of misreading the other's output.
 - R-BACKLOG-SNAPSHOT-31 (MUST): when the checkout has a usable Store and the work store is the authority under [PRD 52](52-work-store-and-work-queue.md), the operation reads work records from the work store after its normal sync. It returns the same version 2 schema, the `store` capability reports `available`, and each record and phase adds resolved readiness facts: ready or waiting, the waiting reasons, the live claim if any, and unsettled sync conflicts. Without a usable Store, the operation reads `docs/work/` exactly as before and the `store` capability keeps its prior meaning.
 - R-BACKLOG-SNAPSHOT-32 (MUST): readiness facts are deterministic facts from [PRD 52](52-work-store-and-work-queue.md). They do not become report-layer wave status, priority, or a recommendation. A Store refusal in store mode stops only the store read and reports the typed Store result. It never invents readiness.
+- R-BACKLOG-SNAPSHOT-33 (MUST): the task reader accepts `t` and `T` as the same task ID under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22. A task line with either case is a task with an ID. Task IDs in the result use `T`. A lower-case task ID is not a snapshot diagnostic.
 
 ### Internal collectors and rule catalog
 
@@ -536,6 +537,14 @@ Code anchors:
 - Replacement contract: The snapshot reads the work store when it is the work authority, with the same version 2 schema plus resolved readiness facts, and keeps the file path without a usable Store. When a factory workflow is ready, the Work control asks the agent to hand the wave to that workflow's front desk.
 - Rationale: One source of readiness facts for reviewers and agents, and one path from review to factory work.
 - Source: [Work store design](../designs/2026-11-21-work-store.md) and [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: new R-BACKLOG-SNAPSHOT-33.
+- Previous contract: the task reader matched only a lower-case `t`, so `T1: ...` was a task with no ID.
+- Replacement contract: the reader accepts both cases, and result task IDs use `T`.
+- Rationale: old and new files must give the same facts.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
 
 ## Source Anchors
 

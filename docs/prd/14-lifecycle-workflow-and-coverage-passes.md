@@ -121,8 +121,9 @@ Plans and work backlogs carry a `W{W} R{R}` coordinate, and their phases carry `
 - R-COORD-17 (MUST): the PRD decision (`update-existing`, `create`, `link-only`, or `none`) is separate from the coordinate decision. When a change alters product requirements, the owning PRD is updated before the plan or backlog. PRD maintenance work goes into the lineage Wave's backlog, as an in-place edit or a revision Phase. A new work backlog exists only for a new Wave or a revision Wave.
 - R-COORD-18 (MUST): a plan is written before execution. After its first commit, it is amended in place, with Change History, when the owner approves a pivot or when a revision Phase changes plan-level scope. An amended plan keeps its W/R.
 - R-COORD-19 (MUST): coordinate and amendment rules name outcomes, such as restoring a record to the working set or keeping the prior version in history, rather than a storage mechanism. They remain valid when a record's history or archive is kept outside the project folder.
-- R-COORD-20 (MUST): these rules govern coordinates selected and records changed from their effective date. Existing plan and work records keep their coordinates and are not renumbered or rewritten to conform.
+- R-COORD-20 (MUST): these rules govern coordinates selected and records changed from their effective date. Existing plan and work records keep their coordinates and are not renumbered or rewritten to conform. The one exception is the task ID letter case under R-COORD-22: a reviewed project doctor fix under [PRD 39](39-cli-command-model-and-operation-registry.md) may change `t` to `T` in active records. It changes no number, coordinate, or other text. Archives and history records stay as written.
 - R-COORD-21 (MUST): coordinate selection is agent judgment. Deterministic tooling may report facts such as committed state, closeout presence, archived state, next free `P` and `R`, and the highest `W`. It does not select a coordinate or classify a change. The agent treats an unknown fact as unknown, never as false. The `committed` fact describes the current working tree; the agent decides from history whether a phase with a later uncommitted progress edit was completed and committed earlier.
+- R-COORD-22 (MUST): a task ID is an upper-case `T` and a number without a leading zero, such as `T3`. A full task coordinate is `W29 R0 P1 T3`. Every template, contract, reference, router, generated text, and result that Make Docs writes uses `T`. Every reader accepts `t` and `T` as the same task ID, so older files and typed input with `t` keep working. A lower-case task ID is a project doctor finding, not a validation error.
 ## Adversarial Review Coverage-Pass Extension
 
 Adversarial review is optional. It is not a release, merge, publish, push, implementation, or batch-approval gate and is not a plugin, prompt, CLI command, MCP operation, or conformance scenario by default. A downstream plan may select an exposure surface only through its current owner and evidence path.
@@ -292,6 +293,14 @@ R-ASSET-LIFECYCLE-1 (MUST): optional pre-design inputs and shared project materi
 - Replacement contract: An outcome test selects new Waves. Unfinished lineage work is edited in place. A change to a completed Phase is a revision Phase unless one of three revision-Wave tests applies. Owner gates cover serious actions. Committed plans and backlogs record scope edits in Change History. PRD maintenance work joins the lineage backlog.
 - Rationale: Revisions had become routine fixes and add-ons, so a revision number no longer showed which changes were serious. The plan is the statement of work for a Wave, and the PRD remains the product authority.
 - Source: [Wave, Revision, and Backlog Amendment Rules design](../designs/2026-11-18-wave-revision-and-backlog-amendment-rules.md) and [W28 R0 plan](../plans/2026-11-18-w28-r0-wave-revision-rules/00-overview.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: R-COORD-20 and new R-COORD-22.
+- Previous contract: task IDs used a lower-case `t`, and existing records were never rewritten to conform.
+- Replacement contract: task IDs use `T`, and readers accept both cases. A reviewed project doctor fix may change only the task ID letter case in active records.
+- Rationale: the owner wants one coordinate form, with upper-case letters like every other coordinate part.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
 
 ## Source Anchors
 

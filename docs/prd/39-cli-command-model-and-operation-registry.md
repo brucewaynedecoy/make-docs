@@ -228,6 +228,21 @@ The registry admits these three-part IDs and explicit checked MCP names. Setup c
 
 Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-persona-model.md), [22](22-project-documentation-asset-model.md), [24](24-project-configuration-and-convention-overlay.md), and [25](25-typescript-runtime-cli-mcp-operation-boundaries.md). The existing `project.surface.ensure assets` operation creates only the on-demand assets root and configured-harness routers. It does not create empty children.
 
+### Project Doctor Commands (R-DOCTOR)
+
+- R-DOCTOR-1 (MUST): the registry admits `project.doctor.check` and `project.doctor.fix` within the existing `project` domain. No new top-level command is introduced.
+- R-DOCTOR-2 (MUST): the doctor holds one list of checks. Each check has a stable ID, a scope, plain finding text, and an optional fix. The current check is `task-id-case` under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22.
+- R-DOCTOR-3 (MUST): `project doctor check` reads only. It reports the totals first in plain words, then each finding with its file, line, current text, and replacement. It returns a review digest that binds the findings, the exclusions, and the bytes of each file it read. A clean project returns no findings and says so.
+- R-DOCTOR-4 (MUST): `project doctor fix` needs the existing project write permission and a review digest from `check`. It applies only the changes that the digest names. It refuses and names any file that changed after the check. It uses the existing reviewed project write path, with its backup and conflict rules, and it reports each changed file and the undo path.
+- R-DOCTOR-5 (MUST): both commands accept repeated `--exclude <path>` options with project-relative paths. Traversal and paths outside the project fail closed.
+- R-DOCTOR-6 (MUST): `task-id-case` scans Markdown files under `docs/work/`. It skips `.make-docs/archive/`, history records, fenced code blocks, inline code, and link targets. It finds task checkbox lines and whole-word task references in prose, such as `t3`, `P2 t11`, and `t1–t10`.
+- R-DOCTOR-7 (MUST): the doctor has an agent twin in `make-docs://system/reference/project-doctor.md` under [PRD 06](06-template-contracts-and-generated-assets.md). Both forms find the same lines on shared fixtures. A change to either form needs a review of the other.
+
+| Registry identifier | Canonical CLI |
+| --- | --- |
+| `project.doctor.check` | `make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]` |
+| `project.doctor.fix` | `make-docs project doctor fix --review <digest> [--exclude <path>] [--target-root <path>] [--json]` |
+
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
@@ -616,6 +631,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `work.queue.add` joins them. It adds a quick item, which lives only in the work store.
 - Rationale: the owner chose Store-only quick items. A Store-only item has no file for sync to import, so it needs its own add operation.
 - Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: new `Project Doctor Commands (R-DOCTOR)`.
+- Previous contract: no command checked or fixed project files as a whole.
+- Replacement contract: `project doctor check` reports findings with a review digest, and `project doctor fix` applies only the reviewed changes. The first check is `task-id-case`.
+- Rationale: any Make Docs project needs one reviewed way to find and fix project problems.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
 
 ## Source Anchors
 

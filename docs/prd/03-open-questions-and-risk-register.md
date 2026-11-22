@@ -1300,7 +1300,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | Plan the change as its own Wave. It must land before W29 R0 P3, because the W29 parser must round-trip files byte for byte. |
+| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | W31 R0 owns the change and must close before W29 R0 P3. Its one-time rewrite excludes the W22 R2 backlog while W22 R2 is open. Run the doctor on that backlog after W22 R2 closes. |
 
 **Issue**: Task IDs were meant to match the other coordinate parts, but every template, contract, and parser uses a lower-case `t`. `packages/cli/src/operations/work/backlog/snapshot.ts` and `packages/cli/src/operations/work/index.ts` read only `t1`, so a task written as `T1` is not read as a task ID. About 275 backlog files use `t`. No Make Docs doctor command exists today.
 
@@ -1308,7 +1308,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Recommendation**: Accept both cases on input everywhere. Write `T` in templates, contracts, routers, generated text, and the W29 contract. Add a doctor command with a reviewed audit and fix, and use it for the one-time rewrite of this repository's active backlogs.
 
-**To close**: The Wave ships, the doctor check finds no lower-case task ID in this repository's active backlogs, and old files with `t` still parse.
+**To close**: W31 R0 ships, the doctor check finds no lower-case task ID in this repository's active backlogs, including the W22 R2 backlog after its later run, and old files with `t` still parse. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22 and [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR hold the rules.
 
 ## Open Questions
 
