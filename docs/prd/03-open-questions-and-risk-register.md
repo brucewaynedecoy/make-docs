@@ -1247,6 +1247,20 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
 
+### D-060 Project Config Cannot Be Rebuilt From the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. Logged on 2026-11-21 during the work store and factory grill. Outside the W29 R0 and W30 R0 scope. | Decide a recovery path for a deleted `.make-docs/config.yaml` in a later design. |
+
+**Issue**: The Store keeps only the project ID, the last applied selections, and content digests. It keeps no copy of `.make-docs/config.yaml`. [PRD 24](24-project-configuration-and-convention-overlay.md) makes config the only desired-setting authority, and [PRD 38](38-global-store-and-project-state.md) R-MIR-1 forbids writing desired state from applied state. When a person deletes the file, a later write on a known checkout writes back only the `projectId` and harness intent. Personas, labels, `prd_authority`, generated-prose settings, resource projection intent, and comments are lost. On a new machine, the project ID is also lost. Git is the only backup.
+
+**Why it matters**: A person can believe that Make Docs restores any deleted `.make-docs/` file from the Store. For config, that is not true. An uncommitted config change has no recovery path.
+
+**Recommendation**: Keep the repository as the config authority. Report a missing config plainly in status and setup, and point to git as the recovery path. Consider a later, explicit recovery aid that never overrides committed intent.
+
+**To close**: An accepted design decides whether a recovery aid exists and how it keeps the repository as the config authority, or records that git is the accepted recovery path and status says so.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -1803,6 +1817,20 @@ All 24 registry operations project to MCP tools. A pending registration must not
 **Recommendation**: Treat this as its own design. Keep the default configuration equal to the current in-repository behavior. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-19 already keeps coordinate and amendment rules independent of the storage location.
 
 **To close**: An accepted design decides whether each optional mode exists, its configuration, its restore and history behavior, and how the default in-repository mode is preserved.
+
+### Q-026 Should the Plan Stage Become Optional in the Default Lifecycle Arc?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner raised this on 2026-11-21. W29 R0 and W30 R0 keep the plan stage. | Decide in a separate design or lifecycle change. |
+
+**Question**: Should the default lifecycle arc allow a design to flow directly into PRD and work generation without a plan, for small or single-owner changes?
+
+**Why it matters**: The plan carries the coordinate decision, the phase order, the Human Experience promise map, and the PRD decision matrix. Skipping it can lose those records. Requiring it for every small change adds effort with little value.
+
+**Recommendation**: Keep the plan in the default arc. Define the conditions under which a plan is optional and where its required records go instead.
+
+**To close**: An accepted lifecycle change states when a plan is optional and where the coordinate decision and promise map live without one, or records that the plan stays required.
 
 ## Rebuild Risks
 

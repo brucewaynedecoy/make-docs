@@ -106,6 +106,13 @@ The project harness-integration schema is separate from `harnessCapabilities`. I
 - R-CONFIG-HARNESS-5 (MUST): setup preserves unknown fields and user-owned harness entries. Malformed, conflicting, or unsafe known entries stop automatic change and receive a reviewable diagnostic.
 - R-CONFIG-HARNESS-6 (MUST): the production project setup flow writes the reviewed harness selection and connection intent through one comment- and unknown-key-preserving `.make-docs/config.yaml` writer. Dry-run shows the exact change. A skipped machine method can write `disable` or preserve the current project choice, as reviewed. Setup never requires a test helper or manual file edit to create valid project intent.
 
+### Work and Factory Settings
+
+- R-CONFIG-WORK-1 (MUST): an optional top-level `work` block holds shared work store intent: `projection` (`on` or `off`, default `on`) for the `docs/work/` repo copy, and `tracker` for the selected tracker connection name and its field map. [PRD 52](52-work-store-and-work-queue.md) owns their meaning. The local store is the only v1 connection.
+- R-CONFIG-WORK-2 (MUST): an optional top-level `factory` block holds portable workflow choices: each workflow's type, the roles it needs, the capabilities each role needs, its limits, its optional steps such as preflight, and its added escalation events. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning.
+- R-CONFIG-WORK-3 (MUST): neither block holds grants, tool bindings, task handles, machine IDs, machine paths, digests, receipts, claims, locks, proof results, or secrets. Those stay in the Store or in the tools that own them. Validation rejects them in either block.
+- R-CONFIG-WORK-4 (MUST): Make Docs writes these blocks only through the same comment- and unknown-key-preserving config writer that setup uses, after the person reviews the change. Dry run shows the exact change. An absent block keeps the defaults: repo copies on, no tracker map beyond the local store, and no factory workflow.
+
 ### Validation
 
 Validation must reject structural rename attempts, including attempts to rename `persona`, redefine `kind` values, replace route identifiers, redirect canonical paths, or change primitive names.
@@ -242,6 +249,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Adoption reads valid saved methods and selections. A complete local resource set may become the reviewed selection for this checkout. If a legacy config has no resource selection, adoption keeps its bytes and records the applied selection in the Store. New installs save an explicit resource selection in config.
 - Rationale: A cloned project should keep its declared choices without treating local bytes as prior Store ownership.
 - Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: `Work and Factory Settings` (R-CONFIG-WORK-1 to R-CONFIG-WORK-4).
+- Previous contract: Config had no `work` or `factory` key, and the validator rejected unknown top-level keys.
+- Replacement contract: Optional `work` and `factory` blocks hold portable work store and workflow intent. They hold no machine state, grants, or secrets, and use the preserving config writer.
+- Rationale: Teammates and other machines need the same work and workflow intent, while machine bindings and permissions stay local.
+- Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
 
 ## Source Anchors
 

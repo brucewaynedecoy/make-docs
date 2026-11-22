@@ -82,6 +82,20 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Revision Phase | The next unused `P` in the same W/R that changes the result of a completed Phase. It carries no other coordinate marker. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Revision Wave | The next unused `R` of a Wave. It is a change order that revisits or rearchitects a substantial part of completed work, with its own plan and work backlog. `R0` is the base revision. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Change History | The dated, non-normative record of scope edits in a committed plan or work backlog. It follows the requirement-history shape. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment), [PRD 51](51-backlog-review-and-reporting.md) |
+| Work store | The local, Store-backed record of a project's work: waves, revisions, phases, stages, tasks, quick items, their status, dependencies, links, claims, and assignment references. When the machine has a usable Store, it is the work authority. Without one, `docs/work/` is the authority. | [PRD 52](52-work-store-and-work-queue.md), [PRD 38](38-global-store-and-project-state.md) |
+| Repo copy (of work) | The `docs/work/` files that Make Docs writes from the work store in the current backlog format. Sync imports edits to them. Copies are on by default and can be turned off in config. | [PRD 52](52-work-store-and-work-queue.md), [PRD 24](24-project-configuration-and-convention-overlay.md) |
+| Ready unit | A work unit whose dependencies are closed and that has no live claim, no open blocker, no unsettled sync conflict, and an open parent. | [PRD 52](52-work-store-and-work-queue.md) |
+| Claim | A time-limited hold on one work unit by one claimant. The claimant renews it at each check. Another claimant can take an expired claim only after it checks the old task handle. | [PRD 52](52-work-store-and-work-queue.md), [PRD 53](53-factory-setup-and-orchestration.md) |
+| Quick item | A task-level work unit made directly from a request, with no design, plan, or PRD. It is routed like any other unit. | [PRD 52](52-work-store-and-work-queue.md), [PRD 53](53-factory-setup-and-orchestration.md) |
+| Factory | The opt-in, tool-agnostic area of Make Docs that saves and proves a person's agent tool setup and runs ready work through workers, review, and correction. It has no workflow engine. The person's own tools do the work. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Front desk | The factory role that talks to the person through the workflow's human channel and turns requests into work units or quick items. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Foreman | The factory role that takes ready work, chooses the team, assigns jobs, judges results, accepts units inside the given scope, and escalates. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Builder | The factory role that does one bounded job and returns the actual result and its evidence. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Reviewer | The factory role that checks a candidate against the requirements. It never reviews work it built. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Workflow type | A shipped or project-owned reference resource that defines a factory workflow's roles, capability needs, steps, limits, and result. v1 ships build then review, lead and specialists, and staged backlog. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 06](06-template-contracts-and-generated-assets.md) |
+| Human channel | The one saved way a factory workflow sends a message to the person and receives the answer. The last resort is wait in session. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Escalation floor | The fixed minimum set of events that always reach the person: an action outside the granted authority, a scope change, a stopped correction loop, a missing tool or permission, and work ready to accept. A workflow can add events but cannot remove these. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Grant | One person's Store-only permission on one machine for a factory action outside the default authority, such as a merge, deploy, publish, or spend. It is never committed. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
 
 ## Requirement History
 
@@ -100,6 +114,14 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: One row requires both conditions, and deployment is extra evidence only. Deployed or done but uncommitted work is not complete.
 - Rationale: The two rows could disagree about the same phase. The owner chose one definition that requires both conditions, and a commit.
 - Source: [W28 R0 work](../work/2026-11-18-w28-r0-wave-revision-rules/07-schema-version-and-completion-rules.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: `Terms` — Work store, Repo copy (of work), Ready unit, Claim, Quick item, Factory, Front desk, Foreman, Builder, Reviewer, Workflow type, Human channel, Escalation floor, Grant.
+- Previous contract: No shared terms existed for Store-backed work records or saved agent orchestration.
+- Replacement contract: The glossary defines the work store and factory vocabulary owned by PRD 52 and PRD 53.
+- Rationale: The new capability owners need one stable vocabulary across PRDs, plans, and work.
+- Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
 
 ## Source Anchors
 

@@ -19,6 +19,9 @@ Directory model:
 .make-docs/
   config.yaml
   conflicts/              # approved content copies only; no live state
+  factory/                # opt-in; generated read-only copies of factory setup; gitignored
+  backup/
+    factory/              # opt-in; file backups outside git, with a README note; gitignored
   <configured harness routers>
   archive/                # on-demand managed history/provenance
   system/                 # always-local configured-harness router
@@ -55,6 +58,9 @@ Runtime state and bootstrap:
 - Approved local backup or export files are content copies. Their readable descriptions are not live operation state or automatic restoration authority. Project history and work-specific tracking remain local knowledge.
 
 - R-LOCAL-STATE-1 (MUST): `.make-docs/` contains no current Make Docs operational state. Installation manifests, applied selections, conflict decisions, provider/projection metadata, audit state, locks, receipts, and recovery journals live in the global Store. `.make-docs/state/` and `.make-docs/manifest.json` are supported legacy transfer inputs only. No renamed local directory or mirror may replace them.
+- R-LOCAL-STATE-2 (MUST): `.make-docs/factory/` exists only after factory setup. It holds generated, read-only, gitignored copies of the saved factory setup, written only by Make Docs from the Store. Each file says it is generated and that edits are lost. No Make Docs operation reads these copies as input. `make-docs run factory restore` writes them again. They hold no grants, secrets, locks, or receipts. [PRD 38](38-global-store-and-project-state.md) owns the narrow rule that allows them, and [PRD 53](53-factory-setup-and-orchestration.md) owns their content.
+- R-LOCAL-STATE-3 (MUST): `.make-docs/backup/factory/` exists only after the factory backs up a file in a folder without git. It holds inert content copies. The Store records each backup. A `README.md` in the folder tells people and agents that backups are deleted when their work is accepted or closed, or after 30 days, and how to get a file back.
+- R-LOCAL-STATE-4 (MUST): factory backup cleanup removes only files that the Store records as factory backups. It never removes installation recovery backups or any other file under `.make-docs/backup/`.
 - Bootstrap includes configured-harness routers, declarative project identity/config, project-owned overlays, and readable guidance for CLI Store status, resource selection, provenance, and recovery.
 - Managed instruction routers continue to use managed blocks.
 - Router text must not send agents into hidden provider-only state without a local explanation.
@@ -140,6 +146,14 @@ R-ASSET-PATH-2 (MUST): `project persona list` resolves the two shipped defaults 
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-11-21 — W30 R0
+
+- Affected requirement or section: Directory model; R-LOCAL-STATE-2; R-LOCAL-STATE-3; R-LOCAL-STATE-4.
+- Previous contract: `.make-docs/` had no factory paths. No generated copy of Store records existed in the project.
+- Replacement contract: Opt-in `.make-docs/factory/` holds generated, read-only, gitignored setup copies that are never input. Opt-in `.make-docs/backup/factory/` holds recorded file backups outside git with a README note and bounded cleanup.
+- Rationale: The factory keeps readable local copies of its setup and needs an undo path in folders without git.
+- Source: [Factory design](../designs/2026-11-21-factory.md).
 
 ## Source Anchors
 

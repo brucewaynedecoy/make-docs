@@ -154,6 +154,14 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - R-PROJECTION-7 (MUST): explicit adoption of a separate checkout compares each selected local resource with verified shipped provider bytes. An exact match may gain a new local managed projection record. A differing body stays project-owned under the reviewed keep policy. Export-and-replace needs a separate reviewed resolution and cannot claim that the old body was managed. Adoption records new checkout ownership only; it cannot copy another checkout's applied digest or receipt.
 - R-PROJECTION-6 (MUST): resolution order is explicit project override, then verified selected local projection, then verified installed provider. A source cannot silently replace a higher-priority source or turn a Store receipt into project-content authority.
 
+## Work Store and Factory Resource Set
+
+- R-WORK-RESOURCE-1 (MUST): the work store agent twin uses stable URI `make-docs://system/reference/work-store.md`. It states the readiness, claim, report, close, sync, and conflict rules of [PRD 52](52-work-store-and-work-queue.md) for an agent that edits `docs/work/` files without the CLI, and the tracker connection contract. It names itself as the agent form of the matching CLI operations.
+- R-WORK-RESOURCE-2 (MUST): the factory rules use stable URI `make-docs://system/contract/factory-contract.md`. The three shipped workflow types use `make-docs://system/reference/factory/workflows/build-then-review.md`, `make-docs://system/reference/factory/workflows/lead-and-specialists.md`, and `make-docs://system/reference/factory/workflows/staged-backlog.md`. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning.
+- R-WORK-RESOURCE-3 (MUST): these resources use the existing contract and reference types, the installed provider, and the optional projection model. They add no resource type, no mandatory projection, and no Playbook- or Protocol-shaped surface. They are authored in `packages/docs/template/` first, then projected into the package and this repository's dogfood instance in that order.
+- R-WORK-RESOURCE-4 (MUST): examples in the factory resources describe tools only by capability. They name no app, harness, provider, or multiplexer as a default or requirement.
+- R-WORK-RESOURCE-5 (MUST): the work index and work phase templates stay stable enough for the work store parser and writer to round-trip current files byte for byte. A template change that alters parsed structure needs a matching parser and writer change and round-trip proof in the same change set.
+
 ## Requirement History
 
 ### 2026-09-18 — W22 R0
@@ -258,6 +266,14 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - Replacement contract: Adoption may manage exact shipped matches in the new checkout and keeps differing bodies project-owned unless export-and-replace is reviewed.
 - Rationale: A portable projection must retain project bytes and gain only proved local ownership.
 - Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: `Work Store and Factory Resource Set`.
+- Previous contract: No work store or factory resources existed. Work templates had no round-trip stability rule.
+- Replacement contract: One work store reference, one factory contract, and three workflow type references use existing types and projection. Work templates stay round-trip stable for the work store parser.
+- Rationale: The work store and the factory need shared rules for agents without the CLI.
+- Source: [Work store design](../designs/2026-11-21-work-store.md) and [factory design](../designs/2026-11-21-factory.md).
 
 ## Source Anchors
 

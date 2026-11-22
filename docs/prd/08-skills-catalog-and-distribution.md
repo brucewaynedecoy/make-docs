@@ -4,7 +4,7 @@
 
 This subsystem defines which agent skills `make-docs` can install, how users select them, how Skill payloads use standard scope/harness directories under `.agents/skills/**` or project Claude-only `.claude/skills/**`, and how native harness exposure makes those payloads available to Claude Code and Codex install roots. The public entry is `make-docs setup skills` under [39-cli-command-model-and-operation-registry.md](./39-cli-command-model-and-operation-registry.md); `runSkillsCommand` in `packages/cli/src/skills-command.ts` reads the packaged registry in `packages/cli/skill-registry.json` through `loadEffectiveSkillRegistry` and resolves payloads through `resolveSkillSource` in `packages/cli/src/skill-resolver.ts`.
 
-The first-party authoring source is `packages/skills/<name>/` for all eight Skills: `archive-docs`, `backlog-review`, `cleanup-docs`, `decompose-codebase`, `preflight`, `factory`, `human-experience`, and `naive-uat`. Each selected Skill is delivered from the installed CLI package with its declared support files.
+The first-party authoring source is `packages/skills/<name>/` for all nine Skills: `archive-docs`, `backlog-review`, `cleanup-docs`, `decompose-codebase`, `preflight`, `factory`, `factory-setup`, `human-experience`, and `naive-uat`. Each selected Skill is delivered from the installed CLI package with its declared support files.
 
 The W19 R5 requirements below record the accepted product direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. The tasks and evidence remain pending.
 
@@ -28,7 +28,7 @@ Code anchors:
 
 The first-party resolver reads the complete registry-declared payload bytes embedded in compiled CLI output. It must not fetch from GitHub, use another network fallback, or read the maintainer checkout when first-party embedded bytes are absent or corrupt. Explicit alternate manifests retain their separate source and trust policy below.
 
-All eight first-party Skills are optional. Users can select, install, update, back up, or remove them through the shared lifecycle. A default docs scaffold writes no Skill files. Validation must prove `skillFiles: []` for the default profile and shared payload plus native exposure only for the explicit selection.
+All nine first-party Skills are optional. Users can select, install, update, back up, or remove them through the shared lifecycle. A default docs scaffold writes no Skill files. Validation must prove `skillFiles: []` for the default profile and shared payload plus native exposure only for the explicit selection.
 
 Code anchors:
 
@@ -43,10 +43,12 @@ Code anchors:
 
 ### Bundled First-Party Skill Catalog
 
-- R-SKILL-BUNDLE-1 (MUST): author all eight first-party Skills in `packages/skills/`. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Include the declared entrypoints, references, examples, and harness metadata. Reject missing or unsafe source entries. Preserve package version and payload hash evidence for review, ownership, upgrade, and recovery.
+- R-SKILL-BUNDLE-1 (MUST): author all nine first-party Skills in `packages/skills/`. The CLI build reads registry-declared files directly from `packages/skills/<name>/` and embeds their bytes in generated CLI build output. Packaging consumes that compiled output. No separate replicated Skill source or payload tree may exist under `packages/cli` or `packages/docs`, including ignored, temporary, or generated mirrors; do not create `packages/cli/skills/`. The compiled artifact containing embedded bytes and genuine project/global CLI-installed copies remain allowed. Include the declared entrypoints, references, examples, and harness metadata. Reject missing or unsafe source entries. Preserve package version and payload hash evidence for review, ownership, upgrade, and recovery.
 - R-SKILL-BUNDLE-2 (MUST): each Skill works alone from an extracted package with no network or maintainer checkout. No sibling Skill installation is required. `preflight` carries its own Store guidance. Portable instructions must not depend on maintainer-only PRD links, personal mirror paths, or a local installation manifest.
-- R-SKILL-BUNDLE-3 (MUST): `preflight`, `factory`, and `human-experience` remain explicit-invocation-only. Installation, keyword matches, or another Skill's use must not activate them automatically or add a required lifecycle gate. PRD 25 owns their thin runtime boundary.
+- R-SKILL-BUNDLE-3 (MUST): `preflight`, `factory`, `factory-setup`, and `human-experience` remain explicit-invocation-only. Installation, keyword matches, or another Skill's use must not activate them automatically or add a required lifecycle gate. PRD 25 owns their thin runtime boundary.
 - R-SKILL-BUNDLE-4 (MUST): clean managed upgrades resolve proved first-party identities from the new package even when older ownership records name remote sources. A matching third-party name is not proof of first-party identity. Preserve edited-content conflicts; do not require the old remote source to remain reachable.
+- R-SKILL-BUNDLE-5 (MUST): `factory-setup` sets up a factory workflow: it finds the person's agent tools, reads their instructions, interviews the person, wires roles by capability, runs one test task, and saves the result through the factory operations. `factory` runs one saved workflow that has passed its test task. The `factory` Skill has no profiles and no zero-config mode. When no ready workflow exists, it stops and names `factory-setup` as the next step. [PRD 53](53-factory-setup-and-orchestration.md) owns their behavior.
+- R-SKILL-BUNDLE-6 (MUST): neither factory Skill names an app, harness, provider, or multiplexer as a default or requirement. Both describe tools by capability.
 
 ### Explicit Selected-Skill Model
 
@@ -101,7 +103,7 @@ The skills subsystem integrates directly with `parseArgs`, `validateParsedArgs`,
 
 The skills subsystem also integrates with the shared planner/apply stack rather than maintaining a parallel installer. `planSkillsOnlyInstall` and `applySkillsOnlyInstallPlan` in `packages/cli/src/install.ts` route through profile resolution and reuse the `InstallPlan` / `PlannedAction` vocabulary from `packages/cli/src/types.ts`, while `createSkillsOnlyInstallPlan` in `packages/cli/src/planner.ts` keeps the action set skills-only. That reuse preserves conflict staging and manifest writing while requiring the skill command to leave non-skill managed files alone; the design intent is recorded in `docs/assets/archive/designs/2026-04-21-cli-skills-command.md` and enforced by `packages/cli/tests/skills-ui.test.ts` and `packages/cli/tests/install.test.ts`.
 
-The build reads all eight first-party Skill payloads directly from `packages/skills/<name>/` and embeds every declared support file in compiled CLI output. Package preparation consumes that output without a replicated Skill tree and rejects missing or unsafe entries. [PRD 16](16-package-runtime-and-deployment-boundaries.md) owns the package boundary; [PRD 10](10-packaging-validation-and-release-reference.md) owns proof against the extracted artifact.
+The build reads all nine first-party Skill payloads directly from `packages/skills/<name>/` and embeds every declared support file in compiled CLI output. Package preparation consumes that output without a replicated Skill tree and rejects missing or unsafe entries. [PRD 16](16-package-runtime-and-deployment-boundaries.md) owns the package boundary; [PRD 10](10-packaging-validation-and-release-reference.md) owns proof against the extracted artifact.
 
 First-party install and update must work without a network connection or the maintainer checkout. Older remote provenance does not force an update to fetch the old source. [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns reviewed existing-copy adoption through `setup skills`; ordinary `setup` offers bundled choices without adoption flags. Required ownership and operation state remain in the global Store under [PRD 38](38-global-store-and-project-state.md).
 
@@ -219,9 +221,9 @@ Implementation must prove:
 - `--selected-skills all` and `none` are interpreted against the effective manifest
 - audit, backup, uninstall, and migration explain alternate-manifest and selection provenance
 - package contents include the evolved schema and validation fixtures
-- the extracted CLI package contains the complete declared payload and version/hash evidence for all eight first-party Skills
+- the extracted CLI package contains the complete declared payload and version/hash evidence for all nine first-party Skills
 - the first-party Unassisted Goal Testing Skill is absent from default installs and is installed only through explicit selection
-- each of the eight Skills, all eight, and none work from an extracted package with network access denied and the repository unavailable
+- each of the nine Skills, all nine, and none work from an extracted package with network access denied and the repository unavailable
 - clean managed upgrades from old first-party remote provenance use bundled bytes; edited files remain protected conflicts
 - the three promoted guidance Skills retain explicit invocation and standalone portable references
 - every Unassisted Goal Testing shim delegates to a typed CLI operation and contains no duplicated policy or business logic
@@ -330,6 +332,14 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Replacement contract: The catalog contains eight first-party Skills. `backlog-review` is a bundled optional Skill with complete declared support files, portable deterministic-first routing, an honest agentic fallback, and package-independence checks.
 - Rationale: Backlog review needs one shipped agent workflow that can use the shared snapshot operation when available and still work without a maintainer checkout, network access, or Store access.
 - Source: [W23 R0 P3 work record](../work/2026-09-18-w23-r0-backlog-review-and-reporting/03-skill-and-chat-report.md) and [PRD 51](51-backlog-review-and-reporting.md).
+
+### 2026-11-21 — W30 R0
+
+- Affected requirement or section: Bundled First-Party Skill Catalog; R-SKILL-BUNDLE-3; R-SKILL-BUNDLE-5; R-SKILL-BUNDLE-6; Validation Boundary.
+- Previous contract: The catalog contained eight first-party Skills. `factory` coordinated workers with no saved setup, defaulted to native subagents, and used optional profiles.
+- Replacement contract: The catalog contains nine first-party Skills. `factory-setup` sets up and proves a workflow. `factory` runs a saved, proved workflow. Both are explicit-invocation-only and tool-agnostic. Profiles are removed.
+- Rationale: The old Skill rarely worked in practice because it had no saved setup, queue, wake method, or human channel.
+- Source: [Factory design](../designs/2026-11-21-factory.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
 
 ## Source Anchors
 
