@@ -14,7 +14,7 @@ source:
 lifecycle:
   default_arc: "design -> plan -> PRD -> work -> implementation"
   departure: "full-package draft"
-  reason: "The owner asked for the complete design, plan, PRD, and backlog package before implementation. Implementation starts after Make Docs 2.0.8 ships."
+  reason: "The owner asked for the complete design, plan, PRD, and backlog package before implementation. The 2.0.8 release gate is met, because 2.0.9 is released. Implementation needs separate owner authority."
 ---
 
 # W29 R0 Work Store Plan
@@ -23,7 +23,7 @@ lifecycle:
 
 Plan the [work store](../../designs/2026-11-21-work-store.md): a local, durable record of work in the global Store, with `docs/work/` as a two-way repo copy, a small work queue interface (next, claim, report, close), and an agent form of the same rules. The [factory](../../designs/2026-11-21-factory.md) (W30 R0) depends on this Wave.
 
-This plan, its PRD changes, and its work backlog are review material. They do not authorize CLI, MCP, Store, template, Skill, installation, commit, push, or release changes. Implementation starts after Make Docs 2.0.8 ships and needs separate owner authority. It must not touch W22 R2 files, branches, or worktrees.
+This plan, its PRD changes, and its work backlog are review material. They do not authorize CLI, MCP, Store, template, Skill, installation, commit, push, or release changes. The 2.0.8 release gate is met, because 2.0.9 is released. Implementation needs separate owner authority. It must not touch W22 R2 files, branches, or worktrees.
 
 ## Objective
 
@@ -114,7 +114,7 @@ The characterization is informational. It informs whether automatic sync needs a
 
 ## Dependencies
 
-- Make Docs 2.0.8 ships before implementation starts. W22 R2 files, branches, and worktrees stay untouched.
+- The 2.0.8 release gate is met, because 2.0.9 is released. W22 R2 files, branches, and worktrees stay untouched.
 - P1 is the contract gate. No code starts before P1 is accepted.
 - P2 depends on P1 and on the PRD 38 R-MIN rows.
 - P3 depends on P1 and P2.

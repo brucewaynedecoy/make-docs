@@ -19,7 +19,7 @@ source:
 
 This backlog builds the work store in [PRD 52](../../prd/52-work-store-and-work-queue.md): a durable local record of work in the global Store, a two-way repo copy in `docs/work/`, and a work queue with next, claim, report, and close. The [design](../../designs/2026-11-21-work-store.md) and the [plan](../../plans/2026-11-21-w29-r0-work-store/00-overview.md) define the scope. The [W30 R0 factory backlog](../2026-11-21-w30-r0-factory/00-index.md) depends on it.
 
-Implementation starts after Make Docs 2.0.8 ships and needs separate owner authority. This backlog does not touch W22 R2 files, branches, or worktrees.
+The 2.0.8 release gate is met, because 2.0.9 is released. Implementation needs separate owner authority. This backlog does not touch W22 R2 files, branches, or worktrees.
 
 Shipped resources change in `packages/docs/template/` first. Each change is then projected into the package and, after review, into this repository's `.make-docs/` and `docs/`.
 
@@ -63,6 +63,6 @@ Out of scope:
 This handoff is advisory-default-but-overridable.
 
 - Route: `implementation-loop`
-- Next step: After 2.0.8 ships and the owner gives phase-start authority, start P1 and continue phase by phase.
+- Next step: When the owner gives phase-start authority, start P1 and continue phase by phase.
 - Why: The backlog is the implementation queue derived from the plan and PRD 52.
 - Coordinate Handoff: Carry `W29 R0` into phase history records and commits, adding the active P number.
