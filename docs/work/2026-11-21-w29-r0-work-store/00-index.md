@@ -1,0 +1,68 @@
+---
+title: "W29 R0 Work Store"
+kind: "work"
+status: "active"
+coordinate: "W29 R0"
+follow_on:
+  route: "implementation-loop"
+  next_prompt: ".make-docs/system/references/execution-workflow.md"
+  why: "The backlog turns the approved plan and PRD 52 into implementation work."
+  coordinate_handoff: "Carry W29 R0 into phase history records and commits, adding the active P number."
+source:
+  type: "prd"
+  path: "docs/prd/52-work-store-and-work-queue.md"
+---
+
+# W29 R0 Work Store
+
+## Purpose
+
+This backlog builds the work store in [PRD 52](../../prd/52-work-store-and-work-queue.md): a durable local record of work in the global Store, a two-way repo copy in `docs/work/`, and a work queue with next, claim, report, and close. The [design](../../designs/2026-11-21-work-store.md) and the [plan](../../plans/2026-11-21-w29-r0-work-store/00-overview.md) define the scope. The [W30 R0 factory backlog](../2026-11-21-w30-r0-factory/00-index.md) depends on it.
+
+Implementation starts after Make Docs 2.0.8 ships and needs separate owner authority. This backlog does not touch W22 R2 files, branches, or worktrees.
+
+Shipped resources change in `packages/docs/template/` first. Each change is then projected into the package and, after review, into this repository's `.make-docs/` and `docs/`.
+
+Out of scope:
+
+- A connection for any tracker other than the local store.
+- The factory, its Store records, and the backlog review button handoff. W30 owns them.
+- Rebuilding `.make-docs/config.yaml` from the Store. It is recorded as a separate risk in the [risk register](../../prd/03-open-questions-and-risk-register.md).
+
+## Human Experience Trace
+
+| Impact or promise | Source design and plan | Owning PRD or preserved boundary | Work phase | Evidence source or selected testing type | Implementation gate | Accepted obligation, if any |
+| --- | --- | --- | --- | --- | --- | --- |
+| `direct`: `run work next` names ready units in dependency order and says why each blocked unit waits. | [Design](../../designs/2026-11-21-work-store.md), [plan](../../plans/2026-11-21-w29-r0-work-store/00-overview.md) | [PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-QUEUE-4, R-WORK-QUEUE-5 | [P1](01-record-model-and-rule-catalog.md), [P4](04-work-queue-operations.md) | Fixtures, CLI and MCP parity, Guided Progress Review | P4 closeout | None |
+| `direct`: hand edits and teammates' edits through git reach the store after the next work command. | Same | PRD 52 R-WORK-SYNC-2, R-WORK-SYNC-8 | [P3](03-parser-import-and-sync.md), [P6](06-package-parity-and-acceptance.md) | Two-checkout sync test | P6 closeout | None |
+| `direct`: when both sides changed, Make Docs stops, shows both sides, and names one settle command. | Same | PRD 52 R-WORK-SYNC-4, R-WORK-SYNC-5 | [P3](03-parser-import-and-sync.md), [P4](04-work-queue-operations.md) | Conflict fixtures, Guided Progress Review | P4 closeout | None |
+| `direct`: existing `docs/work/` files keep their format and names. A teammate without a Store sees no change. | Same | PRD 52 R-WORK-STORE-8, R-WORK-SYNC-7 | [P3](03-parser-import-and-sync.md), [P6](06-package-parity-and-acceptance.md) | Byte-for-byte round trip, no-Store run | P6 closeout | None |
+| `direct`: `run work status` says whether the store or the files are the authority, and why. | Same | PRD 52 R-WORK-STORE-3 | [P4](04-work-queue-operations.md) | Mode fixtures, Guided Progress Review | P4 closeout | None |
+
+## Phase Map
+
+| File | Purpose |
+| --- | --- |
+| [01-record-model-and-rule-catalog.md](01-record-model-and-rule-catalog.md) | Settle the record model, sync table, queue rules, tracker contract, R-MIN rows, and fixtures. |
+| [02-store-schema-and-records.md](02-store-schema-and-records.md) | Add the work tables in one append-only migration and the Store service. |
+| [03-parser-import-and-sync.md](03-parser-import-and-sync.md) | Build the round-trip parser and writer, first import, and two-way sync. |
+| [04-work-queue-operations.md](04-work-queue-operations.md) | Build the `run work` operations and the store-backed snapshot. |
+| [05-agent-twin-and-config.md](05-agent-twin-and-config.md) | Author the `work-store` reference and the `work` config block. |
+| [06-package-parity-and-acceptance.md](06-package-parity-and-acceptance.md) | Prove the installed package, sync, no-Store behavior, `PERF-004`, and Human Experience outcomes. |
+
+## Usage Notes
+
+- Read phases in order. P5 can start after P1.
+- Every phase file includes `## Source PRD Docs`.
+- Acceptance case IDs run from A1 to A30 across this backlog.
+- Create `evidence.md` when the first phase retains evidence, and link it here.
+- No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
+
+## Intended Follow-On
+
+This handoff is advisory-default-but-overridable.
+
+- Route: `implementation-loop`
+- Next step: After 2.0.8 ships and the owner gives phase-start authority, start P1 and continue phase by phase.
+- Why: The backlog is the implementation queue derived from the plan and PRD 52.
+- Coordinate Handoff: Carry `W29 R0` into phase history records and commits, adding the active P number.
