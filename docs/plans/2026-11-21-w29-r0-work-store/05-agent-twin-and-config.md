@@ -26,6 +26,8 @@ The upstream template has a new reference resource, `make-docs://system/referenc
 - Write the tracker connection contract in the same resource: the four operations, the field map, and the capability declaration.
 - Project the resource into the package and then into this repo's dogfood copy, in that order.
 - Update routers that name work backlog rules so they point to the new resource where an agent needs it.
+- State that quick items live only in the work store, and how `make-docs://project/<project>/` URIs name a project and its work.
+- Validate `projectName` in config, and have setup propose the folder name.
 
 ## Exclusions
 

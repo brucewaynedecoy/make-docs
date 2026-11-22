@@ -66,7 +66,7 @@ Packed-package validation executes the generated tarball through `npx --package`
 - R-MCP-PROFILE-5 (MUST): the `backlog` profile includes `work.backlog.snapshot`, `work.backlog-cache.lookup`, and `work.backlog-cache.write` regardless of the cache's Store access. It owns the Backlog Review UI resource. When the app operations `backlog.review.open` and `backlog.review.refresh` are admitted, their MCP tools use explicit names from the checked name map and belong to `backlog` and `all`. The app's owning authority defines their detailed behavior. Profile membership does not change cache write access.
 - R-MCP-PROFILE-6 (MUST): the same server factory may serve fixed Streamable HTTP paths `/mcp/core`, `/mcp/setup`, `/mcp/workflow`, `/mcp/quality`, `/mcp/backlog`, `/mcp/factory`, and `/mcp/all` where a supported MCP App or host needs HTTP. Stdio remains supported. Transport and route selection do not bypass caller identity, operation admission, authorization, or write permission. Local HTTP binds to loopback by default; public deployment needs separate authority.
 - R-MCP-PROFILE-7 (SHOULD): hosts that support tool search or deferred loading should use them with short, task-specific profile descriptions. A profile reduces model-visible context only when the host selectively connects or defers definitions. About ten functions per namespace is a design target, not a protocol limit. Profile metadata does not force a host to defer tools.
-- R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, and `work_export` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
+- R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, `work_export`, and `work_add` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
 
 ### Current MCP Surface
 
@@ -143,7 +143,7 @@ The following operations are accepted for the 2.0.6 target. They are unavailable
 
 MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
 
-The resource resolver accepts only stable system-resource URIs, resolves a trustworthy selected local projection before the installed provider, and rejects traversal, invalid type segments, stale or divergent projected content, and unavailable provider state with typed errors. Projection provenance records provider, version or immutable ref, hash algorithm, hash set, local path, ownership state, offline expectation, and recovery guidance.
+The resource resolver accepts stable system-resource URIs and the `make-docs://project/` URIs of [PRD 52](52-work-store-and-work-queue.md). A project URI reads the work store read-only and never uses a projection. For system-resource URIs, the resolver resolves a trustworthy selected local projection before the installed provider, and rejects traversal, invalid type segments, stale or divergent projected content, and unavailable provider state with typed errors. Projection provenance records provider, version or immutable ref, hash algorithm, hash set, local path, ownership state, offline expectation, and recovery guidance.
 
 The shared Persona resolver reads shipped defaults and valid declarative config without Store access. `project.persona.list` and `project.layout.preview` are read-only operations. Persona discovery performs no bootstrap or directory creation. Layout preview binds its inventory, map, config-derived audience resolution, and planned link edits in the returned review digest.
 
@@ -413,6 +413,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Six intent profiles, including `factory`. Work queue tools join `backlog` and `workflow`. `factory` and `factory-setup` record setup, assignments, proofs, and backups only through typed operations in the Store, and still cannot authorize implementation by themselves. Shared work store and factory rules have a CLI form and an agent form.
 - Rationale: Saved, proved setup and durable assignments let work survive crashes and lost replies without a workflow engine.
 - Source: [Work store design](../designs/2026-11-21-work-store.md) and [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: the resource resolver paragraph and R-MCP-PROFILE-8.
+- Previous contract: the resolver accepted only stable system-resource URIs, and the work queue had eight MCP tools.
+- Replacement contract: the resolver also accepts `make-docs://project/` URIs, which read the work store read-only through the same CLI and MCP surfaces. `work_add` joins the work queue tools.
+- Rationale: quick items live only in the work store, and the owner asked to read them by URI.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
 
 ## Source Anchors
 

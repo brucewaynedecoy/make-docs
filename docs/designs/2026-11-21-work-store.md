@@ -114,6 +114,17 @@ The first work command on a machine with a Store imports every existing backlog 
 
 Each unit has a stable store ID and its coordinate. A wave, revision, phase, stage, or task can be a claimable unit. The coordinate stays the human name. The store ID survives renumbering. Dependencies point to store IDs. A quick item is a task-level unit with no design, plan, or PRD. It belongs to the project and can link to the request that made it.
 
+A quick item lives only in the work store. It has no repo copy, so teammates do not see it through git. `make-docs run work add` adds one and gives it the next plain number of the project, such as `7`. Human text calls it `task 7`. The `tasks` URI family keeps it apart from backlog coordinates, so it needs no letter.
+
+A person or an agent reads a project's work by URI, the same way as system resources. Every project URI names its project, by a short project name or by its project ID. Nothing resolves from the current folder.
+
+- `make-docs resource read make-docs://project/make-docs/tasks/` lists the project's quick items.
+- `make-docs resource read make-docs://project/make-docs/tasks/7` shows one quick item.
+- `make-docs resource read make-docs://project/make-docs/backlog/W29/R0/` lists the phases of W29 R0.
+- `make-docs resource read make-docs://project/make-docs/backlog/W29/R0/P1/T3` shows one task.
+
+A project URI read uses the work store read-only. Without a Store, it says so and points to the `docs/work/` files. `make-docs run work export --quick <path>` writes the `tasks` text to a file that the person names. The project name lives in `.make-docs/config.yaml` as `projectName`, and the Store records it with the project ID.
+
 ### Ready, claim, report, and close
 
 The store answers four questions through one small interface:
@@ -144,7 +155,8 @@ The work store adds new tables in one append-only migration (schema v7). Each fi
 | `make-docs run work release <unit>` | `work_release` | Releases a claim without closing the unit. |
 | `make-docs run work report <unit>` | `work_report` | Records status, a short note, or an evidence link. |
 | `make-docs run work close <unit>` | `work_close` | Closes a unit and releases its claim. |
-| `make-docs run work export` | `work_export` | Writes repo copies on request when copies are off. |
+| `make-docs run work export` | `work_export` | Writes repo copies on request when copies are off, and quick items to a named path. |
+| `make-docs run work add` | `work_add` | Adds a quick item with the next quick item number. |
 
 The design fixes the verbs. The plan and PRD fix the exact flags. The tools join the existing `backlog` and `workflow` MCP profiles. Writes need the existing write permission and `expectedVersion` check. `backlog_snapshot` reads the store when the store is the authority, and it returns the same schema. Its result adds the resolved readiness facts. `backlog-review` keeps its read-only role.
 

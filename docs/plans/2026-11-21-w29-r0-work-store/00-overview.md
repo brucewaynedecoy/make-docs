@@ -173,3 +173,16 @@ This handoff is advisory-default-but-overridable.
 - Next step: Create PRD 52 and update PRDs 00, 03, 04, 06, 24, 25, 38, 39, and 51 from this plan.
 - Why: The plan should become the product contract before the work backlog is written.
 - Coordinate Handoff: Carry `W29 R0` into PRD 52 source lineage, the requirement-history entries, and `docs/work/2026-11-21-w29-r0-work-store/`.
+
+## Change History
+
+### 2026-11-22 — W29 R0
+
+- Kind: `edit`
+- Affected scope: P2, P3, P4, and P5 scope.
+- Previous scope: eight `run work` operations, with no add operation, no URI read, and no project name.
+- Replacement scope: `run work add`, `export --quick <path>`, and `make-docs://project/<project>/tasks/` and `.../backlog/` URIs that always name the project. P2 records `projectName`. P3 waits for the task ID case Wave. P5 states the URIs and validates `projectName`.
+- Rationale: the owner chose Store-only quick items, URIs that name the project, a readable project name, and upper-case task IDs in their own Wave, and plain numbers for quick items.
+- PRD decision: `update-existing` — PRD 52, 38, 24, 17, 21, 25, 39, 53, and 04; register D-061, D-062, and D-063.
+- Owner approval: the owner's answers on 2026-11-22.
+- Source: [W29 R0 backlog](../../work/2026-11-21-w29-r0-work-store/00-index.md)

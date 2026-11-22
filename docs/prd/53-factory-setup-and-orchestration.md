@@ -90,7 +90,7 @@ Code anchors:
 - R-FACTORY-28 (MUST): assignment status is one of `offered`, `running`, `returned`, `in-review`, `needs-correction`, `accepted`, `failed`, `cancelled`, or `unknown`. An `unknown` assignment is checked through its task handle before any other step.
 - R-FACTORY-29 (MUST): the foreman can claim a wave, phase, stage, or task through the work queue. The default is a phase. It renews the claim at each check.
 - R-FACTORY-30 (MUST): each claim opens one lifecycle run at stage `implementation`. Each assignment points to that run. Evidence is recorded through the existing evidence and lifecycle evidence operations.
-- R-FACTORY-31 (MUST): a quick item from the front desk is routed by capability, like any other unit. A small job can still go to a separate agent.
+- R-FACTORY-31 (MUST): the front desk adds a quick item with `run work add`. A quick item is routed by capability, like any other unit. A small job can still go to a separate agent.
 
 ### Run loop
 

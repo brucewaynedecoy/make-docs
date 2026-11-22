@@ -1261,6 +1261,55 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: An accepted design decides whether a recovery aid exists and how it keeps the repository as the config authority, or records that git is the accepted recovery path and status says so.
 
+### D-061 Quick Items Live Only in the Work Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Quick items live only in the work store, and `run work add` adds them. `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/...` print a named project's quick items and backlog. | Build the add operation and the project URI reads in W29 R0 P4, the project name record in P2, and the agent form and config check in P5. |
+
+**Issue**: A quick item has no design, plan, or PRD, and no `docs/work/` file. The W29 R0 operations had no way to add one, and no way to read one without a work command. A first draft of the project URIs did not name the project. It took the project from the current folder, which no current Make Docs URI does, and which cannot work for a Store and MCP server that many agents use for many projects.
+
+**Why it matters**: Without an add operation, the front desk of the factory cannot turn a request into a quick item. Without a URI that names the project, a person or an agent cannot read one project's work from a shared server.
+
+**Recommendation**: Keep quick items in the work store only. Add `run work add`. Add the `make-docs://project/<project>/` URI family with `tasks` and `backlog` families. Name the project by a short project name or its project ID.
+
+**To close**: PRD 52 and PRD 38 state the rules, and the W29 R0 backlog holds the tasks.
+
+**Resolution**: Closed on 2026-11-22 during W29 R0 P1 at the owner's direction. [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-3, R-WORK-QUEUE-18, and R-WORK-URI-1 to R-WORK-URI-7 hold the URI and quick item rules. [PRD 38](38-global-store-and-project-state.md) R-ID-8 holds the project name. [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) R-RESOURCE-STATE-2 keeps system-resource reads Store-free. Without a Store, a project URI read returns the typed Store outcome and points to the `docs/work/` files.
+
+### D-062 The Store Needs a Table, Event, and Data Maintenance Review
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. Logged on 2026-11-22 during W29 R0 P1. The owner rates it as a serious gap and asked for a full review of the Store tables, their columns, the events that create and update rows, and data maintenance. | Design the review as its own Wave. Settle at least the project register before W29 R0 P2 adds tables and P4 resolves project names. |
+
+**Issue**: On the maintainer machine on 2026-11-22, the Store table `projects` had 0 rows, but `installation_checkouts` had 3 rows for the 3 projects that use Make Docs. `projects` is a legacy discovery mirror. `packages/cli/src/store/README.md` says the CLI apply flow fills it through `mirrorProjectManifest`, but no current code calls that function except `rebuildProjectRegistry`. `pruneProjectFromStore` in `packages/cli/src/store/lifecycle.ts` reports `remainingProjects` from that empty table, and it does not touch `installation_checkouts`. No current command lists the projects that the Store knows. One checkout row also still names the old path of a moved project. `make-docs project state status` in the moved checkout reports `ownership-unverified` and points to a checkout move review, so the move itself is detected. The owner also sees rows that look like bad or stale data that nothing needs to keep.
+
+**Why it matters**: A person who opens the Store sees no projects and can think that setup failed. A future cleanup or removal step that trusts `remainingProjects` can act on a false count. Project names under PRD 38 R-ID-8 need one trusted register to resolve `make-docs://project/<project>/`. Rows that nothing reads or removes make the Store larger and harder to trust, and W29 and W30 add more tables.
+
+**Recommendation**: Review the whole Store in one design:
+
+- For each table and column: its purpose, its writer, its readers, and whether anything still uses it. Retire or merge what nothing needs, and match every kept field to its PRD 38 R-MIN row.
+- For each event that creates, updates, or removes rows, such as setup, adoption, a checkout move, a prune, an operation run, and a migration: which rows it touches, and a test for it.
+- Make one project register the source for every reader, and add a read-only command that lists the projects, their checkouts, and stale paths. Correct the Store README.
+- Add a maintenance job with two classes of rows. It removes or trashes rows that are clearly bad by a fixed rule, such as an expired claim, an orphan row, or a row for a project with no checkout, after a Store backup and with a report, and with no human review. It lists unclear rows for a person to decide.
+
+**To close**: An accepted design covers every table, column, and row event. Tests prove that setup, a checkout move, and a prune keep the project register right. The maintenance job has a dry run, a backup, and a report, and a person can list the projects.
+
+### D-063 Task IDs Use a Lower-Case `t`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | Plan the change as its own Wave. It must land before W29 R0 P3, because the W29 parser must round-trip files byte for byte. |
+
+**Issue**: Task IDs were meant to match the other coordinate parts, but every template, contract, and parser uses a lower-case `t`. `packages/cli/src/operations/work/backlog/snapshot.ts` and `packages/cli/src/operations/work/index.ts` read only `t1`, so a task written as `T1` is not read as a task ID. About 275 backlog files use `t`. No Make Docs doctor command exists today.
+
+**Why it matters**: Coordinates are the human names of work. Mixed case makes them harder to read, search, and type, and it makes the URI form `backlog/W29/R0/P1/T3` differ from the files.
+
+**Recommendation**: Accept both cases on input everywhere. Write `T` in templates, contracts, routers, generated text, and the W29 contract. Add a doctor command with a reviewed audit and fix, and use it for the one-time rewrite of this repository's active backlogs.
+
+**To close**: The Wave ships, the doctor check finds no lower-case task ID in this repository's active backlogs, and old files with `t` still parse.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

@@ -52,10 +52,10 @@ Out of scope:
 
 ## Usage Notes
 
-- Read phases in order. P5 can start after P1.
+- Read phases in order. P5 can start after P1. P2 waits for the project register decision in register D-062. P3 also waits for the task ID case Wave in register D-063.
 - Every phase file includes `## Source PRD Docs`.
-- Acceptance case IDs run from A1 to A30 across this backlog.
-- Create `evidence.md` when the first phase retains evidence, and link it here.
+- Acceptance case IDs run from A1 to A34 across this backlog. A31, A32, and A34 sit in P4. A33 sits in P2.
+- Evidence: [evidence.md](evidence.md).
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
 ## Intended Follow-On
@@ -66,3 +66,16 @@ This handoff is advisory-default-but-overridable.
 - Next step: When the owner gives phase-start authority, start P1 and continue phase by phase.
 - Why: The backlog is the implementation queue derived from the plan and PRD 52.
 - Coordinate Handoff: Carry `W29 R0` into phase history records and commits, adding the active P number.
+
+## Change History
+
+### 2026-11-22 — W29 R0
+
+- Kind: `edit`
+- Affected scope: P2 new t9, A33, and dependency, and A8 rewritten; P3 dependency; P4 overview, t1, t6, new t9 to t11, new A31, A32, and A34; P5 new t7 and t8.
+- Previous scope: eight `run work` operations, no way to add a quick item or read work by URI, no project name, and an A8 that let a plain claim take a unit with an expired claim.
+- Replacement scope: `run work add` for Store-only quick items; `export --quick <path>`; `make-docs://project/<project>/tasks/` and `.../backlog/` URIs that always name the project; a `projectName` in config and the Store; P3 waits for the task ID case Wave; A8 matches the P1 takeover rule.
+- Rationale: the owner chose Store-only quick items, asked for URIs that name a project, asked for a readable project name, and chose upper-case task IDs in their own Wave, and plain numbers for quick items. A8 contradicted PRD 52 R-WORK-QUEUE-17.
+- PRD decision: `update-existing` — PRD 52, 38, 24, 17, 21, 25, 39, 53, and 04; register D-061, D-062, and D-063.
+- Owner approval: the owner's answers on 2026-11-22.
+- Source: [PRD 52](../../prd/52-work-store-and-work-queue.md)

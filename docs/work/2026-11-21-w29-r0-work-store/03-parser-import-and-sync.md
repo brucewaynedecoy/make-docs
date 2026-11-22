@@ -80,6 +80,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Dependencies
 
 - P1 and P2.
+- The task ID case Wave in register D-063, so the parser reads `t` and `T` the same and writes `T`.
 
 ### Closeout Notes
 

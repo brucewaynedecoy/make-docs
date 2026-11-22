@@ -27,6 +27,7 @@ One append-only migration moves the Store from schema v6 to v7. It adds the work
 - Enforce one live claim per unit in the schema, not only in code.
 - Keep claims in the short-lived mutation guard class and expire them by time.
 - Keep the R-MIN register in PRD 38 and the physical schema in parity. Add a test that fails when they drift.
+- Record each project's `projectName` with its project ID and refuse a name that another project holds, using the project register that D-062 settles.
 
 ## Exclusions
 
@@ -42,3 +43,4 @@ One append-only migration moves the Store from schema v6 to v7. It adds the work
 ## Dependencies
 
 - P1 contract and the PRD 38 R-MIN rows.
+- The project register decision in register D-062.

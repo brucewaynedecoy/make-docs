@@ -71,16 +71,19 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [ ] t6: Enforce one live claim per unit in the schema.
 - [ ] t7: Expire claims by time, as short-lived mutation guards.
 - [ ] t8: Add a test that fails when the R-MIN register and the physical schema drift.
+- [ ] t9: Record each project's `projectName` with its project ID at each Store write, and refuse a name that another project holds (PRD 38 R-ID-8). Use the project register that the D-062 Store review settles.
 
 ### Acceptance criteria
 
 - A7: A second live claim on the same unit fails at the schema level.
-- A8: An expired claim no longer blocks a new claim.
+- A8: A plain claim on a unit with an expired claim is refused. A takeover after a handle check succeeds.
 - A9: The R-MIN parity test passes and fails when a field is removed from either side.
+- A33: Two projects cannot hold the same project name in one Store, and a renamed project resolves only by its new name.
 
 ### Dependencies
 
 - P1 accepted.
+- The project register decision in the register D-062 Store review.
 
 ### Closeout Notes
 

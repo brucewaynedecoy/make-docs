@@ -16,7 +16,7 @@ Expose the work store through the existing operation registry, so CLI and MCP sh
 
 ## Outcome
 
-Eight operations exist with CLI and MCP parity: `run work status`, `sync`, `next`, `claim`, `release`, `report`, `close`, and `export` (MCP `work_status` to `work_export`). `backlog_snapshot` reads the store when the store is the authority.
+Nine operations exist with CLI and MCP parity: `run work status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add` (MCP `work_status` to `work_add`). `make-docs resource read` prints a named project's quick items and backlog by `make-docs://project/<project>/` URI. `backlog_snapshot` reads the store when the store is the authority.
 
 ## Scope
 
@@ -28,6 +28,8 @@ Eight operations exist with CLI and MCP parity: `run work status`, `sync`, `next
 - `report` and `close` refuse a caller that no longer holds the claim.
 - `status` reports the authority mode (store or files), the reason, sync state, and conflicts, in human words first, with exact detail in machine output.
 - Switch `backlog_snapshot` to the store when the store is the authority. Keep schema v2 and add resolved readiness facts. Keep the file path for no-Store checkouts.
+- `add` adds a Store-only quick item with the next plain quick item number. `export --quick <path>` writes quick items to a path the caller names.
+- The shared resource resolver accepts `make-docs://project/<project>/tasks/`, `.../tasks/<n>`, and `.../backlog/` coordinate paths. The project is named by project name or project ID, never taken from the current folder. Only a project URI read opens a read-only Store session.
 - Keep every operation Store-optional where the design says so: without a Store, `next` and `status` read the files and report the mode.
 
 ## Exclusions

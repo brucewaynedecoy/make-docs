@@ -47,7 +47,7 @@ Resource tiers and identity:
 
 Resolution and materialization:
 
-- One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider.
+- One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider. It also accepts `make-docs://project/` URIs under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-1 to R-WORK-URI-5. Those read the work store and never use a local projection or the provider.
 - CLI `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>` are canonical resource surfaces. Resource ensure creates or refreshes exactly one selected local projection through the managed-file conflict and approval path. Each operation projects to an MCP tool. Native MCP resources expose the same URI set and bytes as resource list/read where supported.
 - Local resource-body projection is explicit and selection-scoped. Empty typed directories are normal and do not reduce runtime resource availability. The router skeleton remains present.
 - Divergent, stale, unowned, or provenance-free local files never silently shadow the provider. Refresh and overwrite use the managed-file conflict and approval path.
@@ -154,6 +154,14 @@ R-ASSET-PATH-2 (MUST): `project persona list` resolves the two shipped defaults 
 - Replacement contract: Opt-in `.make-docs/factory/` holds generated, read-only, gitignored setup copies that are never input. Opt-in `.make-docs/backup/factory/` holds recorded file backups outside git with a README note and bounded cleanup.
 - Rationale: The factory keeps readable local copies of its setup and needs an undo path in folders without git.
 - Source: [Factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: `Resolution and materialization`.
+- Previous contract: the resolver accepted only system-resource URIs.
+- Replacement contract: the resolver also accepts `make-docs://project/` URIs, which read the work store read-only.
+- Rationale: quick items live only in the work store, and the owner asked to read them by URI.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
 
 ## Source Anchors
 

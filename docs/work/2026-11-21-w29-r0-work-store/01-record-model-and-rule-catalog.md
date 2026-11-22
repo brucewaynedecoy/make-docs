@@ -53,14 +53,14 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Define unit kinds (wave, revision, phase, stage, task, quick item), their stable store ID, coordinate, parent, and status values.
-- [ ] t2: Define dependency records that point to store IDs, and the unresolved-text form for a bullet that import cannot resolve.
-- [ ] t3: Define link records in both directions: unit to design, plan, PRD section, and evidence file.
-- [ ] t4: Write the three-way sync table and the conflict record, including the settle commands.
-- [ ] t5: Write the readiness rule, the ready order, and the wording of each "waits because" reason.
-- [ ] t6: Write the claim rule: claimant, default time limit, renewal interval, expiry, stale-claimant refusal, and the handle check before takeover.
-- [ ] t7: Write the report and close payloads and the close outcomes.
-- [ ] t8: Write the tracker connection contract and mark the local store as the only current connection.
+- [x] t1: Define unit kinds (wave, revision, phase, stage, task, quick item), their stable store ID, coordinate, parent, and status values.
+- [x] t2: Define dependency records that point to store IDs, and the unresolved-text form for a bullet that import cannot resolve.
+- [x] t3: Define link records in both directions: unit to design, plan, PRD section, and evidence file.
+- [x] t4: Write the three-way sync table and the conflict record, including the settle commands.
+- [x] t5: Write the readiness rule, the ready order, and the wording of each "waits because" reason.
+- [x] t6: Write the claim rule: claimant, default time limit, renewal interval, expiry, stale-claimant refusal, and the handle check before takeover.
+- [x] t7: Write the report and close payloads and the close outcomes.
+- [x] t8: Write the tracker connection contract and mark the local store as the only current connection.
 
 ### Acceptance criteria
 
@@ -71,8 +71,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t9: Draft an R-MIN row for every new field: class, writer, readers, retention, privacy, and recovery use.
-- [ ] t10: Build the fixture matrix: this repo's current backlogs, a mixed portfolio, unresolved dependencies, a conflict, a quick item, a folder without git, and a no-Store checkout.
+- [x] t9: Draft an R-MIN row for every new field: class, writer, readers, retention, privacy, and recovery use.
+- [x] t10: Build the fixture matrix: this repo's current backlogs, a mixed portfolio, unresolved dependencies, a conflict, a quick item, a folder without git, and a no-Store checkout.
 
 ### Acceptance criteria
 
@@ -85,10 +85,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed (23 contract tests, the type check, the PRD authority and path-hygiene validators, and the full suite with only known failures). Guided Progress Review selected: the owner reviews the wait reasons, the conflict choices, and the claim wording in the catalog before P4 builds them. Performance Testing and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none. No code path runs yet. `PERF-004` runs in P6.
+- Human Experience Review: each rule has a plain `humanMeaning`. Each wait reason has a sentence and one next action. Each conflict kind has two settle choices with exact commands. The owner's feedback on this wording is invited before P4.
+- Optional experience handoff: not applicable until P4.
+- Explicit human acceptance gate: the owner accepts the catalog before P2 code starts, as this phase's Purpose requires.
+- Evidence report: [P1 Record Model and Rule Catalog](evidence.md#p1-record-model-and-rule-catalog).
+- Phase / capability status: Phase complete on commit and owner acceptance. Capability partial: the Store schema (P2), sync (P3), operations (P4), the agent twin (P5), and acceptance (P6) remain.

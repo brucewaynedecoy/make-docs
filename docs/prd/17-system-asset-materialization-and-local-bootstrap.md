@@ -63,7 +63,7 @@ Provider and cache provenance:
 Manifest provenance:
 
 - R-RESOURCE-STATE-1 (MUST): all resource and router provenance is held in the Store-owned installation record. Reads never import a local operational manifest silently. A local resource can shadow the provider only when current Store evidence verifies its selected identity and bytes. Missing or unsafe Store evidence uses the packaged provider or returns a typed unavailable result. It does not create local state.
-- R-RESOURCE-STATE-2 (MUST): `resource.list` and `resource.read` have `store: none` and do not create a Store session. If a local projection cannot be trusted without Store evidence, the resolver skips that projection and reads the installed provider. A missing or invalid installed provider returns its real typed error.
+- R-RESOURCE-STATE-2 (MUST): `resource.list` and `resource.read` of a system-resource URI do not create a Store session. A project-resource URI under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-3 is the one exception: its read opens a read-only Store session, and a system-resource read never does. If a local projection cannot be trusted without Store evidence, the resolver skips that projection and reads the installed provider. A missing or invalid installed provider returns its real typed error.
 - R-RESOURCE-STATE-3 (MUST): the setup resource choice states that local copies improve portability and direct file access. It must not describe local copies as Store access, harness permission, or a replacement for machine-level integration.
 
 - The manifest records router ownership separately from resource-body projection selection and provenance. A resource selection must not imply router removal.
@@ -181,6 +181,14 @@ R-ASSET-BOOT-2 (MUST): `project.surface.ensure assets` creates or safely adopts 
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: R-RESOURCE-STATE-2.
+- Previous contract: `resource.list` and `resource.read` had `store: none` and never created a Store session.
+- Replacement contract: system-resource reads stay Store-free. A read of a `make-docs://project/` URI opens a read-only Store session, because quick items live only in the work store.
+- Rationale: the owner chose Store-only quick items and asked to read them by URI, the same way as system resources.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
 
 ## Source Anchors
 

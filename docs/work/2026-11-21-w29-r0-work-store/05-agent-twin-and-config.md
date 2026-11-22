@@ -59,6 +59,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [ ] t4: Reject state fields, IDs, digests, receipts, and secrets in the `work` block.
 - [ ] t5: Project the resource into the package, then into this repo's dogfood copy.
 - [ ] t6: Point routers that name work backlog rules at the new resource where an agent needs it.
+- [ ] t7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
+- [ ] t8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
 
 ### Acceptance criteria
 

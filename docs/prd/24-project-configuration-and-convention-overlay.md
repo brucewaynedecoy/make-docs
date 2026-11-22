@@ -30,6 +30,7 @@ Install, reconfigure, provider refresh, package sync, cache recovery, audit, bac
 - R-CONFIG-STATE-6 (MUST): a path-only move reads config but does not create it, mint identity, rewrite comments or settings, add a checkout ID, or apply changed desired settings. Later setup refreshes the bound installation record and separately reviews any desired-state changes. Missing or conflicting identity follows a separately admitted repair; move apply cannot bootstrap it.
 - R-CONFIG-STATE-7 (MUST): a monorepo root and an independently configured kit remain separate explicit targets with their own project and checkout identities. Parent approval cannot retarget, adopt, or change nested kit bindings. Registering a distinct checkout is a separate reviewed project-write/adoption action under [PRD 38](38-global-store-and-project-state.md#checkout-binding-and-path-update-safety-r-checkout).
 - R-CONFIG-STATE-8 (MUST): explicit adoption on a new machine reads valid saved harness, method, Skill, capability, and resource choices before fresh defaults. The machine's maximum method restricts a saved method but never selects one. Missing or conflicting desired settings remain unanswered choices. Setup does not rewrite a valid project ID or mint a second one to finish adoption.
+- R-CONFIG-STATE-9 (MUST): `projectName` is optional declarative identity next to `projectId`. Its form and its Store record follow [PRD 38](38-global-store-and-project-state.md) R-ID-8. Config validation refuses a `projectName` that does not match that form.
 
 ### Presentation Overlay
 
@@ -257,6 +258,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Optional `work` and `factory` blocks hold portable work store and workflow intent. They hold no machine state, grants, or secrets, and use the preserving config writer.
 - Rationale: Teammates and other machines need the same work and workflow intent, while machine bindings and permissions stay local.
 - Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: R-CONFIG-STATE-9.
+- Previous contract: `projectId` was the only project identity in config.
+- Replacement contract: config may also hold a short `projectName` under PRD 38 R-ID-8.
+- Rationale: project resource URIs need a readable name for the project.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
 
 ## Source Anchors
 
