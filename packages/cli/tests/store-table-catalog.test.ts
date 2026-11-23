@@ -290,10 +290,15 @@ describe("W32 R0 P1 fixed rules and decision items", () => {
     }
   });
 
-  it("marks rules 002, 004, 005, and 006 inactive until their follow-ups, and keeps the rest active", () => {
+  it("marks rules 002 and 006 inactive until their follow-ups, and keeps the rest active", () => {
     const followUps = new Map(STORE_FOLLOW_UPS.map((followUp) => [followUp.id, followUp]));
     const inactive = STORE_FIXED_RULES.filter((rule) => rule.activation.state === "inactive");
-    expect(inactive.map((rule) => rule.id)).toEqual(["STORE-RULE-002", "STORE-RULE-004", "STORE-RULE-005", "STORE-RULE-006"]);
+    // W32 R0 P4 turned rules 004 and 005 on. Rule 002 waits for owner approval, and rule 006 for a later phase.
+    expect(inactive.map((rule) => rule.id)).toEqual(["STORE-RULE-002", "STORE-RULE-006"]);
+    expect(followUps.get("FOLLOW-UP-P4-RULE-ACTIVATION")).toMatchObject({ state: "done", unblocks: [] });
+    // The package-manager-idle check is built, and rule 002 waits for the owner.
+    expect(followUps.get("FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE")).toMatchObject({ state: "built-pending-approval", unblocks: ["STORE-RULE-002"] });
+    expect(STORE_FIXED_RULES.find((rule) => rule.id === "STORE-RULE-002")!.activation).toMatchObject({ state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE" });
     for (const rule of inactive) {
       if (rule.activation.state !== "inactive") continue;
       const followUp = followUps.get(rule.activation.until);

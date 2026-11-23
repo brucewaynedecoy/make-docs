@@ -9,6 +9,7 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  readSync,
   readdirSync,
   rmdirSync,
   rmSync,
@@ -176,11 +177,46 @@ export function inspectStoreWriteGuard(db: StoreDatabase): string[] {
   return problems;
 }
 
+/** The name of a finished `setup store clean` backup in `<store>/backup/` (W32 R0 P4). */
+export const STORE_CLEAN_BACKUP_PATTERN = /^store-clean-\d{8}T\d{9}Z-[0-9a-f]{8}\.db$/;
+
+const SQLITE_HEADER = Buffer.from("SQLite format 3\0", "latin1");
+
+/**
+ * True when a file is a readable Store backup: a regular SQLite file that
+ * passes `quick_check`, has a schema version, and, from schema 7, an intact
+ * write guard. A partial, empty, or stray file is never a backup. Reads only.
+ */
+export function isVerifiedStoreBackupFile(file: string): boolean {
+  let db: StoreDatabase | null = null;
+  try {
+    const stat = lstatSync(file);
+    if (!stat.isFile() || stat.size < 512 || stat.size % 512 !== 0) return false;
+    const header = Buffer.alloc(SQLITE_HEADER.length);
+    const fd = openSync(file, "r");
+    try { readSync(fd, header, 0, header.length, 0); } finally { closeSync(fd); }
+    if (!header.equals(SQLITE_HEADER)) return false;
+    const driver = loadSqliteDriver();
+    if (!driver.available) return false;
+    db = openSqliteWithRetry(driver.sqlite, file, { readOnly: true }, "verify Store backup", undefined, false);
+    const check = db.prepare("PRAGMA quick_check").get() as { quick_check?: string } | undefined;
+    const version = readUserVersion(db);
+    return check?.quick_check === "ok" && version >= 1 && (version < STORE_WRITE_GUARD_SINCE_SCHEMA || inspectStoreWriteGuard(db).length === 0);
+  } catch {
+    return false;
+  } finally {
+    closeQuietly(db);
+  }
+}
+
 /**
  * Store backups that Make Docs made: schema bridge backups next to `store.db`
- * (`store.db.*.backup`) and every regular file in `<store>/backup/`.
+ * (`store.db.*.backup`) and files in `<store>/backup/`. With `verified`, a
+ * file in `<store>/backup/` counts only when it is a finished clean backup
+ * (`store-clean-*.db`) that verifies, so a partial or stray file is never
+ * named as the newest backup. File modes still cover every file.
  */
-function listStoreBackupFiles(storeRoot: string): Array<{ file: string; mtimeMs: number }> {
+function listStoreBackupFiles(storeRoot: string, mode: "all" | "verified" = "all"): Array<{ file: string; mtimeMs: number }> {
   const candidates: Array<{ file: string; mtimeMs: number }> = [];
   const scan = (directory: string, accept: (name: string) => boolean) => {
     let names: string[];
@@ -202,13 +238,13 @@ function listStoreBackupFiles(storeRoot: string): Array<{ file: string; mtimeMs:
   };
   const root = path.resolve(storeRoot);
   scan(root, (name) => name.startsWith("store.db.") && name.endsWith(".backup"));
-  scan(path.join(root, "backup"), () => true);
+  scan(path.join(root, "backup"), mode === "all" ? () => true : (name) => STORE_CLEAN_BACKUP_PATTERN.test(name) && isVerifiedStoreBackupFile(path.join(root, "backup", name)));
   return candidates;
 }
 
 /** Newest Store backup that Make Docs made, or null. */
 export function findNewestStoreBackup(storeRoot: string): string | null {
-  const candidates = listStoreBackupFiles(storeRoot);
+  const candidates = listStoreBackupFiles(storeRoot, "verified");
   candidates.sort((left, right) => right.mtimeMs - left.mtimeMs || right.file.localeCompare(left.file));
   return candidates[0]?.file ?? null;
 }
@@ -2163,6 +2199,31 @@ function openSqliteWithRetry(
       }
       pause(attempt++, deadline);
     }
+  }
+}
+
+/**
+ * Open the Store read only for review, with the write guard check off
+ * (W32 R0 P4, `setup store check`). This is the shared connection path with
+ * `checkGuard: false`, like the classifier: SQLite refuses every write on a
+ * read-only connection, so a Store that was changed outside Make Docs can be
+ * read and reported without any write. The caller gets the guard problems
+ * (empty when the guard is intact) and must close the connection.
+ */
+export function openStoreForReview(databasePath: string, operation = "review Store"): { db: StoreDatabase; guardProblems: string[] } {
+  const driver = loadSqliteDriver();
+  if (!driver.available) {
+    throw new StoreUnavailableError({ code: "sqlite-unavailable", path: databasePath, operation, retryable: false, attempts: 1, waitedMs: 0, cause: driver.reason });
+  }
+  const db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, operation, (connection) => {
+    connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+  }, false);
+  try {
+    const guardProblems = readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA ? inspectStoreWriteGuard(db) : [];
+    return { db, guardProblems };
+  } catch (error) {
+    closeQuietly(db);
+    throw error;
   }
 }
 

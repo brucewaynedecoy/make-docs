@@ -5,7 +5,9 @@ import {
   validateInstallationStoreRoot,
   withInstallationDatabase,
 } from "../store/installation-state";
-import { resolveStoreRoot } from "../store/paths";
+import { getStoreDatabasePath, resolveStoreRoot } from "../store/paths";
+import { lstatSync } from "node:fs";
+import { makeStoreAccessStateError } from "./store-access";
 import {
   HARNESS_CALLER_IDENTITY_ENV,
   parseHarnessCallerIdentityValue,
@@ -300,13 +302,36 @@ function createProductionStoreSession(explicitStoreRoot?: string): OperationStor
       explicitStoreRoot ?? resolveStoreRoot(),
     );
 
+    if (operation === "setup.store.check") {
+      // Store check must also read a Store that was changed outside Make Docs
+      // (PRD 38 R-WRITE-GUARD-4), so it skips the guarded admission open. The
+      // handler classifies the Store and opens it read only with the guard
+      // check off. A missing Store is refused here, before any lease file is made.
+      if (!lstatSync(getStoreDatabasePath(storeRoot), { throwIfNoEntry: false })) {
+        throw makeStoreAccessStateError({
+          code: "store-unavailable",
+          operation,
+          reason: `The Store at ${getStoreDatabasePath(storeRoot)} does not exist. Nothing was checked.`,
+          nextAction: "Run make-docs setup first.",
+          details: { maintenanceCode: "store-absent" },
+        });
+      }
+      const release = acquireStoreAccess(storeRoot);
+      try {
+        return await run();
+      } finally {
+        release();
+      }
+    }
+
     // Prove the selected Store is safe and usable before the handler runs.
     // The outer shared session then stays active while nested handler access
     // reuses the same process lease.
     withInstallationDatabase(
       targetRoot,
       (database) => database.prepare("SELECT 1 AS admitted").get(),
-      { storeRoot, readOnly: access === "read" || operation.startsWith("project.checkout-move.") || operation.startsWith("project.checkout-register.") },
+      // Store clean must not create or prepare a Store, so its admission opens read only.
+      { storeRoot, readOnly: access === "read" || operation === "setup.store.clean" || operation.startsWith("project.checkout-move.") || operation.startsWith("project.checkout-register.") },
     );
     const release = acquireStoreAccess(storeRoot);
     if (operation === "project.state.recover") {

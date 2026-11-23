@@ -217,11 +217,11 @@ export const STORE_MAINTENANCE_PROOFS: readonly StoreMaintenanceProof[] = Object
   {
     id: "package-manager-idle",
     title: "No package manager run is still active",
-    check: "The metadata has a known `manager` (npm, pnpm, bun, or brew) and the exact `command` string that Make Docs ran. The process list of this host can be read in full, and no live process runs that manager with the recorded command's arguments. `binaryPath` is the Make Docs CLI path, not the manager, so the check never uses it. Children of the dead owner cannot be found after it exits, so they give no proof.",
-    source: "New in W32 R0 P4. No current helper lists processes. The metadata comes from self/update-tool.ts and self/uninstall-tool.ts.",
-    proven: "The full process list holds no run of the recorded manager command.",
-    refuted: "A matching run exists, so the row stays pending.",
-    unknown: "Any doubt: the process list cannot be read or is partial, the metadata has no known `manager` or no `command`, or a process matches the manager but its arguments cannot be read. The row stays pending, and the report says why.",
+    check: "The metadata has a known `manager` (npm, pnpm, bun, or brew) and the `command` string that Make Docs ran. The process list of this host can be read in full, and no live process other than this check names that manager in any word (as a bare word, a path, or a `.js`, `.cjs`, `.sh`, or `.rb` file such as `npm-cli.js` or `brew.rb`) or names the make-docs package. A manager can change its process title, so any run of it counts, whatever its arguments. `binaryPath` is the Make Docs CLI path, not the manager, so the check never uses it. Children of the dead owner cannot be found after it exits, so they give no proof.",
+    source: "packages/cli/src/store/maintenance.ts packageManagerIdleProof and readProcessList (W32 R0 P4). The metadata comes from self/update-tool.ts and self/uninstall-tool.ts.",
+    proven: "The full process list holds no process that names the recorded manager or the make-docs package.",
+    refuted: "A process names the manager or the make-docs package, so the row stays pending.",
+    unknown: "Any doubt: the process list cannot be read or is empty, the metadata has no known `manager` or no `command`, or a process whose command line cannot be read could be the manager or its interpreter. The row stays pending, and the report says why.",
   },
   {
     id: "lock-token-absent",
@@ -690,8 +690,8 @@ export const STORE_MIGRATION_RECORD_KIND_CATALOG: readonly StoreMigrationRecordK
     readers: ["Detached operation resume and verify (installation-state.ts)", "Migration verify"],
     recordClass: "Store-canonical and non-rebuildable",
     families: [
-      { id: "detached-plan", match: "Record ID is `detached:` plus an operation ID.", recordIdPattern: /^detached:/, writers: ["installation-state.ts detached plan start and replan"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
-      { id: "detached-original-plan", match: "Record ID is `detached-original:` plus an operation ID.", recordIdPattern: /^detached-original:/, writers: ["installation-state.ts detached plan start for `setup.skills.adopt`"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
+      { id: "detached-plan", match: "Record ID is `detached:` plus an operation ID.", recordIdPattern: /^detached:/, writers: ["installation-state.ts detached plan start and replan"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
+      { id: "detached-original-plan", match: "Record ID is `detached-original:` plus an operation ID.", recordIdPattern: /^detached-original:/, writers: ["installation-state.ts detached plan start for `setup.skills.adopt`"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
       { id: "migration-snapshot", match: "Record ID is `sha256:` plus 64 hex characters.", recordIdPattern: SHA256_ID, writers: ["migration.ts freeze snapshot"], maintenanceClass: "keep", rule: null, retention: "Keep. A migration receipt names it." },
     ],
     humanMeaning: "Saved plans. A plan for a change that finished long ago is removed.",
@@ -702,7 +702,7 @@ export const STORE_MIGRATION_RECORD_KIND_CATALOG: readonly StoreMigrationRecordK
     readers: ["Detached operation recovery (installation-state.ts)", "Migration restore"],
     recordClass: "Store-canonical and non-rebuildable",
     families: [
-      { id: "atomic-write-intent", match: "Record ID is `atomic:` plus an operation ID, a colon, and a step ordinal.", recordIdPattern: /^atomic:.+:\d+$/, writers: ["installation-state.ts atomic write save"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
+      { id: "atomic-write-intent", match: "Record ID is `atomic:` plus an operation ID, a colon, and a step ordinal.", recordIdPattern: /^atomic:.+:\d+$/, writers: ["installation-state.ts atomic write save"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
       { id: "migration-backup", match: "Any other record ID.", recordIdPattern: /^(?!atomic:)/, writers: ["migration.ts backup manifest", "Legacy import"], maintenanceClass: "keep", rule: null, retention: "Keep. It is the restore path for a migration." },
     ],
     humanMeaning: "Backup notes. A note for a change that finished long ago is removed. Migration backups are kept.",
@@ -847,9 +847,10 @@ const detachedEvidenceExists = (o: string) => `EXISTS (
                         (r.kind = 'snapshot' AND (r.record_id = 'detached:' || ${o}.operation_id OR r.record_id = 'detached-original:' || ${o}.operation_id))
                         OR (r.kind = 'backup' AND substr(r.record_id, 1, length('atomic:' || ${o}.operation_id || ':')) = 'atomic:' || ${o}.operation_id || ':')
                       ))`;
-const DETACHED_EVIDENCE_REASON = "A detached plan or an atomic write intent of this operation still exists, and its readers compare it with the steps and ledgers.";
+export const DETACHED_EVIDENCE_REASON = "A detached plan or an atomic write intent of this operation still exists, and its readers compare it with the steps and ledgers.";
 
 const fullLedger = (column: string) => `(${column} IS NOT NULL AND ${column} <> 'null')`;
+export const RECEIPT_COLUMNS_EMPTY_REASON = "The bounded receipt columns of this operation are empty, so its ledgers have no saved fingerprint yet.";
 
 /** The same UUID shape that {@link classifyMigrationRecord} uses, as a SQLite GLOB. */
 const hexGlob = (count: number) => "[0-9a-f]".repeat(count);
@@ -867,7 +868,7 @@ const removalHandoff = (o: string) => `(${o}.operation = 'setup.remove' AND ${o}
             SELECT h.operation_id FROM installation_operations h
              WHERE h.checkout_id = ${o}.checkout_id AND h.status = 'completed'
              ORDER BY h.finished_at DESC, h.operation_id DESC LIMIT 1))`;
-const REMOVAL_HANDOFF_REASON = "This is the latest completed removal of a checkout with no ledger. Setup reads its full before-ledger to offer setup after removal.";
+export const REMOVAL_HANDOFF_REASON = "This is the latest completed removal of a checkout with no ledger. Setup reads its full before-ledger to offer setup after removal.";
 
 export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreFixedRule[]>([
   {
@@ -909,7 +910,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Abandoned tool update or uninstall",
     prdBullet: "a pending `tool.update` or `tool.uninstall` whose owner is proven dead",
     action: "mark-failed-abandoned",
-    activation: { state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE", reason: "No helper can prove that the package manager is idle yet." },
+    activation: { state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE", reason: "The package-manager-idle check exists (W32 R0 P4, maintenance.ts packageManagerIdleProof), but the owner has not approved turning this rule on. `setup store check` reports what the check would find." },
     condition: [
       "The row is in tool_operations with status `pending` and operation `tool.update` or `tool.uninstall`.",
       "The owner-process-dead proof passes for the row's pid and hostname.",
@@ -978,7 +979,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Full ledgers of a terminal operation",
     prdBullet: "the full before and after ledgers in `installation_operations` of a terminal operation after the retention window",
     action: "null-full-ledgers",
-    activation: { state: "inactive", until: "FOLLOW-UP-P4-RULE-ACTIVATION", reason: "Its reader is ready: schema v7 fills the receipt columns at each terminal commit and backfilled old terminal rows (FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS, done in W32 R0 P2). The rule stays off until P4 implements its write contract and turns it on." },
+    activation: { state: "active" },
     condition: [
       "The operation has status `completed` or `rolled-back`. A `failed` operation is never terminal here.",
       "Its finished_at is set and is earlier than the clean time minus terminalOperationRetentionDays.",
@@ -990,8 +991,13 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     candidates: [{
       table: "installation_operations",
       sql: `SELECT o.operation_id, o.status, o.finished_at, o.before_ledger, o.after_ledger,
+               o.before_ledger_digest, o.after_ledger_digest, o.step_count, o.applied_step_count,
                CASE
                  WHEN ${removalHandoff("o")} THEN '${REMOVAL_HANDOFF_REASON}'
+                 WHEN o.step_count IS NULL OR o.applied_step_count IS NULL
+                   OR (${fullLedger("o.before_ledger")} AND o.before_ledger_digest IS NULL)
+                   OR (${fullLedger("o.after_ledger")} AND o.after_ledger_digest IS NULL)
+                   THEN '${RECEIPT_COLUMNS_EMPTY_REASON}'
                  WHEN ${detachedEvidenceExists("o")} THEN '${DETACHED_EVIDENCE_REASON}'
                END AS skip_reason
         FROM installation_operations o
@@ -1005,12 +1011,11 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     settings: ["terminalOperationRetentionDays"],
     effect: "After the receipt columns are filled and read back, set each full ledger (before_ledger, after_ledger) to NULL in the same transaction. A ledger that is NULL or `null` stays as it is. Every other column stays.",
     skipWhen: [
-      "The rule is inactive.",
       "The receipt columns are empty or do not match the ledger text.",
       "A detached plan or an atomic write intent of the operation still exists.",
       "The operation is the removal handoff row.",
     ],
-    recheck: { columnsByQuery: [["operation_id", "status", "finished_at", "before_ledger", "after_ledger"]], match: "The operation with the same operation_id, status, and finished_at, and ledgers whose SHA-256 still equals the digest checked and stored in the receipt columns." },
+    recheck: { columnsByQuery: [["operation_id", "status", "finished_at", "before_ledger", "after_ledger", "before_ledger_digest", "after_ledger_digest"]], match: "The operation with the same operation_id, status, and finished_at, the same ledgers and receipt digests, and ledgers whose SHA-256 still equals the digest checked and stored in the receipt columns." },
     humanMeaning: "An old finished change keeps a short summary with fingerprints of its ledgers instead of the full lists.",
   },
   {
@@ -1018,7 +1023,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Detached plan snapshots and atomic write intents of a terminal operation",
     prdBullet: "detached plan snapshots and atomic write intents in `installation_migration_records` of a terminal operation after the retention window",
     action: "delete-row",
-    activation: { state: "inactive", until: "FOLLOW-UP-P4-RULE-ACTIVATION", reason: "Its readers are ready: a missing plan of a completed or rolled-back operation reads as pruned (FOLLOW-UP-P2-PRUNED-DETACHED-PLAN, done in W32 R0 P2). The rule stays off until P4 implements its write contract and turns it on." },
+    activation: { state: "active" },
     condition: [
       "The row is a `detached-plan`, `detached-original-plan`, or `atomic-write-intent` record.",
       "The operation ID in its record ID names an installation_operations row on the same checkout.",
@@ -1043,9 +1048,8 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     }],
     proofs: [],
     settings: ["terminalOperationRetentionDays"],
-    effect: "Delete the record row. In one clean, this rule runs before STORE-RULE-004.",
+    effect: "Delete the record row. In one clean, this rule runs before STORE-RULE-003 and STORE-RULE-004, so they can trim the same operation once its plan and write intents are gone.",
     skipWhen: [
-      "The rule is inactive.",
       "The named operation is pending or failed, or no operation row exists. A plan with no operation is kept and reported.",
       "The operation is the removal handoff row.",
     ],
@@ -1154,7 +1158,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     condition: [
       "The row is a harness receipt or observation history row: in tool_operations with status `completed` and operation `setup.system.receipt` or `setup.system.receipt-observation`, or in installation_migration_records as a `harness-receipt` (UUID record ID) or `harness-receipt-observation` record with project scope.",
       "Its JSON is valid and has a text `harnessId` and a text `connectionMethod`. A row without them is never grouped or removed. Rows are grouped by harnessId and connectionMethod, and by checkout for project receipts.",
-      "More than harnessReceiptHistoryKeptCount newer rows exist in its group, ordered by verifiedAt, then by row ID.",
+      "More than harnessReceiptHistoryKeptCount newer rows exist in its group, ordered by verifiedAt, then by row ID. The current receipt's own rows (its history copy, which every setup writes beside the pointer, and its observations) are not ranked, so the current receipt plus the kept count of older receipts stay (PRD 38 R-MAINT-3).",
       "Its receipt operationId is not the operationId of a current receipt pointer.",
       "Its receipt operationId is not the `ownershipReceipt.operationId` of a pending `setup.system.harness` row. Machine setup reads that receipt to resume a drift repair.",
     ],
@@ -1167,11 +1171,19 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
                    ${jsonField("metadata_json", "$.connectionMethod")} AS method,
                    ${jsonField("metadata_json", "$.operationId")} AS receipt_operation_id,
                    coalesce(${jsonField("metadata_json", "$.verifiedAt")}, finished_at) AS ordered_at
-              FROM tool_operations
+              FROM tool_operations h
              WHERE status = 'completed'
                AND operation IN ('setup.system.receipt', 'setup.system.receipt-observation')
                AND ${jsonTypeOf("metadata_json", "$.harnessId")} = 'text'
                AND ${jsonTypeOf("metadata_json", "$.connectionMethod")} = 'text'
+               -- The current receipt's own history copy and observations take no kept slot.
+               AND NOT EXISTS (
+                 SELECT 1 FROM tool_operations c
+                  WHERE c.status = 'completed' AND c.operation = 'setup.system.receipt-current'
+                    AND ${jsonField("c.metadata_json", "$.operationId")} = ${jsonField("h.metadata_json", "$.operationId")}
+                    AND ${jsonField("c.metadata_json", "$.harnessId")} = ${jsonField("h.metadata_json", "$.harnessId")}
+                    AND ${jsonField("c.metadata_json", "$.connectionMethod")} = ${jsonField("h.metadata_json", "$.connectionMethod")}
+               )
           ), ranked AS (
             SELECT history.*, ROW_NUMBER() OVER (PARTITION BY harness_id, method ORDER BY ordered_at DESC, row_id DESC) AS position
               FROM history
@@ -1207,12 +1219,21 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
                    ${jsonField("record_json", "$.connectionMethod")} AS method,
                    ${jsonField("record_json", "$.operationId")} AS receipt_operation_id,
                    ${jsonField("record_json", "$.verifiedAt")} AS ordered_at
-              FROM installation_migration_records
+              FROM installation_migration_records h
              WHERE kind = 'receipt'
                AND (record_id GLOB '${UUID_GLOB}' OR substr(record_id, 1, 28) = 'harness-receipt-observation:')
                AND ${jsonField("record_json", "$.scope")} = 'project'
                AND ${jsonTypeOf("record_json", "$.harnessId")} = 'text'
                AND ${jsonTypeOf("record_json", "$.connectionMethod")} = 'text'
+               -- The current receipt's own history copy and observations take no kept slot.
+               AND NOT EXISTS (
+                 SELECT 1 FROM installation_migration_records c
+                  WHERE c.checkout_id = h.checkout_id AND c.kind = 'receipt'
+                    AND substr(c.record_id, 1, 24) = 'harness-receipt-current:'
+                    AND ${jsonField("c.record_json", "$.operationId")} = ${jsonField("h.record_json", "$.operationId")}
+                    AND ${jsonField("c.record_json", "$.harnessId")} = ${jsonField("h.record_json", "$.harnessId")}
+                    AND ${jsonField("c.record_json", "$.connectionMethod")} = ${jsonField("h.record_json", "$.connectionMethod")}
+               )
           ), ranked AS (
             SELECT history.*, ROW_NUMBER() OVER (PARTITION BY checkout_id, harness_id, method ORDER BY ordered_at DESC, record_id DESC) AS position
               FROM history
@@ -1358,7 +1379,7 @@ export const STORE_BLOCKING_LEFTOVERS: readonly StoreBlockingLeftover[] = Object
   {
     id: "STORE-LEFTOVER-002",
     title: "A pending tool.update or tool.uninstall with a dead owner",
-    blocks: "Every later tool operation, every installation lock on the machine (acquireInstallationLock checks pending tool_operations), and Store removal. STORE-RULE-002 is inactive until the package-manager-idle helper exists, so check reports this row and clean skips it.",
+    blocks: "Every later tool operation, every installation lock on the machine (acquireInstallationLock checks pending tool_operations), and Store removal. STORE-RULE-002 is inactive until the owner approves it, so check reports this row and what the package-manager-idle check finds, and clean skips it.",
     route: "STORE-RULE-002",
   },
   {
@@ -1415,8 +1436,11 @@ export interface StoreFollowUp {
   need: string;
   /** The rules that stay inactive or narrow until this is done. */
   unblocks: readonly StoreFixedRuleId[];
-  /** `done` once the phase that owns it has landed it. */
-  state: "open" | "done";
+  /**
+   * `done` once the phase that owns it has landed it. `built-pending-approval`:
+   * the helper exists and is tested, and the rule it unblocks waits for the owner.
+   */
+  state: "open" | "built-pending-approval" | "done";
   /** What landed, for a done follow-up. */
   resolution?: string;
 }
@@ -1456,16 +1480,18 @@ export const STORE_FOLLOW_UPS: readonly StoreFollowUp[] = Object.freeze<StoreFol
   {
     id: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE",
     phase: "W32 R0 P4",
-    need: "Build the package-manager-idle proof from the recorded `manager` and `command`, with `unknown` on any doubt.",
+    need: "Build the package-manager-idle proof from the recorded `manager` and `command`, with `unknown` on any doubt. Then the owner decides whether STORE-RULE-002 turns on.",
     unblocks: ["STORE-RULE-002"],
-    state: "open",
+    state: "built-pending-approval",
+    resolution: "Built in W32 R0 P4: maintenance.ts packageManagerIdleProof reads the full process list of this host (POSIX `ps -A -ww -o pid=,args=`) and examines every word of every line. Any process that names the recorded manager (also as a path or a `.js`, `.cjs`, `.sh`, or `.rb` file) or the make-docs package counts as running. Any doubt gives `unknown`: another platform, an unreadable or empty list, an unreadable command line of a possible manager, an unknown manager, or no command. It never uses `binaryPath`. STORE-RULE-002 stays inactive until the owner approves it.",
   },
   {
     id: "FOLLOW-UP-P4-RULE-ACTIVATION",
     phase: "W32 R0 P4",
     need: "Implement the write contract for STORE-RULE-004 and STORE-RULE-005 and turn them on. Their readers landed in W32 R0 P2.",
-    unblocks: ["STORE-RULE-004", "STORE-RULE-005"],
-    state: "open",
+    unblocks: [],
+    state: "done",
+    resolution: "W32 R0 P4 turned both rules on. maintenance.ts runs every change of a clean as a compare-and-change in one BEGIN IMMEDIATE transaction. STORE-RULE-004 also checks the receipt columns and each ledger digest. STORE-RULE-005 runs before STORE-RULE-003 and STORE-RULE-004.",
   },
   {
     id: "FOLLOW-UP-LATER-OPERATION-BACKUP-FILES",

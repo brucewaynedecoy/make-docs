@@ -261,3 +261,155 @@ The MCP server has no separate Store open. It calls the same operations, so it u
 - P4 requirement: the `store-unsafe` next action names `make-docs setup store check`. That command must open a changed Store read only, with the guard check off, so it can report the change.
 - P5 wording review: the `store-unsafe` message repeats its next action, once in the issue text and once as the scoped next action.
 - P5: on its copy of a real Store, check the largest `work_evidence` payload against the 64 KiB limit.
+
+## P4 Maintenance Commands
+
+Covers A15 to A18 in [P4](04-maintenance-commands.md). Evidence date: 2026-11-22. Branch: `t3/w32-store-maintenance-commands`, from `docs/w29-w30-work-store-and-factory` at `4daaf18f`. Node `v26.13.1`. CLI package version `2.0.9`. No test opened the real Store. Every test Store is a temporary folder that the test names in `MAKE_DOCS_HOME`.
+
+### What Was Built
+
+- `packages/cli/src/store/maintenance.ts` is the rule engine. `checkStore` reads only. `cleanStore` backs up, changes, rotates, vacuums, and reports. Both run the candidate queries and proofs of the P1 catalog. A rule acts on a row only when every proof is `proven`. It keeps the row on `refuted`, and it skips the row with a reason on `unknown`. An inactive rule skips every row and says what it would do once it is on.
+- `packages/cli/src/operations/setup/store-ops.ts` adds `setup.store.check` (Store read, project none) and `setup.store.clean` (Store write, project none). Both are in the `setup` MCP profile, so also in `all`, with deferred exposure. Clean needs `yes: true` (CLI `--yes`) unless it is a dry run.
+- `packages/cli/src/run/setup-store.ts` adds `make-docs setup store check [--json]` and `make-docs setup store clean [--yes] [--dry-run] [--json]`. An interactive clean shows the check and asks once. A non-interactive clean without `--yes` changes nothing and says how to confirm.
+- The registry, the MCP name map (`setup_store_check`, `setup_store_clean`), and the name catalog list both operations as current. `make-docs setup --help` names them.
+- `database.ts` adds `openStoreForReview`: the shared connection path, read only, with the guard check off. It returns the guard problems.
+- `context.ts`: the Store session for `setup.store.check` skips the guarded admission open, refuses a missing Store before it makes any lease file, and holds the shared Store lease while the check runs. The admission for `setup.store.clean` opens read only, so clean never creates or prepares a Store.
+- `registry.ts`: an operation under the `setup` command root is never a native command-rule candidate.
+- Catalog changes (digest `sha256:00008efc6b5b7d4d31fadfbc2bc3abce52bdd4b589c68d06e4af324a9f2f4ddc` after the review fixes): rules 004 and 005 are active. Rule 004's query also reads the receipt columns and skips a row whose columns are empty, before the detached-plan reason. Rule 009 no longer ranks the current receipt's own rows. `FOLLOW-UP-P4-RULE-ACTIVATION` is done. `FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE` is `built-pending-approval` (a new follow-up state): the check is built and tested, and rule 002 waits for the owner.
+
+### Rule Activation
+
+| Rule | State | Proof |
+| --- | --- | --- |
+| 001 | active | Unchanged from P1. P4 compares `platform.comparisonKey` of the lock path with `root_path_key` and the raw path, and keeps the lock on any doubt. A path that the platform cannot describe skips the lock. |
+| 002 | inactive | The package-manager-idle check is built and tested on real npm, pnpm, yarn, bun, and brew process lines, and the compare-and-change write is tested with the rule forced on. The rule stays off until the owner approves it (`FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE`, `built-pending-approval`). Check reports what the check finds. |
+| 003 | active | Unchanged from P1. |
+| 004 | active | The v7 receipt columns are filled at each terminal commit and by the backfill (P2 A25). The rule skips a row with empty columns and a row whose digest does not match its ledger. The only readers of a terminal operation's full ledgers are the removal handoff (skipped) and the detached plan check (skipped while a plan exists). A real `make-docs setup`, clean 40 days later, `project state status`, a second setup, `setup remove`, clean 80 days later, and setup after removal all pass. |
+| 005 | active | P2 made a missing plan of a completed or rolled-back operation read as pruned (A26). After clean removes a real layout operation's plan and intent, `readDetachedInstallationOperation` gives `planPruned`, `project layout apply` gives `already-complete`, and both recovery dry runs give `completed` with no conflict. |
+| 006 | inactive | Unchanged. Its write is tested with the rule forced on, and it removes only the unbound barrier whose lock is gone. |
+| 007, 008 | active | Unchanged from P1. |
+| 009 | active | The current receipt's own rows (the history copy that every setup writes beside the pointer, and its observations) take no kept slot, so the current receipt plus exactly 10 older receipts stay for each harness and method (review fix 1). |
+
+In one clean, rule 005 runs before rules 003 and 004. Check shows a rule 003 or 004 row that waits only for plans that rule 005 removes in the same clean as an act row, with the note "After STORE-RULE-005 removes this operation's plan and write intents in the same clean."
+
+### Check (A15)
+
+- On each of the 10 fixture Stores, and on one Store that holds six of them, the bytes of `store.db` and every other file are the same after check. SQLite may add its `-shm` index and an empty `-wal` file for a read-only connection; the test counts a `-wal` file with any frame as a write.
+- The registry gives the same report for a CLI and an MCP-shaped call. A real setup with a generic MCP connection gives the same report from `make-docs setup store check --json` and the `setup_store_check` tool in the `setup` and `all` profiles, except `checkedAt`. Neither writes the Store.
+- A Store whose guard trigger was dropped outside Make Docs: check reads it, reports `guardIntact: false`, the missing trigger, "The Store was changed outside Make Docs.", and "Do not write the Store.", and writes nothing. Clean refuses it as `store-unsafe` with a next action that names `make-docs setup store check`.
+- A missing Store gives `store-unavailable` for both commands, and no Store folder is made.
+- Old broken references and unguardable tables are reported as notes. No rule removes them.
+
+### Clean (A16, A17)
+
+- On each fixture Store, clean changes exactly the rows that check planned in each table, and every other row of every table stays the same. Each act row is gone (delete rules), has no `contentBase64` (rule 003), or has NULL ledgers with its receipt columns kept (rule 004). Each keep or skip row is unchanged.
+- With all fixtures that can share a Store, `work_evidence`, `runs`, `run_evidence`, `installation_checkouts`, `installation_ledgers`, `playbook_runs`, `projects`, `project_register`, `store_schema_journal`, `store_migration_receipts`, and `installation_transfers` are unchanged, and the pending `legacy.recovery` decision item stays.
+- The backup is a `VACUUM INTO` copy with mode `0600`. Clean writes it as `<store>/backup/.store-clean-<time>-<id>.db.partial`, verifies it (quick check, schema version, guard), and renames it to `store-clean-<time>-<id>.db` only after the clean transaction commits. Every failure deletes the partial file. A partial file older than a day, left by a crash, is removed at the next clean. `PRAGMA data_version` is read before the backup and after `BEGIN IMMEDIATE`; when another connection committed in between, clean discards that backup and takes it again (tested), so the backup is the exact start state of the transaction. Inside the transaction, clean checks again that `user_version` is 7 and that the guard is intact.
+- Restore by the reported steps (copy the backup over `store.db`, delete `-wal` and `-shm`) gives every row, every schema object, and `user_version` exactly as before the clean, on every fixture that clean changed. The restored Store opens through Make Docs with its guard intact.
+- After five cleans, only the three newest clean backups remain, and an unrelated file in the backup folder stays. Rotation and `findNewestStoreBackup` count a file in `<store>/backup/` only when it has a finished clean name and verifies as a Store (`isVerifiedStoreBackupFile`); schema bridge backups next to `store.db` count as before. File modes still cover every file.
+- A dry run and a clean with nothing to prove change nothing and make no backup.
+- Clean needs the write permission (`OperationWriteDeniedError` without it) and one confirmation. Through MCP it needs `allowWrite: true` and a project access ceiling with Store write; a read ceiling gives `store-denied`.
+
+### Review Fixes
+
+An independent review found rules 004 and 005 safe against today's readers, compare-and-change correct, and check on an unsafe Store read only. It asked for six fixes. Each has a test in `tests/w32-r0-p4-store-maintenance.test.ts`.
+
+1. Rule 009 kept too few receipts: every setup writes the current receipt as a history row too, and its observation took another slot, so SMF-008's project group kept only 8 older receipts. The ranking now leaves out every row whose operation ID is the current pointer's, for the same harness and method (and checkout for project rows). SMF-008 now keeps receipts 102 to 111 and removes only 101. A new test builds 15 setups on the machine and in a project, each with the history copy, the current pointer, and an observation of the current receipt, and counts exactly 10 older receipts kept in both.
+2. The package-manager-idle check missed Homebrew: it read only the first 3 words and did not strip `.sh`. It now reads `ps -A -ww -o pid=,args=`, leaves out this process and its parent, and examines every word of every line: the bare word, each path segment, and the file name without `.js`, `.cjs`, `.mjs`, `.sh`, `.rb`, `.exe`, `.cmd`, `.bat`, or `.ps1`. Any process that names the recorded manager, or the make-docs package as a word (not a file path), counts as running, whatever its arguments, because a manager can change its process title. A hidden command line, such as `(node)`, `(npm)`, or a defunct process, of the manager or an interpreter that can run it gives `unknown`. Tests use real npm (`npm-cli.js`, `/opt/homebrew/bin/npm`, the bare `npm` title), pnpm (`pnpm.cjs`), yarn, bun, and brew (`brew.rb` under portable Ruby, `bash -p brew.sh`) lines. The running Make Docs CLI and MCP server do not refute it. Rule 002 stays inactive.
+3. A failed clean left a backup that took a kept slot: see the backup bullet above. Tests make `VACUUM INTO` fail (a read-only backup folder), make the verify fail (an empty partial file), time out `BEGIN IMMEDIATE` (another writer holds the lock), fail inside the transaction, and fail the schema check. After each, no `store-clean-*` or partial file is added, the Store rows are unchanged, and the one good backup is still the only kept backup. An empty `store-clean-*.db` file and a non-Store file with newer names never take a kept slot and are never named as the newest backup.
+4. A busy Store gave a raw `database is locked` error. A busy `BEGIN IMMEDIATE` now gives `store-busy`, which the operation maps to the typed `store-unavailable` outcome with `retryable: true` and a next action to run clean again (PRD 39 R-STORE-CMD-5). "Other commands kept changing the Store" is retryable too.
+5. Check could plan a rule 004 change that clean then skipped with "changed after the check": the empty receipt column reason now comes before the detached-plan reason, so check and clean both skip the row with the receipt reason. Rule 005 still removes the finished plan.
+6. Clean now checks `user_version = 7` and the guard again inside the write transaction. A test changes the version inside the transaction: clean stops with "The Store schema is 6 inside the clean transaction, not 7. Clean changed nothing.", and the Store and backups are unchanged.
+
+### Compare-And-Change
+
+Every change runs in one `BEGIN IMMEDIATE` transaction. For each rule, in apply order, clean runs the candidate query and the proofs again, and changes a planned row only when its outcome is still `act` and its recheck columns are the same. The write's WHERE clause names the key and every checked value, plus the rule's guard conditions (no pending or failed operation, terminal status and finish time, current receipt pointers). When it changes no row, the row is skipped as "It changed after the check". Tests change a step between the check and the write, and bring a lock owner back to life; both rows stay and are reported.
+
+### Crash Leftovers (A18)
+
+- A dead-owner lock with no pending operation blocks `tool.update`, `tool.uninstall`, and Store removal. After clean, all three run (tested with `runRecordedToolOperation` and `withStoreRemovalLock`), and check lists no leftover.
+- A dead-owner lock that guards an unfinished change stays, with "make-docs project state recover" as its next step.
+- The pending tool update or uninstall (STORE-LEFTOVER-002) stays until the owner turns rule 002 on. Check shows the package manager result. The other leftovers (legacy recovery, missing folder, machine setup, pending operation with no lock) have no fixed rule by design; check names the existing command for each.
+
+### Sample Output
+
+Fixture Stores SMF-001, SMF-003, SMF-007, and SMF-009 in one temporary Store, shortened:
+
+```text
+Store check: Clean would remove or trim 9 rows (about 612 B) under 4 rules. 5 rows are skipped, each with its reason. 10 items need your decision. 11 crash leftovers block this computer. Nothing was changed.
+Store: <tmp>/store/store.db (schema 7, 212.0 KB).
+
+Fixed rules:
+  STORE-RULE-001 Dead-owner lock with no pending operation: would remove or trim 1 row (about 75 B). Keeps 1. Skips 1.
+    Remove: /fixture/dead
+    Skip: /fixture/remote: Its owner (process 4102 on other-host.invalid) cannot be checked from this computer.
+  STORE-RULE-002 Abandoned tool update or uninstall (not on yet): would remove nothing.
+  STORE-RULE-004 Full ledgers of a terminal operation: would remove or trim 4 rows (about 146 B). Skips 3.
+    Skip: op-handoff: This is the latest completed removal of a checkout with no ledger. Setup reads its full before-ledger to offer setup after removal.
+    Skip: op-no-receipt: The bounded receipt columns of this operation are empty, so its ledgers have no saved fingerprint yet.
+    Skip: op-stale-receipt: The after_ledger_digest receipt column does not match the after ledger, so the ledger stays.
+
+Needs your decision (never removed by a rule):
+  STORE-DECISION-002 Lifecycle run left open: Lifecycle run run-forgotten in project project-runs has been active at stage implementation since 2041-11-27T12:00:00.000Z. Make Docs never closes a run for you.
+    Next: Resume, complete, or abandon the run with `make-docs run lifecycle`.
+
+Crash leftovers that block this computer:
+  STORE-LEFTOVER-001 /fixture/dead: A dead-owner installation lock with no pending operation. Its owner process has stopped.
+    It blocks: Tool update, tool uninstall, and Store removal (tool-operations.ts checks any installation_locks row), and the next writer on that checkout (acquireInstallationLock reports recovery-required).
+    Clean clears it. Next: Run make-docs setup store clean to remove it.
+
+Next: Run make-docs setup store clean to back up the Store and remove these rows.
+```
+
+```text
+Store clean: Clean removed or trimmed 9 rows (about 612 B of row data) under 4 rules. The Store file shrank by 0 B. 5 rows were skipped, each with its reason. The backup is <tmp>/store/backup/store-clean-20420615T120000000Z-a7e7add7.db.
+
+Each rule:
+  STORE-RULE-001 Dead-owner lock with no pending operation: 1 row (about 75 B). Skipped 1.
+  STORE-RULE-004 Full ledgers of a terminal operation: 4 rows (about 146 B). Skipped 3.
+
+Space: 212.0 KB before, 212.0 KB after, 0 B freed.
+Backup: <tmp>/store/backup/store-clean-20420615T120000000Z-a7e7add7.db
+
+To restore this backup:
+  1. Stop every Make Docs command and MCP server on this computer.
+  2. Copy <tmp>/store/backup/store-clean-20420615T120000000Z-a7e7add7.db over <tmp>/store/store.db.
+  3. Delete <tmp>/store/store.db-wal and <tmp>/store/store.db-shm if they exist.
+  4. Run make-docs project state status in a project to check the Store.
+
+Next: Run make-docs setup store check to review the items that need your decision.
+```
+
+The fixture Store is small, so the vacuum frees no pages. `PERF-005` measures space on a real Store copy in P5.
+
+### Test Expectations Changed
+
+- `tests/store-table-catalog.test.ts`: rules 002 and 006 are the inactive rules. `FOLLOW-UP-P4-RULE-ACTIVATION` is done, and `FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE` is `built-pending-approval` and unblocks rule 002.
+- `tests/fixtures/store-maintenance-contract.ts`: a terminal fixture operation now has its receipt columns filled, as a commit fills them. SMF-003 adds an operation with empty receipt columns and one with a stale digest, which rule 004 skips. The reference evaluator checks the digest too. SMF-002's busy tool update uses pnpm, so a process list can show pnpm running while npm is idle. SMF-008 keeps the 10 older project receipts 102 to 111 and the current receipt's observation (review fix 1).
+- `tests/w32-r0-p2-schema-v7.test.ts`: rules 004 and 005 are active.
+- `tests/name-catalog.test.ts`: 47 current operations and 20 planned; W32 plans 1 (`project.register.list`, built in P3).
+- Registry and MCP surface pins add the two operations and tools: `tests/registry-contract.test.ts`, `tests/p3-operation-surfaces.test.ts`, `tests/operation-domains.test.ts` (new `setup` domain), `tests/reorganization-verification.test.ts` (non-run IDs; `setup` is a registry domain only for `setup.store.*` and stays off the `run` tree), `tests/mcp-derivation.test.ts`, `tests/mcp.test.ts`, `tests/mcp-profiles.test.ts` (53 ready tools), and `tests/mcp-profile-discovery.test.ts` (`setup` 23, `all` 53).
+
+### Validation
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npx vitest run tests/w32-r0-p4-store-maintenance.test.ts tests/store-table-catalog.test.ts tests/name-catalog.test.ts tests/w32-r0-p2-schema-v7.test.ts` after the review fixes: 154 passed (54 P4 tests).
+- Full suite `npx vitest run` after `npm run build`, after the review fixes: 2309 passed, 5 failed, 6 skipped (2320 tests in 128 files). 3 failures exist without this change: 2 in `tests/mcp-app-contract.test.ts` and fixture 11 in `tests/p5-migration-safety.test.ts`, which fails only in the sandbox. 2 were timeouts under full-suite load: `tests/backup.test.ts` passes alone, and the `tests/cli.test.ts` test "routes reconfigure skill scope and selected-name changes without changing Skills" takes about 12.3 s against its 15 s limit with this change and about 12.6 s on the base commit `4daaf18f`, so this change does not slow it.
+
+### P4 Decisions For The Owner
+
+- Rule 002 stays inactive. The package-manager-idle check reads `ps -A -ww -o pid=,args=` on macOS and Linux and gives `unknown` on Windows, on a failed or empty list, for a hidden command line that could be the manager, for an unknown manager, or without a command. It refutes idle when any process names the manager or the make-docs package. This is strict: a running `npx make-docs mcp` or any npm run keeps an abandoned npm update pending. Approve or decline turning the rule on.
+- `setup store check` and `setup store clean` are not native command rules (Codex command rules, Claude Code permission rules), because the harness contract forbids the word `setup` in any rule. People run them in a terminal, and agents use the MCP tools. The other choice is to allow this exact prefix in the contract.
+- Rotation removes only clean backups (`store-clean-*.db` in `<store>/backup/`). It never removes the schema bridge backups next to `store.db` or other files.
+- A clean with nothing to remove makes no backup and does not vacuum, so old backups are not rotated away for nothing.
+- Restore exactness is logical: every row, schema object, and `user_version`. The backup file is a compact `VACUUM INTO` copy, so its bytes differ from `store.db`.
+- The interactive clean shows the check, asks once, and then runs its own fresh check inside the transaction. A row that changed in between is skipped and reported.
+- PRD 39 R-SURF-1 says `setup` is a lifecycle command and not a registry operation, but R-STORE-CMD-1 admits `setup.store.check` and `setup.store.clean` in the `setup` domain. P4 follows R-STORE-CMD-1, and the tests allow only these two in that domain. R-SURF-1 needs a wording update (a PRD change for the owner).
+- A native-rule agent call cannot prove its caller on a Store changed outside Make Docs, because its receipt lives in that Store, so it gets `store-unsafe`. The direct CLI and MCP routes can still check it.
+
+### Limits
+
+- Space per rule is the bytes of the removed row data. The real file change shows only after the vacuum, in `space`.
+- Process liveness and the process list are injected in the fixture tests. The built CLI and real setup tests use the real checks.
+- The P2 follow-up about exact `root_path` comparisons in other queries (`installation-state.ts` pending path claims, `harness-system-operations.ts`, lock lookups) is not changed here. Rule 001 already compares the key.
+- `name-catalog.ts` and its test counts also change in P3 (`project.register.list`). The merge keeps both.

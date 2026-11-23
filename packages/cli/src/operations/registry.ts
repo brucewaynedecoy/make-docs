@@ -22,6 +22,7 @@ import { performanceEvidenceOperations } from "./performance-evidence/ops";
 import { projectOperations } from "./project/ops";
 import { projectLayoutOperations } from "./project/layout";
 import { projectDoctorOperations } from "./project/doctor/ops";
+import { setupStoreOperations } from "./setup/store-ops";
 import { uatOperations } from "./uat/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
@@ -159,6 +160,8 @@ export const ADMITTED_OPERATION_IDS = [
   "project.path-hygiene.repair",
   "project.doctor.check",
   "project.doctor.fix",
+  "setup.store.check",
+  "setup.store.clean",
   "lifecycle.start",
   "lifecycle.show",
   "lifecycle.list",
@@ -207,6 +210,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.path-hygiene.repair": ["project", "path-hygiene repair"],
   "project.doctor.check": ["project", "doctor check"],
   "project.doctor.fix": ["project", "doctor fix"],
+  "setup.store.check": ["setup", "store check"],
+  "setup.store.clean": ["setup", "store clean"],
   "lifecycle.start": ["run", "lifecycle start"],
   "lifecycle.show": ["run", "lifecycle show"],
   "lifecycle.list": ["run", "lifecycle list"],
@@ -255,6 +260,8 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
   "project.path-hygiene.repair": "make-docs project path-hygiene repair",
   "project.doctor.check": "make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
   "project.doctor.fix": "make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
+  "setup.store.check": "make-docs setup store check [--json]",
+  "setup.store.clean": "make-docs setup store clean [--yes] [--dry-run] [--json]",
 };
 
 export function operationDomain(id: string): string {
@@ -334,6 +341,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...projectOperations,
     ...projectLayoutOperations,
     ...projectDoctorOperations,
+    ...setupStoreOperations,
     ...workOperations,
     ...backlogReviewOperations,
     ...resourceOperations,
@@ -396,7 +404,11 @@ export function listOperationAccessFacts(): OperationAccessFact[] {
       operation.status === "active" &&
       operation.access.hostConfig === "none" &&
       !operation.id.startsWith("lifecycle.") &&
-      operation.id !== "project.state.recover",
+      operation.id !== "project.state.recover" &&
+      // A native command rule can never approve the `setup` word
+      // (harness-access/contract.ts FORBIDDEN_COMMAND_WORDS), so Store
+      // maintenance runs from a person's terminal or through MCP.
+      operation.cli.root !== "setup",
   }));
 }
 

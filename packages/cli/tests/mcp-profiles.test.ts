@@ -25,6 +25,7 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "paths_repair", "paths_validate", "project_recover",
     "project_status", "surface_ensure", "resource_ensure",
     "project_doctor_check", "project_doctor_fix",
+    "setup_store_check", "setup_store_clean",
   ],
   workflow: [
     "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
@@ -47,11 +48,11 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 51 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 53 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(51);
-    expect(new Set(names).size).toBe(51);
+    expect(names).toHaveLength(53);
+    expect(new Set(names).size).toBe(53);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

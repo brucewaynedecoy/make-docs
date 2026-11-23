@@ -46,6 +46,8 @@ describe("make-docs MCP runtime", () => {
       "layout_verify",
       "project_doctor_check",
       "project_doctor_fix",
+      "setup_store_check",
+      "setup_store_clean",
       "work_item_resolve",
       "evidence_record",
       "evidence_read",

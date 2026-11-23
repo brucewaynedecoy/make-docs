@@ -164,6 +164,8 @@ export const MCP_TOOL_NAME_BY_OPERATION: Readonly<Record<string, string>> = Obje
   "project.path-hygiene.repair": "paths_repair",
   "project.doctor.check": "project_doctor_check",
   "project.doctor.fix": "project_doctor_fix",
+  "setup.store.check": "setup_store_check",
+  "setup.store.clean": "setup_store_clean",
   "lifecycle.start": "lifecycle_start",
   "lifecycle.show": "lifecycle_show",
   "lifecycle.list": "lifecycle_list",

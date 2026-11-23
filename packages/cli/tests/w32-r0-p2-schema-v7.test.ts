@@ -439,7 +439,7 @@ describe("W32 R0 P2 follow-ups (A26, A27)", () => {
     expect(() => applyProjectLayout(second, pending.operationId, "apply", false, store)).toThrow(/saved layout plan is missing/);
   });
 
-  it("records when a failed operation's recovery is closed, and keeps rules 004 and 005 inactive for P4", () => {
+  it("records when a failed operation's recovery is closed, and P4 turns rules 004 and 005 on", () => {
     expect(STORE_FAILED_RECOVERY_CLOSED).toMatchObject({ followUp: "FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED", openStatuses: ["failed"], closingStatuses: ["completed", "rolled-back"] });
     expect(STORE_FAILED_RECOVERY_CLOSED.definition).toContain("project state recover");
     expect(STORE_FAILED_RECOVERY_CLOSED.whileOpen).toContain("No fixed rule touches");
@@ -448,7 +448,8 @@ describe("W32 R0 P2 follow-ups (A26, A27)", () => {
       expect(followUps.get(id)).toMatchObject({ state: "done", resolution: expect.any(String) });
     }
     for (const id of ["STORE-RULE-004", "STORE-RULE-005"]) {
-      expect(STORE_FIXED_RULES.find((rule) => rule.id === id)!.activation).toMatchObject({ state: "inactive", until: "FOLLOW-UP-P4-RULE-ACTIVATION" });
+      // W32 R0 P4 implemented their write contract and turned them on.
+      expect(STORE_FIXED_RULES.find((rule) => rule.id === id)!.activation).toEqual({ state: "active" });
     }
     // No fixed rule or candidate query treats a failed operation as terminal.
     for (const rule of STORE_FIXED_RULES) {

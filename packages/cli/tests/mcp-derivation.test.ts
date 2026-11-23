@@ -42,6 +42,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.path-hygiene.validate": "paths_validate",
   "project.doctor.check": "project_doctor_check",
   "project.doctor.fix": "project_doctor_fix",
+  "setup.store.check": "setup_store_check",
+  "setup.store.clean": "setup_store_clean",
   "project.state.status": "project_status",
   "project.state.recover": "project_recover",
   "project.checkout-move.preview": "checkout_move_preview",

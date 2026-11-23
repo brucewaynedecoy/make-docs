@@ -359,6 +359,11 @@ export async function runCli(
     output.write(`${readPackageMeta().version}\n`);
     return;
   }
+  if (argv[0] === "setup" && argv[1] === "store") {
+    const { runSetupStoreCommand } = await import("./run/setup-store");
+    await runSetupStoreCommand(argv.slice(2), resolvedLaunch.launch);
+    return;
+  }
   const parsed = parseArgs(argv);
   if (parsed.help) {
     printHelp(parsed.command, parsed.setupSubcommand);
@@ -3700,6 +3705,8 @@ Usage:
   make-docs setup skills [options]
   make-docs setup backup [options]
   make-docs setup remove [options]
+  make-docs setup store check [--json]
+  make-docs setup store clean [--yes] [--dry-run] [--json]
 
 Subcommands:
   system       Configure reviewed machine-level harness support.
@@ -3707,6 +3714,8 @@ Subcommands:
   skills       Change, sync, or remove managed skills.
   backup       Create a backup of managed files.
   remove       Remove this project's managed files, with an optional backup first.
+  store check  Check the Make Docs Store. Changes nothing.
+  store clean  Back up the Store and remove only what the fixed rules prove.
 
 ${SETUP_SHARED_OPTIONS}
 

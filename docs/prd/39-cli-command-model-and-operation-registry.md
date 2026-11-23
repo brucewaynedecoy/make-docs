@@ -105,7 +105,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-CORE-1 (MUST): deterministic logic lives in a shared operation core of modular, per-operation modules grouped by domain — never a monolith, because a single shared library does not mean a single shared file. Every active operation is a stable identifier, a typed input, a typed output, a mutation classification, and a handler that takes the input and an execution context. Surfaces adapt argv or MCP arguments into that input and adapt the output back. They contain no operation logic. Handlers return structured data and perform effects only through the injected context, which enforces dry-run, write permission, and approval uniformly across surfaces. Presentation belongs to the surface.
 - R-CORE-2 (MUST): dependencies are one-way — surfaces depend on the core, the core never depends on a surface, and no surface imports another surface.
 - R-CORE-3 (MUST): the shared core validates a current MCP connection key or explicit direct or native route, then checks current grants, target, operation access, write intent, and approvals before Store entry. Adapter code carries context but does not decide grants.
-- R-SURF-1 (MUST): registry operations project to the canonical CLI `resource`, `project`, or `run` command and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
+- R-SURF-1 (MUST): registry operations project to their canonical CLI group under R-TOP-1 and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. `setup` is a CLI lifecycle command, except the `setup store check` and `setup store clean` registry operations of R-STORE-CMD-1. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
 - R-SURF-2 (MUST): the W19 R1 P3 inventory plus `performance.evidence.validate` contains 25 stable nonlegacy identifiers. All 25 are active. Later owner-admitted project-state, path-hygiene, Persona, and layout operations extend the overall registry without changing or reassigning this cohort.
 - R-SURF-3 (MUST): delivery history remains explicit. W19 R1 P4 activated `project.surface.ensure`; W19 R1 P6 activated the lifecycle identifiers; W19 R1 P7 activated the UAT identifiers; and W19 R2 P4 activated `performance.evidence.validate` after the decision-only authority commit and separate implementation authority. No identifier in this cohort remains pending.
 - R-SURF-4 (MUST): `work.backlog-cache.lookup` and `work.backlog-cache.write` remain separate active operations. Lookup declares Store-read and project-read access. Write declares Store-write and project-read access and requires explicit write intent. Both declare host-configuration-none access, use the shared operation core, and derive their CLI and MCP surfaces from the registry. Their registry IDs and CLI and MCP projections stay stable.
@@ -693,6 +693,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `fix` also needs Store write permission, accepts an optional `--check-json` (MCP `reviewedFiles`) to name changed files in a stale-review refusal, and has `--dry-run`.
 - Rationale: the reviewed write path records each change in the Store, and the owner kept the optional input on 2026-11-22.
 - Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
+
+### 2026-11-22 — W32 R0 P4
+
+- Affected requirement or section: R-SURF-1.
+- Previous contract: registry operations projected only to `resource`, `project`, or `run`, and `setup` was never a registry operation.
+- Replacement contract: registry operations project to their group under R-TOP-1, and `setup store check` and `setup store clean` are registry operations under `setup`.
+- Rationale: R-STORE-CMD-1 admitted the Store maintenance operations under `setup`, and R-TOP-1 retired `run` as the only operation root.
+- Source: [W32 R0 P4 evidence](../work/2026-11-22-w32-r0-store-review-and-maintenance/evidence.md).
 
 ## Source Anchors
 

@@ -71,6 +71,8 @@ const LITERAL_P3_ADMITTED_IDENTIFIERS = [
 
 const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate", "project.path-hygiene.repair"] as const;
 const LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS = ["project.doctor.check", "project.doctor.fix"] as const;
+/** W32 R0 P4 Store maintenance (PRD 39 R-STORE-CMD-1). */
+const LITERAL_W32_R0_P4_ADMITTED_IDENTIFIERS = ["setup.store.check", "setup.store.clean"] as const;
 const LITERAL_R2_P4_ADMITTED_IDENTIFIERS = ["performance.evidence.validate"] as const;
 const LITERAL_R3_ADMITTED_IDENTIFIERS = ["project.state.status", "project.state.recover"] as const;
 const LITERAL_R4_ADMITTED_IDENTIFIERS = [
@@ -108,13 +110,14 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("setup.store.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
       LITERAL_P5_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.doctor."))).toEqual(LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS);
+    expect(admittedIds.filter((id) => id.startsWith("setup.store."))).toEqual(LITERAL_W32_R0_P4_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id))).toEqual(LITERAL_R2_P4_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(LITERAL_R4_ADMITTED_IDENTIFIERS);
@@ -136,6 +139,7 @@ describe("operation registry contract", () => {
         "project.checkout-register.preview",
         "project.checkout-register.apply",
         ...LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS,
+        ...LITERAL_W32_R0_P4_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
     expect(new Set(ids).size).toBe(ids.length);
@@ -174,9 +178,11 @@ describe("operation registry contract", () => {
 
   it("contains no tool lifecycle command as an operation (R-SURF-1)", () => {
     const domains = new Set(listOperations().map((operation) => operation.domain));
-    for (const lifecycle of ["setup", "mcp", "update", "uninstall"]) {
+    for (const lifecycle of ["mcp", "update", "uninstall"]) {
       expect(domains.has(lifecycle), `lifecycle command ${lifecycle}`).toBe(false);
     }
+    // PRD 39 R-STORE-CMD-1 admits only Store maintenance in the `setup` domain. `setup` itself stays a lifecycle command.
+    expect(listOperations().filter((operation) => operation.domain === "setup").map((operation) => operation.id)).toEqual(["setup.store.check", "setup.store.clean"]);
   });
 
   it("refuses write operations uniformly without write permission", async () => {

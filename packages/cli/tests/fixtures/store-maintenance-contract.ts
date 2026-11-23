@@ -3,7 +3,7 @@ import { lstatSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 import type { ProcessLiveness } from "../../src/platform";
-import type { StoreDatabase } from "../../src/store/database";
+import { storeLedgerDigest, type StoreDatabase } from "../../src/store/database";
 import {
   STORE_DECISION_ITEMS,
   STORE_FIXED_RULES,
@@ -117,19 +117,30 @@ function operation(
   checkoutId: string,
   status: "pending" | "completed" | "rolled-back" | "failed",
   finishedDaysAgo: number | null,
-  options: { operation?: string; before?: string | null; after?: string | null } = {},
+  options: { operation?: string; before?: string | null; after?: string | null; receipt?: "filled" | "empty" | "stale" } = {},
 ): void {
+  const before = options.before === undefined ? '{"files":{"a.md":{}}}' : options.before;
+  const after = options.after === undefined ? '{"files":{"a.md":{},"b.md":{}}}' : options.after;
+  // A terminal commit fills the v7 receipt columns (database.ts fillInstallationOperationReceipt).
+  // step() adds to the counts. `empty` stands for a row the receipt never reached; `stale` for a digest that no longer matches.
+  const terminal = status === "completed" || status === "rolled-back";
+  const receipt = terminal ? options.receipt ?? "filled" : "empty";
+  const digest = (ledger: string | null) => receipt === "filled" ? storeLedgerDigest(ledger) : receipt === "stale" && storeLedgerDigest(ledger) ? `sha256:${"0".repeat(64)}` : null;
   db.prepare(
-    "INSERT INTO installation_operations (operation_id, checkout_id, operation, status, before_ledger, after_ledger, created_at, finished_at, plan_complete) VALUES (?,?,?,?,?,?,?,?,1)",
+    "INSERT INTO installation_operations (operation_id, checkout_id, operation, status, before_ledger, after_ledger, created_at, finished_at, plan_complete, before_ledger_digest, after_ledger_digest, step_count, applied_step_count) VALUES (?,?,?,?,?,?,?,?,1,?,?,?,?)",
   ).run(
     id,
     checkoutId,
     options.operation ?? "setup.skills.adopt",
     status,
-    options.before === undefined ? '{"files":{"a.md":{}}}' : options.before,
-    options.after === undefined ? '{"files":{"a.md":{},"b.md":{}}}' : options.after,
+    before,
+    after,
     daysAgo(400),
     finishedDaysAgo === null ? null : daysAgo(finishedDaysAgo),
+    digest(before),
+    digest(after),
+    receipt === "empty" ? null : 0,
+    receipt === "empty" ? null : 0,
   );
 }
 
@@ -141,6 +152,7 @@ function step(db: StoreDatabase, operationId: string, ordinal: number, before: u
     typeof before === "string" ? before : JSON.stringify(before),
     typeof after === "string" ? after : JSON.stringify(after),
   );
+  db.prepare("UPDATE installation_operations SET step_count = step_count + 1, applied_step_count = applied_step_count + 1 WHERE operation_id = ? AND step_count IS NOT NULL").run(operationId);
 }
 
 function lock(db: StoreDatabase, root: string, token: string, pid: number, hostname: string): void {
@@ -242,7 +254,8 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       tool(db, "tool-abandoned", "tool.update", "pending", env.deadPid, env.hostname, metadata);
       tool(db, "tool-live", "tool.uninstall", "pending", env.livePid, env.hostname, metadata);
       tool(db, "tool-remote", "tool.update", "pending", env.deadPid, env.otherHost, metadata);
-      tool(db, "tool-busy", "tool.update", "pending", env.deadPid, env.hostname, metadata);
+      // Another manager, so a process list can show pnpm running while npm is idle.
+      tool(db, "tool-busy", "tool.update", "pending", env.deadPid, env.hostname, { ...metadata, manager: "pnpm", command: "pnpm add -g @brucewaynedecoy/make-docs@latest" });
       tool(db, "tool-unchecked", "tool.uninstall", "pending", env.deadPid, env.hostname, { manager: "npm", binaryPath: metadata.binaryPath });
       tool(db, "tool-done", "tool.update", "completed", env.deadPid, env.hostname, metadata, daysAgo(1));
       tool(db, "machine-setup", "setup.system.harness", "pending", env.deadPid, env.hostname, { operationId: "m1" });
@@ -284,6 +297,9 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       checkout(db, "c-reinstalled", "/fixture/reinstalled");
       operation(db, "op-old-remove", "c-reinstalled", "completed", 80, { operation: "setup.remove", after: "null" });
       operation(db, "op-reinstall", "c-reinstalled", "completed", 70, { operation: "setup.migration" });
+      // Receipt columns that the backfill never reached, and a digest that no longer matches its ledger.
+      operation(db, "op-no-receipt", "c-ops", "completed", 60, { receipt: "empty" });
+      operation(db, "op-stale-receipt", "c-ops", "completed", 60, { receipt: "stale" });
     },
     expected: [
       // A payload path alone is not bytes in the Store, so step 1 stays.
@@ -302,6 +318,8 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       { target: "STORE-RULE-004", key: "op-pending", outcome: "keep" },
       { target: "STORE-RULE-004", key: "op-empty", outcome: "keep" },
       { target: "STORE-RULE-004", key: "op-handoff", outcome: "skip" },
+      { target: "STORE-RULE-004", key: "op-no-receipt", outcome: "skip" },
+      { target: "STORE-RULE-004", key: "op-stale-receipt", outcome: "skip" },
     ],
   },
   {
@@ -459,12 +477,14 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       { target: "STORE-RULE-009", key: "harness-receipt-current:machine:claude:mcp", outcome: "keep" },
       { target: "STORE-RULE-009", key: `harness-receipt:${uuid(50)}`, outcome: "keep" },
       { target: "STORE-RULE-009", key: "harness-receipt:blank-1", outcome: "keep" },
-      // 13 project history rows (12 receipts and 1 observation): the 3 oldest go.
+      // 12 project receipts and 1 observation. The current receipt (112) and its observation take no slot,
+      // so the 10 older receipts 102 to 111 stay and only the oldest (101) goes.
       { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(101)}`, outcome: "act" },
-      { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(102)}`, outcome: "act" },
-      { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(103)}`, outcome: "act" },
+      { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(102)}`, outcome: "keep" },
+      { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(103)}`, outcome: "keep" },
       { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(104)}`, outcome: "keep" },
       { target: "STORE-RULE-009", key: `c-harness|receipt|${uuid(112)}`, outcome: "keep" },
+      { target: "STORE-RULE-009", key: `c-harness|receipt|harness-receipt-observation:${"a".repeat(32)}`, outcome: "keep" },
       { target: "STORE-RULE-009", key: "c-harness|receipt|harness-receipt-current:project:claude:skill", outcome: "keep" },
       { target: "STORE-RULE-009", key: `c-harness|receipt|${sha256Id("migration-receipt")}`, outcome: "keep" },
       { target: "STORE-RULE-009", key: "c-harness|receipt|checkout-move:11111111-1111-4111-8111-111111111111", outcome: "keep" },
@@ -604,6 +624,15 @@ function proof(id: StoreMaintenanceProofId, db: StoreDatabase, row: Row, fixture
   }
 }
 
+/** STORE-RULE-004 acts only when each full ledger's receipt digest matches its text. */
+function receiptDigestsMatch(row: Row): boolean {
+  return (["before", "after"] as const).every((side) => {
+    const ledger = row[`${side}_ledger`];
+    const full = ledger !== null && ledger !== undefined && ledger !== "null";
+    return !full || storeLedgerDigest(String(ledger)) === row[`${side}_ledger_digest`];
+  });
+}
+
 function isInactive(target: StoreFixedRule | (typeof STORE_DECISION_ITEMS)[number]): boolean {
   return "activation" in target && target.activation.state === "inactive";
 }
@@ -630,6 +659,7 @@ export function evaluateStoreFixture(
       for (const row of rows) {
         let outcome: StoreFixtureOutcome = "act";
         if (inactive || (row.skip_reason !== undefined && row.skip_reason !== null)) outcome = "skip";
+        else if (target.id === "STORE-RULE-004" && !receiptDigestsMatch(row)) outcome = "skip";
         else {
           for (const proofId of target.proofs) {
             const result = proof(proofId, db, row, fixture, env);

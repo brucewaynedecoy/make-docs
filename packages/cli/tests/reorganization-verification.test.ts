@@ -202,6 +202,8 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
       "resource.ensure",
       "resource.list",
       "resource.read",
+      "setup.store.check",
+      "setup.store.clean",
     ]);
     // The run adapter covers only registry entries whose canonical CLI root
     // is `run`. Resource and project entries use their own canonical roots.
@@ -369,7 +371,9 @@ describe("R-TEST-3: run exposes no tool lifecycle operation", () => {
       // Not a registry identifier and not a registry domain.
       expect(hasOperation(lifecycle)).toBe(false);
       const domains = new Set(listOperations().map((operation) => operation.domain));
-      expect(domains.has(lifecycle)).toBe(false);
+      // PRD 39 R-STORE-CMD-1 puts Store maintenance (`setup.store.*`) in the `setup` domain. It stays off the run tree.
+      if (lifecycle === "setup") expect(listOperations().filter((operation) => operation.domain === "setup").map((operation) => operation.id)).toEqual(["setup.store.check", "setup.store.clean"]);
+      else expect(domains.has(lifecycle)).toBe(false);
 
       // Not reachable through the derived `run` tree.
       await expect(runRunCommand([lifecycle])).rejects.toBeInstanceOf(OperationError);

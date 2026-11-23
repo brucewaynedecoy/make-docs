@@ -313,8 +313,8 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   tool("manifest", "setup", "setup manifest read", `${TOOL_REASON} R-NAME-2 needs the final verb \`read\`.`),
   tool("config", "setup", "setup config read", `${TOOL_REASON} R-NAME-2 needs the final verb \`read\`.`),
   tool("compatibility", "setup", "setup compatibility check", `${TOOL_REASON} R-NAME-2 needs the final verb \`check\`.`),
-  planned("setup.store.check", W32, "setup", "setup store check"),
-  planned("setup.store.clean", W32, "setup", "setup store clean"),
+  current("setup.store.check", "setup", "setup store check", "setup_store_check", "setup store check"),
+  current("setup.store.clean", "setup", "setup store clean", "setup_store_clean", "setup store clean"),
 
   // project
   current("project.state.status", "project", "project state status", "project_status", "project state status", {
