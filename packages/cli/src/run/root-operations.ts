@@ -816,6 +816,8 @@ export function renderDoctorCheck(result: DoctorCheckResult): string {
   if (result.status === "findings" && counts) {
     lines.push("", `task-id-case: ${counts.taskLines} task lines and ${counts.proseReferences} prose references.`);
     lines.push(`phase-status-line: ${result.totals.byCheck["phase-status-line"]?.phaseFiles ?? 0} phase files with no status line whose tasks are all checked.`);
+    const open = result.totals.byCheck["phase-open-under-completed-index"];
+    lines.push(`phase-open-under-completed-index: ${open?.phaseFiles ?? 0} phase files to set to completed, and ${open?.reportOnly ?? 0} report only.`);
     for (const check of result.checks) lines.push(`${check.id}: ${check.description}${check.fix ? ` Fix: ${check.fix}` : ""}`);
     for (const note of result.notes) lines.push(`Note: ${note}`);
     let file = "";
@@ -829,7 +831,11 @@ export function renderDoctorCheck(result: DoctorCheckResult): string {
       if (first.file !== file) { file = first.file; lines.push("", file); }
       const kinds = group.map((finding) => finding.check === "phase-status-line"
         ? `add ${finding.replacement} (status line)`
-        : `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
+        : finding.kind === "open-under-completed-index"
+          ? `${finding.current} -> ${finding.replacement} (open phase under a completed index)`
+          : finding.kind === "open-under-completed-index-report-only"
+            ? `${finding.current} (open phase under a completed index, report only: not every task is checked)`
+            : `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
       lines.push(`  line ${first.line}: ${kinds}`, `    now:   ${first.lineText}`, `    fixed: ${first.fixedLineText}`);
     }
     lines.push("");

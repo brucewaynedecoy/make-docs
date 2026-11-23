@@ -1,0 +1,348 @@
+{
+ "profile": "PERF-004",
+ "profileVersion": 1,
+ "note": "Paths, project names, and IDs are left out. Each run used a fresh clone and a fresh temporary Store.",
+ "runs": [
+  {
+   "run": 1,
+   "checks": {
+    "firstImport": {
+     "imported": 463,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4150 units entered the store. Make Docs wrote and removed no project file."
+    },
+    "firstImportWroteNoFile": true,
+    "next": {
+     "ready": 46,
+     "waiting": 20,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4183,
+      "open": 955,
+      "ready": 105,
+      "waiting": 850,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 8586863
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 8487783
+    },
+    "workFilesUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     86.4,
+     82.5,
+     84.1
+    ],
+    "firstImport": 1357.8,
+    "noChangeSync": [
+     385.8,
+     384.2,
+     390.6,
+     395.5,
+     385.4
+    ],
+    "next": [
+     327.2,
+     333.1,
+     329.6,
+     407.5,
+     326.1
+    ],
+    "status": [
+     351.3,
+     371.3,
+     350.2,
+     355,
+     355.9
+    ],
+    "snapshotStore": [
+     3332.4,
+     3224.3,
+     3215.3,
+     3285.3,
+     3362.4
+    ],
+    "snapshotFiles": [
+     2908.8,
+     2885.7,
+     2924.1,
+     2906.1,
+     3166.1
+    ]
+   },
+   "commit": "31891c2b",
+   "setupFirstStatus": "blocked",
+   "setupMs": 440.2,
+   "median": {
+    "noChangeSync": 385.8,
+    "next": 329.6,
+    "status": 355,
+    "snapshotStore": 3285.3,
+    "snapshotFiles": 2908.8,
+    "floor": 84.1
+   }
+  },
+  {
+   "run": 2,
+   "checks": {
+    "firstImport": {
+     "imported": 463,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4150 units entered the store. Make Docs wrote and removed no project file."
+    },
+    "firstImportWroteNoFile": true,
+    "next": {
+     "ready": 46,
+     "waiting": 20,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4183,
+      "open": 955,
+      "ready": 105,
+      "waiting": 850,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 8586863
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 8487783
+    },
+    "workFilesUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     87,
+     83.4,
+     83.8
+    ],
+    "firstImport": 1383.5,
+    "noChangeSync": [
+     397.6,
+     386.5,
+     398.4,
+     388.4,
+     382.2
+    ],
+    "next": [
+     323.5,
+     334.4,
+     329.3,
+     327.8,
+     330
+    ],
+    "status": [
+     374.8,
+     350,
+     353,
+     341.5,
+     348.4
+    ],
+    "snapshotStore": [
+     3283.1,
+     3413.6,
+     3242.1,
+     3244.9,
+     3232.9
+    ],
+    "snapshotFiles": [
+     2927.3,
+     2922.8,
+     2907.5,
+     2900.1,
+     3353.7
+    ]
+   },
+   "commit": "31891c2b",
+   "setupFirstStatus": "blocked",
+   "setupMs": 458.6,
+   "median": {
+    "noChangeSync": 388.4,
+    "next": 329.3,
+    "status": 350,
+    "snapshotStore": 3244.9,
+    "snapshotFiles": 2922.8,
+    "floor": 83.8
+   }
+  },
+  {
+   "run": 3,
+   "checks": {
+    "firstImport": {
+     "imported": 463,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4150 units entered the store. Make Docs wrote and removed no project file."
+    },
+    "firstImportWroteNoFile": true,
+    "next": {
+     "ready": 46,
+     "waiting": 20,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4183,
+      "open": 955,
+      "ready": 105,
+      "waiting": 850,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 8586863
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 8487783
+    },
+    "workFilesUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     86.2,
+     87.1,
+     82.5
+    ],
+    "firstImport": 1380.4,
+    "noChangeSync": [
+     386.3,
+     395.8,
+     381.7,
+     385.4,
+     382.2
+    ],
+    "next": [
+     326.5,
+     329.5,
+     327.8,
+     343.5,
+     330.6
+    ],
+    "status": [
+     350.7,
+     339.7,
+     344,
+     360.3,
+     354.5
+    ],
+    "snapshotStore": [
+     3197.8,
+     3247.4,
+     3656.4,
+     3228.7,
+     3196.1
+    ],
+    "snapshotFiles": [
+     3086.7,
+     2907.8,
+     2985.8,
+     2886.8,
+     2901.1
+    ]
+   },
+   "commit": "31891c2b",
+   "setupFirstStatus": "blocked",
+   "setupMs": 448.6,
+   "median": {
+    "noChangeSync": 385.4,
+    "next": 329.5,
+    "status": 350.7,
+    "snapshotStore": 3228.7,
+    "snapshotFiles": 2907.8,
+    "floor": 86.2
+   }
+  }
+ ],
+ "stop": {
+  "reason": "all 3 runs done",
+  "elapsedSeconds": 125.4
+ },
+ "summary": {
+  "floor": {
+   "samples": 9,
+   "median": 84.1,
+   "min": 82.5,
+   "max": 87.1
+  },
+  "firstImport": {
+   "samples": 3,
+   "median": 1380.4,
+   "min": 1357.8,
+   "max": 1383.5
+  },
+  "noChangeSync": {
+   "samples": 15,
+   "median": 386.3,
+   "min": 381.7,
+   "max": 398.4
+  },
+  "next": {
+   "samples": 15,
+   "median": 329.5,
+   "min": 323.5,
+   "max": 407.5
+  },
+  "status": {
+   "samples": 15,
+   "median": 351.3,
+   "min": 339.7,
+   "max": 374.8
+  },
+  "snapshotStore": {
+   "samples": 15,
+   "median": 3244.9,
+   "min": 3196.1,
+   "max": 3656.4
+  },
+  "snapshotFiles": {
+   "samples": 15,
+   "median": 2908.8,
+   "min": 2885.7,
+   "max": 3353.7
+  }
+ },
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpus": 10,
+  "cpuModel": "Apple M2 Pro",
+  "memoryGiB": 16
+ }
+}

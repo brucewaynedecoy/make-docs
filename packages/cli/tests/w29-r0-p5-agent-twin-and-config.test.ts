@@ -676,7 +676,7 @@ describe("W29 R0 P5 project doctor phase-status-line check (T10)", () => {
     expect(result.skipped).toContainEqual({ path: `${HELD}/01-held.md`, reason: "sync-hold", check: "phase-status-line" });
     expect(result.totals.byCheck["phase-status-line"]).toEqual({ phaseFiles: 4 });
     expect(result.summary).toBe("Found 1 lower-case task ID on 1 line in 1 file: 1 task line and 0 prose references, and 4 phase files with no status line whose tasks are all checked. Nothing changed.");
-    expect(result.checks.map((check) => check.id)).toEqual(["task-id-case", "phase-status-line"]);
+    expect(result.checks.map((check) => check.id)).toEqual(["task-id-case", "phase-status-line", "phase-open-under-completed-index"]);
   });
 
   it("an excluded path is left out for every check", () => {

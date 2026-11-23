@@ -922,3 +922,311 @@ Setup proposes `projectName` and never writes it, as built. The owner chose this
 - The agent twin is prose. Its parity is checked through its tables, its rule IDs, and the shared fixtures, not by an agent run.
 - Setup proposes `projectName` and does not write it, so a project has no name until a person adds it.
 - The 79 status lines on this repository wait for the owner's approval of a repository-wide fix.
+
+## P6 Package Parity and Acceptance
+
+Covers A25 to A30 in [P6](06-package-parity-and-acceptance.md). Evidence date: 2026-11-23. Branch: `t3/w29-p6-package-parity-acceptance` from `31891c2b` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`. Every run used a temporary `MAKE_DOCS_HOME` and `HOME`; nothing read or wrote the real Store. Setup never ran on this worktree or the main checkout: the dogfood proofs used a temporary clone of this repository at `31891c2b`. In the samples, `<temp>` stands for a temporary folder.
+
+### Package Candidate
+
+| Field | Value |
+| --- | --- |
+| Candidate | A branch build, not a release. The package reports version `2.0.9` because this branch has not changed the version; each candidate is identified by its tarball SHA-256. Packed with `npm pack` in `packages/cli` after `npm run build`, from `31891c2b` plus the P6 changes below. |
+| Tarball SHA-256 | `66eaca5f8e5cad123385bb1d7387a9caf259149bed897c4594da1cbec55bbb94` (151 files), with the five fixes below. T2 to T5, the MCP check, and `PERF-004` ran on it. |
+| Review candidate | `c1a3d2e752771f4dc2c08179674f0e3bc6fa7a02ca95490099ba12d4e638fded`, after the review fixes (the blocked-reason punctuation and a moved code comment). The kept proof script ran T2 to T5, the MCP check, and the owner samples again on it. |
+| Final candidate | `373fa0dacf0f55c76a4e22b895fdecac248a0175c65c3a0d66cad647449b2a08` (151 files), after the owner decisions (D-069 option B, the closed-parent advice, and the new doctor check). `npm run smoke:pack:local` packed this same tarball and passed. The kept proof script ran on it, and its redacted log is the one kept. Its output equals the review candidate's run, apart from the temporary path length in two byte counts and the new doctor check's 17 findings in the T4 doctor comparison (the older checks' findings still match the pre-Wave build exactly). |
+| Install | `npm install <tarball>` in a new temporary folder; every proof ran that installed `make-docs` command. |
+| Pre-Wave build for comparison | `93814f27`, the last commit before W29 R0 P2, built in a temporary clone. W29 R0 P1 added only the contract. |
+| Proof script | [installed-proofs.sh](evidence/p6/proofs/installed-proofs.sh) with its helpers ([sum.mjs](evidence/p6/proofs/sum.mjs), [rev.mjs](evidence/p6/proofs/rev.mjs), [mcp-proof.mjs](evidence/p6/proofs/mcp-proof.mjs)) runs T2 to T5, the MCP check, and the owner samples. It takes every path as an argument and builds the fixture backlog itself. The first copy lived in a temporary folder and was deleted with it; the kept copy is the same steps, rebuilt after the review, and its run on the final candidate is kept, redacted, as [installed-proofs-run.log](evidence/p6/proofs/installed-proofs-run.log). Two earlier candidates ran the same steps while P6 fixed the defects below. |
+
+### Defects Found and Fixed
+
+The installed runs found five wording defects. P6 fixed each one with a test in `packages/cli/tests/w29-r0-p6-package-parity.test.ts`. No PRD changes: each fix makes the output match its PRD 52 rule.
+
+| # | Defect, as the installed CLI showed it | Fix |
+| --- | --- | --- |
+| 1 | A blocker that ends with a period showed two: "Blocked: The owner has not chosen a schema format..". | The wait reason drops a blocker's own final period, and after the review it adds no period after a text that ends in `?` or `!` ("... Is the format final?"). `readiness.ts`. |
+| 2 | `work close` listed the close under "Store-only edits (the file copy does not show them)", and in the same result said "The next sync shows it in ...". The P4 sample had the same line. | When the next sync can write the file, store-only edits compare the store with what the writer renders, not with the last applied text. A close shows as store-only only when the path is held or copies are off. A status the file cannot show (such as `in-progress`) and a cleared blocker stay store-only (R-WORK-QUEUE-8). `sync.ts` `workStoreOnlyEdits`, `queue.ts`. |
+| 3 | Closing a phase that had no claim said "Closed W22 R2 P4 as done, and released its claim. Closing every task does not close its phase." | "and released its claim" shows only when a claim existed, and the phase sentence only for a task. `queue.ts`. |
+| 4 | `work status` with a held file that differed from the store said "Sync check: 1 file to write. The next work write command ... applies the changes.", but sync never writes a held path. | The read-only check counts a held file apart: "Sync check: 1 held file differs from the store, and sync never writes it." (R-WORK-SYNC-8, R-WORK-SYNC-17). `sync.ts` `summarizePreview`. |
+| 5 | An unreadable file gave "Sync check: 1 unreadable file. The next work write command, or make-docs work sync, applies the changes." Sync never changes an unreadable file. | "Sync check: 1 unreadable file. Fix each unreadable file. Sync leaves it untouched." With other changes, both sentences show. `sync.ts`. |
+
+### Installed First Import (T2)
+
+Clean fixture project (git, one three-file backlog): `setup --yes` with the three harness methods `none` made a schema 8 Store and bound the checkout. The first work command, `work status`, ran the read-only check: "This checkout has not synced yet. The first work write command imports every backlog and writes no file. Sync check: 3 files to import." Then `work sync`: "First sync of this checkout: 3 work files and 10 units entered the store. Make Docs wrote and removed no project file." The backlog files did not change.
+
+Temporary clone of this repository (the dogfood instance): plain `setup --yes` stopped with "The reviewed plan does not permit migration (ambiguous-ownership)", because a new Store has no record of the clone's saved project ID. `setup --yes --adopt` completed. It changed only the harness lines of `.make-docs/config.yaml`, as the methods `none` ask. The first import: "First sync of this checkout: 463 work files and 4150 units entered the store. Make Docs wrote and removed no project file." `git status` showed no change under `docs/work/` or `.make-docs/archive/work/`. `work status` then said: "955 open units: 105 ready, 850 waiting. ... Sync check: the files and the store match. Sync never writes these held paths: docs/work/2026-11-13-w22-r2-portable-checkout-adoption."
+
+### Two Checkouts That Share Git (A25, T3)
+
+Checkout A is the clone above. Checkout B is a `git worktree` of it, registered with `project checkout preview` and `project checkout apply --review <digest>` ("Effect: new-checkout-binding. Project files: unchanged."), then `setup --yes --adopt`. Both use one temporary Store. A fixture backlog was committed in A for short output.
+
+| Sync result | What happened on the installed package | Result |
+| --- | --- | --- |
+| First sync of a second checkout | B: "First sync of this checkout: 0 work files and 0 units entered the store. ... 466 files already matched the store, so Make Docs recorded them as synced." | Pass |
+| `import` (new file) | A, after the backlog commit: "Sync: 3 files imported, 0 files written, 0 copies removed." | Pass |
+| `write` (store changed, file did not) | A: claim and close `W1 R0 P1 T1` through the store, then sync: "1 file written"; the file now shows `- [x] T1`. | Pass |
+| Same work on both sides | B merges A's commit, then sync: "1 file already matched the store, so Make Docs recorded it as synced." No conflict. | Pass |
+| `import` (a teammate's hand edit) | B removes the P2 blocker by hand and commits; A merges. A's `work next` says "Sync check: 1 file to import." A's sync imports it, and `W1 R0 P2` is ready. | Pass |
+| `both-changed` conflict | A closes `T2` and writes the file; B, before it merges, edits the same file. B's sync stops that file, shows both sides per unit, names the units that wait, and gives two settle commands. | Pass |
+| Settle with a stale revision | "The store revision of ... is 12, not 11. Make Docs did not settle ..., and nothing changed." | Pass |
+| Settle `--keep-store` | "Settled ... (both-changed) with --keep-store"; the file is written from the store, and B's hand edit is gone. | Pass |
+| `file-deleted` conflict, `--restore` | B deletes a work file: the conflict names restore and accept-deletion. `--restore` writes it back. | Pass |
+| `--accept-deletion`, then `remove-copy` | B accepts the deletion; the units close as superseded. A's next sync: "1 copy removed." | Pass |
+| `claimed` conflict | A claims `W1 R0 P3 T1`; B checks that task by hand. B's sync stops the file: "The file closes W1 R0 P3 T1, and builder-a holds it on a live claim until ...". The choices are the holder's release and `--keep-store`. `--keep-file` is refused. After A releases its claim, B's next sync imports the file. | Pass |
+| Held path | A closes `W22 R2 P4` through the store. Sync: "Held, not written: docs/work/2026-11-13-w22-r2-portable-checkout-adoption/04-first-sync-after-adoption.md. ..."; the file did not change. `work status`: "Sync check: 1 held file differs from the store, and sync never writes it." A settle on that held path is refused. B's hand edit of another held file is imported. | Pass |
+| `report-unreadable` | B breaks a file's front matter: "Cannot read ..., line 1: The front matter opens on line 1 and never closes with `---`. The file is untouched." Fixed again, the next sync is clean. | Pass |
+
+Not reached with two checkouts: the `store-missing` and `unclear` conflict kinds and the copies-off rows. Normal use does not produce them; the P3 and P4 tests and the P5 sync scenarios cover them.
+
+### Without Store Access (A26, T4)
+
+A fresh clone of this repository, not set up, in two states: no Store at all, and a usable Store that this checkout is not bound to. The pre-Wave build (`93814f27`) and the candidate ran the same commands.
+
+| Command | Both states |
+| --- | --- |
+| `backlog snapshot --json` | Same bytes as the pre-Wave build, apart from `generatedAt` (4,991,315 bytes compact). |
+| `backlog snapshot --work-store --json` | Same bytes as the default snapshot: no `workStore` or `readiness` key, store capability `not-used`. |
+| `work item resolve` (coordinate and path) | Same output and exit code. |
+| `project paths validate`, `check prd` | Same output and exit code. |
+| `project doctor check` | Same findings and files for the older checks. The candidate adds the P5 check `phase-status-line` (0 findings here) and, on the final candidate, the P6 check `phase-open-under-completed-index` (17 findings here, the finished phases under a completed index). |
+| `work evidence read` | Same output and exit code with the pre-W29 config. With this repository's config, the pre-Wave build refuses its `work` block (an unknown key), and with a schema 8 Store it refuses the Store as newer. See Limits. |
+| `work status` | "The docs/work/ files are the authority, because this computer has no Make Docs Store." or "... because this checkout is not bound to the Store.", each with "Read and edit the docs/work/ files directly." |
+| `work next` | `store-unavailable`, with "Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store." (register D-068). |
+| Project files | No change in either state. The read commands made no Store. |
+
+Fixed after the owner's decision (see [P6 Owner Decisions](#p6-owner-decisions-2026-11-23)). Before the fix, with no Store at all, the work write commands (`sync`, `claim`, `report`, `close`, `release`) failed in three ways. Rechecked on the review build in a temporary clone, one new temporary `MAKE_DOCS_HOME` for each command:
+
+1. Wrong code: each returns `work-store-refused` ("This checkout is not bound to the Store, so it has no sync ledger."), not the typed Store outcome with its `store-*` code that [PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-STORE-2 requires. For the same state, `work next` and `work evidence read` return `store-unavailable`. An agent that handles Store problems by their `store-*` code does not see this as a Store problem.
+2. A false claim: the message says "Make Docs refused this work store write, and nothing changed."
+3. A side effect: the shared Store session creates a new, empty Store before the refusal, so the next `work status` says "not bound" instead of "no Make Docs Store".
+
+The write commands from before W29 (`work evidence record`, `lifecycle start`) also create a Store when none exists, but they then do their work. Register [D-069](../../prd/03-open-questions-and-risk-register.md) gave the owner two options: A, keep it and change PRD 52; or B, refuse with the `store-*` code and create nothing. The owner chose B on 2026-11-23, and it is built: see [Register D-069, Option B](#register-d-069-option-b).
+
+### Folder Without Git (A27, T5)
+
+A folder with no `.git` ("fatal: not a git repository") and the fixture backlog: `setup` completed, then `work sync` (first import of 3 files), `work next --level task`, `work claim`, `work report --status in-progress --note "Parser reads the front matter."`, `work close`, and `work sync`, which wrote `- [x] T1: Build the parser.` Every command passed.
+
+### MCP on the Installed Package
+
+On a fixture project with a generic MCP client grant (`setup system --generic-mcp-client` and `setup --generic-mcp-client`), an MCP client over stdio listed all nine `work_` tools, and `work_status` gave the CLI text. `work_next` gave the same ready list, wait list, and summary as `work next --json`. `work_claim` without `allowWrite` was refused: "Operation `work.queue.claim` mutates state and requires write permission ... MCP allowWrite=true". With `allowWrite`, `work_claim` returned the claim ID once, and `work_close` closed the task.
+
+### Run Of PERF-004 (A28)
+
+The run binds the [PERF-004 profile](06-package-parity-and-acceptance.md#perf-004-automatic-sync-on-a-project-with-many-backlogs), version `1`, digest `sha256:2c96dd6a021633f58e46b3f215cc2c16816ac04e632ece8b5841b722011fcffd` (SHA-256 of the profile text from its heading to the end of its lineage table, with the digest field as `{{DIGEST}}`; a P6 test checks it). The digest at run time was `sha256:0b896b1b061b5620d2350831ef5eb5cf7f277111ad8fc97ef191cd42c6d63999`. After the review, the Workload field names the plain setup that ran before `setup --adopt`, and Finding Links names FOLLOW-UP-P6-SETUP-ADOPT; the version stays `1` because no timed command, boundary, analysis, or outcome rule changed. The ledger in the profile records this and why PERF-004 was not rerun after the harness got more stop checks. Budget event `W29-R0-P6-PERF-004-1`: three runs, each on a fresh clone of this repository and a fresh Store, with the installed candidate. Redacted raw results: [perf-004-results.json](evidence/p6/performance/perf-004-results.json); [harness](evidence/p6/performance/perf-004-harness.mjs).
+
+| Command | Median (ms) | Range (ms) |
+| --- | --- | --- |
+| `make-docs --version` (floor) | 84 | 83 to 87 |
+| First import | 1,380 | 1,358 to 1,384 |
+| `work sync`, no change | 386 | 382 to 398 |
+| `work next` | 330 | 324 to 408 |
+| `work status` | 351 | 340 to 375 |
+| `backlog snapshot --work-store --json` | 3,245 | 3,196 to 3,656 |
+| `backlog snapshot --json` | 2,909 | 2,886 to 3,354 |
+
+Outcome `pass`. Every correctness condition held in every run. The fast-path decision: not now. A sync with no change costs 302 ms over the CLI floor, under the profile's 1 second line, and twice the work files would still be under it. Look again at about 900 work files or when a person reports a slow work command. The harness needed one correction (a plain setup before `setup --adopt`); the first start stopped before any timed command.
+
+### Human Experience Review (A29)
+
+Each promise of the [index](00-index.md#human-experience-trace), checked against the installed runs:
+
+| Promise | Evidence on the installed package | Result | Open item |
+| --- | --- | --- | --- |
+| `work next` names ready units in dependency order and says why each blocked unit waits. | Fixture: ready tasks in order, a quick item last, and one reason and one next action for each waiting unit (claim, parent not ready, blocker). The repository copy: 46 ready phases, 20 waiting, each with a reason. MCP gives the same list. | Met. 17 finished phases (W19 R2 P2, W20 R0 P3 and P4, and the phases of W31, W32, and W33) wait under a closed index because their phase files still say `active`. Under the owner's option B, each now gets "All its tasks are done. Set its status line to completed in <file>, or close it with `make-docs work close <unit> --outcome done`.", and the new doctor check finds the same 17 files. The ready list still holds old phases (W17, W18, W21) whose indexes and phases both say `active`. | None. Guided Progress Review passed; FOLLOW-UP-P6-CLOSED-PARENT closed. |
+| Hand edits and teammates' edits through git reach the store after the next work command. | Two checkouts: a teammate's edit through git was imported by the next sync; the read-only `work next` before it named "1 file to import". Same work on both sides needs no person. | Met, with the limit that a read-only command (`work next`, `work status`) names the pending import and the next write command or `work sync` applies it (R-WORK-SYNC-8). | None. |
+| When both sides changed, Make Docs stops, shows both sides, and names one settle command. | `both-changed`, `file-deleted`, and `claimed` conflicts each stopped only their own file, showed the file and store side of each unit, named the units that wait, and gave one command for each choice. A stale revision and `--keep-file` on a claimed conflict were refused with nothing changed. | Met. Each conflict gives two choices, each one command, as R-WORK-SYNC-4 says. | None. Guided Progress Review passed. |
+| Existing `docs/work/` files keep their format and names. A teammate without a Store sees no change. | The first import of 463 files changed no file. Without a Store, the snapshot is byte for byte the pre-Wave output, and resolve, paths, PRD check, doctor findings, and evidence read match. | Met for a teammate on this CLI. A teammate on an older CLI sees its config refusal of the `work` block that this repository opted into, and a refusal of a schema 8 Store. | D-069; Limits. |
+| `work status` says whether the store or the files are the authority, and why. | Store mode, no Store, and not bound each give the mode and one reason; held paths are named; conflicts give their commands. P6 fixed the held-file and unreadable-file counts. | Met. Before the D-069 fix, a refused work write with no Store created a Store, so `work status` then said "not bound". Now no command but setup creates a Store. | None. Guided Progress Review passed; D-069 closed. |
+
+### Plan Validation Items (A30)
+
+| Plan validation item | Evidence |
+| --- | --- |
+| Validate design, plan, PRD, work, path, link, and metadata contracts. | `check prd`, `project paths validate`, `project doctor check`, `validate:defaults`, and the router check in Checks below. |
+| PRD authority validation before the backlog is implementation authority. | [P1](#p1-record-model-and-rule-catalog) checks; `check prd` again below. |
+| The parser and writer round-trip every current backlog byte for byte. | [P3 round trip (A10)](#round-trip-a10); P6 first import of 463 files on the installed package changed no file. |
+| First import changes no file and matches the `backlog_snapshot` facts. | [P3 first import (A12)](#first-import-a12); P6 installed first import above. |
+| Each row of the sync table, with a conflict that blocks only its own units. | [P3 sync table rows (A13)](#sync-table-rows-a13) and the P5 sync scenarios; P6 two-checkout table above. Each conflict named only its own units, and "Other files continue." |
+| Claims: one live claim, renewal, expiry, a stale claimant's report refused, the handle check before takeover. | [P4 acceptance cases](#acceptance-cases); P6 installed claim, release, and `claimed` conflict above. |
+| CLI JSON and MCP result parity for every new operation. | [P4 A16](#acceptance-cases) for all nine through the registry; P6 installed MCP check for `work_status`, `work_next`, `work_claim`, and `work_close`. |
+| No-Store, denied, and unsafe Store states keep `docs/work/` as the authority. | [P4 A19](#acceptance-cases) for each state; P6 installed no-Store and not-bound runs above. The denied and unsafe states were not rerun on the installed package. |
+| The agent twin and the CLI give the same answer on the shared fixtures. | [P5 A23](#a23-twin-parity). |
+| The finite `PERF-004` characterization. | Run of PERF-004 above. |
+| A Human Experience Review for each promise. | Above. |
+
+### Checks
+
+Final run, after the owner decisions, all with a temporary `MAKE_DOCS_HOME`:
+
+- `npx tsc --noEmit -p .` and `npm run build` in `packages/cli`: pass.
+- All W29 tests, the Store tests, `consistency`, the doctor tests, and `skill-adoption-store`: 20 files, 633 tests pass. The P6 test file `tests/w29-r0-p6-package-parity.test.ts` has 27 tests.
+- `npm run validate:defaults`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its system temporary folder.
+- `check prd`: no diagnostics. `project paths validate`: `valid: true`, 0 failing findings.
+- `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption` on this worktree (read only): 23 phase files marked active under a completed index, all fixable: the 17 listed above and the six W29 phase files, because the W29 index is now `completed` and its phases keep `active`, as in W31 to W33. `fix` was not run.
+- `check performance-evidence`: `failed` globally with only the 17 known W23 errors; `PERF-004` has none.
+- `npm run smoke:pack:local` (network, outside the sandbox): `PASS mode=local`, tarball SHA-256 `373fa0dacf0f55c76a4e22b895fdecac248a0175c65c3a0d66cad647449b2a08`.
+
+Earlier runs: with the first candidate, every check above passed and the smoke packed `66eaca5f8e5cad123385bb1d7387a9caf259149bed897c4594da1cbec55bbb94`. After the review fixes, the type check, build, W29 and `consistency` tests (363), `check prd`, `project paths validate`, the doctor check, the performance check, and the full suite passed; the smoke did not run on the review candidate `c1a3d2e752771f4dc2c08179674f0e3bc6fa7a02ca95490099ba12d4e638fded`, only the kept proof script did.
+
+### Full Test Suite
+
+`npx vitest run --reporter=json` in `packages/cli`, counted from the JSON report.
+
+| Run | Test files (passed, failed) | Tests: passed, failed, skipped, of |
+| --- | --- | --- |
+| First candidate | 150 (148, 2) | 3,393, 3, 6, of 3,402 |
+| After the review fixes | 150 (148, 2) | 3,393, 3, 6, of 3,402 |
+| Owner decisions, first try | 150 (147, 3) | 3,408, 6, 6, of 3,420 |
+| Owner decisions, final | 150 (148, 2) | 3,411, 3, 6, of 3,420 |
+
+In every run, the three failures are the known ones: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only). The first try after the owner decisions also failed three tests in `p3-operation-surfaces` that counted on a write command creating the Store; they were updated (see [Register D-069, Option B](#register-d-069-option-b)), and the final run passes them.
+
+### P6 Owner Decisions (2026-11-23)
+
+- Guided Progress Review: passed. The owner found the installed `work next`, `work status`, and conflict output clear (option A). The samples are below.
+- Register [D-069](../../prd/03-open-questions-and-risk-register.md): option B, fixed inside W29. See [Register D-069, Option B](#register-d-069-option-b).
+- FOLLOW-UP-P6-CLOSED-PARENT: option B. The index status still does not close its phases (PRD 52 R-WORK-QUEUE-4 and R-WORK-QUEUE-20 stand). The `ancestor-closed` next action and a new doctor check changed. See [Closed Parent, Option B](#closed-parent-option-b).
+- Register [D-070](../../prd/03-open-questions-and-risk-register.md): routed to the setup and adoption area, not a W29 gate.
+
+### Register D-069, Option B
+
+The shared Store session of every registry write operation now checks for the Store database before its write admission opens (`packages/cli/src/operations/context.ts`). Opening the Store for writing is what created it (`prepareStore` inside the writable open). With no Store database, the session returns `store-unavailable`, the code that `work next` and `work evidence read` already give for this state, and creates no folder, database, WAL, SHM, or lease file. Read admissions open read only, already refused a missing Store without creating one, and keep their words. Setup is not a registry operation and still creates the Store, as PRD 38 R-DB-4 allows.
+
+On the review build, each command in a temporary clone with its own new `MAKE_DOCS_HOME`:
+
+| Command | Code | Store folder after |
+| --- | --- | --- |
+| `work sync`, `claim`, `release`, `report`, `close`, `export`, `add` | `store-unavailable` | none |
+| `work evidence record`, `lifecycle start`, `project surface ensure` | `store-unavailable` | none |
+| `work evidence read` (a read) | `store-unavailable`, its earlier words | none |
+
+`make-docs work sync` with no Store (the `code` and `message` fields of the JSON result; the Store folder stays absent):
+
+```text
+code: store-unavailable
+message: This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store. Only operation 'work.queue.sync' stopped. Independent Store-free work can continue. Next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.
+```
+
+Released behavior that changed: The change covers 26 registry write commands on the CLI: the seven work queue writes (`work sync`, `claim`, `release`, `report`, `close`, `export`, `add`), `work evidence record`, `backlog cache write`, `resource ensure`, `project surface ensure`, the eight `lifecycle` writes, `project layout prepare`, `apply`, and `verify`, `project state recover`, and `project doctor fix`. In released 2.0.9, only `lifecycle start` and `work evidence record` worked with no Store, creating one as a side effect; the others created a stray empty Store and then failed. Now all of them refuse the same way. Over MCP, these tools already refuse earlier with `store-denied`, because there is no connection key, so MCP behavior did not change. Flag this change in the next release notes (this repository writes release notes in the GitHub release). No PRD requires the old behavior: PRD 38 R-DB-4 lets only setup initialize a missing Store, and PRD 38 R-TEST-12 asks that `store-not-configured` opens no Store. The project router already says that lifecycle capture without the CLI or Store is reported as unavailable. No PRD text changed. The code is `store-unavailable`, not `store-not-configured`, because R-WORK-STORE-2 asks for "the existing typed Store outcome", and that is the code the reads already return for an absent Store. A Store that exists while this checkout is not bound still gives `work-store-refused`; that state was not part of this decision.
+
+Tests in `packages/cli/tests/w29-r0-p6-package-parity.test.ts`: each of the seven work queue writes, `work evidence record`, and `lifecycle start` returns `store-unavailable` with the setup step (and the files step for the queue commands), changes no project file, and leaves no Store folder; a test checks that the list covers every work queue write; a read keeps its earlier words. Three older tests in `tests/p3-operation-surfaces.test.ts` counted on a write command creating the Store: two now expect the no-Store refusal for `project surface ensure` and check that no Store is made (the refusal for a Store without installation evidence stays covered in `tests/w22-r1-ownership.test.ts`), and the `resource ensure` permission test creates its Store first, the way the session used to.
+
+### Closed Parent, Option B
+
+- The `ancestor-closed` next action has two branches (`catalog.ts` `nextActionWhenDone`, `readiness.ts`). When the waiting unit has tasks and every one is closed as done: "All its tasks are done. Set its status line to completed in <file>, or close it with `make-docs work close <unit> --outcome done`." Otherwise, as before: "Close this unit as superseded with `make-docs work close`, or reopen <parent> by changing its status in <index>." A task is never told it is done. The agent twin `work-store.md` names both branches (template first, then the byte-identical dogfood and package copies). The catalog and the twin stay in parity; the twin test passes.
+- New doctor check `phase-open-under-completed-index` (PRD 39 R-DOCTOR-9, with Requirement History): a phase file whose status line says `active` or `open` while its index status reads as closed and done (`completed`, `complete`, `closed`, or `done`, the same map as the work queue). When every task is checked, the fix changes only the word to `completed` and keeps the key, spacing, quotes, line ending, and byte order mark. Otherwise the finding is report only. It skips held paths and respects `--exclude`. The agent twin `project-doctor.md` has the check, its rules, and a shared example that a test reads.
+- On a temporary clone of this repository at `31891c2b`, `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption` found 17 phase files, all with every task checked, so all 17 are fixable and none is report only. `work next` on the same clone gives the "All its tasks are done" advice to exactly these 17 phases. `fix` was not run; the owner runs it on the repository.
+
+```text
+docs/work/2026-08-14-w19-r2-performance-evidence-governance/02-governance-resources-and-routing.md
+docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent/03-lifecycle-propagation-and-routing.md
+docs/work/2026-08-28-w20-r0-human-experience-standard-and-intent/04-evidence-review-and-acceptance.md
+docs/work/2026-11-22-w31-r0-task-id-case-and-project-doctor/01-readers-accept-both-cases.md
+docs/work/2026-11-22-w31-r0-task-id-case-and-project-doctor/02-writers-and-shipped-resources.md
+docs/work/2026-11-22-w31-r0-task-id-case-and-project-doctor/03-project-doctor.md
+docs/work/2026-11-22-w31-r0-task-id-case-and-project-doctor/04-one-time-rewrite-and-acceptance.md
+docs/work/2026-11-22-w32-r0-store-review-and-maintenance/01-table-catalog-and-fixed-rules.md
+docs/work/2026-11-22-w32-r0-store-review-and-maintenance/02-schema-v7-and-defect-fixes.md
+docs/work/2026-11-22-w32-r0-store-review-and-maintenance/03-project-register-and-row-events.md
+docs/work/2026-11-22-w32-r0-store-review-and-maintenance/04-maintenance-commands.md
+docs/work/2026-11-22-w32-r0-store-review-and-maintenance/05-real-store-proof-and-acceptance.md
+docs/work/2026-11-22-w33-r0-command-tree-and-tool-names/01-name-catalog-and-rules.md
+docs/work/2026-11-22-w33-r0-command-tree-and-tool-names/02-command-tree-and-tool-names.md
+docs/work/2026-11-22-w33-r0-command-tree-and-tool-names/03-aliases-and-migration-window.md
+docs/work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md
+docs/work/2026-11-22-w33-r0-command-tree-and-tool-names/05-acceptance.md
+```
+
+The owner expected about 20. The other three of the 20 waiting phases on this repository are W22 R1 P1, P3, and P4, which are drafts, not phases under a closed index. W19 R2's index says `complete`, which the check reads as completed, as the work queue does.
+
+### Owner Samples For The Guided Progress Review
+
+Installed candidate, fixture project, `<temp>` folders. Times are shortened.
+
+`work next --level task`, with one claim and one quick item:
+
+```text
+Ready tasks (2), in order. Read each unit's revision with --json, for --expected-version:
+  W1 R0 P1 T2: Write the writer. (docs/work/2042-06-01-w1-r0-aurora/01-first.md)
+  task 1: Compare two printers
+Waiting (3):
+  W1 R0 P1 T1: Build the parser.
+    - Claimed by builder-a. The claim ends at 2026-11-23T21:36Z unless builder-a renews it. Next: Wait for builder-a to finish or release it.
+  W1 R0 P1 T3: Check it.
+    - Part of W1 R0 P1 S2, which is not ready yet. Next: Run `make-docs work next --level stage` to see why W1 R0 P1 S2 waits.
+  W1 R0 P2 T1: Ship it.
+    - Part of W1 R0 P2, which is not ready yet. Next: Run `make-docs work next --level phase` to see why W1 R0 P2 waits.
+Sync check: the files and the store match.
+Changes nothing.
+```
+
+`work next` on the copy of this repository, a phase of a finished Wave whose file still says `active`:
+
+```text
+  W31 R0 P1: Phase 1: Readers Accept Both Cases
+    - Part of W31 R0, which is closed. Next: Close this unit as superseded with `make-docs work close`, or reopen W31 R0 by changing its status in docs/work/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md.
+```
+
+`work status` in checkout B with a both-changed conflict:
+
+```text
+The work store is the authority, because this checkout is bound to a usable Store. The docs/work/ files are its repo copy.
+Repo copies are on: sync keeps the docs/work/ files and the store the same.
+964 open units: 109 ready, 855 waiting. 0 quick items. 0 live claims.
+Sync check: 1 conflict waiting for a person. Settle each conflict with one of its commands.
+Conflict in docs/work/2042-06-01-w1-r0-aurora/01-first.md (both-changed): The file and the store both changed. A person decides.
+  Keep the file. Make Docs imports it and replaces the store's version. Run: make-docs work sync --settle docs/work/2042-06-01-w1-r0-aurora/01-first.md --keep-file
+  Keep the store. Make Docs rewrites the file from the store. Run: make-docs work sync --settle docs/work/2042-06-01-w1-r0-aurora/01-first.md --keep-store
+Sync never writes these held paths: docs/work/2026-11-13-w22-r2-portable-checkout-adoption.
+Changes nothing.
+```
+
+The same conflict as `work sync` reports it:
+
+```text
+Sync stopped for docs/work/2042-06-01-w1-r0-aurora/01-first.md.
+The file and the store both changed. A person decides.
+File: present (sha256 ff03bd112f59).
+Store: revision 12, 6 units.
+What differs:
+- W1 R0 P1 T2: file [ ], "Write the writer."; store closed (done), "Write the writer.".
+- W1 R0 P1 T3: file [ ], "Check it twice."; store open, "Check it.".
+These units wait until you choose: W1 R0 P1, W1 R0 P1 S1, W1 R0 P1 S2, W1 R0 P1 T1, W1 R0 P1 T2, W1 R0 P1 T3. Other files continue.
+Choose one:
+- Keep the file. Make Docs imports it and replaces the store's version. Run: make-docs work sync --settle docs/work/2042-06-01-w1-r0-aurora/01-first.md --keep-file
+- Keep the store. Make Docs rewrites the file from the store. Run: make-docs work sync --settle docs/work/2042-06-01-w1-r0-aurora/01-first.md --keep-store
+```
+
+A `claimed` conflict and its choices:
+
+```text
+Sync stopped for docs/work/2042-06-01-w1-r0-aurora/03-third.md.
+The file closes or removes a unit that a claim still holds, live or expired. An import never acts for a claim holder, so Make Docs stopped this file. The claim ends only through its holder, a takeover, or a release after a check of its task handle. If nobody acts, make-docs setup store check lists an expired claim after 7 days (STORE-DECISION-004).
+The file closes W1 R0 P3 T1, and builder-a holds it on a live claim until 2026-11-23T21:32Z. Only the claim holder closes a claimed unit.
+...
+Choose one:
+- builder-a holds W1 R0 P3 T1 until 2026-11-23T21:32Z. The holder releases it with its claim ID, or closes the unit; then the next sync imports the file. Run: make-docs work release W1 R0 P3 T1 --claim-id <claim ID> --expected-version 1
+- Keep the store. Make Docs rewrites the file from the store, so the claimed unit stays open for its claim. Run: make-docs work sync --settle docs/work/2042-06-01-w1-r0-aurora/03-third.md --keep-store
+```
+
+Result (2026-11-23): passed, option A. The owner found the order and wording of `work next`, `work status`, and the conflict report clear. The closed-parent question was decided separately (option B, above).
+
+### Follow-Ups
+
+None blocks W29.
+
+- FOLLOW-UP-P6-CLOSED-PARENT: closed on 2026-11-23 with the owner's option B. A done unit under a closed index now gets the "set its status line to completed" advice, and `project doctor` has the `phase-open-under-completed-index` check with a reviewed fix (see [Closed Parent, Option B](#closed-parent-option-b)). The index status still does not cascade. The 17 files on this repository wait for the owner's own fix run.
+- FOLLOW-UP-P6-UNIT-COUNT: the first import says "10 units entered the store", and `work status` then counts 11 open units, because the store adds one unit for each wave. A P3 test fixes the first wording.
+- FOLLOW-UP-P6-SETUP-ADOPT (register [D-070](../../prd/03-open-questions-and-risk-register.md), routed to the setup and adoption area): a clone with a saved project ID, on a new Store, needs four setup commands before its first import. Rechecked on the review build: (1) `setup --adopt --yes` first refuses "This checkout cannot be adopted yet. The Store is absent. Checkout move needs a usable Store." with no next step; (2) plain `setup --yes` makes the Store and stops with "ambiguous-ownership" and the next step "Run make-docs setup again"; (3) plain `setup --yes` again stops with "This checkout has a project ID but no installed record in this Store", and only now names `make-docs setup --adopt --yes`; (4) `setup --adopt --yes` completes. Steps 2 and 3 exit 0 while blocked. A second worktree also needs `project checkout apply --review <digest>` first. This is setup behavior from W22, not W29; the `PERF-004` harness and the proof script run steps 2 and 4.
+
+### Limits
+
+- One machine (macOS arm64), one Node version, and one repository for `PERF-004`; informational only.
+- The `store-missing` and `unclear` conflict kinds, copies off, and the denied and unsafe Store states were not rerun on the installed package; the P3 to P5 tests cover them.
+- A teammate on a CLI from before W29 cannot use Store commands on a project whose config has a `work` block (only this repository has one) and cannot read a schema 8 Store; it refuses both safely.
+- The MCP check called four of the nine tools on the installed package; P4 A16 covers all nine through the registry.
+- The fix of the 17 open phase files on this repository waits for the owner's own `project doctor fix` run.
+- The proof script kept in this folder is a rebuild of the script that ran on the first candidates; its own run on the review candidate is the one kept.
+- `backlog snapshot` byte counts include the temporary folder path, so they differ by a few bytes between runs (4,991,315 and 4,991,313).

@@ -16,6 +16,7 @@ This reference is the agent twin of the deterministic doctor operations `project
 | --- | --- | --- | --- |
 | `task-id-case` | Markdown files under `docs/work/` | A task ID uses a lower-case `t`, such as `t3`. Make Docs writes task IDs with an upper-case `T`, such as `T3`. | Change the `t` to `T`. The number and all other text stay the same. |
 | `phase-status-line` | Phase files under `docs/work/`, except paths on the sync hold list (`work.syncHold`) | A phase file has no status line, and every task in it is checked. Make Docs counts it as done only through the all-tasks-checked fallback. | Add the status line `status: "completed"` to its front matter, after `kind` or `title`. A file with no front matter gets front matter that holds only this line. All other text stays the same. |
+| `phase-open-under-completed-index` | Phase files under `docs/work/`, except paths on the sync hold list (`work.syncHold`) | A phase file's status line says active or open, while the index of its backlog says completed. An index status does not close its phases, so the work queue keeps the phase waiting. | When every task in the phase is checked, change the word in its status line to `completed`. The key, spacing, and quotes stay. Otherwise the finding is report only, and the fix changes nothing in that file. |
 
 Later checks are added here and in the CLI together.
 
@@ -23,7 +24,7 @@ Later checks are added here and in the CLI together.
 
 1. Ask the person which paths to leave out. Each excluded path is relative to the project folder. Do not accept a path that is absolute, uses `..`, starts with `~`, uses a backslash, has an empty or `.` part, passes through a symbolic link, or does not exist. Each part must match a folder or file name exactly, with the same upper and lower case, even on a file system that ignores case. Compare names in Unicode NFC form, so an accent written as one character or as a letter and a separate mark is the same name. Any other difference is a mismatch. Stop and say why.
 2. Find every finding with the rules below. Change nothing yet.
-3. Report the totals first, in plain words: the number of findings, lines, and files, the number of task lines and prose references, and the number of phase files that need a status line. Then list each finding with its file, line, current text, and replacement. If there are no findings, say that the check found no problems and changed nothing.
+3. Report the totals first, in plain words: the number of findings, lines, and files, the number of task lines and prose references, the number of phase files that need a status line, and the number of open phase files under a completed index, with how many of them are report only. Then list each finding with its file, line, current text, and replacement. If there are no findings, say that the check found no problems and changed nothing.
 4. Tell the person that a prose finding can be something that is not a task ID, and that a phase can still have open work that is not a task line. Ask them to review the list.
 5. Fix only after the person approves this exact list. Before you edit a file, read it again. If it changed after your check, stop, name the file, and run the check again.
 6. Change only the reviewed characters. Report each changed file. Keep a copy of each file before you edit it, and name each copy. Give the undo path: for a file that git tracks, `git -C '<project folder>' diff` shows the change and `git -C '<project folder>' restore -- '<file>'` undoes it from any current folder, but that also drops any earlier uncommitted edit in the file. Quote each file name with single quotes. For a file that git does not track, or in a folder without git, the undo path is the copy.
@@ -104,6 +105,62 @@ After:
 
 ```markdown
 ---
+status: "completed"
+---
+
+# Phase 1: Build
+
+### Tasks
+
+- [x] T1: Write the parser.
+- [x] T2: Write the writer.
+```
+
+## The `phase-open-under-completed-index` Check
+
+An index status does not close its phases, and the work queue keeps such a phase waiting with the reason `ancestor-closed` (`work-store.md`, Readiness). This check finds those phases. It reads the same files as `task-id-case` and skips the same files.
+
+- Check only phase files, as `phase-status-line` does. Read the status of the backlog's index file, `00-index.md` in the same folder. The index counts as completed when the work rules read its status as closed and done: `complete`, `completed`, `closed`, or `done`, in any letter case. An index that is excluded, missing, or unreadable gives no finding. A held index is still read, because the check only reads it.
+- Skip each path on the sync hold list, `work.syncHold`. Name each held phase file that would have a finding as skipped, with the reason "on the sync hold list". `--exclude` leaves a path out for every check.
+- A phase file has a finding when its front matter `status` is `active` or `open`, in any letter case, with or without quotes, and its index counts as completed.
+- When the phase has at least one task line, every task line is checked, and no `Tasks` section holds an unchecked checkbox, the fix changes the word in the status line to `completed`. The key, the spacing, the quotes, and the line ending stay. Keep a byte order mark.
+- Otherwise the finding is report only. The fix changes nothing in that file. The person decides by hand whether the phase is done, superseded, or still open.
+
+Index:
+
+```markdown
+---
+title: "W1 R0 Sample"
+kind: "work"
+status: "completed"
+---
+
+# W1 R0 Sample
+```
+
+Phase before:
+
+```markdown
+---
+title: "Phase 1: Build"
+kind: "work"
+status: "active"
+---
+
+# Phase 1: Build
+
+### Tasks
+
+- [x] T1: Write the parser.
+- [x] T2: Write the writer.
+```
+
+Phase after:
+
+```markdown
+---
+title: "Phase 1: Build"
+kind: "work"
 status: "completed"
 ---
 

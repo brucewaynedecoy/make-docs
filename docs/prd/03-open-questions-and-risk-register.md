@@ -1393,6 +1393,49 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Resolution**: Closed on 2026-11-23 at the owner's choice of option A. R-WORK-STORE-2 says that the queue commands that need the Store return the typed Store outcome, that the read-only `work next` also points to `docs/work/` and `make-docs backlog snapshot`, and that file-reading commands read the files. The W29 R0 P4 second pass tests cover `work next` with an absent Store and with a checkout that is not bound.
 
+### D-069 A Work Write Command With No Store Gives the Wrong Code and Leaves a Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option B on 2026-11-23, fixed inside W29. | Built in W29 R0 P6. Evidence: [W29 R0 P6 without Store access](../work/2026-11-21-w29-r0-work-store/evidence.md#without-store-access-a26-t4). |
+
+**Issue**: With no Store at all, `make-docs work sync`, `claim`, `report`, `close`, and `release` fail in three ways at once:
+
+1. Wrong code. Each returns `work-store-refused` with the reason "This checkout is not bound to the Store, so it has no sync ledger." [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 says the queue commands that need the Store "return the existing typed Store outcome with its code". For the same state, `work next` and `work evidence read` return `store-unavailable`, a `store-*` code.
+2. A false claim. The message says "Make Docs refused this work store write, and nothing changed."
+3. A side effect. The shared Store session creates a new, empty Store before the refusal. After it, `work status` reports "not bound" instead of "this computer has no Make Docs Store".
+
+The read commands (`work status`, `work next`, `backlog snapshot`, `work evidence read`) make no Store. The write commands from before W29 (`work evidence record`, `lifecycle start`) also create a Store when none exists, but they then do their work and do not refuse.
+
+**Why it matters**: An agent that handles Store problems by their `store-*` code (as the project router tells it to: stop only that operation, report it, and continue Store-free work) does not see this refusal as a Store problem. It gets a setup next step for a checkout binding instead. The "nothing changed" line is not true, and the empty Store changes what the next command reports.
+
+**Recommendation**: Option A: keep the behavior. This needs a PRD 52 R-WORK-STORE-2 change that allows `work-store-refused` and a created Store for a write without a Store, and a fix of the "nothing changed" words. Option B (recommended, inside W29): each work write command checks for an absent or unusable Store before the shared Store session opens, returns the typed Store outcome with its `store-*` code and the pointer to the `docs/work/` files, and creates nothing. B matches R-WORK-STORE-2 as written and needs no PRD change.
+
+**To close**: The owner chooses. For B: the five write commands return the `store-*` code with no Store, make no Store, and a test proves both on the CLI and MCP. For A: PRD 52 states the behavior, with a Requirement History entry, and the refusal text says that a Store was made.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option B. The shared Store session of every registry write operation now checks for the Store database before its write admission opens. With no Store, it returns `store-unavailable`, the same code and words that `work next` gives for that state ("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store."), with "Run make-docs setup to create the Store" and, for the work queue commands, the pointer to the `docs/work/` files. It creates no folder, database, WAL, SHM, or lease file. This covers 26 registry write commands on the CLI: the seven work queue writes (`work sync`, `claim`, `release`, `report`, `close`, `export`, `add`), `work evidence record`, `backlog cache write`, `resource ensure`, `project surface ensure`, the eight `lifecycle` writes, `project layout prepare`, `apply`, and `verify`, `project state recover`, and `project doctor fix`. In released 2.0.9, only `lifecycle start` and `work evidence record` worked with no Store, creating one as a side effect; the others created a stray empty Store and then failed. Now all of them refuse the same way. Over MCP, these tools already refuse earlier with `store-denied`, because there is no connection key, so MCP behavior did not change. No PRD text changed: PRD 52 R-WORK-STORE-2 already asks for the typed outcome, and PRD 38 R-DB-4 and R-TEST-12 let only setup create a Store. Setup is not a registry operation and still creates the Store. Read commands keep their own refusal words. A Store that exists while this checkout is not bound still gives `work-store-refused`; that state is not part of this decision. Tests: `packages/cli/tests/w29-r0-p6-package-parity.test.ts`.
+
+### D-070 Setup Of a Clone With a Saved Project ID and a New Store Hides `--adopt`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Routed to the setup and adoption area (the W22 R2 portable checkout adoption backlog owns setup and adoption). Not built in W29. | Found in W29 R0 P6. Evidence: [W29 R0 P6 follow-ups](../work/2026-11-21-w29-r0-work-store/evidence.md#follow-ups). Related: D-050. |
+
+**Issue**: A person who clones a project that has a saved `projectId`, on a computer with no Store, and runs setup non-interactively needs four commands, and the first two do not name the one that works:
+
+1. `make-docs setup --adopt --yes` refuses: "This checkout cannot be adopted yet. The Store is absent. Checkout move needs a usable Store." It gives no next step.
+2. `make-docs setup --yes` makes the Store and stops: "The reviewed plan does not permit migration (ambiguous-ownership)." Next: "Run make-docs setup again to review and recover the project change."
+3. `make-docs setup --yes` again stops: "This checkout has a project ID but no installed record in this Store." Only now does the next step name `make-docs setup --adopt --yes`.
+4. `make-docs setup --adopt --yes` completes.
+
+Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same project also needs `make-docs project checkout apply --review <digest>` before `setup --adopt --yes`.
+
+**Why it matters**: The first command a person would try for an existing project refuses with no way forward, and the next two send the person around a loop. An agent that follows each next step needs four runs.
+
+**Recommendation**: `setup --adopt` creates the Store when it is absent and then adopts the checkout in one command. At least, the first refusal and the `ambiguous-ownership` stop name `make-docs setup --adopt --yes` as the next step.
+
+**To close**: The setup and adoption owner chooses the fix. A test on a clone with a saved project ID and no Store shows that one command, or at most two with the first naming the second, completes the adoption.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

@@ -15,6 +15,7 @@ import {
 import { writeTextFile } from "../../../utils";
 import { OperationError } from "../../types";
 import { readWorkSyncConfig } from "../../work/work-store/sync";
+import { COMPLETED_INDEX_STATUS, indexRecordedStatus, scanPhaseOpenUnderCompletedIndex } from "./phase-open-under-completed-index";
 import { PHASE_STATUS_LINE, scanPhaseStatusLine } from "./phase-status-line";
 import { applyTaskIdCase, scanTaskIdCase, type TaskIdCaseFindingKind, type TaskIdCaseMatch, type TaskIdCaseTextSkip } from "./task-id-case";
 
@@ -34,7 +35,7 @@ export const DOCTOR_FIX_OPERATION = "project.doctor.fix";
  */
 const ROUTER_FILES = new Set(["agents.md", "claude.md"]);
 
-export type DoctorCheckId = "task-id-case" | "phase-status-line";
+export type DoctorCheckId = "task-id-case" | "phase-status-line" | "phase-open-under-completed-index";
 
 export interface DoctorCheckDefinition {
   id: DoctorCheckId;
@@ -58,6 +59,13 @@ export const DOCTOR_CHECKS: readonly DoctorCheckDefinition[] = Object.freeze([
     description: "A phase file has no status line, and every task in it is checked. Make Docs counts it as done only through the all-tasks-checked fallback.",
     fix: `Add the status line ${PHASE_STATUS_LINE} to its front matter, after kind or title. A file with no front matter gets front matter that holds only this line. All other text stays the same.`,
   }),
+  // W29 R0 P6: owner decision of 2026-11-23 on FOLLOW-UP-P6-CLOSED-PARENT, option B (PRD 39 R-DOCTOR-9).
+  Object.freeze({
+    id: "phase-open-under-completed-index" as const,
+    scope: "Phase files under docs/work/, except paths on the sync hold list (work.syncHold)",
+    description: "A phase file's status line says active or open, while the index of its backlog says completed. An index status does not close its phases, so the work queue keeps the phase waiting.",
+    fix: `When every task in the phase is checked, change the word in its status line to ${COMPLETED_INDEX_STATUS}. The key, spacing, and quotes stay. Otherwise the finding is report only, and the fix changes nothing in that file.`,
+  }),
 ]);
 
 /** Accepted risks. Each one is shown in every check result and has a fixture. */
@@ -66,11 +74,12 @@ export const DOCTOR_NOTES: readonly string[] = Object.freeze([
   "The check does not find a task ID in a form it cannot tell apart from other text: inside a word or a snake_case name, after a dot, after a slash or dash that does not follow an ID, with four or more digits, in a range without a second t (t1-6), in emphasis written with underscores (_t3_), or inside an HTML tag. Text inside an HTML tag, such as id=\"t3\", is listed as left unchanged, also when the tag runs over more than one line.",
   "The edge of a skipped part (inline code, a link target, a URL, or an HTML tag) counts as a word edge. So text glued to such a part is found, such as t3 in word<span>t3</span>word, `code`t3, or <https://example.com>t3. Review these findings with the rest.",
   "A phase-status-line finding proposes status: \"completed\", because every task in the file is checked. A phase can still have open work that is not a task line. Review each one before you run the fix. The check never changes a path on the sync hold list (work.syncHold). It names each held phase file that would have a finding as skipped.",
+  "A phase-open-under-completed-index finding with unchecked tasks is report only. Decide by hand whether the phase is done, superseded, or still open. The fix changes only the findings whose tasks are all checked, and never a path on the sync hold list.",
 ]);
 
 export interface DoctorFinding {
   check: DoctorCheckId;
-  kind: TaskIdCaseFindingKind | "missing-status-line";
+  kind: TaskIdCaseFindingKind | "missing-status-line" | "open-under-completed-index" | "open-under-completed-index-report-only";
   file: string;
   line: number;
   column: number;
@@ -113,6 +122,7 @@ export interface DoctorCheckResult {
     byCheck: {
       "task-id-case": { taskLines: number; proseReferences: number };
       "phase-status-line": { phaseFiles: number };
+      "phase-open-under-completed-index": { phaseFiles: number; reportOnly: number };
     };
   };
   checks: DoctorCheckDefinition[];
@@ -157,6 +167,8 @@ interface InternalScan {
   /** Task ID changes, apart from status lines. */
   taskIdChanges: number;
   statusLines: number;
+  /** Open status lines set to completed. */
+  statusSets: number;
 }
 
 const sha256 = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
@@ -303,6 +315,18 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
   const plans: InternalScan["plans"] = [];
   let taskIdChanges = 0;
   let statusLines = 0;
+  let statusSets = 0;
+  let reportOnly = 0;
+  // The recorded status of each backlog's index, for phase-open-under-completed-index.
+  const indexStatus = new Map<string, string | null>();
+  for (const relative of candidates) {
+    if (ROUTER_FILES.has(path.posix.basename(relative).toLowerCase())) continue;
+    const absolute = path.join(root, ...relative.split("/"));
+    const stat = lstatSync(absolute);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink > 1) continue;
+    const status = indexRecordedStatus(relative, readFileSync(absolute, "utf8"));
+    if (status !== null || path.posix.basename(relative) === "00-index.md") indexStatus.set(path.posix.dirname(relative), status);
+  }
   for (const relative of candidates) {
     // The scope is docs/work only, so .make-docs/archive/ is never read.
     if (ROUTER_FILES.has(path.posix.basename(relative).toLowerCase())) {
@@ -339,9 +363,32 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
     let after = taskIdAfter;
     let changes = scan.matches.length;
     taskIdChanges += scan.matches.length;
+    const parentIndexStatus = indexStatus.get(path.posix.dirname(relative)) ?? null;
     if (held(relative)) {
       if (scanPhaseStatusLine(relative, text)) skipped.push({ path: relative, reason: "sync-hold", check: "phase-status-line" });
+      if (scanPhaseOpenUnderCompletedIndex(relative, text, parentIndexStatus)) skipped.push({ path: relative, reason: "sync-hold", check: "phase-open-under-completed-index" });
     } else {
+      const open = scanPhaseOpenUnderCompletedIndex(relative, taskIdAfter, parentIndexStatus);
+      if (open) {
+        if (open.fixable && open.after !== null) {
+          after = open.after;
+          changes += 1;
+          statusSets += 1;
+        } else {
+          reportOnly += 1;
+        }
+        findings.push({
+          check: "phase-open-under-completed-index",
+          kind: open.fixable ? "open-under-completed-index" : "open-under-completed-index-report-only",
+          file: relative,
+          line: open.line,
+          column: 1,
+          current: open.current,
+          replacement: open.replacement,
+          lineText: open.current,
+          fixedLineText: open.replacement,
+        });
+      }
       const status = scanPhaseStatusLine(relative, taskIdAfter);
       if (status) {
         after = status.after;
@@ -372,6 +419,9 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
   const foundParts = [
     ...(taskIdFindings.length > 0 ? [`${plural(taskIdFindings.length, "lower-case task ID")} on ${plural(taskIdLines, "line")} in ${plural(taskIdFiles, "file")}: ${plural(taskLines, "task line")} and ${plural(proseReferences, "prose reference")}`] : []),
     ...(statusLines > 0 ? [`${plural(statusLines, "phase file")} with no status line whose tasks are all checked`] : []),
+    ...(statusSets + reportOnly > 0
+      ? [`${plural(statusSets + reportOnly, "phase file")} marked active or open under a completed index (${statusSets} with every task checked, which the fix sets to completed; ${reportOnly} report only)`]
+      : []),
   ];
   const reviewDigest = sha256(canonicalJson({
     schemaVersion: 1,
@@ -399,7 +449,11 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
       filesSkipped: skipped.length,
       filesExcluded: counts.excluded,
       textSkipped: skippedText.length,
-      byCheck: { "task-id-case": { taskLines, proseReferences }, "phase-status-line": { phaseFiles: statusLines } },
+      byCheck: {
+        "task-id-case": { taskLines, proseReferences },
+        "phase-status-line": { phaseFiles: statusLines },
+        "phase-open-under-completed-index": { phaseFiles: statusSets, reportOnly },
+      },
     },
     checks: DOCTOR_CHECKS.map((check) => ({ ...check })),
     exclusions,
@@ -411,9 +465,11 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
     reviewDigest,
     nextAction: clean
       ? "No fix is needed."
-      : `Review each finding. Then run: make-docs project doctor fix --review ${reviewDigest}${excludeArgs} --target-root ${shellQuote(root)}`,
+      : plans.length === 0
+        ? "Review each finding. Every finding is report only, so the fix would change nothing. Decide each phase by hand."
+        : `Review each finding. Then run: make-docs project doctor fix --review ${reviewDigest}${excludeArgs} --target-root ${shellQuote(root)}`,
   };
-  return { result, plans, taskIdChanges, statusLines };
+  return { result, plans, taskIdChanges, statusLines, statusSets };
 }
 
 /**
@@ -421,11 +477,19 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
  * added 4 status lines", "Added 79 status lines", or, for a dry run, "Would
  * change 1 task ID and add 4 status lines" and "Would add 79 status lines".
  */
-function changeWords(taskIds: number, statusLines: number, mood: "done" | "would"): string {
+function changeWords(taskIds: number, statusLines: number, mood: "done" | "would", statusSets = 0): string {
   const parts = mood === "done"
-    ? [...(taskIds > 0 ? [`changed ${plural(taskIds, "task ID")}`] : []), ...(statusLines > 0 ? [`added ${plural(statusLines, "status line")}`] : [])]
-    : [...(taskIds > 0 ? [`change ${plural(taskIds, "task ID")}`] : []), ...(statusLines > 0 ? [`add ${plural(statusLines, "status line")}`] : [])];
-  const text = parts.join(" and ");
+    ? [
+        ...(taskIds > 0 ? [`changed ${plural(taskIds, "task ID")}`] : []),
+        ...(statusLines > 0 ? [`added ${plural(statusLines, "status line")}`] : []),
+        ...(statusSets > 0 ? [`set ${plural(statusSets, "status line")} to completed`] : []),
+      ]
+    : [
+        ...(taskIds > 0 ? [`change ${plural(taskIds, "task ID")}`] : []),
+        ...(statusLines > 0 ? [`add ${plural(statusLines, "status line")}`] : []),
+        ...(statusSets > 0 ? [`set ${plural(statusSets, "status line")} to completed`] : []),
+      ];
+  const text = parts.length > 2 ? `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}` : parts.join(" and ");
   const sentence = mood === "would" ? `would ${text}` : text;
   return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
@@ -488,7 +552,7 @@ export function fixProjectDoctor(input: {
   /** The calling surface names the option that lists the reviewed files. */
   caller?: "cli" | "mcp";
 }): DoctorFixResult {
-  const { result, plans, taskIdChanges, statusLines } = scanProject(input.projectRoot, input.exclusions ?? []);
+  const { result, plans, taskIdChanges, statusLines, statusSets } = scanProject(input.projectRoot, input.exclusions ?? []);
   const root = result.targetRoot;
   if (result.reviewDigest !== input.review) {
     const changed = input.reviewedFiles ? changedSince(input.reviewedFiles, result.files) : [];
@@ -501,7 +565,9 @@ export function fixProjectDoctor(input: {
     return {
       ...base,
       status: "unchanged",
-      summary: "No problems to fix. Nothing changed.",
+      summary: result.findings.length > 0
+        ? `Nothing to fix: ${plural(result.findings.length, "finding is", "findings are")} report only. Nothing changed.`
+        : "No problems to fix. Nothing changed.",
       operationId: null,
       changedFiles: [],
       undo: { method: "none", instructions: "Nothing changed, so there is nothing to undo.", command: null, notTrackedByGit: [] },
@@ -518,9 +584,9 @@ export function fixProjectDoctor(input: {
     return {
       ...base,
       status: "unchanged",
-      summary: statusLines === 0
+      summary: statusLines === 0 && statusSets === 0
         ? `Dry run. The fix would change ${plural(result.totals.findings, "task ID")} in ${plural(plans.length, "file")}. Nothing changed.`
-        : `Dry run. ${changeWords(taskIdChanges, statusLines, "would")} in ${plural(plans.length, "file")}. Nothing changed.`,
+        : `Dry run. ${changeWords(taskIdChanges, statusLines, "would", statusSets)} in ${plural(plans.length, "file")}. Nothing changed.`,
       operationId: null,
       changedFiles: plans.map((plan) => ({ path: plan.path, changes: plan.changes, backup: null })),
       undo: { method: "none", instructions: "Nothing changed, so there is nothing to undo.", command: null, notTrackedByGit: [] },
@@ -561,9 +627,9 @@ export function fixProjectDoctor(input: {
   return {
     ...base,
     status: "fixed",
-    summary: statusLines === 0
+    summary: statusLines === 0 && statusSets === 0
       ? `Changed ${plural(result.totals.findings, "task ID")} on ${plural(result.totals.lines, "line")} in ${plural(changedFiles.length, "file")}. No other text changed.`
-      : `${changeWords(taskIdChanges, statusLines, "done")} in ${plural(changedFiles.length, "file")}. No other text changed.`,
+      : `${changeWords(taskIdChanges, statusLines, "done", statusSets)} in ${plural(changedFiles.length, "file")}. No other text changed.`,
     operationId,
     changedFiles,
     undo: trackedFiles.length

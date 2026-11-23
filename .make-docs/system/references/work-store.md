@@ -194,7 +194,7 @@ Name each reason with its words, and give its next action.
 | `claimed` | Is claimed by a claimant until a time. | Wait for the claimant to finish or release it. |
 | `claim-expired` | Was claimed, and the claim ended. | Check the claimant's task, then take the unit over with `make-docs work claim`, or ask a person to release it with `make-docs work release`. |
 | `ancestor-claimed` | Is part of a unit that another claimant holds. | Wait for that claimant to finish or release it. |
-| `ancestor-closed` | Is part of a unit that is closed. | Close this unit as superseded, or reopen the ancestor by changing its status in the file. |
+| `ancestor-closed` | Is part of a unit that is closed. | When the unit has tasks and every one is checked: set its status line to `completed` in its file, or close it with `make-docs work close <unit> --outcome done`. Otherwise: close this unit as superseded, or reopen the ancestor by changing its status in the file. A closed index does not close its phases. |
 | `ancestor-waiting` | Is part of a unit that is not ready yet. | Find why the ancestor waits, with `make-docs work next --level <kind>`. |
 | `sync-conflict` | Its file has a sync conflict. | Settle the conflict with one of the commands in `make-docs work status`. |
 

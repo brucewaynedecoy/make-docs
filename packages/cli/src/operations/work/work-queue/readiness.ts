@@ -175,9 +175,10 @@ function fill(template: string, values: Record<string, string>): string {
   return template.replace(/\{([a-zA-Z]+)\}/g, (match, key: string) => values[key] ?? match);
 }
 
-function reasonEntry(reason: WorkWaitReason, values: Record<string, string>, coordinate: string | null = null): WorkWaitReasonEntry {
+function reasonEntry(reason: WorkWaitReason, values: Record<string, string>, coordinate: string | null = null, workDone = false): WorkWaitReasonEntry {
   const text = WORK_WAIT_REASON_TEXT[reason];
-  return { reason, text: fill(text.template, values), nextAction: fill(text.nextAction, values), coordinate };
+  const nextAction = workDone && text.nextActionWhenDone ? text.nextActionWhenDone : text.nextAction;
+  return { reason, text: fill(text.template, values), nextAction: fill(nextAction, values), coordinate };
 }
 
 function isArchived(unit: Pick<WorkUnitRecord, "sourcePath">): boolean {
@@ -324,8 +325,12 @@ export class WorkReadiness {
     }
     for (const gate of unit.gates) if (!gate.met) reasons.push(reasonEntry("gate-open", { path, text: gate.sourceText }));
     if (unit.status === "blocked" || unit.blockers.length > 0) {
-      const text = unit.blockers.length > 0 ? unit.blockers.map((blocker) => blocker.text).join("; ") : "the unit is marked blocked";
-      reasons.push(reasonEntry("blocked", { path, text }));
+      // The template ends the sentence with a period. A blocker's own final period goes, and a
+      // text that already ends in "?" or "!" keeps its mark with no period after it (W29 R0 P6).
+      const text = unit.blockers.length > 0 ? unit.blockers.map((blocker) => blocker.text.replace(/\.+$/, "")).join("; ") : "the unit is marked blocked";
+      const entry = reasonEntry("blocked", { path, text });
+      entry.text = entry.text.replace(/([?!])\.$/, "$1");
+      reasons.push(entry);
     }
     if ((unit.sourcePath !== null && this.conflictPaths.has(unit.sourcePath)) || this.conflictUnits.has(unit.storeId)) {
       reasons.push(reasonEntry("sync-conflict", { path }));
@@ -337,6 +342,24 @@ export class WorkReadiness {
   /** Whether an ancestor is open and would be ready apart from claims (R-WORK-QUEUE-4, R-WORK-QUEUE-15). */
   private ancestorWaits(ancestor: WorkUnitRecord): boolean {
     return this.ownReasons(ancestor).length > 0;
+  }
+
+  /**
+   * Whether a unit's own work is done: it has at least one task below it, and
+   * every task is closed as done (each was checked in its file). A task's own
+   * work is never done here, because an open task is not done.
+   */
+  private workDone(unit: WorkUnitRecord): boolean {
+    const tasks: WorkUnitRecord[] = [];
+    const visit = (parent: WorkUnitRecord) => {
+      for (const child of this.children.get(parent.storeId) ?? []) {
+        if (child.kind === "task") tasks.push(child);
+        else visit(child);
+      }
+    };
+    if (unit.kind === "task") return false;
+    visit(unit);
+    return tasks.length > 0 && tasks.every((task) => task.status === "closed" && task.closeOutcome === "done");
   }
 
   /** Every reason a unit waits for the caller. An empty list means ready. Closed units have no reasons. */
@@ -363,7 +386,8 @@ export class WorkReadiness {
         reasons.push(reasonEntry("ancestor-claimed", { ancestor: ancestor.coordinate, claimant: ancestorClaim.claimant }, ancestor.coordinate));
       }
       if (this.isClosed(ancestor)) {
-        reasons.push(reasonEntry("ancestor-closed", { ancestor: ancestor.coordinate, path }, ancestor.coordinate));
+        const values = { ancestor: ancestor.coordinate, path, unitPath: unit.sourcePath ?? "the work store", coordinate: unit.coordinate };
+        reasons.push(reasonEntry("ancestor-closed", values, ancestor.coordinate, this.workDone(unit)));
       } else if (this.ancestorWaits(ancestor)) {
         reasons.push(reasonEntry("ancestor-waiting", { ancestor: ancestor.coordinate, ancestorKind: ancestor.kind, path }, ancestor.coordinate));
       }

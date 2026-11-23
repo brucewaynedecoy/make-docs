@@ -1,7 +1,7 @@
 ---
 title: "W29 R0 Work Store"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W29 R0"
 follow_on:
   route: "implementation-loop"
@@ -53,7 +53,7 @@ Out of scope:
 ## Wave Sequence
 
 - Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md). [W34 R0](../2026-11-23-w34-r0-skill-scripts-into-the-cli/00-index.md) runs beside W29 R0 and W30 R0.
-- Done: P1 and P2.
+- Done: P1 to P6. The owner's Guided Progress Review in [P6](06-package-parity-and-acceptance.md) passed on 2026-11-23, so W29 R0 is complete. Evidence: [evidence.md](evidence.md#p6-package-parity-and-acceptance). Its phase files keep `status: "active"`, as in W31 R0 to W33 R0; the new `phase-open-under-completed-index` doctor check lists them with the others for the owner's fix run.
 - Runs beside: [W34 R0](../2026-11-23-w34-r0-skill-scripts-into-the-cli/00-index.md). Neither Wave waits for the other. Its index lists the shared files and how to merge them.
 - Waits for: all of [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) before P2, all of [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) before P3, and all of [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md), the command tree review (register D-065), before P4.
 - Next: [W30 R0](../2026-11-21-w30-r0-factory/00-index.md) P2 waits for all of this Wave. W30 R0 P1 can start any time.
@@ -164,3 +164,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 52 R-WORK-QUEUE-8, R-WORK-QUEUE-10, R-WORK-SYNC-16, and new R-WORK-QUEUE-20; PRD 38 work store records row.
 - Owner approval: the owner's decisions of 2026-11-23 on findings 7 and 9 and on register D-066.
 - Source: [W29 R0 P4 evidence](evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — W29 R0 P6
+
+- Kind: `edit`
+- Affected scope: P6 closeout.
+- Previous scope: P6 proved the installed package and recorded open items for register D-069 and FOLLOW-UP-P6-CLOSED-PARENT.
+- Replacement scope: P6 also builds the owner's option B of D-069 (every registry write command refuses with `store-unavailable` and creates no Store when none exists) and option B of FOLLOW-UP-P6-CLOSED-PARENT (the `ancestor-closed` next action tells a done phase to set its status line to completed, and `project doctor` gains `phase-open-under-completed-index`). The index status still does not close its phases.
+- Rationale: an independent review found the D-069 gap, and the Guided Progress Review raised the closed-parent advice.
+- PRD decision: `update-existing` — PRD 39 R-DOCTOR-2 and new R-DOCTOR-9, with Requirement History; PRD 52 text unchanged; register D-069 closed and D-070 added.
+- Owner approval: the owner's decisions of 2026-11-23.
+- Source: [W29 R0 P6 evidence](evidence.md#p6-owner-decisions-2026-11-23)

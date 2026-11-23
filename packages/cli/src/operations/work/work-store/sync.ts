@@ -518,9 +518,23 @@ export interface WorkStoreOnlyEdit {
  * than a task's, and a status the file cannot show. They stay in the store
  * only (owner decision 2026-11-23, W29 R0 P4 T16), and `work report` names them.
  */
-export function workStoreOnlyEdits(units: readonly WorkUnitRecord[], frameText: string | null, path: string): WorkStoreOnlyEdit[] {
+export function workStoreOnlyEdits(
+  units: readonly WorkUnitRecord[],
+  frameText: string | null,
+  path: string,
+  options: { writable?: boolean } = {},
+): WorkStoreOnlyEdit[] {
   const parsed = frameText === null ? null : parseWorkFile(path, frameText);
-  const framed = new Map((parsed?.ok ? parsed.document.units : []).map((unit) => [unit.coordinate, unit]));
+  let document = parsed?.ok ? parsed.document : null;
+  // W29 R0 P6: when the next sync writes this file, compare the store with what
+  // the writer renders, not with the last applied text. A close that the file
+  // can show is then not a store-only edit; it shows after the next sync.
+  if (document !== null && options.writable === true) {
+    const rendered = renderWorkFile(document, storeStatesOf(units, document));
+    const reparsed = rendered.ok ? parseWorkFile(path, rendered.text) : null;
+    if (reparsed?.ok) document = reparsed.document;
+  }
+  const framed = new Map((document?.units ?? []).map((unit) => [unit.coordinate, unit]));
   const edits: WorkStoreOnlyEdit[] = [];
   const same = (left: readonly string[], right: readonly string[]) => left.length === right.length && left.every((value, index) => value === right[index]);
   for (const unit of units) {
@@ -825,7 +839,10 @@ function previewConflictReport(view: FileView, projection: WorkProjection, kind:
 }
 
 function summarizePreview(preview: WorkSyncPreview): string {
-  const count = (decision: WorkSyncDecision) => preview.pending.filter((file) => file.decision === decision && !file.recorded).length;
+  const count = (decision: WorkSyncDecision) => preview.pending.filter((file) => file.decision === decision && !file.recorded && !(file.held && (decision === "write" || decision === "remove-copy"))).length;
+  // W29 R0 P6: a held file that differs is never written or removed, so it is not a change the next sync applies.
+  const held = preview.pending.filter((file) => file.held && !file.recorded && (file.decision === "write" || file.decision === "remove-copy")).length;
+  const heldSentence = held > 0 ? `${plural(held, "held file")} ${held === 1 ? "differs" : "differ"} from the store, and sync never writes ${held === 1 ? "it" : "them"}.` : null;
   const parts: string[] = [];
   if (preview.firstImport) parts.push("This checkout has not synced yet. The first work write command imports every backlog and writes no file.");
   const imports = count("import");
@@ -835,7 +852,7 @@ function summarizePreview(preview: WorkSyncPreview): string {
   const newConflicts = count("conflict");
   const recorded = preview.pending.filter((file) => file.recorded && file.decision === "conflict").length;
   if (imports + writes + removes + newConflicts + unreadable === 0 && recorded === 0) {
-    parts.push("Sync check: the files and the store match.");
+    parts.push(heldSentence === null ? "Sync check: the files and the store match." : `Sync check: ${heldSentence}`);
   } else {
     const pieces = [
       imports > 0 ? `${plural(imports, "file")} to import` : null,
@@ -845,12 +862,16 @@ function summarizePreview(preview: WorkSyncPreview): string {
       unreadable > 0 ? `${plural(unreadable, "unreadable file")}` : null,
       recorded > 0 ? `${plural(recorded, "conflict")} waiting for a person` : null,
     ].filter((piece): piece is string => piece !== null);
-    const changes = imports + writes + removes + newConflicts + unreadable > 0;
-    parts.push(
-      changes
-        ? `Sync check: ${pieces.join(", ")}. The next work write command, or make-docs work sync, applies the changes.`
-        : `Sync check: ${pieces.join(", ")}. Settle each conflict with one of its commands.`,
-    );
+    // W29 R0 P6: sync never changes an unreadable file, so only a person's fix helps it.
+    const changes = imports + writes + removes + newConflicts > 0;
+    const after = changes
+      ? "The next work write command, or make-docs work sync, applies the changes."
+      : recorded > 0
+        ? "Settle each conflict with one of its commands."
+        : "Fix each unreadable file. Sync leaves it untouched.";
+    parts.push(`Sync check: ${pieces.join(", ")}. ${after}`);
+    if (unreadable > 0 && after !== "Fix each unreadable file. Sync leaves it untouched.") parts.push("Fix each unreadable file. Sync leaves it untouched.");
+    if (heldSentence !== null) parts.push(heldSentence);
   }
   return parts.join(" ");
 }

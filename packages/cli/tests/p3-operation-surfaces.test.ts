@@ -1,6 +1,8 @@
 import { LEGACY_COMPATIBILITY_OPERATION_IDS } from "../src/migration";
 import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { withInstallationDatabase } from "../src/store/installation-state";
+import { getStoreDatabasePath, resolveStoreRoot } from "../src/store/paths";
 import os from "node:os";
 import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -155,7 +157,10 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
 
   it("keeps activated UAT inputs strict and rejects unknown IDs", async () => {
     await expect(invokeOperation("uat.scenario.validate", {}, createExecutionContext({ surface: "test" }))).rejects.toThrow();
-    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("verified installation evidence in the Store");
+    // Register D-069, option B (W29 R0 P6): with no Store, a write command refuses before it opens the Store and creates none.
+    // The refusal for a Store without installation evidence is covered in w22-r1-ownership.test.ts.
+    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store.");
+    expect(existsSync(getStoreDatabasePath(resolveStoreRoot()))).toBe(false);
     expect(() => getOperation("unknown.operation")).toThrow("Unknown operation identifier");
   });
 
@@ -165,7 +170,10 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     await runCliEntry(runCli, ["project", "surface", "ensure", "assets"], {
       machineReadable: false, writeError: (value) => { humanError += value; },
     });
-    expect(humanError).toBe("This project does not have verified installation evidence in the Store. Run `make-docs setup reconfigure` before you ensure a project surface.\n");
+    // Register D-069, option B (W29 R0 P6): no Store gives the typed Store refusal and creates no Store.
+    expect(humanError).toContain("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store.");
+    expect(humanError).toContain("Run make-docs setup to create the Store, then run this command again.");
+    expect(existsSync(getStoreDatabasePath(resolveStoreRoot()))).toBe(false);
   });
 
   it("keeps CLI, derived MCP tools, and native MCP resources byte- and provenance-equivalent", async () => {
@@ -437,6 +445,9 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     );
     __setResourceOperationRuntimeForTests(() => ({ provider, project: projectState }));
     const input = { uri: entry.identity.uri, targetRoot: project };
+    // A write command no longer creates a missing Store (register D-069, option B, W29 R0 P6).
+    // Create it here the way the shared Store session used to, so this test keeps checking permission and approval.
+    withInstallationDatabase(project, () => undefined);
 
     await expect(
       runCli(["resource", "ensure", entry.identity.uri, "--target", project]),

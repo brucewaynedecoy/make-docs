@@ -666,6 +666,7 @@ function updateRefusalText(refusal: WorkUpdateRefusal, state: ClaimState, operat
 }
 
 function updateResult(
+  root: string,
   db: Parameters<typeof readWorkUnit>[0],
   env: WorkQueueEnv,
   checkoutId: string | null,
@@ -680,7 +681,7 @@ function updateResult(
   const state = queueState(db, fresh.projectId, checkoutId);
   const readiness = new WorkReadiness({ now: env.now, claimant: null, ...state });
   const readyAfter = readiness.isReady(fresh, null);
-  const edits = fileStoreOnlyEdits(db, fresh);
+  const edits = fileStoreOnlyEdits(db, fresh, syncWritesFile(root, fresh.sourcePath));
   const label = workUnitLabel(fresh);
   const note = readWorkUnitNote(db, fresh.storeId);
   const lines = outcome.accepted
@@ -702,12 +703,20 @@ function updateResult(
   };
 }
 
+/** Whether the next sync can write this path: copies on, and not on the hold list. */
+function syncWritesFile(root: string, sourcePath: string | null): boolean {
+  if (sourcePath === null) return false;
+  const config = readWorkSyncConfig(root);
+  const held = config.syncHold.some((hold) => sourcePath === hold || sourcePath.startsWith(`${hold}/`));
+  return config.projection === "on" && !held;
+}
+
 /** The store-only edits of the file that holds a unit (T16). */
-function fileStoreOnlyEdits(db: Parameters<typeof readWorkUnit>[0], unit: WorkUnitRecord): WorkStoreOnlyEdit[] {
+function fileStoreOnlyEdits(db: Parameters<typeof readWorkUnit>[0], unit: WorkUnitRecord, writable: boolean): WorkStoreOnlyEdit[] {
   if (!unit.sourcePath) return [];
   const units = listWorkUnits(db, unit.projectId).filter((candidate) => candidate.sourcePath === unit.sourcePath && candidate.kind !== "wave");
   const fileUnit = units.find((candidate) => (candidate.kind === "revision" || candidate.kind === "phase") && candidate.body !== null && candidate.sourcePath === unit.sourcePath);
-  return workStoreOnlyEdits(units, fileUnit?.body ?? null, unit.sourcePath);
+  return workStoreOnlyEdits(units, fileUnit?.body ?? null, unit.sourcePath, { writable });
 }
 
 export function workRelease(
@@ -723,10 +732,10 @@ export function workRelease(
     const before = claimStateOf(db, unit.storeId, env.now);
     if (input.claimId === null) {
       const outcome = releaseExpiredWorkClaim(db, { unitStoreId: unit.storeId, expectedVersion: input.expectedVersion, handleObservation: input.handleObservation ?? null }, { now: env.now });
-      return updateResult(db, env, checkoutId, "work.queue.release", unit, outcome, sync, `Released the expired claim of ${outcome.releasedClaimant ?? "a claimant"} on ${label}. The unit is open again.`, before);
+      return updateResult(root, db, env, checkoutId, "work.queue.release", unit, outcome, sync, `Released the expired claim of ${outcome.releasedClaimant ?? "a claimant"} on ${label}. The unit is open again.`, before);
     }
     const outcome = releaseWorkClaim(db, { unitStoreId: unit.storeId, claimId: input.claimId, expectedVersion: input.expectedVersion });
-    return updateResult(db, env, checkoutId, "work.queue.release", unit, outcome, sync, `Released your claim on ${label}. The unit is open again.`, before);
+    return updateResult(root, db, env, checkoutId, "work.queue.release", unit, outcome, sync, `Released your claim on ${label}. The unit is open again.`, before);
   }, { storeRoot: env.storeRoot, now: env.now });
 }
 
@@ -764,7 +773,7 @@ export function workReport(root: string, env: WorkQueueEnv, input: WorkReportInp
     const unit = findUnit(db, project.projectId, input.unit);
     const before = claimStateOf(db, unit.storeId, env.now);
     const refuse = (refusal: WorkUpdateRefusal) =>
-      updateResult(db, env, checkoutId, "work.queue.report", unit, { accepted: false, refusal }, sync, "", before);
+      updateResult(root, db, env, checkoutId, "work.queue.report", unit, { accepted: false, refusal }, sync, "", before);
     if (unit.status === "closed") return refuse("unit-closed");
     if (unit.revision !== input.expectedVersion) return refuse("version-conflict");
     const claimRefusal = checkWorkUnitWriteClaim(db, unit.storeId, input.claimId, env.now);
@@ -803,9 +812,9 @@ export function workReport(root: string, env: WorkQueueEnv, input: WorkReportInp
       changes.push("recorded a note");
     }
     if (changes.length === 0) {
-      return updateResult(db, env, checkoutId, "work.queue.report", unit, { accepted: true, refusal: null }, sync, `Nothing to change on ${label}: it already shows this report.`, before);
+      return updateResult(root, db, env, checkoutId, "work.queue.report", unit, { accepted: true, refusal: null }, sync, `Nothing to change on ${label}: it already shows this report.`, before);
     }
-    return updateResult(db, env, checkoutId, "work.queue.report", unit, { accepted: true, refusal: null }, sync, `Reported on ${label}: ${changes.join(", ")}.`, before);
+    return updateResult(root, db, env, checkoutId, "work.queue.report", unit, { accepted: true, refusal: null }, sync, `Reported on ${label}: ${changes.join(", ")}.`, before);
   }, { storeRoot: env.storeRoot, now: env.now });
 }
 
@@ -850,12 +859,11 @@ export function workClose(
 ): WorkUpdateResultValue {
   const sync = syncFirst(root, env);
   const checkoutId = getExistingInstallationCheckoutId(root, env.storeRoot);
-  const config = readWorkSyncConfig(root);
   return writeWorkStore(root, (db, project) => {
     const unit = findUnit(db, project.projectId, input.unit);
     const before = claimStateOf(db, unit.storeId, env.now);
     const refuse = (refusal: WorkUpdateRefusal) =>
-      updateResult(db, env, checkoutId, "work.queue.close", unit, { accepted: false, refusal }, sync, "", before);
+      updateResult(root, db, env, checkoutId, "work.queue.close", unit, { accepted: false, refusal }, sync, "", before);
     if (unit.status === "closed") return refuse("unit-closed");
     if (unit.revision !== input.expectedVersion) return refuse("version-conflict");
     const claimRefusal = checkWorkUnitWriteClaim(db, unit.storeId, input.claimId, env.now, { closing: true, handleObservation: input.handleObservation ?? null });
@@ -868,11 +876,10 @@ export function workClose(
     });
     const label = workUnitLabel(unit);
     // Only a file that sync can write shows the close: copies on, and not on the hold list.
-    const held = unit.sourcePath !== null && config.syncHold.some((hold) => unit.sourcePath === hold || unit.sourcePath!.startsWith(`${hold}/`));
-    const copyNote = unit.sourcePath && config.projection === "on" && !held ? ` The next sync shows it in ${unit.sourcePath}.` : "";
+    const copyNote = syncWritesFile(root, unit.sourcePath) ? ` The next sync shows it in ${unit.sourcePath}.` : "";
     return updateResult(
-      db, env, checkoutId, "work.queue.close", unit, { accepted: true, refusal: null }, sync,
-      `Closed ${label} as ${input.outcome}, and released its claim. Closing every task does not close its phase.${copyNote}`,
+      root, db, env, checkoutId, "work.queue.close", unit, { accepted: true, refusal: null }, sync,
+      `Closed ${label} as ${input.outcome}${before === "none" ? "." : ", and released its claim."}${unit.kind === "task" ? " Closing every task does not close its phase." : ""}${copyNote}`,
       before,
     );
   }, { storeRoot: env.storeRoot, now: env.now });

@@ -174,7 +174,7 @@ describe("W31 R0 P3 project doctor check (A7, A9, A10, A11)", () => {
     ]);
     expect(result.totals).toMatchObject({ filesRead: 6, filesSkipped: 1, filesExcluded: 0, filesWithFindings: 4, findings: result.findings.length });
     expect(result.notes.join(" ")).toContain("can be something that is not a task ID");
-    expect(result.checks.map((check) => check.id)).toEqual(["task-id-case", "phase-status-line"]);
+    expect(result.checks.map((check) => check.id)).toEqual(["task-id-case", "phase-status-line", "phase-open-under-completed-index"]);
     expect(result.nextAction).toContain(`make-docs project doctor fix --review ${result.reviewDigest}`);
     expect(checkProjectDoctor(root).reviewDigest).toBe(result.reviewDigest);
   });

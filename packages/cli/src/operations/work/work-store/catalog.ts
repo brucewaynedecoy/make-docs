@@ -704,6 +704,12 @@ export interface WorkWaitReasonText {
   /** `{name}` placeholders are filled from the unit and its related records. */
   template: string;
   nextAction: string;
+  /**
+   * The next action when the waiting unit's own work is done: it has tasks,
+   * and every one is closed as done. Only `ancestor-closed` has one (owner
+   * decision of 2026-11-23 on W29 R0 P6 FOLLOW-UP-P6-CLOSED-PARENT, option B).
+   */
+  nextActionWhenDone?: string;
 }
 
 /** The words that `work next` uses for each open unit that waits. */
@@ -762,6 +768,8 @@ export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReas
     reason: "ancestor-closed",
     template: "Part of {ancestor}, which is closed.",
     nextAction: "Close this unit as superseded with `make-docs work close`, or reopen {ancestor} by changing its status in {path}.",
+    // The index status does not cascade to its phases (R-WORK-QUEUE-4, R-WORK-QUEUE-20); a done unit is told to record that it is done.
+    nextActionWhenDone: "All its tasks are done. Set its status line to completed in {unitPath}, or close it with `make-docs work close {coordinate} --outcome done`.",
   },
   "ancestor-waiting": {
     reason: "ancestor-waiting",
