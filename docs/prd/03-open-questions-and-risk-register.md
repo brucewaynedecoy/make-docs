@@ -1310,6 +1310,20 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: W31 R0 ships, the doctor check finds no lower-case task ID in this repository's active backlogs, including the W22 R2 backlog after its later run, and old files with `t` still parse. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22 and [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR hold the rules.
 
+### D-064 First-Party Skills Ship Python Scripts
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. Logged on 2026-11-22 at the owner's request. Until it closes, no new Python file and no new logic in these scripts. A change that a reader rule forces, such as the W31 R0 P1 task ID case, is allowed. | Plan its own Wave. Track it as a quick task with `make-docs run work add` once the W29 R0 work store ships. |
+
+**Issue**: Three first-party Skills ship seven Python files, added on 2026-04-15: `packages/skills/decompose-codebase/scripts/validate_output.py`, `probe_environment.py`, and `test_validate_output.py`; `packages/skills/archive-docs/scripts/trace_relationships.py` and its test; and `packages/skills/cleanup-docs/scripts/check_markdown_style.py` and its test. The Skills tell agents to run them, and the CLI closeout check runs `test_validate_output.py` (`packages/cli/src/operations/closeout/index.ts`). No decision records why they are Python. [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) puts operational logic in the TypeScript CLI, and the [twins guide](../assets/project/developing-deterministic-agentic-twins.md) puts deterministic logic in the CLI and its agent form in written instructions. D-019 handled a different script, the path-hygiene checker, which the CLI now covers.
+
+**Why it matters**: The owner's rule is to build logic in the CLI unless it must be Python or must work without the CLI. These scripts are not truly portable either: they need Python installed. Logic in two languages can drift, and a reader change must now be made twice, as W31 R0 P1 showed.
+
+**Recommendation**: For each script, either move its logic into a CLI operation with the Skill text as its agent form, and remove the Python file, or record why it must stay. Do this in its own Wave after W31 R0 and W32 R0.
+
+**To close**: Each of the seven files is removed or has a recorded reason to stay, the Skills and the closeout check no longer depend on a removed file, and no logic exists in both a script and the CLI.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
