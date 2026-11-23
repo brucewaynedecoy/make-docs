@@ -77,6 +77,16 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.relations.list": "project_relations_list",
   "project.markdown-style.validate": "project_markdown_validate",
   "project.markdown-style.repair": "project_markdown_repair",
+  // W29 R0 P4 (PRD 52 R-WORK-QUEUE-12).
+  "work.queue.status": "work_status",
+  "work.queue.sync": "work_sync",
+  "work.queue.next": "work_next",
+  "work.queue.claim": "work_claim",
+  "work.queue.release": "work_release",
+  "work.queue.report": "work_report",
+  "work.queue.close": "work_close",
+  "work.queue.export": "work_export",
+  "work.queue.add": "work_add",
 };
 
 const SUPPORT_EVIDENCE_REF =

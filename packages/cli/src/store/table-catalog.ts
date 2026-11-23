@@ -81,7 +81,7 @@ export const STORE_FIXED_RULE_IDS = [
 ] as const;
 export type StoreFixedRuleId = (typeof STORE_FIXED_RULE_IDS)[number];
 
-export const STORE_DECISION_ITEM_IDS = ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003"] as const;
+export const STORE_DECISION_ITEM_IDS = ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004"] as const;
 export type StoreDecisionItemId = (typeof STORE_DECISION_ITEM_IDS)[number];
 
 /* ------------------------------------------------------------------------ */
@@ -118,6 +118,12 @@ export const STORE_MAINTENANCE_SETTINGS = Object.freeze({
     unit: "days",
     fixedByPrd: false,
     reason: "A lifecycle run can stay open through a long Wave; 90 days without an update flags only runs that a person likely forgot, and the item is a report, never a removal.",
+  },
+  workClaimExpiredReviewDays: {
+    value: 7,
+    unit: "days",
+    fixedByPrd: true,
+    reason: "PRD 38 R-MAINT-4 reports a work claim that expired more than 7 days ago (owner decision 2026-11-23, W29 R0 P4 T14). A week covers a long weekend and a slow takeover, and the item is a report, never a removal.",
   },
   storeBackupKeptCount: {
     value: 3,
@@ -606,7 +612,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: [
       "project_id", "store_id", "kind", "coordinate", "parent_store_id", "title", "body", "recorded_status", "status",
-      "close_outcome", "unresolved_dependencies_json", "gates_json", "blockers_json", "source_path", "copy_state", "revision",
+      "close_outcome", "unresolved_dependencies_json", "gates_json", "blockers_json", "source_path", "copy_state", "revision", "note", "note_at",
     ],
     purpose: "One row for each work unit of a project: wave, revision, phase, stage, task, or quick item, with its status, gates, blockers, and record revision (PRD 52).",
     writers: ["work-store.ts putWorkUnit and createQuickItem, with an expected version on every write, in the same transaction as the project's register row"],
@@ -665,8 +671,8 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
       limit: "At most one row for each work unit, enforced by the schema. Release, close, and takeover delete or replace it, and deleting a unit deletes its claim. No fixed rule removes an expired claim: an expired claim holds its unit until a takeover after a handle check or a release (PRD 52 R-WORK-QUEUE-4, R-WORK-QUEUE-7).",
     }],
     retention: "Delete on release, close, or expiry takeover. Never retained as history.",
-    decisionItems: [],
-    humanMeaning: "Who is working on what right now. A claim that ran out stays until someone checks the old task and takes over, or releases it.",
+    decisionItems: ["STORE-DECISION-004"],
+    humanMeaning: "Who is working on what right now. A claim that ran out stays until someone checks the old task and takes over, or releases it. Store check lists a claim that ran out more than 7 days ago.",
   },
   {
     table: "work_sync_ledger",
@@ -1484,6 +1490,31 @@ export const STORE_DECISION_ITEMS: readonly StoreDecisionItem[] = Object.freeze<
     reasonText: "An old install in {root_path} was imported on {created_at}, and its recovery never finished. While it is pending, tool update, tool uninstall, and Store removal stay blocked. No Make Docs command can finish or clear it yet: generic recovery refuses to replay it, because it needs its verified migration snapshot.",
     nextAction: "Keep the operation row, its legacy-import record, and the checkout's snapshot, backup, receipt, and quiescence records. Do not edit the Store. Ask the Make Docs maintainers for a reviewed recovery.",
   },
+  {
+    id: "STORE-DECISION-004",
+    title: "Work claim expired long ago",
+    prdPhrase: "a work claim that expired more than 7 days ago",
+    condition: [
+      "The row is in work_claims.",
+      "Its expires_at is earlier than the check time minus workClaimExpiredReviewDays.",
+    ],
+    candidates: [{
+      table: "work_claims",
+      // The claim ID stays out: only its holder sees it (PRD 52, W29 R0 P4 T13).
+      sql: `SELECT c.unit_store_id, c.project_id, c.claimant, c.expires_at,
+               coalesce(u.coordinate, c.unit_store_id) AS coordinate,
+               CASE WHEN u.kind = 'quick-item' THEN 'task ' || u.coordinate ELSE coalesce(u.coordinate, c.unit_store_id) END AS label
+          FROM work_claims c
+          LEFT JOIN work_units u ON u.store_id = c.unit_store_id
+         WHERE c.expires_at < :claimReviewCutoff
+         ORDER BY c.expires_at, c.project_id, c.unit_store_id`,
+      key: ["unit_store_id"],
+    }],
+    proofs: [],
+    settings: ["workClaimExpiredReviewDays"],
+    reasonText: "The claim of {claimant} on {label} in project {project_id} ended at {expires_at}. Make Docs never removes a claim for you: the unit waits until someone takes it over after a handle check, or releases it.",
+    nextAction: "Check the claimant's task. Then take the unit over with `make-docs work claim`, or release the claim with `make-docs work release`.",
+  },
 ]);
 
 /* ------------------------------------------------------------------------ */
@@ -1663,6 +1694,7 @@ export function storeMaintenanceSqlParameters(
   return {
     terminalCutoff: new Date(now.getTime() - settings.terminalOperationRetentionDays.value * DAY_MS).toISOString(),
     runReviewCutoff: new Date(now.getTime() - settings.lifecycleRunReviewAgeDays.value * DAY_MS).toISOString(),
+    claimReviewCutoff: new Date(now.getTime() - settings.workClaimExpiredReviewDays.value * DAY_MS).toISOString(),
     harnessReceiptKeptCount: settings.harnessReceiptHistoryKeptCount.value,
     snapshotSchemaVersion: versions.snapshotSchemaVersion,
     ruleCatalogVersion: versions.ruleCatalogVersion,

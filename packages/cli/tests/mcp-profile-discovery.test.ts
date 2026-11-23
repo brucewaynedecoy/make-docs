@@ -23,7 +23,8 @@ import { cleanupTempDir, createTempDir } from "./helpers";
 
 const EXPECTED_COUNTS: Record<McpServerProfile, number> = {
   // W34 R0 P1 added 2 setup, 1 workflow, and 2 quality tools (PRD 25 R-MCP-PROFILE-11).
-  core: 9, setup: 25, workflow: 15, quality: 13, backlog: 5, all: 58,
+  // W29 R0 P4 added the 9 work queue tools to workflow and backlog.
+  core: 9, setup: 25, workflow: 24, quality: 13, backlog: 14, all: 67,
 };
 
 async function withClient<T>(

@@ -420,7 +420,9 @@ describe("W29 R0 P2 claims (A7, A8)", () => {
       const first = claimWorkUnit(db, request, { now: new Date("2042-06-15T10:00:00.000Z") });
       expect(first).toMatchObject({ result: "claimed", claim: { expiresAt: "2042-06-15T10:20:00.000Z" } });
       expect(claimWorkUnit(db, { ...request, claimant: "builder-b" }, { now: new Date("2042-06-15T10:10:00.000Z") })).toMatchObject({ result: "refused", refusal: "already-claimed" });
-      expect(claimWorkUnit(db, request, { now: new Date("2042-06-15T10:10:00.000Z") })).toMatchObject({ result: "renewed", claim: { renewedAt: "2042-06-15T10:10:00.000Z", expiresAt: "2042-06-15T10:30:00.000Z" } });
+      // W29 R0 P4 T13: the claimant name alone does not renew; the claim ID does.
+      expect(claimWorkUnit(db, request, { now: new Date("2042-06-15T10:10:00.000Z") })).toMatchObject({ result: "refused", refusal: "already-claimed" });
+      expect(claimWorkUnit(db, { ...request, claimId: first.claim!.claimId }, { now: new Date("2042-06-15T10:10:00.000Z") })).toMatchObject({ result: "renewed", claim: { renewedAt: "2042-06-15T10:10:00.000Z", expiresAt: "2042-06-15T10:30:00.000Z" } });
       const later = new Date("2042-06-15T11:00:00.000Z");
       expect(claimWorkUnit(db, { ...request, claimant: "builder-b" }, { now: later })).toMatchObject({ result: "refused", refusal: "takeover-needs-handle-check" });
       // The holder of an expired claim is a stale claimant and cannot renew it either.
@@ -479,13 +481,18 @@ describe("W29 R0 P2 claims (A7, A8)", () => {
     }, { storeRoot: store });
   });
 
-  it("lets any caller close a unit whose claim expired, as a report may (R-WORK-QUEUE-8)", () => {
+  it("lets a caller without the claim close a unit whose claim expired only after the handle check (W29 R0 P4 finding 9)", () => {
     const { root } = seedProject();
     seedUnits(root, [unit("wave", "W1")]);
     const w1 = storeIdFor("W1");
+    const later = new Date("2042-06-15T13:00:00.000Z");
     writeWorkStore(root, (db) => {
       claimWorkUnit(db, { unitStoreId: w1, claimant: "builder-a", taskHandle: "t", ttlSeconds: null, expectedVersion: 1, takeover: null }, { now: LATER_NOW });
-      putWorkUnit(db, { ...readWorkUnit(db, w1)!, status: "closed", closeOutcome: "cancelled" }, { expectedVersion: 1, now: new Date("2042-06-15T13:00:00.000Z") });
+      const closed = { ...readWorkUnit(db, w1)!, status: "closed" as const, closeOutcome: "cancelled" as const };
+      expect(() => putWorkUnit(db, closed, { expectedVersion: 1, now: later })).toThrow(/handle check/);
+      expect(() => putWorkUnit(db, closed, { expectedVersion: 1, handleObservation: "running", now: later })).toThrow(/handle check/);
+      expect(readWorkClaim(db, w1)).not.toBeNull();
+      putWorkUnit(db, closed, { expectedVersion: 1, handleObservation: "stopped", now: later });
       expect(readWorkClaim(db, w1)).toBeNull();
     }, { storeRoot: store });
   });
@@ -495,8 +502,8 @@ describe("W29 R0 P2 claims (A7, A8)", () => {
     seedUnits(root, [unit("wave", "W1")]);
     const request = { unitStoreId: storeIdFor("W1"), claimant: "builder-a", taskHandle: "t", ttlSeconds: 30 * 60, expectedVersion: 1, takeover: null };
     writeWorkStore(root, (db) => {
-      claimWorkUnit(db, request, { now: new Date("2042-06-15T10:00:00.000Z") });
-      const renewed = claimWorkUnit(db, request, { now: new Date("2042-06-15T09:50:00.000Z") });
+      const first = claimWorkUnit(db, request, { now: new Date("2042-06-15T10:00:00.000Z") });
+      const renewed = claimWorkUnit(db, { ...request, claimId: first.claim!.claimId }, { now: new Date("2042-06-15T09:50:00.000Z") });
       expect(renewed).toMatchObject({
         result: "renewed",
         claim: { claimedAt: "2042-06-15T10:00:00.000Z", renewedAt: "2042-06-15T10:00:00.000Z", expiresAt: "2042-06-15T10:30:00.000Z" },
@@ -632,7 +639,7 @@ describe("W29 R0 P2 review fixes", () => {
       expect(() => putWorkUnit(db, { ...unit("phase", "W1 R0 P1", { parent: "W1" }), kind: "revision", coordinate: "W1 R0", sourcePath: "docs/../secret.md" }, { expectedVersion: null })).toThrow(WorkStoreRefusalError);
       // A direct insert on a Make Docs connection meets the table CHECK.
       const unitInsert = db.prepare(
-        "INSERT INTO work_units VALUES (?, ?, 'revision', 'W1 R0', ?, 't', NULL, NULL, 'open', NULL, '[]', '[]', '[]', ?, 'kept', 1)",
+        "INSERT INTO work_units VALUES (?, ?, 'revision', 'W1 R0', ?, 't', NULL, NULL, 'open', NULL, '[]', '[]', '[]', ?, 'kept', 1, NULL, NULL)",
       );
       for (const bad of ["../x.md", "docs/../x.md", "docs/work/.."]) {
         expect(() => unitInsert.run(PROJECT_ID, "wu-badpath00", storeIdFor("W1"), bad), bad).toThrow(/CHECK constraint failed/);

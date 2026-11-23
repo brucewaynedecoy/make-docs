@@ -6,7 +6,7 @@ import { parseDocument } from "yaml";
 
 import { platform } from "../../../platform.js";
 import type { StoreDatabase } from "../../../store/database.js";
-import { canonicalInstallationPath, getExistingInstallationCheckoutId } from "../../../store/installation-state.js";
+import { canonicalInstallationPath, getExistingInstallationCheckoutId, readDeclarativeProjectId } from "../../../store/installation-state.js";
 import { resolveStoreRoot } from "../../../store/paths.js";
 import {
   WorkStoreRefusalError,
@@ -21,6 +21,7 @@ import {
   putSyncConflict,
   putSyncLedgerEntry,
   putWorkUnit,
+  readWorkClaim,
   readWorkStore,
   readWorkSyncCheckout,
   readWorkUnit,
@@ -30,10 +31,11 @@ import {
   type WorkUnitInput,
 } from "../../../store/work-store.js";
 import { OperationError } from "../../types.js";
-import { WORK_SYNC_TABLE, type WorkSyncTableRow } from "./catalog.js";
+import { WORK_SETTLE_OPTIONS, WORK_SYNC_TABLE, type WorkSyncTableRow } from "./catalog.js";
 import {
   buildWorkConflictReport,
   formatWorkConflictReport,
+  type WorkConflictClaim,
   type WorkConflictReport,
   type WorkConflictUnitDifference,
 } from "./conflict-report.js";
@@ -42,6 +44,7 @@ import {
   WorkConfigBlockSchema,
   type WorkConflictKind,
   type WorkDependency,
+  type WorkSettleChoice,
   type WorkGate,
   type WorkSyncDecision,
   type WorkSyncFileState,
@@ -120,16 +123,35 @@ export class WorkProjectionConfigError extends OperationError {
  * `on`. A malformed block stops sync, so a typo never turns copies off.
  */
 export function readWorkProjection(projectRoot: string): WorkProjection {
+  return readWorkSyncConfig(projectRoot).projection;
+}
+
+export interface WorkSyncConfig {
+  projection: WorkProjection;
+  /** The sync hold list from `work.syncHold`: paths that sync reads and never writes or removes (W29 R0 P4 T19). */
+  syncHold: string[];
+}
+
+/** The reason that sync gives for a path on the config hold list. */
+export const WORK_SYNC_HOLD_REASON =
+  "This path is on the sync hold list (work.syncHold in .make-docs/config.yaml), so Make Docs reads it and never writes or removes it.";
+
+/**
+ * Read the `work` block of `.make-docs/config.yaml`: the copy setting and the
+ * sync hold list. No config or no block gives copies on and no hold. A
+ * malformed block stops sync, so a typo never turns copies off or drops a hold.
+ */
+export function readWorkSyncConfig(projectRoot: string): WorkSyncConfig {
   const file = path.join(projectRoot, ".make-docs", "config.yaml");
-  if (!existsSync(file)) return "on";
+  if (!existsSync(file)) return { projection: "on", syncHold: [] };
   const document = parseDocument(readFileSync(file, "utf8"), { uniqueKeys: true });
   if (document.errors.length > 0) throw new WorkProjectionConfigError("The project config is not valid YAML.");
   const config = document.toJS() as Record<string, unknown> | null;
   const work = config && typeof config === "object" ? config.work : undefined;
-  if (work === undefined || work === null) return "on";
+  if (work === undefined || work === null) return { projection: "on", syncHold: [] };
   const parsed = WorkConfigBlockSchema.safeParse(work);
   if (!parsed.success) throw new WorkProjectionConfigError(`The work block does not match its contract: ${parsed.error.issues.map((issue) => `${issue.path.join(".") || "work"}: ${issue.message}`).join("; ")}.`);
-  return parsed.data.projection;
+  return { projection: parsed.data.projection, syncHold: parsed.data.syncHold.map((entry) => entry.replace(/\/+$/, "")) };
 }
 
 /* ------------------------------------------------------------------------ */
@@ -270,6 +292,8 @@ export interface WorkSyncReport {
   deferred: { write: string[]; remove: string[] };
   /** Files under a write hold: sync reads them and never writes or removes them. */
   held: Array<{ path: string; reason: string }>;
+  /** The conflict that a person settled in this sync, or null (W29 R0 P4 T15). */
+  settled: WorkSettleOutcome | null;
   /** Human words first. */
   summary: string;
 }
@@ -359,11 +383,58 @@ export interface WorkSyncOptions {
   /** The copy setting. Defaults to `work.projection` in the project config. */
   projection?: WorkProjection;
   /**
-   * Folders that sync reads but never writes or removes, each with its reason,
-   * such as a backlog that waits for its own project doctor run (register
-   * D-063). P4 decides where the list comes from (P4 T19).
+   * Folders or files that sync reads but never writes or removes, each with
+   * its reason. Defaults to `work.syncHold` in the project config (owner
+   * decision 2026-11-23, W29 R0 P4 T19), such as a backlog that waits for its
+   * own project doctor run (register D-063).
    */
   holdWrites?: ReadonlyArray<{ folder: string; reason: string }>;
+  /** Settle one conflict before the sync runs (W29 R0 P4 T15). */
+  settle?: WorkSettleInput;
+}
+
+export interface WorkSettleInput {
+  targetPath: string;
+  choice: WorkSettleChoice;
+  /** The store revision of the file that the caller read, or null to skip the check. */
+  expectedStoreRevision: number | null;
+}
+
+export const WORK_SETTLE_REFUSALS = [
+  "no-conflict",
+  "choice-not-offered",
+  "version-conflict",
+  "held",
+  "file-missing",
+  "file-present",
+  "file-unreadable",
+  "file-changed",
+  "store-cannot-render",
+  "claimed",
+] as const;
+export type WorkSettleRefusal = (typeof WORK_SETTLE_REFUSALS)[number];
+
+/** A settle that cannot run. Nothing changed: no file and no Store record. */
+export class WorkSettleRefusalError extends OperationError {
+  readonly code = "work-settle-refused";
+  constructor(
+    readonly refusal: WorkSettleRefusal,
+    readonly targetPath: string,
+    readonly reason: string,
+    readonly nextAction: string,
+  ) {
+    super(`${reason} Make Docs did not settle ${targetPath}, and nothing changed. ${nextAction}`);
+    this.name = "WorkSettleRefusalError";
+  }
+}
+
+/** What a settle did, in the sync report. */
+export interface WorkSettleOutcome {
+  path: string;
+  choice: WorkSettleChoice;
+  kind: WorkConflictKind;
+  /** Human words. */
+  effect: string;
 }
 
 interface FileView {
@@ -394,6 +465,10 @@ function stableStringify(value: unknown): string {
   return JSON.stringify(value);
 }
 
+function sameTexts(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
 function sameUnit(input: WorkUnitInput, current: WorkUnitRecord): boolean {
   const { revision: _revision, ...rest } = current;
   return stableStringify(input) === stableStringify(rest);
@@ -404,18 +479,88 @@ function unitInputOf(record: WorkUnitRecord): WorkUnitInput {
   return rest;
 }
 
-/** The store's states for the units of one file, in the fields the file can show. */
-function storeStatesOf(units: readonly WorkUnitRecord[]): WorkFileUnitState[] {
-  return units.map((unit) => ({
-    coordinate: unit.coordinate,
-    kind: unit.kind as WorkFileUnitState["kind"],
-    status: unit.status,
-    closeOutcome: unit.closeOutcome,
-    title: unit.title,
-    text: unit.kind === "task" ? unit.body : null,
-    blockers: unit.blockers.map((blocker) => blocker.text),
-    gates: unit.gates.map((gate) => gate.sourceText),
-  }));
+/**
+ * The store's states for the units of one file, in the fields the file can
+ * show. Owner decision 2026-11-23 (W29 R0 P4 T16): a cleared or changed
+ * blocker, a changed gate text, and a title other than a task's stay in the
+ * store only. The writer gets the frame's value for those fields, so it writes
+ * the store changes that the file can show and leaves those lines as they are.
+ * `work report` names each store-only edit ({@link workStoreOnlyEdits}).
+ */
+function storeStatesOf(units: readonly WorkUnitRecord[], frame: WorkFileDocument | null = null): WorkFileUnitState[] {
+  const framed = new Map((frame?.units ?? []).map((unit) => [unit.coordinate, unit]));
+  return units.map((unit) => {
+    const shown = framed.get(unit.coordinate);
+    return {
+      coordinate: unit.coordinate,
+      kind: unit.kind as WorkFileUnitState["kind"],
+      status: unit.status,
+      closeOutcome: unit.closeOutcome,
+      title: shown && unit.kind !== "task" ? shown.title : unit.title,
+      text: unit.kind === "task" ? unit.body : null,
+      blockers: shown ? shown.blockerBullets.map((bullet) => bullet.text) : unit.blockers.map((blocker) => blocker.text),
+      gates: shown ? [] : unit.gates.map((gate) => gate.sourceText),
+    };
+  });
+}
+
+/** One store edit that the file copy does not show (W29 R0 P4 T16). */
+export interface WorkStoreOnlyEdit {
+  coordinate: string;
+  kind: "blockers" | "gate-text" | "gate-met" | "title" | "status";
+  /** Human words. */
+  text: string;
+}
+
+/**
+ * The store edits of one file's units that the file copy does not show: a
+ * cleared or changed blocker, a changed gate text, a met gate, a title other
+ * than a task's, and a status the file cannot show. They stay in the store
+ * only (owner decision 2026-11-23, W29 R0 P4 T16), and `work report` names them.
+ */
+export function workStoreOnlyEdits(units: readonly WorkUnitRecord[], frameText: string | null, path: string): WorkStoreOnlyEdit[] {
+  const parsed = frameText === null ? null : parseWorkFile(path, frameText);
+  const framed = new Map((parsed?.ok ? parsed.document.units : []).map((unit) => [unit.coordinate, unit]));
+  const edits: WorkStoreOnlyEdit[] = [];
+  const same = (left: readonly string[], right: readonly string[]) => left.length === right.length && left.every((value, index) => value === right[index]);
+  for (const unit of units) {
+    const shown = framed.get(unit.coordinate);
+    if (!shown) continue;
+    const storeBlockers = unit.blockers.map((blocker) => blocker.text);
+    const fileBlockers = shown.blockerBullets.map((bullet) => bullet.text);
+    if (!same(storeBlockers, fileBlockers)) {
+      edits.push({
+        coordinate: unit.coordinate,
+        kind: "blockers",
+        text: storeBlockers.length === 0
+          ? `The store cleared the blockers of ${unit.coordinate}. The file still lists ${fileBlockers.length === 1 ? "1 blocker" : `${fileBlockers.length} blockers`}.`
+          : `The store holds other blockers for ${unit.coordinate} than the file lists: ${storeBlockers.join("; ")}.`,
+      });
+    }
+    const bullets = new Set(shown.dependencyBullets.map((bullet) => bullet.text));
+    for (const gate of unit.gates) {
+      if (!bullets.has(gate.sourceText)) {
+        edits.push({ coordinate: unit.coordinate, kind: "gate-text", text: `The store holds the gate "${gate.sourceText}" for ${unit.coordinate}, which the file does not list.` });
+      }
+      if (gate.met) edits.push({ coordinate: unit.coordinate, kind: "gate-met", text: `The store records the gate "${gate.sourceText}" of ${unit.coordinate} as met.` });
+    }
+    if (unit.kind !== "task" && unit.title !== shown.title) {
+      edits.push({ coordinate: unit.coordinate, kind: "title", text: `The store names ${unit.coordinate} "${unit.title}". The file names it "${shown.title}".` });
+    }
+    const fileStatus = recordedStatusOf(shown.recordedStatus);
+    const fileClosed = fileStatus.status === "closed";
+    const statusShown = unit.kind === "task"
+      ? (unit.status === "closed" && fileClosed) || (unit.status === "open" && !fileClosed)
+      : fileStatus.status === unit.status && fileStatus.closeOutcome === unit.closeOutcome;
+    if (!statusShown) {
+      edits.push({
+        coordinate: unit.coordinate,
+        kind: "status",
+        text: `The store records ${unit.coordinate} as ${unit.status}${unit.closeOutcome ? ` (${unit.closeOutcome})` : ""}. The file shows ${shown.recordedStatus ?? "no status"}.`,
+      });
+    }
+  }
+  return edits;
 }
 
 /** The file unit of a path: the revision of an index file or the phase of a phase file. */
@@ -435,7 +580,7 @@ function frameOf(view: Pick<FileView, "info" | "units" | "path">): WorkFileDocum
 function renderStore(view: FileView): { ok: true; text: string; changedUnits: string[]; frame: WorkFileDocument } | { ok: false; coordinate: string; reason: string } {
   const frame = frameOf(view);
   if (!frame) return { ok: false, coordinate: view.info.coordinate, reason: "The store has no readable text for this file." };
-  const rendered = renderWorkFile(frame, storeStatesOf(view.units));
+  const rendered = renderWorkFile(frame, storeStatesOf(view.units, frame));
   return rendered.ok ? { ...rendered, frame } : rendered;
 }
 
@@ -490,8 +635,23 @@ export function syncWorkFiles(projectRoot: string, options: WorkSyncOptions = {}
     );
   }
   const disk = scanWorkFiles(root);
-  const holdWrites = (options.holdWrites ?? []).map((hold) => ({ folder: hold.folder.replace(/\/+$/, ""), reason: hold.reason }));
-  return writeWorkStore(root, (db, project) => runSync({ db, root, projectId: project.projectId, checkoutId, projection, now, disk, holdWrites }), { storeRoot, now });
+  const holdWrites = workSyncHolds(root, options);
+  return writeWorkStore(
+    root,
+    (db, project) => runSync({ db, root, projectId: project.projectId, checkoutId, projection, now, disk, holdWrites, settle: options.settle ?? null }),
+    { storeRoot, now },
+  );
+}
+
+/** The write holds of one sync: the caller's list, or `work.syncHold` from the project config. */
+export function workSyncHolds(root: string, options: Pick<WorkSyncOptions, "holdWrites"> = {}): Array<{ folder: string; reason: string }> {
+  const holds = options.holdWrites ?? readWorkSyncConfig(root).syncHold.map((folder) => ({ folder, reason: WORK_SYNC_HOLD_REASON }));
+  return holds.map((hold) => ({ folder: hold.folder.replace(/\/+$/, ""), reason: hold.reason }));
+}
+
+/** The hold that covers a path: the path itself, or a folder above it. */
+export function workSyncHoldOf(holds: ReadonlyArray<{ folder: string; reason: string }>, target: string): { folder: string; reason: string } | null {
+  return holds.find((hold) => target === hold.folder || target.startsWith(`${hold.folder}/`)) ?? null;
 }
 
 interface SyncContext {
@@ -503,6 +663,196 @@ interface SyncContext {
   now: Date;
   disk: Map<string, DiskFile>;
   holdWrites: ReadonlyArray<{ folder: string; reason: string }>;
+  settle: WorkSettleInput | null;
+  /** Paths a person settled with the file kept: their import takes the file as it is, with no three-way merge. */
+  forceFile?: Set<string>;
+}
+
+function unitsOfPath(units: readonly WorkUnitRecord[], target: string): WorkUnitRecord[] {
+  return units.filter((unit) => unit.sourcePath === target && unit.kind !== "wave" && unit.kind !== "quick-item");
+}
+
+interface SyncViews {
+  allUnits: WorkUnitRecord[];
+  ledger: Map<string, WorkSyncLedgerRow>;
+  conflicts: Map<string, WorkSyncConflictRow>;
+  views: FileView[];
+  firstImport: boolean;
+}
+
+/** The file state, store state, ledger entry, and conflict of every work path. It reads only. */
+function buildSyncViews(db: StoreDatabase, projectId: string, checkoutId: string, diskFiles: Map<string, DiskFile>): SyncViews {
+  const allUnits = listWorkUnits(db, projectId);
+  const ledger = new Map(listSyncLedger(db, checkoutId).map((row) => [row.entry.targetPath, row]));
+  const conflicts = new Map(listSyncConflicts(db, checkoutId).map((row) => [row.conflict.targetPath, row]));
+  const firstImport = readWorkSyncCheckout(db, checkoutId) === null;
+
+  const paths = new Set<string>([...diskFiles.keys(), ...ledger.keys(), ...conflicts.keys()]);
+  for (const unit of allUnits) if (unit.sourcePath && unit.kind !== "wave" && unit.kind !== "quick-item") paths.add(unit.sourcePath);
+
+  const views: FileView[] = [];
+  for (const target of [...paths].sort()) {
+    const info = classifyWorkFilePath(target);
+    if (!info) continue;
+    const disk = diskFiles.get(target) ?? null;
+    const entry = ledger.get(target) ?? null;
+    const units = unitsOfPath(allUnits, target);
+    let parsed: FileView["parsed"] = null;
+    let text: string | null = null;
+    if (disk?.unsafe) parsed = { ok: false, failure: { path: target, code: "unsafe-path", line: 1, message: disk.unsafe } };
+    else if (disk?.bytes) {
+      const result = parseWorkFile(target, disk.bytes);
+      parsed = result.ok ? result : { ok: false, failure: result.failure };
+      if (result.ok) text = result.document.text;
+    }
+    const digest = disk?.bytes ? sha256Hex(disk.bytes) : null;
+    const fileState = workSyncFileState({
+      exists: disk !== null,
+      readable: parsed?.ok === true,
+      digest,
+      ledgerDigest: entry?.entry.lastAppliedDigest ?? null,
+    });
+    const storeState = workSyncStoreState({ units, ledger: entry ? entry.entry : null });
+    views.push({ path: target, info, bytes: disk?.bytes ?? null, text, digest, parsed, ledger: entry, conflict: conflicts.get(target) ?? null, units, fileState, storeState });
+  }
+  return { allUnits, ledger, conflicts, views, firstImport };
+}
+
+/** One file that sync would change, or that waits for a person, as a read-only preview shows it. */
+export interface WorkSyncPreviewFile {
+  path: string;
+  fileState: WorkSyncFileState;
+  storeState: WorkSyncStoreState;
+  decision: WorkSyncDecision;
+  /** The conflict kind when the file waits for a person: a recorded conflict, or one the next sync would record. */
+  conflictKind: WorkConflictKind | null;
+  /** True when the file has a recorded conflict. */
+  recorded: boolean;
+  held: boolean;
+}
+
+export interface WorkSyncPreview {
+  projectId: string;
+  checkoutId: string;
+  projection: WorkProjection;
+  firstImport: boolean;
+  /** Files with a pending change or a conflict. Files with nothing to do are left out. */
+  pending: WorkSyncPreviewFile[];
+  /** Recorded conflicts with their settle commands. */
+  conflicts: WorkConflictReport[];
+  /** Human words first. */
+  summary: string;
+}
+
+/**
+ * What the next sync would do, read only (W29 R0 P4 T2). Read-only work
+ * operations (`work status` and `work next`) run this instead of a sync, so
+ * they change nothing: the result names each file that the next sync imports,
+ * writes, or removes, and each file that waits for a person. A preview does not
+ * apply import guards, so a file it lists as an import may still stop as a
+ * conflict in the real sync.
+ */
+export function previewWorkSync(projectRoot: string, options: Pick<WorkSyncOptions, "storeRoot" | "projection" | "holdWrites" | "now"> = {}): WorkSyncPreview {
+  const root = canonicalInstallationPath(projectRoot);
+  const storeRoot = options.storeRoot ?? resolveStoreRoot();
+  const projection = options.projection ?? readWorkProjection(root);
+  const holds = workSyncHolds(root, options);
+  const checkoutId = getExistingInstallationCheckoutId(root, storeRoot);
+  if (!checkoutId) {
+    throw new WorkStoreRefusalError("checkout-not-bound", "This checkout is not bound to the Store, so it has no sync ledger.", WORK_SYNC_CHECKOUT_NOT_BOUND_NEXT_ACTION);
+  }
+  const disk = scanWorkFiles(root);
+  return readWorkStore(root, (db) => {
+    const projectId = readDeclarativeProjectId(root) ?? "";
+    const built = buildSyncViews(db, projectId, checkoutId, disk);
+    const pending: WorkSyncPreviewFile[] = [];
+    const conflicts: WorkConflictReport[] = [];
+    for (const view of built.views) {
+      const held = workSyncHoldOf(holds, view.path) !== null;
+      if (view.conflict) {
+        if (sidesAgree(view)) {
+          pending.push({ path: view.path, fileState: view.fileState, storeState: view.storeState, decision: "none", conflictKind: view.conflict.conflict.kind, recorded: true, held });
+          continue;
+        }
+        pending.push({ path: view.path, fileState: view.fileState, storeState: view.storeState, decision: "conflict", conflictKind: view.conflict.conflict.kind, recorded: true, held });
+        conflicts.push(previewConflictReport(view, projection, view.conflict.conflict.kind, conflictClaimsOf(db, view.units, options.now ?? new Date())));
+        continue;
+      }
+      const row = decideWorkSync(view.fileState, view.storeState, projection);
+      if (row.decision === "none") {
+        if (view.fileState === "missing") pending.push({ path: view.path, fileState: view.fileState, storeState: view.storeState, decision: "none", conflictKind: null, recorded: false, held });
+        continue;
+      }
+      if (row.decision === "conflict" && sidesAgree(view)) continue;
+      if (row.decision === "write" && projection === "off") continue;
+      pending.push({ path: view.path, fileState: view.fileState, storeState: view.storeState, decision: row.decision, conflictKind: row.conflictKind, recorded: false, held });
+    }
+    const preview: WorkSyncPreview = { projectId, checkoutId, projection, firstImport: built.firstImport, pending, conflicts, summary: "" };
+    preview.summary = summarizePreview(preview);
+    return preview;
+  }, { storeRoot });
+}
+
+/** The claims that hold units of a file, for the release choices of a `claimed` conflict. Never the claim ID. */
+function conflictClaimsOf(db: StoreDatabase, units: readonly WorkUnitRecord[], now: Date): WorkConflictClaim[] {
+  const nowText = now.toISOString();
+  const claims: WorkConflictClaim[] = [];
+  for (const unit of units) {
+    const claim = readWorkClaim(db, unit.storeId);
+    if (!claim) continue;
+    claims.push({ coordinate: unit.coordinate, claimant: claim.claimant, expiresAt: claim.expiresAt, live: claim.expiresAt > nowText, hasTaskHandle: claim.taskHandle !== null, revision: unit.revision });
+  }
+  return claims;
+}
+
+function previewConflictReport(view: FileView, projection: WorkProjection, kind: WorkConflictKind, claims: WorkConflictClaim[] = []): WorkConflictReport {
+  return buildWorkConflictReport({
+    reasons: [],
+    claims,
+    // A recorded conflict in a state that the sync table imports came from an import guard.
+    stoppedByGuard: decideWorkSync(view.fileState, view.storeState, projection).decision === "import",
+    path: view.path,
+    kind,
+    fileState: view.fileState,
+    storeState: view.storeState,
+    projection,
+    file: { present: view.bytes !== null, digest: view.digest, revision: null, units: view.parsed?.ok ? view.parsed.document.units.map((unit) => unit.coordinate) : [] },
+    store: { present: view.units.length > 0, digest: null, revision: view.units.length > 0 ? fileStoreRevision(view.units) : null, units: view.units.map((unit) => unit.coordinate) },
+    lastAppliedDigest: view.ledger?.entry.lastAppliedDigest ?? null,
+    affectedUnits: kind === "store-missing" ? [] : view.units.map((unit) => unit.coordinate),
+    differences: differencesOf(view),
+  });
+}
+
+function summarizePreview(preview: WorkSyncPreview): string {
+  const count = (decision: WorkSyncDecision) => preview.pending.filter((file) => file.decision === decision && !file.recorded).length;
+  const parts: string[] = [];
+  if (preview.firstImport) parts.push("This checkout has not synced yet. The first work write command imports every backlog and writes no file.");
+  const imports = count("import");
+  const writes = count("write");
+  const removes = count("remove-copy");
+  const unreadable = count("report-unreadable");
+  const newConflicts = count("conflict");
+  const recorded = preview.pending.filter((file) => file.recorded && file.decision === "conflict").length;
+  if (imports + writes + removes + newConflicts + unreadable === 0 && recorded === 0) {
+    parts.push("Sync check: the files and the store match.");
+  } else {
+    const pieces = [
+      imports > 0 ? `${plural(imports, "file")} to import` : null,
+      writes > 0 ? `${plural(writes, "file")} to write` : null,
+      removes > 0 ? `${plural(removes, "copy")} to remove` : null,
+      newConflicts > 0 ? `${plural(newConflicts, "new conflict")}` : null,
+      unreadable > 0 ? `${plural(unreadable, "unreadable file")}` : null,
+      recorded > 0 ? `${plural(recorded, "conflict")} waiting for a person` : null,
+    ].filter((piece): piece is string => piece !== null);
+    const changes = imports + writes + removes + newConflicts + unreadable > 0;
+    parts.push(
+      changes
+        ? `Sync check: ${pieces.join(", ")}. The next work write command, or make-docs work sync, applies the changes.`
+        : `Sync check: ${pieces.join(", ")}. Settle each conflict with one of its commands.`,
+    );
+  }
+  return parts.join(" ");
 }
 
 function runSync(context: SyncContext): WorkSyncReport {
@@ -526,46 +876,16 @@ function runSync(context: SyncContext): WorkSyncReport {
     deleted: [],
     deferred: { write: [], remove: [] },
     held: [],
+    settled: null,
     summary: "",
   };
 
   const loadUnits = () => listWorkUnits(db, projectId);
-  let allUnits = loadUnits();
-  const unitsOfPath = (units: readonly WorkUnitRecord[], target: string) =>
-    units.filter((unit) => unit.sourcePath === target && unit.kind !== "wave" && unit.kind !== "quick-item");
-  const ledger = new Map(listSyncLedger(db, checkoutId).map((row) => [row.entry.targetPath, row]));
-  const conflicts = new Map(listSyncConflicts(db, checkoutId).map((row) => [row.conflict.targetPath, row]));
+  const built = buildSyncViews(db, projectId, checkoutId, context.disk);
+  let allUnits = built.allUnits;
+  const { ledger, conflicts, views } = built;
   // The first sync of this checkout only imports (R-WORK-SYNC-9). Its end is recorded in work_sync_checkouts.
-  report.firstImport = readWorkSyncCheckout(db, checkoutId) === null;
-
-  const paths = new Set<string>([...context.disk.keys(), ...ledger.keys(), ...conflicts.keys()]);
-  for (const unit of allUnits) if (unit.sourcePath && unit.kind !== "wave" && unit.kind !== "quick-item") paths.add(unit.sourcePath);
-
-  const views: FileView[] = [];
-  for (const target of [...paths].sort()) {
-    const info = classifyWorkFilePath(target);
-    if (!info) continue;
-    const disk = context.disk.get(target) ?? null;
-    const entry = ledger.get(target) ?? null;
-    const units = unitsOfPath(allUnits, target);
-    let parsed: FileView["parsed"] = null;
-    let text: string | null = null;
-    if (disk?.unsafe) parsed = { ok: false, failure: { path: target, code: "unsafe-path", line: 1, message: disk.unsafe } };
-    else if (disk?.bytes) {
-      const result = parseWorkFile(target, disk.bytes);
-      parsed = result.ok ? result : { ok: false, failure: result.failure };
-      if (result.ok) text = result.document.text;
-    }
-    const digest = disk?.bytes ? sha256Hex(disk.bytes) : null;
-    const fileState = workSyncFileState({
-      exists: disk !== null,
-      readable: parsed?.ok === true,
-      digest,
-      ledgerDigest: entry?.entry.lastAppliedDigest ?? null,
-    });
-    const storeState = workSyncStoreState({ units, ledger: entry ? entry.entry : null });
-    views.push({ path: target, info, bytes: disk?.bytes ?? null, text, digest, parsed, ledger: entry, conflict: conflicts.get(target) ?? null, units, fileState, storeState });
-  }
+  report.firstImport = built.firstImport;
 
   const result = (view: FileView, decision: WorkSyncDecision, action: WorkSyncAction, detail: string | null = null) =>
     report.files.push({ path: view.path, fileState: view.fileState, storeState: view.storeState, projection, decision, action, detail });
@@ -593,9 +913,10 @@ function runSync(context: SyncContext): WorkSyncReport {
     deleteSyncLedgerEntry(db, checkoutId, target, { expectedVersion: current.entryVersion });
     ledger.delete(target);
   };
-  const conflictReport = (view: FileView, kind: WorkConflictKind, reasons: string[] = []) =>
+  const conflictReport = (view: FileView, kind: WorkConflictKind, reasons: string[] = [], claims: WorkConflictClaim[] = []) =>
     buildWorkConflictReport({
       reasons,
+      claims,
       path: view.path,
       kind,
       fileState: view.fileState,
@@ -612,24 +933,28 @@ function runSync(context: SyncContext): WorkSyncReport {
    * for a claim holder. Nothing in the file or the store changes, and only the
    * file's units wait (R-WORK-SYNC-5).
    */
-  const stopForPerson = (view: FileView, reasons: string[], affected: readonly WorkUnitRecord[]) => {
-    if (!view.conflict) {
+  const stopForPerson = (view: FileView, reasons: string[], affected: readonly WorkUnitRecord[], claimedUnits: readonly WorkUnitRecord[]) => {
+    // A unit that a claim holds makes the conflict `claimed`: its choices are the release and `--keep-store`
+    // (W29 R0 P4 re-check finding 4). Any other guard keeps `unclear`.
+    const kind: WorkConflictKind = claimedUnits.length > 0 ? "claimed" : "unclear";
+    if (!view.conflict || view.conflict.conflict.kind !== kind) {
       putSyncConflict(
         db,
         {
           checkoutId,
           targetPath: view.path,
-          kind: "unclear",
+          kind,
           fileDigest: view.digest,
           ledgerDigest: view.ledger?.entry.lastAppliedDigest ?? null,
           storeRevision: Math.max(1, fileStoreRevision(affected)),
           affectedUnitStoreIds: affected.map((unit) => unit.storeId),
           detectedAt: nowText,
         },
-        { expectedVersion: null },
+        { expectedVersion: view.conflict?.entryVersion ?? null },
       );
     }
-    report.conflicts.push({ ...conflictReport({ ...view, units: [...affected] }, "unclear", reasons), affectedUnits: affected.map((unit) => unit.coordinate) });
+    const claims = conflictClaimsOf(db, claimedUnits, now);
+    report.conflicts.push({ ...conflictReport({ ...view, units: [...affected] }, kind, reasons, claims), affectedUnits: affected.map((unit) => unit.coordinate) });
     result(view, "import", view.conflict ? "still-in-conflict" : "conflict", reasons.join(" "));
   };
   const adopt = (view: FileView) => {
@@ -637,23 +962,175 @@ function runSync(context: SyncContext): WorkSyncReport {
     putLedger(view, view.digest!, view.units);
   };
 
+  /* Settle one conflict that a person chose (W29 R0 P4 T15). Every check runs before any change, so a refusal changes nothing. */
+  const handled = new Set<string>();
+  const settledImports: FileView[] = [];
+  const forceFile = new Set<string>();
+  context.forceFile = forceFile;
+  if (context.settle) report.settled = applySettle(context.settle);
+
+  function applySettle(settle: WorkSettleInput): WorkSettleOutcome {
+    const refuseSettle = (refusal: WorkSettleRefusal, reason: string, nextAction: string): never => {
+      throw new WorkSettleRefusalError(refusal, settle.targetPath, reason, nextAction);
+    };
+    const view = views.find((candidate) => candidate.path === settle.targetPath);
+    if (!view || !view.conflict) {
+      return refuseSettle("no-conflict", `${settle.targetPath} has no sync conflict in this checkout.`, "Run make-docs work status to see each conflict and its settle commands.");
+    }
+    const recorded = view.conflict;
+    const kind = recorded.conflict.kind;
+    const options = WORK_SETTLE_OPTIONS[kind];
+    const option = options.find((candidate) => candidate.choice === settle.choice);
+    if (!option) {
+      return refuseSettle(
+        "choice-not-offered",
+        kind === "claimed"
+          ? `A claimed conflict offers --keep-store, or make-docs work release for each claimed unit, not --${settle.choice}. An import never acts for a claim holder.`
+          : `A ${kind} conflict offers ${options.map((candidate) => `--${candidate.choice}`).join(" or ")}, not --${settle.choice}.`,
+        kind === "claimed"
+          ? "Run make-docs work status to see the release command for each claimed unit, or settle with --keep-store."
+          : "Run the settle command again with one of those choices.",
+      );
+    }
+    const revision = view.units.length > 0 ? fileStoreRevision(view.units) : null;
+    if (settle.expectedStoreRevision !== null && settle.expectedStoreRevision !== revision) {
+      return refuseSettle(
+        "version-conflict",
+        `The store revision of ${view.path} is ${revision ?? "none"}, not ${settle.expectedStoreRevision}.`,
+        "Run make-docs work status again, then settle with the current revision.",
+      );
+    }
+    // A held path is never written or removed, and its settled state never changes (R-WORK-SYNC-17).
+    const writesFile = settle.choice === "keep-store" || settle.choice === "remove-file" || settle.choice === "accept-deletion" || (settle.choice === "restore" && view.bytes === null);
+    const hold = workSyncHoldOf(context.holdWrites, view.path);
+    if (hold && writesFile) {
+      return refuseSettle("held", `${view.path} is held. ${hold.reason}`, "Settle with a choice that does not write the file, or remove the path from the hold list first.");
+    }
+    const clearConflict = () => {
+      deleteSyncConflict(db, checkoutId, view.path, { expectedVersion: recorded.entryVersion });
+      view.conflict = null;
+    };
+    const writeFromStore = (current: FileView, label: string) => {
+      const rendered = renderStore(current);
+      if (!rendered.ok) {
+        return refuseSettle("store-cannot-render", `Make Docs cannot write ${current.path} from the store: ${rendered.reason}`, "Settle with the other choice.");
+      }
+      const failure = fileFailure(() => writeWorkFileAtomically(context.root, current.path, rendered.text));
+      if (failure) throw new OperationError(`Could not write ${current.path} (${failure.code}): ${failure.message} Nothing changed in the store.`);
+      const units = refreshFrame(db, current, rendered.text, rendered.changedUnits);
+      putLedger(current, sha256Hex(rendered.text), units);
+      report.written.push(current.path);
+      result(current, "write", "written", label);
+    };
+    switch (settle.choice) {
+      case "keep-file":
+      case "reimport": {
+        if (view.bytes === null) return refuseSettle("file-missing", `${view.path} is not in this checkout.`, "Settle with the other choice.");
+        if (!view.parsed?.ok) return refuseSettle("file-unreadable", `Make Docs cannot read ${view.path}.`, "Fix the file, then settle again.");
+        clearConflict();
+        if (settle.choice === "reimport") {
+          clearLedger(view.path);
+          view.ledger = null;
+        } else {
+          forceFile.add(view.path);
+        }
+        handled.add(view.path);
+        settledImports.push(view);
+        break;
+      }
+      case "keep-store": {
+        clearConflict();
+        handled.add(view.path);
+        writeFromStore(view, "Settled: Make Docs rewrote the file from the store.");
+        break;
+      }
+      case "restore": {
+        for (const unit of view.units) {
+          if (unit.copyState !== "removed") continue;
+          putWorkUnit(db, { ...unitInputOf(unit), copyState: "kept" }, { expectedVersion: unit.revision });
+        }
+        const restored: FileView = { ...view, units: unitsOfPath(listWorkUnits(db, projectId), view.path) };
+        clearConflict();
+        handled.add(view.path);
+        if (view.bytes === null) {
+          writeFromStore(restored, "Settled: Make Docs restored the file from the store.");
+        } else {
+          if (!view.parsed?.ok) return refuseSettle("file-unreadable", `Make Docs cannot read ${view.path}.`, "Fix the file, then settle again.");
+          // The file is back: keep it, and import it as the person's copy.
+          forceFile.add(view.path);
+          settledImports.push(restored);
+        }
+        break;
+      }
+      case "accept-deletion": {
+        if (view.bytes !== null) {
+          return refuseSettle("file-present", `${view.path} is in this checkout again.`, "Delete the file first, or settle with --restore.");
+        }
+        const claims = liveClaimsOf(db, projectId, now);
+        const held = view.units.filter((unit) => unit.status !== "closed" && claims.has(unit.storeId));
+        if (held.length > 0) {
+          // Owner decision 2026-11-23 (W29 R0 P4 T18): sync never acts for a claim holder.
+          return refuseSettle(
+            "claimed",
+            held.map((unit) => {
+              const claim = claims.get(unit.storeId)!;
+              return claim.live
+                ? `${claim.claimant} holds ${unit.coordinate} on a live claim until ${claim.expiresAt}.`
+                : `The claim of ${claim.claimant} on ${unit.coordinate} ended at ${claim.expiresAt}, and a release needs a check of its task handle.`;
+            }).join(" "),
+            "Ask the holder to close or release the claim, or release an expired claim with make-docs work release --handle after you check its task, then settle again.",
+          );
+        }
+        for (const unit of [...view.units].sort((left, right) => kindRank(right.kind) - kindRank(left.kind))) {
+          const fresh = readWorkUnit(db, unit.storeId)!;
+          const closing = fresh.status !== "closed";
+          putWorkUnit(db, {
+            ...unitInputOf(fresh),
+            status: "closed",
+            closeOutcome: closing ? "superseded" : fresh.closeOutcome,
+            copyState: "removed",
+          }, { expectedVersion: fresh.revision, now });
+        }
+        clearLedger(view.path);
+        clearConflict();
+        handled.add(view.path);
+        result(view, "none", "ledger-cleared", "Settled: the deletion is accepted. Open units closed as superseded, and every checkout removes its unchanged copy.");
+        break;
+      }
+      case "remove-file": {
+        if (view.bytes === null) return refuseSettle("file-missing", `${view.path} is not in this checkout.`, "Settle with --reimport, or run make-docs work sync.");
+        if (view.digest !== view.ledger?.entry.lastAppliedDigest) {
+          return refuseSettle("file-changed", `${view.path} changed since the last sync, so Make Docs keeps it.`, "Settle with --reimport, or delete the file by hand if you are sure.");
+        }
+        const failure = fileFailure(() => unlinkSync(path.join(context.root, ...view.path.split("/"))));
+        if (failure) throw new OperationError(`Could not remove ${view.path} (${failure.code}): ${failure.message} Nothing changed in the store.`);
+        clearLedger(view.path);
+        clearConflict();
+        handled.add(view.path);
+        report.removed.push(view.path);
+        result(view, "remove-copy", "removed", "Settled: Make Docs removed the unchanged file.");
+        break;
+      }
+    }
+    return { path: view.path, choice: settle.choice, kind, effect: option.effect };
+  }
+
   /* Moves: a file that left one backlog folder and arrived in another, such as an archive move. */
   const moveFrom = new Map<string, FileView>();
-  const handled = new Set<string>();
-  for (const target of views.filter((view) => view.fileState === "new" && view.storeState === "none" && view.parsed?.ok && !view.conflict)) {
+  for (const target of views.filter((view) => !handled.has(view.path) && view.fileState === "new" && view.storeState === "none" && view.parsed?.ok && !view.conflict)) {
     const sources = views.filter(
-      (view) => view.fileState === "missing" && view.storeState === "unchanged" && !view.conflict && view.info.coordinate === target.info.coordinate && view.info.kind === target.info.kind,
+      (view) => !handled.has(view.path) && view.fileState === "missing" && view.storeState === "unchanged" && !view.conflict && view.info.coordinate === target.info.coordinate && view.info.kind === target.info.kind,
     );
     if (sources.length !== 1 || handled.has(sources[0]!.path)) continue;
     moveFrom.set(target.path, sources[0]!);
     handled.add(sources[0]!.path);
   }
 
-  const imports: FileView[] = [];
+  const imports: FileView[] = [...settledImports];
   const writes: FileView[] = [];
   const removes: FileView[] = [];
   for (const view of views) {
-    if (handled.has(view.path)) continue; // A move source is settled with its target.
+    if (handled.has(view.path)) continue; // A move source is settled with its target, and a settled file by its settle.
     if (view.conflict) {
       if (sidesAgree(view)) {
         adopt(view);
@@ -663,7 +1140,7 @@ function runSync(context: SyncContext): WorkSyncReport {
         imports.push(view);
       } else {
         result(view, "conflict", "still-in-conflict", "The conflict waits for a person to choose.");
-        report.conflicts.push(conflictReport(view, view.conflict.conflict.kind));
+        report.conflicts.push(conflictReport(view, view.conflict.conflict.kind, [], view.conflict.conflict.kind === "claimed" ? conflictClaimsOf(db, view.units, now) : []));
       }
       continue;
     }
@@ -673,6 +1150,11 @@ function runSync(context: SyncContext): WorkSyncReport {
         if (view.fileState === "missing" && (view.storeState === "none" || view.storeState === "removed")) {
           clearLedger(view.path);
           result(view, "none", "ledger-cleared", "The copy is gone, so this checkout's ledger entry is removed.");
+        } else if (view.fileState === "missing" && projection === "off") {
+          // Owner decision 2026-11-23 (W29 R0 P4 T20, PRD 38): copies are off and a person deleted
+          // the copy, so its ledger entry goes. When copies go on again, sync writes the file with no conflict.
+          clearLedger(view.path);
+          result(view, "none", "ledger-cleared", "Copies are off and the copy is gone, so this checkout's ledger entry is removed. When copies go on again, Make Docs writes the file with no conflict.");
         } else {
           result(view, "none", "none");
         }
@@ -727,7 +1209,7 @@ function runSync(context: SyncContext): WorkSyncReport {
   allUnits = loadUnits();
 
   /* Write (R-WORK-SYNC-3, R-WORK-SYNC-12). */
-  const holdOf = (target: string) => context.holdWrites.find((hold) => target.startsWith(`${hold.folder}/`)) ?? null;
+  const holdOf = (target: string) => workSyncHoldOf(context.holdWrites, target);
   for (const view of writes) {
     const current: FileView = { ...view, units: unitsOfPath(allUnits, view.path) };
     if (projection !== "on") {
@@ -752,13 +1234,18 @@ function runSync(context: SyncContext): WorkSyncReport {
       result(view, "write", "not-written", rendered.reason);
       continue;
     }
-    if (current.text !== rendered.text) {
-      const failure = fileFailure(() => writeWorkFileAtomically(context.root, view.path, rendered.text));
-      if (failure) {
-        report.fileErrors.push({ path: view.path, operation: "write", ...failure });
-        result(view, "write", "not-written", `${failure.code}: ${failure.message}`);
-        continue;
-      }
+    if (current.text === rendered.text) {
+      // Only store-only edits changed (W29 R0 P4 T16): the file already shows all it can, so no byte changes.
+      const units = refreshFrame(db, current, rendered.text, rendered.changedUnits);
+      putLedger(current, sha256Hex(rendered.text), units);
+      result(view, "write", "none", "The store changed only what the file cannot show, so the file keeps its bytes.");
+      continue;
+    }
+    const failure = fileFailure(() => writeWorkFileAtomically(context.root, view.path, rendered.text));
+    if (failure) {
+      report.fileErrors.push({ path: view.path, operation: "write", ...failure });
+      result(view, "write", "not-written", `${failure.code}: ${failure.message}`);
+      continue;
     }
     const units = refreshFrame(db, current, rendered.text, rendered.changedUnits);
     putLedger(current, sha256Hex(rendered.text), units);
@@ -858,10 +1345,12 @@ function runImports(
   result: (view: FileView, decision: WorkSyncDecision, action: WorkSyncAction, detail?: string | null) => void,
   putLedger: (view: FileView, digest: string, units: readonly WorkUnitRecord[]) => void,
   clearLedger: (target: string) => void,
-  stopForPerson: (view: FileView, reasons: string[], affected: readonly WorkUnitRecord[]) => void,
+  stopForPerson: (view: FileView, reasons: string[], affected: readonly WorkUnitRecord[], claimedUnits: readonly WorkUnitRecord[]) => void,
 ): void {
   const { db, projectId, now, checkoutId } = context;
   const claims = liveClaimsOf(db, projectId, now);
+  // Units with a progress note (register D-066): the note is store-only data (re-check finding 2).
+  const noted = new Set((db.prepare("SELECT store_id FROM work_units WHERE project_id = ? AND note IS NOT NULL").all(projectId) as Array<{ store_id: string }>).map((row) => row.store_id));
   const blockedPaths = new Set(
     report.files.filter((file) => file.action === "conflict" || file.action === "still-in-conflict" || file.action === "unreadable").map((file) => file.path),
   );
@@ -897,7 +1386,8 @@ function runImports(
     for (const unit of document.units) claimed.set(unit.coordinate, view.path);
     const existing = new Map<string, WorkUnitRecord>();
     for (const unit of [...view.units, ...(movedFrom?.units ?? [])]) existing.set(unit.coordinate, unit);
-    const baseFrame = frameOf(movedFrom ?? view);
+    // A person who settled with the file kept chose the file over the store, so no field keeps the store's value.
+    const baseFrame = context.forceFile?.has(view.path) ? null : frameOf(movedFrom ?? view);
     const base = new Map((baseFrame?.units ?? []).map((unit) => [unit.coordinate, unit]));
     planned.push({ view, document, existing, base, movedFrom });
   }
@@ -935,9 +1425,9 @@ function runImports(
     stopped = false;
     for (let index = planned.length - 1; index >= 0; index -= 1) {
       const plan = planned[index]!;
-      const reasons = importGuardReasons(plan, storeUnits, claims, blockedPaths);
+      const { reasons, claimedUnits } = importGuardReasons(plan, storeUnits, claims, blockedPaths, noted);
       if (reasons.length === 0) continue;
-      stopForPerson(plan.view, reasons, [...plan.existing.values()]);
+      stopForPerson(plan.view, reasons, [...plan.existing.values()], claimedUnits);
       blockedPaths.add(plan.view.path);
       planned.splice(index, 1);
       stopped = true;
@@ -1032,6 +1522,12 @@ function runImports(
       // cannot show (a stage's status, or a task in progress).
       const status = mergedStatus(unit, current, base);
       const inbound = current?.links.filter((link) => link.direction === "inbound") ?? [];
+      // Store-only edits survive an import while the file still shows what the last applied text showed
+      // (owner decision 2026-11-23, W29 R0 P4 T16): blockers that `work report` cleared, and evidence links it added.
+      const fileBlockerTexts = unit.blockerBullets.map((bullet) => bullet.text);
+      const keepStoreBlockers = current !== null && base !== null && sameTexts(base.blockerBullets.map((bullet) => bullet.text), fileBlockerTexts);
+      const keepStoreLinks = current !== null && base !== null && stableStringify(base.links) === stableStringify(unit.links);
+      const outbound = keepStoreLinks ? current!.links.filter((link) => link.direction === "outbound") : unit.links;
       const input: WorkUnitInput = {
         projectId,
         storeId: idOf.get(unit.coordinate)!,
@@ -1046,8 +1542,10 @@ function runImports(
         dependencies,
         unresolvedDependencies: unresolved,
         gates,
-        blockers: unit.blockerBullets.map((bullet) => ({ text: bullet.text, source: { path: target, line: bullet.line } })),
-        links: [...unit.links, ...inbound],
+        blockers: keepStoreBlockers
+          ? current!.blockers
+          : unit.blockerBullets.map((bullet) => ({ text: bullet.text, source: { path: target, line: bullet.line } })),
+        links: [...outbound, ...inbound],
         sourcePath: target,
         copyState: "kept",
       };
@@ -1169,16 +1667,23 @@ function runImports(
 interface LiveClaim {
   claimant: string;
   expiresAt: string;
+  live: boolean;
 }
 
-/** Live claims by unit store ID. Holder state only: the claim ID stays private (P4 T13). */
+/**
+ * Claims by unit store ID, live and expired. Holder state only: the claim ID
+ * stays private (P4 T13). An expired claim also guards its unit: only a
+ * takeover, or a release or close after the handle check, ends it (owner
+ * decision 2026-11-23, W29 R0 P4 finding 9), and sync never runs that check.
+ */
 function liveClaimsOf(db: StoreDatabase, projectId: string, now: Date): Map<string, LiveClaim> {
-  const rows = db.prepare("SELECT unit_store_id, claimant, expires_at FROM work_claims WHERE project_id = ? AND expires_at > ?").all(projectId, now.toISOString()) as Array<{
+  const rows = db.prepare("SELECT unit_store_id, claimant, expires_at FROM work_claims WHERE project_id = ?").all(projectId) as Array<{
     unit_store_id: string;
     claimant: string;
     expires_at: string;
   }>;
-  return new Map(rows.map((row) => [row.unit_store_id, { claimant: row.claimant, expiresAt: row.expires_at }]));
+  const nowText = now.toISOString();
+  return new Map(rows.map((row) => [row.unit_store_id, { claimant: row.claimant, expiresAt: row.expires_at, live: row.expires_at > nowText }]));
 }
 
 /**
@@ -1192,8 +1697,9 @@ function mergedStatus(unit: ParsedWorkUnit, current: WorkUnitRecord | null, base
 }
 
 /** What a unit holds that its file cannot show. An empty list means the file shows all of it. */
-export function storeOnlyData(unit: WorkUnitRecord): string[] {
+export function storeOnlyData(unit: WorkUnitRecord, hasNote = false): string[] {
   const found: string[] = [];
+  if (hasNote) found.push("a progress note");
   const shown = recordedStatusOf(unit.recordedStatus);
   if (shown.status !== unit.status || shown.closeOutcome !== unit.closeOutcome) {
     found.push(`the status ${unit.status}${unit.closeOutcome ? ` (${unit.closeOutcome})` : ""}`);
@@ -1213,10 +1719,19 @@ export function storeOnlyData(unit: WorkUnitRecord): string[] {
  *   something the file cannot show. Deleting it would lose that silently.
  * - A unit leaves the file while a unit in a waiting file depends on it.
  */
-function importGuardReasons(plan: PlannedFile, storeUnits: readonly WorkUnitRecord[], claims: Map<string, LiveClaim>, blockedPaths: Set<string>): string[] {
+function importGuardReasons(
+  plan: PlannedFile,
+  storeUnits: readonly WorkUnitRecord[],
+  claims: Map<string, LiveClaim>,
+  blockedPaths: Set<string>,
+  noted: ReadonlySet<string>,
+): { reasons: string[]; claimedUnits: WorkUnitRecord[] } {
   const reasons: string[] = [];
+  const claimedUnits: WorkUnitRecord[] = [];
   const parsed = new Map(plan.document.units.map((unit) => [unit.coordinate, unit]));
-  const held = (claim: LiveClaim) => `${claim.claimant} holds it on a live claim until ${claim.expiresAt}`;
+  const held = (claim: LiveClaim) => claim.live
+    ? `${claim.claimant} holds it on a live claim until ${claim.expiresAt}`
+    : `the claim of ${claim.claimant} ended at ${claim.expiresAt} and still holds it until a takeover, or a release after a check of its task handle`;
   for (const unit of plan.document.units) {
     const current = plan.existing.get(unit.coordinate) ?? null;
     if (!current || current.status === "closed") continue;
@@ -1224,13 +1739,17 @@ function importGuardReasons(plan: PlannedFile, storeUnits: readonly WorkUnitReco
     if (!claim) continue;
     if (mergedStatus(unit, current, plan.base.get(unit.coordinate) ?? null).status === "closed") {
       reasons.push(`The file closes ${unit.coordinate}, and ${held(claim)}. Only the claim holder closes a claimed unit.`);
+      claimedUnits.push(current);
     }
   }
   for (const [coordinate, unit] of plan.existing) {
     if (parsed.has(coordinate)) continue;
     const claim = claims.get(unit.storeId);
-    if (claim) reasons.push(`${coordinate} left the file, and ${held(claim)}.`);
-    const storeOnly = storeOnlyData(unit);
+    if (claim) {
+      reasons.push(`${coordinate} left the file, and ${held(claim)}.`);
+      claimedUnits.push(unit);
+    }
+    const storeOnly = storeOnlyData(unit, noted.has(unit.storeId));
     if (storeOnly.length > 0) reasons.push(`${coordinate} left the file, and the store holds what the file cannot show: ${storeOnly.join(", ")}.`);
     for (const dependent of storeUnits) {
       if (!dependent.sourcePath || !blockedPaths.has(dependent.sourcePath)) continue;
@@ -1239,7 +1758,7 @@ function importGuardReasons(plan: PlannedFile, storeUnits: readonly WorkUnitReco
       }
     }
   }
-  return reasons;
+  return { reasons, claimedUnits };
 }
 
 /* ------------------------------------------------------------------------ */

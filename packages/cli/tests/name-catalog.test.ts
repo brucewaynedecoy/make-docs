@@ -125,13 +125,16 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 52 current operations, 6 hand-defined tools, and 19 planned operations", () => {
+  it("lists 61 current operations, 6 hand-defined tools, and 10 planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more.
-    expect(currentOperations).toHaveLength(52);
+    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, and W29 R0 P4 landed 9.
+    expect(currentOperations).toHaveLength(61);
+    expect(currentOperations.filter((item) => item.addedBy === "W29 R0").map((item) => item.newCli).sort()).toEqual([
+      "work add", "work claim", "work close", "work export", "work next", "work release", "work report", "work status", "work sync",
+    ]);
     expect(currentOperations.filter((item) => item.addedBy === "W34 R0").map((item) => item.id).sort()).toEqual([
       "decomposition.output.validate",
       "project.markdown-style.repair",
@@ -147,7 +150,7 @@ describe("W33 R0 P1 name catalog", () => {
     );
     const byWave = (wave: string) => plannedOperations.filter((item) => item.plannedBy === wave).length;
     expect({ w29: byWave("W29 R0"), w30: byWave("W30 R0"), w31: byWave("W31 R0"), w32: byWave("W32 R0"), w34: byWave("W34 R0") }).toEqual({
-      w29: 9,
+      w29: 0,
       w30: 10,
       w31: 0,
       w32: 0,
@@ -461,9 +464,9 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(checkNameCatalogCoverage([...NAME_CATALOG, extraTool], sources)).toEqual([
       "Catalog tool ghost_tool is not a hand-defined MCP tool.",
     ]);
-    const landed: NameCatalogSources = { ...sources, registeredOperationIds: [...sources.registeredOperationIds, "work.queue.next"] };
+    const landed: NameCatalogSources = { ...sources, registeredOperationIds: [...sources.registeredOperationIds, "factory.status"] };
     expect(checkNameCatalogCoverage(NAME_CATALOG, landed)).toContain(
-      "Catalog operation work.queue.next is planned but the registry holds it. Mark it current.",
+      "Catalog operation factory.status is planned but the registry holds it. Mark it current.",
     );
     const renamed = NAME_CATALOG.map((item) => (item.id === "lifecycle.show" ? { ...item, currentMcp: "show" } : item));
     expect(checkNameCatalogCoverage(renamed, sources)).toEqual([
@@ -535,8 +538,11 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(PRD_LISTS.rRun1(PRD_39.replace("`item resolve`, `evidence record`", "`item resolve`, `item delete`, `evidence record`"))).toEqual([
       "R-RUN-1 lists active `work item delete`, which the registry does not have.",
     ]);
-    expect(PRD_LISTS.rRun1(PRD_39.replace("`export`, and `add`, and planned `factory`", "and `export`, and planned `factory`"))).toEqual([
-      "R-RUN-1 misses planned `work add`.",
+    expect(PRD_LISTS.rRun1(PRD_39.replace("`export`, and `add`, active `backlog`", "and `export`, active `backlog`"))).toEqual([
+      "R-RUN-1 misses active `work add`.",
+    ]);
+    expect(PRD_LISTS.rRun1(PRD_39.replace("`restore`.", "`restore`, and planned `work` commands for `next`."))).toEqual([
+      "R-RUN-1 lists planned `work next`, which the catalog does not plan.",
     ]);
   });
 

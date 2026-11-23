@@ -14,6 +14,7 @@ import {
   type WorkClaimRecord,
   type WorkClaimRefusal,
   type WorkClaimRequest,
+  type WorkHandleObservation,
   type WorkReleaseRequest,
   type WorkSyncConflictRecord,
   type WorkSyncLedgerEntry,
@@ -66,6 +67,8 @@ export const WORK_STORE_REFUSALS = [
   "claim-expired",
   "unit-in-use",
   "checkout-not-bound",
+  "handle-check-needed",
+  "previous-holder-still-working",
 ] as const;
 export type WorkStoreRefusal = (typeof WORK_STORE_REFUSALS)[number];
 
@@ -402,7 +405,7 @@ export type WorkUnitInput = Omit<WorkUnitRecord, "revision">;
 export function putWorkUnit(
   db: StoreDatabase,
   unit: WorkUnitInput,
-  options: { expectedVersion: number | null; claimId?: string | null; now?: Date },
+  options: { expectedVersion: number | null; claimId?: string | null; handleObservation?: WorkHandleObservation | null; now?: Date },
 ): WorkUnitRecord {
   return atomic(db, () => {
     const revision = (options.expectedVersion ?? 0) + 1;
@@ -427,15 +430,20 @@ export function putWorkUnit(
       }
     }
     if (record.status === "closed" && current && current.status !== "closed") {
-      const claimRefusal = checkWorkUnitWriteClaim(db, record.storeId, options.claimId ?? null, options.now ?? new Date());
+      const claimRefusal = checkWorkUnitWriteClaim(db, record.storeId, options.claimId ?? null, options.now ?? new Date(), {
+        closing: true,
+        handleObservation: options.handleObservation ?? null,
+      });
       if (claimRefusal) {
         refuse(
           claimRefusal,
           claimRefusal === "claim-expired"
             ? `The claim on work unit ${record.storeId} has expired, so it cannot close the unit.`
-            : `Work unit ${record.storeId} has a live claim that this write does not hold.`,
-          "Close it through the claim holder, or release or take over the claim first.",
-          { storeId: record.storeId },
+            : claimRefusal === "not-claim-holder"
+              ? `Work unit ${record.storeId} has a live claim that this write does not hold.`
+              : `Work unit ${record.storeId} has an expired claim, and closing it needs the handle check of its task.`,
+          "Close it through the claim holder, or check the old task handle first.",
+          { storeId: record.storeId, claimRefusal },
         );
       }
     }
@@ -550,6 +558,55 @@ export function createQuickItem(db: StoreDatabase, projectId: string, request: W
   }, { expectedVersion: null }));
 }
 
+/** The longest progress note that a unit keeps (register D-066). */
+export const WORK_UNIT_NOTE_MAX = 256;
+
+export interface WorkUnitNote {
+  note: string;
+  noteAt: string;
+}
+
+/** The latest progress note of a unit, or null (W29 R0 P4, register D-066). */
+export function readWorkUnitNote(db: StoreDatabase, storeId: string): WorkUnitNote | null {
+  const row = db.prepare("SELECT note, note_at FROM work_units WHERE store_id = ?").get(storeId) as { note: string | null; note_at: string | null } | undefined;
+  return row && row.note !== null && row.note_at !== null ? { note: row.note, noteAt: row.note_at } : null;
+}
+
+/** The plain text problem of a note, or null. One line, 1 to 256 characters, no control character. */
+export function workUnitNoteProblem(note: string): string | null {
+  if (note.length === 0 || note.trim() !== note) return "A note has no leading or trailing space and is not empty.";
+  if (note.length > WORK_UNIT_NOTE_MAX) return `A note has at most ${WORK_UNIT_NOTE_MAX} characters.`;
+  // eslint-disable-next-line no-control-regex
+  if (/[\u0000-\u001f\u007f]/.test(note)) return "A note is one line of plain text, with no line break, tab, or other control character.";
+  return null;
+}
+
+/**
+ * Replace a unit's latest progress note (register D-066). The write carries
+ * the unit's record revision, raises it by one, and keeps every other field.
+ * The caller checks the claim rule of a report first.
+ */
+export function setWorkUnitNote(
+  db: StoreDatabase,
+  storeId: string,
+  note: string,
+  options: { expectedVersion: number; now?: Date },
+): WorkUnitRecord {
+  return atomic(db, () => {
+    const current = unitRow(db, storeId);
+    if (!current) refuse("unit-not-found", `Work unit ${storeId} does not exist.`, RE_READ, { storeId });
+    assertOpenedProject(db, current.project_id);
+    if (Number(current.revision) !== options.expectedVersion) {
+      refuse("version-conflict", `Work unit ${storeId} is at revision ${Number(current.revision)}, not ${options.expectedVersion}.`, RE_READ, { storeId, currentVersion: Number(current.revision) });
+    }
+    const problem = workUnitNoteProblem(note);
+    if (problem) refuse("invalid-record", problem, "Correct the note and report again.", { storeId });
+    db.prepare("UPDATE work_units SET note = ?, note_at = ?, revision = revision + 1 WHERE store_id = ? AND revision = ?")
+      .run(note, (options.now ?? new Date()).toISOString(), storeId, options.expectedVersion);
+    return readWorkUnit(db, storeId)!;
+  });
+}
+
 /* ------------------------------------------------------------------------ */
 /* Claims (T6, T7)                                                          */
 /* ------------------------------------------------------------------------ */
@@ -588,6 +645,59 @@ function claimRow(db: StoreDatabase, unitStoreId: string): ClaimRow | undefined 
 export function readWorkClaim(db: StoreDatabase, unitStoreId: string): WorkClaimRecord | null {
   const row = claimRow(db, unitStoreId);
   return row ? toClaim(row) : null;
+}
+
+/** Every claim row of one project, live or expired. */
+export function listWorkClaims(db: StoreDatabase, projectId: string): WorkClaimRecord[] {
+  return (db.prepare("SELECT * FROM work_claims WHERE project_id = ? ORDER BY unit_store_id").all(projectId) as unknown as ClaimRow[]).map(toClaim);
+}
+
+/**
+ * Release an expired claim for any caller, without its claim ID
+ * (R-WORK-QUEUE-10). W29 R0 P4 T13 hides a claim ID from every caller that
+ * does not hold the claim, so a person who releases another claimant's
+ * expired claim names the unit and its expected version instead. A live
+ * claim is refused with `not-claim-holder`: only its holder releases it.
+ */
+export function releaseExpiredWorkClaim(
+  db: StoreDatabase,
+  request: { unitStoreId: string; expectedVersion: number; handleObservation: WorkHandleObservation | null },
+  options: { now?: Date } = {},
+): WorkUpdateOutcome & { releasedClaimant: string | null } {
+  const now = (options.now ?? new Date()).toISOString();
+  return atomic(db, () => {
+    const unit = unitRow(db, request.unitStoreId);
+    if (!unit) refuse("unit-not-found", `Work unit ${request.unitStoreId} does not exist.`, RE_READ);
+    assertOpenedProject(db, unit.project_id);
+    if (Number(unit.revision) !== request.expectedVersion) return { accepted: false, refusal: "version-conflict", releasedClaimant: null };
+    const existing = claimRow(db, request.unitStoreId);
+    if (!existing || existing.expires_at > now) return { accepted: false, refusal: "not-claim-holder", releasedClaimant: null };
+    // Owner decision 2026-11-23 (W29 R0 P4 finding 9, option A): a release of an expired claim runs the
+    // R-WORK-QUEUE-7 handle check, so a release and a new claim never skip the check of a takeover.
+    const handleRefusal = expiredClaimHandleRefusal(existing.task_handle, request.handleObservation);
+    if (handleRefusal) return { accepted: false, refusal: handleRefusal, releasedClaimant: null };
+    db.prepare("DELETE FROM work_claims WHERE claim_id = ? AND expires_at <= ?").run(existing.claim_id, now);
+    return { accepted: true, refusal: null, releasedClaimant: existing.claimant };
+  });
+}
+
+/**
+ * The R-WORK-QUEUE-7 handle check for an expired claim that a caller without
+ * it releases, closes, or takes over (owner decision 2026-11-23, W29 R0 P4
+ * finding 9). A claim with a task handle needs what the check saw: stopped,
+ * finished, or not found; a running task refuses. A claim with no task handle
+ * has nothing to check, so a person names `no-handle` and may release or close
+ * it. Returns null when the write may go on.
+ */
+export function expiredClaimHandleRefusal(
+  taskHandle: string | null,
+  observation: WorkHandleObservation | null,
+): Extract<WorkUpdateRefusal, "handle-check-needed" | "previous-holder-still-working"> | null {
+  if (observation === null) return "handle-check-needed";
+  if (taskHandle === null) return observation === "no-handle" ? null : "handle-check-needed";
+  if (observation === "running") return "previous-holder-still-working";
+  if (observation === "no-handle") return "handle-check-needed";
+  return null;
 }
 
 /** A claim is live until its expiry time (R-WORK-QUEUE-7). */
@@ -632,7 +742,8 @@ function relatedLiveClaim(db: StoreDatabase, unitStoreId: string, claimant: stri
  *
  * - No claim: a plain claim succeeds when no other claimant holds an
  *   ancestor or a descendant.
- * - A live claim: its claimant renews it; anyone else is refused.
+ * - A live claim: its holder renews it by naming its claim ID; anyone else,
+ *   also a caller that names the same claimant without the claim ID, is refused.
  * - An expired claim: a plain claim is refused with
  *   `takeover-needs-handle-check`. A takeover names the expired claim and
  *   what the handle check saw. It is refused while the old task runs, and
@@ -658,6 +769,8 @@ export function claimWorkUnit(db: StoreDatabase, request: WorkClaimRequest, opti
     const expiresAt = new Date(now.getTime() + (claimRequest.ttlSeconds ?? WORK_CLAIM_POLICY.defaultTtlSeconds) * 1000).toISOString();
     if (existing && existing.expires_at > nowText) {
       if (existing.claimant !== claimRequest.claimant) return refusedClaim("already-claimed", existing);
+      // T13: a renewal names the claim ID. The claimant name alone is not proof of holding the claim.
+      if ((claimRequest.claimId ?? null) !== existing.claim_id) return refusedClaim("already-claimed", existing);
       // A clock that went back must not make a renewal earlier than the last one:
       // renew from the later of now and the last renewal, so the times stay in order.
       const renewedAt = existing.renewed_at > nowText ? existing.renewed_at : nowText;
@@ -715,17 +828,26 @@ export function releaseWorkClaim(db: StoreDatabase, request: WorkReleaseRequest)
  * The claim rule of a report or a close (R-WORK-QUEUE-8, R-WORK-QUEUE-9): a
  * unit with a live claim changes only through its holder, and a caller
  * without a claim can change a unit that has no live claim. A holder whose
- * claim expired gets `claim-expired`. Returns null when the write may go on.
+ * claim expired gets `claim-expired`. A close by a caller without the claim of
+ * a unit whose claim expired needs the handle check (`closing`). Returns null
+ * when the write may go on.
  */
 export function checkWorkUnitWriteClaim(
   db: StoreDatabase,
   unitStoreId: string,
   claimId: string | null,
   now: Date = new Date(),
-): Extract<WorkUpdateRefusal, "not-claim-holder" | "claim-expired"> | null {
+  options: { closing?: boolean; handleObservation?: WorkHandleObservation | null } = {},
+): Extract<WorkUpdateRefusal, "not-claim-holder" | "claim-expired" | "handle-check-needed" | "previous-holder-still-working"> | null {
   const existing = claimRow(db, unitStoreId);
   const live = existing !== undefined && existing.expires_at > now.toISOString();
-  if (claimId === null) return live ? "not-claim-holder" : null;
+  if (claimId === null) {
+    if (live) return "not-claim-holder";
+    // A close by a caller without the claim ends an expired claim's work, so it runs the same
+    // handle check as a takeover (owner decision 2026-11-23, W29 R0 P4 finding 9).
+    if (existing && options.closing) return expiredClaimHandleRefusal(existing.task_handle, options.handleObservation ?? null);
+    return null;
+  }
   if (!existing || existing.claim_id !== claimId) return "not-claim-holder";
   return live ? null : "claim-expired";
 }

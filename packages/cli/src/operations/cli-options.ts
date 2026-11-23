@@ -38,6 +38,16 @@ const BOOLEAN_FLAGS = [
   // `--last` selects the project's most recent run at every `--run-id`
   // acceptor (W18 R12 P3; PRD 39 R-RUNID-1).
   "last",
+  // W29 R0 P4 work queue: `work sync` settle choices and dry run, `work report`, and `work next`.
+  "dry-run",
+  "keep-file",
+  "keep-store",
+  "restore",
+  "accept-deletion",
+  "reimport",
+  "remove-file",
+  "clear-blockers",
+  "no-quick-items",
 ];
 
 const ARRAY_FLAGS = [
@@ -52,6 +62,9 @@ const ARRAY_FLAGS = [
   "source",
   "support-evidence-ref",
   "precondition",
+  // W29 R0 P4 work queue: `work report --met-gate` and `work export --path`.
+  "met-gate",
+  "path",
 ];
 
 export function parseOperationOptions(argv: string[]): OperationOptions {

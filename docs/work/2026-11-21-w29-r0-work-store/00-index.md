@@ -153,3 +153,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 52 R-WORK-STORE-10, R-WORK-SYNC-9, R-WORK-SYNC-13, and new R-WORK-SYNC-14 to R-WORK-SYNC-16.
 - Owner approval: the owner's decisions on 2026-11-23.
 - Source: [W29 R0 P3 evidence](evidence.md#p3-parser-import-and-sync)
+
+### 2026-11-23 — W29 R0 P4 and P5
+
+- Kind: `edit`
+- Affected scope: P4 T10 note, P4 closeout, and P5 new T10.
+- Previous scope: P4 had owner decisions T13 to T20 only. `work add` named a project URI before T10 built it. P5 had no task for older backlogs with no status line.
+- Replacement scope: P4 builds the owner decisions on review findings 7 and 9: a phase with no status line and every task checked counts as done for readiness, visibly, and a release or close of an expired claim needs the handle check. `work add` names its URI again when T10 lands. P5 T10 gives older backlogs explicit status lines later, so the fallback is needed less.
+- Rationale: the independent review of the P4 first pass found that `work next` listed old finished phases as ready and that a release or close could skip the takeover's handle check. The owner also chose option A of register D-066.
+- PRD decision: `update-existing` — PRD 52 R-WORK-QUEUE-8, R-WORK-QUEUE-10, R-WORK-SYNC-16, and new R-WORK-QUEUE-20; PRD 38 work store records row.
+- Owner approval: the owner's decisions of 2026-11-23 on findings 7 and 9 and on register D-066.
+- Source: [W29 R0 P4 evidence](evidence.md#p4-work-queue-operations)

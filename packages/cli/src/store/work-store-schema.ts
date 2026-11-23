@@ -61,6 +61,8 @@ export const WORK_STORE_V8_STATEMENTS: readonly string[] = Object.freeze([
     source_path TEXT CHECK (source_path IS NULL OR ${relativePath("source_path")}),
     copy_state TEXT NOT NULL CHECK (copy_state IN ('kept','removed')),
     revision INTEGER NOT NULL CHECK (revision >= 1),
+    note TEXT CHECK (note IS NULL OR (length(note) BETWEEN 1 AND 256 AND instr(note, char(10)) = 0 AND instr(note, char(13)) = 0)),
+    note_at TEXT CHECK (note_at IS NULL OR ${utcTime("note_at")}),
     UNIQUE (project_id, store_id),
     UNIQUE (project_id, coordinate),
     FOREIGN KEY (project_id, parent_store_id) REFERENCES work_units (project_id, store_id) DEFERRABLE INITIALLY DEFERRED,
@@ -68,6 +70,7 @@ export const WORK_STORE_V8_STATEMENTS: readonly string[] = Object.freeze([
     CHECK ((kind IN ('wave','quick-item')) = (parent_store_id IS NULL)),
     CHECK ((status = 'closed') = (close_outcome IS NOT NULL)),
     CHECK ((kind = 'quick-item') = (source_path IS NULL)),
+    CHECK ((note IS NULL) = (note_at IS NULL)),
     CHECK (kind <> 'quick-item' OR (coordinate GLOB '[1-9]*' AND coordinate NOT GLOB '*[^0-9]*'))
   )`,
   `CREATE INDEX idx_work_units_parent ON work_units (parent_store_id)`,
@@ -125,7 +128,7 @@ export const WORK_STORE_V8_STATEMENTS: readonly string[] = Object.freeze([
   `CREATE TABLE work_sync_conflicts (
     checkout_id TEXT NOT NULL REFERENCES installation_checkouts (checkout_id) ON DELETE CASCADE,
     target_path TEXT NOT NULL CHECK ${relativePath("target_path")},
-    kind TEXT NOT NULL CHECK (kind IN ('both-changed','file-deleted','store-missing','unclear')),
+    kind TEXT NOT NULL CHECK (kind IN ('both-changed','file-deleted','store-missing','unclear','claimed')),
     file_digest TEXT CHECK (file_digest IS NULL OR ${hexDigest("file_digest")}),
     ledger_digest TEXT CHECK (ledger_digest IS NULL OR ${hexDigest("ledger_digest")}),
     store_revision INTEGER CHECK (store_revision IS NULL OR store_revision >= 1),
@@ -186,6 +189,9 @@ export const WORK_STORE_COLUMN_REGISTER: Readonly<Record<WorkStoreTableName, Rea
     source_path: { row: "units", phrase: "source path" },
     copy_state: { row: "units", phrase: "repo copy state" },
     revision: { row: "units", phrase: "record revision" },
+    // W29 R0 P4, register D-066: the latest progress note of `work report` and its time.
+    note: { row: "units", phrase: "latest progress note and its time" },
+    note_at: { row: "units", phrase: "latest progress note and its time" },
   },
   work_dependencies: {
     project_id: { row: "units", phrase: "project ID" },

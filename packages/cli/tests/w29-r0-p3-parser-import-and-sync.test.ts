@@ -839,9 +839,10 @@ describe("W29 R0 P3 conflicts (T6, A14)", () => {
     expect(read(root, P2)).toBe(P2_TEXT.replace("Ship it.", "Ship it today."));
   });
 
-  it("names one settle command for each choice, in the planned work sync form", () => {
+  it("names one settle command for each choice, in the work sync form", () => {
+    // W29 R0 P4 built `work sync --settle`, so the entry is current now.
     const planned = NAME_CATALOG.find((entry) => entry.id === "work.queue.sync")!;
-    expect(planned).toMatchObject({ status: "planned", newCli: "work sync" });
+    expect(planned).toMatchObject({ status: "current", newCli: "work sync" });
     for (const kind of ["both-changed", "file-deleted", "store-missing", "unclear"] as const) {
       const choices = settleChoices(kind, "docs/work/a b/01.md");
       expect(choices).toHaveLength(2);
@@ -908,7 +909,10 @@ describe("W29 R0 P3 sync details", () => {
     storeChange(root, "W1 R0 P1 T3", { status: "in-progress" });
     const gateUnit = unitAt(root, "W1 R0 P1 S2");
     storeChange(root, "W1 R0 P1 S2", { gates: gateUnit.gates.map((gate) => ({ ...gate, met: true })) });
-    expect(sync(root).written).toEqual([P1]);
+    // W29 R0 P4 T16: these edits are store-only, so the file keeps its bytes and is not named as written.
+    const storeOnly = sync(root);
+    expect(storeOnly.written).toEqual([]);
+    expect(fileResult(storeOnly, P1)).toMatchObject({ decision: "write", action: "none" });
     expect(read(root, P1)).toBe(P1_TEXT);
     write(root, P1, P1_TEXT.replace("Build the parser.", "Build the strict parser."));
     expect(fileResult(sync(root), P1).action).toBe("imported");

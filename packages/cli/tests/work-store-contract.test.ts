@@ -156,7 +156,10 @@ describe("W29 R0 P1 sync table", () => {
     }
     for (const kind of WORK_CONFLICT_KINDS) {
       const choices = WORK_SETTLE_OPTIONS[kind].map((option) => option.choice);
-      expect(new Set(choices).size, kind).toBe(2);
+      // A `claimed` conflict (W29 R0 P4 re-check finding 4) has one settle choice, --keep-store; its other
+      // choice is `make-docs work release` for each claimed unit, which the conflict report names.
+      expect(new Set(choices).size, kind).toBe(kind === "claimed" ? 1 : 2);
+      if (kind === "claimed") expect(choices).toEqual(["keep-store"]);
       WORK_SETTLE_OPTIONS[kind].forEach((option) =>
         expect(option.command).toBe(`make-docs work sync --settle <path> --${option.choice}`),
       );
@@ -214,7 +217,7 @@ describe("W29 R0 P1 readiness words and claim policy", () => {
   it("accepts the local connection as the only current tracker connection", () => {
     const connection = WorkTrackerConnectionSchema.parse(WORK_LOCAL_TRACKER_CONNECTION);
     expect(connection.operations).toEqual(["next", "claim", "report", "close"]);
-    expect(WorkConfigBlockSchema.parse({})).toEqual({ projection: "on", tracker: { connection: "local" } });
+    expect(WorkConfigBlockSchema.parse({})).toEqual({ projection: "on", syncHold: [], tracker: { connection: "local" } });
     expect(WorkConfigBlockSchema.safeParse({ tracker: { connection: "local", fieldMap: { unit: "token_count" } } }).success).toBe(true);
   });
 });

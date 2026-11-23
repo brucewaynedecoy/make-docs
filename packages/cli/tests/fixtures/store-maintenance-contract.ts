@@ -504,7 +504,7 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
   {
     id: "SMF-009",
     title: "Decision items, a pending layout with no lock, and machine setup history",
-    proves: ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-LEFTOVER-003", "STORE-LEFTOVER-004", "STORE-LEFTOVER-007"],
+    proves: ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004", "STORE-LEFTOVER-003", "STORE-LEFTOVER-004", "STORE-LEFTOVER-007"],
     seed(db, env) {
       checkout(db, "c-present", env.presentFolder);
       checkout(db, "c-missing", env.missingFolder);
@@ -521,6 +521,15 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       run(db, "run-finished", "completed", 200);
       tool(db, "machine-done", "setup.system.harness", "completed", env.deadPid, env.hostname, { operationId: "machine-done" }, daysAgo(3));
       tool(db, "machine-failed", "setup.system.harness", "failed", env.deadPid, env.hostname, { operationId: "machine-failed" }, daysAgo(3));
+      // W29 R0 P4 T14: work claims that expired 8 days ago (reported) and 3 days ago (kept).
+      const unit = db.prepare(`INSERT INTO work_units (project_id, store_id, kind, coordinate, parent_store_id, title, body, recorded_status, status, close_outcome,
+        unresolved_dependencies_json, gates_json, blockers_json, source_path, copy_state, revision)
+        VALUES ('project-claims', ?, 'quick-item', ?, NULL, 'Quick item', NULL, NULL, 'open', NULL, '[]', '[]', '[]', NULL, 'kept', 1)`);
+      unit.run("wu-claimold1", "1");
+      unit.run("wu-claimnew1", "2");
+      const claim = db.prepare("INSERT INTO work_claims VALUES (?, 'project-claims', ?, 'builder-a', NULL, ?, ?, ?, NULL)");
+      claim.run("wc-claimold1", "wu-claimold1", daysAgo(9), daysAgo(9), daysAgo(8));
+      claim.run("wc-claimnew1", "wu-claimnew1", daysAgo(4), daysAgo(4), daysAgo(3));
     },
     expected: [
       { target: "STORE-DECISION-001", key: "c-missing", outcome: "act" },
@@ -532,6 +541,8 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       { target: "STORE-DECISION-003", key: "op-legacy", outcome: "act" },
       { target: "STORE-DECISION-003", key: "op-legacy-done", outcome: "keep" },
       { target: "STORE-DECISION-003", key: "op-other-pending", outcome: "keep" },
+      { target: "STORE-DECISION-004", key: "wu-claimold1", outcome: "act" },
+      { target: "STORE-DECISION-004", key: "wu-claimnew1", outcome: "keep" },
       { target: "STORE-RULE-005", key: "c-present|snapshot|detached:op-layout", outcome: "keep" },
       { target: "STORE-RULE-002", key: "machine-done", outcome: "keep" },
       { target: "STORE-RULE-002", key: "machine-failed", outcome: "keep" },

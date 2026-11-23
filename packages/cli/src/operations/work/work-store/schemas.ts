@@ -282,7 +282,12 @@ export const WORK_SYNC_DECISIONS = [
 export const WorkSyncDecisionSchema = z.enum(WORK_SYNC_DECISIONS);
 export type WorkSyncDecision = z.infer<typeof WorkSyncDecisionSchema>;
 
-export const WORK_CONFLICT_KINDS = ["both-changed", "file-deleted", "store-missing", "unclear"] as const;
+/**
+ * `claimed` (W29 R0 P4 re-check finding 4): a file edit closes or removes a
+ * unit that a claim holds, live or expired. Only the holder, or a release after
+ * the handle check, ends the claim, so sync stops the file (owner T18, finding 9).
+ */
+export const WORK_CONFLICT_KINDS = ["both-changed", "file-deleted", "store-missing", "unclear", "claimed"] as const;
 export const WorkConflictKindSchema = z.enum(WORK_CONFLICT_KINDS);
 export type WorkConflictKind = z.infer<typeof WorkConflictKindSchema>;
 
@@ -387,6 +392,9 @@ export const WORK_UPDATE_REFUSALS = [
   "claim-expired",
   "version-conflict",
   "unit-closed",
+  // W29 R0 P4 finding 9 (owner option A): a release or close of an expired claim needs the handle check.
+  "handle-check-needed",
+  "previous-holder-still-working",
 ] as const;
 export const WorkUpdateRefusalSchema = z.enum(WORK_UPDATE_REFUSALS);
 export type WorkUpdateRefusal = z.infer<typeof WorkUpdateRefusalSchema>;
@@ -411,6 +419,12 @@ export const WorkClaimRequestSchema = z
   .object({
     unitStoreId: WorkUnitStoreIdSchema,
     claimant: text,
+    /**
+     * The caller's claim ID, needed to renew a live claim. A claim ID works like
+     * a private key (owner decision 2026-11-23, W29 R0 P4 T13): naming the
+     * claimant alone never renews a claim or reveals its ID.
+     */
+    claimId: WorkClaimIdSchema.nullable().optional(),
     taskHandle: nullableText,
     ttlSeconds: z
       .number()
@@ -504,12 +518,24 @@ export const WorkTrackerConnectionSchema = z
 export type WorkTrackerConnection = z.infer<typeof WorkTrackerConnectionSchema>;
 
 /**
+ * One sync hold path: a work folder or file under `docs/work/` or
+ * `.make-docs/archive/work/` that sync reads but never writes or removes
+ * (owner decision 2026-11-23, W29 R0 P4 T19).
+ */
+export const WorkSyncHoldPathSchema = repositoryRelativePath.refine(
+  (value) => value.startsWith("docs/work/") || value.startsWith(".make-docs/archive/work/"),
+  "A sync hold path is a work folder or file under docs/work/ or .make-docs/archive/work/.",
+);
+
+/**
  * The `work` block in `.make-docs/config.yaml`. Intent only. The local store
- * is the only current connection (R-WORK-TRACKER-3).
+ * is the only current connection (R-WORK-TRACKER-3). `syncHold` lists the work
+ * paths that a person holds: sync reads them and never writes or removes them.
  */
 export const WorkConfigBlockSchema = z
   .object({
     projection: z.enum(["on", "off"]).default("on"),
+    syncHold: z.array(WorkSyncHoldPathSchema).max(64).default([]),
     tracker: z
       .object({
         connection: z.literal("local").default("local"),

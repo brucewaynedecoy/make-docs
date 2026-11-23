@@ -40,6 +40,7 @@ import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
 import { leafHelpEntry } from "./leaf-help-table";
 import { decompositionOperations } from "./decomposition/ops";
 import { projectSkillCheckOperations } from "./project/skill-check-ops";
+import { workQueueOperations } from "./work/work-queue/operations";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -192,6 +193,16 @@ export const ADMITTED_OPERATION_IDS = [
   "project.relations.list",
   "project.markdown-style.validate",
   "project.markdown-style.repair",
+  // W29 R0 P4: the work queue (PRD 52 R-WORK-QUEUE-12, PRD 39 R-RUN-4).
+  "work.queue.status",
+  "work.queue.sync",
+  "work.queue.next",
+  "work.queue.claim",
+  "work.queue.release",
+  "work.queue.report",
+  "work.queue.close",
+  "work.queue.export",
+  "work.queue.add",
 ] as const;
 
 /**
@@ -254,6 +265,15 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.relations.list": ["project", "relations list"],
   "project.markdown-style.validate": ["project", "markdown validate"],
   "project.markdown-style.repair": ["project", "markdown repair"],
+  "work.queue.status": ["work", "status"],
+  "work.queue.sync": ["work", "sync"],
+  "work.queue.next": ["work", "next"],
+  "work.queue.claim": ["work", "claim"],
+  "work.queue.release": ["work", "release"],
+  "work.queue.report": ["work", "report"],
+  "work.queue.close": ["work", "close"],
+  "work.queue.export": ["work", "export"],
+  "work.queue.add": ["work", "add"],
 };
 
 export function operationDomain(id: string): string {
@@ -352,6 +372,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...uatOperations,
     ...decompositionOperations,
     ...projectSkillCheckOperations,
+    ...workQueueOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {

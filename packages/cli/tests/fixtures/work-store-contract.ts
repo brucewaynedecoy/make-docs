@@ -65,7 +65,8 @@ export function claimIdFor(name: string): string {
 interface UnitOptions {
   title?: string;
   status?: WorkUnitStatus;
-  recordedStatus?: string;
+  /** Null for a file unit with no status line. */
+  recordedStatus?: string | null;
   parent?: string;
   dependsOn?: string[];
   cancelledDependency?: boolean;
@@ -94,7 +95,7 @@ export function unit(kind: WorkUnitKind, coordinate: string, options: UnitOption
     parentStoreId: parent === null ? null : storeIdFor(parent),
     title: options.title ?? `${coordinate} title`,
     body: null,
-    recordedStatus: options.recordedStatus ?? (status === "closed" ? "completed" : status === "draft" ? "draft" : "active"),
+    recordedStatus: options.recordedStatus !== undefined ? options.recordedStatus : (status === "closed" ? "completed" : status === "draft" ? "draft" : "active"),
     status,
     closeOutcome: status === "closed" ? "done" : null,
     dependencies: (options.dependsOn ?? []).map((dependency) => ({
@@ -534,7 +535,8 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
       now: NOW,
       units: portfolioUnits,
       claims: portfolioClaims,
-      request: claimRequest("W1 R0 P5", "builder-a", { taskHandle: "builder-a-task-1" }),
+      // W29 R0 P4 T13: a renewal names the claim ID.
+      request: claimRequest("W1 R0 P5", "builder-a", { taskHandle: "builder-a-task-1", claimId: claimIdFor("p5") }),
     },
     expected: { result: "renewed", refusal: null },
   },
@@ -1061,5 +1063,43 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
         null,
       ],
     },
+  },
+  {
+    id: "WSF-057",
+    group: "current repository backlogs",
+    title: "A phase with no status line and every task checked counts as done; a status line decides when present",
+    rules: ["WORK-RULE-040", "WORK-RULE-020"],
+    kind: "readiness",
+    input: {
+      now: NOW,
+      claimant: null,
+      query: PHASE_QUERY,
+      units: [
+        unit("wave", "W1"),
+        unit("revision", "W1 R0"),
+        unit("phase", "W1 R0 P1", { recordedStatus: null }),
+        unit("task", "W1 R0 P1 T1", { status: "closed" }),
+        unit("task", "W1 R0 P1 T2", { status: "closed" }),
+        unit("phase", "W1 R0 P2", { dependsOn: ["W1 R0 P1"] }),
+        unit("phase", "W1 R0 P3", { recordedStatus: null }),
+        unit("task", "W1 R0 P3 T1", { status: "closed" }),
+        unit("task", "W1 R0 P3 T2"),
+        unit("phase", "W1 R0 P4", { recordedStatus: null }),
+        unit("phase", "W1 R0 P5"),
+        unit("task", "W1 R0 P5 T1", { status: "closed" }),
+      ],
+      claims: [],
+      conflicts: [],
+    },
+    expected: { ready: ["W1 R0 P2", "W1 R0 P3", "W1 R0 P4", "W1 R0 P5"], waiting: [] },
+  },
+  {
+    id: "WSF-056",
+    group: "claims",
+    title: "The claimant name alone neither renews a claim nor shows its claim ID",
+    rules: ["WORK-RULE-022", "WORK-RULE-023"],
+    kind: "claim",
+    input: { now: NOW, units: portfolioUnits, claims: portfolioClaims, request: claimRequest("W1 R0 P5", "builder-a") },
+    expected: { result: "refused", refusal: "already-claimed" },
   },
 ];

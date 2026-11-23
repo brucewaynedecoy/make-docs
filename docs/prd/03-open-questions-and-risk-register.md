@@ -1344,6 +1344,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: An accepted design and PRD 39 and PRD 25 changes define the tree and the naming rule; the registry, CLI, MCP tools, Skills, and routers follow it; current names have aliases or a recorded removal; and a test fails when a new operation breaks the naming rule.
 
+### D-066 The Work Store Has No Field for a Progress Note
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23: a short note field in the unreleased schema v8 `work_units` table. | Built in W29 R0 P4: the `note` and `note_at` columns, their R-MIN field, register entries, and parity test; `work report --note` keeps the latest one-line note of at most 256 characters and its time. |
+
+**Issue**: [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-8 says `work report` records a short progress note, and the P1 report request has a `note` field. The schema v8 work tables of W29 R0 P2 and the PRD 38 R-MIN work rows have no column for a note, so W29 R0 P4 has nowhere to keep one.
+
+**Why it matters**: A report that accepts a note and drops it would tell a person or an agent that progress was recorded when it was not. The factory in W30 R0 uses reports as its progress record.
+
+**Recommendation**: Add one bounded note field (for example the latest note, 256 characters, with its time) to `work_units` in the unreleased v8 migration, with its R-MIN row and parity register entry, since no real Store is at v8 yet.
+
+**To close**: The owner chooses, PRD 52 and PRD 38 state the rule, and `work report` stores or refuses the note to match.
+
+**Resolution**: Closed on 2026-11-23 in W29 R0 P4 at the owner's choice of option A. [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-8 and the [PRD 38](38-global-store-and-project-state.md) work store records row state the note. Schema v8 is unreleased, and no real Store is at v8, so the columns join the v8 migration.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

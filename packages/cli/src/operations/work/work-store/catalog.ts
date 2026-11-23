@@ -444,6 +444,15 @@ export const WORK_STORE_RULES: readonly WorkStoreRule[] = Object.freeze([
     agentForm: agent("project-uris"),
     humanMeaning: "`make-docs://project/make-docs/backlog/W29/R0/` lists the phases of W29 R0, and `.../P1/T3` shows one task with why it waits. Any letter case works, and the answer names the exact form.",
   },
+  {
+    id: "WORK-RULE-040",
+    title: "Old phases with every task checked",
+    area: "readiness",
+    prdRequirements: ["R-WORK-QUEUE-20"],
+    cliForm: ["work.queue.next", "work.queue.claim", "work.queue.status"],
+    agentForm: agent("readiness"),
+    humanMeaning: "A status line decides when a phase has one. A phase with no status line whose tasks are all checked counts as done, and work next says so (doneBy: all-tasks-checked). A phase with no task, or with an unchecked task, keeps its status.",
+  },
 ]);
 
 /** The three-way sync table (R-WORK-SYNC-1 to R-WORK-SYNC-12). */
@@ -476,6 +485,13 @@ const row = (
 
 const UNCLEAR = "Make Docs cannot tell which side changed this work. A person decides.";
 const ACCEPTED = "A person accepted the deletion of this file. Nothing to do.";
+/**
+ * Owner decision 2026-11-23 (W29 R0 P4 T20, PRD 38 sync ledger row): with
+ * copies off, a copy that a person deleted loses its ledger entry, so copies
+ * on again write the file with no conflict.
+ */
+const COPY_GONE_OFF =
+  "Copies are off, and the copy is gone. Make Docs removes this checkout's ledger entry, so when copies go on again it writes the file with no conflict.";
 
 /**
  * Sync states are compared per checkout. File states compare the file with
@@ -505,8 +521,8 @@ export const WORK_SYNC_TABLE: readonly WorkSyncTableRow[] = Object.freeze([
   conflict("new", "removed", "any", "file-deleted", "A person accepted this file's deletion, but the file is back. A person decides."),
   conflict("missing", "unchanged", "on", "file-deleted", "Someone deleted the file. A person decides whether to restore it or accept the deletion."),
   conflict("missing", "changed", "on", "file-deleted", "Someone deleted the file, and the store changed. A person decides."),
-  row("missing", "unchanged", "off", "none", "Copies are off, and the copy is gone. Nothing to do."),
-  row("missing", "changed", "off", "none", "Copies are off, and the copy is gone. Nothing to do."),
+  row("missing", "unchanged", "off", "none", COPY_GONE_OFF),
+  row("missing", "changed", "off", "none", COPY_GONE_OFF),
   conflict("missing", "new", "any", "unclear", UNCLEAR),
   row("missing", "none", "any", "none", "Neither side has this work. Nothing to do."),
   row("missing", "removed", "any", "none", ACCEPTED),
@@ -547,6 +563,12 @@ export const WORK_SETTLE_OPTIONS: Readonly<Record<WorkConflictKind, readonly Wor
   unclear: [
     settle("keep-file", "Keep the file. Make Docs imports it and replaces the store's version."),
     settle("keep-store", "Keep the store. Make Docs rewrites the file from the store."),
+  ],
+  // The other choice of a `claimed` conflict is `make-docs work release` for each claimed unit,
+  // which the conflict report names with its unit and revision. `--keep-file` is not offered:
+  // an import never acts for a claim holder (owner T18 and finding 9).
+  claimed: [
+    settle("keep-store", "Keep the store. Make Docs rewrites the file from the store, so the claimed unit stays open for its claim."),
   ],
 });
 
@@ -830,6 +852,7 @@ export const WORK_STORE_FIELD_REGISTER: readonly WorkStoreFieldRegisterEntry[] =
     schema: "WorkConfigBlock",
     fields: {
       projection: "repo copy setting",
+      syncHold: "sync hold list",
       tracker: "tracker map",
     },
   },

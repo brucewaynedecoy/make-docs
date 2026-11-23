@@ -81,6 +81,16 @@ describe("make-docs MCP runtime", () => {
       "project_relations_list",
       "project_markdown_validate",
       "project_markdown_repair",
+      // W29 R0 P4 work queue (PRD 52 R-WORK-QUEUE-12).
+      "work_status",
+      "work_sync",
+      "work_next",
+      "work_claim",
+      "work_release",
+      "work_report",
+      "work_close",
+      "work_export",
+      "work_add",
     ]);
   });
 

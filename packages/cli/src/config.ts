@@ -11,6 +11,7 @@ import {
 import { NO_ACCESS, type OperationAccess } from "./operations/access";
 import { PROJECT_RESOURCE_TYPES, type ProjectResourceType } from "./types";
 import { projectNameProblem } from "./store/project-register";
+import { WorkConfigBlockSchema } from "./operations/work/work-store/schemas";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -124,6 +125,7 @@ export interface MakeDocsConfigDiagnostic {
     | "fixed-persona-primitive"
     | "invalid-type"
     | "invalid-project-name"
+    | "invalid-work-block"
     | "missing-required-key"
     | "parse-error"
     | "structural-rename-attempt"
@@ -165,6 +167,9 @@ const TOP_LEVEL_KEYS = new Set([
   "harnessIntegrations",
   "resourceProjection",
   "prd_authority",
+  // PRD 24 R-CONFIG-WORK-1: the work store intent. W29 R0 P4 admits the block for
+  // `projection`, `syncHold`, and `tracker`; PRD 52 owns their meaning.
+  "work",
 ]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
@@ -387,6 +392,15 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
     const problem = projectNameProblem(parsed.projectName);
     if (problem) {
       diagnostics.push({ code: "invalid-project-name", filePath: configPath, keyPath: "projectName", message: `Invalid make-docs config at ${configPath} (projectName): ${problem}` });
+    }
+  }
+  if (parsed.work !== undefined && parsed.work !== null) {
+    const work = WorkConfigBlockSchema.safeParse(parsed.work);
+    if (!work.success) {
+      for (const issue of work.error.issues) {
+        const keyPath = ["work", ...issue.path.map(String)].join(".");
+        diagnostics.push({ code: "invalid-work-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): ${issue.message}` });
+      }
     }
   }
   applyLabels(parsed.labels, config, configPath, diagnostics);

@@ -8,7 +8,8 @@
  *
  * W34 R0 P1 added four Skill check entries (PRD 39 R-SKILL-CHECK). They
  * landed after W33 R0, so they have no former names and name the Wave that
- * added them in `addedBy`.
+ * added them in `addedBy`. W29 R0 P4 landed the nine planned `work.queue.*`
+ * entries the same way.
  *
  * W33 R0 P2 built the command tree and the MCP names from it, so every
  * current entry's current names are its new names. `formerCli` and
@@ -462,15 +463,15 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   }),
   current("work.evidence.record", "work", "run work evidence record", "evidence_record", "work evidence record"),
   current("work.evidence.read", "work", "run work evidence read", "evidence_read", "work evidence read"),
-  planned("work.queue.status", W29, "work", "work status"),
-  planned("work.queue.sync", W29, "work", "work sync"),
-  planned("work.queue.next", W29, "work", "work next"),
-  planned("work.queue.claim", W29, "work", "work claim"),
-  planned("work.queue.release", W29, "work", "work release"),
-  planned("work.queue.report", W29, "work", "work report"),
-  planned("work.queue.close", W29, "work", "work close"),
-  planned("work.queue.export", W29, "work", "work export"),
-  planned("work.queue.add", W29, "work", "work add"),
+  added("work.queue.status", W29, "work", "work status"),
+  added("work.queue.sync", W29, "work", "work sync"),
+  added("work.queue.next", W29, "work", "work next"),
+  added("work.queue.claim", W29, "work", "work claim"),
+  added("work.queue.release", W29, "work", "work release"),
+  added("work.queue.report", W29, "work", "work report"),
+  added("work.queue.close", W29, "work", "work close"),
+  added("work.queue.export", W29, "work", "work export"),
+  added("work.queue.add", W29, "work", "work add"),
 
   // backlog
   current("work.backlog.snapshot", "backlog", "run work backlog snapshot", "backlog_snapshot", "backlog snapshot"),

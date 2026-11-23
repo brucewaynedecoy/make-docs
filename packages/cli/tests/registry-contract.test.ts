@@ -91,6 +91,18 @@ const LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS = [
   "project.markdown-style.repair",
 ] as const;
 const LITERAL_W25_R0_P4_ADMITTED_IDENTIFIERS = ["backlog.review.open", "backlog.review.refresh"] as const;
+/** W29 R0 P4: the work queue (PRD 52 R-WORK-QUEUE-12). */
+const LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS = [
+  "work.queue.status",
+  "work.queue.sync",
+  "work.queue.next",
+  "work.queue.claim",
+  "work.queue.release",
+  "work.queue.report",
+  "work.queue.close",
+  "work.queue.export",
+  "work.queue.add",
+] as const;
 const LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS = [
   "work.backlog-cache.lookup",
   "work.backlog-cache.write",
@@ -117,7 +129,7 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("setup.store.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && id !== "project.register.list" && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS.some(w34 => w34 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("setup.store.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && id !== "project.register.list" && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS.some(w34 => w34 === id) && !LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS.some(w29 => w29 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
@@ -131,6 +143,7 @@ describe("operation registry contract", () => {
     expect(admittedIds.filter(id => LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS.some(w34 => w34 === id))).toEqual(LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS);
+    expect(admittedIds.filter(id => LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS.some(w29 => w29 === id))).toEqual(LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS);
     expect(listAdmittedOperations().map((entry) => entry.id)).toEqual(admittedIds);
     expect(ids).toEqual(
       [
@@ -151,6 +164,7 @@ describe("operation registry contract", () => {
         // W32 R0 P3: `make-docs project list` (PRD 39 R-STORE-CMD-1).
         "project.register.list",
         ...LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS,
+        ...LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
     expect(new Set(ids).size).toBe(ids.length);

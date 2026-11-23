@@ -62,6 +62,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [ ] T7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
 - [ ] T8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
 - [ ] T9: Add the sync rules that W29 R0 P3 added to PRD 52 (R-WORK-SYNC-14 to R-WORK-SYNC-16, and the first-sync, copies-off, and phase-title edits) to the rule catalog and to the `sync` and `first-import` sections of the agent form, with parity fixtures.
+- [ ] T10: Give older backlogs explicit status lines, so the all-tasks-checked fallback of PRD 52 R-WORK-QUEUE-20 is needed less over time: for example a `make-docs project doctor` finding for a phase file with no status line, with a reviewed fix that adds the status line that its tasks show. Owner decision of 2026-11-23 on W29 R0 P4 review finding 7; not built in P4.
 
 ### Acceptance criteria
 

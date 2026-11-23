@@ -61,7 +61,7 @@ export function isOperationGroup(value: string | undefined): value is OperationG
 
 /** Plain-words capability of each group, for help text. */
 export const OPERATION_GROUP_SUMMARIES: Readonly<Record<OperationGroup, string>> = {
-  work: "Find work items and record work evidence.",
+  work: "Run the work queue, sync the work store, find work items, and record work evidence.",
   backlog: "Read the backlog, use its review cache, and open the review app.",
   lifecycle: "Start, track, and finish lifecycle runs.",
   factory: "Run approved backlog work through workers and review.",
@@ -366,6 +366,130 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   }),
 };
 
+/* W29 R0 P4 work queue adapters (PRD 52). */
+
+const SETTLE_FLAGS = ["keep-file", "keep-store", "restore", "accept-deletion", "reimport", "remove-file"] as const;
+
+function workTargetRoot(options: OperationOptions): Record<string, string> {
+  return optionalPathValue(options, "target-root", "targetRoot");
+}
+
+function optionalPositiveInteger(options: OperationOptions, key: string, operation: string): number | undefined {
+  return options.values[key] === undefined ? undefined : requiredPositiveInteger(options, key, operation);
+}
+
+function workUnitArgument(options: OperationOptions, operationId: string): string {
+  return requiredPositionals(options, operationPath(operationId)).join(" ");
+}
+
+function optionalText(options: OperationOptions, key: string, inputKey: string): Record<string, string> {
+  const value = options.values[key];
+  return value === undefined ? {} : { [inputKey]: value };
+}
+
+Object.assign(RUN_CLI_ADAPTERS, {
+  "work.queue.status": (options: OperationOptions) => ({ input: { ...workTargetRoot(options) } }),
+  "work.queue.sync": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.sync");
+    const choices = SETTLE_FLAGS.filter((flag) => options.booleans.has(flag));
+    const settle = options.values.settle;
+    const target = workTargetRoot(options);
+    const dryRun = options.booleans.has("dry-run");
+    const revision = options.values["expected-revision"];
+    if (choices.length > 1) throw new OperationError(`\`${operation}\` takes one settle choice, not ${choices.map((flag) => `--${flag}`).join(" and ")}.`);
+    if ((settle === undefined) !== (choices.length === 0)) {
+      throw new OperationError(`\`${operation}\` needs --settle <path> together with one choice: ${SETTLE_FLAGS.map((flag) => `--${flag}`).join(", ")}.`);
+    }
+    const expectedRevision = revision === undefined ? undefined : optionalPositiveInteger(options, "expected-revision", operation);
+    return {
+      input: {
+        ...target,
+        ...(settle === undefined ? {} : { settle, choice: choices[0] }),
+        ...(expectedRevision === undefined ? {} : { expectedRevision }),
+      },
+      context: { dryRun },
+    };
+  },
+  "work.queue.next": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.next");
+    const limit = optionalPositiveInteger(options, "limit", operation);
+    return {
+      input: {
+        ...workTargetRoot(options),
+        ...optionalText(options, "level", "level"),
+        ...optionalText(options, "claimant", "claimant"),
+        quickItems: !options.booleans.has("no-quick-items"),
+        ...(limit === undefined ? {} : { limit }),
+      },
+    };
+  },
+  "work.queue.claim": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.claim");
+    const ttl = optionalPositiveInteger(options, "ttl", operation);
+    return {
+      input: {
+        unit: workUnitArgument(options, "work.queue.claim"),
+        claimant: requiredValue(options, "claimant", operation),
+        expectedVersion: requiredPositiveInteger(options, "expected-version", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...optionalText(options, "task-handle", "taskHandle"),
+        ...(ttl === undefined ? {} : { ttlSeconds: ttl }),
+        ...optionalText(options, "takeover-from", "takeoverFrom"),
+        ...optionalText(options, "handle", "handle"),
+        ...workTargetRoot(options),
+      },
+    };
+  },
+  "work.queue.release": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.release"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.release")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "handle", "handle"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.report": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.report"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.report")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "status", "status"),
+      ...optionalText(options, "evidence", "evidence"),
+      clearBlockers: options.booleans.has("clear-blockers"),
+      metGates: options.arrays["met-gate"] ?? [],
+      ...optionalText(options, "note", "note"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.close": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.close"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.close")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "handle", "handle"),
+      ...optionalText(options, "outcome", "outcome"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.export": (options: OperationOptions) => ({
+    input: {
+      ...optionalText(options, "to", "to"),
+      ...optionalText(options, "quick", "quick"),
+      paths: options.arrays.path ?? [],
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.add": (options: OperationOptions) => ({
+    input: {
+      title: requiredPositionals(options, operationPath("work.queue.add")).join(" "),
+      ...optionalText(options, "body", "body"),
+      ...optionalText(options, "request", "request"),
+      ...workTargetRoot(options),
+    },
+  }),
+} satisfies Record<string, RunCliAdapter>);
+
 function parseUatPayload(raw: string): Record<string, unknown> {
   const value = parseJsonPayload(raw, "payload-json");
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new OperationError("UAT --payload-json must contain an object.");
@@ -637,6 +761,12 @@ export async function runRunCommand(
 
 /** Explicit validators report their complete result and then fail the CLI. */
 function setValidationExitCode(operationId: string, value: JsonValue): void {
+  // A refused work queue change prints its result and exits 1 (W29 R0 P4).
+  if (operationId.startsWith("work.queue.") && value !== null && typeof value === "object" && !Array.isArray(value) &&
+      (value.result === "refused" || value.accepted === false)) {
+    process.exitCode = 1;
+    return;
+  }
   if (
     (operationId === "prd.authority.validate" ||
       operationId === "performance.evidence.validate" ||
