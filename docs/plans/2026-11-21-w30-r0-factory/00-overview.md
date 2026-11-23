@@ -112,7 +112,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 ## Dependencies
 
 - W29 R0 P4 and P6 are complete before P2 starts. P1 can start earlier.
-- P2 depends on P1 and on the PRD 38 R-MIN rows. Its migration follows W29's v7.
+- P2 depends on P1 and on the PRD 38 R-MIN rows. Its migration follows W29's v8.
 - P3 depends on P2.
 - P4 and P5 depend on P1 and P3. They can run in parallel with separate write scopes.
 - P6 depends on P2 to P5 and one identified package candidate.
@@ -134,7 +134,7 @@ Use disjoint write scopes when implementation is authorized.
 | Worker role | Responsibility | Primary write scope | Dependencies | Deliverable |
 | --- | --- | --- | --- | --- |
 | Contract owner | Factory contract, capability catalog, workflow types, rule catalog | `packages/docs/template/` factory resources, then package and dogfood copies | Accepted design | P1 resources |
-| Store owner | Migration, factory tables, copies, restore, backups, cleanup | `packages/cli/src/store/` and focused tests | P1, W29 v7 | P2 records |
+| Store owner | Migration, factory tables, copies, restore, backups, cleanup | `packages/cli/src/store/` and focused tests | P1, W29 v8 | P2 records |
 | Surface owner | Operations, registry, CLI, MCP profile | Registry, operation handlers, surface tests | P2 | P3 operations |
 | Setup Skill owner | `factory-setup` Skill | `packages/skills/factory-setup/` and its registry entry | P1, P3 | P4 Skill |
 | Run Skill owner | `factory` Skill rewrite and the backlog review handoff | `packages/skills/factory/`, backlog review handoff files | P1, P3 | P5 Skill |
@@ -169,3 +169,16 @@ This handoff is advisory-default-but-overridable.
 - Next step: Create PRD 53 and update PRDs 00, 04, 06, 08, 21, 24, 25, 38, 39, and 51 from this plan.
 - Why: The plan should become the product contract before the work backlog is written.
 - Coordinate Handoff: Carry `W30 R0` into PRD 53 source lineage, the requirement-history entries, and `docs/work/2026-11-21-w30-r0-factory/`.
+
+## Change History
+
+### 2026-11-22 — W30 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 migration order and table rules.
+- Previous scope: the factory migration followed W29's schema v7.
+- Replacement scope: the factory migration follows W29's schema v8, and each factory table has the Store write guard triggers and a Store table catalog entry.
+- Rationale: W32 R0 takes schema v7 and adds the write guard and the table catalog.
+- PRD decision: `update-existing` — PRD 38 R-DB-7, R-WRITE-GUARD, and R-MAINT.
+- Owner approval: the owner's choice on 2026-11-22 to finish the whole Store review first.
+- Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)

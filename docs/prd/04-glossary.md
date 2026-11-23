@@ -17,6 +17,9 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Project-resource URI | The identity `make-docs://project/<project>/<family>/...` of a record of one named project. `.../tasks/` lists its quick items, `.../tasks/<n>` names one, and `.../backlog/W29/R0/P1/` names a backlog unit. A read uses the work store read-only. | [PRD 52](52-work-store-and-work-queue.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md) |
 | Resource provider | The installed machine/package source that lists and reads immutable Make Docs system resources when a trustworthy project-local resource does not supply the selected identity. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
 | Project doctor | The `make-docs project doctor check` and `make-docs project doctor fix` commands. `check` reads the project and reports findings with a review digest. `fix` applies only the reviewed changes. The first check is `task-id-case`. | [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) |
+| Project register | The Store table `project_register`, with one row per project: ID, name, and first and last seen times. `make-docs project list` reads it. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Store maintenance | `make-docs setup store check` and `make-docs setup store clean`. `check` reports what fixed rules would remove and what needs a decision. `clean` backs up the Store and removes only what fixed rules prove safe. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Store write guard | Triggers on every Store table that call a function only Make Docs connections register, so other programs cannot write the Store by accident. | [PRD 38](38-global-store-and-project-state.md) |
 | Project projection | An optional local materialization of selected system-resource bodies under `.make-docs/system/{contracts,prompts,references,templates}/`. The configured-harness router skeleton and typed directories are always local. Resource list/read availability does not require projected bodies. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md) |
 | Resource provenance | Typed evidence identifying a resource's logical identity, origin/provider, package version or immutable reference, ownership class, local path when applicable, and content digest. A matching digest proves bytes, not trust or managed ownership. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 18](18-compatibility-classification-and-migration-safety.md) |
 | Router | A small harness-appropriate instruction surface that directs readers or agents to stable resource identities and typed CLI/MCP operations without duplicating policy or performing hidden mutation. | [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
@@ -132,6 +135,14 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: the glossary defines the project doctor owned by PRD 39.
 - Rationale: plans, work, and guides need one name for it.
 - Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W32 R0
+
+- Affected requirement or section: `Terms` — Project register, Store maintenance, Store write guard.
+- Previous contract: no shared terms for these Store parts.
+- Replacement contract: the glossary defines them, owned by PRD 38 and PRD 39.
+- Rationale: plans, work, and guides need one name for each.
+- Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
 
 ## Source Anchors
 

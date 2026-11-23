@@ -1281,7 +1281,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | None yet. Logged on 2026-11-22 during W29 R0 P1. The owner rates it as a serious gap and asked for a full review of the Store tables, their columns, the events that create and update rows, and data maintenance. | Design the review as its own Wave. Settle at least the project register before W29 R0 P2 adds tables and P4 resolves project names. |
+| Open | The owner chose on 2026-11-22 to finish the whole Store review before W29 R0 P2, and kept a Store write guard in its scope. [PRD 38](38-global-store-and-project-state.md) R-REGISTER, R-MAINT, and R-WRITE-GUARD and [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD hold the rules. | W32 R0 builds it. W29 R0 P2 waits for W32 R0. |
 
 **Issue**: On the maintainer machine on 2026-11-22, the Store table `projects` had 0 rows, but `installation_checkouts` had 3 rows for the 3 projects that use Make Docs. `projects` is a legacy discovery mirror. `packages/cli/src/store/README.md` says the CLI apply flow fills it through `mirrorProjectManifest`, but no current code calls that function except `rebuildProjectRegistry`. `pruneProjectFromStore` in `packages/cli/src/store/lifecycle.ts` reports `remainingProjects` from that empty table, and it does not touch `installation_checkouts`. No current command lists the projects that the Store knows. One checkout row also still names the old path of a moved project. `make-docs project state status` in the moved checkout reports `ownership-unverified` and points to a checkout move review, so the move itself is detected. The owner also sees rows that look like bad or stale data that nothing needs to keep.
 

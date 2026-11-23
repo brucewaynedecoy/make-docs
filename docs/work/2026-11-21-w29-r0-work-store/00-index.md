@@ -52,7 +52,7 @@ Out of scope:
 
 ## Usage Notes
 
-- Read phases in order. P5 can start after P1. P2 waits for the project register decision in register D-062. P3 also waits for the task ID case Wave in register D-063.
+- Read phases in order. P5 can start after P1. P2 waits for all of W32 R0, the Store review. P3 also waits for the task ID case Wave in register D-063.
 - Every phase file includes `## Source PRD Docs`.
 - Acceptance case IDs run from A1 to A34 across this backlog. A31, A32, and A34 sit in P4. A33 sits in P2.
 - Evidence: [evidence.md](evidence.md).
@@ -79,3 +79,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 52, 38, 24, 17, 21, 25, 39, 53, and 04; register D-061, D-062, and D-063.
 - Owner approval: the owner's answers on 2026-11-22.
 - Source: [PRD 52](../../prd/52-work-store-and-work-queue.md)
+
+### 2026-11-22 — W29 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 overview, t2, t9, A5, A33, and dependencies; the usage notes.
+- Previous scope: the work tables arrived in schema v7, and P2 recorded project names in its own register.
+- Replacement scope: the work tables arrive in schema v8 with the Store write guard triggers and Store table catalog entries. Project names resolve only through `project_register` from W32 R0. P2 waits for all of W32 R0.
+- Rationale: the owner chose to finish the whole Store review (W32 R0) first. W32 R0 takes schema v7 and builds the project register and the write guard.
+- PRD decision: `update-existing` — PRD 38 R-DB-7, R-REGISTER, R-WRITE-GUARD, and R-MAINT; PRD 52 R-WORK-STORE-12 and R-WORK-URI-1.
+- Owner approval: the owner's choice on 2026-11-22 to finish the whole Store review before W29 R0 P2.
+- Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)

@@ -65,3 +65,16 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - Next step: After W29 R0 ships and the owner gives phase-start authority, start with P1 and continue phase by phase.
 - Why: The backlog is the implementation queue derived from the plan and PRD 53.
 - Coordinate Handoff: Carry `W30 R0` into phase history records and commits, adding the active P number.
+
+## Change History
+
+### 2026-11-22 — W30 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 migration order and table rules.
+- Previous scope: the factory migration followed W29's schema v7.
+- Replacement scope: the factory migration follows W29's schema v8, and each factory table has the Store write guard triggers and a Store table catalog entry.
+- Rationale: W32 R0 takes schema v7 and adds the write guard and the table catalog.
+- PRD decision: `update-existing` — PRD 38 R-DB-7, R-WRITE-GUARD, and R-MAINT.
+- Owner approval: the owner's choice on 2026-11-22 to finish the whole Store review first.
+- Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)

@@ -47,6 +47,7 @@ Code anchors:
 - R-WORK-STORE-5 (MUST): each work record keeps links to its governing repository documents, including its design, plan, PRD sections, and evidence file. Repository documents keep their links to work coordinates. Sync preserves links in both directions.
 - R-WORK-STORE-6 (MUST): a project without the CLI can still use the work rules through the agent form in `make-docs://system/reference/work-store.md`. In that mode, `docs/work/` is the authority.
 - R-WORK-STORE-11 (MUST): work units and claims belong to the project and are shared by every checkout of it. The sync ledger and sync conflicts belong to one checkout, so two worktrees of one project never read each other's writes as edits.
+- R-WORK-STORE-12 (MUST): the work store tables arrive in Store schema v8 under [PRD 38](38-global-store-and-project-state.md) R-DB-7. Each table has the Store write guard triggers of PRD 38 R-WRITE-GUARD-1 and a Store table catalog entry under PRD 38 R-MAINT-1.
 
 ### Repo copy
 
@@ -104,7 +105,7 @@ Code anchors:
 
 ### Project resource URIs
 
-- R-WORK-URI-1 (MUST): `make-docs://project/<project>/` is the project-resource URI family. `<project>` is the project name under [PRD 38](38-global-store-and-project-state.md) R-ID-8 or the project ID. Every project URI names its project in full. Nothing in a project URI resolves from the current folder, a `--target` path, or a checkout. The current families are `tasks` and `backlog`.
+- R-WORK-URI-1 (MUST): `make-docs://project/<project>/` is the project-resource URI family. `<project>` is the project name under [PRD 38](38-global-store-and-project-state.md) R-ID-8 or the project ID, resolved through `project_register` under PRD 38 R-REGISTER-2. Every project URI names its project in full. Nothing in a project URI resolves from the current folder, a `--target` path, or a checkout. The current families are `tasks` and `backlog`.
 - R-WORK-URI-2 (MUST): `make-docs://project/<project>/tasks/` lists the project's quick items in number order, with each number, title, status, and close outcome. `make-docs://project/<project>/tasks/<n>` shows one quick item with its title, body, status, close outcome, live claim, and links.
 - R-WORK-URI-3 (MUST): `make-docs://project/<project>/backlog/` lists the project's waves. Each further path part names one coordinate part: `backlog/W29/` lists the revisions of W29, `backlog/W29/R0/` lists its phases, and `backlog/W29/R0/P1/` shows the phase with its stages and tasks. `backlog/W29/R0/P1/S2` shows a stage, and `backlog/W29/R0/P1/T3` shows a task, because a task coordinate does not name its stage. Each read shows the unit's title, status, close outcome, readiness and wait reasons, live claim, links, and its child list.
 - R-WORK-URI-4 (MUST): the resolver accepts any letter case in the project name and the coordinate parts, and a trailing slash or none. The result names the canonical URI: a lower-case project name, upper-case coordinate letters, and a trailing slash on a list. The resolver refuses a number with a leading zero, a quick item number `0`, a query, a fragment, and any part after a task, a stage, or a quick item.

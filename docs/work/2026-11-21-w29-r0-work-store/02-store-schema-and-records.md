@@ -16,7 +16,7 @@ Add the work tables to the global Store under the existing migration and safety 
 
 ## Overview
 
-One append-only migration moves the Store from schema v6 to v7. A Store service reads and writes the new tables with version checks. This phase adds no public operation.
+One append-only migration moves the Store from schema v7 to v8. A Store service reads and writes the new tables with version checks. This phase adds no public operation.
 
 ## Human Experience Outcome
 
@@ -54,13 +54,13 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Tasks
 
 - [ ] t1: Add the PRD 38 R-MIN rows from P1 before any table exists.
-- [ ] t2: Add the v7 migration entry, its journal row, and the v7 expected-table list.
+- [ ] t2: Add the v8 migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog (PRD 38 R-WRITE-GUARD-3, R-MAINT-1).
 - [ ] t3: Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
 - [ ] t4: Keep writer refusal on v6 and reader refusal on any newer schema.
 
 ### Acceptance criteria
 
-- A5: Tests cover v6 to v7, a failed migration that rolls back, and a newer-schema refusal.
+- A5: Tests cover v7 to v8, a failed migration that rolls back, and a newer-schema refusal. Every new table has its write guard triggers and a catalog entry.
 - A6: Store-unavailable, denied, and unsafe states return the existing typed results.
 
 ## Stage 2 - Store service
@@ -71,19 +71,19 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [ ] t6: Enforce one live claim per unit in the schema.
 - [ ] t7: Expire claims by time, as short-lived mutation guards.
 - [ ] t8: Add a test that fails when the R-MIN register and the physical schema drift.
-- [ ] t9: Record each project's `projectName` with its project ID at each Store write, and refuse a name that another project holds (PRD 38 R-ID-8). Use the project register that the D-062 Store review settles.
+- [ ] t9: Resolve project names and IDs only through `project_register` from W32 R0 (PRD 38 R-REGISTER-2). Add no second project name record.
 
 ### Acceptance criteria
 
 - A7: A second live claim on the same unit fails at the schema level.
 - A8: A plain claim on a unit with an expired claim is refused. A takeover after a handle check succeeds.
 - A9: The R-MIN parity test passes and fails when a field is removed from either side.
-- A33: Two projects cannot hold the same project name in one Store, and a renamed project resolves only by its new name.
+- A33: Work store reads resolve a project by name or ID only through `project_register`, and a renamed project resolves only by its new name.
 
 ### Dependencies
 
 - P1 accepted.
-- The project register decision in the register D-062 Store review.
+- [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) complete, including schema v7, the write guard, and `project_register`.
 
 ### Closeout Notes
 

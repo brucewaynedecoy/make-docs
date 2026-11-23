@@ -760,7 +760,7 @@ export interface WorkStoreFieldRegisterEntry {
 /** Ties every contract field to its PRD 38 R-MIN row, so drift fails a test. */
 export const WORK_STORE_FIELD_REGISTER: readonly WorkStoreFieldRegisterEntry[] = Object.freeze<WorkStoreFieldRegisterEntry[]>([
   {
-    rowLabel: "Work store records (schema v7)",
+    rowLabel: "Work store records (schema v8)",
     schema: "WorkUnitRecord",
     fields: {
       projectId: "project ID",

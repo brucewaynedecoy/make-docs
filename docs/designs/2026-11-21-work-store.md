@@ -142,7 +142,7 @@ v1 defines a tracker connection contract and ships one connection: the local sto
 
 ### Store records
 
-The work store adds new tables in one append-only migration (schema v7). Each field gets an R-MIN row in [PRD 38](../prd/38-global-store-and-project-state.md) before the table exists. The class of the work records is `Store-canonical` when copies are off. It is `Store-canonical, rebuildable from the repo copy` when copies are on. Claims are a `short-lived mutation guard` with a time limit. The migration uses the existing backup, transaction, version, and newer-schema rules. It adds no second database file.
+The work store adds new tables in one append-only migration (schema v8, after the W32 R0 Store review takes v7). Each new table has the Store write guard triggers. Each field gets an R-MIN row in [PRD 38](../prd/38-global-store-and-project-state.md) before the table exists. The class of the work records is `Store-canonical` when copies are off. It is `Store-canonical, rebuildable from the repo copy` when copies are on. Claims are a `short-lived mutation guard` with a time limit. The migration uses the existing backup, transaction, version, and newer-schema rules. It adds no second database file.
 
 ### Commands and MCP tools
 
@@ -171,7 +171,7 @@ The design fixes the verbs. The plan and PRD fix the exact flags. The tools join
 
 ## Consequences
 
-- PRD 38 gains the work tables, their R-MIN rows, and the schema v7 migration. PRD 24 gains the `work` config block. PRD 06 or a new work-store PRD states the repo copy rule for work files. PRD 51 changes so that `backlog_snapshot` reads from the store when the store is the authority. PRDs 25 and 39 gain the new operations.
+- PRD 38 gains the work tables, their R-MIN rows, and the schema v8 migration. PRD 24 gains the `work` config block. PRD 06 or a new work-store PRD states the repo copy rule for work files. PRD 51 changes so that `backlog_snapshot` reads from the store when the store is the authority. PRDs 25 and 39 gain the new operations.
 - A new PRD owns the work store as a coherent product subject. The plan decides the number. The next free number is 52.
 - Two-way sync needs a strict parser for the work format. A file that the parser cannot read must stay untouched and be reported. The parser and the writer must round-trip today's files byte for byte.
 - When repo copies are off, the work records exist only in the Store. Store backup and export now matter for work, not just for installation state. Status must say this plainly.

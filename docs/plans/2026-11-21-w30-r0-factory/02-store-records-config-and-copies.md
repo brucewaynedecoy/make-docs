@@ -16,7 +16,7 @@ Save factory setup and assignments durably, keep portable choices in config, and
 
 ## Outcome
 
-One append-only migration after W29's v7 adds the factory tables. The config validator accepts a `factory:` block. `.make-docs/factory/` copies are written from the Store and restored on request. File backups outside git are recorded and cleaned up.
+One append-only migration after W29's v8 adds the factory tables, each with the Store write guard triggers. The config validator accepts a `factory:` block. `.make-docs/factory/` copies are written from the Store and restored on request. File backups outside git are recorded and cleaned up.
 
 ## Scope
 

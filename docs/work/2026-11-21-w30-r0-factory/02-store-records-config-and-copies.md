@@ -16,7 +16,7 @@ Save factory setup and assignments durably, keep portable choices in config, and
 
 ## Overview
 
-One append-only Store migration, after the W29 schema v7, adds the factory tables. The config validator accepts a `factory:` block. Make Docs writes generated, read-only, gitignored copies to `.make-docs/factory/`. File backups outside git are recorded and cleaned up.
+One append-only Store migration, after the W29 schema v8, adds the factory tables. The config validator accepts a `factory:` block. Make Docs writes generated, read-only, gitignored copies to `.make-docs/factory/`. File backups outside git are recorded and cleaned up.
 
 ## Human Experience Outcome
 
@@ -57,7 +57,7 @@ There are no performance candidates.
 ### Tasks
 
 - [ ] t1: Confirm that PRD 38 has an R-MIN row for every new field before the migration exists.
-- [ ] t2: Add one append-only migration after v7 with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
+- [ ] t2: Add one append-only migration after v8, with the Store write guard triggers and a Store table catalog entry on each new table, with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
 - [ ] t3: Store assignment fields: work unit, role, tool, task handle, lifecycle run ID, status, and last check time. Store no prompt, transcript, or task graph (R-FACTORY-27, R-FACTORY-28).
 - [ ] t4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
 - [ ] t5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
@@ -65,7 +65,7 @@ There are no performance candidates.
 
 ### Acceptance criteria
 
-- A9: The migration upgrades a v7 Store, rolls back cleanly on failure, and refuses a newer schema with the existing typed error.
+- A9: The migration upgrades a v8 Store, rolls back cleanly on failure, and refuses a newer schema with the existing typed error.
 - A10: Every new field has a matching R-MIN row, and the parity test fails when one is removed.
 - A11: An assignment record holds only the fields in R-FACTORY-27, and its status is one of the values in R-FACTORY-28.
 

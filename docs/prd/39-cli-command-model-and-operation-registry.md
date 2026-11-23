@@ -32,7 +32,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Top-Level Structure (R-TOP)
 
-- R-TOP-1 (MUST): the CLI has seven top-level commands: `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`. `project` owns project surface operations. `resource` owns canonical system-resource list, read, and ensure. `run` owns registry operations. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management.
+- R-TOP-1 (MUST): the CLI has seven top-level commands: `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup store`, and `setup remove`. `project` owns project surface operations. `resource` owns canonical system-resource list, read, and ensure. `run` owns registry operations. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management.
 - R-TOP-2 (MUST): `setup remove` is the project-removal command; top-level `uninstall` is reserved for machine-level removal.
 - R-TOP-3 (MUST): multi-operation families use a subtree under a domain object mapping one-to-one to registry identifiers. Registry metadata explicitly maps an operation to its canonical CLI projection; no alias or second command grammar is inferred.
 
@@ -242,6 +242,20 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 | --- | --- |
 | `project.doctor.check` | `make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]` |
 | `project.doctor.fix` | `make-docs project doctor fix --review <digest> [--exclude <path>] [--target-root <path>] [--json]` |
+
+### Project List and Store Maintenance Commands (R-STORE-CMD)
+
+- R-STORE-CMD-1 (MUST): the registry admits `project.register.list` in the `project` domain, and `setup.store.check` and `setup.store.clean` in the `setup` domain. No new top-level command is introduced.
+- R-STORE-CMD-2 (MUST): `project list` reads only. It follows [PRD 38](38-global-store-and-project-state.md) R-REGISTER-3 and puts each project's name first, then its ID and checkouts, and names each missing checkout folder in plain words.
+- R-STORE-CMD-3 (MUST): `setup store check` reads only. It reports in plain words first the rows each fixed rule would remove with counts and space, the decision items, and each crash leftover that blocks the machine and why.
+- R-STORE-CMD-4 (MUST): `setup store clean` follows PRD 38 R-MAINT-5. It needs the Store write permission. An interactive run asks once. A non-interactive run needs `--yes`. It needs no per-row review.
+- R-STORE-CMD-5 (MUST): the three commands return the existing typed Store outcomes when the Store is absent, unavailable, unsafe, or denied.
+
+| Registry identifier | Canonical CLI |
+| --- | --- |
+| `project.register.list` | `make-docs project list [--json]` |
+| `setup.store.check` | `make-docs setup store check [--json]` |
+| `setup.store.clean` | `make-docs setup store clean [--yes] [--json]` |
 
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
@@ -639,6 +653,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `project doctor check` reports findings with a review digest, and `project doctor fix` applies only the reviewed changes. The first check is `task-id-case`.
 - Rationale: any Make Docs project needs one reviewed way to find and fix project problems.
 - Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W32 R0
+
+- Affected requirement or section: R-TOP-1 and new `Project List and Store Maintenance Commands (R-STORE-CMD)`.
+- Previous contract: no command listed the projects that the Store knows, and no command maintained the Store.
+- Replacement contract: `project list`, `setup store check`, and `setup store clean`.
+- Rationale: a person can see every project and keep the Store small and healthy without reading tables.
+- Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
 
 ## Source Anchors
 

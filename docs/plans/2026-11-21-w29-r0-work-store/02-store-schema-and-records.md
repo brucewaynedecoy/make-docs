@@ -16,18 +16,18 @@ Add the work tables to the global Store under the existing migration and safety 
 
 ## Outcome
 
-One append-only migration moves the Store from schema v6 to v7. It adds the work unit, dependency, link, claim, sync ledger, and conflict tables. A Store service reads and writes them with version checks.
+One append-only migration moves the Store from schema v7 to v8. It adds the work unit, dependency, link, claim, sync ledger, and conflict tables. A Store service reads and writes them with version checks.
 
 ## Scope
 
-- Add the migration entry, its journal row, and the v7 expected-table list.
+- Add the migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog.
 - Use the existing reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
 - Refuse writes on v6 with the existing migration-required error. Refuse any newer schema.
 - Add a Store service with `expectedVersion` checks on every write.
 - Enforce one live claim per unit in the schema, not only in code.
 - Keep claims in the short-lived mutation guard class and expire them by time.
 - Keep the R-MIN register in PRD 38 and the physical schema in parity. Add a test that fails when they drift.
-- Record each project's `projectName` with its project ID and refuse a name that another project holds, using the project register that D-062 settles.
+- Resolve project names and IDs only through `project_register` from W32 R0. Add no second project name record.
 
 ## Exclusions
 
@@ -36,11 +36,11 @@ One append-only migration moves the Store from schema v6 to v7. It adds the work
 
 ## Acceptance
 
-- Migration tests cover v6 to v7, a failed migration rollback, and a newer-schema refusal.
+- Migration tests cover v7 to v8, a failed migration rollback, and a newer-schema refusal.
 - Store-unavailable, denied, and unsafe states return the existing typed results.
 - The R-MIN parity test passes.
 
 ## Dependencies
 
 - P1 contract and the PRD 38 R-MIN rows.
-- The project register decision in register D-062.
+- W32 R0 complete: schema v7, the write guard, and `project_register`.

@@ -97,7 +97,7 @@ The characterization is informational. It informs whether automatic sync needs a
 
 | Owning PRD | Date / coordinate | Affected requirement or section | Previous contract | Replacement contract | Rationale | Source |
 | --- | --- | --- | --- | --- | --- | --- |
-| PRD 38 | 2026-11-21 / W29 R0 | R-MIN register and schema version | Schema v6 with no work records. | Schema v7 adds work tables with R-MIN rows. | Work needs a durable local record. | [Design](../../designs/2026-11-21-work-store.md) |
+| PRD 38 | 2026-11-21 / W29 R0 | R-MIN register and schema version | Schema v7 with no work records. | Schema v8 adds work tables with R-MIN rows and write guard triggers. | Work needs a durable local record. | [Design](../../designs/2026-11-21-work-store.md) |
 | PRD 51 | 2026-11-21 / W29 R0 | Snapshot source | The snapshot always parses `docs/work/`. | The snapshot reads the work store when it is the authority, with the same schema. | One source of readiness facts. | [Design](../../designs/2026-11-21-work-store.md) |
 | PRD 24 | 2026-11-21 / W29 R0 | Allowed top-level keys | No `work` key. | A `work` block holds repo copy intent and the tracker map. | Portable work settings. | [Design](../../designs/2026-11-21-work-store.md) |
 
@@ -186,3 +186,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 52, 38, 24, 17, 21, 25, 39, 53, and 04; register D-061, D-062, and D-063.
 - Owner approval: the owner's answers on 2026-11-22.
 - Source: [W29 R0 backlog](../../work/2026-11-21-w29-r0-work-store/00-index.md)
+
+### 2026-11-22 — W29 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 scope and dependencies; the PRD 38 requirement-history row.
+- Previous scope: the work tables arrived in schema v7, and P2 recorded project names.
+- Replacement scope: the work tables arrive in schema v8 with write guard triggers and catalog entries, and project names come from `project_register` in W32 R0.
+- Rationale: W32 R0 takes schema v7 and closes before W29 R0 P2.
+- PRD decision: `update-existing` — PRD 38 and PRD 52.
+- Owner approval: the owner's choice on 2026-11-22.
+- Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)
