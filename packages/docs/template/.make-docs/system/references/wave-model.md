@@ -159,7 +159,7 @@ These rules govern coordinates selected and records changed from their adoption 
 
 ## Deterministic Support
 
-Coordinate selection is agent judgment: the outcome test, the significant deviation test, and the revision Wave test need it. When the CLI is available, `make-docs run work backlog snapshot` reports supporting facts: whether each phase file is committed, whether its closeout notes are present, whether a record is archived, each record's next free `P`, each Wave's revisions and next free `R`, and the highest `W`. It also checks the shape of a work backlog's `## Change History`. It never selects a coordinate. Treat an unknown fact as unknown, never as false. The `committed` fact describes the current working tree. A completed phase with a later uncommitted progress edit reads `false`, so the agent decides from history whether the phase was completed and committed earlier.
+Coordinate selection is agent judgment: the outcome test, the significant deviation test, and the revision Wave test need it. When the CLI is available, `make-docs backlog snapshot` reports supporting facts: whether each phase file is committed, whether its closeout notes are present, whether a record is archived, each record's next free `P`, each Wave's revisions and next free `R`, and the highest `W`. It also checks the shape of a work backlog's `## Change History`. It never selects a coordinate. Treat an unknown fact as unknown, never as false. The `committed` fact describes the current working tree. A completed phase with a later uncommitted progress edit reads `false`, so the agent decides from history whether the phase was completed and committed earlier.
 
 ## PRD Exemption
 

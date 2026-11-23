@@ -44,7 +44,7 @@ Code anchors:
 
 ### Backlog snapshot operation
 
-- R-BACKLOG-SNAPSHOT-1 (MUST): one read-only operation with stable identifier `work.backlog.snapshot` produces the deterministic backlog snapshot. Its canonical CLI projection is `make-docs run work backlog snapshot --target-root <project> [--json]`. Its MCP projection is derived from the shared registry.
+- R-BACKLOG-SNAPSHOT-1 (MUST): one read-only operation with stable identifier `work.backlog.snapshot` produces the deterministic backlog snapshot. Its canonical CLI projection is `make-docs backlog snapshot --target-root <project> [--json]`. Its MCP projection is derived from the shared registry.
 - R-BACKLOG-SNAPSHOT-2 (MUST): one TypeScript core owns the operation logic. The CLI parser and MCP server contain no separate backlog-state logic.
 - R-BACKLOG-SNAPSHOT-3 (MUST): the operation accepts an explicit safe target root, performs bounded repository traversal, changes no project, Git, Store, or installation state, and remains testable without the CLI parser or MCP transport.
 - R-BACKLOG-SNAPSHOT-4 (MUST): the operation works when the Global Store is not configured, unavailable, unsafe, or denied. A Store result cannot block repository facts. Optional Store context, if later admitted, is supplementary and clearly labeled.
@@ -93,7 +93,7 @@ Code anchors:
 
 ### Backlog review cache operations
 
-- R-BACKLOG-CACHE-1 (MUST): P5 must activate two public operations for the optional review cache: `work.backlog-cache.lookup` and `work.backlog-cache.write`. Their canonical CLI projections are `make-docs run work backlog-cache lookup` and `make-docs run work backlog-cache write`. Their MCP tools derive from the shared registry. They are not active before their handlers and required validation land.
+- R-BACKLOG-CACHE-1 (MUST): P5 must activate two public operations for the optional review cache: `work.backlog-cache.lookup` and `work.backlog-cache.write`. Their canonical CLI projections are `make-docs backlog cache lookup` and `make-docs backlog cache write`. Their MCP tools derive from the shared registry. They are not active before their handlers and required validation land.
 - R-BACKLOG-CACHE-2 (MUST): `work.backlog-cache.lookup` is read-only and declares Store-read, project-read, and host-configuration-none access. `work.backlog-cache.write` is mutating and declares Store-write, project-read, and host-configuration-none access. A lookup never requires a write grant.
 - R-BACKLOG-CACHE-3 (MUST): both operations use one shared internal backlog-cache service. CLI and MCP surfaces contain no cache logic. Lookup uses one admitted Store session for Store classification, cache validation, checkout binding, and one bulk exact-key lookup.
 - R-BACKLOG-CACHE-4 (MUST): every review runs `work.backlog.snapshot` before cache lookup. For each cache operation, the Skill uses the compatible derived MCP tool first and the canonical CLI command second. When neither deterministic surface is available, the agentic fallback performs a full stateless review and does not emulate Store access.
@@ -553,6 +553,14 @@ Code anchors:
 - Replacement contract: the MCP names are `backlog_review_open` and `backlog_review_refresh`, and every backlog operation moves to the `backlog` group with matching MCP names and migration aliases.
 - Rationale: one capability, one group (register D-065).
 - Source: [Command tree and tool names design](../designs/2026-11-22-command-tree-and-tool-names.md) and [W33 R0 plan](../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: R-BACKLOG-SNAPSHOT-1 and R-BACKLOG-CACHE-1.
+- Previous contract: the snapshot and cache CLI projections were `make-docs run work backlog snapshot` and `make-docs run work backlog-cache lookup` and `write`.
+- Replacement contract: they are `make-docs backlog snapshot`, `make-docs backlog cache lookup`, and `make-docs backlog cache write`, as R-BACKLOG-APP-1 already listed.
+- Rationale: W33 R0 P2 moved every backlog operation to the `backlog` group.
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
 
 ## Source Anchors
 

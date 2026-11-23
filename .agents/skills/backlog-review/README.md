@@ -215,7 +215,7 @@ The Make Docs CLI provides three snapshot and cache operations.
 Create the current deterministic snapshot:
 
 ```text
-make-docs run work backlog snapshot \
+make-docs backlog snapshot \
   --target-root <project-root> \
   --json
 ```
@@ -223,7 +223,7 @@ make-docs run work backlog snapshot \
 Look up exact cached fragments:
 
 ```text
-make-docs run work backlog-cache lookup \
+make-docs backlog cache lookup \
   --target-root <project-root> \
   --snapshot-json <file-or-json> \
   --json
@@ -232,7 +232,7 @@ make-docs run work backlog-cache lookup \
 Save validated fresh fragments:
 
 ```text
-make-docs run work backlog-cache write \
+make-docs backlog cache write \
   --target-root <project-root> \
   --snapshot-json <file-or-json> \
   --records-json <file-or-json> \
@@ -243,7 +243,7 @@ The MCP equivalents are:
 
 ```text
 backlog_snapshot
-backlog_cache_read
+backlog_cache_lookup
 backlog_cache_write
 ```
 

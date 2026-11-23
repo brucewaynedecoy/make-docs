@@ -1074,7 +1074,7 @@ describe("Store-owned installation guidance", () => {
     expect(prompt).not.toContain("--manifest");
     expect(prompt).not.toContain("read `.make-docs/manifest.json`");
     expect(prompt).toContain("without a manifest or Store");
-    expect(prompt).toContain("make-docs project path-hygiene validate");
+    expect(prompt).toContain("make-docs project paths validate");
 
   });
 });

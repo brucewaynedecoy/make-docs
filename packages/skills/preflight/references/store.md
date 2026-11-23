@@ -12,7 +12,7 @@ Use the installed CLI help and the applicable project instructions if a command 
 
 ## Save and Read Progress
 
-The CLI form is `make-docs run lifecycle <verb> --repo-root <project>`. The same operations may be exposed through the active MCP tool. Use the actual tool schema. Do not treat the CLI version alone as capability proof.
+The CLI form is `make-docs lifecycle <verb> --repo-root <project>`. The same operations may be exposed through the active MCP tool. Use the actual tool schema. Do not treat the CLI version alone as capability proof.
 
 | Need | CLI arguments after the common form |
 | --- | --- |

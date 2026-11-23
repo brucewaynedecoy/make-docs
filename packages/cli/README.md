@@ -17,17 +17,23 @@ You can also run `npx @brucewaynedecoy/make-docs@latest` without a command. In a
 
 ## Main Commands
 
-Run `npx @brucewaynedecoy/make-docs@latest <command> --help` for options.
+Run `npx @brucewaynedecoy/make-docs@latest <group> --help` to list a group's commands and options.
 
-| Command | Use |
+| Group | Use |
 | --- | --- |
-| `setup` | Install, sync, reconfigure, manage Skills, back up, or remove project assets. |
-| `project` | Inspect and manage project settings and surfaces. |
-| `resource` | List, read, or ensure system resources. |
-| `run` | Run available project and workflow operations. |
-| `mcp` | Start the MCP server for agent tools. |
-| `update` | Update a persistent tool install. |
-| `uninstall` | Remove the machine-level tool install. |
+| `setup` | Install, sync, or remove Make Docs in this project. Set up this computer and check the Store. |
+| `project` | See and repair this project: state, checkouts, Personas, layout, paths, and the doctor. |
+| `resource` | List, read, or copy Make Docs system resources. |
+| `work` | Find work items and record work evidence. |
+| `backlog` | Read the backlog, use its review cache, and open the review app. |
+| `lifecycle` | Start, track, and finish lifecycle runs. |
+| `factory` | Run approved backlog work through workers and review. No commands yet. |
+| `check` | Check PRDs, performance evidence, and user test records. Changes nothing. |
+| `mcp` | Serve Make Docs tools to agents over MCP. |
+| `update` | Update the installed make-docs tool. |
+| `uninstall` | Remove make-docs from this computer. |
+
+Each MCP tool name is the CLI path after `make-docs`, with spaces and hyphens changed to underscores, such as `check_prd` for `make-docs check prd`.
 
 The npm package exposes the `make-docs` executable. If you install it globally, you can use `make-docs` in place of the `npx` command. The MCP server and CLI use the same operation core. MCP writes require an explicit write setting and follow the CLI's dry-run and approval rules.
 

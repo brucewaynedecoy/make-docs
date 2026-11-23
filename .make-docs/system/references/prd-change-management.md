@@ -141,7 +141,7 @@ Before closing PRD authority maintenance, confirm:
 
 ## Deterministic Authority Validation
 
-Run `make-docs run prd authority validate --target-root <project>` against the project root after PRD maintenance and before downstream work treats the set as authority. The read-only operation scans selected working PRD and other Markdown documents for current PRD authority claims.
+Run `make-docs check prd --target-root <project>` against the project root after PRD maintenance and before downstream work treats the set as authority. The read-only operation scans selected working PRD and other Markdown documents for current PRD authority claims.
 
 Default sources are direct numbered Markdown files in `docs/prd/`, dated designs directly in `docs/designs/`, direct overview and phase files in dated W/R plan packages, and direct index and phase files in dated W/R work packages. The validator does not enter other descendants of a plan or work package. A stored copy with a copied header remains outside the source set, whatever its directory name. A completed work record at its working path remains in scope.
 

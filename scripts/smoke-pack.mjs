@@ -807,7 +807,7 @@ function runLocalPackedSmoke() {
   writeLegacyContentFixture(runFixtureDir);
   for (const args of [["run", "playbook", "status"], ["run", "package", "plan"], ["run", "protocol", "list"]]) {
     const refusal = runPackedCliExpectingFailure(packedMakeDocs, [...args, "--repo-root", runFixtureDir]);
-    assertOutputContains(refusal.stderr, "Unknown make-docs run operation", "Packed CLI did not reject a retired operation.");
+    assertRetiredOperationRefusal(refusal, args);
   }
 
   // `update`: the packed direct-node invocation matches no persistent-install
@@ -1699,6 +1699,34 @@ function assertExists(filePath, message) {
 function assertMissing(filePath, message) {
   if (lstatSync(filePath, { throwIfNoEntry: false })) {
     throw new Error(message);
+  }
+}
+
+/**
+ * A retired workflow entry point (`run playbook`, `run package`, `run
+ * protocol`) must fail with one typed refusal. W33 R0 P2 retired `run` as a
+ * root, and W33 R0 P3 changes the message text, so the check does not match
+ * message text. It needs a nonzero exit, empty stdout, and stderr that is
+ * exactly one JSON object with `ok: false` and `code: "operation-error"`.
+ * The refusal must have no `renamedTo` key, because these paths were
+ * removed, not renamed. This holds for the whole W33 R0 migration window.
+ */
+function assertRetiredOperationRefusal(refusal, args) {
+  const label = `make-docs ${args.join(" ")}`;
+  const detail = `\nstdout:\n${refusal.stdout}\nstderr:\n${refusal.stderr}`;
+  if (refusal.status === 0) throw new Error(`Packed CLI ran the retired operation \`${label}\`.${detail}`);
+  if (refusal.stdout !== "") throw new Error(`Packed CLI wrote to stdout for the retired operation \`${label}\`.${detail}`);
+  let result;
+  try {
+    result = JSON.parse(refusal.stderr.trim());
+  } catch {
+    throw new Error(`Packed CLI stderr for \`${label}\` is not one JSON refusal.${detail}`);
+  }
+  if (result === null || typeof result !== "object" || result.ok !== false || result.code !== "operation-error") {
+    throw new Error(`Packed CLI did not give an operation-error refusal for \`${label}\`.${detail}`);
+  }
+  if (Object.hasOwn(result, "renamedTo")) {
+    throw new Error(`Packed CLI treated the retired operation \`${label}\` as a renamed command.${detail}`);
   }
 }
 

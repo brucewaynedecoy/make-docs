@@ -469,20 +469,32 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
   });
 
   it("a PRD 39 R-RUN-1 list that differs", () => {
-    expect(PRD_LISTS.rRun1(PRD_39.replace("`backlog-cache lookup`, and `backlog-cache write`", "and `backlog-cache lookup`"))).toEqual([
-      "R-RUN-1 misses active `run work backlog-cache write`.",
+    expect(PRD_LISTS.rRun1(PRD_39.replace("`cache lookup`, `cache write`, `review open`", "`cache lookup`, `review open`"))).toEqual([
+      "R-RUN-1 misses active `backlog cache write`.",
     ]);
     expect(PRD_LISTS.rRun1(PRD_39.replace("`item resolve`, `evidence record`", "`item resolve`, `item delete`, `evidence record`"))).toEqual([
-      "R-RUN-1 lists active `run work item delete`, which the registry does not have.",
+      "R-RUN-1 lists active `work item delete`, which the registry does not have.",
     ]);
     expect(PRD_LISTS.rRun1(PRD_39.replace("`export`, and `add`, and planned `factory`", "and `export`, and planned `factory`"))).toEqual([
       "R-RUN-1 misses planned `work add`.",
     ]);
   });
 
+  it("W33 R0 P4: a PRD 39 R-RUN-1 list that names a former `run` path fails", () => {
+    const stale = PRD_39.replace("active `check` commands for `prd`, `performance-evidence`,", "active `run prd authority validate`, active `check` commands for `performance-evidence`,");
+    expect(stale).not.toBe(PRD_39);
+    expect(PRD_LISTS.rRun1(stale)).toEqual([
+      "R-RUN-1 names the former path `run prd authority validate`; the current path is `check prd`.",
+      "R-RUN-1 misses active `check prd`.",
+    ]);
+  });
+
   it("a PRD 25 R-MCP-PROFILE line with a name the catalog does not have", () => {
     expect(PRD_LISTS.mcpProfiles(PRD_25.replace("`project_list` and `setup_store_check` read only", "`project_register_list` and `setup_store_check` read only"))).toEqual([
-      "R-MCP-PROFILE-10 names the tool `project_register_list`, which is not a current, new, or former catalog name.",
+      "R-MCP-PROFILE-10 names the tool `project_register_list`, which is not a current catalog name.",
+    ]);
+    expect(PRD_LISTS.mcpProfiles(PRD_25.replace("`project_list` and `setup_store_check` read only", "`project_status` and `setup_store_check` read only"))).toEqual([
+      "R-MCP-PROFILE-10 names the former tool `project_status`; the current name is `project_state_status`.",
     ]);
     expect(PRD_LISTS.mcpProfiles(PRD_25.replace("includes `work.backlog.snapshot`", "includes `work.backlog.snap`"))).toEqual([
       "R-MCP-PROFILE-5 names the operation `work.backlog.snap`, which the catalog does not have.",
@@ -490,7 +502,8 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
   });
 
   it("a PRD 51 R-BACKLOG-APP-1 path that differs", () => {
-    expect(PRD_LISTS.backlogApp(PRD_51.replace("`make-docs backlog cache lookup`", "`make-docs backlog-cache lookup`"))).toEqual([
+    const appLine = PRD_51.split("\n").find((line) => line.startsWith("- R-BACKLOG-APP-1 "))!;
+    expect(PRD_LISTS.backlogApp(PRD_51.replace(appLine, appLine.replace("`make-docs backlog cache lookup`", "`make-docs backlog-cache lookup`")))).toEqual([
       "R-BACKLOG-APP-1 names `backlog-cache lookup`, which is not a catalog `backlog` path.",
       "R-BACKLOG-APP-1 misses `backlog cache lookup`.",
     ]);

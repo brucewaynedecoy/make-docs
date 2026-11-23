@@ -181,10 +181,10 @@ describe("backlog-review first-party Skill", () => {
     expect(skill.indexOf("Start every review with one fact source")).toBeLessThan(
       skill.indexOf("try the optional cache lookup"),
     );
-    expect(cache).toContain("backlog_cache_read");
-    expect(cache).toContain("make-docs run work backlog-cache lookup");
+    expect(cache).toContain("backlog_cache_lookup");
+    expect(cache).toContain("make-docs backlog cache lookup");
     expect(cache).toContain("backlog_cache_write");
-    expect(cache).toContain("make-docs run work backlog-cache write");
+    expect(cache).toContain("make-docs backlog cache write");
     expect(cache).toContain("Never reuse a portfolio conclusion from cache.");
     expect(skill).toContain("attempt a cache write for every freshly reviewed `miss` or `rejected` record");
     expect(cache).toContain("attempt to cache each freshly reviewed fragment");

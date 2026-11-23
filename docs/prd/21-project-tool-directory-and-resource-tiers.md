@@ -58,7 +58,7 @@ Runtime state and bootstrap:
 - Approved local backup or export files are content copies. Their readable descriptions are not live operation state or automatic restoration authority. Project history and work-specific tracking remain local knowledge.
 
 - R-LOCAL-STATE-1 (MUST): `.make-docs/` contains no current Make Docs operational state. Installation manifests, applied selections, conflict decisions, provider/projection metadata, audit state, locks, receipts, and recovery journals live in the global Store. `.make-docs/state/` and `.make-docs/manifest.json` are supported legacy transfer inputs only. No renamed local directory or mirror may replace them.
-- R-LOCAL-STATE-2 (MUST): `.make-docs/factory/` exists only after factory setup. It holds generated, read-only, gitignored copies of the saved factory setup, written only by Make Docs from the Store. Each file says it is generated and that edits are lost. No Make Docs operation reads these copies as input. `make-docs run factory restore` writes them again. They hold no grants, secrets, locks, or receipts. [PRD 38](38-global-store-and-project-state.md) owns the narrow rule that allows them, and [PRD 53](53-factory-setup-and-orchestration.md) owns their content.
+- R-LOCAL-STATE-2 (MUST): `.make-docs/factory/` exists only after factory setup. It holds generated, read-only, gitignored copies of the saved factory setup, written only by Make Docs from the Store. Each file says it is generated and that edits are lost. No Make Docs operation reads these copies as input. `make-docs factory restore` writes them again. They hold no grants, secrets, locks, or receipts. [PRD 38](38-global-store-and-project-state.md) owns the narrow rule that allows them, and [PRD 53](53-factory-setup-and-orchestration.md) owns their content.
 - R-LOCAL-STATE-3 (MUST): `.make-docs/backup/factory/` exists only after the factory backs up a file in a folder without git. It holds inert content copies. The Store records each backup. A `README.md` in the folder tells people and agents that backups are deleted when their work is accepted or closed, or after 30 days, and how to get a file back.
 - R-LOCAL-STATE-4 (MUST): factory backup cleanup removes only files that the Store records as factory backups. It never removes installation recovery backups or any other file under `.make-docs/backup/`.
 - Bootstrap includes configured-harness routers, declarative project identity/config, project-owned overlays, and readable guidance for CLI Store status, resource selection, provenance, and recovery.
@@ -162,6 +162,14 @@ R-ASSET-PATH-2 (MUST): `project persona list` resolves the two shipped defaults 
 - Replacement contract: the resolver also accepts `make-docs://project/` URIs, which read the work store read-only.
 - Rationale: quick items live only in the work store, and the owner asked to read them by URI.
 - Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: R-LOCAL-STATE-2.
+- Previous contract: `make-docs run factory restore` wrote the generated factory copies again.
+- Replacement contract: `make-docs factory restore` writes them again.
+- Rationale: [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1 retired `run` as a root, and the factory commands live in the `factory` group.
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md).
 
 ## Source Anchors
 

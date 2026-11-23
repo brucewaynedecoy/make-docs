@@ -834,16 +834,16 @@ const DOTTED_ID = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*){1,2}$/;
 
 /**
  * PRD 25 R-MCP-PROFILE lines: every tool name (a backticked word with an
- * underscore) is a current, new, or former catalog MCP name, and every backticked
- * operation ID is a catalog ID.
+ * underscore) is a current catalog MCP name, and every backticked operation ID
+ * is a catalog ID. W33 R0 P4 moved the PRD text to the new names, so a former
+ * name is stale and fails.
  */
 export function compareMcpProfileNames(prd25: string, entries: readonly NameCatalogEntry[]): string[] {
   const problems: string[] = [];
-  const names = new Set<string>();
+  const names = new Set(entries.map((item) => item.newMcp));
+  const formerNames = new Map<string, string>();
   for (const item of entries) {
-    names.add(item.newMcp);
-    if (item.currentMcp) names.add(item.currentMcp);
-    if (item.formerMcp) names.add(item.formerMcp);
+    if (item.formerMcp && item.formerMcp !== item.newMcp && !names.has(item.formerMcp)) formerNames.set(item.formerMcp, item.newMcp);
   }
   const ids = new Set(entries.map((item) => item.id));
   const lines = prd25.split("\n").filter((line) => /^- R-MCP-PROFILE-\d+ /.test(line));
@@ -851,8 +851,10 @@ export function compareMcpProfileNames(prd25: string, entries: readonly NameCata
   for (const line of lines) {
     const requirement = line.match(/^- (R-MCP-PROFILE-\d+)/)![1]!;
     for (const token of [...line.matchAll(/`([^`]+)`/g)].map((found) => found[1]!)) {
-      if (SNAKE_NAME.test(token) && !names.has(token)) {
-        problems.push(`${requirement} names the tool \`${token}\`, which is not a current, new, or former catalog name.`);
+      if (SNAKE_NAME.test(token) && formerNames.has(token)) {
+        problems.push(`${requirement} names the former tool \`${token}\`; the current name is \`${formerNames.get(token)}\`.`);
+      } else if (SNAKE_NAME.test(token) && !names.has(token)) {
+        problems.push(`${requirement} names the tool \`${token}\`, which is not a current catalog name.`);
       }
       if (DOTTED_ID.test(token) && !ids.has(token)) {
         problems.push(`${requirement} names the operation \`${token}\`, which the catalog does not have.`);
@@ -875,11 +877,12 @@ export function compareBacklogAppPaths(prd51: string, entries: readonly NameCata
 }
 
 /**
- * PRD 39 R-RUN-1: "active `run <prefix>` commands for `a`, `b`, and `c`" and
- * "planned `<prefix>` commands for ...". Active paths must equal the former
- * `run` paths, which W33 R0 P3 keeps as migration aliases. Planned paths must
- * equal the new paths of planned `run`-tree operations (the work queue and
- * the factory).
+ * PRD 39 R-RUN-1: "active `<group>` commands for `a`, `b`, and `c`" and
+ * "planned `<group>` commands for ...". Active paths must equal the current
+ * paths of the current operations in the `run`-tree groups (`work`,
+ * `backlog`, `lifecycle`, `factory`, and `check`). Planned paths must equal
+ * the new paths of the planned work queue and factory operations. W33 R0 P4
+ * moved R-RUN-1 to the new paths, so a former `run` path is stale and fails.
  */
 export function parseRRun1(rRun1: string): { active: string[]; planned: string[] } {
   const start = rRun1.indexOf("It contains ");
@@ -904,16 +907,29 @@ export function parseRRun1(rRun1: string): { active: string[]; planned: string[]
   return { active, planned };
 }
 
+/** The groups that replaced the `run` root (PRD 39 R-RUN-1). */
+const RUN_TREE_GROUPS: readonly NameGroup[] = ["work", "backlog", "lifecycle", "factory", "check"];
+
 export function compareRRun1(rRun1: string, entries: readonly NameCatalogEntry[]): string[] {
   const problems: string[] = [];
   const { active, planned } = parseRRun1(rRun1);
-  const currentRun = entries.filter((item) => item.formerCli?.startsWith("run ")).map((item) => item.formerCli!);
+  const currentRun = entries
+    .filter((item) => item.status === "current" && item.currentCli !== null && RUN_TREE_GROUPS.includes(item.group))
+    .map((item) => item.newCli);
   const plannedRun = entries
     .filter((item) => item.status === "planned" && (item.group === "work" || item.group === "factory"))
     .map((item) => item.newCli);
-  for (const cli of active) if (!currentRun.includes(cli)) problems.push(`R-RUN-1 lists active \`${cli}\`, which the registry does not have.`);
+  const formerRun = new Map(
+    entries.filter((item) => item.formerCli?.startsWith("run ")).map((item) => [item.formerCli!, item.newCli] as const),
+  );
+  for (const cli of [...active, ...planned]) {
+    if (formerRun.has(cli)) problems.push(`R-RUN-1 names the former path \`${cli}\`; the current path is \`${formerRun.get(cli)}\`.`);
+  }
+  for (const cli of active) {
+    if (!currentRun.includes(cli) && !formerRun.has(cli)) problems.push(`R-RUN-1 lists active \`${cli}\`, which the registry does not have.`);
+  }
   for (const cli of currentRun) if (!active.includes(cli)) problems.push(`R-RUN-1 misses active \`${cli}\`.`);
-  for (const cli of planned) if (!plannedRun.includes(cli)) problems.push(`R-RUN-1 lists planned \`${cli}\`, which the catalog does not plan.`);
+  for (const cli of planned) if (!plannedRun.includes(cli) && !formerRun.has(cli)) problems.push(`R-RUN-1 lists planned \`${cli}\`, which the catalog does not plan.`);
   for (const cli of plannedRun) if (!planned.includes(cli)) problems.push(`R-RUN-1 misses planned \`${cli}\`.`);
   return problems;
 }

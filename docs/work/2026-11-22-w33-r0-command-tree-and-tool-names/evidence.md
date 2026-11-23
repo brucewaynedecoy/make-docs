@@ -408,3 +408,100 @@ MCP over real stdio, `make-docs mcp --profile quality`, a `tools/call` of `prd_v
 - `validateMakeDocsCliArgv` does not accept old paths, so generated commands must use the new names.
 - Shipped Skills, routers, references, and PRD prose still name the old commands. P4 moves them.
 - For P5: `--help` on a leaf command fails with "`--help` requires a value." This happens on the old path, on the new path, and in released 2.0.9. For example, `make-docs work item resolve --help` fails. P3 does not change it.
+
+## P4 Shipped Text and Skills
+
+Covers A10 and A11 in [P4](04-shipped-text-and-skills.md). Evidence date: 2026-11-23. Base commit: `eb839187` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`.
+
+### What Changed
+
+- Template first: nine files under `packages/docs/template/` now name the new commands. They are `docs/prd/AGENTS.md`, `docs/prd/CLAUDE.md`, `output-contract.md`, `performance-evidence-governance.md`, `docs-path-hygiene-cleanup.prompt.md`, `naive-uat-validation.md`, `path-and-link-hygiene.md`, `prd-change-management.md`, and `wave-model.md`.
+- Dogfood copy: the same nine files were copied byte for byte into `./.make-docs/` and `./docs/`. Each matched its upstream copy before the change. `node scripts/copy-template-to-cli.mjs` refreshed the bundled template.
+- Skills: `backlog-review` (`SKILL.md`, `README.md`, `references/cache.md`), `naive-uat/SKILL.md`, and `factory` and `preflight` `references/store.md`. The four installed copies under `.agents/skills/` match their sources. `naive-uat` has no installed copy. No Skill script changed.
+- READMEs: `README.md` and `packages/cli/README.md` list the eleven groups. Each row uses the exact words of its line in `make-docs --help`. Both files say how an MCP name comes from the CLI path. `packages/docs/README.md` and `packages/cli/src/README.md` named no old command.
+- Guides: `cli-lifecycle-managing-installations.md` names the new tool names, says renamed names stay hidden aliases under PRD 39 R-MIG-1, and links the [name table](#name-table). `cli-maintaining-setup-and-harness-access.md` runs `check prd`. `cli-mcp-operation-parity-and-permissions.md` names the registry groups, the `resource_list` and `resource_read` tools, and the current work item and evidence commands.
+- PRDs: `00-index.md`; PRD 07 (eleven groups and migration aliases); PRD 21 (`make-docs factory restore`); PRD 25 (group projection, derived names, `check uat` paths); PRD 38 (`make-docs lifecycle <operation>` and `make-docs work export --quick` in the work store records row); PRD 39 (R-SCOPE-1, new R-NAME-6, R-RUN-1, R-RUN-2, R-PRD-AUTH-1, R-PERF-VALIDATE-1, the R-CHECKOUT table, and R-TEST-3); and PRD 51 (snapshot and cache paths). Each changed PRD except the index has a `2026-11-23 — W33 R0 P4` Requirement History entry.
+- `name-catalog.ts`: `compareMcpProfileNames` accepts only current tool names and names the current one when it finds a former name. `compareRRun1` reads the new R-RUN-1 group lists and fails on a former `run` path.
+- New test: `packages/cli/tests/w33-r0-shipped-text-names.test.ts`.
+- Tests whose expectation changed: `name-catalog.test.ts` (new R-RUN-1 fixtures, a former-name fixture for each check, and an R-BACKLOG-APP-1 fixture that changes only that line), `consistency.test.ts` (`project paths validate`), and `backlog-review-skill.test.ts` (`backlog cache lookup|write` and `backlog_cache_lookup`).
+- Release scripts: `scripts/w22-r1-package-proof.mjs` runs `project move preview` and `project move apply` in its eight move calls. `scripts/smoke-pack.mjs` checks the retired `run playbook status`, `run package plan`, and `run protocol list` with a new `assertRetiredOperationRefusal` and no longer matches message text. The check follows the P3 reviewer's contract. Both scripts failed after P2 retired `run`, and `smoke:pack:local` runs both.
+- No CLI route, MCP tool code, alias, or operation ID changed.
+
+### Names Replaced (A10)
+
+| Area | Files | Old CLI paths replaced | Old MCP names replaced |
+| --- | --- | --- | --- |
+| Template | 9 | 17 | 0 |
+| Dogfood copy | 9 | 17 | 0 |
+| Skills | 6 | 14 | 2 |
+| Installed Skills | 5 | 8 | 2 |
+| Guides | 3 | 3 | 3 |
+| READMEs | 2 | 2 (`run` group rows) | 0 |
+| PRDs | 7 | 12 | 4 |
+
+PRD 07, 25, and 39 and the parity guide also had eight prose lines that called `run` the operation root. They now name the registry groups.
+
+### Shipped-Text Test
+
+The test reads 316 Markdown files: the template (97), its dogfood counterparts, `packages/skills/`, `.agents/skills/`, the root and package README files, `CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `packages/cli/src/store/README.md`, the root routers, `docs/assets/user/`, `docs/assets/maintainer/`, `docs/prd/` without the decision register, and every `AGENTS.md` and `CLAUDE.md` under `docs/`. It does not read `docs/assets/project/`, the decision register, plans, designs, work backlogs, history records, or archives. PRD 39 R-NAME-6 names the same set. The test checks inline code and fenced code blocks.
+
+- A command starts a code line or span, or follows `$`, `&&`, `||`, `;`, `|`, or `(`. Environment assignments such as `MAKE_DOCS_HOME=x` may come first. The program is `make-docs`, `npx [-y] [@brucewaynedecoy/]make-docs[@<tag>]`, or `node <path>/dist/index.js`.
+- Its words must be a catalog path, a setup or other non-registry command, or a known group or path prefix, such as `make-docs setup store` or `make-docs check uat --help`. A word after a full command is an argument unless it reaches into a deeper known path. MCP-only catalog paths, such as `setup status`, are not CLI commands.
+- A code span or code line that starts with `run work`, `run backlog`, `run lifecycle`, `run factory`, `run prd`, `run performance`, or `run uat` fails, even with no program before it.
+- A snake-case token that is a former catalog MCP name fails, and the message names the current one.
+- A Requirement History or Change History section may keep the names it recorded. So may the table rows right after a line that holds only `<!-- make-docs:former-names -->`. Only lines that start with `|` are hidden. The first other line, blank or not, ends the marked table and counts. No shipped file uses the marker yet.
+- Fixture tests prove that it fails on an environment prefix (`MAKE_DOCS_HOME=/tmp/x make-docs run lifecycle list`), `npx @brucewaynedecoy/make-docs@latest run ...`, `npx -y @brucewaynedecoy/make-docs@2.0.9 run ...`, `npx make-docs project checkout-register apply`, `node packages/cli/dist/index.js run ...`, `node <path>/dist/index.js run ...`, bare `run <root> ...` spans for all seven roots, a former name on a row after a blank line or on a non-table line after the marker, `make-docs run prd authority validate`, `make-docs project path-hygiene validate`, `make-docs project checkout-move preview`, `make-docs run lifecycle <verb>`, a chained `npx make-docs run work backlog snapshot`, `make-docs run factory restore`, unknown paths, a wrong word after a full command, and former MCP names. They prove that it passes current paths, groups and branch paths with flags (`make-docs setup store --help`), current commands behind an environment prefix, `npx`, or `node .../dist/index.js`, `npm run build`, `run package`, arguments, prose, an example commit message in a code block, history sections, and the rows of a marked table.
+- Review pass: the wider scan found two more current-text names. They were `run work export --quick` in the PRD 38 Store table and `run work item resolve` and `run work evidence record|read` in a parity guide inventory row. Both now name the current commands.
+- First run on the changed text: it found four names that the manual search missed. They were `backlog_cache_read` in the `backlog-review` README and its installed copy, and `make-docs run factory restore` in PRD 21. A fourth hit, prose in a commit-message example, led to the command-start rule.
+
+### Commands Run
+
+First pass:
+
+- `npm run build`: passed.
+- `node packages/cli/dist/index.js check prd --target-root . --json`: status `passed`, 37 PRD files, 734 Markdown files, 1432 links, no diagnostics.
+- `node packages/cli/dist/index.js project paths validate`: 1104 files, 0 findings.
+- `node packages/cli/dist/index.js project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --target-root .`: 379 files, no problems.
+- `npx vitest run --reporter=json --outputFile=<tmp>` in `packages/cli`: 2377 tests, 2368 passed, 3 failed, 6 skipped, counted from the JSON file. The 3 failures exist without this phase: two stdio tests in `tests/mcp-app-contract.test.ts` and the sandbox-only fixture 11 in `tests/p5-migration-safety.test.ts`. `tests/w19-r5-skills-command.test.ts` and the `tests/cli.test.ts` timeout did not fail in this run.
+- Template and dogfood parity: `cmp` passed for all nine reseeded files. The only template files that differ from the repository copy are the root routers and the two install variants, as before.
+
+After the review fixes:
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npx vitest run tests/w33-r0-shipped-text-names.test.ts tests/name-catalog.test.ts tests/backlog-review-skill.test.ts tests/consistency.test.ts`: 4 files, 107 tests passed. The shipped-text test has 11, the name-catalog test 43, and the backlog-review Skill test 15.
+- `npm run validate:defaults -w packages/cli`: 53 passed.
+- `bash scripts/check-instruction-routers.sh`: passed. It ran outside the sandbox because `mktemp -d` cannot write the system temp folder inside it.
+- `npm run smoke:pack:local` with `MAKE_DOCS_HOME` set to a temporary folder, outside the sandbox: exit 1. Every local packed check passed (`runLocalPackedSmoke`), including the new retired-operation check. The run then stopped inside `scripts/w22-r1-package-proof.mjs` at line 146, before the first `project move` call: `setupReview.checkoutMove` is `null`. See "Release Proof Failure Found" below.
+- `project move preview --target-root <moved> --json` on a hand-made 2.0.5 fixture: exit 0 with a typed `blocked` result. The old `project checkout-move preview` spelling fails with `operation-error`. So the eight script calls now reach the command.
+- The CLI checks ran with `MAKE_DOCS_HOME` set to an empty temporary folder. No Store was created there, and the real Store was not read.
+
+### Release Proof Failure Found
+
+`scripts/w22-r1-package-proof.mjs` fails before this phase's changes, so `smoke:pack:local` cannot pass yet. The proof seeds two checkouts with the released 2.0.5 package, moves the folder, and expects candidate `setup --yes --json` to report `checkoutMove.status: "ready"`. The candidate gives `checkoutMove: null` and blocks on `missing-manifest-recognizable` instead. `project move preview` on the same fixture says "The Store must use the current schema before checkout move."
+
+A hand-made copy of the proof's first steps ran against builds of earlier commits:
+
+| Commit | `checkoutMove` |
+| --- | --- |
+| `ba4b95b5` (v2.0.9 merge) | ready |
+| `1ac8f62d`, `879a8866`, `08f405bd`, `bc8f6602`, `669c12b2`, `125cfad6` | ready |
+| `4daaf18f` (W32 R0 P2 Schema v7 and Defect Fixes) | `null` |
+| `eb839187` (W33 R0 P2, this phase's base) | `null` |
+
+The first bad commit is `4daaf18f`. Setup no longer finds a moved checkout in a Store with the 2.0.5 schema. This is a Store and setup defect, not shipped text, so P4 does not fix it. It needs its own fix, owned by W32 R0 or a register entry, before `smoke:pack:local` and the CI `platform-safety.yml` candidate proof can pass. The base worktree and fixtures were temporary and are removed.
+
+### Left on Purpose
+
+- History records, archives, `.make-docs/archive/legacy-playbooks/`, closed evidence, and every Requirement History and Change History entry keep their names.
+- `docs/prd/03-open-questions-and-risk-register.md` records each decision as it was made, so the test does not scan it. D-065 lists the old names as the problem it solved.
+- Plans, designs, and work backlogs are project records, not shipped text. Active backlogs such as W29 R0 and W30 R0 still name some `run` paths in their own evidence and indexes.
+- Dated project artifacts under `docs/assets/project/`, such as `cli-command-reorganization.md` and `runtime-and-global-store.md`, describe the command tree of their date.
+- The parity guide's inventory rows for the retired `run package` spelling and the Playbook tools describe removed surfaces.
+- The user guide names `make_docs_resource_read` as a pre-W26 R1 name that is not an alias.
+
+### Limits
+
+- The test does not check one-word former MCP names (`personas`, `domains`, `manifest`, `config`, and `compatibility`), because they are common words. A manual search found none used as a tool name in shipped text.
+- The test reads Markdown only. Skill scripts and their help strings were searched by hand and name no old command.
+- The retired-operation check in `scripts/smoke-pack.mjs` does not match message text, because P3 changes the text, and P3 may add group hints for other `run` forms. It needs a nonzero exit, empty stdout, and stderr that parses as one JSON object with `ok: false` and `code: "operation-error"`, with no `renamedTo` key. The P3 reviewer confirmed that `run playbook status`, with or without `--json`, gives this result after P3 and for the whole migration window. These paths were removed, not renamed, so they never get an alias. The built CLI at this phase gives the same shape: exit 1, 0 bytes on stdout, and one stderr line.
+- Depends on P3: `docs/assets/user/cli-lifecycle-managing-installations.md` line 100 says that renamed commands and tools keep their old names as hidden aliases for two minor releases. That is true only after W33 R0 P3 adds the aliases. P3 lands before any release, so the line stays.

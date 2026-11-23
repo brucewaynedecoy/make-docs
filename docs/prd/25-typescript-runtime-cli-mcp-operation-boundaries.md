@@ -79,7 +79,7 @@ The current MCP surface must:
 - list, read, and ensure peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as the canonical CLI resource operations;
 - use native MCP resource discovery/read where supported without creating a second registry, resolver, or content representation;
 - produce dry-run install/sync plans from the CLI planner before mutation;
-- expose exactly one MCP tool for every admitted registry operation, with its unique name from the checked MCP name map and its description, input shape, mutation classification, and pending status from the registry definition;
+- expose exactly one MCP tool for every admitted registry operation, with its unique name derived from its CLI path under PRD 39 R-NAME-3 and its description, input shape, mutation classification, and pending status from the registry definition;
 - route every admitted tool through the shared operation core so input validation, pending-lineage refusal, dry-run behavior, named approvals, and write gating cannot diverge by surface;
 - require `allowWrite=true` for every mutating tool while allowing `dryRun=true` to exercise the same operation without writes; and
 - prove registry-to-MCP parity in both directions so no admitted operation lacks a tool and no tool invents an unregistered operation.
@@ -88,7 +88,7 @@ New projection mutations, deterministic validators, and no-scripts replacements 
 
 ### Development Contract
 
-- Operations project to the canonical `resource`, `project`, or `run` CLI subtree declared by registry metadata. CLI/MCP parity is derived from or conformance-checked against the operation registry rather than maintained by hand. Modular operation domains use the shared operation core's typed contracts, injected execution context for uniform dry-run, write-permission, and approval gating, and one-way surface-to-core dependencies; [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md) owns the public grammar and registry.
+- Operations project to the canonical CLI group declared by registry metadata under [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1. CLI/MCP parity is derived from or conformance-checked against the operation registry rather than maintained by hand. Modular operation domains use the shared operation core's typed contracts, injected execution context for uniform dry-run, write-permission, and approval gating, and one-way surface-to-core dependencies; [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md) owns the public grammar and registry.
 
 Deterministic logic must live in modular TypeScript operation domains, not skill-local scripts and not monolithic catch-all files.
 
@@ -160,7 +160,7 @@ Configuration supplies declarative identity, desired settings, audience mappings
 
 - The reusable Naive-UAT system workflow remains available through first-class contracts, prompts, references, and templates. Where that workflow invokes deterministic behavior, it uses canonical typed TypeScript CLI operations; equivalent MCP exposure delegates to the same operation definitions and returns identical typed results rather than a second implementation.
 - The TypeScript registry owns only the deterministic seams required by current authority: scenario identity/version validation, Persona resolution/defaulting, installed-target and evidence-reference validation, lifecycle run/checkpoint operations, and finding/result receipt validation. [PRD 46](46-naive-end-user-acceptance-testing.md) and [PRD 47](47-persona-model.md) remain authoritative for selecting exactly one configured Persona mapped to `user` or `maintainer`, defaulting omitted input to canonical `user`, and governing UAT policy plus scenario/evidence semantics.
-- P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending with `pendingLineage: W19 R1 P7`. Their CLI paths use `make-docs run uat scenario validate`, `make-docs run uat persona resolve`, `make-docs run uat target validate`, `make-docs run uat evidence-reference validate`, `make-docs run uat finding validate`, and `make-docs run uat result validate`. Each operation projects to an MCP tool. A pending entry must return a typed pending result and must not claim that its handler exists.
+- P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending with `pendingLineage: W19 R1 P7`. Their CLI paths use `make-docs check uat scenario`, `make-docs check uat persona`, `make-docs check uat target`, `make-docs check uat evidence`, `make-docs check uat finding`, and `make-docs check uat result`. Each operation projects to an MCP tool. A pending entry must return a typed pending result and must not claim that its handler exists.
 - The UAT workflow reuses `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon`. It does not define a second lifecycle operation set.
 - Canonical append-only `NUAT-###` scenario identity and version authority remains in the active PRD that owns the primary external outcome; rendered or executed evidence remains project evidence bound to that exact version or digest and never becomes operation-registry authority.
 - A first-party Naive-UAT Skill, when selected, is an optional access adapter whose shims delegate to the same typed CLI operations and may adapt arguments or receipt formatting only. It contains no UAT policy, scenario authority, evidence semantics, state machine, or correctness-only behavior.
@@ -464,6 +464,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: it also needs Store write permission.
 - Rationale: the reviewed write path records each change in the Store.
 - Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: `Current MCP Surface`, `Development Contract`, the PRD tool lists, and the R-MCP-PROFILE check.
+- Previous contract: the MCP surface took each name from a checked name map, operations projected to the `resource`, `project`, or `run` subtree, the UAT tool paths were `make-docs run uat ...`, and the name catalog test accepted a former tool name in the R-MCP-PROFILE lines.
+- Replacement contract: each tool name derives from its CLI path under PRD 39 R-NAME-3, operations project to their PRD 39 R-TOP-1 group, the UAT paths are `make-docs check uat ...`, and the name catalog test fails an R-MCP-PROFILE line that names a former tool name.
+- Rationale: W33 R0 P2 derived every name from the CLI path, so the old text named a map and paths that no longer exist.
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
 
 ## Source Anchors
 

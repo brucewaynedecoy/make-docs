@@ -97,7 +97,7 @@ Profile selection does not change CLI resource commands or the common resource t
 
 The profile does not grant Store, project, or host settings access. Stdio remains the selected transport. No HTTP launch is added here.
 
-MCP tool names are short in W26 R1. For example, use `resource_read`, `project_status`, or `backlog_snapshot`. Older names such as `make_docs_resource_read` are not aliases. Update saved prompts and tool calls when you install a version that includes W26 R1. The [name list](../../plans/2026-10-23-w26-r1-mcp-tool-names/01-name-contract.md) shows every old and new name.
+Each MCP tool name is the CLI path after `make-docs`, with spaces and hyphens changed to underscores. For example, use `resource_read`, `project_state_status`, `backlog_snapshot`, or `check_prd`. A command or tool that W33 R0 renamed keeps its old name as a hidden alias for two minor releases. The alias runs the same operation and names the new one. Update saved prompts and tool calls to the new names. The [W33 R0 name table](../../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#name-table) shows every old and new name. Names from before W26 R1, such as `make_docs_resource_read`, are not aliases.
 
 To set up Store access for a first-party MCP connection, run `make-docs setup system` and review the proposed host entry. Then run `make-docs setup` for each project that should admit that connection. The host entry holds a connection key. The Store keeps only its hash. Each Store-backed MCP call checks that key and the current machine and project limits. A copied client label or an old caller-identity value does not grant access.
 

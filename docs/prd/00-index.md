@@ -148,4 +148,4 @@ W19 R5 is closed after owner acceptance. Create the owner-requested implementati
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.
 - Any future requirement change updates its owning product PRD in place, adds standardized Requirement History when useful, and creates a new PRD only for a coherent ownerless product capability or boundary.
-- Before implementation or closeout, run `make-docs run prd authority validate --target-root <project>` and resolve every active authority diagnostic.
+- Before implementation or closeout, run `make-docs check prd --target-root <project>` and resolve every active authority diagnostic.
