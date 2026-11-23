@@ -127,4 +127,4 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - Optional experience handoff: none.
 - Explicit human acceptance gate: the owner reviews the plain output (A7) and the listed script differences (A8).
 - Evidence report: [P1 CLI Operations and Ported Tests](evidence.md#p1-cli-operations-and-ported-tests).
-- Phase / capability status: implementation complete and uncommitted, on `71096981`. A1 to A6 and A8 have automated or recorded evidence. A7 waits for the owner's review. P4 removes the Python files.
+- Phase / capability status: implementation complete and uncommitted, on `71096981`. A1 to A6 and A8 have automated or recorded evidence. The owner accepted the plain output (A7) on 2026-11-23 with no changes. P4 removes the Python files.
