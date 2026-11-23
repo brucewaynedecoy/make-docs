@@ -1,4 +1,5 @@
 import { OperationError } from "./types";
+import { withCliRenamedTo } from "./migration-aliases";
 
 /**
  * Shared argv-parsing helpers for the CLI operation surfaces: the registry
@@ -86,7 +87,8 @@ export function parseOperationOptions(argv: string[]): OperationOptions {
 }
 
 export function printJson(value: unknown): void {
-  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+  // An old CLI path adds `renamedTo` to its JSON result (PRD 39 R-MIG-1).
+  process.stdout.write(`${JSON.stringify(withCliRenamedTo(value), null, 2)}\n`);
 }
 
 export function requiredPositionals(options: OperationOptions, operation: string): string[] {

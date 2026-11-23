@@ -16,6 +16,14 @@ import {
   type OperationDefinition,
 } from "../operations/registry";
 import { MCP_NAME_MAX_LENGTH, mcpNameForCliPath } from "../operations/name-catalog";
+import {
+  CommandRenamedError,
+  findMcpMigrationAlias,
+  listMcpMigrationAliases,
+  migrationAliasState,
+  type McpMigrationAlias,
+  type MigrationAliasState,
+} from "../operations/migration-aliases";
 import type { OperationAccess } from "../operations/access";
 import {
   assertMcpToolMetadata,
@@ -290,6 +298,42 @@ function isToolInProfile(tool: MakeDocsMcpToolDescriptor, profile: McpServerProf
   return tool.mcpReady !== false && (profile === "all" || tool.mcp!.profiles.includes(profile));
 }
 
+for (const alias of listMcpMigrationAliases()) {
+  if (!MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === alias.newMcp)) {
+    throw new Error(`MCP alias ${alias.formerMcp} names no current tool: ${alias.newMcp}.`);
+  }
+  if (MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === alias.formerMcp)) {
+    throw new Error(`MCP alias ${alias.formerMcp} is also a current tool name.`);
+  }
+}
+
+export interface ActiveMcpMigrationAlias extends McpMigrationAlias {
+  state: Exclude<MigrationAliasState, "removed">;
+}
+
+/**
+ * An old MCP tool name that still answers in this profile (PRD 39 R-MIG-1).
+ * An alias answers only where its new tool is in the profile, and only until
+ * it is removed. It is never in `tools/list`.
+ */
+function resolveMcpMigrationAlias(name: string, profile: McpServerProfile): ActiveMcpMigrationAlias | null {
+  const alias = findMcpMigrationAlias(name);
+  if (!alias) return null;
+  const state = migrationAliasState();
+  if (state === "removed") return null;
+  const target = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === alias.newMcp);
+  if (!target || !isToolInProfile(target, profile)) return null;
+  return { ...alias, state };
+}
+
+/** The old MCP tool names that answer in a profile for the running version, with their new tools. */
+export function listActiveMcpMigrationAliases(options: McpProfileOptions = {}): ActiveMcpMigrationAlias[] {
+  const profile = parseMcpServerProfile(options.profile);
+  return listMcpMigrationAliases()
+    .map((alias) => resolveMcpMigrationAlias(alias.formerMcp, profile))
+    .filter((alias): alias is ActiveMcpMigrationAlias => alias !== null);
+}
+
 /**
  * Conformance seam (R-TEST-1): the derived tool-name/operation pairs, for
  * tests pinning derived-tool/registry parity in both directions.
@@ -356,6 +400,25 @@ export async function callMakeDocsMcpTool(
   options: McpProfileOptions = {},
 ): Promise<Record<string, unknown>> {
   const profile = parseMcpServerProfile(options.profile);
+  const alias = resolveMcpMigrationAlias(name, profile);
+  if (alias) {
+    if (alias.state === "renamed") {
+      throw new CommandRenamedError({
+        formerName: alias.formerMcp,
+        renamedTo: alias.newMcp,
+        renamedIn: alias.renamedIn,
+        surface: "mcp",
+      });
+    }
+    try {
+      return { ...(await callMakeDocsMcpTool(alias.newMcp, args, { profile })), renamedTo: alias.newMcp };
+    } catch (error) {
+      if (error !== null && typeof error === "object" && !("renamedTo" in error)) {
+        Object.assign(error, { renamedTo: alias.newMcp });
+      }
+      throw error;
+    }
+  }
   const tool = MAKE_DOCS_MCP_TOOLS.find((candidate) => candidate.name === name);
   if (tool === undefined || !isToolInProfile(tool, profile)) {
     throw new Error(`Unknown make-docs MCP tool: ${name}`);

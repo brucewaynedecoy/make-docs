@@ -59,6 +59,13 @@ import { OperationError } from "./operations/types";
 import { OPERATION_GROUP_SUMMARIES, isOperationGroup, renderOperationGroupHelp, runRunCommand } from "./run/cli";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
+  cliAliasNotice,
+  formerRunGroupTargets,
+  resolveCliMigration,
+  runWithCliAlias,
+  withCliRenamedTo,
+} from "./operations/migration-aliases";
+import {
   previewStoreCompatibilityBridge,
   resolveStoreRoot,
   classifyStoreCheckpoint9State,
@@ -377,7 +384,26 @@ export async function runCli(
   priorProjectMutationApplied = false,
 ): Promise<void> {
   const resolvedLaunch = resolveCliLaunchArgv(argv);
-  argv = resolvedLaunch.argv;
+  // PRD 39 R-MIG-1: an old CLI path runs as a hidden alias in its window, or
+  // returns `command-renamed` after it. The notice goes to stderr so stdout
+  // JSON stays clean. It prints only after the command succeeds: a failure
+  // writes one JSON error to stderr, and that error carries `renamedTo`.
+  const migration = resolveCliMigration(resolvedLaunch.argv);
+  if (!migration) {
+    return runResolvedCli(resolvedLaunch, priorProjectRecovery, priorProjectMutationApplied);
+  }
+  await runWithCliAlias(migration.alias, () =>
+    runResolvedCli({ ...resolvedLaunch, argv: migration.argv }, priorProjectRecovery, priorProjectMutationApplied),
+  );
+  process.stderr.write(cliAliasNotice(migration.alias));
+}
+
+async function runResolvedCli(
+  resolvedLaunch: ReturnType<typeof resolveCliLaunchArgv>,
+  priorProjectRecovery: SetupProjectRecoveryReview | null,
+  priorProjectMutationApplied: boolean,
+): Promise<void> {
+  const argv = resolvedLaunch.argv;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
     return;
@@ -2003,7 +2029,7 @@ async function runProjectPathHygieneCommand(
       }),
     );
     const result = invocation.value as unknown as import("./path-hygiene").PathHygieneRepairResult;
-    if (format === "json") output.write(JSON.stringify(result, null, 2) + "\n");
+    if (format === "json") output.write(JSON.stringify(withCliRenamedTo(result), null, 2) + "\n");
     else {
       output.write("Scope: " + result.inventorySource + "; checked " + result.checkedFiles + " file(s).\n");
       for (const finding of result.findings) output.write(finding.file + ":" + finding.line + ":" + finding.column + " " + (finding.allowed ? "allowed " : "") + finding.kind + " " + finding.match + "\n");
@@ -2734,6 +2760,22 @@ function rejectRemovedUpdateReconfigure(args: string[]): void {
  */
 function rejectRemovedCommand(args: string[]): void {
   const command = args[0];
+  if (command === "run") {
+    // PRD 39 R-TOP-1, R-MIG-1: `run` is not a root. Its commands that shipped
+    // run as aliases before this point; any other `run` spelling names the groups.
+    // A former `run` group word names the new groups that took its commands.
+    const groups = formerRunGroupTargets(args[1]);
+    if (groups.length > 0) {
+      const named = groups.map((group) => `\`${group}\``).join(" and ");
+      const help = groups.map((group) => `\`make-docs ${group} --help\``).join(" or ");
+      throw new Error(
+        `\`make-docs run\` is no longer a command group. The \`run ${args[1]}\` commands moved to the ${named} ${groups.length === 1 ? "group" : "groups"}. Run ${help} to see them.`,
+      );
+    }
+    throw new Error(
+      "`make-docs run` is no longer a command group. Its commands moved to the `work`, `backlog`, `lifecycle`, and `check` groups. Run `make-docs --help` to see every group.",
+    );
+  }
   const replacements: Record<string, string> = {
     init: "make-docs setup",
     reconfigure: "make-docs setup reconfigure",

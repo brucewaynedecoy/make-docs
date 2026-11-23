@@ -2450,12 +2450,17 @@ Use --help or -h with a group to list its commands.
     expect(output).not.toContain("--skills");
   });
 
-  test.each(["work", "backlog", "lifecycle", "factory", "check", "project"])(
+  test.each(["work", "backlog", "lifecycle", "factory", "check", "project", "resource"])(
     "W33 R0 P2: `make-docs %s --help` lists every registry command in its group",
     async (group) => {
       setTTY(false);
       const { listOperations } = await import("../src/operations/registry");
       const output = await captureCliOutput([group, "--help"]);
+      // W33 R0 P3: every group's help starts with its title and a plain-words summary.
+      const [title, gap, summary] = output.split("\n");
+      expect(title).toBe(`make-docs ${group}`);
+      expect(gap).toBe("");
+      expect(summary).toMatch(/^[A-Z][^.]*[a-z,:]/);
       const operations = listOperations().filter((operation) => operation.cli.root === group);
       for (const operation of operations) {
         const full = `make-docs ${operation.cli.root} ${operation.cli.path}`;

@@ -152,6 +152,8 @@ export interface SerializedOperationError {
   recovery?: string;
   reason?: string;
   nextAction?: string;
+  /** The new command or tool name when an old name was used (PRD 39 R-MIG-1). */
+  renamedTo?: string;
   scope?: "operation";
   taskCanContinue?: boolean;
   details?: Record<string, unknown>;
@@ -214,6 +216,7 @@ export function serializeOperationError(error: unknown): SerializedOperationErro
     ...(typeof record.recovery === "string" ? { recovery: record.recovery } : {}),
     ...(typeof record.reason === "string" ? { reason: record.reason } : {}),
     ...(typeof record.nextAction === "string" ? { nextAction: record.nextAction } : {}),
+    ...(typeof record.renamedTo === "string" ? { renamedTo: record.renamedTo } : {}),
     ...(record.scope === "operation" ? { scope: "operation" as const } : {}),
     ...(typeof record.taskCanContinue === "boolean"
       ? { taskCanContinue: record.taskCanContinue }

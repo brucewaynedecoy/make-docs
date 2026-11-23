@@ -322,3 +322,89 @@ Each of these tests pinned an old CLI path or MCP name that P2 made out of date:
 - Native command rules are made from the registry, so they now use the new paths, such as `make-docs check prd`. Rules that a machine installed before this change use the old `run` paths. This phase did not test how an installed machine treats those rules. P3 or P5 must check it.
 - The internal function names in `src/run/cli.ts` (`runRunCommand`, `adaptRunCliArgv`, `resolveRunOperationPath`) did not change. They now take argv that starts with the group.
 
+
+## P3 Aliases and Migration Window
+
+Covers A7 to A9 in [P3](03-aliases-and-migration-window.md). Evidence date: 2026-11-23. Base commit: `eb839187` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`.
+
+### What Changed
+
+- `packages/cli/src/operations/migration-aliases.ts`: new alias layer. It reads old names only from the name catalog: `formerCli` and `formerMcp` on a current entry, when they differ from the new name. That gives 32 CLI aliases and 31 MCP aliases. A planned entry has no former name, so a name that never shipped gets no alias. `project_register_list` was only an earlier plan's name and gets none.
+- The window: `RENAME_RELEASE = "2.1.0"` is the one constant. `ALIAS_MINOR_RELEASES = 2` and `RENAMED_MINOR_RELEASES = 1`. The state comes from the running package version. 2.1.x and 2.2.x run the alias. 2.3.x returns `command-renamed`. 2.4.0 and later remove the alias. A version before 2.1.0, such as this `2.0.9` build, runs the alias. A later major version removes it. A version that cannot be read runs the alias. A test seam injects the version.
+- `packages/cli/src/cli.ts`: `runCli` matches the longest old CLI path after the caller-identity flags. In the window it runs the new path, and it prints one stderr line only after the command succeeds. A failing alias call writes only its one JSON error to stderr, and that error carries `renamedTo`. After the window it throws `command-renamed`. Any other `make-docs run` spelling fails with guidance. When the second word was a `run` group (`work`, `backlog`, `lifecycle`, `prd`, `performance`, or `uat`), the guidance names the new groups and their help, such as `make-docs check --help`. The map comes from the catalog's former paths. Any other word, such as `run playbook status`, gets the generic message that names the `work`, `backlog`, `lifecycle`, and `check` groups.
+- JSON output: the shared `printJson` helpers and the `project paths` JSON writer add `renamedTo` when the command ran through an old path. An error from an alias carries `renamedTo` too. `serializeOperationError` now passes `renamedTo`.
+- `packages/cli/src/mcp/tools.ts`: `callMakeDocsMcpTool` resolves an old name. It answers only where its new tool is in the profile. In the window it runs the new tool and adds `renamedTo`. After the window it throws `command-renamed`. At load the server checks that each alias names a live tool and is not a live name.
+- `packages/cli/src/mcp/server.ts`: the server registers each active alias with its new tool's schema, so the SDK checks input the same way. A wrapper on the SDK list handler drops alias names, so `tools/list` shows only new names. The wrapper depends on the SDK setting its list handler when the first tool is registered. If that never happens, server startup fails with a typed `McpAliasHidingError` (`mcp-alias-hiding-unavailable`), so a server never lists old names. A backlog tool result keeps `renamedTo` in `structuredContent` and `_meta`.
+- `packages/cli/src/run/root-operations.ts`: an unknown `make-docs project` command now lists the 17 real project commands (P2 review item 1). `make-docs project surface ...` keeps its own guidance. `make-docs resource --help` now has a title and a plain-words summary (P2 review item 2).
+- No Skill, template, router, guide, or PRD changed. Operation IDs and profile membership did not change.
+
+### Sample Output
+
+CLI text, from `make-docs run prd authority validate --target-root .`. Stderr:
+
+```text
+make-docs: `make-docs run prd authority validate` is now `make-docs check prd`. The old name stops working in 2.3.0.
+```
+
+CLI JSON, from the same command. Stdout ends with:
+
+```json
+  "diagnostics": [],
+  "renamedTo": "make-docs check prd"
+}
+```
+
+CLI after the window (2.3.x), machine output with exit code 1:
+
+```json
+{"ok":false,"code":"command-renamed","message":"`make-docs run prd authority validate` was renamed. Use `make-docs check prd`. The old name is removed in 2.4.0.","nextAction":"Run `make-docs check prd`.","renamedTo":"make-docs check prd","details":{"formerName":"make-docs run prd authority validate","renamedTo":"make-docs check prd","renamedIn":"2.1.0","removedIn":"2.4.0"}}
+```
+
+MCP over real stdio, `make-docs mcp --profile quality`, a `tools/call` of `prd_validate`. The structured result has `tool: "check_prd"`, `operation: "prd.authority.validate"`, and `renamedTo: "check_prd"`. `tools/list` in the same session has 11 tools, with `check_prd` and without `prd_validate`. After the window the call returns `isError: true` with `code: "command-renamed"`, `renamedTo: "check_prd"`, and `nextAction: "Call \`check_prd\`."`.
+
+### Alias Tests (A7, A8, A9)
+
+`packages/cli/tests/w33-r0-p3-migration-aliases.test.ts` has 178 tests. A recorder replaces `invokeOperation`, so each command reaches the operation boundary with no Store or project fixture.
+
+- Window states: a table of 13 versions, the version seam, and the end and removal releases.
+- Catalog: the alias lists equal the catalog's renamed current entries, 32 and 31. No planned entry has an alias. Each alias names a live command or tool and is not a live name. The longest old path wins.
+- Each of the 32 old CLI paths, in the window: the old and new paths record the same operation, input, dry-run flag, and write flag. Stderr has exactly the one line. Stdout JSON equals the new path's JSON plus `renamedTo`.
+- Each of the 32 old CLI paths, after the window: `command-renamed` with `renamedTo`, `nextAction`, and details, and no operation runs. The new path still runs.
+- Each of the 32 old CLI paths, after removal: no operation runs and no notice prints. A `run` path fails with the group guidance. A `project` path fails with the project command list.
+- Each of the 31 old MCP names, in the window: in every profile that has the new tool, the alias records the same operation and returns the new tool's result plus `renamedTo`. In every other profile it is an unknown tool.
+- Each of the 31 old MCP names: after the window `command-renamed`, and after removal an unknown tool.
+- `tools/list` in all six profiles, at all three versions: exactly the new names.
+- Over an in-memory MCP client: an alias answers with `renamedTo` in its profile and is "not found" outside it. After the window it returns the typed result. After removal it is "not found".
+- Help: `make-docs --help`, each group's help, `project --help`, and `resource --help` show no old path.
+- Exit code: a renamed command exits 1 with the typed machine result. An alias error in the window carries `renamedTo`.
+- A failing alias call through the real entry point, `make-docs run work item resolve --help`, exits 1 with empty stdout. Stderr parses as one JSON object with `renamedTo: "make-docs work item resolve"` and no notice line. A succeeding alias call still prints the notice.
+- Guidance: bare `make-docs run`, `run --help`, `run nothing`, and `run playbook status` get the generic message. Each former `run` group word gets its group hint. `make-docs run playbook status` exits 1 with empty stdout and one JSON `operation-error` line with no `renamedTo`.
+- Server startup: a fake server whose list handler is never wrapped throws `McpAliasHidingError`. A real SDK server passes once a tool is registered. Every profile's real server starts.
+
+### Old Native Command Rules (P2 Review Item 3)
+
+`packages/cli/tests/w33-r0-p3-native-rule-migration.test.ts` has 3 tests. Every root is a temp folder.
+
+- Codex command rules, through `runSystemSetupCommand`: the test installs the rules, then rewrites the rule file and the Store receipt to the `run ...` paths from `formerCli`. `verify` reports `drifted`: "The verified native entry does not match the current reviewed intent." The adapter plans one Make Docs-owned `update`, and apply without approval fails. `make-docs setup` with `--dry-run` reports `partial`, blocks nothing, and names `make-docs setup system --yes`. After approval the file has the new paths, the repeat is `unchanged`, and `verify` is `current`.
+- Claude Code permission rules, through the adapter: setup does not offer this method today, so the test seeds it with the adapter. `verify` reports `drifted`. The approved update replaces only the Make Docs rules and keeps the user's `Bash(git status:*)` rule and `theme`. The repeat plan is `current`.
+
+### Tests Whose Expectations Changed
+
+- `cli.test.ts`: the group-help test now includes `resource` and checks that each group's help starts with its title and a plain-words summary.
+
+### Commands Run
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npm run build`: passed.
+- `npx vitest run tests/w33-r0-p3-migration-aliases.test.ts tests/w33-r0-p3-native-rule-migration.test.ts`: 181 passed.
+- After the review fixes, `npx vitest run` of the two P3 tests, `tests/cli.test.ts`, `tests/name-catalog.test.ts`, and every `tests/mcp*.test.ts` with `--reporter=json`: 528 tests, 526 passed, 2 failed, counted from the JSON file. The 2 failures are the known `tests/mcp-app-contract.test.ts` stdio tests. They fail on a Node `DEP0205` warning on stderr, and that test file did not change.
+- Before the review fixes, `npx vitest run --reporter=json --outputFile=<tmp>`: 2546 tests, 2537 passed, 3 failed, 6 skipped, counted from the JSON file. The 3 failures exist without this phase: two stdio tests in `tests/mcp-app-contract.test.ts` and the sandbox-only fixture 11 in `tests/p5-migration-safety.test.ts`. The full suite was not run again after the review fixes.
+
+### Limits
+
+- The rename release is `2.1.0`. The owner chose it on 2026-11-23. The package is still `2.0.9`. If the rename ships in another release, change `RENAME_RELEASE` only.
+- A later major version removes the aliases. If 3.0.0 ships before 2.3.0, the old names go away at once, with no `command-renamed` release. The window counts minor releases inside one major version only.
+- A machine with old native command rules shows drift until the person approves the `make-docs setup` update. Until then a native-rule call can fail its access check, as it does for any other rule change.
+- `validateMakeDocsCliArgv` does not accept old paths, so generated commands must use the new names.
+- Shipped Skills, routers, references, and PRD prose still name the old commands. P4 moves them.
+- For P5: `--help` on a leaf command fails with "`--help` requires a value." This happens on the old path, on the new path, and in released 2.0.9. For example, `make-docs work item resolve --help` fails. P3 does not change it.

@@ -11,6 +11,7 @@ import type {
   ResourceReadOperationOutput,
 } from "../operations/resource";
 import { OperationError } from "../operations/types";
+import { withCliRenamedTo } from "../operations/migration-aliases";
 import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
 import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
 import type { ProjectListResult } from "../store/project-register";
@@ -104,7 +105,8 @@ function markPresent(options: RootOperationOptions, name: string, flag: string):
 }
 
 function printJson(value: unknown): void {
-  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+  // An old CLI path adds `renamedTo` to its JSON result (PRD 39 R-MIG-1).
+  process.stdout.write(`${JSON.stringify(withCliRenamedTo(value), null, 2)}\n`);
 }
 
 function printResourceTable(value: ResourceListOperationOutput): void {
@@ -157,7 +159,14 @@ export async function runResourceCommand(
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
-        "Usage:",
+        "make-docs resource",
+        "",
+        "List, read, or copy Make Docs system resources: contracts, prompts,",
+        "references, and templates.",
+        "",
+        "Usage: make-docs resource <command> [options]",
+        "",
+        "Commands:",
         "  make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]",
         "  make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]",
         "  make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]",
@@ -219,6 +228,27 @@ export async function runResourceCommand(
   }
   printJson(invocation.value);
 }
+
+/** Every `make-docs project` command, for the unknown-command guidance. */
+export const PROJECT_COMMANDS = [
+  "list",
+  "state status",
+  "state recover",
+  "move preview",
+  "move apply",
+  "checkout preview",
+  "checkout apply",
+  "persona list",
+  "layout preview",
+  "layout prepare",
+  "layout apply",
+  "layout verify",
+  "surface ensure",
+  "paths validate",
+  "paths repair",
+  "doctor check",
+  "doctor fix",
+] as const;
 
 export async function runProjectCommand(
   argv: string[],
@@ -307,12 +337,12 @@ export async function runProjectCommand(
     return;
   }
   const [noun, verb, surface, ...rest] = argv;
-  if (
-    noun !== "surface" ||
-    verb !== "ensure" ||
-    !surface ||
-    !["archive", "artifacts", "assets"].includes(surface)
-  ) {
+  if (noun !== "surface") {
+    throw new OperationError(
+      `Unknown make-docs project command: \`${argv.filter((arg) => !arg.startsWith("-")).slice(0, 3).join(" ")}\`. Valid project commands:\n${PROJECT_COMMANDS.map((command) => `  make-docs project ${command}`).join("\n")}`,
+    );
+  }
+  if (verb !== "ensure" || !surface || !["archive", "artifacts", "assets"].includes(surface)) {
     throw new OperationError(
       "Use `make-docs project surface ensure <archive|artifacts|assets>`.",
     );
