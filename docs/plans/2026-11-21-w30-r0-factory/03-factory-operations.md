@@ -43,3 +43,4 @@ These operations exist with CLI and MCP parity in a new `factory` MCP profile: `
 ## Dependencies
 
 - P2.
+- An accepted command tree review under register D-065.

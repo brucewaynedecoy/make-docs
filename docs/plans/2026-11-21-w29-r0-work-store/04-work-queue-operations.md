@@ -46,3 +46,4 @@ Nine operations exist with CLI and MCP parity: `run work status`, `sync`, `next`
 ## Dependencies
 
 - P2 and P3.
+- An accepted command tree review under register D-065.

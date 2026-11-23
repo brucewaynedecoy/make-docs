@@ -52,7 +52,7 @@ Limits:
 ## Wave Sequence
 
 - Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 to P6, then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
-- Waits for: all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) before P2. P1 can start any time.
+- Waits for: all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) before P2, and an accepted command tree review (register D-065) before P3. P1 can start any time.
 - Next: no Wave is planned after this one yet.
 
 ## Usage Notes
@@ -84,3 +84,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 38 R-DB-7, R-WRITE-GUARD, and R-MAINT.
 - Owner approval: the owner's choice on 2026-11-22 to finish the whole Store review first.
 - Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)
+
+### 2026-11-22 — W30 R0 P3
+
+- Kind: `edit`
+- Affected scope: P3 dependencies.
+- Previous scope: P3 built its commands on the current command tree.
+- Replacement scope: P3 waits for an accepted command tree review, and its command paths and MCP names follow that review.
+- Rationale: the owner rated the inconsistent command tree a very serious problem and asked not to make it worse.
+- PRD decision: `none` — the review decides the PRD 39 and PRD 25 changes.
+- Owner approval: the owner's decision on 2026-11-22 to log register D-065.
+- Source: [Register D-065](../../prd/03-open-questions-and-risk-register.md)

@@ -89,6 +89,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Dependencies
 
 - P2 and P3.
+- An accepted command tree review under register D-065. The command paths and MCP names in this phase follow it.
 
 ### Closeout Notes
 

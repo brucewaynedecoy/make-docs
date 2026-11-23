@@ -1324,6 +1324,26 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: Each of the seven files is removed or has a recorded reason to stay, the Skills and the closeout check no longer depend on a removed file, and no logic exists in both a script and the CLI.
 
+### D-065 The CLI Command Tree and MCP Tool Names Are Inconsistent
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open — serious | None yet. Logged on 2026-11-22. The owner rates it as a very serious problem. No new `run work` or `run factory` command is built until a command tree review is accepted: W29 R0 P4 and W30 R0 P3 wait for it. Commands already being built in W31 R0 (`project doctor`) and W32 R0 (`project list`, `setup store`) go ahead and may be renamed by the review. | Design a command tree review as its own Wave before W29 R0 P4. |
+
+**Issue**: Waves named their commands one at a time, and nobody reviewed the whole tree.
+
+- One capability, backlog review, is split across three groups: `make-docs run work backlog snapshot` and `run work backlog-cache lookup` and `write` (W23 R0), and `make-docs run backlog review open` and `refresh` (W25 R0). The Skill and the app see one capability; the CLI shows two.
+- `run work` already holds six unrelated commands: `item resolve`, `evidence record`, and `evidence read` (W18 R11), and the three backlog commands above. W29 R0 plans nine more (`status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, `add`), and W30 R0 plans ten `run factory` commands.
+- MCP tool names use at least three styles: `make_docs_backlog_review_open` (prefixed), `backlog_snapshot` and `backlog_cache_write` (no `work` part, no prefix), and the planned `work_next` and `factory_workflow_save`.
+- `run` is a vague word for the most used commands. The plain-language question of whether `work` should be a top-level command was never decided against [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1.
+- [PRD 39](39-cli-command-model-and-operation-registry.md) R-RUN-1 lists the W29 work commands but leaves out `add`, which R-RUN-4 names.
+
+**Why it matters**: People and agents cannot guess a command or tool name from the capability. Each new Wave copies whichever pattern it saw last, so W29 and W30 would add about twenty more commands to the inconsistent tree, and every rename later breaks scripts, Skills, routers, and MCP clients.
+
+**Recommendation**: One design reviews the whole CLI tree and MCP name scheme against capabilities: the top-level set, where work, backlog review, factory, doctor, and Store maintenance live, one MCP naming rule, and aliases with a removal window for current names. W29 and W30 then build their commands on the accepted tree.
+
+**To close**: An accepted design and PRD 39 and PRD 25 changes define the tree and the naming rule; the registry, CLI, MCP tools, Skills, and routers follow it; current names have aliases or a recorded removal; and a test fails when a new operation breaks the naming rule.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

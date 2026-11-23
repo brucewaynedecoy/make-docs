@@ -74,6 +74,7 @@ There are no performance candidates.
 ### Dependencies
 
 - P2.
+- An accepted command tree review under register D-065. The command paths and MCP names in this phase follow it.
 
 ## Stage 2 - Status and MCP Profile
 

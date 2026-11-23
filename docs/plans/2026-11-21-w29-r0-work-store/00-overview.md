@@ -197,3 +197,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 38 and PRD 52.
 - Owner approval: the owner's choice on 2026-11-22.
 - Source: [W32 R0 plan](../../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md)
+
+### 2026-11-22 — W29 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 dependencies.
+- Previous scope: P4 built its commands on the current command tree.
+- Replacement scope: P4 waits for an accepted command tree review, and its command paths and MCP names follow that review.
+- Rationale: the owner rated the inconsistent command tree a very serious problem and asked not to make it worse.
+- PRD decision: `none` — the review decides the PRD 39 and PRD 25 changes.
+- Owner approval: the owner's decision on 2026-11-22 to log register D-065.
+- Source: [Register D-065](../../prd/03-open-questions-and-risk-register.md)
