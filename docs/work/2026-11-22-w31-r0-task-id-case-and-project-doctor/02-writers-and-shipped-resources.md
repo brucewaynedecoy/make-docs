@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Writers and Shipped Resources"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W31 R0 P2"
 source:
   type: "prd"

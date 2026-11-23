@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Table Catalog and Fixed Rules"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0 P1"
 source:
   type: "prd"

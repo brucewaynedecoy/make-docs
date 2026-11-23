@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0 P5"
 source:
   type: "prd"

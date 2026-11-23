@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Maintenance Commands"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0 P4"
 source:
   type: "prd"

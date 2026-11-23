@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Command Tree and Tool Names"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0 P2"
 source:
   type: "prd"

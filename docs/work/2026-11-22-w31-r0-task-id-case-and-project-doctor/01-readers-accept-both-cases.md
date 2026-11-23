@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Readers Accept Both Cases"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W31 R0 P1"
 source:
   type: "prd"

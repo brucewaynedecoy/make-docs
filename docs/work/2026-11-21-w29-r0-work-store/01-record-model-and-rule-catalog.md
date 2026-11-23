@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Record Model and Rule Catalog"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W29 R0 P1"
 source:
   type: "prd"

@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: Real Store Proof and Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0 P5"
 source:
   type: "prd"

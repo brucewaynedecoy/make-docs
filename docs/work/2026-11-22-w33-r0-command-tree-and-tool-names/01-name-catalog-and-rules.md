@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Name Catalog and Rules"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0 P1"
 source:
   type: "prd"

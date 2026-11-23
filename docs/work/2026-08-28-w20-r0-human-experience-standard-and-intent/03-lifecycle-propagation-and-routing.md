@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Lifecycle Propagation and Routing"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W20 R0 P3"
 source:
   type: "prd"

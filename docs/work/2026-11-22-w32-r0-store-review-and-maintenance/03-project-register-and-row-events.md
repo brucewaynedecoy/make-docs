@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Project Register and Row Events"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0 P3"
 source:
   type: "prd"

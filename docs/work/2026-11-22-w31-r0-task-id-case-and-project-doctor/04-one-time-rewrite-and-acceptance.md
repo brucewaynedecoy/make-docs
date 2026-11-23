@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: One-Time Rewrite and Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W31 R0 P4"
 source:
   type: "prd"

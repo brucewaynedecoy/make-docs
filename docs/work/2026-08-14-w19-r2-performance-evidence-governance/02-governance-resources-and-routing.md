@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Governance Resources and Routing"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W19 R2 P2"
 source:
   type: "prd"

@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Store Schema and Records"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W29 R0 P2"
 source:
   type: "prd"

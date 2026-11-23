@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Aliases and Migration Window"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0 P3"
 source:
   type: "prd"

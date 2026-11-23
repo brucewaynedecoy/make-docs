@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Shipped Text and Skills"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0 P4"
 source:
   type: "prd"

@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Project Doctor"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W31 R0 P3"
 source:
   type: "prd"

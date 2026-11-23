@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Evidence, Review, and Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W20 R0 P4"
 source:
   type: "prd"

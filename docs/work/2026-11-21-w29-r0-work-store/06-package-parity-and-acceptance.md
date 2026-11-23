@@ -1,7 +1,7 @@
 ---
 title: "Phase 6: Package Parity and Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W29 R0 P6"
 source:
   type: "prd"

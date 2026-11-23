@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Parser, Import, and Sync"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W29 R0 P3"
 source:
   type: "prd"

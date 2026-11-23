@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Schema v7 and Defect Fixes"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0 P2"
 source:
   type: "prd"
