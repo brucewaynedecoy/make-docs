@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Harness Adapter Registry and Surface Resolution
 
 ## Purpose

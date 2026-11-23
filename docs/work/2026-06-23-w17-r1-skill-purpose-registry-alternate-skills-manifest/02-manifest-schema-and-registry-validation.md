@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P2 Manifest Schema and Registry Validation
 
 ## Tasks

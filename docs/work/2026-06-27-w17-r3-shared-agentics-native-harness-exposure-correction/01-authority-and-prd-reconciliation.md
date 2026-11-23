@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P1 Authority and PRD Reconciliation
 
 ## Goal

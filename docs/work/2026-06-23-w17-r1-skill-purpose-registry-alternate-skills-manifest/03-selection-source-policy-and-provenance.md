@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P3 Selection Source Policy and Provenance
 
 ## Tasks

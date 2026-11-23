@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Closeout and Risk Validation
 
 ## Purpose

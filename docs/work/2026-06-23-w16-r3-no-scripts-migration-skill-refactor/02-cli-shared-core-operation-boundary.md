@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: CLI Shared-Core Operation Boundary
 
 ## Purpose

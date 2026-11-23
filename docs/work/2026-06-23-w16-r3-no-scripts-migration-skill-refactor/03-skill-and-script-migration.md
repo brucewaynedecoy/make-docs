@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P3 Skill and Script Migration
 
 ## Purpose

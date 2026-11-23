@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Package Validation and Closeout
 
 ## Objective

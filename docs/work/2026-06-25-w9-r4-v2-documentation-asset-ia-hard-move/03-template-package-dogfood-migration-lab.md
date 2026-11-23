@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Template Package and Dogfood Migration Lab
 
 ## Purpose

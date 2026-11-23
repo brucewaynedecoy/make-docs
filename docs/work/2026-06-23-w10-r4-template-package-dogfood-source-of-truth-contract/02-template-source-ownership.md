@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Template Source Ownership
 
 ## Purpose

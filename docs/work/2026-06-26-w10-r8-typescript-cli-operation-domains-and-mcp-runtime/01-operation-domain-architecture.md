@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Operation Domain Architecture
 
 ## Purpose

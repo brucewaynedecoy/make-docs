@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: CLI Operation Refactor
 
 ## Purpose

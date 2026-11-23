@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Reader-Facing Asset Namespace
 
 ## Purpose

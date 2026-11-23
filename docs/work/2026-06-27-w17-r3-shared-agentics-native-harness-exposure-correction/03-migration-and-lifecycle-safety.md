@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P3 Migration and Lifecycle Safety
 
 ## Goal

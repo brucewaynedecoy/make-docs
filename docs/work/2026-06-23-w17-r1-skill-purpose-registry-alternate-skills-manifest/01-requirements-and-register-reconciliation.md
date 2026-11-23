@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P1 Requirements and Register Reconciliation
 
 ## Tasks

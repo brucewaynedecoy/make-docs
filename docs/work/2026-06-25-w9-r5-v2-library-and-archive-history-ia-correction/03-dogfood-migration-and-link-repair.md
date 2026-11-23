@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Dogfood Migration and Link Repair
 
 ## Purpose

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 2: Package Contracts and Generators
 
 ## Purpose

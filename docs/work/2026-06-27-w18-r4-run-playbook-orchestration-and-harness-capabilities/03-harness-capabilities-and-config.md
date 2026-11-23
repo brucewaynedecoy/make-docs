@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Harness Capabilities and Config
 
 ## Purpose

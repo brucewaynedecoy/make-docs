@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 2: Resolver and Stack Disambiguation
 
 ## Purpose

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Dogfood Reseed and Package Copy
 
 ## Purpose

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # MCP Parity and Permissions
 
 ## Objective

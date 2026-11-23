@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Validation and Closeout
 
 ## Purpose

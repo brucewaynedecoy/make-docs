@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Shared Command and Runtime Contract
 
 ## Purpose

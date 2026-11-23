@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # CLI Runtime and Command Boundary
 
 ## Objective

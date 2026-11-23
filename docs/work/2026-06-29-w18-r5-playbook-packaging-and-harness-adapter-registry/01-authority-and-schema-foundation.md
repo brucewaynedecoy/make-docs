@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 1: Authority and Schema Foundation
 
 ## Purpose

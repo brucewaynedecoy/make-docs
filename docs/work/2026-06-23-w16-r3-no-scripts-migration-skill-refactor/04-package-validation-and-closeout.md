@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P4 Package Validation and Closeout
 
 ## Purpose

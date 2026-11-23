@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Metadata Schema and Templates
 
 ## Purpose

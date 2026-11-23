@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Tool Directory and Resource Tiers
 
 ## Purpose

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Migration Disposition Flows
 
 ## Purpose

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Adapters and Support Claims
 
 ## Purpose

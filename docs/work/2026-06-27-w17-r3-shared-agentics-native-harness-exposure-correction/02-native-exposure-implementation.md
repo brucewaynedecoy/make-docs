@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P2 Native Exposure Implementation
 
 ## Goal

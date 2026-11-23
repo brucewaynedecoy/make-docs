@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 2: Asset IA Router Contracts
 
 ## Purpose

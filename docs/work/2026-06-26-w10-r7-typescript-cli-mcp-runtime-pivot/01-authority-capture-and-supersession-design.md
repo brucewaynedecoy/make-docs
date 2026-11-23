@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Authority Capture and Supersession Design
 
 ## Purpose

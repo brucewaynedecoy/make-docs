@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Validation and Closeout
 
 ## Purpose

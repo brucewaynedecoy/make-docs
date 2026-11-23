@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Config Schema and Loader
 
 ## Objective

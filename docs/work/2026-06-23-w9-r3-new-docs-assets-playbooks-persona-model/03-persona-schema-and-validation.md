@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Persona Schema and Validation
 
 ## Purpose

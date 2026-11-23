@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 1: Authority and Migration Inventory
 
 ## Purpose

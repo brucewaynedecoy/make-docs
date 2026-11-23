@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Requirements and Register Reconciliation
 
 ## Purpose

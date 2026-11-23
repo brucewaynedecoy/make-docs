@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: PRD and Risk Register Reconciliation
 
 ## Purpose

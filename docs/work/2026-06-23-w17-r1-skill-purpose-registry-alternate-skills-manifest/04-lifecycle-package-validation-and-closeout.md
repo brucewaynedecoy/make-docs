@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P4 Lifecycle Package Validation and Closeout
 
 ## Tasks
