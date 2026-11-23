@@ -51,9 +51,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Write the catalog entry for each of the 17 tables and for `project_register`: purpose, writers, readers, record class, maintenance class, and retention.
-- [ ] t2: Write the catalog entry for each `installation_migration_records` kind.
-- [ ] t3: Add a test that fails when the catalog, the physical schema, and the PRD 38 R-MIN rows drift.
+- [x] t1: Write the catalog entry for each of the 17 tables and for `project_register`: purpose, writers, readers, record class, maintenance class, and retention.
+- [x] t2: Write the catalog entry for each `installation_migration_records` kind.
+- [x] t3: Add a test that fails when the catalog, the physical schema, and the PRD 38 R-MIN rows drift.
 
 ### Acceptance criteria
 
@@ -64,10 +64,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t4: Write each fixed rule in PRD 38 R-MAINT-3 as a precise condition, with the liveness proof it uses.
-- [ ] t5: Write the decision items in PRD 38 R-MAINT-4 and the reason text for each.
-- [ ] t6: Set the retention windows and the kept harness receipt count.
-- [ ] t7: Build fixture Stores for each rule, each decision item, and each crash leftover that blocks the machine today.
+- [x] t4: Write each fixed rule in PRD 38 R-MAINT-3 as a precise condition, with the liveness proof it uses.
+- [x] t5: Write the decision items in PRD 38 R-MAINT-4 and the reason text for each.
+- [x] t6: Set the retention windows and the kept harness receipt count.
+- [x] t7: Build fixture Stores for each rule, each decision item, and each crash leftover that blocks the machine today.
 
 ### Acceptance criteria
 
@@ -80,10 +80,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed: 36 catalog, drift, and fixture tests on 10 fixture Stores, the type check, and the full suite with only known failures. An independent review asked for 11 fixes before owner review, and two re-checks asked for 8 more. All were made. Guided Progress Review selected: the owner reviews the rule wording, the decision item reasons, the retention values, the recommended v7 receipt columns, and the four inactive rules before P2. Performance Testing and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none. No Store code path changed. `PERF-005` runs in P5.
+- Human Experience Review: each table, record family, rule, and decision item has plain wording. Each decision item has a reason with row values and one next action. The owner's feedback on this wording is invited before P4 shows it in `setup store check`.
+- Optional experience handoff: not applicable until P4.
+- Explicit human acceptance gate: accepted by the owner on 2026-11-22: the 30-day window, 10 kept harness receipts, and the 90-day open-run review; four bounded receipt columns in v7; rules 002, 004, 005, and 006 inactive until their follow-ups; plan copies removed only after the window and never for a failed operation.
+- Evidence report: [P1 Table Catalog and Fixed Rules](evidence.md#p1-table-catalog-and-fixed-rules).
+- Follow-ups for later phases: P2 defines when a failed operation's recovery is closed, adds the bounded receipt columns if the owner accepts them, and makes a missing detached plan on a finished operation read as pruned. P3 rewrites `deleteProjectRows`. P4 builds the package-manager-idle check and implements the compare-and-change write contract for every rule. A later phase removes old operation backup files together with their `payload` links, and may turn rule 006 on for unbound crash barriers with owner approval. Rules 002, 004, 005, and 006 stay inactive until then. See the [evidence report](evidence.md#follow-ups-for-later-phases).
+- Phase / capability status: Phase complete on commit. Capability partial: schema v7 and the write guard (P2), the project register (P3), the maintenance commands (P4), and the real Store proof (P5) remain.

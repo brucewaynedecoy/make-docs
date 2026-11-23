@@ -99,7 +99,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-DB-4 (MUST): absent, unreadable, corrupt, unknown, or newer Store state does not block reading repository knowledge or packaged resources. It blocks operations that require installation ownership or recovery state until explicit safe initialization or recovery succeeds. Never infer managed ownership from matching file names, a shared project identifier, or a new empty database. Fresh setup may initialize a missing Store only after source classification proves its scope. Existing files require a reviewed adoption plan. Corrupt bytes are preserved; they are never silently replaced.
 - R-DB-5 (MUST): Store classification, exclusive bootstrap locking, and any required schema migration occur before project mutation. Schema DDL, `user_version`, and the Store schema journal commit in one SQLite write transaction. The former checkpoint-9 timing does not defer this prerequisite. Pre-commit failure rolls back that transaction. Post-commit recovery never replaces the whole Store or database. Schema journals and project-operation journals have distinct subjects and no project-local receipt projection.
 - R-DB-6 (MUST): one narrow exception to the no-projection rule in R-DB-5 allows the generated factory copies under `.make-docs/factory/` ([PRD 53](53-factory-setup-and-orchestration.md)). They are written only by Make Docs from Store records, are read-only and gitignored, say that they are generated, and are never read as input by any operation. They hold no receipts, grants, secrets, locks, or recovery state. No other project-local copy of Store records is allowed.
-- R-DB-7 (MUST): schema v7 adds `project_register`, the `failed` operation status and failure fields, the widened migration receipt check, and the Store write guard. The work store tables arrive in schema v8 and the factory tables in a later version, each in one append-only migration under R-DB-2 and R-DB-5. Each field has its R-MIN row before its table exists. A physical schema test fails when the register and the tables drift.
+- R-DB-7 (MUST): schema v7 adds `project_register`, the `failed` operation status and failure fields, the bounded receipt columns `before_ledger_digest`, `after_ledger_digest`, `step_count`, and `applied_step_count` on `installation_operations`, the widened migration receipt check, and the Store write guard. The work store tables arrive in schema v8 and the factory tables in a later version, each in one append-only migration under R-DB-2 and R-DB-5. Each field has its R-MIN row before its table exists. A physical schema test fails when the register and the tables drift.
 
 ### Store Write Guard (R-WRITE-GUARD)
 
@@ -121,15 +121,17 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 - R-MAINT-1 (MUST): one catalog in code names each Store table and each `installation_migration_records` kind with its purpose, writers, readers, record class under R-MIN-1, maintenance class, and retention. A test fails when the catalog, the physical schema, and the R-MIN rows drift.
 - R-MAINT-2 (MUST): each row has one maintenance class. `keep` rows are current authority or durable history and are never removed by maintenance. `bounded` rows are trimmed to their limit. `disposable` rows are removed when a fixed rule in R-MAINT-3 proves its condition. A row that no rule covers is never removed without a person's decision.
-- R-MAINT-3 (MUST): the fixed rules are:
-  - a lock whose owner is proven dead and that guards no pending operation;
+- R-MAINT-3 (MUST): a terminal operation is `completed` or `rolled-back`; a `failed` operation is never terminal for these rules. The retention window is 30 days from `finished_at`. The kept harness receipt count is the current receipt plus the 10 newest older ones. The fixed rules are:
+  - a lock whose owner is proven dead and that guards no pending or failed operation;
   - a pending `tool.update` or `tool.uninstall` whose owner is proven dead and with no active package manager run, which becomes `failed` with reason `abandoned`;
-  - saved file bytes in `installation_steps`, and the full before and after ledgers in `installation_operations`, of a terminal operation after the retention window;
-  - detached plan snapshots and atomic write intents in `installation_migration_records` of a terminal operation;
-  - a quiescence row in `installation_migration_records` whose lock is gone;
+  - saved `contentBase64` bytes in `installation_steps` of a terminal operation after the retention window, while no detached plan or atomic intent of that operation remains;
+  - the full before and after ledgers in `installation_operations` of a terminal operation after the retention window, once its bounded receipt columns hold the ledger digests and step counts;
+  - detached plan snapshots and atomic write intents in `installation_migration_records` of a terminal operation after the retention window;
+  - a quiescence row in `installation_migration_records` that a crash left before it was bound to a snapshot, only after a separate owner approval;
   - a `store_checkpoint_journal` row with a matching `store_migration_receipts` row;
   - `backlog_review_cache` rows for old snapshot, rule catalog, or Skill versions;
   - harness receipt history beyond the kept count.
+- R-MAINT-7 (MUST): every rule skips the latest completed `setup.remove` of a checkout that has no current ledger, because setup after removal reads its full before ledger. Every removal or change is a compare-and-change in one write transaction that re-runs the rule's checks and matches the exact values it proved. A rule stays inactive until the reader or helper it needs exists: the package-manager check for the `tool.update` rule, the receipt columns for the ledger rule, and readers that treat a pruned plan as normal for the plan rule. The Store table catalog records each rule's state.
 - R-MAINT-4 (MUST): decision items are reported and never removed by a rule: a checkout whose folder is missing, a lifecycle run left open past the review age, and a pending `legacy.recovery` operation.
 - R-MAINT-5 (MUST): `setup store clean` under [PRD 39](39-cli-command-model-and-operation-registry.md) backs up the Store first and keeps the three newest backups. It removes rows in one transaction, vacuums the file, and reports each rule, the rows removed, the space freed, the backup path, and how to restore it. A rule that cannot prove its condition skips the row and reports why.
 - R-MAINT-6 (MUST): `work_evidence` payloads have a size limit. A larger payload is refused with a typed result that names the limit.
@@ -444,6 +446,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: every table has a catalog entry, a maintenance class, and retention; fixed rules reviewed in this PRD remove disposable rows after a backup; `project_register` lists every project; the ledger is the current ownership record; failures are `failed` with their fields; a trigger guard lets only Make Docs write the Store; schema v7 carries these changes and the work store tables move to v8.
 - Rationale: the owner asked for a full Store review before W29 and W30 add tables, and for Make Docs to be the only writer of the Store.
 - Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-22 — W32 R0 P1
+
+- Affected requirement or section: R-DB-7, R-MAINT-3, and new R-MAINT-7.
+- Previous contract: the fixed rules named no retention values, counted any finished operation as terminal, removed plan copies at once, and removed any quiescence row whose lock was gone; v7 named no receipt columns.
+- Replacement contract: a 30-day window from `finished_at`, the current plus 10 older harness receipts, `failed` never terminal, plan copies only after the window, quiescence rows only for unbound crash leftovers with owner approval, a protected removal handoff, compare-and-change writes, rules inactive until their readers or helpers exist, and four bounded receipt columns in v7.
+- Rationale: three independent reviews of the W32 R0 P1 rule catalog found rows that the earlier rules could remove while recovery or a current reader still needed them. The owner accepted the corrected rules and values.
+- Source: [W32 R0 P1 evidence](../work/2026-11-22-w32-r0-store-review-and-maintenance/evidence.md).
 
 ## Source Anchors
 

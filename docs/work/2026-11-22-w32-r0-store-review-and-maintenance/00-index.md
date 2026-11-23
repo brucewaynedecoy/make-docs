@@ -60,7 +60,7 @@ Out of scope:
 - P1 is the contract gate. No Store code changes before the owner accepts P1.
 - Every phase file includes `## Source PRD Docs`.
 - Acceptance case IDs run from A1 to A24 across this backlog.
-- Create `evidence.md` when the first phase retains evidence, and link it here.
+- The [evidence report](evidence.md) holds the acceptance evidence for each phase.
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
 ## Intended Follow-On
