@@ -100,10 +100,10 @@ describe("W29 R0 P1 work store rule catalog", () => {
     }
   });
 
-  it("names every operation with its run work path and MCP tool", () => {
+  it("names every operation with its work command path and MCP tool", () => {
     for (const operation of WORK_STORE_OPERATIONS) {
       const verb = operation.id.split(".").at(-1);
-      expect(operation.cli).toBe(`make-docs run work ${verb}`);
+      expect(operation.cli).toBe(`make-docs work ${verb}`);
       expect(operation.mcp).toBe(`work_${verb}`);
       expect(PRD_52).toContain(`\`${operation.id}\``);
     }
@@ -158,7 +158,7 @@ describe("W29 R0 P1 sync table", () => {
       const choices = WORK_SETTLE_OPTIONS[kind].map((option) => option.choice);
       expect(new Set(choices).size, kind).toBe(2);
       WORK_SETTLE_OPTIONS[kind].forEach((option) =>
-        expect(option.command).toBe(`make-docs run work sync --settle <path> --${option.choice}`),
+        expect(option.command).toBe(`make-docs work sync --settle <path> --${option.choice}`),
       );
     }
   });

@@ -34,7 +34,7 @@ Limits:
 | --- | --- | --- | --- | --- | --- | --- |
 | `direct`: setup ends with a plain summary of roles, wake method, human channel, test result, and open manual steps. | [Design](../../designs/2026-11-21-factory.md), [plan](../../plans/2026-11-21-w30-r0-factory/00-overview.md) | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-13, R-FACTORY-14 | [P4](04-factory-setup-skill.md), [P6](06-proofs-and-acceptance.md) | Two capability proofs, Guided Progress Review | P4 closeout and P6 acceptance | None |
 | `direct`: the person hears only floor events and added events. Each message says what happened, what is needed, and what happens next. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-37, R-FACTORY-38 | [P1](01-factory-contract-and-workflow-types.md), [P5](05-factory-run-skill-and-handoffs.md) | Escalation fixtures, Guided Progress Review of real messages | P5 closeout | None |
-| `direct`: `run factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-51 | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | P3 closeout | None |
+| `direct`: `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-51 | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | P3 closeout | None |
 | `direct`: at the end of the given scope, the person gets one acceptance request with the reviewed result and evidence. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-39 | [P5](05-factory-run-skill-and-handoffs.md), [P6](06-proofs-and-acceptance.md) | Capability proofs, Human Experience Review | P6 acceptance | None |
 | `direct`: a drifted workflow says so before it takes new work and names the smallest fix. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-33 | [P3](03-factory-operations.md), [P5](05-factory-run-skill-and-handoffs.md) | Drift test that removes a wired tool | P6 acceptance | None |
 
@@ -44,7 +44,7 @@ Limits:
 | --- | --- |
 | [01-factory-contract-and-workflow-types.md](01-factory-contract-and-workflow-types.md) | Author the factory contract, the capability catalog, and three workflow type references upstream. |
 | [02-store-records-config-and-copies.md](02-store-records-config-and-copies.md) | Add the factory tables, the `factory:` config block, the generated copies, and backup records. |
-| [03-factory-operations.md](03-factory-operations.md) | Build the `run factory` operations and the `factory` MCP profile. |
+| [03-factory-operations.md](03-factory-operations.md) | Build the `factory` operations and the `factory` MCP profile. |
 | [04-factory-setup-skill.md](04-factory-setup-skill.md) | Build the `factory-setup` Skill: find, read, interview, wire, prove, and save. |
 | [05-factory-run-skill-and-handoffs.md](05-factory-run-skill-and-handoffs.md) | Rewrite the `factory` Skill around the loop, and add the backlog review handoff. |
 | [06-proofs-and-acceptance.md](06-proofs-and-acceptance.md) | Prove two setups by capability, drift, work outside git, package parity, and Human Experience outcomes. |
@@ -95,3 +95,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `none` — the review decides the PRD 39 and PRD 25 changes.
 - Owner approval: the owner's decision on 2026-11-22 to log register D-065.
 - Source: [Register D-065](../../prd/03-open-questions-and-risk-register.md)
+
+### 2026-11-22 — W30 R0
+
+- Kind: `edit`
+- Affected scope: every planned command path in this record.
+- Previous scope: planned commands were under `make-docs run factory`.
+- Replacement scope: planned commands are under `make-docs factory`, with the same MCP names.
+- Rationale: the owner retired `run` as a root (register D-065, PRD 39 R-TOP-1 and R-NAME).
+- PRD decision: `update-existing` — PRD 39 and PRD 53.
+- Owner approval: the owner's command tree choices on 2026-11-22.
+- Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)

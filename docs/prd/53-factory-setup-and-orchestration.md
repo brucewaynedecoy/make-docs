@@ -26,7 +26,7 @@ This capability covers:
 - the run loop, waking, the human channel, the escalation floor, and acceptance;
 - the working rules for builders, reviewers, and integration;
 - file backups outside git; and
-- the `run factory` operations and the `factory` MCP profile.
+- the `factory` operations and the `factory` MCP profile.
 
 This capability does not own the work queue, Store fields and migrations, config keys, Skill delivery, resource identity, the operation registry, lifecycle stages, or backlog review. Those remain with [PRD 52](52-work-store-and-work-queue.md), [PRD 38](38-global-store-and-project-state.md), [PRD 24](24-project-configuration-and-convention-overlay.md), [PRD 08](08-skills-catalog-and-distribution.md), [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md), and [PRD 51](51-backlog-review-and-reporting.md).
 
@@ -81,7 +81,7 @@ Code anchors:
 - R-FACTORY-22 (MUST): portable workflow choices live in the `factory:` block of project config: workflow type, roles needed, capability needs, limits, steps, and added escalation events.
 - R-FACTORY-23 (MUST): machine tools, capability proofs, role bindings, human channel and wake bindings, grants, assignments, proof results, and backup records live in the Store. Machine IDs and paths stay in the Store.
 - R-FACTORY-24 (MUST): a grant permits an action outside the default authority, for example a merge, a deploy, a publish, or spending money. A grant belongs to one person on one machine. It never appears in committed config or in a local copy.
-- R-FACTORY-25 (MUST): `.make-docs/factory/` holds generated, read-only, gitignored copies of the saved setup. Each file states that it is generated and that edits are lost. Make Docs never reads a copy as input. `run factory restore` writes the copies again from the Store.
+- R-FACTORY-25 (MUST): `.make-docs/factory/` holds generated, read-only, gitignored copies of the saved setup. Each file states that it is generated and that edits are lost. Make Docs never reads a copy as input. `factory restore` writes the copies again from the Store.
 - R-FACTORY-26 (MUST NOT): config, a local copy, or a Store record holds a secret. Secrets stay in the tools that own them.
 
 ### Assignments, claims, and lifecycle runs
@@ -90,7 +90,7 @@ Code anchors:
 - R-FACTORY-28 (MUST): assignment status is one of `offered`, `running`, `returned`, `in-review`, `needs-correction`, `accepted`, `failed`, `cancelled`, or `unknown`. An `unknown` assignment is checked through its task handle before any other step.
 - R-FACTORY-29 (MUST): the foreman can claim a wave, phase, stage, or task through the work queue. The default is a phase. It renews the claim at each check.
 - R-FACTORY-30 (MUST): each claim opens one lifecycle run at stage `implementation`. Each assignment points to that run. Evidence is recorded through the existing evidence and lifecycle evidence operations.
-- R-FACTORY-31 (MUST): the front desk adds a quick item with `run work add`. A quick item is routed by capability, like any other unit. A small job can still go to a separate agent.
+- R-FACTORY-31 (MUST): the front desk adds a quick item with `work add`. A quick item is routed by capability, like any other unit. A small job can still go to a separate agent.
 
 ### Run loop
 
@@ -136,16 +136,16 @@ Code anchors:
 
 | Operation | CLI path | Effect |
 | --- | --- | --- |
-| `factory.status` | `make-docs run factory status` | Reads workflows, readiness, claims, assignments, and open manual steps. |
-| `factory.tools.save` | `make-docs run factory tools save` | Checks and saves the machine's tool list and capability proofs. |
-| `factory.workflow.save`, `.show`, `.list` | `make-docs run factory workflow save \| show \| list` | Checks and saves a workflow, or reads workflows. |
-| `factory.proof.save` | `make-docs run factory proof save` | Saves a test task result. Moves a workflow to `ready` when the proof passed. |
-| `factory.assignment.start`, `.update`, `.list` | `make-docs run factory assignment start \| update \| list` | Records and reads assignments. |
-| `factory.restore` | `make-docs run factory restore` | Writes the `.make-docs/factory/` copies again. |
+| `factory.status` | `make-docs factory status` | Reads workflows, readiness, claims, assignments, and open manual steps. |
+| `factory.tools.save` | `make-docs factory tools save` | Checks and saves the machine's tool list and capability proofs. |
+| `factory.workflow.save`, `.show`, `.list` | `make-docs factory workflow save \| show \| list` | Checks and saves a workflow, or reads workflows. |
+| `factory.proof.save` | `make-docs factory proof save` | Saves a test task result. Moves a workflow to `ready` when the proof passed. |
+| `factory.assignment.start`, `.update`, `.list` | `make-docs factory assignment start \| update \| list` | Records and reads assignments. |
+| `factory.restore` | `make-docs factory restore` | Writes the `.make-docs/factory/` copies again. |
 
 - R-FACTORY-49 (MUST): each operation is also an MCP tool in the `factory` MCP profile under [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md). CLI and MCP results come from one core.
 - R-FACTORY-50 (MUST): every write uses the existing write permission, `expectedVersion`, and Store-unavailable outcomes. `workflow save` refuses `ready` without a passed proof. `assignment start` and `update` check the work queue claim and refuse a caller that no longer holds it.
-- R-FACTORY-51 (MUST): `run factory status` shows each claimed unit, its tool, its state, and the last check time in human words first, with exact detail in machine output.
+- R-FACTORY-51 (MUST): `factory status` shows each claimed unit, its tool, its state, and the last check time in human words first, with exact detail in machine output.
 
 ### Shared rules
 

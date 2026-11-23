@@ -522,7 +522,7 @@ export const WorkConfigBlockSchema = z
 export type WorkConfigBlock = z.infer<typeof WorkConfigBlockSchema>;
 
 /**
- * A quick item lives only in the work store (R-WORK-QUEUE-3). `run work add`
+ * A quick item lives only in the work store (R-WORK-QUEUE-3). `work add`
  * creates one, and the store gives it the next plain quick item number of the project
  * (R-WORK-QUEUE-18). The store keeps closed quick items, so a number is never
  * used twice.

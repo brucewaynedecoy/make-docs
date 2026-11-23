@@ -24,7 +24,7 @@ Every Store write for a project updates `project_register`. Each row event has a
 - Record the `projectName` from config under PRD 38 R-ID-8, and refuse a name that another project holds.
 - Add a test for each row event in the design that names the rows it creates, updates, or removes.
 - Rewrite `pruneProjectFromStore` on the project register. It removes only what PRD 38 R-LIFE-2 allows, keeps `playbook_runs`, and counts the remaining projects from `project_register`. It gets no new caller in this Wave.
-- Add `project.register.list` (`make-docs project list`, MCP `project_register_list`) in `core` and `all`. It reads only. It shows each project with its name, ID, checkouts, last seen time, and missing checkout folders.
+- Add `project.register.list` (`make-docs project list`, MCP `project_list`) in `core` and `all`. It reads only. It shows each project with its name, ID, checkouts, last seen time, and missing checkout folders.
 - Keep the legacy `projects` table as a read-only legacy input.
 
 ## Exclusions

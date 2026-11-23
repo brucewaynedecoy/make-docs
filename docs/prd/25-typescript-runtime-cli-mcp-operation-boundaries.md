@@ -68,12 +68,13 @@ Packed-package validation executes the generated tarball through `npx --package`
 - R-MCP-PROFILE-7 (SHOULD): hosts that support tool search or deferred loading should use them with short, task-specific profile descriptions. A profile reduces model-visible context only when the host selectively connects or defers definitions. About ten functions per namespace is a design target, not a protocol limit. Profile metadata does not force a host to defer tools.
 - R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, `work_export`, and `work_add` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
 - R-MCP-PROFILE-9 (MUST): the project doctor tools `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR owns their behavior. `project_doctor_check` reads only. `project_doctor_fix` needs the existing project write permission.
-- R-MCP-PROFILE-10 (MUST): `project_register_list` belongs to `core` and `all`. `setup_store_check` and `setup_store_clean` belong to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD owns their behavior. `project_register_list` and `setup_store_check` read only. `setup_store_clean` needs the Store write permission.
+- R-MCP-PROFILE-10 (MUST): `project_list` belongs to `core` and `all`. `setup_store_check` and `setup_store_clean` belong to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD owns their behavior. `project_register_list` and `setup_store_check` read only. `setup_store_clean` needs the Store write permission.
 
 ### Current MCP Surface
 
 The current MCP surface must:
 
+- name every tool by [PRD 39](39-cli-command-model-and-operation-registry.md) R-NAME-3, as its CLI path after `make-docs` with underscores, and keep a renamed tool's old name as a hidden alias only under PRD 39 R-MIG-1;
 - inspect installed project state, manifest provenance, package runtime metadata, config labels, operation domains, and compatibility classification through the same loaders used by the CLI;
 - list, read, and ensure peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as the canonical CLI resource operations;
 - use native MCP resource discovery/read where supported without creating a second registry, resolver, or content representation;
@@ -439,6 +440,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `project_register_list` in `core` and `all`; `setup_store_check` and `setup_store_clean` in `setup` and `all`.
 - Rationale: agents need the same commands as people.
 - Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-22 — W33 R0
+
+- Affected requirement or section: `Current MCP Surface` and R-MCP-PROFILE-10.
+- Previous contract: tool names came from a hand-picked map with no aliases, and the project list tool was `project_register_list`.
+- Replacement contract: every tool name is derived from its CLI path, renamed tools keep hidden aliases for the migration window, and the project list tool is `project_list`.
+- Rationale: one naming rule for commands and tools (register D-065).
+- Source: [Command tree and tool names design](../designs/2026-11-22-command-tree-and-tool-names.md) and [W33 R0 plan](../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md).
 
 ## Source Anchors
 

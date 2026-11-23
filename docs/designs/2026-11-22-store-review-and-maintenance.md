@@ -118,7 +118,7 @@ Evidence required:
 - `installation_checkouts` stays the list of checkouts for each project.
 - Every reader that needs "the projects that the Store knows" reads `project_register` and `installation_checkouts`: status, prune, project URI resolution in W29, and the new list command.
 - The legacy `projects` table becomes a read-only legacy input. Legacy import still reads it. A later migration drops it once legacy import no longer needs it.
-- `make-docs project list` (operation `project.register.list`, MCP `project_register_list`) reads only. It shows each project with its name, ID, checkouts, last seen time, and any checkout folder that is missing.
+- `make-docs project list` (operation `project.register.list`, MCP `project_list`) reads only. It shows each project with its name, ID, checkouts, last seen time, and any checkout folder that is missing.
 
 ### Table decisions
 

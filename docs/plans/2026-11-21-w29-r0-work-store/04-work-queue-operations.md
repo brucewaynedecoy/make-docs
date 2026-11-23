@@ -16,11 +16,11 @@ Expose the work store through the existing operation registry, so CLI and MCP sh
 
 ## Outcome
 
-Nine operations exist with CLI and MCP parity: `run work status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add` (MCP `work_status` to `work_add`). `make-docs resource read` prints a named project's quick items and backlog by `make-docs://project/<project>/` URI. `backlog_snapshot` reads the store when the store is the authority.
+Nine operations exist with CLI and MCP parity: `work status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add` (MCP `work_status` to `work_add`). `make-docs resource read` prints a named project's quick items and backlog by `make-docs://project/<project>/` URI. `backlog_snapshot` reads the store when the store is the authority.
 
 ## Scope
 
-- Admit the operations in the registry with their CLI paths under `run work` and their MCP names.
+- Admit the operations in the registry with their CLI paths under `work` and their MCP names.
 - Add them to the `backlog` and `workflow` MCP profiles. Writes need the existing write permission and `expectedVersion`.
 - Run sync at the start of each operation. Report sync results in the same result.
 - `next` returns ready units and the reason each open, not-ready unit waits.

@@ -16,11 +16,11 @@ Let Skills and people check and save factory state through one operation core.
 
 ## Outcome
 
-These operations exist with CLI and MCP parity in a new `factory` MCP profile: `run factory status`, `tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore`.
+These operations exist with CLI and MCP parity in a new `factory` MCP profile: `factory status`, `tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore`.
 
 ## Scope
 
-- Admit the operations in the registry under `run factory` with MCP names such as `factory_status`.
+- Admit the operations in the registry under `factory` with MCP names such as `factory_status`.
 - Add the `factory` MCP profile. Keep the work queue tools in the `backlog` and `workflow` profiles and include them in `all`.
 - `tools save` checks the shape of a tool list and its capability proofs. It does not run or contact the tools.
 - `workflow save` checks the workflow against its type and the capability catalog, and sets the readiness state. It refuses `ready` without a passed proof.

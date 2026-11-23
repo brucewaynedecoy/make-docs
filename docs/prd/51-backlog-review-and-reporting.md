@@ -165,7 +165,7 @@ Code anchors:
 
 ### Live MCP App
 
-- R-BACKLOG-APP-1 (MUST): the shared operation registry defines two live-review operations, `backlog.review.open` and `backlog.review.refresh`. Their derived MCP names are `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`. Their handlers contain no MCP-only backlog business logic. Wave requests use the connected host message path, not a resolver tool or registered task prompt.
+- R-BACKLOG-APP-1 (MUST): the shared operation registry defines two live-review operations, `backlog.review.open` and `backlog.review.refresh`. Their MCP names are `backlog_review_open` and `backlog_review_refresh`. Under [PRD 39](39-cli-command-model-and-operation-registry.md) R-NAME, the backlog snapshot, the review cache, and the live review operations move to the `backlog` group: `make-docs backlog snapshot`, `make-docs backlog cache lookup`, `make-docs backlog cache write`, `make-docs backlog review open`, and `make-docs backlog review refresh`, with matching MCP names. Their current paths stay aliases under PRD 39 R-MIG-1. Their handlers contain no MCP-only backlog business logic. Wave requests use the connected host message path, not a resolver tool or registered task prompt.
 - R-BACKLOG-APP-2 (MUST): `backlog.review.open` is read-only. It declares project-read, Store-none, and host-configuration-none access. It accepts a validated report model and an optional fresh caller-supplied `sessionId` UUID. A report-only call keeps fresh server-generated UUID behavior. It returns the same useful non-UI result and linked MCP App resource. The report and live-envelope output contracts remain unchanged. The original agent retains its own report and session independently. Only its actual successful open confirms that context. No incoming action supplies authoritative open context. The server keeps no resolver-only open store.
 - R-BACKLOG-APP-3 (MUST): `backlog.review.refresh` is read-only. It declares project-read, Store-read when admitted, and host-configuration-none access. It reruns `work.backlog.snapshot`, performs one exact cache lookup through the accepted Store gate, and returns the new snapshot identity, exact cache results, and exact changed-record facts. It does not write agent conclusions.
 - R-BACKLOG-APP-4 (MUST): the UI resource uses the versioned URI `ui://make-docs/backlog-review/v1.html`, MIME type `text/html;profile=mcp-app`, and `_meta.ui.resourceUri`. A breaking UI contract uses a new versioned resource URI.
@@ -545,6 +545,14 @@ Code anchors:
 - Replacement contract: the reader accepts both cases, and result task IDs use `T`.
 - Rationale: old and new files must give the same facts.
 - Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W33 R0
+
+- Affected requirement or section: R-BACKLOG-APP-1.
+- Previous contract: the live review MCP names were stated as `make_docs_backlog_review_open` and `make_docs_backlog_review_refresh`, which the server never exposed, and backlog operations were split across `run work backlog`, `run work backlog-cache`, and `run backlog review`.
+- Replacement contract: the MCP names are `backlog_review_open` and `backlog_review_refresh`, and every backlog operation moves to the `backlog` group with matching MCP names and migration aliases.
+- Rationale: one capability, one group (register D-065).
+- Source: [Command tree and tool names design](../designs/2026-11-22-command-tree-and-tool-names.md) and [W33 R0 plan](../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md).
 
 ## Source Anchors
 

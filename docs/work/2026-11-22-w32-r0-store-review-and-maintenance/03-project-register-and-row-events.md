@@ -22,7 +22,7 @@ Every Store write for a project updates `project_register`. Each row event gets 
 
 - Impact and governing promise or preserved boundary: `direct`. `make-docs project list` shows every project that the Store knows ([PRD 38](../../prd/38-global-store-and-project-state.md) R-REGISTER-3, [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) R-STORE-CMD-2).
 - Intended human outcome: a person sees each project by name first, with its checkouts and any missing folder in plain words.
-- Human-facing surface or indirect effect: `project list` CLI and `project_register_list` MCP output.
+- Human-facing surface or indirect effect: `project list` CLI and `project_list` MCP output.
 - Implementation work: register writes, name refusal, row-event tests, prune rewrite, and the list operation.
 - Evidence source or testing type selected under current authority: row-event tests, parity, Guided Progress Review.
 - Executor: the implementing agent prepares the review. The owner gives feedback.
@@ -69,7 +69,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Add `project.register.list` (`make-docs project list`, MCP `project_register_list`) in `core` and `all`. Show each project's name first, then its ID, checkouts, last seen time, and each missing checkout folder.
+- [ ] t6: Add `project.register.list` (`make-docs project list`, MCP `project_list`) in `core` and `all`. Show each project's name first, then its ID, checkouts, last seen time, and each missing checkout folder.
 
 ### Acceptance criteria
 

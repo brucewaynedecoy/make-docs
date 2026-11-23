@@ -1328,7 +1328,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open — serious | The owner chose on 2026-11-22 to retire `run` as a root, give each capability its own top-level group, derive every MCP name from the CLI path, and keep old names working for two minor releases. [Command tree design](../designs/2026-11-22-command-tree-and-tool-names.md). Logged on 2026-11-22. The owner rates it as a very serious problem. No new `run work` or `run factory` command is built until a command tree review is accepted: W29 R0 P4 and W30 R0 P3 wait for it. Commands already being built in W31 R0 (`project doctor`) and W32 R0 (`project list`, `setup store`) go ahead and may be renamed by the review. | Design a command tree review as its own Wave before W29 R0 P4. |
+| Open — serious | The owner chose on 2026-11-22 to retire `run` as a root, give each capability its own top-level group, derive every MCP name from the CLI path, and keep old names working for two minor releases. [Command tree design](../designs/2026-11-22-command-tree-and-tool-names.md). Logged on 2026-11-22. The owner rates it as a very serious problem. No new `run work` or `run factory` command is built until a command tree review is accepted: W29 R0 P4 and W30 R0 P3 wait for it. Commands already being built in W31 R0 (`project doctor`) and W32 R0 (`project list`, `setup store`) go ahead and may be renamed by the review. | W33 R0 builds it. [PRD 39](39-cli-command-model-and-operation-registry.md) R-NAME, R-TOP-1, and R-MIG-1 hold the rules. W29 R0 P4 and W30 R0 P3 wait for W33 R0. |
 
 **Issue**: Waves named their commands one at a time, and nobody reviewed the whole tree.
 

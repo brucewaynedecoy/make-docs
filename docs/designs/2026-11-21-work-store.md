@@ -49,11 +49,11 @@ Human goal or effect: Know what work is ready, who or what is doing it, and what
 
 Experience promises:
 
-- `make-docs run work next` names the ready units in dependency order and says why each blocked unit is not ready.
+- `make-docs work next` names the ready units in dependency order and says why each blocked unit is not ready.
 - A person who edits a `docs/work/` file by hand, or receives a teammate's edit through git, sees that edit in the store after the next work command. Nothing is lost silently.
 - When the file and the store both changed, Make Docs stops, shows both sides, and names one command to settle the conflict.
 - Turning on the work store does not change the format or names of existing `docs/work/` files. A teammate without a Store sees the same files as before.
-- `make-docs run work status` tells the person whether the store or the files are the authority in this checkout, and why.
+- `make-docs work status` tells the person whether the store or the files are the authority in this checkout, and why.
 
 Complexity kept out of the human path:
 
@@ -78,7 +78,7 @@ Evidence required:
 
 ### Authority
 
-When the machine has a usable Store, the work store is the authority for the work of each project bound to that Store. The `docs/work/` tree is a repo copy of the store. When the Store is absent or unusable, `docs/work/` is the authority, and every work command reads the files directly, as it does today. `make-docs run work status` reports which mode is active.
+When the machine has a usable Store, the work store is the authority for the work of each project bound to that Store. The `docs/work/` tree is a repo copy of the store. When the Store is absent or unusable, `docs/work/` is the authority, and every work command reads the files directly, as it does today. `make-docs work status` reports which mode is active.
 
 The work store holds work records only: waves, revisions, phases, stages, tasks, status, dependencies, links, claims, and assignment references. Designs, plans, PRDs, guides, and history stay as repo documents. Each work record keeps links to its governing repo documents (design, plan, PRD sections, evidence file). Repo documents keep their existing links to work coordinates. Sync preserves both directions.
 
@@ -91,7 +91,7 @@ The repo copy follows the system resource pattern:
 - Make Docs writes the copy in today's format, from today's work templates. File names, headings, task checkboxes, and acceptance criteria do not change.
 - Make Docs removes a copy only when its bytes still match the last applied digest. A changed copy is kept and reported.
 
-With copies off, the store is the only record of that work in the checkout. `make-docs run work export` writes the files on request, so a person can still share or archive them.
+With copies off, the store is the only record of that work in the checkout. `make-docs work export` writes the files on request, so a person can still share or archive them.
 
 ### Two-way sync
 
@@ -104,7 +104,7 @@ Sync compares three things for each work file: the current file bytes, the last 
 | No | Yes | Write the file from the store. |
 | Yes | Yes | Stop. Report a conflict for that file, show both sides, and name the settle command. Other files continue. |
 
-Sync runs on its own at the start of each `make-docs run work` command and each work MCP tool. A person can also run `make-docs run work sync`. A conflict blocks only the units in the conflicted file. A file that does not parse stays as it is and is reported. The store never overwrites it.
+Sync runs on its own at the start of each `make-docs work` command and each work MCP tool. A person can also run `make-docs work sync`. A conflict blocks only the units in the conflicted file. A file that does not parse stays as it is and is reported. The store never overwrites it.
 
 ### First import
 
@@ -114,7 +114,7 @@ The first work command on a machine with a Store imports every existing backlog 
 
 Each unit has a stable store ID and its coordinate. A wave, revision, phase, stage, or task can be a claimable unit. The coordinate stays the human name. The store ID survives renumbering. Dependencies point to store IDs. A quick item is a task-level unit with no design, plan, or PRD. It belongs to the project and can link to the request that made it.
 
-A quick item lives only in the work store. It has no repo copy, so teammates do not see it through git. `make-docs run work add` adds one and gives it the next plain number of the project, such as `7`. Human text calls it `task 7`. The `tasks` URI family keeps it apart from backlog coordinates, so it needs no letter.
+A quick item lives only in the work store. It has no repo copy, so teammates do not see it through git. `make-docs work add` adds one and gives it the next plain number of the project, such as `7`. Human text calls it `task 7`. The `tasks` URI family keeps it apart from backlog coordinates, so it needs no letter.
 
 A person or an agent reads a project's work by URI, the same way as system resources. Every project URI names its project, by a short project name or by its project ID. Nothing resolves from the current folder.
 
@@ -123,7 +123,7 @@ A person or an agent reads a project's work by URI, the same way as system resou
 - `make-docs resource read make-docs://project/make-docs/backlog/W29/R0/` lists the phases of W29 R0.
 - `make-docs resource read make-docs://project/make-docs/backlog/W29/R0/P1/T3` shows one task.
 
-A project URI read uses the work store read-only. Without a Store, it says so and points to the `docs/work/` files. `make-docs run work export --quick <path>` writes the `tasks` text to a file that the person names. The project name lives in `.make-docs/config.yaml` as `projectName`, and the Store records it with the project ID.
+A project URI read uses the work store read-only. Without a Store, it says so and points to the `docs/work/` files. `make-docs work export --quick <path>` writes the `tasks` text to a file that the person names. The project name lives in `.make-docs/config.yaml` as `projectName`, and the Store records it with the project ID.
 
 ### Ready, claim, report, and close
 
@@ -148,15 +148,15 @@ The work store adds new tables in one append-only migration (schema v8, after th
 
 | Command | MCP tool | Effect |
 | --- | --- | --- |
-| `make-docs run work status` | `work_status` | Reads the mode, the sync state, and conflicts. |
-| `make-docs run work sync` | `work_sync` | Runs two-way sync. Reports imports, writes, and conflicts. |
-| `make-docs run work next` | `work_next` | Lists ready units and the reasons other units wait. |
-| `make-docs run work claim <unit>` | `work_claim` | Claims a unit with a time limit, or renews a claim. |
-| `make-docs run work release <unit>` | `work_release` | Releases a claim without closing the unit. |
-| `make-docs run work report <unit>` | `work_report` | Records status, a short note, or an evidence link. |
-| `make-docs run work close <unit>` | `work_close` | Closes a unit and releases its claim. |
-| `make-docs run work export` | `work_export` | Writes repo copies on request when copies are off, and quick items to a named path. |
-| `make-docs run work add` | `work_add` | Adds a quick item with the next quick item number. |
+| `make-docs work status` | `work_status` | Reads the mode, the sync state, and conflicts. |
+| `make-docs work sync` | `work_sync` | Runs two-way sync. Reports imports, writes, and conflicts. |
+| `make-docs work next` | `work_next` | Lists ready units and the reasons other units wait. |
+| `make-docs work claim <unit>` | `work_claim` | Claims a unit with a time limit, or renews a claim. |
+| `make-docs work release <unit>` | `work_release` | Releases a claim without closing the unit. |
+| `make-docs work report <unit>` | `work_report` | Records status, a short note, or an evidence link. |
+| `make-docs work close <unit>` | `work_close` | Closes a unit and releases its claim. |
+| `make-docs work export` | `work_export` | Writes repo copies on request when copies are off, and quick items to a named path. |
+| `make-docs work add` | `work_add` | Adds a quick item with the next quick item number. |
 
 The design fixes the verbs. The plan and PRD fix the exact flags. The tools join the existing `backlog` and `workflow` MCP profiles. Writes need the existing write permission and `expectedVersion` check. `backlog_snapshot` reads the store when the store is the authority, and it returns the same schema. Its result adds the resolved readiness facts. `backlog-review` keeps its read-only role.
 

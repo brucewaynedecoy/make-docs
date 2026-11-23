@@ -16,13 +16,13 @@ Let Skills and people check and save factory state through one operation core. P
 
 ## Overview
 
-This phase admits the `run factory` operations in the shared registry, with CLI and MCP parity, in a new `factory` MCP profile. The operations check and record. None of them launches, schedules, messages, or contacts a tool.
+This phase admits the `factory` operations in the shared registry, with CLI and MCP parity, in a new `factory` MCP profile. The operations check and record. None of them launches, schedules, messages, or contacts a tool.
 
 ## Human Experience Outcome
 
-- Impact and governing promise: `direct`. `run factory status` shows each claimed unit, its tool, its state, and the last check, in human words first (R-FACTORY-51). A drifted workflow shows its state and the smallest fix (R-FACTORY-12, R-FACTORY-33).
+- Impact and governing promise: `direct`. `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first (R-FACTORY-51). A drifted workflow shows its state and the smallest fix (R-FACTORY-12, R-FACTORY-33).
 - Intended human outcome: a person can tell, from one status call, what the factory is doing, what is stuck, and what to do next.
-- Human-facing surface: `make-docs run factory status` and the `factory_status` MCP tool.
+- Human-facing surface: `make-docs factory status` and the `factory_status` MCP tool.
 - Implementation work: Stages 1 and 2.
 - Evidence source: CLI and MCP parity fixtures, a drift fixture, and Guided Progress Review of status output.
 - Executor: the implementing agent, with owner feedback invited.
@@ -36,7 +36,7 @@ The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestra
 | --- | --- | --- |
 | Automated Implementation Testing | selected | Operation-core tests without transport, CLI JSON and MCP parity, write permission and `expectedVersion` checks, and a no-process, no-network check. |
 | Performance Testing | not-needed-now | No performance candidate applies. |
-| Guided Progress Review | selected | Owner review of `run factory status` output for a ready, a drifted, and a busy workflow. Feedback can change the output before closeout. |
+| Guided Progress Review | selected | Owner review of `factory status` output for a ready, a drifted, and a busy workflow. Feedback can change the output before closeout. |
 | Unassisted Goal Testing | not-needed-now | No current decision needs an unassisted human run. |
 
 There are no performance candidates.
@@ -56,7 +56,7 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Admit `run factory tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore` in the registry, with MCP names such as `factory_tools_save` (R-FACTORY-49).
+- [ ] t1: Admit `factory tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore` in the registry, with MCP names such as `factory_tools_save` (R-FACTORY-49).
 - [ ] t2: `tools save` checks the shape of a tool list and its capability proofs. It does not run or contact any tool (R-FACTORY-5, R-FACTORY-10).
 - [ ] t3: `workflow save` checks a workflow against its type and the capability catalog, sets its readiness state, and refuses `ready` without a passed proof (R-FACTORY-12, R-FACTORY-50).
 - [ ] t4: `proof save` records a test task result and moves the workflow to `ready` only when the proof passed (R-FACTORY-12).
@@ -80,7 +80,7 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t8: Admit `run factory status`. It shows workflows, readiness, claims, assignments, and open manual steps in human words first, with exact detail in machine output (R-FACTORY-51).
+- [ ] t8: Admit `factory status`. It shows workflows, readiness, claims, assignments, and open manual steps in human words first, with exact detail in machine output (R-FACTORY-51).
 - [ ] t9: Mark a workflow `drifted` in status when a bound tool's saved proof no longer holds, and name the smallest fix (R-FACTORY-12, R-FACTORY-33).
 - [ ] t10: Add the `factory` MCP profile. Keep the work queue tools in the `backlog` and `workflow` profiles, and include all of them in `all` (R-FACTORY-49).
 - [ ] t11: Run Guided Progress Review of status output for a ready, a drifted, and a busy workflow.

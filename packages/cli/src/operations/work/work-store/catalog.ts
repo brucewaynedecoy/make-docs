@@ -42,15 +42,15 @@ export const WORK_STORE_AGENT_SECTIONS = [
 export type WorkStoreAgentSection = (typeof WORK_STORE_AGENT_SECTIONS)[number];
 
 export const WORK_STORE_OPERATIONS = [
-  { id: "work.queue.status", cli: "make-docs run work status", mcp: "work_status", writes: false },
-  { id: "work.queue.sync", cli: "make-docs run work sync", mcp: "work_sync", writes: true },
-  { id: "work.queue.next", cli: "make-docs run work next", mcp: "work_next", writes: false },
-  { id: "work.queue.claim", cli: "make-docs run work claim", mcp: "work_claim", writes: true },
-  { id: "work.queue.release", cli: "make-docs run work release", mcp: "work_release", writes: true },
-  { id: "work.queue.report", cli: "make-docs run work report", mcp: "work_report", writes: true },
-  { id: "work.queue.close", cli: "make-docs run work close", mcp: "work_close", writes: true },
-  { id: "work.queue.export", cli: "make-docs run work export", mcp: "work_export", writes: true },
-  { id: "work.queue.add", cli: "make-docs run work add", mcp: "work_add", writes: true },
+  { id: "work.queue.status", cli: "make-docs work status", mcp: "work_status", writes: false },
+  { id: "work.queue.sync", cli: "make-docs work sync", mcp: "work_sync", writes: true },
+  { id: "work.queue.next", cli: "make-docs work next", mcp: "work_next", writes: false },
+  { id: "work.queue.claim", cli: "make-docs work claim", mcp: "work_claim", writes: true },
+  { id: "work.queue.release", cli: "make-docs work release", mcp: "work_release", writes: true },
+  { id: "work.queue.report", cli: "make-docs work report", mcp: "work_report", writes: true },
+  { id: "work.queue.close", cli: "make-docs work close", mcp: "work_close", writes: true },
+  { id: "work.queue.export", cli: "make-docs work export", mcp: "work_export", writes: true },
+  { id: "work.queue.add", cli: "make-docs work add", mcp: "work_add", writes: true },
 ] as const;
 export type WorkStoreOperationId = (typeof WORK_STORE_OPERATIONS)[number]["id"];
 
@@ -527,7 +527,7 @@ export interface WorkSettleOption {
 const settle = (choice: WorkSettleChoice, effect: string): WorkSettleOption => ({
   choice,
   effect,
-  command: `make-docs run work sync --settle <path> --${choice}`,
+  command: `make-docs work sync --settle <path> --${choice}`,
 });
 
 /** The two settle choices for each conflict kind, each with its own words (R-WORK-SYNC-4). */
@@ -557,7 +557,7 @@ export interface WorkWaitReasonText {
   nextAction: string;
 }
 
-/** The words that `run work next` uses for each open unit that waits. */
+/** The words that `work next` uses for each open unit that waits. */
 export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReasonText>> = Object.freeze({
   draft: {
     reason: "draft",
@@ -577,7 +577,7 @@ export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReas
   "dependency-cancelled": {
     reason: "dependency-cancelled",
     template: "Needs {dependency}, which was cancelled.",
-    nextAction: "Decide whether this unit still makes sense. Change the dependency in {path}, or close this unit with `make-docs run work close`.",
+    nextAction: "Decide whether this unit still makes sense. Change the dependency in {path}, or close this unit with `make-docs work close`.",
   },
   "dependency-unresolved": {
     reason: "dependency-unresolved",
@@ -587,12 +587,12 @@ export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReas
   "gate-open": {
     reason: "gate-open",
     template: "Waits for this condition: \"{text}\".",
-    nextAction: "When the condition is true, record it as met with `make-docs run work report`.",
+    nextAction: "When the condition is true, record it as met with `make-docs work report`.",
   },
   blocked: {
     reason: "blocked",
     template: "Blocked: {text}.",
-    nextAction: "Clear the blocker with `make-docs run work report`, or remove it from {path}. Clearing the last blocker reopens the unit.",
+    nextAction: "Clear the blocker with `make-docs work report`, or remove it from {path}. Clearing the last blocker reopens the unit.",
   },
   claimed: {
     reason: "claimed",
@@ -602,7 +602,7 @@ export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReas
   "claim-expired": {
     reason: "claim-expired",
     template: "Was claimed by {claimant}, but the claim ended at {expiresAt}.",
-    nextAction: "Check {claimant}'s task, then take the unit over with `make-docs run work claim`, or ask a person to release it with `make-docs run work release`.",
+    nextAction: "Check {claimant}'s task, then take the unit over with `make-docs work claim`, or ask a person to release it with `make-docs work release`.",
   },
   "ancestor-claimed": {
     reason: "ancestor-claimed",
@@ -612,17 +612,17 @@ export const WORK_WAIT_REASON_TEXT: Readonly<Record<WorkWaitReason, WorkWaitReas
   "ancestor-closed": {
     reason: "ancestor-closed",
     template: "Part of {ancestor}, which is closed.",
-    nextAction: "Close this unit as superseded with `make-docs run work close`, or reopen {ancestor} by changing its status in {path}.",
+    nextAction: "Close this unit as superseded with `make-docs work close`, or reopen {ancestor} by changing its status in {path}.",
   },
   "ancestor-waiting": {
     reason: "ancestor-waiting",
     template: "Part of {ancestor}, which is not ready yet.",
-    nextAction: "Run `make-docs run work next --level {ancestorKind}` to see why {ancestor} waits.",
+    nextAction: "Run `make-docs work next --level {ancestorKind}` to see why {ancestor} waits.",
   },
   "sync-conflict": {
     reason: "sync-conflict",
     template: "Its file {path} has a sync conflict.",
-    nextAction: "Settle the conflict with one of the commands in `make-docs run work status`.",
+    nextAction: "Settle the conflict with one of the commands in `make-docs work status`.",
   },
 });
 

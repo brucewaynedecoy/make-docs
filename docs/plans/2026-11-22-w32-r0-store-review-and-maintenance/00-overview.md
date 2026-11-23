@@ -43,7 +43,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 
 | Promise | Owning PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
 | --- | --- | --- | --- | --- | --- |
-| `make-docs project list` shows every project that the Store knows, with its name, ID, checkouts, and any missing checkout folder. | [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | `project list` CLI and `project_register_list` MCP output | [P3](03-project-register-and-row-events.md) | Fixture Stores, CLI and MCP parity, Guided Progress Review | None |
+| `make-docs project list` shows every project that the Store knows, with its name, ID, checkouts, and any missing checkout folder. | [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | `project list` CLI and `project_list` MCP output | [P3](03-project-register-and-row-events.md) | Fixture Stores, CLI and MCP parity, Guided Progress Review | None |
 | `make-docs setup store check` explains what is safe to remove, what needs a decision, and how much space a clean frees, and changes nothing. | PRD 38, PRD 39 | `setup store check` CLI and `setup_store_check` MCP output | [P4](04-maintenance-commands.md) | No-write test, parity, Guided Progress Review | None |
 | `make-docs setup store clean` removes only rows that a fixed rule proves safe, after a backup, and reports what it removed and how to restore. | PRD 38, PRD 39 | `setup store clean` output, the backup file | [P4](04-maintenance-commands.md), [P5](05-real-store-proof-and-acceptance.md) | Rule tests, backup and restore test, a run on a copy of a real Store | None |
 | A program that is not Make Docs cannot change the Store by accident, and Make Docs reports a removed guard. | PRD 38 | Direct `sqlite3` or other program writes; Store open | [P2](02-schema-v7-and-defect-fixes.md) | Direct-write refusal test, removed-trigger detection test, a test that every table has its triggers | None |
@@ -84,7 +84,7 @@ The characterization is informational. It decides whether the vacuum stays insid
 | Only Make Docs code paths write the Store: write-guard triggers, guard check on open, file mode `0600`, and the stated limit | `update-existing` | PRD 38 | PRD 38 owns Store access and safety. Today the rule exists only in shipped instructions. |
 | R-MIN-3 ledger form, R-MIN-4 reviewed scope for fixed rules, R-LIFE-6 failure fields, and the R-DB-7 version for work tables (v8) | `update-existing` | PRD 38 | Same owner. These rules change meaning. |
 | `project list`, `setup store check`, and `setup store clean` command paths and behavior | `update-existing` | [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | PRD 39 owns admitted CLI paths. |
-| MCP tools and profiles: `project_register_list` in `core` and `all`; `setup_store_check` and `setup_store_clean` in `setup` and `all` | `update-existing` | [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | PRD 25 owns MCP profiles. |
+| MCP tools and profiles: `project_list` in `core` and `all`; `setup_store_check` and `setup_store_clean` in `setup` and `all` | `update-existing` | [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | PRD 25 owns MCP profiles. |
 | W29 work tables at schema v8, and project URI resolution through `project_register` | `update-existing` | [PRD 52](../../prd/52-work-store-and-work-queue.md) | PRD 52 names the work store tables and URI resolution. |
 | Glossary terms: project register, Store maintenance | `update-existing` | [PRD 04](../../prd/04-glossary.md) | Shared terms. |
 | D-062 status and plan | `update-existing` | [Risk register](../../prd/03-open-questions-and-risk-register.md) | The register holds the gap and its close condition. |
@@ -190,3 +190,13 @@ This handoff is advisory-default-but-overridable.
 - Owner approval: the owner kept the design change on 2026-11-22.
 - Source: [Store review and maintenance design](../../designs/2026-11-22-store-review-and-maintenance.md)
 
+### 2026-11-22 — W32 R0 P3
+
+- Kind: `edit`
+- Affected scope: P3 project list MCP tool name.
+- Previous scope: the project list MCP tool was `project_register_list`.
+- Replacement scope: the tool is `project_list`, the CLI path `project list` joined with an underscore.
+- Rationale: the command naming rule in PRD 39 R-NAME-3 (register D-065).
+- PRD decision: `update-existing` — PRD 25 R-MCP-PROFILE-10.
+- Owner approval: the owner's command tree choices on 2026-11-22.
+- Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)

@@ -71,3 +71,16 @@ This handoff is advisory-default-but-overridable.
 - Next step: When the owner gives phase-start authority, start P1 and continue phase by phase.
 - Why: The backlog turns the approved plan and the PRD 38 and PRD 39 rules into implementation work.
 - Coordinate Handoff: Carry W32 R0 into phase history records and commits, adding the active P number.
+
+## Change History
+
+### 2026-11-22 — W32 R0 P3
+
+- Kind: `edit`
+- Affected scope: P3 project list MCP tool name.
+- Previous scope: the project list MCP tool was `project_register_list`.
+- Replacement scope: the tool is `project_list`, the CLI path `project list` joined with an underscore.
+- Rationale: the command naming rule in PRD 39 R-NAME-3 (register D-065).
+- PRD decision: `update-existing` — PRD 25 R-MCP-PROFILE-10.
+- Owner approval: the owner's command tree choices on 2026-11-22.
+- Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)

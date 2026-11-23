@@ -33,7 +33,7 @@ Completion requires:
 - one append-only Store migration that adds the work tables, with R-MIN rows in PRD 38 first;
 - one strict parser and writer that round-trip today's `docs/work/` files byte for byte;
 - first import of existing backlogs with no file change, and two-way sync with a conflict stop that blocks only the affected units;
-- the `run work status | sync | next | claim | release | report | close | export` operations with CLI and MCP parity;
+- the `work status | sync | next | claim | release | report | close | export` operations with CLI and MCP parity;
 - `backlog_snapshot` reading from the store when the store is the authority, with the same schema plus resolved readiness facts;
 - one upstream system resource, `make-docs://system/reference/work-store.md`, that gives agents the same rules without the CLI;
 - one `work` block in `.make-docs/config.yaml` for the repo copy setting and the tracker connection map;
@@ -46,11 +46,11 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 
 | Promise | Owning PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
 | --- | --- | --- | --- | --- | --- |
-| `run work next` names ready units in dependency order and says why each blocked unit waits. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | `run work next` CLI and `work_next` MCP output | [P1](01-record-model-and-rule-catalog.md), [P4](04-work-queue-operations.md) | Fixture matrix, CLI and MCP parity, Guided Progress Review | None |
+| `work next` names ready units in dependency order and says why each blocked unit waits. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | `work next` CLI and `work_next` MCP output | [P1](01-record-model-and-rule-catalog.md), [P4](04-work-queue-operations.md) | Fixture matrix, CLI and MCP parity, Guided Progress Review | None |
 | Hand edits and teammates' edits through git reach the store after the next work command. Nothing is lost silently. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | `docs/work/` files and sync report | [P3](03-parser-import-and-sync.md), [P6](06-package-parity-and-acceptance.md) | Two-checkout sync test, round-trip tests | None |
 | When both sides changed, Make Docs stops, shows both sides, and names one settle command. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | Conflict report from sync and from every work command | [P3](03-parser-import-and-sync.md), [P4](04-work-queue-operations.md) | Conflict fixtures, Guided Progress Review | None |
 | Existing `docs/work/` files keep their format and names. A teammate without a Store sees no change. | [PRD 52](../../prd/52-work-store-and-work-queue.md), [PRD 06](../../prd/06-template-contracts-and-generated-assets.md) | Work files in git | [P3](03-parser-import-and-sync.md), [P6](06-package-parity-and-acceptance.md) | Byte-for-byte round trip on this repo's backlogs, no-Store run | None |
-| `run work status` says whether the store or the files are the authority, and why. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | `run work status` output | [P4](04-work-queue-operations.md) | Mode fixtures for Store present, absent, denied, and unsafe; Guided Progress Review | None |
+| `work status` says whether the store or the files are the authority, and why. | [PRD 52](../../prd/52-work-store-and-work-queue.md) | `work status` output | [P4](04-work-queue-operations.md) | Mode fixtures for Store present, absent, denied, and unsafe; Guided Progress Review | None |
 
 ## Performance Evidence Plan
 
@@ -108,7 +108,7 @@ The characterization is informational. It informs whether automatic sync needs a
 | [01-record-model-and-rule-catalog.md](01-record-model-and-rule-catalog.md) | Settle the record model, sync table, readiness and claim rules, tracker contract, R-MIN rows, and fixtures. |
 | [02-store-schema-and-records.md](02-store-schema-and-records.md) | Add the work tables in one append-only migration and the Store service that reads and writes them. |
 | [03-parser-import-and-sync.md](03-parser-import-and-sync.md) | Build the round-trip parser and writer, first import, and two-way sync with the conflict stop. |
-| [04-work-queue-operations.md](04-work-queue-operations.md) | Build the `run work` operations, CLI and MCP parity, and the store-backed snapshot. |
+| [04-work-queue-operations.md](04-work-queue-operations.md) | Build the `work` operations, CLI and MCP parity, and the store-backed snapshot. |
 | [05-agent-twin-and-config.md](05-agent-twin-and-config.md) | Author the `work-store` reference upstream, the `work` config block, and the tracker connection contract. |
 | [06-package-parity-and-acceptance.md](06-package-parity-and-acceptance.md) | Prove package, installed, two-checkout, no-Store, performance, and Human Experience outcomes. |
 
@@ -163,7 +163,7 @@ Use jdocmunch for project documents and jcodemunch for code during implementatio
 - Run the finite `PERF-004` characterization.
 - Complete a Human Experience Review for each promise above.
 
-Automated Implementation Testing is required for every implementation phase. Guided Progress Review is selected for `run work next`, `run work status`, and the conflict report, because owner feedback can change those outputs before P6 closes. Unassisted Goal Testing is `not-needed-now`: the current questions are expert review tasks.
+Automated Implementation Testing is required for every implementation phase. Guided Progress Review is selected for `work next`, `work status`, and the conflict report, because owner feedback can change those outputs before P6 closes. Unassisted Goal Testing is `not-needed-now`: the current questions are expert review tasks.
 
 ## Intended Follow-On
 
@@ -208,3 +208,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `none` — the review decides the PRD 39 and PRD 25 changes.
 - Owner approval: the owner's decision on 2026-11-22 to log register D-065.
 - Source: [Register D-065](../../prd/03-open-questions-and-risk-register.md)
+
+### 2026-11-22 — W29 R0
+
+- Kind: `edit`
+- Affected scope: every planned command path in this record.
+- Previous scope: planned commands were under `make-docs run work`.
+- Replacement scope: planned commands are under `make-docs work`, with the same MCP names.
+- Rationale: the owner retired `run` as a root (register D-065, PRD 39 R-TOP-1 and R-NAME).
+- PRD decision: `update-existing` — PRD 39 and PRD 52.
+- Owner approval: the owner's command tree choices on 2026-11-22.
+- Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)

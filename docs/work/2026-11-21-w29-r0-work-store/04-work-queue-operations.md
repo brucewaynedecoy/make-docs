@@ -16,11 +16,11 @@ Expose the work store through the shared operation registry, so the CLI and MCP 
 
 ## Overview
 
-Nine operations ship under `make-docs run work`: `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, with MCP tools `work_status` to `work_add`. `make-docs resource read` accepts `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/` URIs. `backlog_snapshot` reads the store when the store is the authority.
+Nine operations ship under `make-docs work`: `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, with MCP tools `work_status` to `work_add`. `make-docs resource read` accepts `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/` URIs. `backlog_snapshot` reads the store when the store is the authority.
 
 ## Human Experience Outcome
 
-- Impact and governing promise or preserved boundary: `direct`. `run work next` and `run work status` put human meaning first, and conflicts name one settle command ([PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-STORE-3, R-WORK-QUEUE-4 to R-WORK-QUEUE-18, R-WORK-URI-1 to R-WORK-URI-7).
+- Impact and governing promise or preserved boundary: `direct`. `work next` and `work status` put human meaning first, and conflicts name one settle command ([PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-STORE-3, R-WORK-QUEUE-4 to R-WORK-QUEUE-18, R-WORK-URI-1 to R-WORK-URI-7).
 - Intended human outcome: a person can see what is ready, why other work waits, and which source is the authority, without reading every backlog file.
 - Human-facing surface or indirect effect: CLI and MCP output of the nine operations and of a project URI read.
 - Implementation work: registry admission, handlers, profiles, and the snapshot source switch.
@@ -54,7 +54,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Admit the nine operations in the registry under `run work`, with their MCP names, in the `backlog` and `workflow` profiles.
+- [ ] t1: Admit the nine operations in the registry under `work`, with their MCP names, in the `backlog` and `workflow` profiles.
 - [ ] t2: Run sync at the start of each operation and include its outcome in the result.
 - [ ] t3: Build `next` with ready units and the reason each open, not-ready unit waits.
 - [ ] t4: Build `claim`, `release`, `report`, and `close` with the P1 claim rules, write permission, and `expectedVersion`.

@@ -32,8 +32,8 @@ Completion requires:
 - one upstream factory contract and three workflow type references, with no new resource type;
 - one append-only Store migration that adds machine tools, bindings, grants, assignments, proofs, and backup records, with R-MIN rows in PRD 38 first;
 - one `factory:` block in `.make-docs/config.yaml` for portable workflow choices;
-- generated, read-only, gitignored copies in `.make-docs/factory/` and a `run factory restore` operation;
-- the `run factory` operations with CLI and MCP parity in a new `factory` MCP profile;
+- generated, read-only, gitignored copies in `.make-docs/factory/` and a `factory restore` operation;
+- the `factory` operations with CLI and MCP parity in a new `factory` MCP profile;
 - a new `factory-setup` Skill and a rewritten `factory` Skill, both explicit-invocation-only;
 - file backups outside git with automatic cleanup and a note in the backup folder;
 - the backlog review "Work on this wave" handoff to the foreman when a workflow is ready;
@@ -47,7 +47,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 | --- | --- | --- | --- | --- | --- |
 | Setup ends with a plain summary of roles, wake method, human channel, test result, and open manual steps. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `factory-setup` Skill closing summary | [P4](04-factory-setup-skill.md), [P6](06-proofs-and-acceptance.md) | Two capability proofs, Guided Progress Review | None |
 | The person hears only floor events and added events. Each message says what happened, what is needed, and what happens next. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Human channel messages from the front desk | [P1](01-factory-contract-and-workflow-types.md), [P5](05-factory-run-skill-and-handoffs.md) | Escalation fixtures, Guided Progress Review of real messages | None |
-| `run factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `run factory status` CLI and `factory_status` MCP output | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | None |
+| `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `factory status` CLI and `factory_status` MCP output | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | None |
 | At the end of the given scope, the person gets one acceptance request with the reviewed result and evidence. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Acceptance message and status | [P5](05-factory-run-skill-and-handoffs.md), [P6](06-proofs-and-acceptance.md) | Capability proofs, Human Experience Review | None |
 | A drifted workflow says so before it takes new work and names the smallest fix. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Status, the foreman's first step, and an escalation message | [P3](03-factory-operations.md), [P5](05-factory-run-skill-and-handoffs.md) | Drift test that removes a wired tool | None |
 
@@ -104,7 +104,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 | --- | --- |
 | [01-factory-contract-and-workflow-types.md](01-factory-contract-and-workflow-types.md) | Author the factory contract, the capability catalog, and three workflow type references upstream. |
 | [02-store-records-config-and-copies.md](02-store-records-config-and-copies.md) | Add the factory tables, the `factory:` config block, the generated copies, and backup records. |
-| [03-factory-operations.md](03-factory-operations.md) | Build the `run factory` operations and the `factory` MCP profile. |
+| [03-factory-operations.md](03-factory-operations.md) | Build the `factory` operations and the `factory` MCP profile. |
 | [04-factory-setup-skill.md](04-factory-setup-skill.md) | Build the `factory-setup` Skill: find, read, interview, wire, prove, and save. |
 | [05-factory-run-skill-and-handoffs.md](05-factory-run-skill-and-handoffs.md) | Rewrite the `factory` Skill around the loop, and add the backlog review handoff. |
 | [06-proofs-and-acceptance.md](06-proofs-and-acceptance.md) | Prove two setups by capability, drift, work outside git, package parity, and Human Experience outcomes. |
@@ -154,7 +154,7 @@ Use jdocmunch for project documents and jcodemunch for code during implementatio
 - Prove every escalation floor event reaches the human channel, and that a workflow cannot remove one.
 - Prove assignment recovery: an `unknown` assignment is checked through its handle before any other step, and no work is sent twice.
 - Prove grants stay in the Store and never reach committed config or copies.
-- Prove `.make-docs/factory/` copies are generated, read-only, gitignored, never read as input, and restored by `run factory restore`.
+- Prove `.make-docs/factory/` copies are generated, read-only, gitignored, never read as input, and restored by `factory restore`.
 - Prove backups outside git, their cleanup on close and after 30 days, and that cleanup never touches installation recovery backups.
 - Prove CLI JSON and MCP parity for every new operation.
 - Complete the two capability proofs and a Human Experience Review for each promise above.
@@ -193,3 +193,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `none` — the review decides the PRD 39 and PRD 25 changes.
 - Owner approval: the owner's decision on 2026-11-22 to log register D-065.
 - Source: [Register D-065](../../prd/03-open-questions-and-risk-register.md)
+
+### 2026-11-22 — W30 R0
+
+- Kind: `edit`
+- Affected scope: every planned command path in this record.
+- Previous scope: planned commands were under `make-docs run factory`.
+- Replacement scope: planned commands are under `make-docs factory`, with the same MCP names.
+- Rationale: the owner retired `run` as a root (register D-065, PRD 39 R-TOP-1 and R-NAME).
+- PRD decision: `update-existing` — PRD 39 and PRD 53.
+- Owner approval: the owner's command tree choices on 2026-11-22.
+- Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)
