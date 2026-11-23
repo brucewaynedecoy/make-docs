@@ -58,7 +58,7 @@ Out of scope:
 - P1 is the contract gate. No rename starts before the owner accepts the name table.
 - Every phase file includes `## Source PRD Docs`.
 - Acceptance case IDs run from A1 to A15 across this backlog.
-- Create `evidence.md` when the first phase retains evidence, and link it here.
+- Evidence: [W33 R0 Evidence Report](evidence.md).
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
 ## Intended Follow-On

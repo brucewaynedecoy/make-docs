@@ -95,11 +95,11 @@ Evidence required:
 
 ### Moves for the problem areas
 
-These rows show the rules on the commands that D-065 names. W33 R0 P1 produces the full table for every operation and tool, and the owner reviews it.
+These rows show the rules on the commands that D-065 names. The owner accepted the full table for every operation and tool in W33 R0 P1, recorded in its [evidence](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md).
 
 | Current CLI | Current MCP | New CLI | New MCP |
 | --- | --- | --- | --- |
-| `run work item resolve` | `work_item_resolve` | `work resolve` | `work_resolve` |
+| `run work item resolve` | `work_item_resolve` | `work item resolve` | `work_item_resolve` |
 | `run work evidence record` | `evidence_record` | `work evidence record` | `work_evidence_record` |
 | `run work evidence read` | `evidence_read` | `work evidence read` | `work_evidence_read` |
 | `run work backlog snapshot` | `backlog_snapshot` | `backlog snapshot` | `backlog_snapshot` |
@@ -108,7 +108,7 @@ These rows show the rules on the commands that D-065 names. W33 R0 P1 produces t
 | `run backlog review open` | `backlog_review_open` | `backlog review open` | `backlog_review_open` |
 | `run lifecycle start` | `lifecycle_start` | `lifecycle start` | `lifecycle_start` |
 | `run prd authority validate` | `prd_validate` | `check prd` | `check_prd` |
-| `project persona list` | `personas` | `project personas` | `project_personas` |
+| `project persona list` | `personas` | `project persona list` | `project_persona_list` |
 | planned `run work next` | planned `work_next` | `work next` | `work_next` |
 | planned `run factory workflow save` | planned `factory_workflow_save` | `factory workflow save` | `factory_workflow_save` |
 
