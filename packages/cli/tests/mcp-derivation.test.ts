@@ -40,6 +40,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.surface.ensure": "surface_ensure",
   "project.path-hygiene.repair": "paths_repair",
   "project.path-hygiene.validate": "paths_validate",
+  "project.doctor.check": "project_doctor_check",
+  "project.doctor.fix": "project_doctor_fix",
   "project.state.status": "project_status",
   "project.state.recover": "project_recover",
   "project.checkout-move.preview": "checkout_move_preview",

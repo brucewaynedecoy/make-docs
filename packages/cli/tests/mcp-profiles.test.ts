@@ -24,6 +24,7 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "layout_apply", "layout_prepare", "layout_preview", "layout_verify",
     "paths_repair", "paths_validate", "project_recover",
     "project_status", "surface_ensure", "resource_ensure",
+    "project_doctor_check", "project_doctor_fix",
   ],
   workflow: [
     "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
@@ -35,6 +36,7 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "performance_validate", "prd_validate", "paths_validate",
     "uat_evidence_validate", "uat_finding_validate", "uat_persona_resolve",
     "uat_result_validate", "uat_scenario_validate", "uat_target_validate",
+    "project_doctor_check", "project_doctor_fix",
   ],
   backlog: ["backlog_cache_read", "backlog_cache_write", "backlog_review_open", "backlog_review_refresh", "backlog_snapshot"],
 };
@@ -45,11 +47,11 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 49 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 51 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(49);
-    expect(new Set(names).size).toBe(49);
+    expect(names).toHaveLength(51);
+    expect(new Set(names).size).toBe(51);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

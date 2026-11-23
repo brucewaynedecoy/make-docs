@@ -162,6 +162,8 @@ export const MCP_TOOL_NAME_BY_OPERATION: Readonly<Record<string, string>> = Obje
   "project.surface.ensure": "surface_ensure",
   "project.path-hygiene.validate": "paths_validate",
   "project.path-hygiene.repair": "paths_repair",
+  "project.doctor.check": "project_doctor_check",
+  "project.doctor.fix": "project_doctor_fix",
   "lifecycle.start": "lifecycle_start",
   "lifecycle.show": "lifecycle_show",
   "lifecycle.list": "lifecycle_list",

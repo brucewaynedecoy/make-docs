@@ -241,7 +241,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 - R-DOCTOR-1 (MUST): the registry admits `project.doctor.check` and `project.doctor.fix` within the existing `project` domain. No new top-level command is introduced.
 - R-DOCTOR-2 (MUST): the doctor holds one list of checks. Each check has a stable ID, a scope, plain finding text, and an optional fix. The current check is `task-id-case` under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22.
 - R-DOCTOR-3 (MUST): `project doctor check` reads only. It reports the totals first in plain words, then each finding with its file, line, current text, and replacement. It returns a review digest that binds the findings, the exclusions, and the bytes of each file it read. A clean project returns no findings and says so.
-- R-DOCTOR-4 (MUST): `project doctor fix` needs the existing project write permission and a review digest from `check`. It applies only the changes that the digest names. It refuses and names any file that changed after the check. It uses the existing reviewed project write path, with its backup and conflict rules, and it reports each changed file and the undo path.
+- R-DOCTOR-4 (MUST): `project doctor fix` needs the existing project write permission, the Store write permission that the reviewed write path uses to record each change, and a review digest from `check`. An optional `--check-json` input (MCP `reviewedFiles`) carries the saved check result, so a stale-review refusal can name each changed file. `--dry-run` shows the planned changes and writes nothing. It applies only the changes that the digest names. It refuses and names any file that changed after the check. It uses the existing reviewed project write path, with its backup and conflict rules, and it reports each changed file and the undo path.
 - R-DOCTOR-5 (MUST): both commands accept repeated `--exclude <path>` options with project-relative paths. Traversal and paths outside the project fail closed.
 - R-DOCTOR-6 (MUST): `task-id-case` scans Markdown files under `docs/work/`. It skips `.make-docs/archive/`, history records, fenced code blocks, inline code, and link targets. It finds task checkbox lines and whole-word task references in prose, such as `t3`, `P2 t11`, and `t1–t10`.
 - R-DOCTOR-7 (MUST): the doctor has an agent twin in `make-docs://system/reference/project-doctor.md` under [PRD 06](06-template-contracts-and-generated-assets.md). Both forms find the same lines on shared fixtures. A change to either form needs a review of the other.
@@ -249,7 +249,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 | Registry identifier | Canonical CLI |
 | --- | --- |
 | `project.doctor.check` | `make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]` |
-| `project.doctor.fix` | `make-docs project doctor fix --review <digest> [--exclude <path>] [--target-root <path>] [--json]` |
+| `project.doctor.fix` | `make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]` |
 
 ### Project List and Store Maintenance Commands (R-STORE-CMD)
 
@@ -685,6 +685,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: in the `check` group the group word is the verb, so a `check` path ends with its object, such as `make-docs check prd`. R-RUN-1 lists every current `run` path and calls the work queue and factory commands planned. The W33 R0 P1 name catalog holds every current and new name, and its test checks R-RUN-1 against it.
 - Rationale: the name catalog showed that `check prd` broke R-NAME-2 as written and that R-RUN-1 differed from the registry. The owner accepted the catalog names on 2026-11-22.
 - Source: [W33 R0 P1](../work/2026-11-22-w33-r0-command-tree-and-tool-names/01-name-catalog-and-rules.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p1-name-catalog-and-rules).
+
+### 2026-11-22 — W31 R0 P3
+
+- Affected requirement or section: R-DOCTOR-4 and the doctor CLI table.
+- Previous contract: `project doctor fix` needed project write permission and a digest, with no input to name changed files.
+- Replacement contract: `fix` also needs Store write permission, accepts an optional `--check-json` (MCP `reviewedFiles`) to name changed files in a stale-review refusal, and has `--dry-run`.
+- Rationale: the reviewed write path records each change in the Store, and the owner kept the optional input on 2026-11-22.
+- Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
 
 ## Source Anchors
 

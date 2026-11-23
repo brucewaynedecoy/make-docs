@@ -54,11 +54,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Admit `project.doctor.check` and `project.doctor.fix` in the registry with their CLI paths under `make-docs project doctor` and MCP tools in the `quality`, `setup`, and `all` profiles.
-- [ ] t2: Build the check list. Each check has a stable ID, a scope, plain finding text, and an optional fix.
-- [ ] t3: Build `check`: totals first in plain words, then each finding with file, line, current text, and replacement, and a review digest that binds the findings, the exclusions, and the file bytes.
-- [ ] t4: Build `fix`: the project write permission, the digest check, a stale-file refusal that names the file, the existing reviewed write path with its backup, and a report of each changed file and the undo path.
-- [ ] t5: Add the repeated `--exclude <path>` option to both commands, and refuse traversal and paths outside the project.
+- [x] t1: Admit `project.doctor.check` and `project.doctor.fix` in the registry with their CLI paths under `make-docs project doctor` and MCP tools in the `quality`, `setup`, and `all` profiles.
+- [x] t2: Build the check list. Each check has a stable ID, a scope, plain finding text, and an optional fix.
+- [x] t3: Build `check`: totals first in plain words, then each finding with file, line, current text, and replacement, and a review digest that binds the findings, the exclusions, and the file bytes.
+- [x] t4: Build `fix`: the project write permission, the digest check, a stale-file refusal that names the file, the existing reviewed write path with its backup, and a report of each changed file and the undo path.
+- [x] t5: Add the repeated `--exclude <path>` option to both commands, and refuse traversal and paths outside the project.
 
 ### Acceptance criteria
 
@@ -71,9 +71,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Build `task-id-case` for Markdown under `docs/work/`. Find task checkbox lines and whole-word task references in prose. Skip `.make-docs/archive/`, history records, fenced code, inline code, and link targets.
-- [ ] t7: Author `make-docs://system/reference/project-doctor.md` in `packages/docs/template/`, add it to the system resource catalog, and reseed it. State that it is the agent twin of the doctor operations, and that a change to either form needs a review of the other.
-- [ ] t8: Add shared fixtures that the CLI and the agent twin must answer the same way.
+- [x] t6: Build `task-id-case` for Markdown under `docs/work/`. Find task checkbox lines and whole-word task references in prose. Skip `.make-docs/archive/`, history records, fenced code, inline code, and link targets.
+- [x] t7: Author `make-docs://system/reference/project-doctor.md` in `packages/docs/template/`, add it to the system resource catalog, and reseed it. State that it is the agent twin of the doctor operations, and that a change to either form needs a review of the other.
+- [x] t8: Add shared fixtures that the CLI and the agent twin must answer the same way.
 
 ### Acceptance criteria
 
@@ -86,10 +86,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done: `packages/cli/tests/w31-r0-p3-project-doctor.test.ts` (46 tests) covers the no-write check, CLI and MCP check parity, the digest-bound fix, stale-file refusal, exclusions, skip rules, and a regression test for each finding of the independent review and its re-check, on shared fixtures. Performance Testing `not-needed-now`: one check of this repository reads 370 files in well under a second. Guided Progress Review `selected` and still open: the owner reviews the check and fix wording on this repository in P4, before the fix runs. Unassisted Goal Testing `not-needed-now`.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: prepared, not done. The check output on this repository (totals first, then each line with its current and fixed text, then skipped files, the digest, and the next command) is ready for the owner's Guided Progress Review in P4.
+- Independent review: eight findings, all fixed with regression tests. A re-check confirmed them and found two medium and five low items (undo command tied to the current folder, a nested linked folder skipped without a word, router name case, HTML tags split over lines, glued text risk, accented exclude names, and three nits). All are fixed or named as known risks, each with a regression test. Owner decisions applied: keep `--check-json` (MCP `reviewedFiles`) as optional input, skip managed router files on purpose, keep the link guards in the doctor only and skip link tests where a platform cannot make links, and keep Store write access for the fix. The owner updates the PRD 39 table and PRD 25.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: the owner reviews the check and fix wording in P4 before the one-time fix.
+- Evidence report: [P3 Project Doctor](evidence.md#p3-project-doctor).
+- Phase / capability status: implementation complete and uncommitted, on top of W31 R0 P2 (`08f405bd`). A7 to A12 have automated evidence. The wording review is open in P4.

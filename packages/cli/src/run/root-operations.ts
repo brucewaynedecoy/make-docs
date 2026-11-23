@@ -12,6 +12,8 @@ import type {
 } from "../operations/resource";
 import { OperationError } from "../operations/types";
 import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
+import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
+import { readFileSync } from "node:fs";
 
 type ResourceOrigin = "effective" | "local" | "installed";
 type ResourceFormat = "table" | "json" | "raw";
@@ -237,6 +239,10 @@ export async function runProjectCommand(
     await runProjectStateCommand(argv.slice(1), launch);
     return;
   }
+  if (argv[0] === "doctor") {
+    await runProjectDoctorCommand(argv.slice(1), launch);
+    return;
+  }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
@@ -250,6 +256,8 @@ export async function runProjectCommand(
         "       make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
         "       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
         "       make-docs project checkout-register preview|apply [--review <digest>] [--target-root <path>] [--json]",
+        "       make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
+        "       make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
         "",
         "Installation state belongs to the global Make Docs Store.",
         "The ensure command checks Store installation evidence and configured routers",
@@ -591,4 +599,130 @@ async function runProjectStateCommand(
     ...(value.nextAction ? [`Next: ${String(value.nextAction)}`] : state === "blocked" ? ["Next: Review the listed conflicts. Preserve current files."] : value.dryRun && state === "ready" ? ["Next: Review this preview before running the same recovery command without --dry-run."] : []),
     "",
   ].join("\n"));
+}
+
+const DOCTOR_HELP = [
+  "Usage: make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
+  "       make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
+  "",
+  "Check reads project files and changes nothing. It shows each problem and the exact change,",
+  "and it gives a review digest.",
+  "Fix changes only what that digest names. It keeps a backup and tells you how to undo the fix.",
+  "Repeat --exclude for each project folder or file to leave out. Use the same --exclude options for check and fix.",
+  "Pass the saved check result (check --json) with --check-json to have fix name each file that changed after the check.",
+  "",
+].join("\n");
+
+async function runProjectDoctorCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [verb, ...args] = argv;
+  if (!verb || verb === "--help" || verb === "-h" || args.some((arg) => arg === "--help" || arg === "-h")) {
+    process.stdout.write(DOCTOR_HELP);
+    return;
+  }
+  if (verb !== "check" && verb !== "fix") throw new OperationError(`Unknown project doctor command: ${verb}. Use check or fix.`);
+  let targetRoot: string | undefined, review: string | undefined, checkJson: string | undefined;
+  let json = false, dryRun = false;
+  const exclude: string[] = [];
+  const seen = new Set<string>();
+  while (args.length) {
+    const arg = args.shift()!;
+    if (arg !== "--exclude") {
+      if (seen.has(arg)) throw new OperationError(`Option ${arg} can be given only once.`);
+      seen.add(arg);
+    }
+    const value = () => { const next = args.shift(); if (next === undefined || next.startsWith("--")) throw new OperationError(`${arg} requires a value.`); return next; };
+    if (arg === "--json") json = true;
+    else if (arg === "--target-root") targetRoot = path.resolve(value());
+    else if (arg === "--exclude") exclude.push(value());
+    else if (arg === "--review" && verb === "fix") review = value();
+    else if (arg === "--check-json" && verb === "fix") checkJson = value();
+    else if (arg === "--dry-run" && verb === "fix") dryRun = true;
+    else throw new OperationError(`Unexpected argument for project doctor ${verb}: ${arg}.`);
+  }
+  if (verb === "fix" && !review) throw new OperationError("The fix needs --review <digest> from make-docs project doctor check.");
+  let reviewedFiles: Array<{ path: string; sha256: string }> | undefined;
+  if (checkJson) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(readFileSync(path.resolve(checkJson), "utf8"));
+    } catch (error) {
+      throw new OperationError(`--check-json must name a saved check result in JSON: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    const files = (parsed as { files?: unknown })?.files;
+    if (!Array.isArray(files)) throw new OperationError("--check-json must name a saved check result with a files list.");
+    reviewedFiles = files as Array<{ path: string; sha256: string }>;
+  }
+  const invocation = await invokeOperation(`project.doctor.${verb}`, {
+    ...(targetRoot ? { targetRoot } : {}),
+    exclude,
+    ...(review ? { review } : {}),
+    ...(reviewedFiles ? { reviewedFiles } : {}),
+  }, createExecutionContext({
+    surface: "cli",
+    route: launch.route,
+    callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference,
+    cwd: targetRoot,
+    writesAllowed: verb === "fix",
+    dryRun,
+  }));
+  if (verb === "check") {
+    const result = invocation.value as unknown as DoctorCheckResult;
+    process.exitCode = result.status === "clean" ? 0 : 1;
+    if (json) { printJson(result); return; }
+    process.stdout.write(renderDoctorCheck(result));
+    return;
+  }
+  const result = invocation.value as unknown as DoctorFixResult;
+  if (json) { printJson(result); return; }
+  process.stdout.write(renderDoctorFix(result));
+}
+
+const SKIP_REASONS: Record<DoctorCheckResult["skipped"][number]["reason"], string> = {
+  "history-record": "history record",
+  "managed-router": "managed router; fixed upstream by reseed",
+  "symbolic-link": "symbolic link, not followed",
+  "hard-link": "hard link, shares its bytes with another path",
+  "not-utf8-text": "not UTF-8 text",
+};
+
+export function renderDoctorCheck(result: DoctorCheckResult): string {
+  const lines = [`Project doctor: ${result.summary}`, `Project: ${result.targetRoot}`];
+  const counts = result.totals.byCheck["task-id-case"];
+  lines.push(`Read ${result.totals.filesRead} files. Skipped ${result.totals.filesSkipped}. Excluded ${result.totals.filesExcluded}.`);
+  if (result.exclusions.length) lines.push(`Excluded paths: ${result.exclusions.join(", ")}`);
+  for (const file of result.skipped) lines.push(`Skipped: ${file.path} (${SKIP_REASONS[file.reason]})`);
+  for (const text of result.skippedText) lines.push(`Left unchanged: ${text.file}:${text.line}:${text.column} ${text.current} (inside an HTML tag)`);
+  if (result.status === "findings" && counts) {
+    lines.push("", `task-id-case: ${counts.taskLines} task lines and ${counts.proseReferences} prose references.`);
+    for (const check of result.checks) lines.push(`${check.id}: ${check.description}${check.fix ? ` Fix: ${check.fix}` : ""}`);
+    for (const note of result.notes) lines.push(`Note: ${note}`);
+    let file = "";
+    const byLine = new Map<string, DoctorCheckResult["findings"]>();
+    for (const finding of result.findings) {
+      const key = `${finding.file}\u0000${finding.line}`;
+      byLine.set(key, [...(byLine.get(key) ?? []), finding]);
+    }
+    for (const group of byLine.values()) {
+      const first = group[0]!;
+      if (first.file !== file) { file = first.file; lines.push("", file); }
+      const kinds = group.map((finding) => `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
+      lines.push(`  line ${first.line}: ${kinds}`, `    now:   ${first.lineText}`, `    fixed: ${first.fixedLineText}`);
+    }
+    lines.push("");
+  }
+  lines.push(`Review digest: ${result.reviewDigest}`, `Next: ${result.nextAction}`, "");
+  return lines.join("\n");
+}
+
+export function renderDoctorFix(result: DoctorFixResult): string {
+  const lines = [`Project doctor fix: ${result.summary}`, `Project: ${result.targetRoot}`];
+  if (result.exclusions.length) lines.push(`Excluded paths: ${result.exclusions.join(", ")}`);
+  if (result.operationId) lines.push(`Operation: ${result.operationId}`);
+  for (const file of result.changedFiles) lines.push(`${result.status === "fixed" ? "Changed" : "Would change"}: ${file.path} (${file.changes})${file.backup ? ` backup: ${file.backup}` : ""}`);
+  lines.push(`Undo: ${result.undo.instructions}`);
+  if (result.undo.command) lines.push(`Undo command: ${result.undo.command}`);
+  for (const file of result.undo.notTrackedByGit) lines.push(`Not tracked by git, undo from backup: ${file}`);
+  lines.push(`Next: ${result.nextAction}`, "");
+  return lines.join("\n");
 }

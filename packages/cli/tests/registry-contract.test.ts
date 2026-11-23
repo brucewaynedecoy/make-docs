@@ -70,6 +70,7 @@ const LITERAL_P3_ADMITTED_IDENTIFIERS = [
 ] as const;
 
 const LITERAL_P5_ADMITTED_IDENTIFIERS = ["project.path-hygiene.validate", "project.path-hygiene.repair"] as const;
+const LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS = ["project.doctor.check", "project.doctor.fix"] as const;
 const LITERAL_R2_P4_ADMITTED_IDENTIFIERS = ["performance.evidence.validate"] as const;
 const LITERAL_R3_ADMITTED_IDENTIFIERS = ["project.state.status", "project.state.recover"] as const;
 const LITERAL_R4_ADMITTED_IDENTIFIERS = [
@@ -107,12 +108,13 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
       LITERAL_P5_ADMITTED_IDENTIFIERS,
     );
+    expect(admittedIds.filter((id) => id.startsWith("project.doctor."))).toEqual(LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id))).toEqual(LITERAL_R2_P4_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id))).toEqual(LITERAL_R3_ADMITTED_IDENTIFIERS);
     expect(admittedIds.filter(id => LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id))).toEqual(LITERAL_R4_ADMITTED_IDENTIFIERS);
@@ -133,6 +135,7 @@ describe("operation registry contract", () => {
         "project.checkout-move.apply",
         "project.checkout-register.preview",
         "project.checkout-register.apply",
+        ...LITERAL_W31_R0_P3_ADMITTED_IDENTIFIERS,
       ].sort(),
     );
     expect(new Set(ids).size).toBe(ids.length);

@@ -67,7 +67,7 @@ Packed-package validation executes the generated tarball through `npx --package`
 - R-MCP-PROFILE-6 (MUST): the same server factory may serve fixed Streamable HTTP paths `/mcp/core`, `/mcp/setup`, `/mcp/workflow`, `/mcp/quality`, `/mcp/backlog`, `/mcp/factory`, and `/mcp/all` where a supported MCP App or host needs HTTP. Stdio remains supported. Transport and route selection do not bypass caller identity, operation admission, authorization, or write permission. Local HTTP binds to loopback by default; public deployment needs separate authority.
 - R-MCP-PROFILE-7 (SHOULD): hosts that support tool search or deferred loading should use them with short, task-specific profile descriptions. A profile reduces model-visible context only when the host selectively connects or defers definitions. About ten functions per namespace is a design target, not a protocol limit. Profile metadata does not force a host to defer tools.
 - R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, `work_export`, and `work_add` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
-- R-MCP-PROFILE-9 (MUST): the project doctor tools `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR owns their behavior. `project_doctor_check` reads only. `project_doctor_fix` needs the existing project write permission.
+- R-MCP-PROFILE-9 (MUST): the project doctor tools `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR owns their behavior. `project_doctor_check` reads only. `project_doctor_fix` needs the existing project write permission and Store write permission.
 - R-MCP-PROFILE-10 (MUST): `project_list` belongs to `core` and `all`. `setup_store_check` and `setup_store_clean` belong to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD owns their behavior. `project_list` and `setup_store_check` read only. `setup_store_clean` needs the Store write permission.
 
 ### Current MCP Surface
@@ -456,6 +456,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: R-MCP-PROFILE-10 says that `project_list` and `setup_store_check` read only. The W33 R0 P1 name catalog test checks that every tool name in the R-MCP-PROFILE requirements is a current or new catalog name.
 - Rationale: the name catalog showed the stale tool name. The owner accepted the catalog names on 2026-11-22.
 - Source: [W33 R0 P1](../work/2026-11-22-w33-r0-command-tree-and-tool-names/01-name-catalog-and-rules.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p1-name-catalog-and-rules).
+
+### 2026-11-22 — W31 R0 P3
+
+- Affected requirement or section: R-MCP-PROFILE-9.
+- Previous contract: `project_doctor_fix` needed only project write permission.
+- Replacement contract: it also needs Store write permission.
+- Rationale: the reviewed write path records each change in the Store.
+- Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
 
 ## Source Anchors
 

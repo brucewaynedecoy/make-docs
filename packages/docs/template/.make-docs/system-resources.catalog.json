@@ -333,6 +333,13 @@
       ]
     },
     {
+      "uri": "make-docs://system/reference/project-doctor.md",
+      "profiles": [
+        "setup",
+        "quality"
+      ]
+    },
+    {
       "uri": "make-docs://system/reference/wave-model.md",
       "profiles": [
         "workflow",

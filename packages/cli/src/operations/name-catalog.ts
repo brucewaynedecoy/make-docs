@@ -368,8 +368,8 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
     formerPlannedMcp: "project_register_list",
     reason: "PRD 39 R-STORE-CMD names `make-docs project list`. The earlier plan named the tool `project_register_list`.",
   }),
-  planned("project.doctor.check", W31, "project", "project doctor check"),
-  planned("project.doctor.fix", W31, "project", "project doctor fix"),
+  current("project.doctor.check", "project", "project doctor check", "project_doctor_check", "project doctor check"),
+  current("project.doctor.fix", "project", "project doctor fix", "project_doctor_fix", "project doctor fix"),
 
   // resource
   current("resource.list", "resource", "resource list", "resource_list", "resource list"),

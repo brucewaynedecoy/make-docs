@@ -21,6 +21,7 @@ import { lifecycleOperations } from "./lifecycle/registry-ops";
 import { performanceEvidenceOperations } from "./performance-evidence/ops";
 import { projectOperations } from "./project/ops";
 import { projectLayoutOperations } from "./project/layout";
+import { projectDoctorOperations } from "./project/doctor/ops";
 import { uatOperations } from "./uat/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
@@ -155,6 +156,8 @@ export const ADMITTED_OPERATION_IDS = [
   "project.surface.ensure",
   "project.path-hygiene.validate",
   "project.path-hygiene.repair",
+  "project.doctor.check",
+  "project.doctor.fix",
   "lifecycle.start",
   "lifecycle.show",
   "lifecycle.list",
@@ -201,6 +204,8 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.surface.ensure": ["project", "surface ensure"],
   "project.path-hygiene.validate": ["project", "path-hygiene validate"],
   "project.path-hygiene.repair": ["project", "path-hygiene repair"],
+  "project.doctor.check": ["project", "doctor check"],
+  "project.doctor.fix": ["project", "doctor fix"],
   "lifecycle.start": ["run", "lifecycle start"],
   "lifecycle.show": ["run", "lifecycle show"],
   "lifecycle.list": ["run", "lifecycle list"],
@@ -247,6 +252,8 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
     "make-docs project surface ensure <archive|artifacts|assets>",
   "project.path-hygiene.validate": "make-docs project path-hygiene validate",
   "project.path-hygiene.repair": "make-docs project path-hygiene repair",
+  "project.doctor.check": "make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
+  "project.doctor.fix": "make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
 };
 
 export function operationDomain(id: string): string {
@@ -325,6 +332,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...performanceEvidenceOperations,
     ...projectOperations,
     ...projectLayoutOperations,
+    ...projectDoctorOperations,
     ...workOperations,
     ...backlogReviewOperations,
     ...resourceOperations,

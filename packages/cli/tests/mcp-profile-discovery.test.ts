@@ -22,7 +22,7 @@ import { getOperation } from "../src/operations/registry";
 import { cleanupTempDir, createTempDir } from "./helpers";
 
 const EXPECTED_COUNTS: Record<McpServerProfile, number> = {
-  core: 8, setup: 19, workflow: 14, quality: 9, backlog: 5, all: 49,
+  core: 8, setup: 21, workflow: 14, quality: 11, backlog: 5, all: 51,
 };
 
 async function withClient<T>(

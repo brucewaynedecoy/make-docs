@@ -187,6 +187,8 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
       "project.checkout-move.preview",
       "project.checkout-register.apply",
       "project.checkout-register.preview",
+      "project.doctor.check",
+      "project.doctor.fix",
       "project.layout.apply",
       "project.layout.prepare",
       "project.layout.preview",

@@ -1300,6 +1300,14 @@ function savePayload(root: string, opId: string, ordinal: number, label: string,
         fail('snapshot-drift', 'Backup payload verification failed.');
     return relative;
 }
+/** The pending operation ID of the active installation operation for this root, if any. */
+export function getActiveInstallationOperationId(projectRoot: string): string | null { return active.get(canonicalInstallationPath(projectRoot))?.id ?? null; }
+/** Project-relative backup payloads of the prior file bytes, one per journaled file step. */
+export function readInstallationOperationBackups(projectRoot: string, operationId: string, storeRoot?: string): Array<{ relativePath: string; backup: string }> {
+    const root = canonicalInstallationPath(projectRoot);
+    return withInstallationDatabase(root, db => (db.prepare('SELECT relative_path, before_json FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(operationId) as Array<{ relative_path: string; before_json: string }>)
+        .flatMap(step => { const before = JSON.parse(step.before_json) as FileState; return before.kind === 'file' && before.payload ? [{ relativePath: step.relative_path, backup: before.payload }] : []; }), { storeRoot, readOnly: true });
+}
 export function recordPlannedFileChange(projectRoot: string, relativePath: string, after: PlannedFileState, apply: () => void): void { preparePlannedFileChange(projectRoot, relativePath, after, apply)(); }
 export function sealInstallationOperation(projectRoot: string): void { const root = canonicalInstallationPath(projectRoot); const op = active.get(root); if (!op)
     fail('recovery-required', 'No operation to seal.'); if (op.depth > 1)

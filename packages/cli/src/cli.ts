@@ -3734,6 +3734,8 @@ Usage:
   make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
   make-docs project path-hygiene <validate|repair> [--target <dir>] [--scope content|managed] [--path <path> ...] [--manifest <path>] [--include-skills] [--allow-comment-token <text>] [--format text|json]
   Repair previews by default. Add --apply to write, or --dry-run to preview.
+  make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]
+  make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]
 
 The ensure command checks Store installation evidence and configured routers
 before it creates the selected on-demand directory. It reports the applied or
@@ -3747,6 +3749,12 @@ Add --dry-run to inspect recovery without applying changes.
 
 The path-hygiene command checks local docs by default through the same typed
 operation that the MCP tool and migration checkpoint use.
+
+Doctor check reads project files, shows each problem and its exact change, and
+changes nothing. Doctor fix changes only what the check's review digest names,
+keeps a backup, and says how to undo the fix. Pass the saved check result
+(check --json) with --check-json to have the fix name each file that changed
+after the check. Add --dry-run to see the planned changes without writing.
 `);
       return;
     case "resource":

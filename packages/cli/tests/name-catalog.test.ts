@@ -116,12 +116,12 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 43 current operations, 6 hand-defined tools, and 24 planned operations", () => {
+  it("lists 45 current operations, 6 hand-defined tools, and 22 planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    expect(currentOperations).toHaveLength(43);
+    expect(currentOperations).toHaveLength(45);
     expect(tools.map((item) => item.id).sort()).toEqual(
       ["compatibility", "config", "domains", "install_plan", "install_status", "manifest"],
     );
@@ -129,7 +129,7 @@ describe("W33 R0 P1 name catalog", () => {
     expect({ w29: byWave("W29 R0"), w30: byWave("W30 R0"), w31: byWave("W31 R0"), w32: byWave("W32 R0") }).toEqual({
       w29: 9,
       w30: 10,
-      w31: 2,
+      w31: 0,
       w32: 3,
     });
   });
