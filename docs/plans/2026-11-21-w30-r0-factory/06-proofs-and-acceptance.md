@@ -28,6 +28,7 @@ Two capability proofs pass on one package candidate, and their evidence names th
 - Package and installed parity for the Skills, resources, and operations.
 - Human Experience Review for each promise in the plan overview. Reassess Unassisted Goal Testing for first setup.
 - Record evidence in the work backlog's `evidence.md`.
+- New on 2026-11-23: tag each proof case with the capability IDs it exercised and the tool versions; run a version drift test; scan factory records for never-log items.
 
 ## Exclusions
 

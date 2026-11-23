@@ -22,7 +22,9 @@ This capability covers:
 - factory setup, its test task, and workflow readiness;
 - workflow types and their limits;
 - saved setup records, their location, and their generated local copies;
-- assignment records and their link to work claims and lifecycle runs;
+- the resolved workflow plan and its revisions;
+- the never-log list and the reason codes;
+- assignment records, their status moves and correction rounds, and their link to work claims and lifecycle runs;
 - the run loop, waking, the human channel, the escalation floor, and acceptance;
 - the working rules for builders, reviewers, and integration;
 - file backups outside git; and
@@ -57,14 +59,15 @@ Code anchors:
 ### Capability matching
 
 - R-FACTORY-9 (MUST): setup gives a role to a tool because of what the tool can do, not because of its name. The capability catalog in `make-docs://system/contract/factory-contract.md` includes at least: read and write files, run commands, launch agents, wait for an agent, read an agent's result, wake on a schedule, wake on an event, message the person, receive the person's answer, isolate a working copy, and edit code.
-- R-FACTORY-10 (MUST): setup records each capability it found, how it proved it, and the role it gave each tool. A capability that a tool claims but setup could not prove stays marked as unproved.
+- R-FACTORY-10 (MUST): setup records each capability it found, how it proved it, and the role it gave each tool. It records one proof for each capability of each bound tool: the tool, the capability ID, the tool version that the agent reported, the proof time, the result (`proved`, `unproved`, or `contradicted`), and a "does not cover" list of the parts that the proof did not test. A capability that a tool claims but setup could not prove is `unproved`. A capability whose proof failed is `contradicted`. A role never depends on an `unproved` or `contradicted` capability. A proof holds only for the tool version that it names. When an agent reports a different version of a bound tool, the workflow is `drifted` with the reason code `tool-version-changed`. To reach `ready` again, setup runs each proof of that tool again and saves the proofs, saves the workflow, which makes a new plan revision, and passes a new test task under that revision. If the old tool version comes back first, the plan matches the `ready` revision again, and the workflow is `ready` with no new step. The CLI compares reported versions. It never asks a tool for its version.
+- R-FACTORY-53 (MUST): a capability ID uses lower-case letters and hyphens. An ID is only ever added. It is never removed, renamed, or given a new meaning. `factory tools save` and `factory workflow save` refuse an unknown capability ID with the reason code `unknown-capability`.
 
 ### Setup
 
 - R-FACTORY-11 (MUST): the `factory-setup` Skill finds the tools on the machine and in the project, reads the instructions those tools make available, interviews the person for preferences and permissions, wires roles to tools by capability, runs one small test task through the whole workflow, and saves the result.
-- R-FACTORY-12 (MUST): a workflow has one readiness state: `draft`, `wired`, `ready`, or `drifted`. Only a passed test task moves a workflow to `ready`. A workflow is `drifted` when a wired tool, capability proof, or permission no longer holds. Only a `ready` workflow takes new work.
+- R-FACTORY-12 (MUST): a workflow has one readiness state: `draft`, `wired`, `ready`, or `drifted`. The CLI computes the current resolved plan each time from three live sources: the workflow's entry in the config file, the workflow type file, and the machine tool rows in the Store. The machine tool rows give each bound tool's state (`available`, `missing`, or `blocked`), its reported version, and its proof results; the CLI does not take these from the copy in the saved binding. The saved binding gives only the choices that setup saved, and those change only through a save. When the current plan's digest matches the `ready` revision, the workflow is `ready`. When it matches another saved revision, the workflow is `wired` if each needed role is bound and proved, and `draft` if one is not. When it matches no saved revision, the workflow is `drifted`, and the result lists each drift reason code. A lost tool (`missing`), a tool that lost a permission it needs (`blocked`), a new tool version, a contradicted proof, a config edit by hand, and a changed type file each make the workflow `drifted`. An agent reports `missing` and `blocked` through `factory tools save`. A fix that restores the exact plan of the `ready` revision makes the workflow `ready` again with no new test task, because the passed proof belongs to that digest. A fix that gives a new plan needs a save and a passed test task. Only a passed test task makes a revision the `ready` revision. An expired or spent grant never changes readiness. Only a `ready` workflow takes new work.
 - R-FACTORY-13 (MUST): setup lists each one-time manual step with what the person must do, why, and what it unblocks.
-- R-FACTORY-14 (MUST): setup ends with a summary of which tool fills each role, how the workflow wakes, how the factory reaches the person, what the test task proved, and each open manual step.
+- R-FACTORY-14 (MUST): setup ends with a summary of which tool fills each role, how the workflow wakes, how the factory reaches the person, what the test task proved, each known loss that the person accepted, and each open manual step. A known loss is something that the workflow runs without: a capability that no tool could prove, an item on a proof's "does not cover" list, or a missing way to wake on its own. Setup asks the person to accept each known loss and saves each accepted one in the Store.
 - R-FACTORY-15 (MUST): the machine's tool list and capability proofs are saved once per machine and reused by every project on that machine. Each project saves its own workflow choices.
 - R-FACTORY-16 (MUST): a rerun updates the same workflow, shows what changed, and proves again each boundary that changed.
 
@@ -78,16 +81,27 @@ Code anchors:
 
 ### Saved records and local copies
 
-- R-FACTORY-22 (MUST): portable workflow choices live in the `factory:` block of project config: workflow type, roles needed, capability needs, limits, steps, and added escalation events.
-- R-FACTORY-23 (MUST): machine tools, capability proofs, role bindings, human channel and wake bindings, grants, assignments, proof results, and backup records live in the Store. Machine IDs and paths stay in the Store.
-- R-FACTORY-24 (MUST): a grant permits an action outside the default authority, for example a merge, a deploy, a publish, or spending money. A grant belongs to one person on one machine. It never appears in committed config or in a local copy.
-- R-FACTORY-25 (MUST): `.make-docs/factory/` holds generated, read-only, gitignored copies of the saved setup. Each file states that it is generated and that edits are lost. Make Docs never reads a copy as input. `factory restore` writes the copies again from the Store.
-- R-FACTORY-26 (MUST NOT): config, a local copy, or a Store record holds a secret. Secrets stay in the tools that own them.
+- R-FACTORY-22 (MUST): the portable definition of each workflow lives in the `factory:` block of project config, as listed in R-FACTORY-55 and [PRD 24](24-project-configuration-and-convention-overlay.md) R-CONFIG-WORK-2: the type name and type version; each role's job, capability IDs, returns, and context kinds; the round limit and other limits; the gates and added escalation events; the optional steps such as preflight; the integration owner role; and the human channel kind.
+- R-FACTORY-23 (MUST): machine tools and their states, capability proofs, role bindings, human channel and wake bindings, accepted known losses, grants, resolved plan revisions, assignments, proof results, and backup records live in the Store. Machine IDs and paths stay in the Store.
+- R-FACTORY-24 (MUST): a grant permits an action outside the default authority, for example a merge, a deploy, a publish, or spending money. A grant belongs to one person on one machine. It never appears in committed config, in a local copy, or in a resolved plan. Each grant records its action, its scope, an optional expiry time, who granted it, and when. The scope is `once` (one use; the first recorded use spends it), `run` (the one lifecycle run that it names, until that run ends), or `standing` (every run of the workflow, until the person revokes it). `factory workflow save` writes each grant, at setup and during a run. During a run, after the person answers an escalation, the foreman records the answer with a grant-only save, and a `run` grant names its lifecycle run. A grant-only save writes or revokes only the grant: it resolves no plan, saves no revision, and does not change readiness. `factory workflow show` lists grants beside the plan, never inside it. Before an action outside the default authority, the foreman records the use of a grant through `factory assignment update`. The CLI refuses the use with `grant-missing`, `grant-out-of-scope`, `grant-spent`, or `grant-expired`, and the foreman then asks the person again. Setup recommends the narrowest scope that does the job.
+- R-FACTORY-25 (MUST): `.make-docs/factory/` holds generated, read-only, gitignored copies of the saved setup. Each file states that it is generated and that edits are lost. The copy of the resolved plan prints the latest revision and says whether it is the `ready` revision. No copy holds a grant. Make Docs never reads a copy as input. `factory restore` writes the copies again from the Store.
+- R-FACTORY-26 (MUST NOT): a factory record holds file contents, prompts, briefs, environment values, transcripts, or credentials. Factory records are the `factory:` config block, every factory Store record, every resolved plan revision, every local copy, and every status history entry. Secrets stay in the tools that own them. The CLI checks every factory write: it accepts only the fields that the record defines, allows free text only as one line of at most 120 characters, and refuses a value that looks like a credential or an environment setting with the reason code `never-log-field`. The refusal names the field, never the value. The backup copies in `.make-docs/backup/factory/` are file copies, not records.
+- R-FACTORY-54 (MUST): drift results, refusals, and status history entries use reason codes from the fixed lists in `make-docs://system/contract/factory-contract.md`. A reason code is lower-case kebab-case. A code is only ever added. It is never removed, renamed, or given a new meaning. A message to the person explains each code in plain words.
+
+### Resolved workflow plan
+
+- R-FACTORY-55 (MUST): each workflow keeps three sources: the portable definition in its `factory:` config entry, the machine binding in the Store, and the workflow type reference that the config names. The CLI generates one resolved plan that joins them. No person or agent writes it by hand. The portable definition holds the type name and type version; each role's job, capability IDs, returns, and context kinds; the round limit; the gates and added escalation events that only a person decides; the other limits; whether preflight is on; the integration owner role; and the human channel kind. The machine binding has two parts. The saved binding holds, for each role, the bound tool by tool ID, and, for the workflow, the wake method, the human channel account as a reference with no secret, the working-copy method, and each accepted known loss. The machine tool rows hold, for each bound tool, its state, the proved tool version, the proof result, and the "does not cover" list. Grants stay in the Store but are not part of the resolved plan, so a new or spent grant never needs a new test task.
+- R-FACTORY-56 (MUST): the CLI writes the resolved plan as canonical JSON (sorted keys, no extra spaces, UTF-8). The plan digest is the SHA-256 of those bytes. The plan records the type name, the type version, the type file digest, and the status move table version. The Store saves each plan as an immutable revision with the workflow name, the revision number, the plan digest, the plan JSON, the config digest, the binding digest, and the time it was made.
+- R-FACTORY-57 (MUST): `factory workflow save` resolves the current plan and saves a new revision only when no kept revision has its digest. It never makes a revision the `ready` revision. `factory proof save` records a test task result for the plan digest that the test ran under, refuses with `plan-digest-mismatch` a digest that is not the current plan's digest or that has no saved revision, and on a pass makes that revision the `ready` revision. `factory workflow show` reads the latest (newest saved) revision or one named revision, with the current plan digest, the `ready` revision, and each drift reason code, lists the grants beside the plan, and writes nothing. For each workflow, the Store keeps the `ready` revision, each revision that an open assignment names, and the 10 newest other revisions. Each save removes older revisions in the same write.
+- R-FACTORY-58 (MUST): `factory assignment start` records the revision number and digest of the `ready` revision, and refuses with `not-ready` when the workflow is not `ready`. A takeover loads the exact revision that each open assignment names. A new revision never changes an assignment that has already started.
+- R-FACTORY-59 (MUST NOT): the resolved plan holds steps, conditions, branches, joins, or code. It is data: who does each job, with which tool, under which limits, and which move table version applies. The CLI checks writes against it, never reads it to decide what to do next, and never starts anything. The foreman runs the loop from the `factory` Skill and reads the plan as a reference. So the plan is not a workflow engine, and R-FACTORY-5 holds. The plan never holds an item that R-FACTORY-26 forbids.
+- R-FACTORY-60 (MUST): each role's context is a list of context kinds from a fixed set: `unit-record`, `requirements`, `project-files`, `candidate-result`, `defect-list`, `evidence-links`, and `builder-summary`. A role sees only what it is handed. By default, a reviewer never gets `builder-summary`. The list names kinds only. The content is handed over at run time and is never saved.
+- R-FACTORY-61 (MUST): each workflow type states its version in its `## Purpose` section as `Type version: N`, and goes up by one when its rules change. The config names the type version that the person chose. `factory workflow save` refuses a version that does not match the type file with `type-version-mismatch`. A changed type file makes the current plan differ from the latest revision, so the workflow is `drifted` with `type-changed`.
 
 ### Assignments, claims, and lifecycle runs
 
-- R-FACTORY-27 (MUST): an assignment links one job to the tool doing it. It holds the work unit, the role, the tool, the tool's task handle, the lifecycle run ID, the status, and the time of the last check. It holds no prompt, transcript, or task graph.
-- R-FACTORY-28 (MUST): assignment status is one of `offered`, `running`, `returned`, `in-review`, `needs-correction`, `accepted`, `failed`, `cancelled`, or `unknown`. An `unknown` assignment is checked through its task handle before any other step.
+- R-FACTORY-27 (MUST): an assignment links one job to the tool doing it. A job is one work unit, one role, and one part label. The part label is a short lower-case kebab-case name that the foreman gives each part of a unit; a unit with one part uses `main`. An assignment holds the work unit, the role, the part label, the tool, the tool's task handle, the lifecycle run ID, the status, the time of the last check, the correction round count, the revision number and digest of the resolved plan that it runs under, and a status history. The status history keeps the 20 newest status changes. Each entry holds the status, the time, and one reason code, and no free text. An assignment holds no prompt, transcript, or task graph.
+- R-FACTORY-28 (MUST): assignment status is one of `offered`, `running`, `returned`, `in-review`, `needs-correction`, `accepted`, `failed`, `cancelled`, or `unknown`. An assignment moves only along the [status move table](#assignment-status-moves). `accepted`, `failed`, and `cancelled` are final and never change. The CLI refuses any other move with `illegal-move`, and any change to a final assignment with `final-status`. An update that changes only the last check time is not a move. An `unknown` assignment is checked through its task handle before any other step.
 - R-FACTORY-29 (MUST): the foreman can claim a wave, phase, stage, or task through the work queue. The default is a phase. It renews the claim at each check.
 - R-FACTORY-30 (MUST): each claim opens one lifecycle run at stage `implementation`. Each assignment points to that run. Evidence is recorded through the existing evidence and lifecycle evidence operations.
 - R-FACTORY-31 (MUST): the front desk adds a quick item with `work add`. A quick item is routed by capability, like any other unit. A small job can still go to a separate agent.
@@ -112,7 +126,7 @@ Code anchors:
 ### Working rules
 
 - R-FACTORY-40 (MUST): the foreman judges the actual work, not the worker's summary. A reviewer never reviews work it built. A brief does not steer the reviewer toward the builder's conclusions. Green tests do not prove the right behavior, and requirements are not weakened to make a result pass.
-- R-FACTORY-41 (MUST): the foreman stops a correction loop that repeats the same failure. It does not send work again after an unclear handoff; it checks the status first.
+- R-FACTORY-41 (MUST): the foreman stops a correction loop that repeats the same failure, even before the round limit. It does not send work again after an unclear handoff; it checks the status first. The CLI counts correction rounds for each job: the count starts at 0 and goes up by one on each move from `returned` or `in-review` to `needs-correction`. The CLI refuses a move past the round limit of the assignment's plan revision with `round-limit-reached`, and the foreman escalates. The count belongs to the job, so it survives a takeover. Only one assignment for each job is open at a time, and `factory assignment start` refuses a second one with `assignment-open`. Parts of one unit with different part labels can run at the same time, each with its own count. A new assignment for the same job starts at the count of the one before it. Only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`. `factory assignment start` spends that grant when it starts the new assignment, which then starts at 0.
 - R-FACTORY-42 (MUST): one writer works on a file in each working copy. When parallel workers change the same file in separate working copies, the workflow names one integration owner, who merges the work and settles conflicts.
 - R-FACTORY-43 (MUST): the harness and the repository instructions own the worktree policy. Setup saves each workflow's worktree method. The factory obeys a repository or user rule that forbids worktrees.
 
@@ -138,18 +152,32 @@ Code anchors:
 | --- | --- | --- |
 | `factory.status` | `make-docs factory status` | Reads workflows, readiness, claims, assignments, and open manual steps. |
 | `factory.tools.save` | `make-docs factory tools save` | Checks and saves the machine's tool list and capability proofs. |
-| `factory.workflow.save`, `.show`, `.list` | `make-docs factory workflow save \| show \| list` | Checks and saves a workflow, or reads workflows. |
-| `factory.proof.save` | `make-docs factory proof save` | Saves a test task result. Moves a workflow to `ready` when the proof passed. |
-| `factory.assignment.start`, `.update`, `.list` | `make-docs factory assignment start \| update \| list` | Records and reads assignments. |
-| `factory.restore` | `make-docs factory restore` | Writes the `.make-docs/factory/` copies again. |
+| `factory.workflow.save`, `.show`, `.list` | `make-docs factory workflow save \| show \| list` | Checks and saves a workflow and a new resolved plan revision when the plan changed, or reads workflows and plan revisions. |
+| `factory.proof.save` | `make-docs factory proof save` | Saves a test task result for one plan revision. Makes it the `ready` revision when the proof passed. |
+| `factory.assignment.start`, `.update`, `.list` | `make-docs factory assignment start \| update \| list` | Records and reads assignments. Update checks status moves, correction rounds, and grant use. |
+| `factory.restore` | `make-docs factory restore` | Writes the `.make-docs/factory/` copies again, with the latest resolved plan. |
 
 - R-FACTORY-49 (MUST): each operation is also an MCP tool in the `factory` MCP profile under [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md). CLI and MCP results come from one core.
-- R-FACTORY-50 (MUST): every write uses the existing write permission, `expectedVersion`, and Store-unavailable outcomes. `workflow save` refuses `ready` without a passed proof. `assignment start` and `update` check the work queue claim and refuse a caller that no longer holds it.
+- R-FACTORY-50 (MUST): every write uses the existing write permission, `expectedVersion`, and Store-unavailable outcomes. `workflow save` refuses `ready` without a passed proof. `assignment start` and `update` take the private claim ID of the unit's live claim, as [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-19 requires, and refuse a caller that no longer holds the claim. No factory record, note, or message holds a claim ID.
 - R-FACTORY-51 (MUST): `factory status` shows each claimed unit, its tool, its state, and the last check time in human words first, with exact detail in machine output.
+
+### Assignment status moves
+
+| From | Allowed next status |
+| --- | --- |
+| `offered` | `running`, `unknown`, `failed`, `cancelled` |
+| `running` | `returned`, `unknown`, `failed`, `cancelled` |
+| `returned` | `in-review`, `needs-correction`, `unknown`, `failed`, `cancelled` |
+| `in-review` | `accepted`, `needs-correction`, `unknown`, `failed`, `cancelled` |
+| `needs-correction` | `offered`, `running`, `unknown`, `failed`, `cancelled` |
+| `unknown` | `offered`, `running`, `returned`, `in-review`, `needs-correction`, `failed`, `cancelled` |
+| `accepted`, `failed`, `cancelled` | None. These are final. |
+
+This is move table version 1. Every workflow uses it. A workflow cannot change it.
 
 ### Shared rules
 
-- R-FACTORY-52 (MUST): the factory contract holds the roles, capability catalog, readiness states, escalation floor, acceptance rule, working rules, limits, and the backup rule. Where the CLI checks a rule, the code and the contract give the same answer. A change to one form requires a review of the other.
+- R-FACTORY-52 (MUST): the factory contract holds the roles, capability catalog, readiness states, grant scopes, resolved plan, status moves, correction rounds, escalation floor, acceptance rule, working rules, limits, the backup rule, the never-log list, and the reason codes. Where the CLI checks a rule, the code and the contract give the same answer. A change to one form requires a review of the other.
 
 ## Integrations
 
@@ -165,6 +193,50 @@ Code anchors:
 - The assignment record exists for recovery. Without it, a lost reply leads to duplicate work. Check the handle first.
 - Grants are the main safety boundary. Keep them out of every committed or copied file.
 - The factory must never grow into a scheduler or a relay. Waking and messaging belong to the person's tools.
+- The resolved plan is a record, not a program. If a change would add a step, a condition, or a branch to it, the change belongs in the Skill or the workflow type instead.
+- Status moves, rounds, and grant scopes are checked by the CLI because an agent can lose count across a crash or a takeover. Judgment, such as whether two failures are the same, stays with the agent.
+
+## Requirement History
+
+### 2026-11-23 — W30 R0 Assignment Status Moves and Correction Rounds
+
+- Affected requirement or section: R-FACTORY-27, R-FACTORY-28, R-FACTORY-41, R-FACTORY-50, and the assignment status move table.
+- Previous contract: an assignment had nine status values with no rule on which moves were allowed. The round limit was a saved setting that only the foreman applied. An assignment had no history.
+- Replacement contract: a fixed move table with three final states that never change; a round count on each job that the CLI enforces against the plan's round limit and that survives a takeover; one open assignment for each job (unit, role, and part label), so parts of one unit can run at the same time; a status history of the 20 newest changes with a reason code each. `factory assignment start` spends a `once` grant for `reset-correction-rounds`. On 2026-11-23 the owner confirmed option A of register D-071: a new try of the same job keeps the count, and only that grant resets it. `assignment start` and `update` take the private claim ID. This is new behavior.
+- Rationale: an agent can lose count of rounds or move a finished job back after a crash or a takeover. The CLI holds the count so that the limit holds.
+- Source: the owner's approval on 2026-11-23, recorded in the [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-23 — W30 R0 Capability Proof Validity
+
+- Affected requirement or section: R-FACTORY-10, R-FACTORY-14, and the new R-FACTORY-53.
+- Previous contract: setup recorded a capability as proved or unproved, with no tool version, no failed state, and no list of what the proof left out. The summary did not list accepted losses.
+- Replacement contract: each proof records the reported tool version, the time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. A changed tool version means the proofs of that tool run again, and the workflow is `drifted` until then. The summary lists each accepted known loss. Capability IDs are lower-case, only added, and never given a new meaning. This is new behavior.
+- Rationale: a proof against one tool version says nothing about the next one, and a person must see what the workflow runs without.
+- Source: the owner's approval on 2026-11-23, recorded in the [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-23 — W30 R0 Never-Log List and Reason Codes
+
+- Affected requirement or section: R-FACTORY-26 and the new R-FACTORY-54.
+- Previous contract: config, copies, and Store records held no secret. No check covered copies or Store records. Results had no fixed reason codes.
+- Replacement contract: factory records never hold file contents, prompts, briefs, environment values, transcripts, or credentials, and the CLI checks every factory write. Drift results, refusals, and status history use stable kebab-case reason codes that are only added. This is new behavior.
+- Rationale: a record that can hold free text will one day hold a secret or a prompt. Stable codes let agents and tests rely on results.
+- Source: the owner's approval on 2026-11-23, recorded in the [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-23 — W30 R0 Scoped Grants
+
+- Affected requirement or section: R-FACTORY-24.
+- Previous contract: a grant named an action with no scope or expiry.
+- Replacement contract: each grant records its action, a scope of `once`, `run`, or `standing`, and an optional expiry. `factory workflow save` writes each grant, also during a run as a grant-only save that changes nothing else. `workflow show` lists grants beside the plan, and no copy holds a grant. On 2026-11-23 the owner confirmed option A of register D-072: grants stay outside the plan digest. The CLI refuses a grant use outside the scope or after the expiry, and the foreman asks the person again. This is new behavior.
+- Rationale: a person who allows one merge has not allowed every merge.
+- Source: the owner's approval on 2026-11-23, recorded in the [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-23 — W30 R0 Resolved Workflow Plan
+
+- Affected requirement or section: R-FACTORY-10, R-FACTORY-12, R-FACTORY-22, R-FACTORY-23, R-FACTORY-25, R-FACTORY-52, the operations table, and the new R-FACTORY-55 to R-FACTORY-61.
+- Previous contract: a workflow lived in three parts (config, Store bindings, and the type) with no single joined record. Drift meant that a wired tool, proof, or permission no longer held, and the check was not exact. An assignment did not record which setup it ran under.
+- Replacement contract: the CLI generates one resolved plan from the three parts as canonical JSON with a digest, and the Store keeps it as immutable revisions under a bounded rule. Each assignment records its plan revision and digest, and a takeover loads that exact revision. The CLI computes the current plan from three live sources (the config file, the type file, and the machine tool rows). It is `ready` when its digest matches the `ready` revision, `wired` or `draft` when it matches another saved revision, and `drifted` when it matches none, so a fix that restores the `ready` digest needs no new test task. R-FACTORY-22 now lists the full portable definition, and R-FACTORY-23 adds tool states, known losses, and plan revisions to the Store. Workflow types state a type version. The plan is data, not a program, so R-FACTORY-5 holds. This is new behavior.
+- Rationale: a takeover or a recovery must run under the exact setup that the work started with, and a person must be able to see exactly what changed.
+- Source: the owner's approval on 2026-11-23, recorded in the [factory design](../designs/2026-11-21-factory.md).
 
 ## Source Anchors
 

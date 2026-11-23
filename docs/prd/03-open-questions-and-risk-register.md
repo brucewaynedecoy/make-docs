@@ -1436,6 +1436,38 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **To close**: The setup and adoption owner chooses the fix. A test on a clone with a saved project ID and no Store shows that one command, or at most two with the first naming the second, completes the adoption.
 
+### D-071 Factory Round Count After the Limit Carries Forward
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-41 and the factory contract state it. | W30 R0 P3 T13 builds and tests the rule. |
+
+**Question**: When a factory assignment reaches its correction round limit and stops, how does a new try of the same job start?
+
+**Why it matters**: The owner approved a round count that the CLI enforces and that survives a takeover. A new assignment that starts at 0 would let a foreman reset the limit by stopping and starting again.
+
+**Recommendation**: Option A (stated now): a new assignment for the same job (unit, role, and part label) starts at the count of the one before it, and only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`, which `factory assignment start` spends. Option B: a new assignment starts at 0, and the run Skill must ask the person first, with no CLI check. Option A keeps the limit a real limit and reuses the grant rules, so no new command is needed.
+
+**To close**: The owner confirms; PRD 53 R-FACTORY-41 and the contract match the choice; W30 R0 P3 T13 tests it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. A new try of the same job (unit, role, and part label) keeps the round count. Only a `once` grant for `reset-correction-rounds` resets it, and `factory assignment start` spends that grant. PRD 53 R-FACTORY-41, its Requirement History, and the factory contract state the choice. The CLI check is built in W30 R0 P3 T13.
+
+### D-072 Factory Grants Stay Outside the Resolved Plan Digest
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-24 and R-FACTORY-55 and the factory contract state it. | W30 R0 P3 T17, T18, and T20 build and test the rule. |
+
+**Question**: Are grants part of the resolved plan and its digest?
+
+**Why it matters**: A change in the plan digest drifts the workflow and needs a new test task. Grants change often: a `once` grant is spent on first use, and a person can add one in answer to an escalation.
+
+**Recommendation**: Option A (stated now): grants stay in the Store beside the plan, are shown with it, and are never part of its digest. A grant changes what the foreman may do without asking, not the wiring. Option B: standing grants are part of the plan, and `once` and `run` grants stay outside. Option A avoids a new revision and a new test task for each grant.
+
+**To close**: The owner confirms; PRD 53 R-FACTORY-24 and R-FACTORY-55 and the contract match the choice; W30 R0 P3 T18 tests it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. Grants stay in the Store, outside the resolved plan and its digest. `factory workflow show` lists them beside the plan, and no `.make-docs/factory/` copy ever holds a grant. PRD 53 R-FACTORY-24 and R-FACTORY-55, their Requirement History, and the factory contract state the choice. The CLI checks are built in W30 R0 P3 T17, T18, and T20.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

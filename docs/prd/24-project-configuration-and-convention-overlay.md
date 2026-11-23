@@ -110,7 +110,7 @@ The project harness-integration schema is separate from `harnessCapabilities`. I
 ### Work and Factory Settings
 
 - R-CONFIG-WORK-1 (MUST): an optional top-level `work` block holds shared work store intent: `projection` (`on` or `off`, default `on`) for the `docs/work/` repo copy, `syncHold` for the repository-relative work folders or files that sync never writes or removes, and `tracker` for the selected tracker connection name and its field map. [PRD 52](52-work-store-and-work-queue.md) owns their meaning. The local store is the only v1 connection.
-- R-CONFIG-WORK-2 (MUST): an optional top-level `factory` block holds portable workflow choices: each workflow's type, the roles it needs, the capabilities each role needs, its limits, its optional steps such as preflight, and its added escalation events. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning.
+- R-CONFIG-WORK-2 (MUST): an optional top-level `factory` block holds portable workflow choices: each workflow's type and type version; the roles it needs, with each role's job, the capabilities it needs, what it returns, and the context kinds it gets; its round limit and other limits; its gates and added escalation events; its optional steps such as preflight; its integration owner role; and its human channel kind. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning, and its never-log list applies to the whole block.
 - R-CONFIG-WORK-3 (MUST): neither block holds grants, tool bindings, task handles, machine IDs, machine paths, digests, receipts, claims, locks, proof results, or secrets. Those stay in the Store or in the tools that own them. Validation rejects them in either block. In the `work` block, it names each such key and what it holds, and it refuses a field map value that looks like a key or a token.
 - R-CONFIG-WORK-4 (MUST): Make Docs writes these blocks only through the same comment- and unknown-key-preserving config writer that setup uses, after the person reviews the change. Dry run shows the exact change. An absent block keeps the defaults: repo copies on, no tracker map beyond the local store, and no factory workflow.
 
@@ -282,6 +282,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: validation names each state or secret key in the `work` block with its own words (`work-block-state-field`), and refuses a field map value that looks like a key or a token.
 - Rationale: W29 R0 P5 T4. A person who pastes a digest or a token into the block learns why it does not belong there.
 - Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
+
+### 2026-11-23 — W30 R0 Factory Owner Review
+
+- Affected requirement or section: R-CONFIG-WORK-2.
+- Previous contract: the `factory` block held each workflow's type, roles, capability needs, limits, optional steps, and added escalation events.
+- Replacement contract: the block also holds the type version, each role's job, returns, and context kinds, the round limit, the gates, the integration owner role, and the human channel kind. These fields are the portable definition that the factory's resolved plan joins with the Store binding. The PRD 53 never-log list applies to the whole block. This is new behavior.
+- Rationale: the owner approved the resolved workflow plan on 2026-11-23. The portable half of the plan must live in committed config.
+- Source: [Factory design](../designs/2026-11-21-factory.md) and [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-55.
 
 ## Source Anchors
 

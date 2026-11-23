@@ -28,7 +28,7 @@ Two capability proofs run on one package candidate. The owner picks the real too
 - Executor: the implementing agent, with the owner choosing the real tools.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-1 to R-FACTORY-52, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-1 to R-FACTORY-61, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -89,6 +89,26 @@ There are no performance candidates.
 - A48: Installed Skills, resources, and operations match the package candidate.
 - A49: No shipped file names a particular tool as required or default.
 - A50: Each promise in the index has a recorded Human Experience Review conclusion and its limits.
+
+### Dependencies
+
+- Stage 1.
+
+## Stage 3 - Capability Tags, Version Drift, and Never-Log Scan
+
+New on 2026-11-23. The owner approved these changes after P1 was done.
+
+### Tasks
+
+- [ ] T11: Tag each proof case in the evidence with the capability IDs it exercised, the tool version each tool reported, and each proof result. List each "does not cover" item and each accepted known loss (R-FACTORY-10, R-FACTORY-14, R-FACTORY-53).
+- [ ] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
+- [ ] T13: After both proofs, scan the Store factory records, the plan revisions, the status history, and the `.make-docs/factory/` copies for file contents, prompts, briefs, environment values, transcripts, and credentials (R-FACTORY-26).
+
+### Acceptance criteria
+
+- A70: Each proof case in the evidence names the capability IDs it exercised, with the tool version and result of each.
+- A71: The version drift test shows `tool-version-changed` and one fix step, and no new work starts.
+- A72: The never-log scan finds no never-log item, or each finding is fixed and the scan runs again clean.
 
 ### Dependencies
 

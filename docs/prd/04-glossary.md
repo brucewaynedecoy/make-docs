@@ -100,7 +100,9 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Workflow type | A shipped or project-owned reference resource that defines a factory workflow's roles, capability needs, steps, limits, and result. v1 ships build then review, lead and specialists, and staged backlog. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 06](06-template-contracts-and-generated-assets.md) |
 | Human channel | The one saved way a factory workflow sends a message to the person and receives the answer. The last resort is wait in session. | [PRD 53](53-factory-setup-and-orchestration.md) |
 | Escalation floor | The fixed minimum set of events that always reach the person: an action outside the granted authority, a scope change, a stopped correction loop, a missing tool or permission, and work ready to accept. A workflow can add events but cannot remove these. | [PRD 53](53-factory-setup-and-orchestration.md) |
-| Grant | One person's Store-only permission on one machine for a factory action outside the default authority, such as a merge, deploy, publish, or spend. It is never committed. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
+| Grant | One person's Store-only permission on one machine for a factory action outside the default authority, such as a merge, deploy, publish, or spend. Its scope is `once`, `run`, or `standing`, and it can have an expiry time. It is never committed. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
+| Resolved plan | The record that the CLI generates for one factory workflow by joining its config entry, its Store binding, and its workflow type. The Store keeps it as immutable revisions with a digest. Each assignment names the revision it runs under. It is data, not a program, and it is not a plan under `docs/plans/`. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
+| Correction round | One return of a factory job to its builder after review found defects. The CLI counts rounds on each assignment and refuses a round past the workflow's limit. | [PRD 53](53-factory-setup-and-orchestration.md) |
 
 ## Requirement History
 
@@ -143,6 +145,14 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: the glossary defines them, owned by PRD 38 and PRD 39.
 - Rationale: plans, work, and guides need one name for each.
 - Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-23 — W30 R0 Factory Owner Review
+
+- Affected requirement or section: `Terms` — Grant, Resolved plan, Correction round.
+- Previous contract: Grant had no scope. No term named the joined workflow record or the round count.
+- Replacement contract: Grant has a scope and an optional expiry. Resolved plan and Correction round are defined. This is new behavior.
+- Rationale: the owner approved scoped grants, correction rounds, and the resolved workflow plan on 2026-11-23.
+- Source: [Factory design](../designs/2026-11-21-factory.md) and [PRD 53](53-factory-setup-and-orchestration.md).
 
 ## Source Anchors
 

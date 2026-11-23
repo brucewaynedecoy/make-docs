@@ -26,6 +26,7 @@ Four upstream resources exist: `make-docs://system/contract/factory-contract.md`
 - The repo path and fields for a project-owned workflow type. A project type never replaces a shipped type silently.
 - A rule catalog that maps each rule to its CLI check (where one exists) and its contract text, for the twins review.
 - Examples that describe tools only by capability.
+- New on 2026-11-23, after P1 was done: the contract adds proof versions and results, known losses, digest-based readiness, grant scopes, the resolved plan, status moves, correction rounds, status history, the never-log list, reason codes, and Rule Catalog rows. Each type reference states `Type version: 1`.
 
 ## Exclusions
 

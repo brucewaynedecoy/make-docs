@@ -28,7 +28,7 @@ The `factory` Skill in `packages/skills/factory/` loads one `ready` workflow and
 - Executor: the implementing agent, with owner feedback invited.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-21, R-FACTORY-29 to R-FACTORY-48, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-21, R-FACTORY-24, R-FACTORY-26 to R-FACTORY-48, R-FACTORY-54, R-FACTORY-58, and R-FACTORY-60, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -113,6 +113,27 @@ There are no performance candidates.
 ### Dependencies
 
 - Stage 1.
+
+## Stage 4 - Moves, Rounds, Grants, Context, and Plan Revisions
+
+New on 2026-11-23. The owner approved these changes after P1 was done.
+
+### Tasks
+
+- [ ] T16: Move each assignment only along the status move table, and never change a final assignment. When the CLI refuses a move with `round-limit-reached`, stop and escalate floor event 3 with the evidence (R-FACTORY-28, R-FACTORY-41).
+- [ ] T17: Run each assignment under the plan revision it names. Give each part of a unit its own part label, so the parts run as separate jobs. After a takeover, load that exact revision and go on with the same round count. Take no new work when the workflow is `drifted`, and explain each drift reason code in plain words (R-FACTORY-12, R-FACTORY-54, R-FACTORY-58).
+- [ ] T18: Before an action outside the default authority, record the use of a grant. When the CLI refuses it, ask the person again through the human channel, and record the answer with a grant-only `factory workflow save` (R-FACTORY-24).
+- [ ] T19: Hand each role only the context kinds that its plan lists. Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record. Apply the same rule to the progress note of `make-docs work report --note`. Send the private claim ID to `factory assignment start` and `update`, and never write it into a record, a note, or a message. Use a reason code for each status change (R-FACTORY-26, R-FACTORY-54, R-FACTORY-60).
+
+### Acceptance criteria
+
+- A67: A fixture run reaches the round limit, gets `round-limit-reached`, and escalates. In a takeover fixture, the new foreman loads the same revision and the round count goes on.
+- A68: A fixture run that tries a second merge on a spent `once` grant asks the person again, and does not merge.
+- A69: A reviewer brief in a fixture run holds only the reviewer's listed context kinds, and no factory record from the run holds a never-log item or a claim ID.
+
+### Dependencies
+
+- Stage 1 and P3 Stages 3 and 4.
 
 ### Closeout Notes
 

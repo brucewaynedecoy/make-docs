@@ -37,7 +37,8 @@ Completion requires:
 - a new `factory-setup` Skill and a rewritten `factory` Skill, both explicit-invocation-only;
 - file backups outside git with automatic cleanup and a note in the backup folder;
 - the backlog review "Work on this wave" handoff to the foreman when a workflow is ready;
-- two first-release proofs described by capability, with the real tools named in the release notes.
+- two first-release proofs described by capability, with the real tools named in the release notes;
+- new on 2026-11-23: a fixed assignment status move table with final states and a CLI-enforced correction round count; capability proofs with a tool version, a three-way result, and a "does not cover" list; a never-log list and stable reason codes; grants with a scope and an optional expiry; and a resolved workflow plan that the CLI generates and saves as immutable revisions.
 
 ## Human Experience Propagation
 
@@ -45,11 +46,12 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 
 | Promise | Owning PRD | Human-facing surface or indirect effect | Work phase | Evidence source or selected testing type | Accepted obligation, if any |
 | --- | --- | --- | --- | --- | --- |
-| Setup ends with a plain summary of roles, wake method, human channel, test result, and open manual steps. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `factory-setup` Skill closing summary | [P4](04-factory-setup-skill.md), [P6](06-proofs-and-acceptance.md) | Two capability proofs, Guided Progress Review | None |
+| Setup ends with a plain summary of roles, wake method, human channel, test result, accepted known losses, and open manual steps. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `factory-setup` Skill closing summary | [P4](04-factory-setup-skill.md), [P6](06-proofs-and-acceptance.md) | Two capability proofs, Guided Progress Review | None |
 | The person hears only floor events and added events. Each message says what happened, what is needed, and what happens next. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Human channel messages from the front desk | [P1](01-factory-contract-and-workflow-types.md), [P5](05-factory-run-skill-and-handoffs.md) | Escalation fixtures, Guided Progress Review of real messages | None |
 | `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | `factory status` CLI and `factory_status` MCP output | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | None |
 | At the end of the given scope, the person gets one acceptance request with the reviewed result and evidence. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Acceptance message and status | [P5](05-factory-run-skill-and-handoffs.md), [P6](06-proofs-and-acceptance.md) | Capability proofs, Human Experience Review | None |
 | A drifted workflow says so before it takes new work and names the smallest fix. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) | Status, the foreman's first step, and an escalation message | [P3](03-factory-operations.md), [P5](05-factory-run-skill-and-handoffs.md) | Drift test that removes a wired tool | None |
+| New on 2026-11-23: when a tool changes version, or the setup changes without a save, the factory says what changed in plain words, with its reason code, before it takes new work. | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-54 | `factory status` and `factory workflow show` output, and the foreman's drift message | [P3](03-factory-operations.md) T20 and T21, [P5](05-factory-run-skill-and-handoffs.md) T17 | Drift fixtures (P3 A61), the version drift test (P6 T12), Guided Progress Review of status output | None |
 
 ## Performance Evidence Plan
 
@@ -97,6 +99,10 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 | PRD 08 | 2026-11-21 / W30 R0 | R-SKILL-BUNDLE-3 and the Skill list | Eight first-party Skills. `factory` is a coordination aid with no saved setup. | Nine Skills. `factory-setup` and `factory` stay explicit-invocation-only. `factory` runs saved workflows. | Saved, proved setup. | [Design](../../designs/2026-11-21-factory.md) |
 | PRD 25 | 2026-11-21 / W30 R0 | R-SKILL-RUNTIME-4 | The factory records no assignments and keeps worker status only in the selected tool. | The factory records assignments in the Store. It still cannot authorize implementation by itself. | Crash and handoff recovery. | [Design](../../designs/2026-11-21-factory.md) |
 | PRD 38 | 2026-11-21 / W30 R0 | R-DB-5 | No project-local copy of Store records. | One narrow exception for generated, read-only, gitignored factory copies. | The owner kept readable local copies. | [Design](../../designs/2026-11-21-factory.md) |
+| PRD 53 | 2026-11-23 / W30 R0 | R-FACTORY-10, -12, -14, -24 to -28, -41, -52, and new R-FACTORY-53 to -61 | No move table, round count, proof version, grant scope, never-log check, reason codes, or resolved plan. | The five owner-approved changes. | Owner review on 2026-11-23. | [Design](../../designs/2026-11-21-factory.md) |
+| PRD 38 | 2026-11-23 / W30 R0 | R-MIN factory rows | No proof version, grant scope, round count, plan link, or plan table. | New fields and the `bounded` `factory_workflow_plans` table. | Owner review on 2026-11-23. | [Design](../../designs/2026-11-21-factory.md) |
+| PRD 24 | 2026-11-23 / W30 R0 | R-CONFIG-WORK-2 | The `factory` block held type, roles, capabilities, limits, steps, and added events. | It also holds the type version, role job, returns, and context kinds, the round limit, gates, integration owner, and human channel kind. | Portable half of the resolved plan. | [Design](../../designs/2026-11-21-factory.md) |
+| PRD 04 | 2026-11-23 / W30 R0 | Terms | Grant had no scope. | Grant scope; new Resolved plan and Correction round terms. | Shared vocabulary. | [Design](../../designs/2026-11-21-factory.md) |
 
 ## Phase Map
 
@@ -158,6 +164,11 @@ Use jdocmunch for project documents and jcodemunch for code during implementatio
 - Prove backups outside git, their cleanup on close and after 30 days, and that cleanup never touches installation recovery backups.
 - Prove CLI JSON and MCP parity for every new operation.
 - Complete the two capability proofs and a Human Experience Review for each promise above.
+- Prove the status move table, final states, and the round limit, including after a takeover.
+- Prove that a changed tool version drifts the workflow until its proofs run again, and tag each proof case with the capability IDs it exercised.
+- Prove grant scopes and expiry, and that a refused grant use leads to a new request to the person.
+- Prove that the resolved plan digest is stable, that revisions never change, that retention keeps the right revisions, and that a takeover loads the assignment's own revision.
+- Prove that no factory record holds a never-log item, and that released reason codes never change.
 
 Automated Implementation Testing is required for every implementation phase. Guided Progress Review is selected for the setup summary, status output, escalation messages, and the acceptance request. Unassisted Goal Testing is `not-needed-now`. Reassess at P6 if a normal-use discoverability question about first setup remains open.
 
@@ -204,3 +215,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 39 and PRD 53.
 - Owner approval: the owner's command tree choices on 2026-11-22.
 - Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)
+
+### 2026-11-23 — W30 R0
+
+- Kind: `edit`
+- Affected scope: the objective, validation, and requirement history entries of this plan, the P1 resources after P1 was done, and the scope of P2 to P6.
+- Previous scope: the plan had no assignment status moves, correction round count, proof version, grant scope, never-log check, reason codes, or resolved workflow plan.
+- Replacement scope: P1's contract and type references gain these rules. After an independent review on the same day, rounds and open assignments are keyed on the job (unit, role, and part label), the current plan comes from three live sources, a restored `ready` digest returns to `ready` with no new test task, a grant-only `workflow save` writes grants during a run, and `assignment start` takes the private claim ID and spends a reset grant. P2 adds the `factory_workflow_plans` table and the new fields. P3 adds the CLI checks. P4 and P5 add the Skill text. P6 tags each proof case with the capability IDs it exercised, and adds a version drift test and a never-log scan. No command or MCP name changes. All of this is new behavior.
+- Rationale: the owner approved five factory changes on 2026-11-23: status moves and rounds, proof validity, the never-log list and reason codes, scoped grants, and the resolved workflow plan. The resolved plan stays data, so R-FACTORY-5 (no workflow engine) holds.
+- PRD decision: `update-existing` — PRD 53, PRD 38 R-MIN rows, PRD 24 R-CONFIG-WORK-2, and PRD 04 terms. The owner chose option A for two choices on 2026-11-23: register D-071 (the round count carries forward) and D-072 (grants stay outside the plan digest). Both items are closed.
+- Owner approval: the owner's review on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md)

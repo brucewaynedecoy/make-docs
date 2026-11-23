@@ -27,6 +27,7 @@ One append-only migration after W29's v8 adds the factory tables, each with the 
 - Copies: generated, read-only, gitignored files under `.make-docs/factory/`, each with a generated-file note. Never read as input. Written on each factory save and by restore.
 - Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
 - Backups: in a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record it. Delete an assignment's backups when its work is accepted or closed, and any backup older than 30 days. Write a `README.md` in the backup folder that states this rule and how to get a file back. Never touch installation recovery backups.
+- New on 2026-11-23: the `factory_workflow_plans` table (immutable revisions, `bounded` retention); the part label, the round count, plan revision and digest, and 20-entry status history on assignments; a tool state on machine tool rows; tool version, result, and "does not cover" list on proofs; known losses and the `ready` revision on bindings; scope and expiry on grants; the new portable fields in the `factory:` block; and a printed copy of the latest plan revision.
 
 ## Exclusions
 

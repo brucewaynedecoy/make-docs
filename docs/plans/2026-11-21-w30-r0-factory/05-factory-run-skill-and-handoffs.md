@@ -30,6 +30,7 @@ The `factory` Skill loads one `ready` workflow and its type and runs the loop fr
 - Write escalation and acceptance messages that say what happened, what is needed, and what happens next.
 - Update the backlog review "Work on this wave" button so that it sends the wave to the foreman through the front desk when a workflow is `ready`. Keep today's behavior otherwise.
 - Remove the profiles reference. Keep the Skill explicit-invocation-only.
+- New on 2026-11-23: follow the status move table, escalate at the round limit, run each assignment under its own plan revision, record grant use and ask again on refusal, hand each role only its context kinds, and keep never-log items out of factory records.
 
 ## Exclusions
 

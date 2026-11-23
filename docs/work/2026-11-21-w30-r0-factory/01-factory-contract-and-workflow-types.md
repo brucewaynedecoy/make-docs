@@ -113,3 +113,16 @@ There are no performance candidates.
 - Phase / capability status: implementation complete and uncommitted, on `4daaf18f`. A1 to A8 have evidence. The factory and work queue commands named in the resources are planned, not built.
 - Waits for: nothing. P1 could start any time.
 - Next: P2 waits for all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md).
+
+## Change History
+
+### 2026-11-23 — W30 R0 P1
+
+- Kind: `edit`
+- Affected scope: the factory contract and the three workflow type references, after P1 was done.
+- Previous scope: the P1 contract had no status move table, no correction round count, no proof version or result, no grant scope, no never-log list, no reason codes, and no resolved plan. The type references stated no version.
+- Replacement scope: the contract adds the proof fields and re-proof rule, known losses in the setup summary, digest-based readiness, a `### How the CLI Finds the State` section (three live sources, tool states, and a restored `ready` digest that needs no new test task), job keys with a part label, grant-only saves during a run, the private claim ID on assignment calls, the `## Grants`, `## Resolved Plan`, `### Status Moves`, `### Correction Rounds`, `### Status History`, `## Never-Log List`, and `## Reason Codes` sections, and new Rule Catalog rows. Each type reference states `Type version: 1`. The upstream files changed first in `packages/docs/template/`, and the dogfood copies match them byte for byte. The P1 resource test still passes. All of this is new behavior. Later phases build the checks.
+- Rationale: the owner approved five factory changes on 2026-11-23: status moves and rounds, proof validity, the never-log list and reason codes, scoped grants, and the resolved workflow plan.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-10, -12, -14, -24 to -28, -41, -52, and new R-FACTORY-53 to R-FACTORY-61; PRD 38 R-MIN rows; PRD 24 R-CONFIG-WORK-2; PRD 04 terms.
+- Owner approval: the owner's review on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md)

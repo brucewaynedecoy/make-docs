@@ -28,7 +28,7 @@ This phase adds a new first-party Skill, `factory-setup`, in `packages/skills/fa
 - Executor: the implementing agent, with owner feedback invited.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-1 to R-FACTORY-3, R-FACTORY-8 to R-FACTORY-16, R-FACTORY-21, R-FACTORY-35, R-FACTORY-36, R-FACTORY-43, and R-FACTORY-48, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-1 to R-FACTORY-3, R-FACTORY-8 to R-FACTORY-16, R-FACTORY-21, R-FACTORY-35, R-FACTORY-36, R-FACTORY-43, R-FACTORY-48, R-FACTORY-55, R-FACTORY-57, and R-FACTORY-60, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -94,6 +94,27 @@ There are no performance candidates.
 ### Dependencies
 
 - Stage 1.
+
+## Stage 3 - Proof Records, Known Losses, Grants, and the Resolved Plan
+
+New on 2026-11-23. The owner approved these changes after P1 was done.
+
+### Tasks
+
+- [ ] T14: For each proof, record the tool version that the tool reports, the proof time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. When a bound tool reports a new version, run its proofs again before the workflow takes new work (R-FACTORY-10).
+- [ ] T15: Name each known loss, ask the person to accept it, save each accepted one, and list each one in the closing summary (R-FACTORY-14).
+- [ ] T16: Ask for each grant with its action, its scope (`once`, `run`, or `standing`), and an optional expiry. Recommend the narrowest scope that does the job (R-FACTORY-24).
+- [ ] T17: Set each role's context kinds, with the defaults from the contract. Save through `factory workflow save`, show the plan revision and its digest in plain words, run the test task under that revision, and save the proof with that digest (R-FACTORY-55, R-FACTORY-57, R-FACTORY-60).
+
+### Acceptance criteria
+
+- A64: The closing summary lists each accepted known loss, and for each role the tool, its version, and its proof result.
+- A65: The interview asks for each grant's scope and recommends the narrowest one. No grant is saved without a scope.
+- A66: A fixture run saves a plan revision, runs the test task under it, saves the proof with the same digest, and reaches `ready`.
+
+### Dependencies
+
+- Stage 2 and P3 Stages 3 and 4.
 
 ### Closeout Notes
 

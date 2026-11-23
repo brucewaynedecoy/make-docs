@@ -6,6 +6,8 @@ This is a shipped factory workflow type. Its name is `build-then-review`. The ru
 
 One builder does the job. A separate reviewer checks it. The foreman returns defects and repeats within the limit.
 
+Type version: 1.
+
 ## When to Use
 
 Use this type for a unit that one worker can do alone, with a clear result that a second worker can check against the requirements.

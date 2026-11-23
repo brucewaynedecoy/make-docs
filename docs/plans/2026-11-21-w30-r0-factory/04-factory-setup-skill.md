@@ -29,6 +29,7 @@ A new first-party Skill, `factory-setup`, in `packages/skills/factory-setup/`. I
 - Stop when the CLI or a usable Store is missing, and say which one and how to fix it.
 - Rerun: update the same workflow, show what changed, and prove again any boundary that changed.
 - Smallest setup: one tool with its own subagents and "wait in session".
+- New on 2026-11-23: record tool versions and proof results, ask the person to accept each known loss, ask for each grant's scope, set each role's context kinds, and save and test one plan revision.
 
 ## Exclusions
 

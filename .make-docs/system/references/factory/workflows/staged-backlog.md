@@ -6,6 +6,8 @@ This is a shipped factory workflow type. Its name is `staged-backlog`. The rules
 
 The foreman works through ready units in dependency order. Each unit uses one of the other two types: `build-then-review` or `lead-and-specialists`.
 
+Type version: 1.
+
 ## When to Use
 
 Use this type when the person gives a scope with many units, for example a whole wave, and wants to accept once at the end.

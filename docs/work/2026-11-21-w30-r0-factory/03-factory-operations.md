@@ -28,7 +28,7 @@ This phase admits the `factory` operations in the shared registry, with CLI and 
 - Executor: the implementing agent, with owner feedback invited.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-5, R-FACTORY-12, R-FACTORY-25, R-FACTORY-33, and R-FACTORY-49 to R-FACTORY-51, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-5, R-FACTORY-10, R-FACTORY-12, R-FACTORY-24 to R-FACTORY-28, R-FACTORY-33, R-FACTORY-41, R-FACTORY-49 to R-FACTORY-51, and R-FACTORY-53 to R-FACTORY-61, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -94,6 +94,56 @@ There are no performance candidates.
 ### Dependencies
 
 - Stage 1.
+
+## Stage 3 - Moves, Rounds, Proofs, and Grants
+
+New on 2026-11-23. The owner approved these checks after P1 was done.
+
+### Tasks
+
+- [ ] T12: `assignment update` allows only the moves in the status move table. It refuses any other move with `illegal-move`, and any change to an `accepted`, `failed`, or `cancelled` assignment with `final-status`. An update that changes only the last check time is not a move (R-FACTORY-28).
+- [ ] T13: `assignment update` adds one to the round count of the job (unit, role, and part label) on each move from `returned` or `in-review` to `needs-correction`, and refuses a move past the round limit of the assignment's plan revision with `round-limit-reached`. `assignment start` refuses a second open assignment for the same job with `assignment-open`, and allows open assignments for other part labels of the same unit. A new assignment for the same job starts at the count of the one before it. `assignment start` spends a `once` grant for `reset-correction-rounds` when the caller names it, and the new assignment then starts at 0 (R-FACTORY-27, R-FACTORY-41, register D-071).
+- [ ] T14: Each move adds a status history entry with the status, the time, and one reason code. The record keeps the 20 newest entries (R-FACTORY-27).
+- [ ] T15: `tools save` checks that each proof has a reported tool version, a proof time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. It records each tool's state as `available`, `missing`, or `blocked`, as the agent reports it. A reported version that differs from the version in a bound tool's proof, a `missing` tool, and a `blocked` tool each change the current plan, so the workflow is `drifted` with `tool-version-changed`, `tool-missing`, or `permission-lost` (R-FACTORY-10, R-FACTORY-12).
+- [ ] T16: `tools save` and `workflow save` refuse an unknown capability ID with `unknown-capability`. A test fails when a released capability ID is removed or renamed (R-FACTORY-53).
+- [ ] T17: `assignment update` records the use of a grant. It refuses a use with `grant-missing`, `grant-out-of-scope`, `grant-spent`, or `grant-expired`, and marks a `once` grant as spent on its first use. A grant-only `workflow save` writes or revokes a grant during a run, with the lifecycle run for a `run` grant. It resolves no plan, saves no revision, and does not change readiness (R-FACTORY-24).
+
+### Acceptance criteria
+
+- A56: Each move in the table is accepted, every other move is refused with `illegal-move`, and every change to a final assignment is refused with `final-status`.
+- A57: A fourth move to `needs-correction` under the default limit of 3 is refused with `round-limit-reached`. After a takeover, the count goes on from where it was. A second open assignment for one job is refused, while two parts of one unit with different part labels run at the same time with separate counts. A spent reset grant starts the next assignment of that job at 0.
+- A58: A changed tool version gives `drifted` with `tool-version-changed`, and an unknown capability ID is refused with `unknown-capability`.
+- A59: A grant use is refused for each of the four codes, a `once` grant works only once, and a `run` grant works only in its own lifecycle run. A grant-only save during a run leaves the plan revisions and the readiness state unchanged.
+
+### Dependencies
+
+- Stage 1 and P2 T16 to T21.
+
+## Stage 4 - Resolved Plan, Never-Log Check, and Reason Codes
+
+New on 2026-11-23.
+
+### Tasks
+
+- [ ] T18: `workflow save` resolves the config entry, the saved binding, the machine tool rows, and the workflow type into canonical JSON (sorted keys, no extra spaces, UTF-8), with its plan, config, and binding digests. It saves a new revision only when no kept revision has that digest, and never makes a revision the `ready` revision. It leaves grants out of the plan (register D-072). The plan schema has no step, condition, or branch field. It refuses a type version that does not match the type file with `type-version-mismatch` (R-FACTORY-55, R-FACTORY-56, R-FACTORY-57, R-FACTORY-59, R-FACTORY-61).
+- [ ] T19: `proof save` names the plan digest that the test task ran under. It refuses with `plan-digest-mismatch` a digest that is not the current plan's digest or that has no saved revision. On a pass, it makes that revision the `ready` revision (R-FACTORY-12, R-FACTORY-57).
+- [ ] T20: `workflow show` reads the latest (newest saved) revision, or the revision that the caller names, with the current plan digest, the `ready` revision, and each drift reason code, explained in plain words. It lists the grants beside the plan and writes nothing (R-FACTORY-24, R-FACTORY-54, R-FACTORY-57).
+- [ ] T21: `status` and `workflow show` compute the current plan from three live sources (the config file, the workflow type file, and the machine tool rows), not from the copy in the saved binding. The state is `ready` when its digest matches the `ready` revision, `wired` or `draft` when it matches another saved revision, and `drifted` when it matches none, with each drift reason code in plain words. `assignment start` records the `ready` revision number and digest, and refuses with `not-ready` when the workflow is not `ready`. `assignment update` checks moves and rounds against the assignment's own revision (R-FACTORY-12, R-FACTORY-54, R-FACTORY-58).
+- [ ] T22: Every factory write runs one never-log check. It accepts only the defined fields, allows free text only as one line of at most 120 characters, and refuses a value that looks like a credential or an environment setting with `never-log-field`. The refusal names the field and never shows the value (R-FACTORY-26).
+- [ ] T23: Keep the reason codes in one list in code, matched to the contract lists. A test fails when a released code is removed or renamed (R-FACTORY-54).
+- [ ] T24: `assignment start` and `assignment update` take the private claim ID of the unit's live claim, as PRD 52 R-WORK-QUEUE-19 requires for a report or a close. They refuse a call without it, and never write the claim ID into a factory record or a result (R-FACTORY-50). New on 2026-11-23.
+
+### Acceptance criteria
+
+- A60: The same inputs in a different key order give the same plan digest. A save with no change makes no new revision. `proof save` with a digest that is not the current plan is refused with `plan-digest-mismatch`. `workflow show` lists grants beside the plan and writes nothing.
+- A61: A fixture shows each state: `ready` when the current digest matches the `ready` revision, `wired` after a saved change, and `drifted` with `config-changed`, `tool-missing`, `permission-lost`, `tool-version-changed`, or `type-changed` after a change without a save. Undoing the change makes the workflow `ready` again with no new test task. `assignment start` on a workflow that is not `ready` is refused with `not-ready`. A takeover fixture loads the assignment's own revision after a newer revision exists.
+- A62: The never-log check refuses a file body, a prompt, an environment setting, and a credential-like value in each kind of factory record, and the refusal never shows the value.
+- A63: The reason code test fails when a code is removed or renamed, and the code list matches the contract.
+- A73: `assignment start` and `assignment update` without the claim ID, or with a wrong one, are refused, and no factory record, result, or copy shows a claim ID.
+
+### Dependencies
+
+- Stage 3.
 
 ### Closeout Notes
 

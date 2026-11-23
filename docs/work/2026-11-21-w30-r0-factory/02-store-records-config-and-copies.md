@@ -28,7 +28,7 @@ One append-only Store migration, after the W29 schema v8, adds the factory table
 - Executor: the implementing agent.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-15, R-FACTORY-22 to R-FACTORY-28, and R-FACTORY-44 to R-FACTORY-46, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-10, R-FACTORY-14, R-FACTORY-15, R-FACTORY-22 to R-FACTORY-28, R-FACTORY-41, R-FACTORY-44 to R-FACTORY-46, and R-FACTORY-55 to R-FACTORY-61, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -62,12 +62,19 @@ There are no performance candidates.
 - [ ] T4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
 - [ ] T5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
 - [ ] T6: Add a test that fails when the R-MIN register and the physical schema drift.
+- [ ] T16: Add the `factory_workflow_plans` table in the same migration: project ID, workflow name, revision number, plan digest, canonical plan JSON, config digest, binding digest, and created time. Refuse any change to a saved row, with a unique key on project, workflow, and revision. Give it the `bounded` maintenance class. Each save removes older revisions in the same write, and keeps the `ready` revision, each revision that an open assignment names, and the 10 newest others (R-FACTORY-56, R-FACTORY-57). New on 2026-11-23.
+- [ ] T17: Add to the assignment record: the part label (a short kebab-case name; `main` for a unit with one part), the correction round count, the plan revision number and digest, and a status history that keeps the 20 newest entries of status, time, and reason code (R-FACTORY-27, R-FACTORY-41, R-FACTORY-58). New on 2026-11-23.
+- [ ] T18: Add a tool state (`available`, `missing`, or `blocked`) to each machine tool row. Add to each capability proof: the reported tool version, the proof time, the result (`proved`, `unproved`, or `contradicted`), and a bounded "does not cover" list. Add the accepted known losses and the `ready` revision to the workflow binding (R-FACTORY-10, R-FACTORY-14). New on 2026-11-23.
+- [ ] T19: Add to each grant: the scope (`once`, `run`, or `standing`), the lifecycle run for a `run` grant, an optional expiry time, and the time a `once` grant was spent (R-FACTORY-24). New on 2026-11-23.
 
 ### Acceptance criteria
 
 - A9: The migration upgrades a v8 Store, rolls back cleanly on failure, and refuses a newer schema with the existing typed error.
 - A10: Every new field has a matching R-MIN row, and the parity test fails when one is removed.
 - A11: An assignment record holds only the fields in R-FACTORY-27, and its status is one of the values in R-FACTORY-28.
+- A51: The `factory_workflow_plans` table refuses a change to a saved revision, refuses a second row with the same workflow and revision number, and after a save keeps exactly the `ready` revision, each revision that an open assignment names, and the 10 newest others.
+- A52: An assignment record holds the part label, the round count, the plan revision number and digest, and at most 20 status history entries, each with a status, a time, and a reason code.
+- A53: A machine tool row holds its state. A capability proof holds the reported tool version, the proof time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. A binding holds its accepted known losses and its `ready` revision. A grant holds its action, a scope of `once`, `run`, or `standing`, and an optional expiry.
 
 ### Dependencies
 
@@ -82,6 +89,8 @@ There are no performance candidates.
 - [ ] T9: Write generated, read-only copies of the saved setup to `.make-docs/factory/` on each factory save. Each file starts with a note that it is generated and that edits are lost (R-FACTORY-25).
 - [ ] T10: Make sure Make Docs never reads a copy as input.
 - [ ] T11: Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
+- [ ] T20: Add the new portable fields to the `factory:` block schema: type version; each role's job, returns, and context kinds from the fixed set; the round limit; the gates; the integration owner role; and the human channel kind. Refuse a context kind outside the fixed set (R-FACTORY-55, R-FACTORY-60, R-FACTORY-61). New on 2026-11-23.
+- [ ] T21: Print the latest resolved plan revision as a read-only copy in `.make-docs/factory/`, with the generated-file note and a line that says whether it is the `ready` revision (R-FACTORY-25). New on 2026-11-23.
 
 ### Acceptance criteria
 
@@ -89,6 +98,8 @@ There are no performance candidates.
 - A13: A grant saved in the Store never appears in config or in any copy.
 - A14: Each copy starts with the generated-file note, and changing a copy does not change any factory result.
 - A15: A fresh setup writes `.make-docs/factory/` to `.gitignore`.
+- A54: Config validation accepts the new portable fields and refuses an unknown context kind, naming it.
+- A55: The resolved plan copy prints the latest revision, starts with the generated-file note, says whether it is the `ready` revision, and holds no grant.
 
 ### Dependencies
 

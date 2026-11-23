@@ -6,6 +6,8 @@ This is a shipped factory workflow type. Its name is `lead-and-specialists`. The
 
 The foreman leads one unit. It splits the unit across specialists, for example a researcher, a builder who proves a hypothesis, and a writer, then integrates their results.
 
+Type version: 1.
+
 ## When to Use
 
 Use this type for one unit that needs several kinds of skill, or parts that can run side by side.

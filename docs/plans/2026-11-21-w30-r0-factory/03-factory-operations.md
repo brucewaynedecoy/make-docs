@@ -29,6 +29,7 @@ These operations exist with CLI and MCP parity in a new `factory` MCP profile: `
 - `status` shows workflows, readiness, claims, assignments, and open manual steps in human words first, with exact detail in machine output. It marks a workflow `drifted` when a bound tool's saved proof no longer holds.
 - `restore` writes the `.make-docs/factory/` copies from the Store.
 - Every write uses the existing write permission, `expectedVersion`, and Store-unavailable results. No operation launches, schedules, or messages anything.
+- New on 2026-11-23: `assignment update` checks the status move table, final states, correction rounds, and grant use; `tools save` checks proof fields and capability IDs and drifts on a new tool version; `workflow save` resolves and saves plan revisions; `proof save` binds a proof to one plan digest; `workflow show` reads revisions and drift codes; every write runs the never-log check; `assignment start` and `update` take the private claim ID; a grant-only `workflow save` writes grants during a run; reason codes stay stable. No command or MCP name changes.
 
 ## Exclusions
 
