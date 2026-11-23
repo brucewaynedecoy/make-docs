@@ -50,6 +50,13 @@ Out of scope:
 | [05-agent-twin-and-config.md](05-agent-twin-and-config.md) | Author the `work-store` reference and the `work` config block. |
 | [06-package-parity-and-acceptance.md](06-package-parity-and-acceptance.md) | Prove the installed package, sync, no-Store behavior, `PERF-004`, and Human Experience outcomes. |
 
+## Wave Sequence
+
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 to P6, then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
+- Done: P1.
+- Waits for: all of [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) before P2, and all of [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) before P3.
+- Next: [W30 R0](../2026-11-21-w30-r0-factory/00-index.md) P2 waits for all of this Wave. W30 R0 P1 can start any time.
+
 ## Usage Notes
 
 - Read phases in order. P5 can start after P1. P2 waits for all of W32 R0, the Store review. P3 also waits for the task ID case Wave in register D-063.

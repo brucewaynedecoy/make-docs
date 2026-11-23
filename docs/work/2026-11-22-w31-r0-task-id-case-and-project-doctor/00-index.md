@@ -49,6 +49,14 @@ Out of scope:
 | [03-project-doctor.md](03-project-doctor.md) | Build the doctor commands, the `task-id-case` check, and its agent twin. |
 | [04-one-time-rewrite-and-acceptance.md](04-one-time-rewrite-and-acceptance.md) | Rewrite this repository's active backlogs with the doctor and prove the Wave. |
 
+## Wave Sequence
+
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 to P6, then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
+- Waits for: nothing. This Wave can start now.
+- Runs beside: [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md). The two Waves share no files.
+- Next: [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P3 waits for all of this Wave.
+- Later: after W22 R2 closes, run the doctor on its backlog (register D-063).
+
 ## Usage Notes
 
 - Read phases in order. P3 can run beside P2 after P1.

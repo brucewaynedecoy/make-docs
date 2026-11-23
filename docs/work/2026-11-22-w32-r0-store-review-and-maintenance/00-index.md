@@ -47,6 +47,13 @@ Out of scope:
 | [04-maintenance-commands.md](04-maintenance-commands.md) | Build `setup store check` and `setup store clean`. |
 | [05-real-store-proof-and-acceptance.md](05-real-store-proof-and-acceptance.md) | Fix documentation drift, run on a copy of a real Store, and prove the Wave. |
 
+## Wave Sequence
+
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 to P6, then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
+- Waits for: nothing. This Wave can start now.
+- Runs beside: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md). The two Waves share no files.
+- Next: [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 waits for all of this Wave.
+
 ## Usage Notes
 
 - Read phases in order. P4 can run beside P3 after P2.

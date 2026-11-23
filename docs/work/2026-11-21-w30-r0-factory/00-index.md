@@ -49,6 +49,12 @@ Limits:
 | [05-factory-run-skill-and-handoffs.md](05-factory-run-skill-and-handoffs.md) | Rewrite the `factory` Skill around the loop, and add the backlog review handoff. |
 | [06-proofs-and-acceptance.md](06-proofs-and-acceptance.md) | Prove two setups by capability, drift, work outside git, package parity, and Human Experience outcomes. |
 
+## Wave Sequence
+
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 to P6, then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
+- Waits for: all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) before P2. P1 can start any time.
+- Next: no Wave is planned after this one yet.
+
 ## Usage Notes
 
 - Read phases in order. P4 and P5 can run in parallel after P3, with separate write scopes.
