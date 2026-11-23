@@ -160,6 +160,8 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
       remainingProjects: 1,
       removed: { run_evidence: 0, runs: 0, work_evidence: 1, project_register: 1 },
       registerRowKept: false,
+      // W29 R0 P4 T12: without a work export digest, the work rows stay.
+      workRows: { status: "kept", reason: "No work export digest was given, so the project's work rows stay." },
     });
 
     // The legacy projects table and legacy Playbook rows stay (R-LIFE-2, R-PS-6).

@@ -332,6 +332,7 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       targetRoot: path.resolve(
         requiredValue(options, "target-root", operationPath("work.backlog.snapshot")),
       ),
+      ...(options.booleans.has("work-store") ? { workStore: true } : {}),
     },
   }),
   "backlog.review.open": (options) => ({ input: { report: parseJsonPayload(

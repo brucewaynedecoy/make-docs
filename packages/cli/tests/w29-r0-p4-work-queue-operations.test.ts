@@ -613,8 +613,9 @@ describe("W29 R0 P4 work add and export (A31, A32)", () => {
     const root = imported();
     const one = workAdd(root, env(), { title: "Compare two printers", body: null, requestPath: null });
     expect(one).toMatchObject({ number: "1", label: "task 1" });
-    // Finding 5: no project URI until the T10 read lands.
-    expect(JSON.stringify(one)).not.toContain("make-docs://project/");
+    // T10 landed, so the result names the quick item's project URI again (finding 5).
+    expect(one.uri).toBe("make-docs://project/aurora/tasks/1");
+    expect(one.summary).toContain("Read it from any folder: make-docs resource read make-docs://project/aurora/tasks/1");
     workClose(root, env(), { unit: "task 1", claimId: null, outcome: "done", expectedVersion: one.revision });
     const two = workAdd(root, env(), { title: "Book the venue", body: "For June.", requestPath: null });
     expect(two.number).toBe("2");

@@ -384,7 +384,7 @@ describe("work.backlog.snapshot core", () => {
 });
 
 describe("work.backlog.snapshot surfaces", () => {
-  test("registers one read-only Store-free operation and a required target-root CLI input", async () => {
+  test("registers one read-only Store-optional operation and a required target-root CLI input", async () => {
     const targetRoot = root();
     fixture(targetRoot);
     const adapted = adaptRunCliArgv(["backlog", "snapshot", "--target-root", targetRoot, "--json"]);
@@ -393,7 +393,9 @@ describe("work.backlog.snapshot surfaces", () => {
     expect(() => adaptRunCliArgv(["backlog", "snapshot"])).toThrow("requires --target-root");
     expect(getOperation("work.backlog.snapshot")).toMatchObject({
       mutates: "read",
-      access: { store: "none", project: "read", hostConfig: "none" },
+      // PRD 51 R-BACKLOG-SNAPSHOT-24: project-read, Store-optional-read (W29 R0 P4 T7).
+      access: { store: "read", project: "read", hostConfig: "none" },
+      storeAdmission: "optional",
       status: "active",
     });
     expect(listOperations().filter((operation) => operation.id.startsWith("work.backlog."))).toHaveLength(1);

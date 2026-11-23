@@ -95,7 +95,7 @@ export function parseWorkProjectUri(uri: unknown): WorkProjectUriParse {
       if (index < BACKLOG_PARTS.length) {
         const spec = BACKLOG_PARTS[index]!;
         const part = parsePart(raw, spec.letter, spec.zero);
-        if (part === null) return refuse(`Part ${index + 1} of the coordinate must be ${spec.letter} and a number.`);
+        if (part === null) return refuse(`Part ${index + 1} of the coordinate must be ${spec.letter} and a number without a leading zero.`);
         coordinate.push(part);
         continue;
       }

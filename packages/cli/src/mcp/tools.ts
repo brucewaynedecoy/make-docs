@@ -216,7 +216,7 @@ function deriveToolDescription(definition: OperationDefinition): string {
     parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
   }
   if (definition.storeAdmission === "optional") {
-    parts.push("Store access is optional for cache reuse. The cache lookup still needs its own current Store admission.");
+    parts.push("Store access is optional. The tool still answers without it, and it uses the Store only when the Store is admitted.");
   }
   return parts.join(" ");
 }

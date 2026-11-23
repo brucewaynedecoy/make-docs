@@ -73,7 +73,7 @@ DDL lives in `STORE_MIGRATIONS` (`database.ts`); `PRAGMA user_version` records t
 
 `project-state.ts` holds the model layer: `PROJECT_STATE_TABLE_ROLES` encodes mirror-versus-relocated per table (R-MIR-2), `WorkItemIdentity` is the canonical work-item identity tuple, and `recordWorkEvidence`/`readWorkItemEvidence`/`listWaveEvidence` accept that tuple verbatim.
 
-`deleteProjectRows` removes one project's `run_evidence`, `runs`, and `work_evidence` rows, and its `project_register` row once no checkout of it is bound, in one transaction. It keeps legacy `playbook_runs` and `projects` rows (W32 R0 P3; R-LIFE-2, R-REGISTER-4). It also keeps the project's work store rows; only a scoped cleanup after export removes them (W29 R0 P4 T12). Its only caller is `pruneProjectFromStore`, which no command calls today.
+`deleteProjectRows` removes one project's `run_evidence`, `runs`, and `work_evidence` rows, and its `project_register` row once no checkout of it is bound, in one transaction. It keeps legacy `playbook_runs` and `projects` rows (W32 R0 P3; R-LIFE-2, R-REGISTER-4). It also keeps the project's work store rows. Only the scoped cleanup `deletePrunedProjectWorkRows` (`work-store.ts`, W29 R0 P4 T12) removes them: after the prune removed the project's register row, with the `workDigest` of a complete `work export` that still matches every work row, and with no live claim (PRD 52 R-WORK-STORE-13). `pruneProjectFromStore` runs that cleanup when its caller passes `workExportDigest`, and reports `workRows` as removed or kept with the reason. Its only caller is `pruneProjectFromStore`, which no command calls today.
 
 ### Checkpoint-to-evidence field mapping (W18 R10 P3, Stage 2)
 

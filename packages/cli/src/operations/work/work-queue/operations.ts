@@ -9,7 +9,7 @@ import type { OperationExecutionContext } from "../../context.js";
 import { assertHarnessOperationAllowed } from "../../harness-policy.js";
 import type { McpToolMetadata } from "../../mcp-metadata.js";
 import type { OperationDefinition } from "../../registry.js";
-import { StoreAccessStateError } from "../../store-access.js";
+import { StoreAccessStateError, makeStoreAccessStateError } from "../../store-access.js";
 import { type JsonValue } from "../../types.js";
 import {
   WORK_CLOSE_OUTCOMES,
@@ -18,7 +18,9 @@ import {
   WORK_UNIT_KINDS,
 } from "../work-store/schemas.js";
 import { previewWorkSync } from "../work-store/sync.js";
+import { WORK_FILES_NEXT_STEP, runWorkStoreRead } from "./files-fallback.js";
 import {
+  WORK_AUTHORITY_FILES_NEXT,
   checkOutcome,
   workAdd,
   workAuthority,
@@ -201,17 +203,39 @@ export const workQueueOperations: OperationDefinition[] = [
     summary: `List the ready units in dependency and coordinate order, and why each other open unit waits, with one next action for each reason. ${READ_SUMMARY}`,
     mutates: "read",
     access: STORE_READ_PROJECT_READ_ACCESS,
+    // The handler opens the shared Store session itself, so that a Store
+    // failure keeps its typed code and also points to the docs/work/ files
+    // (PRD 52 R-WORK-STORE-2, W29 R0 P4 second pass).
+    storeAdmission: "optional",
     status: "active",
     mcp: MCP,
     inputSchema: nextInput,
-    handler(raw, context) {
+    async handler(raw, context) {
       const input = nextInput.parse(raw);
-      return json(workNext(rootOf(input, context), envOf(context), {
-        level: input.level,
-        includeQuickItems: input.quickItems,
-        claimant: input.claimant ?? null,
-        limit: input.limit ?? null,
-      }));
+      const root = rootOf(input, context);
+      return await runWorkStoreRead(
+        { operation: "work.queue.next", access: STORE_READ_PROJECT_READ_ACCESS, root, context, filesStep: WORK_FILES_NEXT_STEP, session: true },
+        () => {
+          // A usable Store that this checkout is not bound to: the files are the
+          // authority, as work status says, so the outcome is typed the same way.
+          const authority = workAuthority(root, context.storeRoot, null);
+          if (authority.mode === "files") {
+            throw makeStoreAccessStateError({
+              code: authority.storeState === "not-configured" ? "store-not-configured" : authority.storeState === "unsafe" ? "store-unsafe" : "store-unavailable",
+              operation: "work.queue.next",
+              reason: authority.reason,
+              // The files step is added once, below, in the same words as every work read.
+              nextAction: (authority.nextAction ?? "").replace(WORK_AUTHORITY_FILES_NEXT, "").trim(),
+            });
+          }
+          return json(workNext(root, envOf(context), {
+          level: input.level,
+          includeQuickItems: input.quickItems,
+          claimant: input.claimant ?? null,
+          limit: input.limit ?? null,
+          }));
+        },
+      );
     },
   },
   {

@@ -48,6 +48,8 @@ const BOOLEAN_FLAGS = [
   "remove-file",
   "clear-blockers",
   "no-quick-items",
+  // W29 R0 P4 second pass: `backlog snapshot --work-store` asks for the store-mode facts.
+  "work-store",
 ];
 
 const ARRAY_FLAGS = [

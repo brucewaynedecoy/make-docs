@@ -417,6 +417,45 @@ export function validateInstallationStoreRoot(projectRoot: string, storeRoot = r
         const issue = makeStoreIssue('unsafe-path', store, 'validate Store root', new Error('The Make Docs Store must be outside the project.'));
         fail('store-unavailable', formatStoreIssue(issue), issue);
     }
+    return validateStoreStatePaths(store);
+}
+/**
+ * Read the Store with no project folder (W29 R0 P4 T10). A project resource
+ * URI names its project in full and never resolves from the current folder
+ * (PRD 52 R-WORK-URI-1), so this read checks only the Store paths. It opens
+ * the database read only, never creates or prepares a Store, and maps lock
+ * contention to the typed Store outcome.
+ */
+export function withStoreReadOnlyDatabase<T>(storeRoot: string, fn: (db: StoreDatabase) => T): T {
+    const store = validateStoreStatePaths(canonicalInstallationPath(storeRoot));
+    const databasePath = getStoreDatabasePath(store);
+    if (!lstatSync(databasePath, { throwIfNoEntry: false }))
+        return fail('store-unavailable', 'The Store is absent. Nothing was read or changed. Run make-docs setup in a project first.');
+    const release = acquireStoreAccess(store);
+    let db: StoreDatabase;
+    try {
+        db = openStoreSqliteConnection(databasePath, { readOnly: true }, 'read');
+    }
+    catch (e) {
+        release();
+        throw e;
+    }
+    try {
+        try {
+            return fn(db);
+        }
+        catch (error) {
+            if (!isSqliteContention(error))
+                throw error;
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'read Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+        }
+    }
+    finally {
+        db.close();
+        release();
+    }
+}
+function validateStoreStatePaths(store: string): string {
     for (const suffix of ['store.db', 'store.db-wal', 'store.db-shm', 'store-access.lock', 'removal.lock', 'installation-bootstrap.lock', 'installation-lease-recovery.lock']) {
         const child = path.join(store, suffix);
         try {

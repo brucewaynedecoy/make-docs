@@ -104,7 +104,7 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 ### Operation Access Contract
 
 - R-ACCESS-1 (MUST): every admitted operation declares `access.store`, `access.project`, and `access.hostConfig` as `none`, `read`, or `write`, except that `hostConfig` permits only `none` or `write`. This metadata is part of the operation definition and is not inferred from a command name or transport.
-- R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method.
+- R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method. A system-resource read never opens a Store session. A `make-docs://project/<project>/` read under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-5 opens one read-only Store session itself, after the harness check for Store read, and a native MCP `resources/read` of such a URI uses the same handler and sends the MCP connection, as a tool call does. An agent's project URI read uses the harness grant of the folder where the agent works, never the grant of the project that the URI names: a Store read grant there allows every project URI. When that folder is not a Make Docs project, the read is refused as `store-not-configured`, and the refusal says so without telling the person to set that folder up. The direct CLI route needs no grant.
 - R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
 - R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
 - R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. For TOML, preservation includes valid repeated arrays of tables, repeated key names in separate array elements, and repeated nested normal-table paths under separate elements. Duplicate keys inside one element, duplicate normal-table headers, and normal-table versus array-table conflicts remain blocked. Project setup cannot use its project approval as host-write authority.
@@ -490,6 +490,22 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: R-MCP-PROFILE-11 puts `check_decomposition` in `quality` and `all`, `project_relations_list` in `workflow` and `all`, `project_markdown_validate` in `setup`, `quality`, and `all`, and `project_markdown_repair` in `setup` and `all`, and names the read or write access of each. A W34 R0 P1 test checks that the profile lists in code match this line.
 - Rationale: the four tools landed in W34 R0 P1, and each ready tool needs an explicit profile under R-MCP-PROFILE-4 (register D-064).
 - Source: [W34 R0 P1](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/01-cli-operations-and-ported-tests.md) and its [evidence report](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p1-cli-operations-and-ported-tests).
+
+### 2026-11-23 — W29 R0 P4 Second Pass
+
+- Affected requirement or section: R-ACCESS-2.
+- Previous contract: `resource.read` was Store-free for every URI.
+- Replacement contract: `resource.read` still declares `store: none`, so the runner opens no Store session and system-resource reads stay Store-free. Only a project URI read opens its own read-only Store session after the harness check for Store read.
+- Rationale: PRD 52 R-WORK-URI-5 routes project URIs through `resource read`. Keeping the declared access unchanged keeps harness command rules and Store-free system reads as they are.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass)
+
+### 2026-11-23 — W29 R0 P4 Second Pass Review Fixes
+
+- Affected requirement or section: R-ACCESS-2.
+- Previous contract: R-ACCESS-2 did not say whose harness grant a project URI read uses, and a native MCP read of a project URI sent no MCP connection.
+- Replacement contract: the grant of the folder where the agent works decides, and a Store read grant there allows every project URI. A folder that is not a project is refused as `store-not-configured`, without a setup step for that folder. Native project URI reads send the MCP connection.
+- Rationale: an independent review of the W29 R0 P4 second pass found that a read of another project from a folder with no project told the person to run setup in that folder. The rule is new behavior.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
 
 ## Source Anchors
 

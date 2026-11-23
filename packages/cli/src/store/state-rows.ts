@@ -342,7 +342,8 @@ export interface DeleteProjectRowsResult {
  * table, every installation table, and every other project's rows. It counts
  * the remaining projects from `project_register`. It keeps the project's work
  * store rows (`work_units` and their dependencies, links, and claims), because
- * PRD 38 removes them only by a scoped cleanup after export (W29 R0 P4 T12).
+ * PRD 38 removes them only by a scoped cleanup after export:
+ * `deletePrunedProjectWorkRows` in `work-store.ts` (W29 R0 P4 T12).
  */
 export function deleteProjectRows(db: StoreDatabase, projectId: string): DeleteProjectRowsResult {
   db.exec("BEGIN IMMEDIATE");

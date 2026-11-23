@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { OperationError } from "../operations/types";
 import { WORK_CLAIM_POLICY } from "../operations/work/work-store/catalog";
 import {
@@ -30,6 +30,7 @@ import {
   readDeclarativeProjectId,
   validateInstallationStoreRoot,
   withInstallationDatabase,
+  withStoreReadOnlyDatabase,
 } from "./installation-state";
 import { resolveStoreRoot } from "./paths";
 import { readProjectRegisterRow, recordProjectInRegister } from "./project-register";
@@ -69,6 +70,9 @@ export const WORK_STORE_REFUSALS = [
   "checkout-not-bound",
   "handle-check-needed",
   "previous-holder-still-working",
+  "project-still-registered",
+  "export-proof-stale",
+  "claim-live",
 ] as const;
 export type WorkStoreRefusal = (typeof WORK_STORE_REFUSALS)[number];
 
@@ -183,6 +187,18 @@ function assertOpenedProject(db: StoreDatabase, projectId: string): void {
       { openedProjectId: opened, projectId },
     );
   }
+}
+
+/**
+ * Read the work store with no project folder, for a project resource URI
+ * (PRD 52 R-WORK-URI-1, R-WORK-URI-5). It opens one read-only Store session.
+ * It never creates or migrates a Store, and an unusable Store gives the same
+ * typed result as {@link readWorkStore}.
+ */
+export function readWorkStoreAt<T>(storeRoot: string, fn: (db: StoreDatabase) => T): T {
+  const store = canonicalInstallationPath(storeRoot);
+  assertWorkStoreUsable(store);
+  return withStoreReadOnlyDatabase(store, fn);
 }
 
 /** Read the work store of a project's Store. It never creates or migrates a Store. */
@@ -1034,4 +1050,110 @@ export function deleteSyncConflict(db: StoreDatabase, checkoutId: string, target
     assertEntryVersion("sync conflict", current ? Number(current.entry_version) : null, options.expectedVersion, targetPath);
     db.prepare("DELETE FROM work_sync_conflicts WHERE checkout_id = ? AND target_path = ? AND entry_version = ?").run(checkoutId, targetPath, options.expectedVersion);
   });
+}
+
+/* ------------------------------------------------------------------------ */
+/* Scoped cleanup of a pruned project's work rows (W29 R0 P4 T12)           */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * A digest of every work row of one project: units with their dependencies
+ * and links, and claims. `work export` returns it when it wrote all of the
+ * project's work, and the cleanup below needs the same digest, so it removes
+ * only work that an export wrote and that has not changed since.
+ */
+export function workProjectDigest(db: StoreDatabase, projectId: string): string {
+  const rows = (sql: string) => db.prepare(sql).all(projectId) as Array<Record<string, unknown>>;
+  const sorted = (value: Record<string, unknown>) =>
+    Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key] ?? null]));
+  const material = {
+    units: rows("SELECT * FROM work_units WHERE project_id = ? ORDER BY store_id").map(sorted),
+    dependencies: rows("SELECT * FROM work_dependencies WHERE project_id = ? ORDER BY unit_store_id, ordinal").map(sorted),
+    links: rows(
+      `SELECT l.* FROM work_links l JOIN work_units u ON u.store_id = l.unit_store_id
+        WHERE u.project_id = ? ORDER BY l.unit_store_id, l.ordinal`,
+    ).map(sorted),
+    claims: rows("SELECT * FROM work_claims WHERE project_id = ? ORDER BY unit_store_id").map(sorted),
+  };
+  return `sha256:${createHash("sha256").update(JSON.stringify(material)).digest("hex")}`;
+}
+
+/** What {@link deletePrunedProjectWorkRows} removed. */
+export interface DeletePrunedProjectWorkRowsResult {
+  projectId: string;
+  removed: { work_units: number; work_dependencies: number; work_links: number; work_claims: number };
+}
+
+/**
+ * Remove one project's work rows (units, dependencies, links, and claims)
+ * after a project prune, in one transaction (PRD 38 work store records row,
+ * R-LIFE-2). It runs only when:
+ *
+ * - the project has no `project_register` row and no bound checkout, so a
+ *   prune removed it (R-REGISTER-4); and
+ * - `exportDigest` is the digest from a `work export` result that wrote all of
+ *   the project's work, and it still matches every work row; and
+ * - no unit of the project has a live claim.
+ *
+ * Otherwise it refuses and changes nothing. It never touches another
+ * project's rows. Sync ledger, conflict, and first-sync rows belong to a
+ * checkout and go with the checkout (`ON DELETE CASCADE`).
+ */
+export function deletePrunedProjectWorkRows(
+  db: StoreDatabase,
+  projectId: string,
+  options: { exportDigest: string; now?: Date },
+): DeletePrunedProjectWorkRowsResult {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (readProjectRegisterRow(db, projectId) || db.prepare("SELECT 1 FROM installation_checkouts WHERE project_id = ?").get(projectId)) {
+      refuse(
+        "project-still-registered",
+        `Project ${projectId} is still in the project register or has a bound checkout, so its work rows stay.`,
+        "Prune the project first. A prune keeps work rows; this cleanup removes them after an export.",
+        { projectId },
+      );
+    }
+    if (workProjectDigest(db, projectId) !== options.exportDigest) {
+      refuse(
+        "export-proof-stale",
+        `The work rows of project ${projectId} do not match the export digest, so an export did not write all of this work, or the work changed since.`,
+        "Run make-docs work export with --to and --quick again, and use the workDigest of a complete export.",
+        { projectId },
+      );
+    }
+    const now = (options.now ?? new Date()).toISOString();
+    const live = db.prepare("SELECT claimant, expires_at FROM work_claims WHERE project_id = ? AND expires_at > ? ORDER BY expires_at").get(projectId, now) as
+      | { claimant: string; expires_at: string }
+      | undefined;
+    if (live) {
+      refuse(
+        "claim-live",
+        `A unit of project ${projectId} has a live claim by ${live.claimant} until ${live.expires_at}, so its work rows stay.`,
+        "Wait for the claim to end, or have its holder release it, then export and clean up again.",
+        { projectId, claimant: live.claimant, expiresAt: live.expires_at },
+      );
+    }
+    const count = (sql: string) => Number((db.prepare(sql).get(projectId) as { n: number }).n);
+    const removed = {
+      work_units: count("SELECT count(*) AS n FROM work_units WHERE project_id = ?"),
+      work_dependencies: count("SELECT count(*) AS n FROM work_dependencies WHERE project_id = ?"),
+      work_links: count("SELECT count(*) AS n FROM work_links l JOIN work_units u ON u.store_id = l.unit_store_id WHERE u.project_id = ?"),
+      work_claims: count("SELECT count(*) AS n FROM work_claims WHERE project_id = ?"),
+    };
+    // Children first is not needed: the parent key is deferred and every unit of the project goes.
+    db.prepare("DELETE FROM work_claims WHERE project_id = ?").run(projectId);
+    db.prepare("DELETE FROM work_dependencies WHERE project_id = ?").run(projectId);
+    db.prepare("DELETE FROM work_links WHERE unit_store_id IN (SELECT store_id FROM work_units WHERE project_id = ?)").run(projectId);
+    db.prepare("DELETE FROM work_units WHERE project_id = ?").run(projectId);
+    db.exec("COMMIT");
+    return { projectId, removed };
+  } catch (error) {
+    try {
+      db.exec("ROLLBACK");
+    } catch {
+      // The transaction may already be closed.
+    }
+    throw error;
+  }
 }

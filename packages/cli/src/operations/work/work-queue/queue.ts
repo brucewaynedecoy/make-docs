@@ -26,6 +26,7 @@ import {
   resolveWorkProject,
   setWorkUnitNote,
   workUnitNoteProblem,
+  workProjectDigest,
   writeWorkStore,
   type WorkUnitInput,
   type WorkUnitNote,
@@ -58,6 +59,7 @@ import {
   type WorkSyncReport,
 } from "../work-store/sync.js";
 import { WORK_FILE_ROOTS, parseWorkFile, renderWorkFile } from "../work-store/work-file.js";
+import { WORK_PROJECT_URI_PREFIX, parseWorkProjectUri } from "../work-store/project-uri.js";
 import {
   WorkReadiness,
   computeWorkReadiness,
@@ -240,7 +242,8 @@ export interface WorkAuthority {
   detail: Record<string, string | number | boolean | null>;
 }
 
-const FILES_NEXT = "Read and edit the docs/work/ files directly. They are the authority until the Store is usable.";
+export const WORK_AUTHORITY_FILES_NEXT = "Read and edit the docs/work/ files directly. They are the authority until the Store is usable.";
+const FILES_NEXT = WORK_AUTHORITY_FILES_NEXT;
 
 /**
  * The authority mode and its reason. `denied` comes from the harness policy,
@@ -885,6 +888,8 @@ export interface WorkAddResultValue {
   label: string;
   title: string;
   revision: number;
+  /** The quick item's `make-docs://project/<project>/tasks/<n>` URI (R-WORK-URI-2), or null when the project part cannot form one. */
+  uri: string | null;
   sync: WorkSyncOutcome;
   lines: string[];
   summary: string;
@@ -902,14 +907,22 @@ export function workAdd(
     const links: WorkLink[] = input.requestPath ? [{ direction: "outbound", kind: "request", path: input.requestPath, anchor: null }] : [];
     const item = createQuickItem(db, project.projectId, { title: input.title, body: input.body, links });
     const label = workUnitLabel(item);
-    // The `make-docs://project/<project>/tasks/<n>` read lands with W29 R0 P4 T10; until then the result names no URI.
-    const lines = [`Added ${label}: ${item.title}. It lives only in the work store. Unit revision: ${item.revision}.`, sync.summary];
+    // The project URI names the project in full: its name, or its project ID (R-WORK-URI-1, W29 R0 P4 T10).
+    const candidate = `${WORK_PROJECT_URI_PREFIX}${project.projectName ?? project.projectId}/tasks/${item.coordinate}`;
+    const parsed = parseWorkProjectUri(candidate);
+    const uri = parsed.ok ? parsed.canonical : null;
+    const lines = [
+      `Added ${label}: ${item.title}. It lives only in the work store. Unit revision: ${item.revision}.`,
+      ...(uri ? [`Read it from any folder: make-docs resource read ${uri}`] : []),
+      sync.summary,
+    ];
     return {
       operation: "work.queue.add",
       number: item.coordinate,
       label,
       title: item.title,
       revision: item.revision,
+      uri,
       sync,
       lines,
       summary: lines.join("\n"),
@@ -940,8 +953,23 @@ export function renderWorkTasksList(project: string, items: readonly WorkUnitRec
 export interface WorkExportResultValue {
   operation: "work.queue.export";
   written: string[];
+  /** Files written although a person removed their repo copy: the store still keeps their units. */
+  removedCopies: string[];
   skipped: Array<{ path: string; reason: string }>;
   quick: { path: string; count: number } | null;
+  /**
+   * True when this export wrote all of the project's work: every backlog file
+   * that the store holds, also one whose repo copy a person removed (`--to`
+   * with no `paths` filter and nothing skipped)
+   * and, when the project has quick items, the quick item list (`--quick`).
+   */
+  complete: boolean;
+  /**
+   * The digest of every work row of the project at this export. The scoped
+   * cleanup of a pruned project's work rows needs it, and only from a
+   * complete export (W29 R0 P4 T12). Null when the export is not complete.
+   */
+  workDigest: string | null;
   sync: WorkSyncOutcome;
   lines: string[];
   summary: string;
@@ -1011,6 +1039,43 @@ function assertExportDestination(root: string, destination: string, flag: string
 }
 
 /**
+ * The work files that the store holds, in path order: by default those with a
+ * repo copy. With `includeRemoved`, also the files whose repo copy a person
+ * removed (an accepted deletion), whose units the store still keeps.
+ */
+export function storeWorkFilePaths(units: readonly WorkUnitRecord[], options: { includeRemoved?: boolean } = {}): string[] {
+  return [...new Set(units.filter((unit) =>
+    unit.sourcePath && unit.kind !== "wave" && unit.kind !== "quick-item" && (options.includeRemoved || unit.copyState === "kept"),
+  ).map((unit) => unit.sourcePath!))].sort();
+}
+
+/**
+ * The text of one work file as the store holds it: the file unit's frame with
+ * the store's unit states (P3 writer). `work export` and the store-mode
+ * backlog snapshot read files through this one renderer.
+ */
+export function renderStoreWorkFile(units: readonly WorkUnitRecord[], file: string): { ok: true; text: string } | { ok: false; reason: string } {
+  const fileUnits = units.filter((unit) => unit.sourcePath === file && unit.kind !== "wave");
+  const fileUnit = fileUnits.find((unit) => (unit.kind === "revision" || unit.kind === "phase") && unit.body !== null);
+  const parsed = fileUnit?.body ? parseWorkFile(file, fileUnit.body) : null;
+  if (!parsed?.ok) return { ok: false, reason: "The store has no readable text for this file." };
+  const rendered = renderWorkFile(parsed.document, fileUnits.map((unit) => {
+    const shown = parsed.document.units.find((candidate) => candidate.coordinate === unit.coordinate);
+    return {
+      coordinate: unit.coordinate,
+      kind: unit.kind as "revision" | "phase" | "stage" | "task",
+      status: unit.status,
+      closeOutcome: unit.closeOutcome,
+      title: shown && unit.kind !== "task" ? shown.title : unit.title,
+      text: unit.kind === "task" ? unit.body : null,
+      blockers: shown ? shown.blockerBullets.map((bullet) => bullet.text) : [],
+      gates: [],
+    };
+  }));
+  return rendered.ok ? { ok: true, text: rendered.text } : { ok: false, reason: rendered.reason };
+}
+
+/**
  * Write repo copies on request (R-WORK-STORE-10) to a new or empty folder the
  * caller names, and quick items to a new file the caller names (R-WORK-URI-7).
  * Export never writes under `docs/work/`, `.make-docs/`, or a held path, never
@@ -1048,32 +1113,17 @@ export function workExport(
   return readWorkStore(root, (db) => {
     const units = listWorkUnits(db, projectId);
     const written: string[] = [];
+    const removedCopies: string[] = [];
     const skipped: Array<{ path: string; reason: string }> = [];
     let quick: WorkExportResultValue["quick"] = null;
     if (toTarget !== null) {
-      const filePaths = [...new Set(units.filter((unit) => unit.sourcePath && unit.kind !== "wave" && unit.kind !== "quick-item" && unit.copyState === "kept").map((unit) => unit.sourcePath!))].sort();
+      // A complete export holds every unit, so it also writes the files whose
+      // repo copy a person removed; a later cleanup then loses nothing (review item 4).
+      const filePaths = storeWorkFilePaths(units, { includeRemoved: true });
+      const removedCopyFiles = new Set(units.filter((unit) => unit.sourcePath && unit.copyState === "removed").map((unit) => unit.sourcePath!));
       const wanted = input.paths.length === 0 ? filePaths : filePaths.filter((file) => input.paths.some((prefix) => file === prefix.replace(/\/+$/, "") || file.startsWith(`${prefix.replace(/\/+$/, "")}/`)));
       for (const file of wanted) {
-        const fileUnits = units.filter((unit) => unit.sourcePath === file && unit.kind !== "wave");
-        const fileUnit = fileUnits.find((unit) => (unit.kind === "revision" || unit.kind === "phase") && unit.body !== null);
-        const parsed = fileUnit?.body ? parseWorkFile(file, fileUnit.body) : null;
-        if (!parsed?.ok) {
-          skipped.push({ path: file, reason: "The store has no readable text for this file." });
-          continue;
-        }
-        const rendered = renderWorkFile(parsed.document, fileUnits.map((unit) => {
-          const shown = parsed.document.units.find((candidate) => candidate.coordinate === unit.coordinate);
-          return {
-            coordinate: unit.coordinate,
-            kind: unit.kind as "revision" | "phase" | "stage" | "task",
-            status: unit.status,
-            closeOutcome: unit.closeOutcome,
-            title: shown && unit.kind !== "task" ? shown.title : unit.title,
-            text: unit.kind === "task" ? unit.body : null,
-            blockers: shown ? shown.blockerBullets.map((bullet) => bullet.text) : [],
-            gates: [],
-          };
-        }));
+        const rendered = renderStoreWorkFile(units, file);
         if (!rendered.ok) {
           skipped.push({ path: file, reason: rendered.reason });
           continue;
@@ -1084,6 +1134,7 @@ export function workExport(
         mkdirSync(path.dirname(destination), { recursive: true });
         writeFileSync(destination, rendered.text, { encoding: "utf8", flag: "wx" });
         written.push(destination);
+        if (removedCopyFiles.has(file)) removedCopies.push(file);
       }
     }
     if (quickTarget !== null) {
@@ -1094,13 +1145,20 @@ export function workExport(
       writeFileSync(quickTarget, text, { encoding: "utf8", flag: "wx" });
       quick = { path: quickTarget, count: units.filter((unit) => unit.kind === "quick-item").length };
     }
+    const quickCount = units.filter((unit) => unit.kind === "quick-item").length;
+    const complete = toTarget !== null && input.paths.length === 0 && skipped.length === 0 && (quickCount === 0 || quick !== null);
+    const workDigest = complete ? workProjectDigest(db, projectId) : null;
     const lines = [
       ...(toTarget !== null ? [`Exported ${count(written.length, "work file")} from the store to ${toTarget}.`] : []),
+      ...(removedCopies.length > 0 ? [`Also wrote ${count(removedCopies.length, "work file")} whose repo copy a person removed, because the store still keeps their closed units: ${removedCopies.join(", ")}.`] : []),
       ...skipped.map((entry) => `  Skipped ${entry.path}: ${entry.reason}`),
       ...(quick ? [`Wrote ${count(quick.count, "quick item")} to ${quick.path}.`] : []),
+      complete
+        ? `This export holds all of the project's work. Work digest: ${workDigest}.`
+        : "This export does not hold all of the project's work, so it gives no work digest. Export with --to and no path filter, and with --quick when the project has quick items.",
       sync.summary,
     ];
-    return { operation: "work.queue.export", written, skipped, quick, sync, lines, summary: lines.join("\n") };
+    return { operation: "work.queue.export", written, removedCopies, skipped, quick, complete, workDigest, sync, lines, summary: lines.join("\n") };
   }, { storeRoot: env.storeRoot });
 }
 

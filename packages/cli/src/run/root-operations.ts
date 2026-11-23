@@ -6,9 +6,11 @@ import {
   type CliOperationLaunch,
 } from "../operations/context";
 import { invokeOperation } from "../operations/registry";
-import type {
-  ResourceListOperationOutput,
-  ResourceReadOperationOutput,
+import {
+  isProjectResourceReadOutput,
+  type ResourceListOperationOutput,
+  type ResourceProjectReadOperationOutput,
+  type ResourceReadOperationOutput,
 } from "../operations/resource";
 import { OperationError } from "../operations/types";
 import { withCliRenamedTo } from "../operations/migration-aliases";
@@ -216,8 +218,8 @@ export async function runResourceCommand(
     if ((options.format ?? "raw") === "json") {
       printJson(invocation.value);
     } else {
-      const value = invocation.value as unknown as ResourceReadOperationOutput;
-      process.stdout.write(Buffer.from(value.resource.content.data, "base64"));
+      const value = invocation.value as unknown as ResourceReadOperationOutput | ResourceProjectReadOperationOutput;
+      process.stdout.write(Buffer.from(isProjectResourceReadOutput(value) ? value.content.data : value.resource.content.data, "base64"));
     }
     return;
   }

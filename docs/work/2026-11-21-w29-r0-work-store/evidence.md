@@ -577,3 +577,242 @@ Changes nothing.
 - `work next` without a usable Store returns the typed Store outcome. It does not read the `docs/work/` files directly yet (PRD 52 R-WORK-STORE-2 for the queue commands); the follow-up pass decides with the owner.
 - The read-only sync check does not run the import guards, so a file it lists as an import may stop as a conflict in the real sync.
 - The agent form (P5) still says what P1 said about release, takeover, and renewal, and has no text yet for WORK-RULE-040. P5 owns the agent text; the existing rule IDs did not change, and WORK-RULE-040 is new.
+
+## P4 Second Pass
+
+Covers T7, T8, T10, T11, and T12 and A20, A21, A32, and A34 in [P4](04-work-queue-operations.md), and the `work next` gap from the first pass's limits. Evidence date: 2026-11-23. Branch: `t3/w29-p4-work-queue-second-pass` from `0b1c0df9` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`. Every sample ran against a temporary `MAKE_DOCS_HOME`; no test or sample read or wrote the real Store.
+
+### What Was Built
+
+| Task | What it does now | Code |
+| --- | --- | --- |
+| T7 | When the work store is the authority (opt-in with `--work-store` since the owner decision below), `backlog snapshot` runs the read-only sync check, reads each work file's text from the store (the P3 writer renders the frame with the store's unit states), and adds a `readiness` key to each record and phase and a top-level `workStore` key. The `store` capability says `available`. Schema version stays 2. | `packages/cli/src/operations/work/backlog/store-snapshot.ts`, `snapshot.ts` (a work file source seam), `schemas.ts` |
+| T8 | Without a usable Store (absent, older schema, unsafe, or a checkout that is not bound), the snapshot runs the old file path, unchanged, with no store-mode key. A Store refusal in store mode, such as a harness denial, reads the files and names the typed result in `workStore.refusal`. | same |
+| T10 | `make-docs resource read`, the `resource_read` tool, and native MCP `resources/read` accept `make-docs://project/<project>/tasks/` and `.../tasks/<n>`. The project resolves by name or project ID through `project_register` only. Each read opens one read-only Store session with no project folder. `work add` names the new quick item's URI again. | `packages/cli/src/operations/work/work-queue/project-resource.ts`, `resource/ops.ts`, `mcp/resources.ts`, `run/root-operations.ts`, `store/installation-state.ts` (`withStoreReadOnlyDatabase`), `store/work-store.ts` (`readWorkStoreAt`) |
+| T11 | The same reads accept `.../backlog/` and coordinate paths down to a stage or a task, with each unit's status, readiness and wait reasons, live claim, links, and child list. A phase shows its stages with their tasks. | `project-resource.ts` |
+| T12 | A complete `work export` (every backlog file and, when the project has quick items, `--quick`) returns `complete: true` and a `workDigest` of the project's work rows. `deletePrunedProjectWorkRows` removes one project's units, dependencies, links, and claims only when the project has no register row and no bound checkout, the digest still matches, and no claim is live. `pruneProjectFromStore` runs it when given `workExportDigest`, and reports `workRows` as removed or kept with the reason. | `store/work-store.ts`, `store/lifecycle.ts`, `work-queue/queue.ts` |
+| Gap | `work next` without a usable Store keeps its typed Store outcome and code, and its next step now names the `docs/work/` files and `make-docs backlog snapshot`. A checkout that is not bound to a usable Store gets the same typed outcome, with the reason `work status` gives, instead of a "refused this work store write" message. It does not read or rank the files. | `work-queue/files-fallback.ts`, `work-queue/operations.ts` |
+
+Generated files: `packages/cli/src/mcp/assets/backlog-review-v1.html` and `.ts`, and `packages/skills/backlog-review/scripts/agent-contract.mjs` and `report-contract.mjs`, rebuilt from the changed snapshot schema with `build-mcp-app-assets.mjs` and `build-backlog-presentation.mjs --all`.
+
+### New Behavior
+
+Each item below is new; no earlier text said it.
+
+- A project URI read leaves sync conflicts out of readiness, because a conflict belongs to one checkout and a project URI names none. The read says so in one line. `work next` in a checkout still shows them.
+- `resource.read` keeps `store: none` in its declared access, as PRD 25 R-ACCESS-2 and PRD 39 R-REG-EVOLVE-2 say, so harness command rules and Store-free system reads do not change. Only a project URI read runs the harness check for Store read and opens its own read-only Store session.
+- `backlog snapshot` now declares Store-optional read (`store: read`, optional admission), as PRD 51 R-BACKLOG-SNAPSHOT-24 already said.
+- The snapshot's `readiness` and `workStore` keys appear only in store mode, so a no-Store result is the same as before. Readiness facts hold no next action, so the snapshot gives no recommendation.
+- A cleanup refuses while any unit of the project has a live claim.
+- Native MCP `resources/read` of a project URI returns Markdown `text`, not a base64 `blob`, with the structured read in `_meta.makeDocs`. Project URIs are not listed in `resources/list`.
+- `resource read --origin local` or `installed` on a project URI is refused, because a project URI has no projection.
+
+### A20 and A21: the Snapshot Source
+
+- A20: on a checkout with an absent Store, and on a checkout that is not bound to a usable Store, the operation result equals `buildBacklogSnapshot` apart from `generatedAt`, has no `readiness` or `workStore` key, and makes no Store folder.
+- A21: on a bound checkout whose files and store agree, the result equals the file snapshot apart from the store-mode keys and the `store` capability. A store change that sync has not written yet (task T1 closed in the store only) shows as a checked task, the file keeps its bytes, and the sync check lists the file as `write`. With copies off and the copies removed, the records still come from the store. A live claim shows its claimant and handle, never its claim ID.
+
+Store-mode sample (`make-docs backlog snapshot --target-root <project> --json`, a temporary project, excerpt):
+
+```json
+{
+  "store": { "state": "available", "diagnosticCodes": [] },
+  "workStore": {
+    "authority": "store",
+    "state": "read",
+    "syncCheck": { "summary": "Sync check: the files and the store match.", "pending": [], "conflicts": [] },
+    "refusal": null
+  },
+  "phases[1].readiness": {
+    "source": "work-store",
+    "status": "open",
+    "state": "waiting",
+    "doneBy": null,
+    "waitReasons": [{ "reason": "dependency-open", "text": "Waits for W1 R0 P1 to close.", "coordinate": "W1 R0 P1" }],
+    "liveClaim": null,
+    "syncConflict": false
+  }
+}
+```
+
+The same project with `MAKE_DOCS_HOME` at an absent folder gives `"store": { "state": "not-used", "diagnosticCodes": [] }` and no `workStore` key.
+
+### A32 and A34: Project URI Reads
+
+Samples, run from a folder outside the project with the real CLI (`packages/cli/dist/index.js`):
+
+```text
+$ make-docs resource read make-docs://project/aurora/tasks/
+# Quick items of aurora
+
+- task 1: Compare two printers [open]
+```
+
+```text
+$ make-docs resource read make-docs://project/aurora/backlog/w1/r0/p1
+# W1 R0 P1: Phase 1: First
+
+make-docs://project/aurora/backlog/W1/R0/P1/
+
+- Kind: phase
+- Status: open; the file records "active"
+- Readiness: ready
+- Claim: none
+- File: docs/work/2042-06-01-w1-r0-aurora/01-first.md
+- Links: none
+
+Stages and tasks (5):
+- W1 R0 P1 S1: Build [open; ready] make-docs://project/aurora/backlog/W1/R0/P1/S1
+  - W1 R0 P1 T1: Build the parser. [open; ready] make-docs://project/aurora/backlog/W1/R0/P1/T1
+  - W1 R0 P1 T2: Write the writer. [open; ready] make-docs://project/aurora/backlog/W1/R0/P1/T2
+- W1 R0 P1 S2: Check [open; waiting] make-docs://project/aurora/backlog/W1/R0/P1/S2
+  - W1 R0 P1 T3: Check it. [open; waiting] make-docs://project/aurora/backlog/W1/R0/P1/T3
+
+Sync conflicts belong to one checkout, so this read does not show them. Run make-docs work next in a checkout to see them.
+Changes nothing.
+```
+
+```text
+$ make-docs resource read make-docs://project/nobody/tasks/
+{"ok":false,"code":"resource-not-found","message":"The Store knows no project named nobody. The part that did not match: nobody.", ...}
+$ make-docs resource read make-docs://project/aurora/backlog/W1/R0/P01/
+{"ok":false,"code":"invalid-resource-uri","message":"Part 3 of the coordinate must be P and a number without a leading zero. ...", ...}
+```
+
+- A32: the `tasks` list text equals the file that `work export --quick` wrote, byte for byte, and equals `renderWorkTasksList`. The test moves the checkout folder away before the read, so the read opens no repository file. A system-resource read with the Store root at an absent folder succeeds and makes no Store folder. A project URI read with that Store root gives `store-unavailable`, and its next step says to read the `docs/work/` files of project `aurora` directly.
+- A34: the same URI from two other folders gives the same result. `AURORA`, `Aurora`, `w1/r0/p1`, and no trailing slash read, and the result names the canonical URI. An unknown project, a quick item that does not exist, and a coordinate that does not exist give `resource-not-found` with the part that did not match; a part after a task, `P01`, quick item `0`, and a query give `invalid-resource-uri`. The project ID URI reads the same unit as the name URI.
+- `work add` sample: `Read it from any folder: make-docs resource read make-docs://project/aurora/tasks/1`.
+
+### T12: Work Rows of a Pruned Project
+
+```text
+$ make-docs work export --to <dir>/copies --quick <dir>/tasks.md --allow-write true
+Exported 3 work files from the store to <dir>/copies.
+Wrote 1 quick item to <dir>/tasks.md.
+This export holds all of the project's work. Work digest: sha256:0e933bdb373edb1cc5e93199a797ff43c2187df1ff85e356771c3af40fea16c9.
+$ make-docs work export --to <dir>/copies2 --allow-write true
+This export does not hold all of the project's work, so it gives no work digest. Export with --to and no path filter, and with --quick when the project has quick items.
+```
+
+Tests: a prune with the digest removes exactly the pruned project's 2 units and leaves the other project's units; a prune without a digest, with a stale digest (a quick item added after the export), and with a live claim keeps the work rows and names why; a cleanup of a project that is still registered is refused. No command calls `pruneProjectFromStore` yet, so the cleanup has no CLI path (Store README, R-LIFE-2).
+
+### `work next` Without a Usable Store
+
+```text
+$ MAKE_DOCS_HOME=<absent> make-docs work next --target-root <project>
+{"ok":false,"code":"store-unavailable", ... "nextAction":"Restore access to the configured Make Docs Store, then retry only this operation. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.", ... "details":{"projectRoot":"<project>","authority":"files","workFiles":["docs/work/",".make-docs/archive/work/"]}}
+$ make-docs work next --target-root <checkout not bound>
+{"ok":false,"code":"store-unavailable","reason":"The docs/work/ files are the authority, because this checkout is not bound to the Store.","nextAction":"Run make-docs setup in this checkout. Until the Store is usable, ...", ...}
+```
+
+PRD 52 R-WORK-STORE-2 says every work operation reads the files without a usable Store. Register D-068 asks the owner whether to keep this pointer (option A, built) or to make `work next` read and rank the files (option B).
+
+### PRD Changes
+
+- PRD 52: R-WORK-STORE-10 (the export digest), new R-WORK-STORE-13 (the scoped cleanup), R-WORK-QUEUE-18 (the URI in the `work add` result), and R-WORK-URI-3 (no checkout conflicts in a project URI read), with a Requirement History entry.
+- PRD 51: R-BACKLOG-SNAPSHOT-13, -31, and -32 (the read-only sync check, store-mode-only keys, and where a refusal goes), with a Requirement History entry.
+- PRD 25 R-ACCESS-2 and PRD 39 R-REG-EVOLVE-2 and the resource command lines (a project URI read opens its own read-only Store session; system reads stay Store-free), each with a Requirement History entry.
+- Register D-068 (open).
+
+### Checks
+
+- `npx tsc --noEmit -p .` and `npm run build` in `packages/cli`: pass. The build's MCP app asset check passes after the regenerated widget.
+- `tests/w29-r0-p4-second-pass.test.ts`: 21 tests pass. With it, the W29 P1 to P4 tests, `work-store-contract`, the backlog snapshot tests, the resource and MCP resource tests, the Store lifecycle and verification tests, the harness access tests, `mcp-derivation`, `registry-contract`, the name catalog, and `consistency` pass.
+- Tests changed: P4 `work add` now expects the quick item's URI (finding 5 closed by T10); the snapshot surface test expects Store-optional read; the Store lifecycle prune test expects the `workRows` outcome; the W26 P3 cross-interface test expects the store-mode snapshot on its bound checkout with a Store read grant. That last test is also a live MCP call of `backlog_snapshot` in store mode.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its system temporary folder.
+- `check prd`: passed, 37 PRD files.
+- `project paths validate`: `valid: true`. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files. Both ran with a temporary `MAKE_DOCS_HOME`.
+
+### Full Test Suite
+
+`npx vitest run --reporter=json` in `packages/cli`, counted from the JSON report: 148 test files, 145 passed and 3 failed. Of 3,335 tests, 3,325 passed, 4 failed, and 6 were skipped. Three failures are known and exist without this pass: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only). The fourth, `w26-p3-cross-interface`, expected `not-used` from a snapshot on a bound checkout with a Store read grant; that is now store mode by design, so the test now expects it, and that file passes on rerun (2 tests). The full suite was not run again after that one test change.
+
+### Limits
+
+- No test calls a project URI through a live stdio MCP transport. The review fixes below add MCP tests through the tool handler and the native `resources/read` handler with a real generic MCP client grant.
+- Old installed copies of the backlog-review Skill validate snapshot JSON with a strict schema. In store mode they refuse the new `readiness` and `workStore` keys. A Skill installed with this CLI version has the new bundles. No released version has the work store yet.
+- The cleanup has no command, and sync ledger, conflict, and first-sync rows go with their checkout (`ON DELETE CASCADE`), not with the cleanup.
+- The P5 agent form does not describe project URI reads, the snapshot source, or the cleanup yet. P5 owns that text.
+
+## P4 Second Pass Review Fixes
+
+An independent review of the second pass needed changes. Evidence date: 2026-11-23. The worktree was fast-forwarded to `main` at `f1aaa63d` first, with the work kept uncommitted; PRD 39 Requirement History kept both new entries (D-067 Part A and this pass). One high finding, old Skill copies against the new snapshot keys, waits for an owner choice, so the snapshot default did not change.
+
+| Item | Fix | Tests |
+| --- | --- | --- |
+| 2 (medium) | An agent's project URI read uses the harness grant of the folder where the agent works: a Store read grant there allows every project URI, also another project's. When that folder is not a Make Docs project, the read is refused as `store-not-configured` with a plain reason and the next step "Start the agent in a Make Docs project whose harness access allows Store read, then read the project URI from there." It never tells the person to set that folder up. A project folder with no grant keeps its setup step, which names that working folder, and the reason now says that the working folder's grant decides. The direct CLI route needs no grant, as before. The review fix also found that native MCP `resources/read` of a project URI sent no MCP connection, so a granted agent was refused; it now sends it, as a tool call does. | MCP tool and native read with a real generic MCP client grant, reading another project's URI; MCP from a folder that is not a project; MCP from a project with no grant; the CLI binary from a folder that is not a project and from the granted project. |
+| 3 (low) | `backlog snapshot` runs the harness check before it reads any Store state. A refused caller gets the file facts and `workStore.refusal`; with no Store database file at all, it gets the plain file snapshot (A20). The only check before the harness check is that file test, which reads no Store state. | A refused MCP caller in a bound checkout; a refused MCP caller with no Store, whose result equals the file snapshot. |
+| 4 (low) | Safer path chosen: a complete `work export` also writes the files of units whose repo copy a person removed (an accepted deletion), names them in `removedCopies` and in its text, and only then gives a `workDigest`. So the T12 cleanup can never remove a unit that no export wrote. | A deleted file, `--accept-deletion`, then a full export that writes the removed file outside `docs/work/` and names it. |
+| 5 (low) | `work next` with no Store database has one next step: reason "This computer has no Make Docs Store, so the work store cannot be read. Nothing changed." and next step "Run make-docs setup to create the Store, then run this command again.", then the `docs/work/` step. The same applies to project URI reads and store-mode snapshot reads. | `work next` on the direct CLI route with an absent Store. |
+| 6 (low) | Recorded here: a read-only Store read can leave a `store.db-wal` file of 0 bytes and a `store.db-shm` index file next to `store.db`. SQLite makes them when it opens the database in WAL mode. The Store data does not change. The W26 P3 byte checks already leave these two files out. | none |
+
+New behavior: the working-folder grant rule (item 2) and the export of removed-copy files (item 4) are new. PRD 25 R-ACCESS-2, PRD 39 R-REG-EVOLVE-2, PRD 51 R-BACKLOG-SNAPSHOT-11, and PRD 52 R-WORK-STORE-10 and R-WORK-STORE-13 say so, each with a Requirement History entry.
+
+Samples:
+
+```text
+MCP resource_read make-docs://project/aurora/tasks/ from a folder that is not a project:
+code: store-not-configured
+reason: The folder where this agent works, <folder>, is not a Make Docs project, so the agent has no Store read grant for project URIs. A Store read grant in the project where the agent works allows every project URI.
+next: Start the agent in a Make Docs project whose harness access allows Store read, then read the project URI from there. Until the Store is usable, read the docs/work/ files of project aurora directly in a checkout of it, or run make-docs backlog snapshot there, which reads them without the Store.
+
+$ MAKE_DOCS_HOME=<absent> make-docs work next --target-root <project>
+reason: This computer has no Make Docs Store, so the work store cannot be read. Nothing changed.
+next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.
+```
+
+Tolerant snapshot schema: not changed. PRD 51 R-BACKLOG-SNAPSHOT-30 requires installed Skill copies to validate snapshot JSON against "the bundled strict schema", so that a mismatch between an older Skill and a newer CLI fails clearly instead of being misread, and R-BACKLOG-SNAPSHOT-10 requires a new schema version for a breaking change. A schema that passes unknown keys would break that rule. A change needs the owner's choice, which the pending high finding covers.
+
+Register D-068 stays open; R-WORK-STORE-2 did not change.
+
+### Checks
+
+The review fixes and the owner decisions were checked together; see the checks of the owner decisions section below.
+
+## P4 Owner Decisions (2026-11-23)
+
+Two owner choices, applied in the same worktree after the review fixes.
+
+### Old Skill Copies: Option A, Opt-in
+
+- The default `backlog snapshot` output is exactly as before in every mode: schema version 2, `store` capability `not-used`, no `readiness` or `workStore` key, and the files' own text. It reads no Store state and runs no harness check.
+- The store-mode facts are opt-in: `make-docs backlog snapshot --target-root <project> --work-store` on the CLI, and the argument `workStore: true` on the `backlog_snapshot` MCP tool. Leaf help names `--work-store`. With the option, T7 works as built in the second pass and its review fixes.
+- The backlog-review Skill reads none of the new keys, so its text does not ask for them. Its bundles were rebuilt and the byte-match test passes; the bundles did not change, because the schema did not change.
+- Proof with this repository's old installed `.agents/skills/backlog-review/scripts/agent-contract.mjs` (not changed): its `validateBacklogRebuiltModel` parses the snapshot with its strict schema first, and only then checks that the report belongs to the snapshot. With a fixture report, a snapshot that the old schema accepts fails only that later check. On a Store-mode checkout made with the real CLI:
+
+```text
+default snapshot  -> Rebuilt model must match the latest checked source facts.   (the old schema accepted it)
+--work-store      -> unrecognized_keys "readiness" at records[0].phases[0] ...   (the old schema refused it)
+```
+
+The test `this repository's old installed backlog-review Skill accepts the default snapshot, and refuses the opt-in one` checks both. New behavior: the `--work-store` option.
+
+### Register D-068: Option A
+
+`work next` without a usable Store keeps the typed Store outcome and the pointer to `docs/work/` and `make-docs backlog snapshot`. PRD 52 R-WORK-STORE-2 now says: the queue commands that need the Store return the typed Store outcome; the read-only `work next` also names the files and the snapshot; `work status` reports the file authority; file-reading commands read the files. The write commands (`sync`, `claim`, `release`, `report`, `close`, `export`, `add`) return the typed outcome without that pointer, so the PRD says only what the code does. D-068 is closed in the register.
+
+### PRD Changes
+
+- PRD 51 R-BACKLOG-SNAPSHOT-1, -11, -13, -24, and -31, with a Requirement History entry that names the owner decision.
+- PRD 52 R-WORK-STORE-2 and the PRD 51 integration line, with a Requirement History entry that names both decisions.
+- Register D-068 closed.
+
+### Checks
+
+- `npx tsc --noEmit -p .` and `npm run build` in `packages/cli`: pass; the build's MCP app asset check passes.
+- `tests/w29-r0-p4-second-pass.test.ts`: 31 tests pass, among them the MCP tool and native reads with a real generic MCP client grant and the CLI binary from folders with and without a grant.
+- Backlog-review Skill bundles rebuilt with `build-backlog-presentation.mjs --all`; `backlog-review-skill-bundles` (the byte-match test), `backlog-review-skill`, `backlog-snapshot-schema-version`, and the W33 leaf help and command tests pass.
+- `check prd`: passed, 37 PRD files. `project paths validate`: `valid: true`. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files. All with a temporary `MAKE_DOCS_HOME`.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its system temporary folder.
+
+### Full Test Suite
+
+`npx vitest run --reporter=json` in `packages/cli`, on `main` at `f1aaa63d` with this work uncommitted, after the review fixes and both owner decisions, counted from the JSON report: 148 test files, 146 passed and 2 failed. Of 3,346 tests, 3,337 passed, 3 failed, and 6 were skipped. All three failures are known and exist without this work: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only).
+
+
+### P4 Second Pass Integration
+
+- The re-check passed the second pass. Two of its three low wording items were fixed at integration: the MCP description for tools with optional Store access no longer talks about the review cache, and PRD 51 R-BACKLOG-SNAPSHOT-31 now says that a `--work-store` caller whom the harness refuses gets `workStore.refusal`, as R-BACKLOG-SNAPSHOT-11 allows.
+- Follow-up: when only the Store grant is missing, the next step of a project URI refusal still begins "Until the Store is usable", although the Store itself is usable. It should name the missing grant.
+- Lead decision: without a usable Store, only `work next` points to the `docs/work/` files and `make-docs backlog snapshot`. The write commands keep the plain typed Store error, because they need the Store to act. PRD 52 R-WORK-STORE-2 says exactly this.

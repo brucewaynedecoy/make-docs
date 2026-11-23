@@ -128,6 +128,9 @@ describe("W26 P3 cross-interface proof", () => {
     await refusedWrite("store-denied");
     expect((await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: project })).result)
       .toMatchObject({ capabilities: { store: { state: "not-used" } } });
+    // W29 R0 P4 T7, opt-in (owner decision 2026-11-23): this checkout is bound and the grant allows Store read.
+    expect((await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: project, workStore: true })).result)
+      .toMatchObject({ capabilities: { store: { state: "available" } }, workStore: { authority: "store", state: "read" } });
 
     writeFileSync(projectConfigPath, JSON.stringify({ projectId, harnessIntegrations: [] }));
     await refusedWrite("store-not-configured");

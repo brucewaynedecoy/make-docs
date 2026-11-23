@@ -7,8 +7,16 @@ import type { ManifestSystemAssetEntry } from "../../types";
 import type { OperationExecutionContext } from "../context";
 import {
   PROJECT_READ_ACCESS,
+  STORE_READ_PROJECT_READ_ACCESS,
   STORE_WRITE_PROJECT_WRITE_ACCESS,
 } from "../access";
+import { runWorkStoreRead, workProjectFilesNextStep } from "../work/work-queue/files-fallback";
+import {
+  WorkProjectUriError,
+  isWorkProjectUri,
+  readWorkProjectResource,
+  type WorkProjectResourceRead,
+} from "../work/work-queue/project-resource";
 import type { OperationDefinition } from "../registry";
 import { OperationError } from "../types";
 import { canonicalSystemResourcePath, parseSystemResourceUri } from "./identity";
@@ -67,6 +75,17 @@ export interface ResourceReadOperationOutput {
   targetRoot: string;
   origin: SystemResourceOrigin;
   resource: SerializedSystemResource;
+}
+
+/**
+ * A `make-docs://project/<project>/` read (PRD 52 R-WORK-URI-5). It has no
+ * target root and no origin, because nothing in it resolves from a folder and
+ * a project URI never has a local projection.
+ */
+export type ResourceProjectReadOperationOutput = WorkProjectResourceRead;
+
+export function isProjectResourceReadOutput(value: unknown): value is ResourceProjectReadOperationOutput {
+  return Boolean(value) && typeof value === "object" && (value as { kind?: unknown }).kind === "project-resource";
 }
 
 export interface ResourceEnsureOperationOutput {
@@ -225,10 +244,57 @@ async function listHandler(
   };
 }
 
+/** The project part of a project URI, for the next step, without parsing the rest. */
+function projectPartOf(uri: string): string {
+  return uri.slice("make-docs://project/".length).split("/")[0]?.toLowerCase() || "<project>";
+}
+
+async function readProjectHandler(
+  input: z.infer<typeof resourceReadInput>,
+  context: OperationExecutionContext,
+): Promise<ResourceProjectReadOperationOutput> {
+  if (input.origin && input.origin !== "effective") {
+    throw new ResourceOperationError({
+      code: "invalid-resource-uri",
+      message: `A project URI has no local or installed origin, so --origin ${input.origin} does not apply to ${input.uri}.`,
+      recovery: "Read the project URI without --origin.",
+      uri: input.uri,
+    });
+  }
+  // The harness check needs a folder; the read itself never uses it (R-WORK-URI-1).
+  const root = path.resolve(input.targetRoot ?? context.cwd);
+  try {
+    return await runWorkStoreRead(
+      {
+        operation: "resource.read",
+        access: STORE_READ_PROJECT_READ_ACCESS,
+        root,
+        context,
+        filesStep: workProjectFilesNextStep(projectPartOf(input.uri)),
+        session: false,
+        projectUri: true,
+      },
+      () => readWorkProjectResource(input.uri, { storeRoot: context.storeRoot, now: new Date(context.now()) }),
+    );
+  } catch (error) {
+    if (error instanceof WorkProjectUriError) {
+      throw new ResourceOperationError({
+        code: error.code,
+        message: error.part ? `${error.message} The part that did not match: ${error.part}.` : error.message,
+        recovery: error.recovery,
+        uri: error.uri,
+      });
+    }
+    throw error;
+  }
+}
+
 async function readHandler(
   input: z.infer<typeof resourceReadInput>,
   context: OperationExecutionContext,
-): Promise<ResourceReadOperationOutput> {
+): Promise<ResourceReadOperationOutput | ResourceProjectReadOperationOutput> {
+  // Only a project URI opens a Store session. A system-resource read never does (R-WORK-URI-5).
+  if (isWorkProjectUri(input.uri)) return readProjectHandler(input, context);
   const root = path.resolve(input.targetRoot ?? context.cwd);
   const runtime = loadRuntime(root);
   const origin = input.origin ?? "effective";
@@ -274,12 +340,15 @@ export const resourceListOperation: OperationDefinition<
 
 export const resourceReadOperation: OperationDefinition<
   ResourceReadOperationInput,
-  ResourceReadOperationOutput
+  ResourceReadOperationOutput | ResourceProjectReadOperationOutput
 > = {
   id: "resource.read",
   mcp: { profiles: ["core"], defaultExposure: "eager" },
-  summary: "Read one system resource with exact bytes, media type, and provenance.",
+  summary: "Read one system resource with exact bytes, media type, and provenance. A make-docs://project/<project>/ URI reads the work store in its own read-only Store session.",
   mutates: "read",
+  // The runner opens no Store session (PRD 25 R-ACCESS-2): a system-resource
+  // read uses no Store. Only a project URI read opens one read-only Store
+  // session itself, after the harness check for Store read (PRD 52 R-WORK-URI-5).
   access: PROJECT_READ_ACCESS,
   status: "active",
   inputSchema: resourceReadInput,

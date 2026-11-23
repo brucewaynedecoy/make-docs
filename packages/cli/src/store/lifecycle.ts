@@ -11,6 +11,7 @@ import {
 } from "./paths";
 import { resolveProjectIdentity } from "./project-identity";
 import { deleteProjectRows, type DeleteProjectRowsResult } from "./state-rows";
+import { WorkStoreRefusalError, deletePrunedProjectWorkRows, type DeletePrunedProjectWorkRowsResult } from "./work-store";
 
 /**
  * Store lifecycle behavior (W18 R10 P4; PRD 38 R-LIFE-1, R-LIFE-2).
@@ -46,7 +47,19 @@ export interface PruneProjectFromStoreOptions extends ResolveStoreRootOptions {
    * omitted, identity is resolved from the repository manifest.
    */
   projectId?: string;
+  /**
+   * The `workDigest` of a complete `work export` of this project. With it, a
+   * prune that removes the project's register row also removes the project's
+   * work rows, when they still match the digest (W29 R0 P4 T12). Without it,
+   * the work rows stay.
+   */
+  workExportDigest?: string;
 }
+
+/** What a prune did with the project's work store rows (W29 R0 P4 T12). */
+export type PruneWorkRowsOutcome =
+  | { status: "removed"; removed: DeletePrunedProjectWorkRowsResult["removed"] }
+  | { status: "kept"; reason: string };
 
 export type PruneProjectFromStoreResult =
   | {
@@ -59,6 +72,8 @@ export type PruneProjectFromStoreResult =
       removed: DeleteProjectRowsResult["removed"];
       /** True when the register row stays because a checkout of the project is still bound. */
       registerRowKept: boolean;
+      /** The project's work rows: kept, unless a complete export's digest was given and still matches. */
+      workRows: PruneWorkRowsOutcome;
     }
   | { status: "no-store"; storeRoot: string }
   | {
@@ -99,6 +114,19 @@ export function pruneProjectFromStore(
   try {
     return withStoreDatabase(storeRoot, (db) => {
       const result = deleteProjectRows(db, resolvedProjectId);
+      let workRows: PruneWorkRowsOutcome;
+      if (options.workExportDigest === undefined) {
+        workRows = { status: "kept", reason: "No work export digest was given, so the project's work rows stay." };
+      } else if (result.registerRowKept) {
+        workRows = { status: "kept", reason: "A checkout of the project is still bound, so its work rows stay." };
+      } else {
+        try {
+          workRows = { status: "removed", removed: deletePrunedProjectWorkRows(db, resolvedProjectId, { exportDigest: options.workExportDigest }).removed };
+        } catch (error) {
+          if (!(error instanceof WorkStoreRefusalError)) throw error;
+          workRows = { status: "kept", reason: error.reason };
+        }
+      }
       return {
         status: "pruned" as const,
         storeRoot,
@@ -106,6 +134,7 @@ export function pruneProjectFromStore(
         remainingProjects: result.remainingProjects,
         removed: result.removed,
         registerRowKept: result.registerRowKept,
+        workRows,
       };
     });
   } catch (error) {

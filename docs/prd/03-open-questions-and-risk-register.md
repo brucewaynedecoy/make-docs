@@ -1377,6 +1377,22 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **To close**: The owner has chosen the Part A rule; the skip reason states the true cause, and a file that only names the marker is checked or skipped under that rule with a test; and `check decomposition` plain output says when the project may not be a decomposition output, with a test.
 
+### D-068 `work next` Without a Usable Store Does Not Read the Files
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23: keep the typed Store outcome and the pointer to the files. | Built in W29 R0 P4; [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 now states it. Evidence: [W29 R0 P4 owner decisions](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-owner-decisions-2026-11-23). |
+
+**Issue**: [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 says that without a usable Store "every work operation reads the files directly and behaves as it did before the work store existed". Before the work store, there was no `work next`. Today `work next` without a usable Store returns the existing typed Store outcome (`store-unavailable` and the other codes), and its next step says that the `docs/work/` files are the authority and names `make-docs backlog snapshot`, which reads them without the Store. It does not read or rank the files itself. A checkout that is not bound to a usable Store gets the same typed outcome, with the reason that `work status` gives.
+
+**Why it matters**: An agent without a Store gets no ready list from `work next`. The PRD text can be read as a promise of one.
+
+**Recommendation**: Option A (built): keep the typed outcome and the pointer, and change R-WORK-STORE-2 to say that the queue commands (`next`, `claim`, `release`, `report`, `close`, `export`, `add`) return the typed Store outcome and point to the files, while `work status`, `backlog snapshot`, and project URI reads report the file authority. Option B: make `work next` read and rank the `docs/work/` files without a Store, through the P1 rules, with no claims. Option A is smaller and matches the agent form in `make-docs://system/reference/work-store.md`, where an agent reads the files.
+
+**To close**: The owner chooses; R-WORK-STORE-2 states the rule; the code and a test match it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. R-WORK-STORE-2 says that the queue commands that need the Store return the typed Store outcome, that the read-only `work next` also points to `docs/work/` and `make-docs backlog snapshot`, and that file-reading commands read the files. The W29 R0 P4 second pass tests cover `work next` with an absent Store and with a checkout that is not bound.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

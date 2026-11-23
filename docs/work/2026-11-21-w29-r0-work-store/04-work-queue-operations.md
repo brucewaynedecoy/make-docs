@@ -16,7 +16,7 @@ Expose the work store through the shared operation registry, so the CLI and MCP 
 
 ## Overview
 
-Nine operations ship under `make-docs work`: `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, with MCP tools `work_status` to `work_add`. `make-docs resource read` accepts `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/` URIs. `backlog_snapshot` reads the store when the store is the authority.
+Nine operations ship under `make-docs work`: `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, with MCP tools `work_status` to `work_add`. `make-docs resource read` accepts `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/` URIs. `backlog_snapshot` reads the store when the caller asks with `--work-store` (MCP `workStore: true`) and the store is the authority.
 
 ## Human Experience Outcome
 
@@ -61,9 +61,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [x] T5: Build `status` with the authority mode and its reason in human words first, and exact detail in machine output.
 - [x] T6: Build `export` for checkouts with copies off, and `export --quick <path>` for quick items.
 - [x] T9: Build `add` for quick items with the next plain quick item number of the project.
-- [ ] T10: Accept `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/tasks/<n>` in the shared resource resolver, CLI `resource read`, the `resource_read` tool, and native MCP resource reads. Resolve the project by name or project ID only. Open a read-only Store session only for project URIs. When this read lands, `work add` names the new quick item's `make-docs://project/<project>/tasks/<n>` URI in its result again; until then it names none (W29 R0 P4 review, finding 5).
-- [ ] T11: Accept `make-docs://project/<project>/backlog/` and its coordinate paths down to a stage or task, with each unit's readiness, wait reasons, claim, links, and child list.
-- [ ] T12: Build a scoped cleanup of one project's work rows (units, dependencies, links, and claims) that runs only after `work export` has written that project's work, for a project that a prune removed from the project register. A project prune keeps these rows today (W29 R0 P2 review).
+- [x] T10: Accept `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/tasks/<n>` in the shared resource resolver, CLI `resource read`, the `resource_read` tool, and native MCP resource reads. Resolve the project by name or project ID only. Open a read-only Store session only for project URIs. When this read lands, `work add` names the new quick item's `make-docs://project/<project>/tasks/<n>` URI in its result again; until then it names none (W29 R0 P4 review, finding 5).
+- [x] T11: Accept `make-docs://project/<project>/backlog/` and its coordinate paths down to a stage or task, with each unit's readiness, wait reasons, claim, links, and child list.
+- [x] T12: Build a scoped cleanup of one project's work rows (units, dependencies, links, and claims) that runs only after `work export` has written that project's work, for a project that a prune removed from the project register. A project prune keeps these rows today (W29 R0 P2 review).
 - [x] T13: Hide claim IDs from callers that do not hold the claim. The owner chose this on 2026-11-23, over making a release also check the claimant, so a claim ID works like a private key. Only the holder sees its claim ID in `claim`, `work next`, and read results. Earlier text: before building `claim` and `release`, decide with the owner whether to hide claim IDs from callers that do not hold the claim, or to make a release also check the claimant. Today the P2 Store service releases a claim for any caller that names its claim ID, and `readWorkClaim` shows the claim ID to any caller.
 - [x] T14: Ask the owner whether to add a report-only Store decision item for work claims that expired more than a set number of days ago. It stays a proposal, with no fixed rule that deletes an expired claim, until the owner decides (W29 R0 P2 evidence). Owner decision (2026-11-23): add the report-only item. `setup store check` lists work claims that expired more than 7 days ago as a decision item. No rule deletes them.
 - [x] T15: Build the settle flags of `work sync` that the P3 conflict report names: `--settle <path>` with `--keep-file`, `--keep-store`, `--restore`, `--accept-deletion`, `--reimport`, or `--remove-file` (W29 R0 P3).
@@ -87,13 +87,13 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T7: Switch `backlog_snapshot` to the store when the store is the authority. Keep schema v2 and add resolved readiness facts.
-- [ ] T8: Keep the file path, unchanged, for checkouts without a Store.
+- [x] T7: Switch `backlog_snapshot` to the store when the store is the authority. Keep schema v2 and add resolved readiness facts. Owner decision (2026-11-23, option A): the store source and the readiness facts are opt-in, with `--work-store` on the CLI and `workStore: true` on MCP; the default snapshot stays exactly as before in every mode, so old installed Skill copies accept it.
+- [x] T8: Keep the file path, unchanged, for checkouts without a Store.
 
 ### Acceptance criteria
 
 - A20: A no-Store checkout gives the same `backlog_snapshot` result as before this Wave.
-- A21: In store mode, the snapshot facts match the store and include readiness.
+- A21: In store mode, with the work store option, the snapshot facts match the store and include readiness.
 
 ### Dependencies
 
@@ -112,6 +112,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - Performance evidence: none in this phase (`PERF-004` is P6).
 - Human Experience Review: the samples put human meaning first and end read-only summaries with "Changes nothing."; owner review pending.
 - Optional experience handoff: none.
-- Explicit human acceptance gate: pending the owner's Guided Progress Review and the follow-up pass.
+- Explicit human acceptance gate: pending the owner's Guided Progress Review, now also of the second pass samples.
 - Evidence report: [P4 section](evidence.md#p4-work-queue-operations).
-- Phase / capability status: active; partial.
+- Second pass (2026-11-23): T7, T8, T10, T11, and T12 are built and tested, so every P4 task is checked. `backlog snapshot` reads the work store in store mode, with readiness facts and the sync check, and reads the files exactly as before without a usable Store (A20, A21). `make-docs resource read` reads `make-docs://project/<project>/tasks/` and `.../backlog/` URIs from any folder, through `project_register` only, in one read-only Store session (A32, A34). `work add` names the quick item's URI again (T10 note). A complete `work export` returns a `workDigest`, and a prune with that digest removes the pruned project's work rows (T12). `work next` without a usable Store keeps its typed Store outcome and now names the `docs/work/` files. Evidence: [P4 second pass](evidence.md#p4-second-pass).
+- New behavior to note (second pass): a project URI read leaves checkout-scoped sync conflicts out of readiness and says so; `resource.read` keeps `store: none`, and only a project URI opens its own read-only Store session; the snapshot's store-mode keys (`readiness`, `workStore`) appear only in store mode; a cleanup refuses while a unit has a live claim; `work next` on a checkout not bound to a usable Store gives the same typed outcome as an absent Store, with the reason that `work status` gives.
+- Owner decision needed (second pass): register D-068, whether `work next` without a usable Store keeps the typed outcome and the pointer (option A, built) or reads and ranks the files (option B).
+- Second pass review (2026-11-23): needs changes; items 2 to 6 are fixed with tests. A project URI read uses the harness grant of the folder where the agent works, and a folder that is not a project is refused without a setup step for it; native MCP project reads now send the MCP connection. The snapshot runs the harness check before it reads Store state. A complete export also writes the files of units whose repo copy a person removed. An absent Store gives one next step. The snapshot schema stays strict (PRD 51 R-BACKLOG-SNAPSHOT-30). The high item, old Skill copies against the new snapshot keys, waits for the owner. Evidence: [review fixes](evidence.md#p4-second-pass-review-fixes).
+- Owner decisions (2026-11-23): old Skill copies, option A: the store-mode snapshot keys are opt-in (`--work-store`, `workStore: true`), the default snapshot is unchanged in every mode, and this repository's old installed Skill accepts it (test). The backlog-review Skill reads none of the new keys, so its text does not ask for them. Register D-068, option A: `work next` keeps the typed outcome and the pointer; PRD 52 R-WORK-STORE-2 now says so, and D-068 is closed. Evidence: [owner decisions](evidence.md#p4-owner-decisions-2026-11-23).
+- Phase / capability status: active; every task built; pending the owner's Guided Progress Review.

@@ -41,20 +41,21 @@ Code anchors:
 ### Authority
 
 - R-WORK-STORE-1 (MUST): when the checkout is bound to a usable Store, the work store is the authority for that project's work records. The `docs/work/` tree is a repo copy of the store.
-- R-WORK-STORE-2 (MUST): when the Store is absent, unavailable, unsafe, or denied, `docs/work/` is the authority. Every work operation reads the files directly and behaves as it did before the work store existed.
+- R-WORK-STORE-2 (MUST): when the Store is absent, unavailable, unsafe, or denied, `docs/work/` is the authority. The work queue commands that need the Store (`work sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`) return the existing typed Store outcome with its code. They do not read or rank the files themselves. The read-only `work next`, like a project URI read and `backlog snapshot --work-store`, also names the `docs/work/` files and `make-docs backlog snapshot`, which reads them without the Store, in its next step, and it treats a checkout that is not bound to a usable Store the same way. `work status` reports the file authority and its reason. The commands that read the files, such as `backlog snapshot`, read them as they did before the work store existed.
 - R-WORK-STORE-3 (MUST): `work status` reports the active authority mode and the reason for it, in human words first, with exact detail in machine output.
 - R-WORK-STORE-4 (MUST): the work store holds work records only. Designs, plans, PRDs, guides, and history stay repository documents.
 - R-WORK-STORE-5 (MUST): each work record keeps links to its governing repository documents, including its design, plan, PRD sections, and evidence file. Repository documents keep their links to work coordinates. Sync preserves links in both directions.
 - R-WORK-STORE-6 (MUST): a project without the CLI can still use the work rules through the agent form in `make-docs://system/reference/work-store.md`. In that mode, `docs/work/` is the authority.
 - R-WORK-STORE-11 (MUST): work units and claims belong to the project and are shared by every checkout of it. The sync ledger and sync conflicts belong to one checkout, so two worktrees of one project never read each other's writes as edits.
 - R-WORK-STORE-12 (MUST): the work store tables arrive in Store schema v8 under [PRD 38](38-global-store-and-project-state.md) R-DB-7. Each table has the Store write guard triggers of PRD 38 R-WRITE-GUARD-1 and a Store table catalog entry under PRD 38 R-MAINT-1.
+- R-WORK-STORE-13 (MUST): a scoped cleanup removes one project's work rows (units, dependencies, links, and claims) only after a project prune removed the project from `project_register` and no checkout of it is bound, only with the `workDigest` of a complete `work export` that still matches every work row, so every unit, also one whose repo copy a person removed, was written by that export, and never while a unit has a live claim. Otherwise it refuses, names why, and changes nothing. It never touches another project's rows. A prune without the digest keeps the work rows.
 
 ### Repo copy
 
 - R-WORK-STORE-7 (MUST): the repo copy follows the resource projection pattern in [PRD 06](06-template-contracts-and-generated-assets.md#resource-projection-ownership). The `work.projection` setting in project config holds the desired setting. Its default is `on`. The Store holds the last applied digest of each copied file.
 - R-WORK-STORE-8 (MUST): the repo copy uses the current `docs/work/` format, file names, and templates. A teammate without a Store, and an older Make Docs version, can read and edit the same files.
 - R-WORK-STORE-9 (MUST): Make Docs removes a repo copy only when its bytes still match the last applied digest. A changed copy is kept and reported.
-- R-WORK-STORE-10 (MUST): with `work.projection: off`, the store is the only record of that work in the checkout. `work status` says so plainly. `work export` writes the files on request to a new or empty folder that the caller names. It never writes under `docs/work/`, `.make-docs/`, or a held path, also through a symbolic link, and it never replaces a file. A copy that changed is imported, kept in that sync, and reported. Its last applied digest then matches it, so a later sync removes it, and the report says so. A copy that a person deletes while copies are off loses its ledger entry, so when copies go on again, sync writes the file with no conflict.
+- R-WORK-STORE-10 (MUST): with `work.projection: off`, the store is the only record of that work in the checkout. `work status` says so plainly. `work export` writes the files on request to a new or empty folder that the caller names. It never writes under `docs/work/`, `.make-docs/`, or a held path, also through a symbolic link, and it never replaces a file. A copy that changed is imported, kept in that sync, and reported. Its last applied digest then matches it, so a later sync removes it, and the report says so. A copy that a person deletes while copies are off loses its ledger entry, so when copies go on again, sync writes the file with no conflict. An export that writes all of the project's work, every backlog file that the store holds, also a file whose repo copy a person removed while the store keeps its closed units, and, when the project has quick items, the quick item list, says so. It names each file whose repo copy was removed and returns the digest of the project's work rows (`workDigest`). Any other export returns no digest.
 
 ### Two-way sync
 
@@ -85,7 +86,7 @@ Code anchors:
 - R-WORK-QUEUE-1 (MUST): each unit has a stable store ID and its coordinate. The coordinate is the human name. The store ID survives renumbering. Dependencies point to store IDs.
 - R-WORK-QUEUE-2 (MUST): a wave, revision, phase, stage, task, or quick item can be a claimable unit.
 - R-WORK-QUEUE-3 (MUST): a quick item is a task-level unit with no design, plan, or PRD. It belongs to the project and may link to the request that created it. A quick item lives only in the work store. It has no repo copy, and sync never reads or writes a file for it. Without a usable Store, Make Docs cannot add a quick item and returns the existing typed Store outcome.
-- R-WORK-QUEUE-18 (MUST): `work add` adds a quick item with a title, an optional body, and an optional link to the request that created it. The store gives it the next quick item number of the project: a plain number such as `7`. The `tasks` URI family and the word "task" keep it apart from backlog coordinates, so human-facing text writes it as `task 7`. The store keeps every quick item while the project is bound, closed ones too, so a number is never used twice. Other unit kinds enter the store only from `docs/work/` files through sync. `work add` needs the existing write permission.
+- R-WORK-QUEUE-18 (MUST): `work add` adds a quick item with a title, an optional body, and an optional link to the request that created it. The store gives it the next quick item number of the project: a plain number such as `7`. The `tasks` URI family and the word "task" keep it apart from backlog coordinates, so human-facing text writes it as `task 7`. The store keeps every quick item while the project is bound, closed ones too, so a number is never used twice. Other unit kinds enter the store only from `docs/work/` files through sync. The `work add` result names the new quick item's `make-docs://project/<project>/tasks/<n>` URI, with the project name, or the project ID when the project has no name. `work add` needs the existing write permission.
 
 ### Ready, claim, report, and close
 
@@ -114,7 +115,7 @@ Code anchors:
 
 - R-WORK-URI-1 (MUST): `make-docs://project/<project>/` is the project-resource URI family. `<project>` is the project name under [PRD 38](38-global-store-and-project-state.md) R-ID-8 or the project ID, resolved through `project_register` under PRD 38 R-REGISTER-2. Every project URI names its project in full. Nothing in a project URI resolves from the current folder, a `--target` path, or a checkout. The current families are `tasks` and `backlog`.
 - R-WORK-URI-2 (MUST): `make-docs://project/<project>/tasks/` lists the project's quick items in number order, with each number, title, status, and close outcome. `make-docs://project/<project>/tasks/<n>` shows one quick item with its title, body, status, close outcome, live claim, and links.
-- R-WORK-URI-3 (MUST): `make-docs://project/<project>/backlog/` lists the project's waves. Each further path part names one coordinate part: `backlog/W29/` lists the revisions of W29, `backlog/W29/R0/` lists its phases, and `backlog/W29/R0/P1/` shows the phase with its stages and tasks. `backlog/W29/R0/P1/S2` shows a stage, and `backlog/W29/R0/P1/T3` shows a task, because a task coordinate does not name its stage. Each read shows the unit's title, status, close outcome, readiness and wait reasons, live claim, links, and its child list.
+- R-WORK-URI-3 (MUST): `make-docs://project/<project>/backlog/` lists the project's waves. Each further path part names one coordinate part: `backlog/W29/` lists the revisions of W29, `backlog/W29/R0/` lists its phases, and `backlog/W29/R0/P1/` shows the phase with its stages and tasks. `backlog/W29/R0/P1/S2` shows a stage, and `backlog/W29/R0/P1/T3` shows a task, because a task coordinate does not name its stage. Each read shows the unit's title, status, close outcome, readiness and wait reasons, live claim, links, and its child list. Sync conflicts belong to one checkout (R-WORK-STORE-11), and a project URI names no checkout, so readiness in a project URI read leaves them out, and the read says so.
 - R-WORK-URI-4 (MUST): the resolver accepts any letter case in the project name and the coordinate parts, and a trailing slash or none. The result names the canonical URI: a lower-case project name, upper-case coordinate letters, and a trailing slash on a list. The resolver refuses a number with a leading zero, a quick item number `0`, a query, a fragment, and any part after a task, a stage, or a quick item.
 - R-WORK-URI-5 (MUST): `make-docs resource read`, the `resource_read` MCP tool, and native MCP resource reads accept project URIs through the shared resolver. A project URI read is read-only and opens a read-only Store session. A system-resource URI read never opens a Store session. A project URI never has a local projection.
 - R-WORK-URI-6 (MUST): without a usable Store, a project URI read returns the existing typed Store outcome. Its next action tells the reader to read the `docs/work/` files of the project directly. A project name or ID that the Store does not know, and a coordinate or quick number that the project does not have, return `resource-not-found` with the URI and the part that did not match.
@@ -145,7 +146,7 @@ The work store records units, dependencies, links, claims, the sync ledger, and 
 
 ## Integrations
 
-- [PRD 51](51-backlog-review-and-reporting.md): `backlog_snapshot` reads the work store when the store is the authority and returns the same schema with resolved readiness facts.
+- [PRD 51](51-backlog-review-and-reporting.md): `backlog_snapshot` with `workStore: true` (CLI `--work-store`) reads the work store when the store is the authority and returns the same schema with resolved readiness facts. By default it reads the files.
 - [PRD 53](53-factory-setup-and-orchestration.md): the factory uses next, claim, report, and close as its work queue.
 - [PRD 14](14-lifecycle-workflow-and-coverage-passes.md): phase closeout and lifecycle runs keep their existing rules.
 - Human outcomes for this capability follow the [Human Experience Contract](../../.make-docs/system/contracts/human-experience-contract.md). `work next`, `work status`, and the conflict report put the human meaning first and keep exact detail available.
@@ -206,6 +207,31 @@ The work store records units, dependencies, links, claims, the sync ledger, and 
 - Replacement contract: such a file stops as a `claimed` conflict whose choices are `work release` of each claimed unit and `--keep-store`, never `--keep-file`. A progress note is store-only data, so a unit with one that leaves its file stops the file. Any unchecked checkbox in a `Tasks` section keeps the fallback from counting the phase as done.
 - Rationale: a re-check of W29 R0 P4 found the loop, the lost note, and the missed checkbox. The rules keep the owner decisions T18 and finding 9 of 2026-11-23: sync never acts for a claim holder and never skips the handle check.
 - Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — W29 R0 P4 Second Pass
+
+- Affected requirement or section: R-WORK-STORE-10, new R-WORK-STORE-13, R-WORK-QUEUE-18, and R-WORK-URI-3.
+- Previous contract: `work export` did not say whether it wrote all of a project's work. No requirement said how a pruned project's work rows leave the Store. `work add` named no URI. R-WORK-URI-3 did not say which sync conflicts a project URI read shows.
+- Replacement contract: a complete export returns the `workDigest` of the project's work rows. A scoped cleanup removes a pruned project's work rows only with a matching digest and no live claim. `work add` names the quick item's project URI. A project URI read leaves checkout-scoped sync conflicts out of readiness and says so.
+- Rationale: W29 R0 P4 T10 to T12 built the project URI reads and the cleanup that PRD 38 names ("remove only under explicit scoped project-state cleanup after export"). A digest proves that an export wrote this exact work, with no new Store table. A project URI resolves from no folder, so it cannot pick one checkout's conflicts.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass)
+
+### 2026-11-23 — W29 R0 P4 Second Pass Review Fixes
+
+- Affected requirement or section: R-WORK-STORE-10 and R-WORK-STORE-13.
+- Previous contract: a "complete" export left out the files of units whose repo copy a person removed, while the cleanup that a complete export allows removed those units.
+- Replacement contract: a complete export also writes those files, outside `docs/work/` as for every export, and names them. So the cleanup never removes a unit that no export wrote.
+- Rationale: an independent review of the W29 R0 P4 second pass. Writing the files is the safer choice: it keeps every unit, and the cleanup stays possible.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
+
+### 2026-11-23 — W29 R0 P4 Owner Decisions on D-068 and the Snapshot Option
+
+- Affected requirement or section: R-WORK-STORE-2 and the PRD 51 integration line.
+- Previous contract: without a usable Store, "every work operation reads the files directly". The snapshot read the work store whenever the store was the authority.
+- Replacement contract: without a usable Store, the queue commands that need it return the typed Store outcome; the read-only `work next` also points to `docs/work/` and `make-docs backlog snapshot`; file-reading commands read the files. The snapshot reads the work store only with `workStore: true` (`--work-store`).
+- Rationale: there was no `work next` before the work store, so the old sentence promised a file-read queue that did not exist. The owner chose option A of register D-068 on 2026-11-23. The snapshot option follows the owner's option A for old Skill copies (PRD 51 R-BACKLOG-SNAPSHOT-31).
+- Owner decision: D-068 option A and the snapshot option A, 2026-11-23.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-owner-decisions-2026-11-23)
 
 ## Source Anchors
 

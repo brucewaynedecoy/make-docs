@@ -8,6 +8,8 @@ import { ResourceOperationError } from "../operations/resource";
 import { getSystemResourceMcpProfiles } from "../operations/resource/mcp-profiles";
 import { loadInstalledSystemResourceProvider } from "../operations/resource/provider";
 import { isMcpResourceInProfile } from "./resource-profiles";
+import { StoreAccessStateError } from "../operations/store-access";
+import { isWorkProjectUri, type WorkProjectResourceRead } from "../operations/work/work-queue/project-resource";
 
 interface ResourceListValue {
   targetRoot: string;
@@ -41,6 +43,35 @@ function throwNativeResourceError(error: unknown): never {
     });
   }
   throw error;
+}
+
+/** A project URI read as a native resource: Markdown text, with the structured read in `_meta`. */
+async function readNativeProjectResource(uri: string, targetRoot: string): Promise<NativeMcpResourceReadResult> {
+  const invocation = await invokeOperation(
+    "resource.read",
+    { uri, targetRoot: path.resolve(targetRoot) },
+    createExecutionContext({
+      surface: "mcp",
+      route: "mcp",
+      callerIdentityRaw: process.env[HARNESS_CALLER_IDENTITY_ENV],
+      // A project URI read checks the harness grant, so it sends the MCP connection, as tool calls do.
+      mcpConnectionId: process.env.MAKE_DOCS_MCP_CONNECTION_ID,
+      mcpConnectionKey: process.env.MAKE_DOCS_MCP_CONNECTION_KEY,
+      cwd: targetRoot,
+    }),
+  ).catch((error: unknown) => {
+    if (error instanceof StoreAccessStateError) {
+      throw new McpError(ErrorCode.InvalidParams, error.message, {
+        makeDocs: { code: error.code, nextAction: error.nextAction, uri, ...error.details },
+      });
+    }
+    return throwNativeResourceError(error);
+  });
+  const value = invocation.value as unknown as WorkProjectResourceRead;
+  const { text, content: _content, ...metadata } = value;
+  return {
+    contents: [{ uri: value.uri, mimeType: value.mediaType, text, _meta: { makeDocs: metadata } }],
+  };
 }
 
 function nativeResourceProfiles() {
@@ -94,12 +125,28 @@ export async function listNativeMcpResources(
 }
 
 /** Native resources/read adapter over the same resource.read handler as CLI and tools. */
+/** One native resources/read result: base64 `blob` for a system resource, Markdown `text` for a project URI. */
+export interface NativeMcpResourceReadResult {
+  [key: string]: unknown;
+  contents: Array<{
+    uri: string;
+    mimeType: string;
+    blob?: string;
+    text?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    _meta: { makeDocs: Record<string, any> };
+  }>;
+}
+
 export async function readNativeMcpResource(
   uri: string,
   targetRoot = process.cwd(),
   options: McpProfileOptions = {},
-) {
+): Promise<NativeMcpResourceReadResult> {
   const profile = parseMcpServerProfile(options.profile);
+  // A project URI is not a system resource, so it has no profile assignment.
+  // It reads the work store through the same resource.read handler (R-WORK-URI-5).
+  if (isWorkProjectUri(uri)) return readNativeProjectResource(uri, targetRoot);
   const assignments = nativeResourceProfiles();
   if (!isMcpResourceInProfile(assignments[uri] ?? [], profile)) {
     throwNativeResourceError(new ResourceOperationError({

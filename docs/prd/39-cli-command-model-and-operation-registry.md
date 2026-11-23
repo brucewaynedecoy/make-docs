@@ -117,7 +117,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 ### Registry Evolution and Resource Operations (R-REG-EVOLVE)
 
 - R-REG-EVOLVE-1 (MUST): registry membership can expand, contract, or consolidate through approved product authority and the normal implementation and compatibility gates. Stable admitted identifiers are never reassigned. Generic MCP admission remains per profile, method, and operation and is not a fixed feature list.
-- R-REG-EVOLVE-2 (MUST): `resource.list` and `resource.read` are Store-free operations. `resource.ensure` changes one named resource and cannot broaden saved selection. Any future refresh or remove operation must use the same resolver and minimum last-applied ownership contract before admission.
+- R-REG-EVOLVE-2 (MUST): `resource.list` and `resource.read` are Store-free operations. The one exception is a `make-docs://project/<project>/` read under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-5, which opens its own read-only Store session. An agent's project URI read uses the harness grant of the folder where the agent works, never the grant of the project that the URI names: a Store read grant there allows every project URI. When that folder is not a Make Docs project, the read is refused as `store-not-configured`, and the refusal says so without telling the person to set that folder up. The direct CLI route needs no grant. `resource.ensure` changes one named resource and cannot broaden saved selection. Any future refresh or remove operation must use the same resolver and minimum last-applied ownership contract before admission.
 - R-REG-EVOLVE-3 (MUST): an MCP tool, CLI command, or native MCP resource cannot create an operation by existing alone. Registry admission, access metadata, shared-core behavior, surface parity, and package proof are all required.
 
 ### Registry Group Surface (R-RUN)
@@ -129,7 +129,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - The work domain contains one identity resolver, one evidence record-and-read pair keyed to the global-store Project State model, the backlog snapshot and cache operations, and the work queue operations owned by [PRD 52](52-work-store-and-work-queue.md). The factory domain contains only the check-and-save operations owned by [PRD 53](53-factory-setup-and-orchestration.md). No `factory` command launches, schedules, or messages an agent or tool. The PRD domain remains bounded to the read-only active-authority validator unless the owning PRDs are updated.
 - The performance domain remains bounded to the active read-only evidence validator admitted by R-PERF-VALIDATE. It adds no benchmark runner, write operation, retry service, or product-decision command.
 
-- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only and have `store: none`; they do not open a Store session. `make-docs resource ensure <make-docs://system/...>` is a reviewed mutation for exactly one selected local projection. All three operations use one resolver and project to MCP tools. Only list and read also back native MCP resources.
+- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only and have `store: none`; they do not open a Store session for a system resource. `make-docs resource read make-docs://project/<project>/...` prints a project's quick items or backlog from the work store in raw mode, in its own read-only Store session. `make-docs resource ensure <make-docs://system/...>` is a reviewed mutation for exactly one selected local projection. All three operations use one resolver and project to MCP tools. Only list and read also back native MCP resources.
 - `make-docs project surface ensure <archive|artifacts|assets>` is the canonical pending projection of `project.surface.ensure`. P4 activates the handler that creates only the selected on-demand directory and configured harness routers through a reviewed plan.
 
 ### PRD Authority Validator (R-PRD-AUTH)
@@ -776,6 +776,22 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: a file is skipped only when one of its lines is a begin or end marker on its own. A file that only names the marker in prose or inline code is checked.
 - Rationale: the owner chose on 2026-11-23 to skip only files that hold a real managed block (register D-067 Part A), so a skip reason states a true cause.
 - Source: [D-067](03-open-questions-and-risk-register.md)
+
+### 2026-11-23 — W29 R0 P4 Second Pass
+
+- Affected requirement or section: R-REG-EVOLVE-2 and the `make-docs resource` command lines.
+- Previous contract: `resource read` accepted only `make-docs://system/...` URIs and never opened a Store session.
+- Replacement contract: `resource read` also accepts `make-docs://project/<project>/` URIs, which open their own read-only Store session. System reads stay Store-free and keep `store: none`.
+- Rationale: W29 R0 P4 T10 and T11 built the project URI reads that PRD 52 R-WORK-URI-5 requires.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass)
+
+### 2026-11-23 — W29 R0 P4 Second Pass Review Fixes
+
+- Affected requirement or section: R-REG-EVOLVE-2.
+- Previous contract: R-REG-EVOLVE-2 did not say whose harness grant a project URI read uses.
+- Replacement contract: the grant of the folder where the agent works decides; a Store read grant there allows every project URI; a folder that is not a project is refused clearly, with no setup step for it.
+- Rationale: an independent review of the W29 R0 P4 second pass. The rule is new behavior.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
 
 ## Source Anchors
 
