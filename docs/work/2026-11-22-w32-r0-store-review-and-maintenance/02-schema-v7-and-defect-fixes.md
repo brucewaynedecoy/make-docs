@@ -79,6 +79,20 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - A9: A checkpoint-9 receipt insert succeeds, and a committed operation leaves `root_path` unchanged unless the path-update rule applies.
 - A10: A failed operation is `failed` with its fields, and an oversized `work_evidence` payload is refused with the limit named.
 
+## Stage 3 - P1 follow-ups
+
+### Tasks
+
+- [ ] T11: Add the bounded receipt columns `before_ledger_digest`, `after_ledger_digest`, `step_count`, and `applied_step_count` to `installation_operations` in the v7 migration. Fill them when an operation reaches a terminal state, and backfill them for terminal rows in the migration (follow-up `FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS`).
+- [ ] T12: Make a missing detached plan on a `completed` or `rolled-back` operation read as `pruned`, not as damage, in `detachedSnapshot` and its callers (follow-up `FOLLOW-UP-P2-PRUNED-DETACHED-PLAN`).
+- [ ] T13: Define when a `failed` operation's recovery is closed, and record it in the Store table catalog (follow-up `FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED`). Until a rule says otherwise, no rule touches a failed operation's rows.
+
+### Acceptance criteria
+
+- A25: A terminal operation has its four receipt columns filled, including terminal rows that existed before the migration.
+- A26: `make-docs project layout apply <op>` and `project state recover <op> --dry-run` report a completed operation with no detached plan as complete, not as damage.
+- A27: The Store table catalog states when a failed operation's recovery is closed, and a test covers it.
+
 ### Dependencies
 
 - P1 accepted.

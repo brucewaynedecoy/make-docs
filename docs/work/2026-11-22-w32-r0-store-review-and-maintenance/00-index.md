@@ -59,7 +59,7 @@ Out of scope:
 - Read phases in order. P4 can run beside P3 after P2.
 - P1 is the contract gate. No Store code changes before the owner accepts P1.
 - Every phase file includes `## Source PRD Docs`.
-- Acceptance case IDs run from A1 to A24 across this backlog.
+- Acceptance case IDs run from A1 to A27 across this backlog. A25 to A27 sit in P2.
 - The [evidence report](evidence.md) holds the acceptance evidence for each phase.
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
@@ -84,3 +84,15 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 25 R-MCP-PROFILE-10.
 - Owner approval: the owner's command tree choices on 2026-11-22.
 - Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)
+
+### 2026-11-22 — W32 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 new Stage 3 with T11 to T13 and A25 to A27.
+- Previous scope: P2 added schema v7, the write guard, and the known defect fixes.
+- Replacement scope: P2 also adds the four bounded receipt columns, makes a pruned detached plan read as normal, and defines when a failed operation's recovery is closed.
+- Rationale: the owner accepted the P1 rule catalog on 2026-11-22, including its follow-ups for P2.
+- PRD decision: `update-existing` — PRD 38 R-DB-7 and R-MAINT-7.
+- Owner approval: the owner accepted all P1 decisions on 2026-11-22.
+- Source: [P1 evidence](evidence.md)
+
