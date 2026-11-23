@@ -65,7 +65,7 @@ export const OPERATION_GROUP_SUMMARIES: Readonly<Record<OperationGroup, string>>
   backlog: "Read the backlog, use its review cache, and open the review app.",
   lifecycle: "Start, track, and finish lifecycle runs.",
   factory: "Run approved backlog work through workers and review.",
-  check: "Check PRDs, performance evidence, and user test records. Changes nothing.",
+  check: "Check PRDs, decomposition output, performance evidence, and user test records. Changes nothing.",
 };
 
 /**
@@ -236,6 +236,11 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
     },
   }),
   "performance.evidence.validate": (options) => ({
+    input: {
+      targetRoot: path.resolve(options.values["target-root"] ?? "."),
+    },
+  }),
+  "decomposition.output.validate": (options) => ({
     input: {
       targetRoot: path.resolve(options.values["target-root"] ?? "."),
     },
@@ -634,7 +639,8 @@ export async function runRunCommand(
 function setValidationExitCode(operationId: string, value: JsonValue): void {
   if (
     (operationId === "prd.authority.validate" ||
-      operationId === "performance.evidence.validate") &&
+      operationId === "performance.evidence.validate" ||
+      operationId === "decomposition.output.validate") &&
     value !== null &&
     typeof value === "object" &&
     !Array.isArray(value) &&

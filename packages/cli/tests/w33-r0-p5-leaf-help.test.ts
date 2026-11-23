@@ -288,7 +288,8 @@ describe("W33 R0 P5 help table matches each command's real options", () => {
   const routed = OPERATIONS.filter((operation) => !isOperationGroup(operation.cli.root));
 
   test("the dispatcher and router sets cover every operation", () => {
-    expect(dispatcher.length + routed.length).toBe(48);
+    // 48 in W33 R0, and 4 W34 R0 P1 Skill checks.
+    expect(dispatcher.length + routed.length).toBe(52);
     expect([...new Set(dispatcher.map((operation) => operation.cli.root))].sort()).toEqual(OPERATION_GROUPS.filter((group) => group !== "factory").sort());
   });
 

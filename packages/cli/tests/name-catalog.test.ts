@@ -74,6 +74,13 @@ const PRD_LISTS = {
       NAME_CATALOG,
       (item) => item.id.startsWith("project.doctor."),
     ),
+  skillCheck: (markdown: string) =>
+    comparePrdCommandList(
+      "PRD 39 R-SKILL-CHECK",
+      parsePrdOperationTable(markdownSection(markdown, "### Skill Check Commands (R-SKILL-CHECK)")),
+      NAME_CATALOG,
+      (item) => item.addedBy === "W34 R0",
+    ),
   storeCmd: (markdown: string) =>
     comparePrdCommandList(
       "PRD 39 R-STORE-CMD",
@@ -118,12 +125,19 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 48 current operations, 6 hand-defined tools, and 19 planned operations", () => {
+  it("lists 52 current operations, 6 hand-defined tools, and 19 planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    expect(currentOperations).toHaveLength(48);
+    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more.
+    expect(currentOperations).toHaveLength(52);
+    expect(currentOperations.filter((item) => item.addedBy === "W34 R0").map((item) => item.id).sort()).toEqual([
+      "decomposition.output.validate",
+      "project.markdown-style.repair",
+      "project.markdown-style.validate",
+      "project.relations.list",
+    ]);
     // W33 R0 P2: a hand-defined tool's ID is its current MCP name.
     expect(tools.map((item) => item.id).sort()).toEqual(
       ["mcp_domains_list", "setup_compatibility_check", "setup_config_read", "setup_manifest_read", "setup_plan", "setup_status"],
@@ -132,11 +146,12 @@ describe("W33 R0 P1 name catalog", () => {
       ["compatibility", "config", "domains", "install_plan", "install_status", "manifest"],
     );
     const byWave = (wave: string) => plannedOperations.filter((item) => item.plannedBy === wave).length;
-    expect({ w29: byWave("W29 R0"), w30: byWave("W30 R0"), w31: byWave("W31 R0"), w32: byWave("W32 R0") }).toEqual({
+    expect({ w29: byWave("W29 R0"), w30: byWave("W30 R0"), w31: byWave("W31 R0"), w32: byWave("W32 R0"), w34: byWave("W34 R0") }).toEqual({
       w29: 9,
       w30: 10,
       w31: 0,
       w32: 0,
+      w34: 0,
     });
   });
 
@@ -161,10 +176,14 @@ describe("W33 R0 P1 name catalog", () => {
   });
 
   it("W33 R0 P2: keeps every name from before W33 R0 for the P3 aliases", () => {
-    const current = NAME_CATALOG.filter((item) => item.status === "current");
+    const current = NAME_CATALOG.filter((item) => item.status === "current" && item.addedBy === undefined);
     for (const item of current) {
       expect(item.formerMcp, item.id).toBeTruthy();
       expect(item.formerCli === null, item.id).toBe(!item.cliCommand);
+    }
+    // W34 R0 P1: an entry added after W33 R0 never had another name.
+    for (const item of NAME_CATALOG.filter((candidate) => candidate.addedBy !== undefined)) {
+      expect([item.formerCli, item.formerMcp], item.id).toEqual([null, null]);
     }
     expect(NAME_CATALOG.filter((item) => item.status === "planned").every((item) => item.formerCli === null && item.formerMcp === null)).toBe(true);
     expect([find("prd.authority.validate").formerCli, find("prd.authority.validate").formerMcp]).toEqual(["run prd authority validate", "prd_validate"]);
@@ -272,7 +291,7 @@ describe("W33 R0 P1 name catalog", () => {
 
   it("puts only read-only registry operations in `check`", () => {
     const checks = NAME_CATALOG.filter((item) => item.group === "check");
-    expect(checks).toHaveLength(8);
+    expect(checks).toHaveLength(9);
     const operations = new Map(listOperations().map((operation) => [operation.id, operation]));
     for (const item of checks) expect(operations.get(item.id)?.mutates, item.id).toBe("read");
   });
@@ -288,6 +307,7 @@ describe("W33 R0 P1 name catalog", () => {
     it("PRD 53 Operations table", () => expect(PRD_LISTS.prd53(PRD_53)).toEqual([]));
     it("PRD 39 R-DOCTOR table", () => expect(PRD_LISTS.doctor(PRD_39)).toEqual([]));
     it("PRD 39 R-STORE-CMD table", () => expect(PRD_LISTS.storeCmd(PRD_39)).toEqual([]));
+    it("W34 R0 P1: PRD 39 R-SKILL-CHECK table", () => expect(PRD_LISTS.skillCheck(PRD_39)).toEqual([]));
     it("PRD 39 R-RUN-4", () => expect(PRD_LISTS.rRun4(PRD_39)).toEqual([]));
     it("PRD 39 R-RUN-1", () => expect(PRD_LISTS.rRun1(PRD_39)).toEqual([]));
     it("PRD 25 R-MCP-PROFILE tool names", () => expect(PRD_LISTS.mcpProfiles(PRD_25)).toEqual([]));
@@ -296,6 +316,7 @@ describe("W33 R0 P1 name catalog", () => {
     it("reads every row of each table", () => {
       expect(parsePrdOperationTable(markdownSection(PRD_52, "### Operations"))).toHaveLength(9);
       expect(parsePrdGroupedOperationTable(markdownSection(PRD_53, "### Operations"))).toHaveLength(10);
+      expect(parsePrdOperationTable(markdownSection(PRD_39, "### Skill Check Commands (R-SKILL-CHECK)"))).toHaveLength(4);
     });
   });
 });
@@ -373,9 +394,31 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(checkNameCatalogCoverage(NAME_CATALOG, writes)).toEqual([
       "Check entry prd.authority.validate is not a read-only registry operation.",
     ]);
+    // W34 R0 P1: a planned `check` entry passes until the registry holds it.
     const plannedCheck = fixture({ id: "check.fixture.thing", group: "check", newCli: "check fixture" });
-    expect(checkNameCatalogCoverage([...NAME_CATALOG, plannedCheck], sources)).toEqual([
-      "Check entry check.fixture.thing is not a read-only registry operation.",
+    expect(checkNameCatalogCoverage([...NAME_CATALOG, plannedCheck], sources)).toEqual([]);
+    // Once the registry holds it, it must be a read-only operation.
+    const landedWrite: NameCatalogSources = {
+      ...sources,
+      registeredOperationIds: [...sources.registeredOperationIds, "check.fixture.thing"],
+      mutatesByOperation: new Map([...sources.mutatesByOperation, ["check.fixture.thing", "write"]]),
+    };
+    expect(checkNameCatalogCoverage([...NAME_CATALOG, plannedCheck], landedWrite)).toEqual(
+      expect.arrayContaining(["Check entry check.fixture.thing is not a read-only registry operation."]),
+    );
+    // A current `check` entry that the registry does not hold still fails the rule.
+    const currentCheck = fixture({
+      id: "check.ghost.thing",
+      group: "check",
+      status: "current",
+      plannedBy: undefined,
+      currentCli: "check ghost",
+      currentMcp: "check_ghost",
+      newCli: "check ghost",
+    });
+    expect(checkNameCatalogCoverage([...NAME_CATALOG, currentCheck], sources)).toEqual([
+      "Catalog operation check.ghost.thing is current but not in the registry.",
+      "Check entry check.ghost.thing is not a read-only registry operation.",
     ]);
   });
 
@@ -450,6 +493,17 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     ]);
   });
 
+  it("W34 R0 P1: a PRD 39 R-SKILL-CHECK table that differs", () => {
+    expect(PRD_LISTS.skillCheck(PRD_39.replace("| `make-docs check decomposition [--target-root", "| `make-docs check decomposition-output [--target-root"))).toEqual([
+      "PRD 39 R-SKILL-CHECK gives decomposition.output.validate the path `check decomposition-output`; the catalog has `check decomposition`.",
+    ]);
+    expect(PRD_LISTS.skillCheck(PRD_39.replace("| `project_markdown_repair` |", "| `project_markdown_style_repair` |"))).toEqual([
+      "PRD 39 R-SKILL-CHECK gives project.markdown-style.repair the tool `project_markdown_style_repair`; the catalog has `project_markdown_repair`.",
+    ]);
+    const withoutRelations = PRD_39.split("\n").filter((line) => !line.startsWith("| `project.relations.list`")).join("\n");
+    expect(PRD_LISTS.skillCheck(withoutRelations)).toEqual(["PRD 39 R-SKILL-CHECK misses project.relations.list, which the catalog has."]);
+  });
+
   it("a PRD 39 R-DOCTOR or R-STORE-CMD table that differs", () => {
     expect(PRD_LISTS.doctor(PRD_39.replace("`make-docs project doctor fix --review", "`make-docs project doctor repair --review"))).toEqual([
       "PRD 39 R-DOCTOR gives project.doctor.fix the path `project doctor repair`; the catalog has `project doctor fix`.",
@@ -468,6 +522,12 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     ]);
   });
 
+  it("W34 R0 P1: a PRD 39 R-RUN-1 list without `check decomposition` fails", () => {
+    expect(PRD_LISTS.rRun1(PRD_39.replace("`prd`, `decomposition`, `performance-evidence`", "`prd`, `performance-evidence`"))).toEqual([
+      "R-RUN-1 misses active `check decomposition`.",
+    ]);
+  });
+
   it("a PRD 39 R-RUN-1 list that differs", () => {
     expect(PRD_LISTS.rRun1(PRD_39.replace("`cache lookup`, `cache write`, `review open`", "`cache lookup`, `review open`"))).toEqual([
       "R-RUN-1 misses active `backlog cache write`.",
@@ -481,7 +541,7 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
   });
 
   it("W33 R0 P4: a PRD 39 R-RUN-1 list that names a former `run` path fails", () => {
-    const stale = PRD_39.replace("active `check` commands for `prd`, `performance-evidence`,", "active `run prd authority validate`, active `check` commands for `performance-evidence`,");
+    const stale = PRD_39.replace("active `check` commands for `prd`, `decomposition`, `performance-evidence`,", "active `run prd authority validate`, active `check` commands for `decomposition`, `performance-evidence`,");
     expect(stale).not.toBe(PRD_39);
     expect(PRD_LISTS.rRun1(stale)).toEqual([
       "R-RUN-1 names the former path `run prd authority validate`; the current path is `check prd`.",

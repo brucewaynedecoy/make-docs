@@ -76,6 +76,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - [ ] T6: Update D-064 to `Closed` with the evidence. Update R-008 for the helper-script part. Check whether R-008's whole close bar is now met, and close it only if it is.
 - [ ] T7: Record the evidence in [evidence.md](evidence.md).
+- [ ] T8: When W29 R0 P3 has landed its shared task line reader (`readTaskLine`), switch the acceptance task ID check in `packages/cli/src/operations/decomposition/output.ts` (`TASK_LABEL_IN_ACCEPTANCE_RE`) to that reader. Then rerun the ported tests and the P1 side-by-side run, and record any new difference in [evidence.md](evidence.md). If W29 R0 P3 has not landed, record that this task waits for it.
 
 ### Acceptance criteria
 

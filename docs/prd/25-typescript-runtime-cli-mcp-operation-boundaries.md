@@ -69,6 +69,7 @@ Packed-package validation executes the generated tarball through `npx --package`
 - R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, `work_export`, and `work_add` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
 - R-MCP-PROFILE-9 (MUST): the project doctor tools `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR owns their behavior. `project_doctor_check` reads only. `project_doctor_fix` needs the existing project write permission and Store write permission.
 - R-MCP-PROFILE-10 (MUST): `project_list` belongs to `core` and `all`. `setup_store_check` and `setup_store_clean` belong to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD owns their behavior. `project_list` and `setup_store_check` read only. `setup_store_clean` needs the Store write permission.
+- R-MCP-PROFILE-11 (MUST): `check_decomposition` belongs to `quality` and `all`. `project_relations_list` belongs to `workflow` and `all`. `project_markdown_validate` belongs to `setup`, `quality`, and `all`. `project_markdown_repair` belongs to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK owns their behavior. `check_decomposition`, `project_relations_list`, and `project_markdown_validate` read only and need the project read permission. `project_markdown_repair` needs the existing project write permission.
 
 ### Current MCP Surface
 
@@ -481,6 +482,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: a first-party Skill ships no Python and no hand-written script. A Skill check uses the MCP tool, then the CLI command, then the agent form by hand, and a manual result says so and uses `agent-reviewed`. Each check and its agent form share one rule ID list, and a test fails on a one-sided ID. The MCP profile membership of the four new tools (R-MCP-PROFILE-11) follows the name catalog entries that W34 R0 P1 adds.
 - Rationale: one home for Skill check logic (register D-064).
 - Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
+
+### 2026-11-23 — W34 R0 P1
+
+- Affected requirement or section: new R-MCP-PROFILE-11.
+- Previous contract: no requirement named the MCP profiles of the four Skill check tools.
+- Replacement contract: R-MCP-PROFILE-11 puts `check_decomposition` in `quality` and `all`, `project_relations_list` in `workflow` and `all`, `project_markdown_validate` in `setup`, `quality`, and `all`, and `project_markdown_repair` in `setup` and `all`, and names the read or write access of each. A W34 R0 P1 test checks that the profile lists in code match this line.
+- Rationale: the four tools landed in W34 R0 P1, and each ready tool needs an explicit profile under R-MCP-PROFILE-4 (register D-064).
+- Source: [W34 R0 P1](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/01-cli-operations-and-ported-tests.md) and its [evidence report](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p1-cli-operations-and-ported-tests).
 
 ## Source Anchors
 

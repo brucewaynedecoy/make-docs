@@ -3606,7 +3606,7 @@ Resource options:
 /** Plain-words capability of each top-level group (PRD 39 R-TOP-1), in help order. */
 const COMMAND_SUMMARIES: Readonly<Record<Command, string>> = {
   setup: "Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.",
-  project: "See and repair this project: state, checkouts, Personas, layout, paths, and the doctor.",
+  project: "See and repair this project: state, checkouts, Personas, layout, paths, Markdown style, relations, and the doctor.",
   resource: "List, read, or copy Make Docs system resources.",
   ...OPERATION_GROUP_SUMMARIES,
   mcp: "Serve Make Docs tools to agents over MCP.",

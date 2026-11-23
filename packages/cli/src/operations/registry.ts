@@ -38,6 +38,8 @@ import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access
 import { storeChangedOutsideNextAction } from "../store/database";
 import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
 import { leafHelpEntry } from "./leaf-help-table";
+import { decompositionOperations } from "./decomposition/ops";
+import { projectSkillCheckOperations } from "./project/skill-check-ops";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -185,6 +187,11 @@ export const ADMITTED_OPERATION_IDS = [
   "uat.evidence-reference.validate",
   "uat.finding.validate",
   "uat.result.validate",
+  // W34 R0 P1: the Skill check operations (PRD 39 R-SKILL-CHECK).
+  "decomposition.output.validate",
+  "project.relations.list",
+  "project.markdown-style.validate",
+  "project.markdown-style.repair",
 ] as const;
 
 /**
@@ -243,6 +250,10 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "uat.evidence-reference.validate": ["check", "uat evidence"],
   "uat.finding.validate": ["check", "uat finding"],
   "uat.result.validate": ["check", "uat result"],
+  "decomposition.output.validate": ["check", "decomposition"],
+  "project.relations.list": ["project", "relations list"],
+  "project.markdown-style.validate": ["project", "markdown validate"],
+  "project.markdown-style.repair": ["project", "markdown repair"],
 };
 
 export function operationDomain(id: string): string {
@@ -339,6 +350,8 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...resourceOperations,
     ...lifecycleOperations,
     ...uatOperations,
+    ...decompositionOperations,
+    ...projectSkillCheckOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {

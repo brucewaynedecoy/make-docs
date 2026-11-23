@@ -72,6 +72,11 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "uat.evidence-reference.validate": "check_uat_evidence",
   "uat.finding.validate": "check_uat_finding",
   "uat.result.validate": "check_uat_result",
+  // W34 R0 P1 (PRD 25 R-MCP-PROFILE-11).
+  "decomposition.output.validate": "check_decomposition",
+  "project.relations.list": "project_relations_list",
+  "project.markdown-style.validate": "project_markdown_validate",
+  "project.markdown-style.repair": "project_markdown_repair",
 };
 
 const SUPPORT_EVIDENCE_REF =

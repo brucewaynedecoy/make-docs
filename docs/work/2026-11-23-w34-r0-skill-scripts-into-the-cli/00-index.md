@@ -81,6 +81,10 @@ W30 R0 also changes `packages/cli/skill-registry.json` and `packages/skills/READ
 - Evidence: [W34 R0 Evidence Report](evidence.md).
 - Source register entries: [D-064 and R-008](../../prd/03-open-questions-and-risk-register.md). No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
+## Change History
+
+- 2026-11-23, W34 R0 P1 review: P5 gains T8. After W29 R0 P3 lands its shared task line reader, the acceptance task ID check of `check decomposition` switches to it, and the P1 side-by-side run is repeated. PRD 39 R-SKILL-CHECK-2 now records that `check decomposition` reads PRD sections with its own reader, a departure from the plan.
+
 ## Intended Follow-On
 
 This handoff is advisory-default-but-overridable.

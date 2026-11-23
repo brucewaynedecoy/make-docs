@@ -76,6 +76,11 @@ describe("make-docs MCP runtime", () => {
       "check_uat_evidence",
       "check_uat_finding",
       "check_uat_result",
+      // W34 R0 P1 Skill checks (PRD 25 R-MCP-PROFILE-11).
+      "check_decomposition",
+      "project_relations_list",
+      "project_markdown_validate",
+      "project_markdown_repair",
     ]);
   });
 

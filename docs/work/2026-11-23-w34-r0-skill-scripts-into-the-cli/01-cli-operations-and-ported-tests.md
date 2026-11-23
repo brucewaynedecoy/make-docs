@@ -62,7 +62,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Add the four entries to `packages/cli/src/operations/name-catalog.ts` as `planned` with `plannedBy: "W34 R0"`, and add `W34 R0` to `NameCatalogPlanner`. The registry coverage rule fails a `check` entry that the registry does not hold, so let a planned `check` entry pass that rule until the registry holds it. Keep the rule for current `check` entries. In the same change, land the PRD lines that the PRD pass left out:
+- [x] T1: Add the four entries to `packages/cli/src/operations/name-catalog.ts` as `planned` with `plannedBy: "W34 R0"`, and add `W34 R0` to `NameCatalogPlanner`. The registry coverage rule fails a `check` entry that the registry does not hold, so let a planned `check` entry pass that rule until the registry holds it. Keep the rule for current `check` entries. In the same change, land the PRD lines that the PRD pass left out:
   - [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK: the canonical CLI path and MCP name of each operation, and a `Registry identifier | Canonical CLI` table with the inputs `--path`, `--dry-run`, `--target-root`, and `--json`.
   - [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) R-MCP-PROFILE-11: `check_decomposition` in `quality` and `all`; `project_relations_list` in `workflow` and `all`; `project_markdown_validate` in `setup`, `quality`, and `all`; `project_markdown_repair` in `setup` and `all`; the read and write access of each.
   - A `2026-11-23 — W34 R0 P1` Requirement History entry in PRD 39 and PRD 25.
@@ -81,12 +81,12 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T2: Add `decomposition.output.validate`: the operation module, registry entry, CLI command, MCP tool, and a rule list with one stable ID for each `validate_output.py` rule, under one prefix such as `decomposition.task-id`. Read task lines and task IDs through the public function of the shared work phase reader, and PRD files through the reader of `prd.authority.validate`. If W29 R0 P3 has landed, use its reader. Port all 46 cases of `test_validate_output.py` to vitest with the same inputs and expected findings. Turn the catalog entry `current`, and in the same change add `decomposition` to the active `check` list in PRD 39 R-RUN-1.
-- [ ] T3: Add `project.markdown-style.validate` and `project.markdown-style.repair`, with one shared rule list under the `markdown-style` prefix. `validate` reports rule, lines, whether a fix exists, and a short preview. `repair` makes only the fixes that the script makes with `--fix`, needs the project write permission, and has `--dry-run`. Port all 11 cases of `test_check_markdown_style.py`. Turn both catalog entries `current`.
-- [ ] T4: Add `project.relations.list`, with one relation kind ID for each kind of fact: Markdown links, `related:` front matter, W/R coordinates in history records, and same-slug matches. Each relation names its kind and source. Add the optional `--path` input for one artifact's inbound and outbound relations. Find guide folders from the effective Persona set. Port the 1 case of `test_trace_relationships.py`, and add a case for a custom Persona folder. Turn the catalog entry `current`.
-- [ ] T5: Add CLI and MCP parity tests for each operation, in plain and `--json` output. Each command prints plain words first, with totals before detail.
-- [ ] T6: Update the registry inventory and the MCP profile count tests.
-- [ ] T7: Record the final rule ID list of each operation in [evidence.md](evidence.md). P2 uses the same IDs.
+- [x] T2: Add `decomposition.output.validate`: the operation module, registry entry, CLI command, MCP tool, and a rule list with one stable ID for each `validate_output.py` rule, under one prefix such as `decomposition.task-id`. Read task lines and task IDs through the public function of the shared work phase reader, and PRD files through the reader of `prd.authority.validate`. If W29 R0 P3 has landed, use its reader. Port all 46 cases of `test_validate_output.py` to vitest with the same inputs and expected findings. Turn the catalog entry `current`, and in the same change add `decomposition` to the active `check` list in PRD 39 R-RUN-1.
+- [x] T3: Add `project.markdown-style.validate` and `project.markdown-style.repair`, with one shared rule list under the `markdown-style` prefix. `validate` reports rule, lines, whether a fix exists, and a short preview. `repair` makes only the fixes that the script makes with `--fix`, needs the project write permission, and has `--dry-run`. Port all 11 cases of `test_check_markdown_style.py`. Turn both catalog entries `current`.
+- [x] T4: Add `project.relations.list`, with one relation kind ID for each kind of fact: Markdown links, `related:` front matter, W/R coordinates in history records, and same-slug matches. Each relation names its kind and source. Add the optional `--path` input for one artifact's inbound and outbound relations. Find guide folders from the effective Persona set. Port the 1 case of `test_trace_relationships.py`, and add a case for a custom Persona folder. Turn the catalog entry `current`.
+- [x] T5: Add CLI and MCP parity tests for each operation, in plain and `--json` output. Each command prints plain words first, with totals before detail.
+- [x] T6: Update the registry inventory and the MCP profile count tests.
+- [x] T7: Record the final rule ID list of each operation in [evidence.md](evidence.md). P2 uses the same IDs.
 
 ### Acceptance criteria
 
@@ -106,7 +106,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T8: Before P4 removes the scripts, run each old script and its new operation on the same fixtures. Record both outputs and each difference in [evidence.md](evidence.md). List a difference that fixes a script defect or comes from a planned change, such as Persona folders or the `--path` input name. Do not hide it. Do not change any Python file.
+- [x] T8: Before P4 removes the scripts, run each old script and its new operation on the same fixtures. Record both outputs and each difference in [evidence.md](evidence.md). List a difference that fixes a script defect or comes from a planned change, such as Persona folders or the `--path` input name. Do not hide it. Do not change any Python file.
 
 ### Acceptance criteria
 
@@ -118,10 +118,13 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done: `packages/cli/tests/w34-r0-p1-ported-skill-checks.test.ts` runs all 58 Python test cases, and `packages/cli/tests/w34-r0-p1-skill-check-surfaces.test.ts` (27 tests) covers CLI and MCP parity in plain and JSON output, the repair preview and write refusal, the review fixes (skipped routers, managed-block files, and protected folders, the exact preview, exit codes, linked files, and skipped asset folders), the Persona guide folders, the rule ID lists, the help, and PRD 25 R-MCP-PROFILE-11 against the code. The name catalog test checks the new PRD 39 table. Performance Testing `not-needed-now`: the commands read local Markdown files, as the scripts did. Guided Progress Review `selected` and open: the plain output of each command on one fixture is in the evidence for the owner. Unassisted Goal Testing `not-needed-now`.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: prepared, not done. The plain output of the four commands is in the [evidence](evidence.md#guided-progress-review-a7) for the owner's review.
+- Independent review: seven findings, all addressed with tests. The Markdown commands now skip router files, files with a managed block, and the `project paths validate` protected folders, so a repair never changes bytes that `make-docs setup` owns. The repair preview shows each exact change. Exit codes match `project paths validate|repair`. `check decomposition` skips linked files. `relations list` names each skipped `docs/assets/` folder. [P5](05-acceptance.md) T8 switches the acceptance task ID check to W29 R0 P3's `readTaskLine` when it lands.
+- Owner decision, approved 2026-11-23: `project relations list` skips `docs/assets/` folders that are not a configured Persona (option A) and names each one with a skipped line in text and JSON.
+- Recorded deviation from the plan: T2 asked `check decomposition` to read PRD files through the `prd.authority.validate` reader. That validator has no public reader and no rule in common, so the check reads PRD sections with its own reader. PRD 39 R-SKILL-CHECK-2 and its Requirement History record this. T2 stays checked.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: the owner reviews the plain output (A7) and the listed script differences (A8).
+- Evidence report: [P1 CLI Operations and Ported Tests](evidence.md#p1-cli-operations-and-ported-tests).
+- Phase / capability status: implementation complete and uncommitted, on `71096981`. A1 to A6 and A8 have automated or recorded evidence. A7 waits for the owner's review. P4 removes the Python files.

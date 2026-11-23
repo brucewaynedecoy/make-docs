@@ -1,4 +1,5 @@
 import type { JsonValue, OperationRenderMode } from "../operations/types";
+import { renderDecompositionValidation, type DecompositionValidationResult } from "../operations/decomposition/output";
 
 /** CLI-only text rendering. Unknown result shapes retain full JSON output. */
 type JsonRecord = { [key: string]: JsonValue };
@@ -133,6 +134,7 @@ const TEXT_RENDERERS: Record<string, (value: JsonValue) => string[] | null> = {
   "backlog.review.refresh": renderBacklogReview,
   "prd.authority.validate": renderPrdAuthorityValidation,
   "performance.evidence.validate": renderPerformanceEvidenceValidation,
+  "decomposition.output.validate": (value) => renderDecompositionValidation(value as unknown as DecompositionValidationResult),
   "work.backlog.snapshot": renderBacklogSnapshot,
 };
 

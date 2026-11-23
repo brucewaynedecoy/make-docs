@@ -27,21 +27,27 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "project_state_status", "project_surface_ensure", "resource_ensure",
     "project_doctor_check", "project_doctor_fix",
     "setup_store_check", "setup_store_clean",
+    "project_markdown_validate", "project_markdown_repair",
   ],
   workflow: [
     "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
     "lifecycle_fail", "lifecycle_list", "lifecycle_pause", "lifecycle_resume", "lifecycle_show",
     "lifecycle_start", "project_persona_list", "work_evidence_read", "work_evidence_record",
     "work_item_resolve",
+    "project_relations_list",
   ],
   quality: [
     "check_performance_evidence", "check_prd", "project_paths_validate",
     "check_uat_evidence", "check_uat_finding", "check_uat_persona",
     "check_uat_result", "check_uat_scenario", "check_uat_target",
     "project_doctor_check", "project_doctor_fix",
+    "check_decomposition", "project_markdown_validate",
   ],
   backlog: ["backlog_cache_lookup", "backlog_cache_write", "backlog_review_open", "backlog_review_refresh", "backlog_snapshot"],
 };
+
+/** W34 R0 P1 tools (PRD 25 R-MCP-PROFILE-11). They landed after W33 R0 and have no former names. */
+const W34_R0_P1_TOOLS = new Set(["check_decomposition", "project_relations_list", "project_markdown_validate", "project_markdown_repair"]);
 
 // The W24 inventory under the names before W33 R0 (evidence for W33 R0 P2 A6).
 const PRE_W33_PROFILES: Record<McpProfile, string[]> = {
@@ -84,7 +90,7 @@ describe("W33 R0 P2 profile membership", () => {
         return next!;
       });
       const members = ready.filter((tool) => tool.mcp!.profiles.includes(profile)).map((tool) => tool.name);
-      expect(members.sort(), profile).toEqual(expected.sort());
+      expect(members.filter((name) => !W34_R0_P1_TOOLS.has(name)).sort(), profile).toEqual(expected.sort());
       expect(members.sort(), profile).toEqual([...EXPECTED_PROFILES[profile]].sort());
     }
   });
@@ -96,11 +102,12 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 54 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 58 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(54);
-    expect(new Set(names).size).toBe(54);
+    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11).
+    expect(names).toHaveLength(58);
+    expect(new Set(names).size).toBe(58);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

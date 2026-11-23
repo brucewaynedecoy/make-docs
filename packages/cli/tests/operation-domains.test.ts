@@ -43,6 +43,8 @@ describe("operation domain modules", () => {
       "resource",
       "lifecycle",
       "uat",
+      // W34 R0 P1 (PRD 39 R-SKILL-CHECK-1).
+      "decomposition",
     ]);
 
     const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
@@ -67,6 +69,10 @@ describe("operation domain modules", () => {
       "project.layout.verify",
       "project.doctor.check",
       "project.doctor.fix",
+      // W34 R0 P1 (PRD 39 R-SKILL-CHECK-1).
+      "project.relations.list",
+      "project.markdown-style.validate",
+      "project.markdown-style.repair",
       "setup.store.check",
       "setup.store.clean",
       "work.item.resolve",
@@ -96,6 +102,7 @@ describe("operation domain modules", () => {
       "uat.evidence-reference.validate",
       "uat.finding.validate",
       "uat.result.validate",
+      "decomposition.output.validate",
     ]);
     expect(new Set(identifiers).size).toBe(identifiers.length);
 
@@ -126,6 +133,7 @@ describe("operation domain modules", () => {
       "project.layout.apply",
       "project.layout.verify",
       "project.doctor.fix",
+      "project.markdown-style.repair",
       "setup.store.clean",
       "work.evidence.record",
       "work.backlog-cache.write",

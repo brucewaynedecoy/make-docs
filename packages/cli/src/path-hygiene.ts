@@ -367,7 +367,7 @@ const DEFAULT_CONTENT_ROOTS = ["README.md", "AGENTS.md", "CLAUDE.md", "docs", ".
 const SKILL_CONTENT_ROOTS = [".make-docs/agentics/skills", ".agents/skills", ".claude/skills", ".codex/skills"];
 const EXCLUDED_CONTENT_DIRECTORIES = new Set([".git", ".backup", "node_modules", "__pycache__", ".venv"]);
 
-function isProtectedContentPath(relativePath: string): boolean {
+export function isProtectedContentPath(relativePath: string): boolean {
   const parts = relativePath.split("/");
   return parts.some(part => EXCLUDED_CONTENT_DIRECTORIES.has(part)) ||
     relativePath === ".make-docs/manifest.json" ||

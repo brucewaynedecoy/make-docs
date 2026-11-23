@@ -413,6 +413,55 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
   "uat.evidence-reference.validate": uat("Check one user test evidence link and its file digest. Changes nothing."),
   "uat.finding.validate": uat("Check one user test finding record. Changes nothing."),
   "uat.result.validate": uat("Check one user test result record. Changes nothing."),
+  // W34 R0 P1: the Skill check commands (PRD 39 R-SKILL-CHECK).
+  "decomposition.output.validate": {
+    summary: "Check a decompose-codebase result: PRD names and sections, source anchors, work backlogs, task IDs, acceptance criteria, and links. Changes nothing.",
+    usage: "[--target-root <path>] [--json]",
+    options: [TARGET_ROOT, JSON_OPTION],
+    notes: [
+      "Each finding names its rule ID, such as decomposition.task-id.sequence, and its file.",
+      "The command exits with 1 when it finds a problem.",
+    ],
+  },
+  "project.relations.list": {
+    summary: "List how designs, plans, work backlogs, history records, and guides relate: links, related: entries, W/R coordinates, and same-slug matches. Changes nothing.",
+    usage: "[--path <path>] [--target-root <path>] [--json]",
+    options: [
+      { name: "--path <path>", text: "Show only this artifact and the artifacts that relate to it, such as docs/plans/2026-01-01-w1-r0-example/." },
+      TARGET_ROOT,
+      JSON_OPTION,
+    ],
+    notes: ["Guide folders come from the project's Personas, as make-docs project persona list shows them."],
+  },
+  "project.markdown-style.validate": {
+    summary: "Check Markdown source style: blank lines between blocks, wrapped paragraphs, and wrapped list items. Changes nothing.",
+    usage: "[--path <path>] [--target-root <path>] [--json]",
+    options: [
+      { name: "--path <path>", text: "A Markdown file or folder in the project to check. Repeat it for more. The default is docs." },
+      TARGET_ROOT,
+      JSON_OPTION,
+    ],
+    notes: [
+      "It skips AGENTS.md and CLAUDE.md routers, files with a make-docs managed block, and the folders that project paths validate skips, such as node_modules and .make-docs/backup. It lists each one it skips.",
+      "Exit codes: 0 when it finds nothing, 1 when it finds a problem, 2 on an error, as project paths validate does.",
+    ],
+  },
+  "project.markdown-style.repair": {
+    summary: "Fix the Markdown style findings that the check marks as fixable. Shows the changes first.",
+    usage: "[--apply|--dry-run] [--path <path>] [--target-root <path>] [--json]",
+    options: [
+      { name: "--apply|--dry-run", text: "--apply writes the fixes. --dry-run only shows them. The default is to only show them." },
+      { name: "--path <path>", text: "A Markdown file or folder in the project to repair. Repeat it for more. The default is docs." },
+      TARGET_ROOT,
+      JSON_OPTION,
+    ],
+    notes: [
+      "Repair adds blank lines between blocks and joins wrapped paragraphs. It does not change lists, tables, quotes, code, or front matter.",
+      "It shows each exact change: the lines it removes and the line it adds. --json also gives each file before and after.",
+      "It never changes AGENTS.md or CLAUDE.md routers, files with a make-docs managed block, or the folders that project paths validate skips.",
+      "Exit codes: 0 when no finding is left, 1 when a finding is left, 2 on an error, as project paths repair does. A preview leaves every finding, so it exits 1 when there is something to fix.",
+    ],
+  },
 };
 
 /** The help entry of one registry operation. Throws when the table has none. */

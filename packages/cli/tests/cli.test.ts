@@ -2392,13 +2392,13 @@ Global flags:
 
 Groups:
   setup        Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.
-  project      See and repair this project: state, checkouts, Personas, layout, paths, and the doctor.
+  project      See and repair this project: state, checkouts, Personas, layout, paths, Markdown style, relations, and the doctor.
   resource     List, read, or copy Make Docs system resources.
   work         Find work items and record work evidence.
   backlog      Read the backlog, use its review cache, and open the review app.
   lifecycle    Start, track, and finish lifecycle runs.
   factory      Run approved backlog work through workers and review. No commands yet.
-  check        Check PRDs, performance evidence, and user test records. Changes nothing.
+  check        Check PRDs, decomposition output, performance evidence, and user test records. Changes nothing.
   mcp          Serve Make Docs tools to agents over MCP.
   update       Update the installed make-docs tool.
   uninstall    Remove make-docs from this computer.

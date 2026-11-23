@@ -6,6 +6,10 @@
  * Each entry holds the current CLI path and MCP name and the new CLI path and
  * MCP name under PRD 39 R-NAME-1 to R-NAME-4.
  *
+ * W34 R0 P1 added four Skill check entries (PRD 39 R-SKILL-CHECK). They
+ * landed after W33 R0, so they have no former names and name the Wave that
+ * added them in `addedBy`.
+ *
  * W33 R0 P2 built the command tree and the MCP names from it, so every
  * current entry's current names are its new names. `formerCli` and
  * `formerMcp` keep the names from before W33 R0 for the P3 migration
@@ -116,7 +120,7 @@ export const NON_REGISTRY_COMMANDS = [
 
 export type NameCatalogEntryKind = "operation" | "hand-defined-tool";
 export type NameCatalogStatus = "current" | "planned";
-export type NameCatalogPlanner = "W29 R0" | "W30 R0" | "W31 R0" | "W32 R0";
+export type NameCatalogPlanner = "W29 R0" | "W30 R0" | "W31 R0" | "W32 R0" | "W34 R0";
 
 export interface NameCatalogEntry {
   /** Registry operation ID, or the current MCP name of a hand-defined tool. */
@@ -125,6 +129,11 @@ export interface NameCatalogEntry {
   status: NameCatalogStatus;
   /** The Wave that plans a `planned` entry. */
   plannedBy?: NameCatalogPlanner;
+  /**
+   * The Wave that planned and then landed a current entry after W33 R0. Such an
+   * entry never had another name, so its former names are null.
+   */
+  addedBy?: NameCatalogPlanner;
   group: NameGroup;
   /** Current CLI path after `make-docs`, or null when no command exists. */
   currentCli: string | null;
@@ -263,6 +272,7 @@ const W29 = "W29 R0" as const;
 const W30 = "W30 R0" as const;
 const W31 = "W31 R0" as const;
 const W32 = "W32 R0" as const;
+const W34 = "W34 R0" as const;
 
 /** Make the MCP name from a CLI path (R-NAME-3). */
 export function mcpNameForCliPath(cliPath: string): string {
@@ -316,6 +326,30 @@ function planned(
   extra: Partial<EntryInput> = {},
 ): NameCatalogEntry {
   return entry({ id, kind: "operation", status: "planned", plannedBy, group, currentCli: null, currentMcp: null, newCli, ...extra });
+}
+
+/**
+ * A current operation that a Wave planned and landed after W33 R0 (W34 R0 P1).
+ * It has no former names, so no migration alias.
+ */
+function added(
+  id: string,
+  addedBy: NameCatalogPlanner,
+  group: NameGroup,
+  newCli: string,
+  extra: Partial<EntryInput> = {},
+): NameCatalogEntry {
+  return entry({
+    id,
+    kind: "operation",
+    status: "current",
+    addedBy,
+    group,
+    currentCli: newCli,
+    currentMcp: mcpNameForCliPath(newCli),
+    newCli,
+    ...extra,
+  });
 }
 
 /** A hand-defined MCP tool. Its ID is its current MCP name; `formerName` is its name before W33 R0. */
@@ -408,6 +442,13 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   }),
   current("project.doctor.check", "project", "project doctor check", "project_doctor_check", "project doctor check"),
   current("project.doctor.fix", "project", "project doctor fix", "project_doctor_fix", "project doctor fix"),
+  added("project.relations.list", W34, "project", "project relations list"),
+  added("project.markdown-style.validate", W34, "project", "project markdown validate", {
+    reason: "The W34 R0 design uses `markdown`, not `markdown-style`, in the path: `project_markdown_style_validate` would have 31 characters. The operation ID keeps `markdown-style`.",
+  }),
+  added("project.markdown-style.repair", W34, "project", "project markdown repair", {
+    reason: "The same object word as `project markdown validate`, so the check and its repair stay together, as `project paths` does.",
+  }),
 
   // resource
   current("resource.list", "resource", "resource list", "resource_list", "resource list"),
@@ -484,6 +525,10 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   }),
   current("uat.finding.validate", "check", "run uat finding validate", "uat_finding_validate", "check uat finding", { decision: "ND-08" }),
   current("uat.result.validate", "check", "run uat result validate", "uat_result_validate", "check uat result", { decision: "ND-08" }),
+  added("decomposition.output.validate", W34, "check", "check decomposition", {
+    reason: "A read-only validator that no other group owns. The `check` group word is the verb.",
+    decision: "ND-01",
+  }),
 
   // mcp
   tool("domains", "mcp", "mcp domains list", `${TOOL_REASON} It lists operation domains for MCP clients. R-NAME-2 needs the final verb \`list\`.`),
@@ -572,6 +617,9 @@ export function validateNameCatalog(
       add("shape", item.id, "A planned entry has no current names and names its Wave.");
     }
     if (item.status === "current" && item.plannedBy !== undefined) add("shape", item.id, "A current entry names no planning Wave.");
+    if (item.addedBy !== undefined && (item.status !== "current" || item.kind !== "operation" || item.formerCli !== null || item.formerMcp !== null)) {
+      add("shape", item.id, "An added entry is a current operation with no former names.");
+    }
     if (item.kind === "hand-defined-tool" && (item.currentMcp !== item.id || item.status !== "current")) {
       add("shape", item.id, "A hand-defined tool is current and its ID is its current MCP name.");
     }
@@ -697,8 +745,10 @@ export function checkNameCatalogCoverage(
     if (item.kind === "operation" && item.status === "planned" && registered.has(item.id)) {
       problems.push(`Catalog operation ${item.id} is planned but the registry holds it. Mark it current.`);
     }
-    // PRD 39 R-TOP-1: `check` holds read-only validators.
-    if (item.group === "check" && sources.mutatesByOperation.get(item.id) !== "read") {
+    // PRD 39 R-TOP-1: `check` holds read-only validators. A planned `check`
+    // entry passes until the registry holds it (W34 R0 P1); then it must read only.
+    const plannedOutsideRegistry = item.status === "planned" && !registered.has(item.id);
+    if (item.group === "check" && !plannedOutsideRegistry && sources.mutatesByOperation.get(item.id) !== "read") {
       problems.push(`Check entry ${item.id} is not a read-only registry operation.`);
     }
   }

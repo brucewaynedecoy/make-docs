@@ -14,6 +14,14 @@ import { OperationError } from "../operations/types";
 import { withCliRenamedTo } from "../operations/migration-aliases";
 import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
 import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
+import {
+  markdownStyleExitCode,
+  renderMarkdownStyleRepair,
+  renderMarkdownStyleValidate,
+  type MarkdownStyleRepairResult,
+  type MarkdownStyleValidateResult,
+} from "../operations/project/markdown-style";
+import { renderProjectRelations, type ProjectRelationsResult } from "../operations/project/relations";
 import type { ProjectListResult } from "../store/project-register";
 import { readFileSync } from "node:fs";
 import { listOperations, operationCliPath, type OperationDescriptor } from "../operations/registry";
@@ -247,7 +255,8 @@ export function renderProjectHelp(): string {
     "make-docs project",
     "",
     "See and repair this project: its state, checkouts, Personas, layout,",
-    "support folders, paths and links, and docs.",
+    "support folders, paths and links, Markdown style, document relations,",
+    "and docs.",
     "",
     "Usage: make-docs project <command> [options]",
     "",
@@ -276,6 +285,9 @@ export const PROJECT_COMMANDS = [
   "surface ensure",
   "paths validate",
   "paths repair",
+  "markdown validate",
+  "markdown repair",
+  "relations list",
   "doctor check",
   "doctor fix",
 ] as const;
@@ -306,6 +318,10 @@ export async function runProjectCommand(
   }
   if (argv[0] === "list") {
     await runProjectListCommand(argv.slice(1), launch);
+    return;
+  }
+  if (argv[0] === "markdown" || argv[0] === "relations") {
+    await runProjectSkillCheckCommand(argv, launch);
     return;
   }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
@@ -826,4 +842,97 @@ export function renderDoctorFix(result: DoctorFixResult): string {
   for (const file of result.undo.notTrackedByGit) lines.push(`Not tracked by git, undo from backup: ${file}`);
   lines.push(`Next: ${result.nextAction}`, "");
   return lines.join("\n");
+}
+
+/**
+ * W34 R0 P1: `project markdown validate|repair` and `project relations list`
+ * (PRD 39 R-SKILL-CHECK). Plain words first; `--json` prints the full result.
+ * `markdown repair` shows the changes unless `--apply` is given, as
+ * `project paths repair` does.
+ */
+async function runProjectSkillCheckCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  if (argv[0] !== "markdown") {
+    await runProjectSkillCheck(argv, launch);
+    return;
+  }
+  // The exit codes of `project paths validate|repair`: 0 when no finding is
+  // left, 1 when a finding is left, 2 on an error.
+  try {
+    await runProjectSkillCheck(argv, launch);
+  } catch (error) {
+    process.stderr.write(`Markdown style error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 2;
+  }
+}
+
+async function runProjectSkillCheck(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [noun, verb, ...args] = argv;
+  const operationId = noun === "relations" && verb === "list"
+    ? "project.relations.list"
+    : noun === "markdown" && verb === "validate"
+      ? "project.markdown-style.validate"
+      : noun === "markdown" && verb === "repair"
+        ? "project.markdown-style.repair"
+        : null;
+  if (operationId === null) {
+    throw new OperationError(
+      `Unknown make-docs project command: \`${[noun, verb].filter(Boolean).join(" ")}\`. Use \`make-docs project markdown validate\`, \`make-docs project markdown repair\`, or \`make-docs project relations list\`.`,
+    );
+  }
+  const repair = operationId === "project.markdown-style.repair";
+  let targetRoot: string | undefined;
+  let json = false;
+  let apply = false;
+  let preview = false;
+  const paths: string[] = [];
+  const seen = new Set<string>();
+  while (args.length) {
+    const flag = args.shift()!;
+    if (flag !== "--path") {
+      if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+      seen.add(flag);
+    }
+    const value = () => {
+      const next = args.shift();
+      if (next === undefined || next.startsWith("--")) throw new OperationError(`${flag} requires a path.`);
+      return next;
+    };
+    if (flag === "--json") json = true;
+    else if (flag === "--target-root") targetRoot = path.resolve(value());
+    else if (flag === "--path") {
+      if (operationId === "project.relations.list" && paths.length > 0) throw new OperationError("Option --path can be given only once.");
+      paths.push(value());
+    } else if (repair && flag === "--apply") apply = true;
+    else if (repair && flag === "--dry-run") preview = true;
+    else throw new OperationError(`Unexpected argument for make-docs project ${noun} ${verb}: ${flag}.`);
+  }
+  if (apply && preview) throw new OperationError("--apply and --dry-run cannot be combined.");
+  const input = operationId === "project.relations.list"
+    ? { ...(targetRoot ? { targetRoot } : {}), ...(paths.length ? { path: paths[0] } : {}) }
+    : { ...(targetRoot ? { targetRoot } : {}), ...(paths.length ? { paths } : {}), ...(repair ? { apply } : {}) };
+  const invocation = await invokeOperation(
+    operationId,
+    input,
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: repair,
+      dryRun: repair && !apply,
+    }),
+  );
+  if (json) {
+    printJson(invocation.value);
+  } else if (operationId === "project.relations.list") {
+    process.stdout.write(renderProjectRelations(invocation.value as unknown as ProjectRelationsResult));
+  } else if (operationId === "project.markdown-style.validate") {
+    process.stdout.write(renderMarkdownStyleValidate(invocation.value as unknown as MarkdownStyleValidateResult));
+  } else {
+    process.stdout.write(renderMarkdownStyleRepair(invocation.value as unknown as MarkdownStyleRepairResult));
+  }
+  if (operationId !== "project.relations.list") {
+    process.exitCode = markdownStyleExitCode(invocation.value as unknown as MarkdownStyleValidateResult | MarkdownStyleRepairResult);
+  }
 }
