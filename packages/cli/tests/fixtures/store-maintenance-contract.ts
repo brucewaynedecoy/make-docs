@@ -524,12 +524,9 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
     title: "A failed operation is never terminal",
     proves: ["STORE-RULE-001", "STORE-RULE-003", "STORE-RULE-004", "STORE-RULE-005", "STORE-RULE-006"],
     seed(db, env) {
-      // Schema v6 refuses `failed` on installation_operations. This temporary
-      // fixture Store lifts the CHECK to stand for a schema v7 failed row.
-      db.exec("PRAGMA ignore_check_constraints = ON");
+      // Schema v7 accepts a `failed` installation operation.
       checkout(db, "c-failed", "/fixture/failed");
       operation(db, "op-failed", "c-failed", "failed", 200);
-      db.exec("PRAGMA ignore_check_constraints = OFF");
       step(db, "op-failed", 1, STEP_WITH_PAYLOAD, STEP_WITH_BASE64);
       record(db, "c-failed", "snapshot", "detached:op-failed", { digest: "f", plan: {} });
       record(db, "c-failed", "backup", "atomic:op-failed:1", { ordinal: 1 });

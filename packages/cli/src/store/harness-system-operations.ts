@@ -451,7 +451,7 @@ function assertNoOtherStoreWork(
        FROM installation_operations AS operations
        JOIN installation_checkouts AS checkouts
          ON checkouts.checkout_id=operations.checkout_id
-      WHERE operations.status='pending' AND checkouts.root_path=?
+      WHERE operations.status IN ('pending','failed') AND checkouts.root_path=?
       LIMIT 1`,
   ).get(targetRoot) as { operation_id: string } | undefined;
   const writer = db.prepare(

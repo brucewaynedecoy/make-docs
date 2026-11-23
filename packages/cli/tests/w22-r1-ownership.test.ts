@@ -96,13 +96,35 @@ describe('W22 R1 checkout ownership proof', () => {
     const claudeText = block('claude rules\n', 'changed claude prefix\n', '\nchanged claude suffix');
     writeFileSync(path.join(moved, 'AGENTS.md'), rootText);
     writeFileSync(path.join(moved, 'CLAUDE.md'), claudeText);
-    const before = verification(f);
-    expect(before.evidence.schemaVersion).toBe(2);
-    expect(before.evidence.ownershipFacts).toHaveLength(3);
+    // W32 R0 P2: commits no longer write checkout verification. Only the path update does.
+    expect(verification(f).evidence).toBeNull();
     reviewedMove(f, moved);
+    const after = verification(f);
+    expect(after.evidence.schemaVersion).toBe(2);
+    expect(after.evidence.ownershipFacts).toHaveLength(3);
     expect(getInstallationCheckoutId(moved, f.store)).toBe(f.checkoutId);
     expect(readFileSync(path.join(moved, 'AGENTS.md'), 'utf8')).toBe(rootText);
     expect(readFileSync(path.join(moved, 'CLAUDE.md'), 'utf8')).toBe(claudeText);
+  });
+
+  it('moves again after a later commit changes the ledger, because commits leave the saved evidence alone', () => {
+    const f = fixture();
+    const moved = move(f);
+    reviewedMove(f, moved);
+    const saved = verification({ ...f, root: moved });
+    const manifest = { ...f.manifest, files: { ...f.manifest.files, 'extra.md': { hash: sha('extra'), sourceId: 'provider:extra.md', ownershipClass: 'managed-snapshot' as const } } };
+    writeFileSync(path.join(moved, 'extra.md'), 'extra');
+    withInstallationOperation(moved, 'test.ledger', () => saveInstallationManifest(moved, manifest), { storeRoot: f.store, projectId: f.manifest.projectId });
+    expect(verification({ ...f, root: moved })).toEqual(saved);
+    const again = path.join(f.parent, 'moved-again');
+    renameSync(moved, again);
+    const preview = previewInstallationCheckoutMove(again, f.checkoutId, f.store);
+    const candidate = preview.candidates.find(item => item.checkoutId === f.checkoutId);
+    expect(candidate?.blockers).toEqual([]);
+    applyInstallationCheckoutMove(again, f.checkoutId, moved, candidate!.reviewDigest!, f.store);
+    const final = verification({ ...f, root: again });
+    expect(final.rootPath).toBe(canonicalInstallationPath(again));
+    expect(final.evidence.ownershipFacts).toHaveLength(4);
   });
 
   it.each([

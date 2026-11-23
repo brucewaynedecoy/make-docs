@@ -245,7 +245,7 @@ describe("backlog review cache", () => {
     });
 
     expect(() => lookupBacklogReviewCache(projectRoot, snapshot, storeRoot)).toThrow(
-      /requires version 6/,
+      new RegExp(`requires version ${CURRENT_STORE_SCHEMA_VERSION}`),
     );
     withInstallationDatabase(projectRoot, (db) => {
       expect(readUserVersion(db)).toBe(5);
@@ -266,7 +266,7 @@ describe("backlog review cache", () => {
     });
 
     expect(() => writeBacklogReviewCache(projectRoot, snapshot, fragments, storeRoot)).toThrow(
-      /requires version 6/,
+      new RegExp(`requires version ${CURRENT_STORE_SCHEMA_VERSION}`),
     );
     withInstallationDatabase(projectRoot, (db) => {
       expect(readUserVersion(db)).toBe(5);

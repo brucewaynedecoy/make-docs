@@ -74,8 +74,9 @@ function readFreshSchema(): StorePhysicalSchema {
 describe("W32 R0 P1 table catalog (A1)", () => {
   it("has one entry for each table, in the table name list", () => {
     expect(STORE_TABLE_CATALOG.map((entry) => entry.table)).toEqual([...STORE_TABLE_NAMES]);
-    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(17);
-    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "planned").map((entry) => entry.table)).toEqual(["project_register"]);
+    // Schema v7 (W32 R0 P2) made project_register physical, so every catalog table is physical now.
+    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(18);
+    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "planned").map((entry) => entry.table)).toEqual([]);
   });
 
   it("fills every field of every table entry", () => {
@@ -191,8 +192,10 @@ describe("W32 R0 P1 drift test (A2)", () => {
     expect(storeCatalogDrift(extraColumn, R_MIN_ROWS).join("\n")).toContain("Table runs columns differ");
     const extraKind = { ...physical, migrationRecordKinds: [...physical.migrationRecordKinds, "journal"] };
     expect(storeCatalogDrift(extraKind, R_MIN_ROWS).join("\n")).toContain("Record kinds differ");
-    const plannedNowPhysical = { ...physical, tables: { ...physical.tables, project_register: ["project_id", "project_name", "first_seen_at", "last_seen_at"] } };
-    expect(storeCatalogDrift(plannedNowPhysical, R_MIN_ROWS).join("\n")).toContain("project_register is in the schema but the catalog marks it planned");
+    const plannedCatalog = STORE_TABLE_CATALOG.map((entry) => (entry.table === "project_register" ? { ...entry, schemaStatus: "planned" as const } : entry));
+    expect(storeCatalogDrift(physical, R_MIN_ROWS, { tables: plannedCatalog, nonTableRows: STORE_NON_TABLE_RMIN_ROWS, kinds: STORE_MIGRATION_RECORD_KINDS }).join("\n")).toContain("project_register is in the schema but the catalog marks it planned");
+    const { project_register: _register, ...withoutRegister } = physical.tables;
+    expect(storeCatalogDrift({ ...physical, tables: withoutRegister }, R_MIN_ROWS).join("\n")).toContain("project_register is in the catalog but not in the schema");
     const fewerKinds = STORE_MIGRATION_RECORD_KINDS.filter((kind) => kind !== "backup");
     expect(storeCatalogDrift(physical, R_MIN_ROWS, { tables: STORE_TABLE_CATALOG, nonTableRows: STORE_NON_TABLE_RMIN_ROWS, kinds: fewerKinds }).join("\n")).toContain("Record kinds differ");
   });

@@ -384,6 +384,8 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
     const childScript = `
       const { DatabaseSync } = require("node:sqlite");
       const db = new DatabaseSync(process.env.STORE_DB_PATH);
+      // A Make Docs writer registers the schema v7 write guard function (registerStoreWriteGuard).
+      db.function("make_docs_write_guard", () => null);
       db.exec("PRAGMA busy_timeout = 5000");
       db.exec("PRAGMA journal_mode = WAL");
       const stmt = db.prepare(

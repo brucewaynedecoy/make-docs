@@ -1,4 +1,5 @@
 import {
+  chmodSync,
   closeSync,
   constants,
   fstatSync,
@@ -40,7 +41,201 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 6;
+export const CURRENT_STORE_SCHEMA_VERSION = 7;
+
+/**
+ * Store write guard (PRD 38 R-WRITE-GUARD). Every Store table has
+ * `BEFORE INSERT`, `BEFORE UPDATE`, and `BEFORE DELETE` triggers that call
+ * this SQL function. Only a Make Docs connection registers it, through
+ * {@link registerStoreWriteGuard} in the one shared connection path. A
+ * connection that Make Docs did not open has no such function, so its writes
+ * fail with "no such function" and change nothing. Its reads still work.
+ */
+export const STORE_WRITE_GUARD_FUNCTION = "make_docs_write_guard";
+/** The first schema version whose tables carry the write guard triggers. */
+export const STORE_WRITE_GUARD_SINCE_SCHEMA = 7;
+export const STORE_WRITE_GUARD_EVENTS = ["insert", "update", "delete"] as const;
+export type StoreWriteGuardEvent = (typeof STORE_WRITE_GUARD_EVENTS)[number];
+/** The reason that Store open reports when a guard trigger is missing or changed. */
+export const STORE_CHANGED_OUTSIDE_REASON = "changed outside Make Docs";
+
+export function storeWriteGuardTriggerName(table: string, event: StoreWriteGuardEvent): string {
+  return `make_docs_guard_${table}_${event}`;
+}
+
+/** A plain identifier stays as it is; any other name is quoted, so an older table with an odd name can be guarded too. */
+function sqlIdentifier(name: string): string {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? name : `"${name.replaceAll('"', '""')}"`;
+}
+
+/** The exact trigger SQL that `sqlite_schema` must hold for one table and event. */
+export function storeWriteGuardTriggerSql(table: string, event: StoreWriteGuardEvent): string {
+  return `CREATE TRIGGER ${sqlIdentifier(storeWriteGuardTriggerName(table, event))} BEFORE ${event.toUpperCase()} ON ${sqlIdentifier(table)} BEGIN SELECT ${STORE_WRITE_GUARD_FUNCTION}(); END`;
+}
+
+/** A Store table that SQLite cannot give triggers: a virtual table or one of its shadow tables. */
+export interface StoreUnguardableTable {
+  table: string;
+  kind: "virtual" | "shadow";
+}
+
+function storeTableRows(db: StoreDatabase): Array<{ name: string; sql: string | null }> {
+  return db.prepare(
+    "SELECT name, sql FROM sqlite_schema WHERE type = 'table' AND substr(name, 1, 7) <> 'sqlite_' ORDER BY name",
+  ).all() as Array<{ name: string; sql: string | null }>;
+}
+
+/**
+ * Tables that SQLite refuses triggers on ("cannot create triggers on virtual
+ * tables" and "... on shadow tables"). No Make Docs schema creates one; an
+ * older program may have. Make Docs skips them and reports them in Store
+ * status, because their rows are not guarded.
+ */
+export function listUnguardableStoreTables(db: StoreDatabase): StoreUnguardableTable[] {
+  const rows = storeTableRows(db);
+  const virtual = rows.filter((row) => /^\s*CREATE\s+VIRTUAL\s+TABLE/i.test(row.sql ?? "")).map((row) => row.name);
+  return rows.flatMap((row): StoreUnguardableTable[] => {
+    if (virtual.includes(row.name)) return [{ table: row.name, kind: "virtual" }];
+    return virtual.some((name) => row.name.startsWith(`${name}_`)) ? [{ table: row.name, kind: "shadow" }] : [];
+  });
+}
+
+/** Every Store table that must carry the three guard triggers. */
+function guardedStoreTables(db: StoreDatabase): string[] {
+  const unguardable = new Set(listUnguardableStoreTables(db).map((entry) => entry.table));
+  return storeTableRows(db).map((row) => row.name).filter((name) => !unguardable.has(name));
+}
+
+/** Rows that point to a missing parent row, grouped by child and parent table. */
+export interface StoreBrokenReference {
+  table: string;
+  parent: string;
+  count: number;
+}
+
+/** Read `PRAGMA foreign_key_check` for the whole Store, grouped by child and parent table. */
+export function inspectStoreBrokenReferences(db: StoreDatabase): StoreBrokenReference[] {
+  const counts = new Map<string, StoreBrokenReference>();
+  for (const row of db.prepare("PRAGMA foreign_key_check").all() as Array<{ table: string; parent: string }>) {
+    const key = `${row.table}\u0000${row.parent}`;
+    const entry = counts.get(key) ?? { table: row.table, parent: row.parent, count: 0 };
+    entry.count++;
+    counts.set(key, entry);
+  }
+  return [...counts.values()].sort((left, right) => left.table.localeCompare(right.table) || left.parent.localeCompare(right.parent));
+}
+
+/** The repair step for broken references that existed before a migration. */
+export const STORE_BROKEN_REFERENCE_NEXT_ACTION =
+  "Make Docs keeps these rows and does not block on them. Run make-docs setup store check to review them. Do not delete Store rows by hand.";
+
+/** One plain sentence for each group of broken references, with its repair step. */
+export function describeStoreBrokenReferences(references: readonly StoreBrokenReference[]): string | null {
+  if (references.length === 0) return null;
+  const parts = references.map((entry) => `${entry.count} row(s) in ${entry.table} point to a missing ${entry.parent} row`);
+  return `${parts.join("; ")}. ${STORE_BROKEN_REFERENCE_NEXT_ACTION}`;
+}
+
+/** The guard trigger statements for tables that a migration creates. */
+export function storeWriteGuardStatements(tables: readonly string[]): string[] {
+  return tables.flatMap((table) => STORE_WRITE_GUARD_EVENTS.map((event) => storeWriteGuardTriggerSql(table, event)));
+}
+
+/**
+ * Register the write guard function on one connection. Every Make Docs Store
+ * connection gets it in `openSqliteWithRetry`. Tests that seed fixture rows
+ * on a raw connection call this too, which is the same Make Docs code path.
+ */
+export function registerStoreWriteGuard(db: StoreDatabase): void {
+  db.function(STORE_WRITE_GUARD_FUNCTION, () => null);
+}
+
+/**
+ * Compare every table's guard triggers with the expected SQL (R-WRITE-GUARD-4).
+ * Returns one plain sentence for each missing or changed guard trigger. Reads
+ * only `sqlite_schema`. An empty list means the guard is intact. Other
+ * triggers are not guard triggers: a write in their body still fires the
+ * guard triggers of the table it writes, so they cannot bypass the guard.
+ */
+export function inspectStoreWriteGuard(db: StoreDatabase): string[] {
+  const tables = guardedStoreTables(db);
+  const triggers = new Map((db.prepare(
+    "SELECT name, tbl_name, sql FROM sqlite_schema WHERE type = 'trigger' ORDER BY name",
+  ).all() as Array<{ name: string; tbl_name: string; sql: string | null }>).map((row) => [row.name, row]));
+  const problems: string[] = [];
+  for (const table of tables) {
+    for (const event of STORE_WRITE_GUARD_EVENTS) {
+      const name = storeWriteGuardTriggerName(table, event);
+      const trigger = triggers.get(name);
+      if (!trigger) problems.push(`Table ${table} has no BEFORE ${event.toUpperCase()} guard trigger.`);
+      else if (trigger.tbl_name !== table || trigger.sql !== storeWriteGuardTriggerSql(table, event)) {
+        problems.push(`The BEFORE ${event.toUpperCase()} guard trigger of table ${table} changed.`);
+      }
+    }
+  }
+  return problems;
+}
+
+/**
+ * Store backups that Make Docs made: schema bridge backups next to `store.db`
+ * (`store.db.*.backup`) and every regular file in `<store>/backup/`.
+ */
+function listStoreBackupFiles(storeRoot: string): Array<{ file: string; mtimeMs: number }> {
+  const candidates: Array<{ file: string; mtimeMs: number }> = [];
+  const scan = (directory: string, accept: (name: string) => boolean) => {
+    let names: string[];
+    try {
+      names = readdirSync(directory);
+    } catch {
+      return;
+    }
+    for (const name of names) {
+      if (!accept(name)) continue;
+      const file = path.join(directory, name);
+      try {
+        const stat = lstatSync(file);
+        if (stat.isFile()) candidates.push({ file, mtimeMs: stat.mtimeMs });
+      } catch {
+        // A backup that disappears while we look is not a candidate.
+      }
+    }
+  };
+  const root = path.resolve(storeRoot);
+  scan(root, (name) => name.startsWith("store.db.") && name.endsWith(".backup"));
+  scan(path.join(root, "backup"), () => true);
+  return candidates;
+}
+
+/** Newest Store backup that Make Docs made, or null. */
+export function findNewestStoreBackup(storeRoot: string): string | null {
+  const candidates = listStoreBackupFiles(storeRoot);
+  candidates.sort((left, right) => right.mtimeMs - left.mtimeMs || right.file.localeCompare(left.file));
+  return candidates[0]?.file ?? null;
+}
+
+/** Set file mode 0600 on `store.db` and on every existing Store backup (R-WRITE-GUARD-5). */
+export function applyStoreFileModes(storeRoot: string): void {
+  applyStoreFileMode(getStoreDatabasePath(storeRoot));
+  for (const backup of listStoreBackupFiles(storeRoot)) applyStoreFileMode(backup.file);
+}
+
+/** The next action for a Store whose write guard changed (PRD 38 R-WRITE-GUARD-4). */
+export function storeChangedOutsideNextAction(storeRoot: string): string {
+  const backup = findNewestStoreBackup(storeRoot);
+  return `Do not write the Store. Run make-docs setup store check to review it. ${backup
+    ? `The newest Store backup is ${backup}.`
+    : "No Store backup was found."}`;
+}
+
+/** Set file mode 0600 on a Store database or backup file where the platform supports it. */
+export function applyStoreFileMode(file: string): void {
+  if (platform.kind === "win32") return;
+  try {
+    chmodSync(file, 0o600);
+  } catch (error) {
+    if (systemCode(error) !== "ENOENT") throw new StoreUnavailableError(makeStoreIssue("io-error", file, "set Store file mode", error));
+  }
+}
 
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
@@ -75,6 +270,8 @@ export interface StoreMigration {
   version: number;
   description: string;
   statements: string[];
+  /** True when a statement rebuilds a table, so foreign keys are checked before commit instead. */
+  rebuildsTables?: boolean;
 }
 
 /**
@@ -331,7 +528,154 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       )`,
     ],
   },
+  {
+    version: 7,
+    description:
+      "W32 R0 P2: project register, failed installation operations with failure fields and bounded receipt columns, a widened migration receipt check, and the Store write guard.",
+    // SQLite changes a CHECK only by a table rebuild. The rebuild runs with
+    // foreign key enforcement off, then `PRAGMA foreign_key_check` must pass
+    // before the same transaction commits (applyStoreMigrations).
+    rebuildsTables: true,
+    statements: [
+      `CREATE TABLE project_register (
+        project_id TEXT PRIMARY KEY CHECK (length(project_id) BETWEEN 1 AND 160),
+        project_name TEXT UNIQUE CHECK (
+          project_name IS NULL OR (
+            length(project_name) BETWEEN 1 AND 64 AND
+            project_name GLOB '[a-z]*' AND
+            project_name NOT GLOB '*[^a-z0-9-]*'
+          )
+        ),
+        first_seen_at TEXT NOT NULL,
+        last_seen_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE installation_operations_v7 (
+        operation_id TEXT PRIMARY KEY,
+        checkout_id TEXT NOT NULL REFERENCES installation_checkouts(checkout_id),
+        operation TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending','completed','rolled-back','failed')),
+        before_ledger TEXT,
+        after_ledger TEXT,
+        created_at TEXT NOT NULL,
+        finished_at TEXT,
+        plan_complete INTEGER NOT NULL DEFAULT 0,
+        failure_code TEXT CHECK (
+          failure_code IS NULL OR (
+            length(failure_code) BETWEEN 1 AND 64 AND
+            failure_code NOT GLOB '*[^a-z0-9-]*'
+          )
+        ),
+        failure_summary TEXT CHECK (failure_summary IS NULL OR length(failure_summary) BETWEEN 1 AND 512),
+        failed_stage TEXT CHECK (
+          failed_stage IS NULL OR (
+            length(failed_stage) BETWEEN 1 AND 64 AND
+            failed_stage NOT GLOB '*[^a-z0-9-]*'
+          )
+        ),
+        next_action TEXT CHECK (next_action IS NULL OR length(next_action) BETWEEN 1 AND 1024),
+        before_ledger_digest TEXT CHECK (
+          before_ledger_digest IS NULL OR (
+            length(before_ledger_digest) = 71 AND
+            substr(before_ledger_digest, 1, 7) = 'sha256:' AND
+            substr(before_ledger_digest, 8) NOT GLOB '*[^0-9a-f]*'
+          )
+        ),
+        after_ledger_digest TEXT CHECK (
+          after_ledger_digest IS NULL OR (
+            length(after_ledger_digest) = 71 AND
+            substr(after_ledger_digest, 1, 7) = 'sha256:' AND
+            substr(after_ledger_digest, 8) NOT GLOB '*[^0-9a-f]*'
+          )
+        ),
+        step_count INTEGER CHECK (step_count IS NULL OR step_count >= 0),
+        applied_step_count INTEGER CHECK (applied_step_count IS NULL OR applied_step_count >= 0),
+        CHECK (applied_step_count IS NULL OR (step_count IS NOT NULL AND applied_step_count <= step_count))
+      )`,
+      `INSERT INTO installation_operations_v7
+        (operation_id, checkout_id, operation, status, before_ledger, after_ledger, created_at, finished_at, plan_complete)
+       SELECT operation_id, checkout_id, operation, status, before_ledger, after_ledger, created_at, finished_at, plan_complete
+         FROM installation_operations`,
+      `DROP TABLE installation_operations`,
+      `ALTER TABLE installation_operations_v7 RENAME TO installation_operations`,
+      `CREATE TABLE store_migration_receipts_v7 (
+        receipt_id TEXT PRIMARY KEY CHECK (length(receipt_id) = 71),
+        operation TEXT NOT NULL CHECK (operation = 'store.schema.migrate'),
+        project_root_digest TEXT NOT NULL CHECK (length(project_root_digest) = 64),
+        source_schema_version INTEGER NOT NULL CHECK (source_schema_version >= 0),
+        target_schema_version INTEGER NOT NULL CHECK (target_schema_version >= 5),
+        snapshot_id TEXT NOT NULL CHECK (length(snapshot_id) = 71),
+        result TEXT NOT NULL CHECK (result = 'completed'),
+        committed_at TEXT NOT NULL,
+        receipt_json TEXT NOT NULL CHECK (length(receipt_json) BETWEEN 2 AND 16384),
+        CHECK (source_schema_version < target_schema_version)
+      )`,
+      `INSERT INTO store_migration_receipts_v7
+        (receipt_id, operation, project_root_digest, source_schema_version,
+         target_schema_version, snapshot_id, result, committed_at, receipt_json)
+       SELECT receipt_id, operation, project_root_digest, source_schema_version,
+              target_schema_version, snapshot_id, result, committed_at, receipt_json
+         FROM store_migration_receipts`,
+      `DROP TABLE store_migration_receipts`,
+      `ALTER TABLE store_migration_receipts_v7 RENAME TO store_migration_receipts`,
+      `CREATE INDEX idx_store_migration_receipts_project
+       ON store_migration_receipts (project_root_digest, operation, committed_at, receipt_id)`,
+      `INSERT INTO store_schema_journal VALUES (
+        7,
+        'W32 R0 P2 project register, failed operations, receipt columns, and write guard',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+      // The guard triggers come last, after every table exists in its v7 form.
+      ...storeWriteGuardStatements([
+        "projects", "playbook_runs", "work_evidence", "runs", "run_evidence", "store_checkpoint_journal",
+        "installation_checkouts", "installation_ledgers", "installation_operations", "installation_steps",
+        "installation_locks", "installation_migration_records", "installation_transfers", "tool_operations",
+        "store_schema_journal", "store_migration_receipts", "backlog_review_cache", "project_register",
+      ]),
+    ],
+  },
 ];
+
+/** The v7 statement after which the terminal operation receipt columns are backfilled. */
+const V7_RECEIPT_BACKFILL_AFTER = "ALTER TABLE installation_operations_v7 RENAME TO installation_operations";
+
+/** SHA-256 of a ledger's exact text as `sha256:<hex>`, or null for a missing ledger (SQL NULL or the text `null`). */
+export function storeLedgerDigest(ledger: string | null | undefined): string | null {
+  // The text `null` means "no ledger" (a removal writes it), so it has no digest.
+  return ledger === null || ledger === undefined || ledger === "null" ? null : `sha256:${createHash("sha256").update(ledger).digest("hex")}`;
+}
+
+/**
+ * Fill the bounded receipt columns of one terminal installation operation
+ * (PRD 38 R-DB-7, W32 R0 P2 T11). The migration backfills existing terminal
+ * rows with it, and each commit to `completed` or `rolled-back` calls it in the
+ * same transaction.
+ */
+export function fillInstallationOperationReceipt(db: StoreDatabase, operationId: string): void {
+  const row = db.prepare("SELECT before_ledger, after_ledger FROM installation_operations WHERE operation_id = ?")
+    .get(operationId) as { before_ledger: string | null; after_ledger: string | null } | undefined;
+  if (!row) return;
+  const counts = db.prepare(
+    "SELECT COUNT(*) AS step_count, COALESCE(SUM(CASE WHEN applied = 1 THEN 1 ELSE 0 END), 0) AS applied_step_count FROM installation_steps WHERE operation_id = ?",
+  ).get(operationId) as { step_count: number | bigint; applied_step_count: number | bigint };
+  db.prepare(
+    `UPDATE installation_operations
+        SET before_ledger_digest = ?, after_ledger_digest = ?, step_count = ?, applied_step_count = ?
+      WHERE operation_id = ?`,
+  ).run(
+    storeLedgerDigest(row.before_ledger),
+    storeLedgerDigest(row.after_ledger),
+    Number(counts.step_count),
+    Number(counts.applied_step_count),
+    operationId,
+  );
+}
+
+function backfillTerminalOperationReceipts(db: StoreDatabase): void {
+  const rows = db.prepare(
+    "SELECT operation_id FROM installation_operations WHERE status IN ('completed','rolled-back') ORDER BY operation_id",
+  ).all() as Array<{ operation_id: string }>;
+  for (const row of rows) fillInstallationOperationReceipt(db, row.operation_id);
+}
 
 /** Thrown when the database was written by a newer CLI schema (R-DB-2). */
 export class StoreSchemaNewerError extends Error {
@@ -360,7 +704,9 @@ export type StoreIssueCode =
   | "corrupt"
   | "schema-newer"
   | "schema-unknown"
-  | "owner-unverified";
+  | "owner-unverified"
+  /** A write guard trigger is missing or changed (PRD 38 R-WRITE-GUARD-4). */
+  | "changed-outside";
 
 /** Structured detail for CLI and MCP Store failures. */
 export interface StoreIssue {
@@ -392,7 +738,7 @@ export class StoreUnavailableError extends Error {
 /** Formats one cause without hiding it behind a generic Store state. */
 export function formatStoreIssue(
   issue: StoreIssue,
-  context: { projectMutationStarted?: boolean; pendingOperationId?: string } = {},
+  context: { projectMutationStarted?: boolean; pendingOperationId?: string; operationFailed?: boolean } = {},
 ): string {
   let summary: string;
   switch (issue.code) {
@@ -421,11 +767,14 @@ export function formatStoreIssue(
     case "owner-unverified":
       summary = `Make Docs cannot verify the Store owner at ${issue.path}. ${issue.cause}`;
       break;
+    case "changed-outside":
+      summary = `Make Docs preserved the Store at ${issue.path}. The Store was ${STORE_CHANGED_OUTSIDE_REASON}: ${issue.cause}`;
+      break;
     default:
       summary = `Make Docs could not complete the Store operation "${issue.operation}" at ${issue.path}${issue.systemCode ? ` (${issue.systemCode})` : ""}. ${issue.cause}`;
   }
   if (context.projectMutationStarted) {
-    return `${summary} Project files may have changed.${context.pendingOperationId ? ` Pending operation: ${context.pendingOperationId}.` : ""} Run make-docs project state status before recovery.`;
+    return `${summary} Project files may have changed.${context.pendingOperationId ? ` ${context.operationFailed ? "Failed" : "Pending"} operation: ${context.pendingOperationId}.` : ""} Run make-docs project state status before recovery.`;
   }
   const action = issue.code === "access-denied"
     ? "Give this process Store access, then run the command again."
@@ -439,6 +788,8 @@ export function formatStoreIssue(
             ? "Update make-docs to a version that supports this Store."
             : issue.code === "corrupt" || issue.code === "schema-unknown"
               ? "Repair or restore this Store before you run the command again. Do not create a replacement Store."
+              : issue.code === "changed-outside"
+                ? storeChangedOutsideNextAction(path.dirname(issue.path))
           : "Correct the Store condition and run the command again.";
   return `${summary} No project files changed. ${action}`;
 }
@@ -462,8 +813,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 6 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 7 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -1171,6 +1522,21 @@ const VERSION_THREE_TABLES = [...VERSION_TWO_TABLES, "installation_checkouts", "
 const VERSION_FOUR_TABLES = VERSION_THREE_TABLES;
 const VERSION_FIVE_TABLES = [...VERSION_FOUR_TABLES, "store_migration_receipts"] as const;
 const VERSION_SIX_TABLES = [...VERSION_FIVE_TABLES, "backlog_review_cache"] as const;
+const VERSION_SEVEN_TABLES = [...VERSION_SIX_TABLES, "project_register"] as const;
+
+/** Tables that a supported schema version must have, or null for an unsupported version. */
+function expectedTablesForVersion(version: number): readonly string[] | null {
+  switch (version) {
+    case 1: return VERSION_ONE_TABLES;
+    case 2: return VERSION_TWO_TABLES;
+    case 3: return VERSION_THREE_TABLES;
+    case 4: return VERSION_FOUR_TABLES;
+    case 5: return VERSION_FIVE_TABLES;
+    case 6: return VERSION_SIX_TABLES;
+    case 7: return VERSION_SEVEN_TABLES;
+    default: return null;
+  }
+}
 
 /** Classifies the Store without creating a directory, database, sidecar, or table. */
 export function classifyStoreCheckpoint9State(
@@ -1223,7 +1589,7 @@ export function classifyStoreCheckpoint9State(
   try {
     db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, "inspect", (connection) => {
       connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
-    });
+    }, false);
     const check = db.prepare("PRAGMA quick_check").get() as
       | { quick_check?: string }
       | undefined;
@@ -1248,7 +1614,8 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-newer", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    if (schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== 5 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+    const expectedTables = expectedTablesForVersion(schemaVersion);
+    if (!expectedTables) {
       const reason = `schema version ${schemaVersion} is not a supported checkpoint-9 input`;
       return {
         state: "unknown",
@@ -1258,17 +1625,6 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-unknown", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    const expectedTables = schemaVersion === 1
-      ? VERSION_ONE_TABLES
-      : schemaVersion === 2
-        ? VERSION_TWO_TABLES
-        : schemaVersion === 3
-          ? VERSION_THREE_TABLES
-          : schemaVersion === 4
-            ? VERSION_FOUR_TABLES
-            : schemaVersion === 5
-              ? VERSION_FIVE_TABLES
-              : VERSION_SIX_TABLES;
     const actualTables = new Set(
       (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
         .map((row) => row.name),
@@ -1284,9 +1640,22 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-unknown", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
+    if (schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA) {
+      const guardProblems = inspectStoreWriteGuard(db);
+      if (guardProblems.length > 0) {
+        const reason = guardProblems.join(" ");
+        return {
+          state: "unknown",
+          databasePath,
+          schemaVersion,
+          reason,
+          issue: { code: "changed-outside", path: databasePath, operation: "check Store write guard", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
+        };
+      }
+    }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 }
-      : { state: "supported-current", databasePath, schemaVersion: 6 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 | 6 }
+      : { state: "supported-current", databasePath, schemaVersion: 7 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);
@@ -1350,9 +1719,9 @@ export function migrateStoreDatabaseAtCheckpoint9(
       assertStoreBridgeInputSafe(db, startingVersion);
       backupPath = createVerifiedStoreBridgeBackup(db, databasePath, startingVersion);
     }
-    db.exec("BEGIN IMMEDIATE");
-    assertCheckpoint9StateInsideTransaction(db, databasePath, startingVersion);
     if (startingVersion === CURRENT_STORE_SCHEMA_VERSION) {
+      db.exec("BEGIN IMMEDIATE");
+      assertCheckpoint9StateInsideTransaction(db, databasePath, startingVersion);
       db.exec("COMMIT");
       return {
         databasePath,
@@ -1363,26 +1732,30 @@ export function migrateStoreDatabaseAtCheckpoint9(
         backupPath: null,
       };
     }
-    for (const migration of STORE_MIGRATIONS) {
-      if (migration.version <= startingVersion) continue;
-      executeStoreMigrationStatements(db, migration);
-    }
-    db.prepare(
-      `INSERT INTO store_migration_receipts
-        (receipt_id, operation, project_root_digest, source_schema_version,
-         target_schema_version, snapshot_id, result, committed_at, receipt_json)
-       VALUES (?, 'store.schema.migrate', ?, ?, ?, ?, 'completed', ?, ?)`,
-    ).run(
-      journal.receiptId,
-      journal.projectRootDigest,
-      startingVersion,
-      CURRENT_STORE_SCHEMA_VERSION,
-      journal.snapshotId,
-      journal.committedAt,
-      journal.receiptJson,
-    );
-    db.exec(`PRAGMA user_version = ${CURRENT_STORE_SCHEMA_VERSION}`);
-    db.exec("COMMIT");
+    const sourceVersion = startingVersion;
+    const pending = STORE_MIGRATIONS.filter((migration) => migration.version > sourceVersion);
+    // The state check, every migration, the receipt, and the version bump share one transaction.
+    runStoreMigrationTransaction(db, pending, {
+      before: () => assertCheckpoint9StateInsideTransaction(db, databasePath, sourceVersion),
+      finish: () => {
+        db.prepare(
+          `INSERT INTO store_migration_receipts
+            (receipt_id, operation, project_root_digest, source_schema_version,
+             target_schema_version, snapshot_id, result, committed_at, receipt_json)
+           VALUES (?, 'store.schema.migrate', ?, ?, ?, ?, 'completed', ?, ?)`,
+        ).run(
+          journal.receiptId,
+          journal.projectRootDigest,
+          sourceVersion,
+          CURRENT_STORE_SCHEMA_VERSION,
+          journal.snapshotId,
+          journal.committedAt,
+          journal.receiptJson,
+        );
+        db.exec(`PRAGMA user_version = ${CURRENT_STORE_SCHEMA_VERSION}`);
+      },
+    });
+    applyStoreFileModes(storeRoot);
     return {
       databasePath,
       previousSchemaVersion: classification.state === "absent" ? null : startingVersion,
@@ -1471,21 +1844,64 @@ export function withStoreDatabase<T>(
 export function applyStoreMigrations(db: StoreDatabase, fromVersion: number): number {
   const initialVersion = fromVersion;
   let version = fromVersion;
+  // Make Docs code is the caller, so this connection may write through the guard.
+  registerStoreWriteGuard(db);
+  const row = db.prepare("PRAGMA database_list").all() as Array<{ name: string; file: string }>;
+  const databasePath = row.find((entry) => entry.name === "main")?.file ?? "";
+  if (initialVersion > 0 && STORE_MIGRATIONS.some((migration) => migration.version > initialVersion)) {
+    // One verified backup of the existing Store before its first migration (R-DB-5).
+    assertStoreBridgeInputSafe(db, initialVersion);
+    if (!databasePath) throw new Error("The Store compatibility bridge requires a file-backed database.");
+    createVerifiedStoreBridgeBackup(db, databasePath, initialVersion);
+  }
   for (const migration of STORE_MIGRATIONS) {
     if (migration.version <= version) {
       continue;
     }
-    if (migration.version === 5 && initialVersion > 0) {
-      assertStoreBridgeInputSafe(db, version);
-      const row = db.prepare("PRAGMA database_list").all() as Array<{ name: string; file: string }>;
-      const databasePath = row.find((entry) => entry.name === "main")?.file ?? "";
-      if (!databasePath) throw new Error("The Store compatibility bridge requires a file-backed database.");
-      createVerifiedStoreBridgeBackup(db, databasePath, version);
-    }
+    runStoreMigrationTransaction(db, [migration], {
+      finish: () => db.exec(`PRAGMA user_version = ${assertSchemaVersion(migration.version)}`),
+    });
+    version = migration.version;
+  }
+  // The Store file and every existing Store backup, also ones an older version made, get mode 0600.
+  if (databasePath) applyStoreFileModes(path.dirname(databasePath));
+  return version;
+}
+
+/**
+ * Run `before`, the migrations, and `finish` in one `BEGIN IMMEDIATE` transaction. A
+ * migration that rebuilds a table turns foreign key enforcement off before the
+ * transaction (SQLite ignores the pragma inside one), and the transaction
+ * commits only when `PRAGMA foreign_key_check` finds no broken reference.
+ * Any failure rolls the whole transaction back.
+ */
+function runStoreMigrationTransaction(
+  db: StoreDatabase,
+  migrations: readonly StoreMigration[],
+  hooks: { before?: () => void; finish: () => void },
+): void {
+  const rebuilds = migrations.some((migration) => migration.rebuildsTables);
+  const foreignKeys = Number((db.prepare("PRAGMA foreign_keys").get() as { foreign_keys?: number | bigint } | undefined)?.foreign_keys ?? 0) === 1;
+  if (rebuilds && foreignKeys) db.exec("PRAGMA foreign_keys = OFF");
+  try {
     db.exec("BEGIN IMMEDIATE");
     try {
-      executeStoreMigrationStatements(db, migration);
-      db.exec(`PRAGMA user_version = ${assertSchemaVersion(migration.version)}`);
+      hooks.before?.();
+      // A reference that was already broken before the migration is not the
+      // migration's doing. It is kept and reported in Store status. Only a
+      // reference that the migration newly breaks stops it.
+      const before = rebuilds ? inspectStoreBrokenReferences(db) : [];
+      for (const migration of migrations) executeStoreMigrationStatements(db, migration);
+      if (rebuilds) {
+        const prior = new Map(before.map((entry) => [`${entry.table}\u0000${entry.parent}`, entry.count]));
+        const newlyBroken = inspectStoreBrokenReferences(db)
+          .filter((entry) => entry.count > (prior.get(`${entry.table}\u0000${entry.parent}`) ?? 0));
+        if (newlyBroken.length > 0) {
+          const first = newlyBroken[0]!;
+          throw new Error(`The Store migration would break foreign key references, first in ${first.table} to ${first.parent}. The Store was preserved.`);
+        }
+      }
+      hooks.finish();
       db.exec("COMMIT");
     } catch (error) {
       try {
@@ -1495,13 +1911,16 @@ export function applyStoreMigrations(db: StoreDatabase, fromVersion: number): nu
       }
       throw error;
     }
-    version = migration.version;
+  } finally {
+    if (rebuilds && foreignKeys) db.exec("PRAGMA foreign_keys = ON");
   }
-  return version;
 }
 
 function assertStoreBridgeInputSafe(db: StoreDatabase, sourceVersion: number): void {
-  if (sourceVersion < 3) return;
+  // Only the W22 P5 bridge (schema 3 or 4 to 5) converts ledgers and needs a
+  // quiet Store. Schema 5 and later migrations keep every row as it is, so a
+  // stale lock or pending row stays recoverable after the upgrade.
+  if (sourceVersion < 3 || sourceVersion >= 5) return;
   const activeLocks = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as { count: number | bigint }).count);
   if (activeLocks > 0) {
     throw new Error(`The Store compatibility bridge found ${activeLocks} active installation lock(s). Finish the active writer and run setup again.`);
@@ -1536,6 +1955,22 @@ function executeStoreMigrationStatements(db: StoreDatabase, migration: StoreMigr
     // The first schema-5 statement records intent. Conversion follows it and
     // stays inside the same SQLite transaction as verification and cutover.
     if (migration.version === 5 && index === 0) convertLegacyProjectionLedgerRows(db);
+    if (migration.version === 7 && statement === V7_RECEIPT_BACKFILL_AFTER) backfillTerminalOperationReceipts(db);
+  }
+  // The first guard migration guards every table that exists, also one that an
+  // older process added, so the upgraded Store passes its own open check.
+  if (migration.version === STORE_WRITE_GUARD_SINCE_SCHEMA) guardEveryExistingTable(db);
+}
+
+function guardEveryExistingTable(db: StoreDatabase): void {
+  // A virtual table and its shadow tables cannot carry triggers. They are skipped
+  // here and reported in Store status (listUnguardableStoreTables).
+  const tables = guardedStoreTables(db);
+  const triggers = new Set((db.prepare("SELECT name FROM sqlite_schema WHERE type = 'trigger'").all() as Array<{ name: string }>).map((row) => row.name));
+  for (const table of tables) {
+    for (const event of STORE_WRITE_GUARD_EVENTS) {
+      if (!triggers.has(storeWriteGuardTriggerName(table, event))) db.exec(storeWriteGuardTriggerSql(table, event));
+    }
   }
 }
 
@@ -1603,6 +2038,7 @@ function createVerifiedStoreBridgeBackup(
   const backupPath = `${databasePath}.bridge-v${sourceVersion}-to-v${CURRENT_STORE_SCHEMA_VERSION}-${randomUUID()}.backup`;
   const escaped = backupPath.replaceAll("'", "''");
   db.exec(`VACUUM INTO '${escaped}'`);
+  applyStoreFileMode(backupPath);
   let backup: StoreDatabase | null = null;
   try {
     const driver = loadSqliteDriver();
@@ -1617,6 +2053,37 @@ function createVerifiedStoreBridgeBackup(
   } finally {
     closeQuietly(backup);
   }
+}
+
+/** The first schema version that writes a `store_schema_journal` row. Versions 1 and 2 predate the table. */
+export const STORE_SCHEMA_JOURNAL_SINCE_VERSION = 3;
+
+export interface StoreSchemaJournalReport {
+  /** The recorded `PRAGMA user_version`. */
+  schemaVersion: number;
+  /** One row for each accepted schema version, in version order. */
+  journal: Array<{ version: number; description: string; committedAt: string }>;
+  /** Versions from 3 up to the recorded version that have no journal row. */
+  missingVersions: number[];
+}
+
+/**
+ * Read the Store schema history (PRD 38 R-MIN `store_schema_journal`): every
+ * journal row, and each version that should have a row but does not.
+ */
+export function readStoreSchemaJournal(db: StoreDatabase): StoreSchemaJournalReport {
+  const schemaVersion = readUserVersion(db);
+  const hasJournal = db.prepare("SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'store_schema_journal'").get() !== undefined;
+  const journal = hasJournal
+    ? (db.prepare("SELECT schema_version, description, committed_at FROM store_schema_journal ORDER BY schema_version").all() as Array<{ schema_version: number | bigint; description: string; committed_at: string }>)
+      .map((row) => ({ version: Number(row.schema_version), description: row.description, committedAt: row.committed_at }))
+    : [];
+  const recorded = new Set(journal.map((row) => row.version));
+  const missingVersions: number[] = [];
+  for (let version = STORE_SCHEMA_JOURNAL_SINCE_VERSION; version <= schemaVersion; version++) {
+    if (!recorded.has(version)) missingVersions.push(version);
+  }
+  return { schemaVersion, journal, missingVersions };
 }
 
 /** Reads the recorded schema version (`PRAGMA user_version`). */
@@ -1652,12 +2119,20 @@ export function isSqliteContention(error: unknown): boolean {
   return /SQLITE_(BUSY|LOCKED|PROTOCOL)/i.test(code) || /database (?:is )?locked|database (?:is )?busy|locking protocol/i.test(message);
 }
 
+/**
+ * The one shared Store connection path (PRD 38 R-WRITE-GUARD-2). Every Make
+ * Docs Store connection opens here: it registers the write guard function,
+ * runs the caller's pragmas, and, for a schema with the guard, checks every
+ * table's guard triggers (R-WRITE-GUARD-4). `checkGuard: false` is only for
+ * the classifier, which reports the same check as a Store state.
+ */
 function openSqliteWithRetry(
   sqlite: SqliteModule,
   databasePath: string,
   options: { readOnly?: boolean },
   operation: string,
   initialize?: (db: StoreDatabase) => void,
+  checkGuard = true,
 ): StoreDatabase {
   const started = Date.now();
   const deadline = started + STORE_BUSY_TIMEOUT_MS;
@@ -1666,7 +2141,16 @@ function openSqliteWithRetry(
     let db: StoreDatabase | null = null;
     try {
       db = new sqlite.DatabaseSync(databasePath, options);
+      registerStoreWriteGuard(db);
+      // Triggers call the guard function, so the schema must be trusted to call it.
+      db.exec("PRAGMA trusted_schema = ON");
       initialize?.(db);
+      if (checkGuard && readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA) {
+        const problems = inspectStoreWriteGuard(db);
+        if (problems.length > 0) {
+          throw new StoreUnavailableError({ code: "changed-outside", path: databasePath, operation: "check Store write guard", retryable: false, attempts: 1, waitedMs: 0, cause: problems.join(" ") });
+        }
+      }
       return db;
     } catch (error) {
       closeQuietly(db);
@@ -1749,7 +2233,8 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is newer than supported version ${CURRENT_STORE_SCHEMA_VERSION}`,
     });
   }
-  if (schemaVersion !== 0 && schemaVersion !== 1 && schemaVersion !== 2 && schemaVersion !== 3 && schemaVersion !== 4 && schemaVersion !== 5 && schemaVersion !== CURRENT_STORE_SCHEMA_VERSION) {
+  const expectedTables = schemaVersion === 0 ? [] : expectedTablesForVersion(schemaVersion);
+  if (!expectedTables) {
     throw new StoreCheckpoint9StateError({
       state: "unknown",
       databasePath,
@@ -1757,17 +2242,6 @@ function assertCheckpoint9StateInsideTransaction(
       reason: `schema version ${schemaVersion} is not a supported checkpoint-9 input`,
     });
   }
-  const expectedTables = schemaVersion === 1
-    ? VERSION_ONE_TABLES
-    : schemaVersion === 2
-      ? VERSION_TWO_TABLES
-      : schemaVersion === 3
-        ? VERSION_THREE_TABLES
-        : schemaVersion === 4
-          ? VERSION_FOUR_TABLES
-          : schemaVersion === 5
-            ? VERSION_FIVE_TABLES
-            : schemaVersion === CURRENT_STORE_SCHEMA_VERSION ? VERSION_SIX_TABLES : [];
   const actualTables = new Set(
     (db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>)
       .map((row) => row.name),

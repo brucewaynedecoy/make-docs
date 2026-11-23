@@ -1,4 +1,4 @@
-import { acquireStoreAccess, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, openStoreSqliteConnection, type StoreDatabase } from "./database";
+import { acquireStoreAccess, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, describeStoreBrokenReferences, inspectStoreBrokenReferences, openStoreSqliteConnection, type StoreDatabase } from "./database";
 
 export type StoreBridgeDisposition =
   | "convert"
@@ -206,16 +206,27 @@ export function previewStoreCompatibilityBridge(storeRoot: string): StoreCompati
         `Schema ${version} can add the optional rebuildable backlog review cache.`,
       ));
     }
+    if (version < 7) {
+      records.push(record(
+        "w32-r0-p2-store-schema-v7",
+        "convert",
+        1,
+        `Schema ${version} can add the project register, failed operation fields, bounded receipt columns, the widened receipt check, and the Store write guard. Every row stays.`,
+      ));
+    }
     if (version < CURRENT_STORE_SCHEMA_VERSION) {
       changes.push(`Create and verify one Store backup before converting schema ${version} to schema ${CURRENT_STORE_SCHEMA_VERSION}.`);
     }
     if (version >= 3 && tables.has("installation_checkouts")) {
       const bridgeCollisions = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_migration_records WHERE kind='legacy-import' AND record_id IN ('w22-p5:checkout-object-numbers:v4','w22-p5:installation-ledger-projection:v4')").get() as { count: number | bigint }).count);
       if (version < 5 && bridgeCollisions) blockers.push(`${bridgeCollisions} reserved P5 bridge record(s) already exist in an older schema.`);
+      // Schema 5 and 6 conversions keep every row, so a lock or pending row stays
+      // recoverable after the upgrade and does not block it.
+      const quietRequired = version < 5 || version >= CURRENT_STORE_SCHEMA_VERSION;
       const activeLocks = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as { count: number | bigint }).count);
-      if (activeLocks) blockers.push(`${activeLocks} active installation lock(s) must finish before conversion.`);
+      if (activeLocks && quietRequired) blockers.push(`${activeLocks} active installation lock(s) must finish before conversion.`);
       const pendingToolOperations = Number((db.prepare("SELECT COUNT(*) AS count FROM tool_operations WHERE status='pending'").get() as { count: number | bigint }).count);
-      if (pendingToolOperations) blockers.push(`${pendingToolOperations} pending tool operation(s) require recovery before conversion.`);
+      if (pendingToolOperations && quietRequired) blockers.push(`${pendingToolOperations} pending tool operation(s) require recovery before conversion.`);
       const columns = new Set((db.prepare("PRAGMA table_info(installation_checkouts)").all() as Array<{ name: string }>).map((row) => row.name));
       if (columns.has("root_device") || columns.has("root_inode")) {
         const count = countRows(db, "installation_checkouts");
@@ -242,7 +253,13 @@ export function previewStoreCompatibilityBridge(storeRoot: string): StoreCompati
       const transfers = countRows(db, "installation_transfers");
       records.push(record("w22-p5-installation-transfers", transfers ? "retain-history" : "removable-after-proof", transfers, transfers ? "Existing rows remain private history. New imports use migration records." : "No legacy transfer rows remain."));
 
-      const pending = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_operations WHERE status='pending'").get() as { count: number | bigint }).count);
+      // References that are already broken are kept and reported; the v7 migration
+      // refuses only references that it newly breaks.
+      const broken = inspectStoreBrokenReferences(db);
+      if (broken.length) {
+        records.push(record("w32-r0-p2-broken-references", "retain-history", broken.reduce((sum, entry) => sum + entry.count, 0), describeStoreBrokenReferences(broken)!));
+      }
+      const pending = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_operations WHERE status IN ('pending','failed')").get() as { count: number | bigint }).count);
       records.push(record("w22-p5-pending-operations", "retain-history", pending, pending ? "Pending work remains in the shared recovery journal." : "No pending installation operation exists."));
 
       const receiptVersions = countHarnessReceiptVersions(db);

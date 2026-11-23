@@ -246,7 +246,7 @@ Covers A13 to A16 in [P4](04-one-time-rewrite-and-acceptance.md). Evidence date:
 ### Check and Review (T1, T2)
 
 - `make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --json`: 3,288 lower-case task IDs on 2,915 lines in 268 files, across 54 backlogs. 2,558 were task lines and 730 were prose references. It read 378 files, skipped 2 managed router files, and excluded the 6 files of the W22 R2 backlog. Review digest `cc6da0b3fb7302d9c3b2428cde7ffcafea46f848627e9958d1823ac66f847865`.
-- The agent sorted the 730 prose references. 583 sit next to another task ID, a phase, or the word task. The other 147 were read one by one: closeout table rows such as `| t1 |`, sentences such as "before unlocking t8", and plain `- t1` lists. No false hit was found.
+- The agent sorted the 730 prose references. 583 sit next to another task ID, a phase, or the word task. The other 147 were read one by one: closeout table rows such as `| t1 |`, sentences such as "before unlocking `t8`", and plain `- t1` lists. No false hit was found.
 - The owner reviewed the findings and approved the fix on 2026-11-22.
 - `make-docs project doctor fix --review cc6da0b3… --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --check-json <saved check>`: status `fixed`, 3,288 task IDs on 2,915 lines in 268 files, operation `4d970a9c-dbf9-4798-9676-30218d464e40`. Backups are under the gitignored `.make-docs/backup/operations/`.
 

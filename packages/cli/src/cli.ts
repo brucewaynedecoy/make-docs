@@ -63,6 +63,7 @@ import {
   resolveStoreRoot,
   classifyStoreCheckpoint9State,
   loadSqliteDriver,
+  openStoreSqliteConnection,
   type StoreCompatibilityBridgePreview,
 } from "./store";
 import {
@@ -329,7 +330,7 @@ function previewPostBridgeInstallationManifest(
   const driver = loadSqliteDriver();
   if (!driver.available) return null;
   const targetRoot = realpathSync(targetDir);
-  const db = new driver.sqlite.DatabaseSync(classification.databasePath, { readOnly: true });
+  const db = openStoreSqliteConnection(classification.databasePath, { readOnly: true }, "predict post-bridge Store ledger");
   try {
     const rows = db.prepare(
       `SELECT installation_checkouts.root_path, installation_ledgers.manifest_json

@@ -34,6 +34,7 @@ import {
   resolveProjectHarnessAccessProjection,
 } from "./harness-policy";
 import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
+import { storeChangedOutsideNextAction } from "../store/database";
 import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
 
 /**
@@ -610,12 +611,15 @@ function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: 
     ? record.issue as Record<string, unknown>
     : null;
   if (code === "store-unavailable") {
-    const unsafe = issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
+    const changedOutside = issue?.code === "changed-outside" && typeof issue.path === "string";
+    const unsafe = changedOutside || issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
     return makeStoreAccessStateError({
       code: unsafe ? "store-unsafe" : "store-unavailable",
       operation,
       reason: error instanceof Error ? error.message : String(error),
-      nextAction: unsafe
+      nextAction: changedOutside
+        ? storeChangedOutsideNextAction(path.dirname(String(issue!.path)))
+        : unsafe
         ? `Run \`make-docs project state status --target-root ${JSON.stringify(targetRoot)}\` and review the Store state.`
         : "Restore access to the configured Make Docs Store, then retry only this operation.",
       details: { projectRoot: targetRoot, ...(issue ? { issue: { ...issue } } : {}) },

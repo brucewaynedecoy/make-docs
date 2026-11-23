@@ -1,5 +1,29 @@
-import type { JsonValue } from "../operations/types";
+import { OperationError, type JsonValue } from "../operations/types";
 import type { StoreDatabase } from "./database";
+
+/**
+ * The largest `work_evidence` payload, in bytes of its UTF-8 JSON text
+ * (PRD 38 R-MAINT-6). Evidence points to decisions and files. It does not
+ * hold document bodies or logs, so 64 KiB is far above a normal record.
+ */
+export const WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES = 65_536;
+
+/** Typed refusal for a `work_evidence` payload above the limit. Nothing is written. */
+export class WorkEvidencePayloadTooLargeError extends OperationError {
+  readonly code = "work-evidence-payload-too-large";
+  readonly limitBytes = WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES;
+  readonly reason: string;
+  readonly nextAction: string;
+
+  constructor(readonly payloadBytes: number) {
+    const reason = `The work evidence payload is ${payloadBytes} bytes. The limit is ${WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES} bytes (64 KiB).`;
+    const nextAction = "Record a shorter payload that points to the evidence file or decision instead of copying its content.";
+    super(`${reason} Nothing was recorded. ${nextAction}`);
+    this.name = "WorkEvidencePayloadTooLargeError";
+    this.reason = reason;
+    this.nextAction = nextAction;
+  }
+}
 
 /**
  * Row-level primitives over the operational schema. This is the storage seam
@@ -243,6 +267,9 @@ export function upsertWorkEvidence(
   },
 ): void {
   const now = input.now ?? new Date().toISOString();
+  const payload = JSON.stringify(input.payload);
+  const payloadBytes = Buffer.byteLength(payload, "utf8");
+  if (payloadBytes > WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES) throw new WorkEvidencePayloadTooLargeError(payloadBytes);
   db.prepare(
     `INSERT INTO work_evidence (project_id, wave_slug, phase_path, evidence_kind, payload, repo_root, recorded_at)
      VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -255,7 +282,7 @@ export function upsertWorkEvidence(
     input.waveSlug,
     input.phasePath,
     input.evidenceKind,
-    JSON.stringify(input.payload),
+    payload,
     input.repoRoot ?? null,
     now,
   );

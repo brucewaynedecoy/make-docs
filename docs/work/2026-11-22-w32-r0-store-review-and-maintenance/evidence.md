@@ -162,3 +162,102 @@ Each blocking crash leftover has a fixture: the dead-owner lock with no pending 
 - The package-manager-idle proof and process liveness are fixture values, not real process checks.
 - A schema v6 Store cannot hold a `failed` installation operation. `SMF-010` lifts the CHECK in its temporary Store to stand for a v7 failed row.
 - The v7 receipt-column clause of rule 004 cannot run on schema v6. Its fixtures show the v6 part of the condition only.
+
+## P2 Schema v7 and Defect Fixes
+
+Covers A5 to A10 and A25 to A27 in [P2](02-schema-v7-and-defect-fixes.md). Evidence date: 2026-11-22. Branch: `t3/store-schema-v7-defect-fixes`, from `docs/w29-w30-work-store-and-factory` at `26780343`. Node `v26.13.1`. CLI package version `2.0.9`. No test opened the real Store.
+
+### What Was Built
+
+- `packages/cli/src/store/database.ts` sets `CURRENT_STORE_SCHEMA_VERSION` to 7 and adds one append-only migration. It creates `project_register` (project ID, project name, first seen, last seen; the name is unique, lower case, and at most 64 characters). It rebuilds `installation_operations` with the `failed` status, the four R-LIFE-6 failure columns (`failure_code`, `failure_summary`, `failed_stage`, `next_action`), and the four receipt columns (`before_ledger_digest`, `after_ledger_digest`, `step_count`, `applied_step_count`). It rebuilds `store_migration_receipts` with a widened CHECK: source version 0 or more, target version 5 or more, and source lower than target. It writes the v7 `store_schema_journal` row, then adds `BEFORE INSERT`, `BEFORE UPDATE`, and `BEFORE DELETE` guard triggers on all 18 tables and on any other table that an older process added.
+- The migration path: one verified backup (`store.db.bridge-v<from>-to-v7-<id>.backup`) before the first migration, then each migration in one `BEGIN IMMEDIATE` transaction with its `user_version` bump and its journal row. A migration that rebuilds a table turns foreign key checks off before the transaction and turns them back on after. Inside the transaction it runs `PRAGMA foreign_key_check` before and after the migration, grouped by child and parent table. It refuses only references that the migration newly broke. A reference that was already broken stays, and the setup preview (`w32-r0-p2-broken-references`) and `project state status` (`storeIntegrity`) report it with a repair step. Any failure rolls the transaction back. The checkpoint-9 entry point runs its state check, every migration, its receipt, and the version bump in one transaction too.
+- One shared connection path, `openSqliteWithRetry`, registers `make_docs_write_guard()` on every Make Docs connection and sets `trusted_schema = ON`. For schema 7 or later, it checks every table's three guard triggers against the exact SQL (`inspectStoreWriteGuard`). A missing or changed trigger raises the Store issue `changed-outside`. The classifier reports the same check as Store state `unknown` with that issue. The operation registry and the harness policy map it to `store-unsafe`, with a next action that names `make-docs setup store check` and the newest Store backup.
+- `store.db` and every Store backup get file mode `0600` on POSIX systems: each migration sets it on `store.db`, on the new backup, and on every existing backup (older `store.db.*.backup` files and every file in `<store>/backup/`).
+- A virtual table and its shadow tables cannot carry triggers in SQLite. No Make Docs schema has one. When an older program added one, the migration and the open check skip it, and `project state status` reports it as not guarded.
+- Defect fixes in `installation-state.ts`: `commitOperation` no longer writes `installation_checkouts` (path, path key, verification time, or evidence), and it fills the receipt columns in its transaction. A failure inside `withInstallationOperation` marks the operation `failed` with fixed, bounded failure fields before the lock is released; when the Store cannot record it, the operation stays `pending`. `pending` and `failed` both block new work on the checkout, tool changes, machine setup, and Store removal, and recovery accepts both. `state-rows.ts` refuses a `work_evidence` payload above 65,536 bytes of UTF-8 JSON with `WorkEvidencePayloadTooLargeError` (code `work-evidence-payload-too-large`). `project state status` reads `store_schema_journal` and reports any missing version from 3 up to the current version.
+- Follow-ups: a missing detached plan on a completed or rolled-back operation reads as pruned in `detachedSnapshot`, `readDetachedInstallationOperation` (`allowPruned`), the recovery read, and `applyProjectLayout`. The catalog adds `STORE_FAILED_RECOVERY_CLOSED` and `STORE_OPERATION_FAILURE_COLUMNS`, marks the three P2 follow-ups `done`, and adds `FOLLOW-UP-P4-RULE-ACTIVATION`. Rules 004 and 005 stay inactive until P4.
+
+### Migration and Write Guard (A5 to A8)
+
+- v6 to v7 keeps every operation, step, checkout, and receipt row, passes `PRAGMA foreign_key_check`, leaves foreign keys on, writes journal rows 3 to 7, fills the receipt columns of the completed and rolled-back rows, and leaves them NULL on the pending row. One backup is made, at schema 6 and mode `0600`.
+- An injected failure inside the v7 migration leaves `user_version` 6, the old `installation_operations` columns, no new table, no trigger, and foreign keys on.
+- A schema 8 Store is refused with `StoreSchemaNewerError`, and its bytes do not change.
+- A raw `node:sqlite` connection reads the Store, but its `INSERT`, `UPDATE`, and `DELETE` fail with `no such function: make_docs_write_guard` and the file bytes do not change.
+- Every Make Docs open path writes: `withStoreDatabase`, `openStoreSqliteConnection`, `withInstallationDatabase` and `withInstallationOperation`, `migrateStoreDatabaseAtCheckpoint9`, and `applyStoreMigrations` on a connection it is given. A fresh Store has 54 guard triggers, 3 for each of the 18 tables. A new table without triggers fails the check.
+- A reference that was broken before the migration (an `installation_steps` row whose operation is gone) does not stop the migration. The row stays, and the preview and status report it with a repair step. A reference that the migration itself breaks stops it, and the Store stays at schema 6.
+- An FTS5 virtual table from an older program is skipped with its five shadow tables, the migration and the next open succeed, and status reports the tables as not guarded.
+- Older bridge backups and files in `<store>/backup/` with mode `0644` have mode `0600` after the migration.
+- A removed trigger, a changed trigger, and an unguarded table each make classify, open, a raw Make Docs read, `withInstallationDatabase`, and `project state status` report "changed outside Make Docs". The scoped operation error is `store-unsafe` and names `make-docs setup store check` and the newest backup.
+
+### Store Open Paths
+
+| Path | How it gets the guard |
+| --- | --- |
+| `openStoreDatabase` and `withStoreDatabase` (project state, lifecycle runs, backlog cache, work evidence, bootstrap, MCP tools through the same operations) | `connect` → `openSqliteWithRetry`. |
+| `migrateStoreDatabaseAtCheckpoint9` | `connect` → `openSqliteWithRetry`. |
+| `openStoreSqliteConnection` (`withInstallationDatabase`, `prepareStore`, tool operation removal check, compatibility bridge preview, the setup ledger prediction in `cli.ts`, which used a raw `DatabaseSync` before) | `openSqliteWithRetry`. |
+| `classifyStoreCheckpoint9State` and `readStoreCheckpoint9JournalEntry` (read only) | `openSqliteWithRetry`. The classifier runs the guard check itself, so it can report a Store state. |
+| Bridge backup verification (read only) | `openSqliteWithRetry`. |
+| `applyStoreMigrations` on any connection | Calls `registerStoreWriteGuard` first. |
+| Test helpers that write on a raw connection (`tests/store-ledger-fixture.ts`, the child writer in `tests/store.test.ts`) | Call `registerStoreWriteGuard` or register the same function. |
+
+The MCP server has no separate Store open. It calls the same operations, so it uses the same paths.
+
+### Defect Fixes (A9, A10)
+
+- The checkpoint-9 receipt for a v6 Store records source 6 and target 7, and for a new Store source 0 and target 7. A backward receipt (7 to 6) fails the CHECK.
+- A second committed operation leaves the whole `installation_checkouts` row unchanged, including a sentinel verification time and evidence.
+- A callback failure gives `status = 'failed'`, `failure_code = 'operation-error'`, `failed_stage = 'apply'`, the summary "The test.change operation stopped during apply (operation-error).", and a next action that names `make-docs project state status`. The raw error text is not stored. A new operation on that checkout is refused until recovery.
+- A payload of exactly 65,536 bytes is kept. One byte more is refused with the typed error that names "65536 bytes (64 KiB)", and nothing is written. Current callers write evidence records and lifecycle notes. No existing test used a larger payload.
+- `project state status` shows `storeSchema` with journal versions 3 to 7. After a journal row is removed, it lists the missing version and a warning.
+
+### Follow-Ups (A25 to A27)
+
+- A25: a completed operation has both ledger digests (`sha256:` plus the hex SHA-256 of the exact ledger text) and its step and applied counts. A missing ledger, SQL NULL or the text `null`, has a NULL digest. The migration backfill gives the same values for old terminal rows.
+- A26: after its plan is removed, a completed layout operation reads as `planPruned`. `project layout apply <op>` reports `already-complete`, and `project state recover <op> --resume --dry-run` and `--rollback --dry-run` report `completed` with no conflict. A pending operation with a missing plan still reports the missing plan.
+- A27: `STORE_FAILED_RECOVERY_CLOSED` says that a failed operation's recovery is closed only when `project state recover` commits it as `completed` or `rolled-back`. While it is `failed`, no rule touches its rows. A test recovers a failed operation, sees `completed` with its failure fields kept, and checks that no rule query counts `failed` as terminal.
+
+### Test Expectations Changed
+
+- `tests/store-table-catalog.test.ts`: `project_register` is now physical, so the planned count is 0 and the planned-table mutation uses a planned catalog copy. A new check covers a missing physical `project_register`.
+- `tests/fixtures/store-maintenance-contract.ts`: SMF-010 no longer lifts the CHECK, because v7 accepts `failed`.
+- `tests/backlog-cache.test.ts`: the refusal names the current version, not 6.
+- `tests/installation-state.test.ts`: a callback failure now reports `Failed operation:`, under R-LIFE-6.
+- `tests/p6-global-store-lifecycle.test.ts`: the table and schema lists include `project_register` and the guard triggers, and the "later write" table that test 4 adds gets its guard triggers, as every table must.
+- `tests/store.test.ts`: the child process that stands for a second Make Docs writer registers the guard function.
+- `tests/w32-r0-p2-schema-v7.test.ts` (new in P2): after the review, the rolled-back row's `after_ledger` text `null` has a NULL digest, not the digest of `null`.
+- `tests/w22-r1-ownership.test.ts`: checkout evidence is empty before the first move, because commits no longer write it, and is a full v2 proof after the move.
+
+### Validation
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npx vitest run tests/w32-r0-p2-schema-v7.test.ts tests/store-table-catalog.test.ts`: 61 passed (25 P2 tests and 36 catalog tests). `tests/w22-r1-ownership.test.ts`: 35 passed, 1 skipped.
+- Full suite `npx vitest run` after `npm run build`: 2172 passed, 3 failed, 6 skipped (2181 tests in 125 files). The 3 failures exist without this change: 2 in `tests/mcp-app-contract.test.ts` and fixture 11 in `tests/p5-migration-safety.test.ts`, which fails only in the sandbox. Tests that start the built CLI need `npm run build` after this change.
+- Catalog digest: `sha256:adb8d489744c67e9acaea78dc6abf159f29421188324fac31f4dddcc9a996845`.
+
+### Decisions For The Owner
+
+- Checkout move proof. Commits no longer refresh `verification_json`, so saved evidence can name an older ledger. The move preview now trusts the Store ledger and its full current proof of every owned target file. Saved evidence must name the same project, and evidence for the same ledger must still match exactly. Unreadable or unknown evidence still blocks. Without this change, every move after a later commit would be blocked.
+- `work_evidence` limit: 64 KiB of UTF-8 JSON.
+- Extra triggers. The open check requires every table's three guard triggers with the exact SQL. It does not flag other triggers, because a write in their body still fires the guard. Several existing fault-injection tests rely on such triggers.
+- v6 to v7 runs through the existing reviewed path: `make-docs setup` (the compatibility bridge and checkpoint 9). Other commands on a v6 Store say to run setup. A lock or a pending tool operation does not block this conversion, because it keeps every row; only the W22 schema 3 and 4 conversion still needs a quiet Store.
+- A failure during `project state recover` leaves the operation in its current status. Only the shared mutation journal (`withInstallationOperation`) records `failed`.
+- The v7 migration leaves `project_register` empty. P3 fills it.
+- A reference that was broken before the migration is kept and reported, not refused, so setup cannot be blocked by old damage.
+- A virtual table cannot carry triggers. It is skipped and reported, so its rows are not guarded.
+- A missing schema journal version is reported in status. It does not block a Store open.
+
+### Limits
+
+- The guard stops accidental and casual writes only. A program that runs as the same person can register the same function or drop triggers. The next Make Docs open detects a dropped or changed trigger, under R-WRITE-GUARD-6.
+- File mode `0600` is not set on Windows.
+- `make-docs setup store check` does not exist until P4, so the next action names a command that P4 builds.
+- The Store README and comments still describe schemas 1 to 6 in places. P5 fixes documentation drift.
+
+### Follow-Ups For Later Phases
+
+- P5: status and documentation must state the guard's limit under R-WRITE-GUARD-6. P2 does not state it in status yet.
+- P3 or P4: T7 removed the implicit `root_path` respelling on commit. Queries that still compare `root_path` exactly (`installation-state.ts` pending path claims near line 207, `harness-system-operations.ts` near line 453, and the `installation_locks` lookups) can take a case-renamed checkout's own work for another checkout's. They should compare `root_path_key` with `platform.comparisonKey`, as checkout lookup does.
+- P4 requirement: the `store-unsafe` next action names `make-docs setup store check`. That command must open a changed Store read only, with the guard check off, so it can report the change.
+- P5 wording review: the `store-unsafe` message repeats its next action, once in the issue text and once as the scoped next action.
+- P5: on its copy of a real Store, check the largest `work_evidence` payload against the 64 KiB limit.

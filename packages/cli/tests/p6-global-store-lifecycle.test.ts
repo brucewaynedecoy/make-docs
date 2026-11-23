@@ -33,6 +33,7 @@ import {
   listLifecycleRuns,
   loadSqliteDriver,
   openStoreDatabase,
+  storeWriteGuardStatements,
   readLifecycleRun,
   readUserVersion,
   transitionLifecycleRun,
@@ -152,6 +153,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "installation_steps",
         "installation_transfers",
         "playbook_runs",
+        "project_register",
         "projects",
         "run_evidence",
         "runs",
@@ -209,10 +211,12 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "idx_store_checkpoint_journal_project",
         "store_migration_receipts",
         "idx_store_migration_receipts_project",
+        // Schema v7 (W32 R0 P2): the project register and the write guard triggers.
+        "project_register",
       ]);
       const preservedSchema = (db.prepare(
         "SELECT type, name, tbl_name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-      ).all() as Array<{ name: string }>).filter((entry) => !migrationObjects.has(entry.name) && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
+      ).all() as Array<{ name: string }>).filter((entry) => !migrationObjects.has(entry.name) && !entry.name.startsWith("make_docs_guard_") && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
       expect(preservedSchema).toEqual(schemaBefore);
       expect(db.prepare(
         "SELECT hex(record) AS record_hex FROM playbook_runs WHERE run_id = ?",
@@ -308,7 +312,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(stopped).toMatchObject({status:"receipt-projection-failed",storeCommitted:true,setupMayContinue:false,projectionAttempts:2});
     expect(existsSync(path.join(project,".make-docs/state"))).toBe(false);
     const later = openStoreDatabase(root).db;
-    try {later.exec("CREATE TABLE other_process_write (value TEXT)");later.prepare("INSERT INTO other_process_write VALUES (?)").run("preserved");} finally {later.close();}
+    try {later.exec("CREATE TABLE other_process_write (value TEXT)");for (const statement of storeWriteGuardStatements(["other_process_write"])) later.exec(statement);later.prepare("INSERT INTO other_process_write VALUES (?)").run("preserved");} finally {later.close();}
     spy.mockRestore();
     expect(executeStoreCheckpoint9Migration({projectRoot:project,storeRoot:root})).toMatchObject({status:"completed",receipt:{receiptId:receipt.receiptId},recoveredProjection:true});
     const after = openStoreDatabase(root).db;

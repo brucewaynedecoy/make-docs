@@ -17,7 +17,7 @@ export const STORE_TABLE_CATALOG_ID = "make-docs.store-table-catalog.v1";
 export const STORE_TABLE_CATALOG_VERSION = 1;
 
 /** The physical schema version that this catalog describes. */
-export const STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION = 6;
+export const STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION = 7;
 
 /** PRD 38 R-MIN-1 record classes, in PRD order. */
 export const STORE_RECORD_CLASSES = [
@@ -123,8 +123,8 @@ export type StoreMaintenanceSettingId = keyof typeof STORE_MAINTENANCE_SETTINGS;
 /**
  * Operation statuses after which an installation operation can never resume.
  * `failed` is not terminal here: PRD 38 keeps a failed row while recovery is
- * possible, and no rule touches a failed operation's rows until W32 R0 P2
- * defines when a failed operation's recovery is closed.
+ * possible. STORE_FAILED_RECOVERY_CLOSED says when that recovery is closed,
+ * and no rule touches a failed operation's rows.
  */
 export const STORE_TERMINAL_INSTALLATION_STATUSES = ["completed", "rolled-back"] as const;
 
@@ -141,10 +141,12 @@ export const STORE_RECOVERABLE_INSTALLATION_STATUSES = ["pending", "failed"] as 
 export const STORE_SAVED_BYTE_KEYS = ["contentBase64"] as const;
 
 /**
- * Recommended schema v7 columns on installation_operations that hold the
- * bounded receipt of a terminal operation (PRD 38 R-MIN installation_operations).
- * STORE-RULE-004 nulls the full ledgers only after these are filled. The
- * failure fields of R-LIFE-6 are separate and already planned for v7.
+ * Schema v7 columns on installation_operations that hold the bounded receipt
+ * of a terminal operation (PRD 38 R-MIN installation_operations, R-DB-7). The
+ * commit to `completed` or `rolled-back` fills them in the same transaction
+ * (database.ts fillInstallationOperationReceipt), and the v7 migration
+ * backfilled them for every terminal row. STORE-RULE-004 nulls the full
+ * ledgers only after these are filled. The name keeps its P1 form.
  */
 export const STORE_PLANNED_OPERATION_RECEIPT_COLUMNS = Object.freeze([
   { column: "before_ledger_digest", meaning: "SHA-256 of the full before_ledger text, or NULL when there was none." },
@@ -152,6 +154,28 @@ export const STORE_PLANNED_OPERATION_RECEIPT_COLUMNS = Object.freeze([
   { column: "step_count", meaning: "The number of installation_steps rows of the operation." },
   { column: "applied_step_count", meaning: "The number of those steps with applied = 1." },
 ] as const);
+
+/** The R-LIFE-6 failure columns on installation_operations (schema v7). */
+export const STORE_OPERATION_FAILURE_COLUMNS = Object.freeze([
+  { column: "failure_code", meaning: "A stable code from the error type, such as `snapshot-drift` or `operation-error`." },
+  { column: "failure_summary", meaning: "A short fixed sentence: the operation, the stage, and the code. Never a raw error message, terminal output, or file content." },
+  { column: "failed_stage", meaning: "The stage that failed: `prepare`, `apply`, `verify`, or `commit`." },
+  { column: "next_action", meaning: "The last safe next action, which names `make-docs project state status` for the checkout." },
+] as const);
+
+/**
+ * When a `failed` installation operation's recovery is closed (W32 R0 P2 T13,
+ * FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED). Until a later rule says otherwise, no
+ * fixed rule touches a failed operation's rows.
+ */
+export const STORE_FAILED_RECOVERY_CLOSED = Object.freeze({
+  followUp: "FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED",
+  openStatuses: ["failed"] as const,
+  closingStatuses: ["completed", "rolled-back"] as const,
+  definition: "A failed installation operation's recovery is closed only when `make-docs project state recover <operation> --resume` or `--rollback` commits it, so its status becomes `completed` or `rolled-back`. While its status is `failed`, its recovery is open. No time limit, lock loss, or clean closes it.",
+  whileOpen: "No fixed rule touches the operation, its steps, its detached plan or atomic write intents, the lock on its checkout, or its quiescence barrier. It blocks new operations on its checkout, tool changes, and Store removal like a pending operation.",
+  afterClosed: "The row is terminal and keeps its failure fields as history. The terminal rules (STORE-RULE-003, STORE-RULE-004, STORE-RULE-005) then count its retention window from its new finished_at, like any completed or rolled-back operation.",
+});
 
 /* ------------------------------------------------------------------------ */
 /* Proofs                                                                   */
@@ -302,7 +326,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     recordClass: "historical evidence",
     rMinRows: [{ row: "`work_evidence`:", classCell: "Historical evidence for old rows; current rows are Store-canonical recorded decisions" }],
     rowClasses: [keepRows("Every row.")],
-    retention: "Keep. Maintenance never removes it. W32 R0 P2 adds the payload size limit under R-MAINT-6.",
+    retention: "Keep. Maintenance never removes it. A payload above 64 KiB of JSON is refused under R-MAINT-6 (state-rows.ts WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES).",
     decisionItems: [],
     humanMeaning: "Your recorded sign-offs and decisions. Maintenance never removes them.",
   },
@@ -360,7 +384,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["checkout_id", "project_id", "root_path", "created_at", "root_path_key", "verified_at", "verification_json"],
     purpose: "Binds one local clone or worktree to its project ID, with its folder path and last verification.",
-    writers: ["Reviewed checkout bind (installation-state.ts bindCheckout)", "Checkout move (applyInstallationCheckoutMove)", "Every committed installation operation (commitOperation, a defect that W32 R0 P2 stops)"],
+    writers: ["Reviewed checkout bind (installation-state.ts bindCheckout)", "Separate checkout registration (registerSeparateInstallationCheckout)", "The path-update rule: checkout move (applyInstallationCheckoutMove), the only writer of root_path and verification after bind", "Explicit legacy identity repair (adoptLegacyProjectIdentity)"],
     readers: ["Installation", "Recovery", "Status", "Setup", "Removal", "Lock planning", "`project list` and Store maintenance (W32 R0)"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [
@@ -395,7 +419,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     table: "installation_operations",
     sinceSchema: 3,
     schemaStatus: "physical",
-    columns: ["operation_id", "checkout_id", "operation", "status", "before_ledger", "after_ledger", "created_at", "finished_at", "plan_complete"],
+    columns: ["operation_id", "checkout_id", "operation", "status", "before_ledger", "after_ledger", "created_at", "finished_at", "plan_complete", "failure_code", "failure_summary", "failed_stage", "next_action", "before_ledger_digest", "after_ledger_digest", "step_count", "applied_step_count"],
     purpose: "The shared mutation journal: one row for each installation operation, with its before and after ledgers.",
     writers: ["Shared mutation journal in installation-state.ts (withInstallationOperation, detached plans, legacy recovery import)"],
     readers: ["Setup", "Status", "Recover", "Audit", "Store maintenance", "Removal", "Tool operation and Store removal guards"],
@@ -403,11 +427,11 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     rMinRows: [{ row: "`installation_operations`:", classCell: "Store-canonical and non-rebuildable" }],
     rowClasses: [
       keepRows("A pending or failed row while recovery is possible."),
-      { rows: "The full before and after ledgers of a completed or rolled-back row after the retention window, once the v7 receipt columns are filled. Never the removal handoff row.", maintenanceClass: "bounded", rule: "STORE-RULE-004", limit: null },
+      { rows: "The full before and after ledgers of a completed or rolled-back row after the retention window, once its v7 receipt columns are filled. Never the removal handoff row.", maintenanceClass: "bounded", rule: "STORE-RULE-004", limit: null },
       keepRows("The bounded receipt of a completed or rolled-back row: operation, status, times, step counts, ledger digests, and failure summary."),
       keepRows("The latest completed `setup.remove` of a checkout with no current ledger. Setup reads its full before-ledger to offer setup after removal."),
     ],
-    retention: "Keep pending and failed rows while recovery is possible. After a completed or rolled-back state and the retention window, keep a bounded receipt in the planned v7 columns and null the full ledgers.",
+    retention: "Keep pending and failed rows while recovery is possible; STORE_FAILED_RECOVERY_CLOSED says when a failed row's recovery ends. After a completed or rolled-back state and the retention window, keep the bounded receipt in the v7 receipt columns and null the full ledgers.",
     decisionItems: ["STORE-DECISION-001", "STORE-DECISION-003"],
     humanMeaning: "A record of each change Make Docs made to a project. Old finished records keep a short summary.",
   },
@@ -509,7 +533,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     columns: ["schema_version", "description", "committed_at"],
     purpose: "One row for each accepted schema version.",
     writers: ["Each schema migration transaction"],
-    readers: ["None today. W32 R0 P2 makes Store status and the Store open check read it."],
+    readers: ["Store status: `project state status` (installation-state.ts readInstallationStatus through database.ts readStoreSchemaJournal), which reports a missing version"],
     recordClass: "historical evidence",
     rMinRows: [{ row: "`store_schema_journal`:", classCell: "Historical evidence" }],
     rowClasses: [keepRows("Every row.")],
@@ -523,7 +547,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["receipt_id", "operation", "project_root_digest", "source_schema_version", "target_schema_version", "snapshot_id", "result", "committed_at", "receipt_json"],
     purpose: "Receipts of explicit Store schema migrations.",
-    writers: ["Schema v5 bridge copy", "database.ts migrateStoreDatabaseAtCheckpoint9 (its insert fails the CHECK today; W32 R0 P2 fixes it)"],
+    writers: ["Schema v5 bridge copy", "database.ts migrateStoreDatabaseAtCheckpoint9, whose receipt names the current target version under the v7 CHECK"],
     readers: ["Compatibility", "Status history", "Bridge checks", "Export", "STORE-RULE-007"],
     recordClass: "historical evidence",
     rMinRows: [{ row: "Receipt history", classCell: "Historical evidence" }],
@@ -553,9 +577,9 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
   {
     table: "project_register",
     sinceSchema: 7,
-    schemaStatus: "planned",
+    schemaStatus: "physical",
     columns: ["project_id", "project_name", "first_seen_at", "last_seen_at"],
-    purpose: "One row for each project that the Store knows (W32 R0 P2 adds it, P3 fills it).",
+    purpose: "One row for each project that the Store knows. Schema v7 adds it empty; W32 R0 P3 fills it.",
     writers: ["Each Store write for the project under R-ID-8 and R-REGISTER-1"],
     readers: ["`project list`", "Project resource URI reads", "Status", "Setup", "Prune", "Store maintenance"],
     recordClass: "Store-cached and rebuildable",
@@ -666,8 +690,8 @@ export const STORE_MIGRATION_RECORD_KIND_CATALOG: readonly StoreMigrationRecordK
     readers: ["Detached operation resume and verify (installation-state.ts)", "Migration verify"],
     recordClass: "Store-canonical and non-rebuildable",
     families: [
-      { id: "detached-plan", match: "Record ID is `detached:` plus an operation ID.", recordIdPattern: /^detached:/, writers: ["installation-state.ts detached plan start and replan"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P2." },
-      { id: "detached-original-plan", match: "Record ID is `detached-original:` plus an operation ID.", recordIdPattern: /^detached-original:/, writers: ["installation-state.ts detached plan start for `setup.skills.adopt`"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P2." },
+      { id: "detached-plan", match: "Record ID is `detached:` plus an operation ID.", recordIdPattern: /^detached:/, writers: ["installation-state.ts detached plan start and replan"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
+      { id: "detached-original-plan", match: "Record ID is `detached-original:` plus an operation ID.", recordIdPattern: /^detached-original:/, writers: ["installation-state.ts detached plan start for `setup.skills.adopt`"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
       { id: "migration-snapshot", match: "Record ID is `sha256:` plus 64 hex characters.", recordIdPattern: SHA256_ID, writers: ["migration.ts freeze snapshot"], maintenanceClass: "keep", rule: null, retention: "Keep. A migration receipt names it." },
     ],
     humanMeaning: "Saved plans. A plan for a change that finished long ago is removed.",
@@ -678,7 +702,7 @@ export const STORE_MIGRATION_RECORD_KIND_CATALOG: readonly StoreMigrationRecordK
     readers: ["Detached operation recovery (installation-state.ts)", "Migration restore"],
     recordClass: "Store-canonical and non-rebuildable",
     families: [
-      { id: "atomic-write-intent", match: "Record ID is `atomic:` plus an operation ID, a colon, and a step ordinal.", recordIdPattern: /^atomic:.+:\d+$/, writers: ["installation-state.ts atomic write save"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P2." },
+      { id: "atomic-write-intent", match: "Record ID is `atomic:` plus an operation ID, a colon, and a step ordinal.", recordIdPattern: /^atomic:.+:\d+$/, writers: ["installation-state.ts atomic write save"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is inactive until W32 R0 P4." },
       { id: "migration-backup", match: "Any other record ID.", recordIdPattern: /^(?!atomic:)/, writers: ["migration.ts backup manifest", "Legacy import"], maintenanceClass: "keep", rule: null, retention: "Keep. It is the restore path for a migration." },
     ],
     humanMeaning: "Backup notes. A note for a change that finished long ago is removed. Migration backups are kept.",
@@ -954,12 +978,12 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Full ledgers of a terminal operation",
     prdBullet: "the full before and after ledgers in `installation_operations` of a terminal operation after the retention window",
     action: "null-full-ledgers",
-    activation: { state: "inactive", until: "FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS", reason: "Schema v6 has no columns for the bounded receipt, so the ledgers cannot go without losing their digests." },
+    activation: { state: "inactive", until: "FOLLOW-UP-P4-RULE-ACTIVATION", reason: "Its reader is ready: schema v7 fills the receipt columns at each terminal commit and backfilled old terminal rows (FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS, done in W32 R0 P2). The rule stays off until P4 implements its write contract and turns it on." },
     condition: [
       "The operation has status `completed` or `rolled-back`. A `failed` operation is never terminal here.",
       "Its finished_at is set and is earlier than the clean time minus terminalOperationRetentionDays.",
       "Its before_ledger or after_ledger holds a full ledger: not NULL and not `null`.",
-      "Its bounded receipt columns (STORE_PLANNED_OPERATION_RECEIPT_COLUMNS, schema v7) are filled, and each ledger digest matches the SHA-256 of the ledger text that it replaces.",
+      "Its bounded receipt columns (STORE_PLANNED_OPERATION_RECEIPT_COLUMNS, schema v7) are filled, and each ledger digest (`sha256:` plus the hex SHA-256 of the exact ledger text) matches the ledger text that it replaces.",
       "No `detached:` or `detached-original:` plan and no `atomic:` write intent of the operation remains, because the detached plan reader compares its after-ledger with the operation's after_ledger.",
       "The operation is not the removal handoff row: the latest completed `setup.remove` of a checkout with no current ledger.",
     ],
@@ -994,7 +1018,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Detached plan snapshots and atomic write intents of a terminal operation",
     prdBullet: "detached plan snapshots and atomic write intents in `installation_migration_records` of a terminal operation after the retention window",
     action: "delete-row",
-    activation: { state: "inactive", until: "FOLLOW-UP-P2-PRUNED-DETACHED-PLAN", reason: "Today's readers report a missing detached plan as damage, even for a finished operation." },
+    activation: { state: "inactive", until: "FOLLOW-UP-P4-RULE-ACTIVATION", reason: "Its readers are ready: a missing plan of a completed or rolled-back operation reads as pruned (FOLLOW-UP-P2-PRUNED-DETACHED-PLAN, done in W32 R0 P2). The rule stays off until P4 implements its write contract and turns it on." },
     condition: [
       "The row is a `detached-plan`, `detached-original-plan`, or `atomic-write-intent` record.",
       "The operation ID in its record ID names an installation_operations row on the same checkout.",
@@ -1379,6 +1403,7 @@ export const STORE_FOLLOW_UP_IDS = [
   "FOLLOW-UP-P2-PRUNED-DETACHED-PLAN",
   "FOLLOW-UP-P3-DELETE-PROJECT-ROWS",
   "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE",
+  "FOLLOW-UP-P4-RULE-ACTIVATION",
   "FOLLOW-UP-LATER-OPERATION-BACKUP-FILES",
   "FOLLOW-UP-LATER-QUIESCENCE-CRASH-BARRIER",
 ] as const;
@@ -1390,6 +1415,10 @@ export interface StoreFollowUp {
   need: string;
   /** The rules that stay inactive or narrow until this is done. */
   unblocks: readonly StoreFixedRuleId[];
+  /** `done` once the phase that owns it has landed it. */
+  state: "open" | "done";
+  /** What landed, for a done follow-up. */
+  resolution?: string;
 }
 
 export const STORE_FOLLOW_UPS: readonly StoreFollowUp[] = Object.freeze<StoreFollowUp[]>([
@@ -1398,42 +1427,59 @@ export const STORE_FOLLOW_UPS: readonly StoreFollowUp[] = Object.freeze<StoreFol
     phase: "W32 R0 P2",
     need: "Define when a `failed` installation operation's recovery is closed. Until then, no rule touches a failed operation's rows, and a failed operation guards its lock and quiescence barrier like a pending one.",
     unblocks: [],
+    state: "done",
+    resolution: "STORE_FAILED_RECOVERY_CLOSED: recovery is closed only when `project state recover` commits the operation as `completed` or `rolled-back`. While it is `failed`, no rule touches its rows.",
   },
   {
     id: "FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS",
     phase: "W32 R0 P2",
     need: "Recommendation for the owner: add bounded receipt columns to installation_operations in schema v7 (STORE_PLANNED_OPERATION_RECEIPT_COLUMNS), filled when an operation reaches a terminal state and backfilled once by the v7 migration. Readers of a terminal operation's ledgers must accept NULL ledgers when the receipt columns are filled.",
     unblocks: ["STORE-RULE-004"],
+    state: "done",
+    resolution: "Schema v7 adds the four columns. commitOperation fills them in its transaction, and the migration backfilled every completed and rolled-back row. The only readers of a terminal operation's full ledgers are the removal handoff (rule 004 skips that row) and the detached plan check (rule 004 skips an operation with a plan), so no reader needs a NULL ledger today.",
   },
   {
     id: "FOLLOW-UP-P2-PRUNED-DETACHED-PLAN",
     phase: "W32 R0 P2",
     need: "Make a missing detached plan on a completed or rolled-back operation read as `pruned`, not as damage, in installation-state.ts detachedSnapshot and its callers (readDetachedInstallationOperation, the recovery read, and layout-state.ts applyProjectLayout).",
     unblocks: ["STORE-RULE-005"],
+    state: "done",
+    resolution: "detachedSnapshot returns no plan for a completed or rolled-back operation without one. readDetachedInstallationOperation reports `planPruned` when asked, `project layout apply <op>` reports `already-complete`, and `project state recover <op> --dry-run` reports the operation's terminal status.",
   },
   {
     id: "FOLLOW-UP-P3-DELETE-PROJECT-ROWS",
     phase: "W32 R0 P3",
     need: "state-rows.ts deleteProjectRows deletes playbook_runs and counts projects from the legacy table, against PRD 38 R-LIFE-2 and R-REGISTER-4. Rewrite it on project_register when pruneProjectFromStore is rewritten.",
     unblocks: [],
+    state: "open",
   },
   {
     id: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE",
     phase: "W32 R0 P4",
     need: "Build the package-manager-idle proof from the recorded `manager` and `command`, with `unknown` on any doubt.",
     unblocks: ["STORE-RULE-002"],
+    state: "open",
+  },
+  {
+    id: "FOLLOW-UP-P4-RULE-ACTIVATION",
+    phase: "W32 R0 P4",
+    need: "Implement the write contract for STORE-RULE-004 and STORE-RULE-005 and turn them on. Their readers landed in W32 R0 P2.",
+    unblocks: ["STORE-RULE-004", "STORE-RULE-005"],
+    state: "open",
   },
   {
     id: "FOLLOW-UP-LATER-OPERATION-BACKUP-FILES",
     phase: "later phase",
     need: "Design a reviewed rule that removes the backup files under `.make-docs/backup/operations/<operation>/` of an old completed or rolled-back operation together with the `payload` links in its steps, in one change. STORE-RULE-003 keeps both, so each backup file keeps its owner.",
     unblocks: [],
+    state: "open",
   },
   {
     id: "FOLLOW-UP-LATER-QUIESCENCE-CRASH-BARRIER",
     phase: "later phase",
     need: "With owner approval, turn STORE-RULE-006 on for one case only: a `legacy` barrier left by a crash before it was bound to a snapshot (`snapshotId` null), whose lock is gone, on a checkout with no pending or failed operation and no legacy import. A bound barrier is the post-migration freeze and is never removed by this rule.",
     unblocks: ["STORE-RULE-006"],
+    state: "open",
   },
 ]);
 
@@ -1487,6 +1533,8 @@ export function storeTableCatalogDigest(): string {
       writeContract: STORE_RULE_WRITE_CONTRACT,
       followUps: STORE_FOLLOW_UPS,
       plannedReceiptColumns: STORE_PLANNED_OPERATION_RECEIPT_COLUMNS,
+      failureColumns: STORE_OPERATION_FAILURE_COLUMNS,
+      failedRecoveryClosed: STORE_FAILED_RECOVERY_CLOSED,
       settings: STORE_MAINTENANCE_SETTINGS,
     },
     (_key, value) => (value instanceof RegExp ? value.source : value),
